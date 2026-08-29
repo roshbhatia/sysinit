@@ -96,7 +96,7 @@ in
             {
               foreground = "p:accent";
               style = "plain";
-              template = "{{ if .Env.ORCA_PROMPT }}{{ .Env.ORCA_PROMPT }} {{ end }}";
+              template = "{{ if .Env.ORC_PROMPT }}{{ .Env.ORC_PROMPT }} {{ end }}";
               type = "text";
             }
           ];

@@ -391,7 +391,7 @@ func resolveMCPClient(stateDirectory string) (*socket.Client, bool, error) {
 		var found bool
 		record, found, err = instance.Match(directory)
 		if err != nil {
-			return nil, false, fmt.Errorf("resolve Orca instance: %w", err)
+			return nil, false, fmt.Errorf("resolve Orc instance: %w", err)
 		}
 		if !found {
 			return nil, false, nil
@@ -435,14 +435,14 @@ func handleMCPRequest(
 		result := json.RawMessage(`{
   "protocolVersion":"` + protocolVersion + `",
   "capabilities":{"tools":{"listChanged":true}},
-  "serverInfo":{"name":"orca","version":"0.1.0"}
+  "serverInfo":{"name":"orc","version":"0.1.0"}
 }`)
 		return mcpSuccess(request.ID, result), true
 	case "server/discover":
 		result := json.RawMessage(`{
   "supportedVersions":["` + mcpCurrentVersion + `"],
   "capabilities":{"tools":{"listChanged":true}},
-  "instructions":"Use Orca tools when a local broker is active.",
+  "instructions":"Use Orc tools when a local broker is active.",
   "ttlMs":300000,"cacheScope":"private"
 }`)
 		return mcpRequestSuccess(request, result), true
@@ -463,7 +463,7 @@ func handleMCPRequest(
 		return mcpRequestSuccess(request, result), true
 	case "tools/call":
 		if !active || client == nil {
-			return mcpToolError(request, errors.New("orca is inactive for this directory")), true
+			return mcpToolError(request, errors.New("orc is inactive for this directory")), true
 		}
 		return callMCPTool(ctx, client, request), true
 	default:
@@ -573,7 +573,7 @@ func mcpRequestSuccess(request mcpRequest, result json.RawMessage) mcpResponse {
 	}
 	object["resultType"] = json.RawMessage(`"complete"`)
 	object["_meta"] = json.RawMessage(`{
-  "io.modelcontextprotocol/serverInfo":{"name":"orca","version":"0.1.0"}
+  "io.modelcontextprotocol/serverInfo":{"name":"orc","version":"0.1.0"}
 }`)
 	decorated, err := json.Marshal(object)
 	if err != nil {

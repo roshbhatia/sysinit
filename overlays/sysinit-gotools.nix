@@ -157,7 +157,7 @@ in
         ''
       );
 
-  orca =
+  orc =
     let
       runtimePackages = [
         final.ask
@@ -172,19 +172,19 @@ in
       ++ final.lib.optionals final.stdenv.hostPlatform.isLinux [ final.bubblewrap ];
       runtimePath = final.lib.makeBinPath runtimePackages;
     in
-    final.runCommand "orca-${sysinit-gotools.version}"
+    final.runCommand "orc-${sysinit-gotools.version}"
       {
         nativeBuildInputs = [ final.makeBinaryWrapper ];
         meta = {
           description = "Optional local agent orchestration through a Unix socket";
-          mainProgram = "orca";
+          mainProgram = "orc";
           platforms = final.lib.platforms.unix;
         };
       }
       ''
         mkdir -p "$out/bin"
-        makeWrapper "${sysinit-gotools}/bin/colchis" "$out/bin/orca" \
-          --set ORCA_EXECUTABLE "$out/bin/orca" \
+        makeWrapper "${sysinit-gotools}/bin/colchis" "$out/bin/orc" \
+          --set ORC_EXECUTABLE "$out/bin/orc" \
           --prefix PATH : "${runtimePath}"
       '';
 

@@ -36,7 +36,7 @@ type Record struct {
 }
 
 func BaseDirectory() string {
-	return filepath.Join(paths.StateHome(), "orca", "w")
+	return filepath.Join(paths.StateHome(), "orc", "w")
 }
 
 func Physical(path string) (string, error) {
@@ -90,7 +90,7 @@ func Active(directory string) (Record, bool, error) {
 }
 
 func Match(directory string) (Record, bool, error) {
-	if stateDirectory := os.Getenv("ORCA_STATE_DIR"); stateDirectory != "" {
+	if stateDirectory := os.Getenv("ORC_STATE_DIR"); stateDirectory != "" {
 		resolved, err := config.ResolvePaths(stateDirectory)
 		if err != nil {
 			return Record{}, false, err

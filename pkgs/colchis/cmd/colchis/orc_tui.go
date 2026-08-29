@@ -32,22 +32,22 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/internal/agents"
 )
 
-type orcaActionMessage struct {
+type orcActionMessage struct {
 	text       string
 	err        error
 	workflowID domain.WorkflowRunID
 }
 
-type orcaRefreshTick time.Time
+type orcRefreshTick time.Time
 
-type orcaRefreshResult struct {
-	model    orcaUIModel
+type orcRefreshResult struct {
+	model    orcUIModel
 	revision uint64
 	success  string
 	err      error
 }
 
-type orcaKeyMap struct {
+type orcKeyMap struct {
 	up         key.Binding
 	down       key.Binding
 	left       key.Binding
@@ -64,11 +64,11 @@ type orcaKeyMap struct {
 	quit       key.Binding
 }
 
-func (keys orcaKeyMap) ShortHelp() []key.Binding {
+func (keys orcKeyMap) ShortHelp() []key.Binding {
 	return []key.Binding{keys.switchView, keys.open, keys.refresh, keys.showHelp, keys.quit}
 }
 
-func (keys orcaKeyMap) FullHelp() [][]key.Binding {
+func (keys orcKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{keys.up, keys.down, keys.left, keys.right},
 		{keys.pageUp, keys.pageDown, keys.open, keys.resume, keys.replay},
@@ -77,21 +77,21 @@ func (keys orcaKeyMap) FullHelp() [][]key.Binding {
 	}
 }
 
-type orcaHelpKeyMap struct {
-	orcaKeyMap
+type orcHelpKeyMap struct {
+	orcKeyMap
 	short []key.Binding
 	full  [][]key.Binding
 }
 
-func (keys orcaHelpKeyMap) ShortHelp() []key.Binding {
+func (keys orcHelpKeyMap) ShortHelp() []key.Binding {
 	return keys.short
 }
 
-func (keys orcaHelpKeyMap) FullHelp() [][]key.Binding {
+func (keys orcHelpKeyMap) FullHelp() [][]key.Binding {
 	return keys.full
 }
 
-var orcaKeys = orcaKeyMap{
+var orcKeys = orcKeyMap{
 	up:         key.NewBinding(key.WithKeys("up", "k"), key.WithHelp("up/k", "previous")),
 	down:       key.NewBinding(key.WithKeys("down", "j"), key.WithHelp("down/j", "next")),
 	left:       key.NewBinding(key.WithKeys("left", "h"), key.WithHelp("left/h", "previous restart point")),
@@ -108,7 +108,7 @@ var orcaKeys = orcaKeyMap{
 	quit:       key.NewBinding(key.WithKeys("q", "ctrl+c"), key.WithHelp("q", "quit")),
 }
 
-type orcaUIModel struct {
+type orcUIModel struct {
 	record               instance.Record
 	active               bool
 	agents               []agents.Agent
@@ -142,27 +142,27 @@ type orcaUIModel struct {
 }
 
 const (
-	orcaControllersView = iota
-	orcaWorkflowsView
-	orcaWorkersView
+	orcControllersView = iota
+	orcWorkflowsView
+	orcWorkersView
 )
 
 var (
 	// These ANSI roles match traces, so the terminal palette owns the hue in both tools.
-	orcaTitleStyle    = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("4"))
-	orcaTagStyle      = lipgloss.NewStyle().Foreground(lipgloss.Color("8"))
-	orcaLabelStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("8"))
-	orcaValueStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("7"))
-	orcaActiveStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("2"))
-	orcaInactiveStyle = lipgloss.NewStyle().Faint(true).Foreground(lipgloss.Color("8"))
-	orcaRuleStyle     = lipgloss.NewStyle().Faint(true).Foreground(lipgloss.Color("8"))
-	orcaSelectedStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("6"))
-	orcaMessageStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("6"))
-	orcaErrorStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("1"))
+	orcTitleStyle    = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("4"))
+	orcTagStyle      = lipgloss.NewStyle().Foreground(lipgloss.Color("8"))
+	orcLabelStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("8"))
+	orcValueStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("7"))
+	orcActiveStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("2"))
+	orcInactiveStyle = lipgloss.NewStyle().Faint(true).Foreground(lipgloss.Color("8"))
+	orcRuleStyle     = lipgloss.NewStyle().Faint(true).Foreground(lipgloss.Color("8"))
+	orcSelectedStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("6"))
+	orcMessageStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("6"))
+	orcErrorStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("1"))
 )
 
-func runOrcaUI(stdout io.Writer, stderr io.Writer) int {
-	model, err := newOrcaUIModel()
+func runOrcUI(stdout io.Writer, stderr io.Writer) int {
+	model, err := newOrcUIModel()
 	if err != nil {
 		fmt.Fprintf(stderr, "open UI: %v\n", err)
 		return 1
@@ -173,30 +173,30 @@ func runOrcaUI(stdout io.Writer, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "run UI: %v\n", err)
 		return 1
 	}
-	finished, ok := result.(orcaUIModel)
+	finished, ok := result.(orcUIModel)
 	if !ok {
 		return 0
 	}
 	if finished.selected != "" {
-		return runOrcaController([]string{finished.selected}, stderr, finished.selectedResume)
+		return runOrcController([]string{finished.selected}, stderr, finished.selectedResume)
 	}
 	if finished.selectedWorker != "" {
-		return runOrcaWorkerUI(finished.record, finished.selectedWorker, stdout, stderr)
+		return runOrcWorkerUI(finished.record, finished.selectedWorker, stdout, stderr)
 	}
 	return 0
 }
 
-func newOrcaUIModel() (orcaUIModel, error) {
+func newOrcUIModel() (orcUIModel, error) {
 	lipgloss.SetColorProfile(termenv.ANSI)
 	lipgloss.SetHasDarkBackground(true)
-	model := orcaUIModel{help: help.New(), width: 92, height: 26}
+	model := orcUIModel{help: help.New(), width: 92, height: 26}
 	model.help.ShortSeparator = "   "
-	model.help.Styles.ShortKey = orcaTitleStyle
-	model.help.Styles.FullKey = orcaTitleStyle
-	model.help.Styles.ShortDesc = orcaTagStyle
-	model.help.Styles.FullDesc = orcaTagStyle
-	model.help.Styles.ShortSeparator = orcaTagStyle
-	model.help.Styles.FullSeparator = orcaTagStyle
+	model.help.Styles.ShortKey = orcTitleStyle
+	model.help.Styles.FullKey = orcTitleStyle
+	model.help.Styles.ShortDesc = orcTagStyle
+	model.help.Styles.FullDesc = orcTagStyle
+	model.help.Styles.ShortSeparator = orcTagStyle
+	model.help.Styles.FullSeparator = orcTagStyle
 	if err := model.refresh(); err != nil {
 		return model, err
 	}
@@ -214,21 +214,21 @@ func newOrcaUIModel() (orcaUIModel, error) {
 	}
 	sortAgentsByRecency(model.agents)
 	if len(model.workflows) > 0 {
-		model.view = orcaWorkflowsView
+		model.view = orcWorkflowsView
 	}
 	return model, nil
 }
 
-func (model orcaUIModel) Init() tea.Cmd {
-	return orcaRefreshCommand()
+func (model orcUIModel) Init() tea.Cmd {
+	return orcRefreshCommand()
 }
 
-func (model orcaUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
+func (model orcUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	switch typed := message.(type) {
-	case orcaRefreshTick:
+	case orcRefreshTick:
 		refresh := model.beginRefresh(false, "")
-		return model, tea.Batch(refresh, orcaRefreshCommand())
-	case orcaRefreshResult:
+		return model, tea.Batch(refresh, orcRefreshCommand())
+	case orcRefreshResult:
 		model.refreshing = false
 		if typed.err != nil {
 			model.message = typed.err.Error()
@@ -243,7 +243,7 @@ func (model orcaUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		if typed.revision != model.refreshRevision || model.pendingWorkerHistory || model.pendingRefreshStatus != "" {
 			return model, model.beginRefresh(false, "")
 		}
-	case orcaActionMessage:
+	case orcActionMessage:
 		model.messageError = typed.err != nil
 		if typed.err != nil {
 			model.message = typed.err.Error()
@@ -260,40 +260,40 @@ func (model orcaUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		model.height = typed.Height
 		model.help.Width = typed.Width
 	case tea.KeyMsg:
-		if !key.Matches(typed, orcaKeys.replay) {
+		if !key.Matches(typed, orcKeys.replay) {
 			model.confirmReplay = false
 		}
 		switch {
-		case key.Matches(typed, orcaKeys.quit):
+		case key.Matches(typed, orcKeys.quit):
 			return model, tea.Quit
-		case key.Matches(typed, orcaKeys.up):
+		case key.Matches(typed, orcKeys.up):
 			if model.moveCursor(-1) {
 				model.refreshRevision++
 				return model, model.beginRefresh(true, "")
 			}
-		case key.Matches(typed, orcaKeys.down):
+		case key.Matches(typed, orcKeys.down):
 			if model.moveCursor(1) {
 				model.refreshRevision++
 				return model, model.beginRefresh(true, "")
 			}
-		case key.Matches(typed, orcaKeys.left):
+		case key.Matches(typed, orcKeys.left):
 			model.moveRestartPoint(-1)
-		case key.Matches(typed, orcaKeys.right):
+		case key.Matches(typed, orcKeys.right):
 			model.moveRestartPoint(1)
-		case key.Matches(typed, orcaKeys.pageUp):
+		case key.Matches(typed, orcKeys.pageUp):
 			model.scrollGraph(-1)
-		case key.Matches(typed, orcaKeys.pageDown):
+		case key.Matches(typed, orcKeys.pageDown):
 			model.scrollGraph(1)
-		case key.Matches(typed, orcaKeys.switchView):
+		case key.Matches(typed, orcKeys.switchView):
 			model.view = (model.view + 1) % 3
 			model.message = ""
 			model.refreshRevision++
 			return model, model.beginRefresh(true, "")
-		case key.Matches(typed, orcaKeys.showHelp):
+		case key.Matches(typed, orcKeys.showHelp):
 			model.help.ShowAll = !model.help.ShowAll
-		case key.Matches(typed, orcaKeys.refresh):
+		case key.Matches(typed, orcKeys.refresh):
 			return model, model.beginRefresh(true, "Status refreshed")
-		case key.Matches(typed, orcaKeys.toggle):
+		case key.Matches(typed, orcKeys.toggle):
 			active := model.active
 			model.message = "Updating broker state"
 			model.messageError = false
@@ -301,25 +301,25 @@ func (model orcaUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 				var stdout, stderr bytes.Buffer
 				var code int
 				if active {
-					code = runOrcaStop(nil, &stdout, &stderr)
+					code = runOrcStop(nil, &stdout, &stderr)
 				} else {
-					code = runOrcaStart(nil, &stdout, &stderr)
+					code = runOrcStart(nil, &stdout, &stderr)
 				}
 				text := strings.TrimSpace(stdout.String())
 				if code != 0 {
-					return orcaActionMessage{err: errors.New(strings.TrimSpace(stderr.String()))}
+					return orcActionMessage{err: errors.New(strings.TrimSpace(stderr.String()))}
 				}
-				return orcaActionMessage{text: text}
+				return orcActionMessage{text: text}
 			}
-		case key.Matches(typed, orcaKeys.resume):
-			if model.view == orcaControllersView && len(model.agents) > 0 &&
+		case key.Matches(typed, orcKeys.resume):
+			if model.view == orcControllersView && len(model.agents) > 0 &&
 				len(model.agents[model.cursor].Launch.ResumeArgs) > 0 {
 				model.selected = model.agents[model.cursor].Name
 				model.selectedResume = true
 				return model, tea.Quit
 			}
-		case key.Matches(typed, orcaKeys.replay):
-			if model.view == orcaWorkflowsView && len(model.restartPoints) > 0 {
+		case key.Matches(typed, orcKeys.replay):
+			if model.view == orcWorkflowsView && len(model.restartPoints) > 0 {
 				if model.restartPoints[model.restartCursor].Kind == domain.RestartPointOrchestrationCheckpoint {
 					model.message = "Checkpoint continuation is unavailable; choose a run or node point"
 					model.messageError = true
@@ -334,14 +334,14 @@ func (model orcaUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 				model.confirmReplay = false
 				return model, model.replaySelectedWorkflow()
 			}
-		case key.Matches(typed, orcaKeys.open):
+		case key.Matches(typed, orcKeys.open):
 			switch model.view {
-			case orcaControllersView:
+			case orcControllersView:
 				if len(model.agents) > 0 {
 					model.selected = model.agents[model.cursor].Name
 					return model, tea.Quit
 				}
-			case orcaWorkersView:
+			case orcWorkersView:
 				if len(model.workers) > 0 {
 					if !supportsWorkerAttachment(model.workers[model.workerCursor]) {
 						model.message = "This worker has no interactive attachment"
@@ -357,9 +357,9 @@ func (model orcaUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	return model, nil
 }
 
-func (model orcaUIModel) View() string {
+func (model orcUIModel) View() string {
 	if model.width < 76 || model.height < 20 {
-		return fmt.Sprintf("orca needs 76x20\nthis pane is %dx%d\nq quits", model.width, model.height)
+		return fmt.Sprintf("orc needs 76x20\nthis pane is %dx%d\nq quits", model.width, model.height)
 	}
 	contentWidth := model.width
 
@@ -368,18 +368,18 @@ func (model orcaUIModel) View() string {
 	navigation := model.navigation()
 	body := model.agentView(contentWidth)
 	switch model.view {
-	case orcaWorkflowsView:
+	case orcWorkflowsView:
 		body = model.workflowView(contentWidth)
-	case orcaWorkersView:
+	case orcWorkersView:
 		body = model.workerView(contentWidth)
 	}
 
 	before := []string{header, scope, navigation}
 	after := make([]string, 0, 2)
 	if model.message != "" {
-		style := orcaMessageStyle
+		style := orcMessageStyle
 		if model.messageError {
-			style = orcaErrorStyle
+			style = orcErrorStyle
 		}
 		after = append(after, style.Render(ansi.Truncate(model.message, contentWidth, "…")))
 	}
@@ -394,32 +394,32 @@ func (model orcaUIModel) View() string {
 	for _, part := range append(append([]string(nil), before...), after...) {
 		fixedHeight += lipgloss.Height(part)
 	}
-	body = orcaFitBlockHeight(body, max(3, model.height-fixedHeight))
+	body = orcFitBlockHeight(body, max(3, model.height-fixedHeight))
 	parts := append(before, body)
 	parts = append(parts, after...)
 	return strings.Join(parts, separator)
 }
 
-func (model orcaUIModel) helpView() string {
+func (model orcUIModel) helpView() string {
 	if !model.help.ShowAll || model.width > 90 {
 		return model.help.View(model.helpKeys())
 	}
 	var lines []string
 	switch model.view {
-	case orcaControllersView:
+	case orcControllersView:
 		lines = []string{"up/down select   enter open   R resume", "tab view   s broker   r refresh   ? less   q quit"}
-	case orcaWorkflowsView:
+	case orcWorkflowsView:
 		lines = []string{"up/down run   h/l restart   pgup/pgdn graph   f fork", "tab view   s broker   r refresh   ? less   q quit"}
-	case orcaWorkersView:
+	case orcWorkersView:
 		lines = []string{"up/down select   enter attach", "tab view   s broker   r refresh   ? less   q quit"}
 	}
 	for index := range lines {
-		lines[index] = orcaTagStyle.Render(ansi.Truncate(lines[index], model.width, "…"))
+		lines[index] = orcTagStyle.Render(ansi.Truncate(lines[index], model.width, "…"))
 	}
 	return strings.Join(lines, "\n")
 }
 
-func orcaFitBlockHeight(value string, height int) string {
+func orcFitBlockHeight(value string, height int) string {
 	lines := strings.Split(value, "\n")
 	if len(lines) <= height {
 		return value
@@ -428,11 +428,11 @@ func orcaFitBlockHeight(value string, height int) string {
 	return strings.Join(append(visible, lines[len(lines)-1]), "\n")
 }
 
-func orcaRefreshCommand() tea.Cmd {
-	return tea.Tick(time.Second, func(now time.Time) tea.Msg { return orcaRefreshTick(now) })
+func orcRefreshCommand() tea.Cmd {
+	return tea.Tick(time.Second, func(now time.Time) tea.Msg { return orcRefreshTick(now) })
 }
 
-func (model *orcaUIModel) beginRefresh(loadWorkerHistory bool, success string) tea.Cmd {
+func (model *orcUIModel) beginRefresh(loadWorkerHistory bool, success string) tea.Cmd {
 	if loadWorkerHistory {
 		model.pendingWorkerHistory = true
 	}
@@ -451,11 +451,11 @@ func (model *orcaUIModel) beginRefresh(loadWorkerHistory bool, success string) t
 	revision := model.refreshRevision
 	return func() tea.Msg {
 		err := snapshot.refreshState(loadWorkerHistory)
-		return orcaRefreshResult{model: snapshot, revision: revision, success: success, err: err}
+		return orcRefreshResult{model: snapshot, revision: revision, success: success, err: err}
 	}
 }
 
-func (model *orcaUIModel) applyRefresh(updated orcaUIModel) {
+func (model *orcUIModel) applyRefresh(updated orcUIModel) {
 	model.record = updated.record
 	model.active = updated.active
 	model.workflows = updated.workflows
@@ -471,41 +471,41 @@ func (model *orcaUIModel) applyRefresh(updated orcaUIModel) {
 	model.requestedWorkflow = updated.requestedWorkflow
 }
 
-func (model orcaUIModel) helpKeys() orcaHelpKeyMap {
-	short := []key.Binding{orcaKeys.switchView, orcaKeys.refresh, orcaKeys.showHelp, orcaKeys.quit}
+func (model orcUIModel) helpKeys() orcHelpKeyMap {
+	short := []key.Binding{orcKeys.switchView, orcKeys.refresh, orcKeys.showHelp, orcKeys.quit}
 	full := [][]key.Binding{
-		{orcaKeys.up, orcaKeys.down},
-		{orcaKeys.switchView, orcaKeys.toggle, orcaKeys.refresh, orcaKeys.showHelp, orcaKeys.quit},
+		{orcKeys.up, orcKeys.down},
+		{orcKeys.switchView, orcKeys.toggle, orcKeys.refresh, orcKeys.showHelp, orcKeys.quit},
 	}
 	switch model.view {
-	case orcaControllersView:
-		short = []key.Binding{orcaKeys.switchView, orcaKeys.open, orcaKeys.refresh, orcaKeys.showHelp, orcaKeys.quit}
+	case orcControllersView:
+		short = []key.Binding{orcKeys.switchView, orcKeys.open, orcKeys.refresh, orcKeys.showHelp, orcKeys.quit}
 		full = [][]key.Binding{
-			{orcaKeys.up, orcaKeys.down, orcaKeys.open, orcaKeys.resume},
-			{orcaKeys.switchView, orcaKeys.toggle, orcaKeys.refresh, orcaKeys.showHelp, orcaKeys.quit},
+			{orcKeys.up, orcKeys.down, orcKeys.open, orcKeys.resume},
+			{orcKeys.switchView, orcKeys.toggle, orcKeys.refresh, orcKeys.showHelp, orcKeys.quit},
 		}
-	case orcaWorkflowsView:
+	case orcWorkflowsView:
 		full = [][]key.Binding{
-			{orcaKeys.up, orcaKeys.down, orcaKeys.left, orcaKeys.right},
-			{orcaKeys.pageUp, orcaKeys.pageDown, orcaKeys.replay},
-			{orcaKeys.switchView, orcaKeys.toggle, orcaKeys.refresh, orcaKeys.showHelp, orcaKeys.quit},
+			{orcKeys.up, orcKeys.down, orcKeys.left, orcKeys.right},
+			{orcKeys.pageUp, orcKeys.pageDown, orcKeys.replay},
+			{orcKeys.switchView, orcKeys.toggle, orcKeys.refresh, orcKeys.showHelp, orcKeys.quit},
 		}
-	case orcaWorkersView:
-		short = []key.Binding{orcaKeys.switchView, orcaKeys.open, orcaKeys.refresh, orcaKeys.showHelp, orcaKeys.quit}
+	case orcWorkersView:
+		short = []key.Binding{orcKeys.switchView, orcKeys.open, orcKeys.refresh, orcKeys.showHelp, orcKeys.quit}
 		full = [][]key.Binding{
-			{orcaKeys.up, orcaKeys.down, orcaKeys.open},
-			{orcaKeys.switchView, orcaKeys.toggle, orcaKeys.refresh, orcaKeys.showHelp, orcaKeys.quit},
+			{orcKeys.up, orcKeys.down, orcKeys.open},
+			{orcKeys.switchView, orcKeys.toggle, orcKeys.refresh, orcKeys.showHelp, orcKeys.quit},
 		}
 	}
-	return orcaHelpKeyMap{orcaKeyMap: orcaKeys, short: short, full: full}
+	return orcHelpKeyMap{orcKeyMap: orcKeys, short: short, full: full}
 }
 
-func (model orcaUIModel) header(width int) string {
-	status := orcaInactiveStyle.Render("broker stopped")
+func (model orcUIModel) header(width int) string {
+	status := orcInactiveStyle.Render("broker stopped")
 	if model.active {
-		status = orcaActiveStyle.Render("broker running")
+		status = orcActiveStyle.Render("broker running")
 	}
-	left := orcaTitleStyle.Render("🫍 orca") + "  " + orcaTagStyle.Render("local orchestrator")
+	left := orcTitleStyle.Render("🫍 orc") + "  " + orcTagStyle.Render("local orchestrator")
 	gap := width - lipgloss.Width(left) - lipgloss.Width(status)
 	if gap < 1 {
 		gap = 1
@@ -513,7 +513,7 @@ func (model orcaUIModel) header(width int) string {
 	return left + strings.Repeat(" ", gap) + status
 }
 
-func (model orcaUIModel) scopeLine(width int) string {
+func (model orcUIModel) scopeLine(width int) string {
 	scope := model.record.Scope
 	if scope == "" {
 		if current, err := os.Getwd(); err == nil {
@@ -522,59 +522,59 @@ func (model orcaUIModel) scopeLine(width int) string {
 			scope = "."
 		}
 	}
-	label := orcaLabelStyle.Render("workspace ")
-	return label + orcaValueStyle.Render(ansi.Truncate(filepath.Clean(scope), width-lipgloss.Width(label), "…"))
+	label := orcLabelStyle.Render("workspace ")
+	return label + orcValueStyle.Render(ansi.Truncate(filepath.Clean(scope), width-lipgloss.Width(label), "…"))
 }
 
-func (model orcaUIModel) navigation() string {
+func (model orcUIModel) navigation() string {
 	agentsTab := fmt.Sprintf(" controllers %d ", len(model.agents))
 	workflowsTab := fmt.Sprintf(" workflows %d ", len(model.workflows))
 	workersTab := fmt.Sprintf(" workers %d ", len(model.workers))
 	switch model.view {
-	case orcaControllersView:
-		agentsTab = orcaSelectedStyle.Render(agentsTab)
-	case orcaWorkflowsView:
-		workflowsTab = orcaSelectedStyle.Render(workflowsTab)
-	case orcaWorkersView:
-		workersTab = orcaSelectedStyle.Render(workersTab)
+	case orcControllersView:
+		agentsTab = orcSelectedStyle.Render(agentsTab)
+	case orcWorkflowsView:
+		workflowsTab = orcSelectedStyle.Render(workflowsTab)
+	case orcWorkersView:
+		workersTab = orcSelectedStyle.Render(workersTab)
 	}
-	if model.view != orcaControllersView {
-		agentsTab = orcaTagStyle.Render(agentsTab)
+	if model.view != orcControllersView {
+		agentsTab = orcTagStyle.Render(agentsTab)
 	}
-	if model.view != orcaWorkflowsView {
-		workflowsTab = orcaTagStyle.Render(workflowsTab)
+	if model.view != orcWorkflowsView {
+		workflowsTab = orcTagStyle.Render(workflowsTab)
 	}
-	if model.view != orcaWorkersView {
-		workersTab = orcaTagStyle.Render(workersTab)
+	if model.view != orcWorkersView {
+		workersTab = orcTagStyle.Render(workersTab)
 	}
 	return agentsTab + "  " + workflowsTab + "  " + workersTab
 }
 
-func (model orcaUIModel) agentView(width int) string {
+func (model orcUIModel) agentView(width int) string {
 	rows := model.visibleAgentRows()
 	listWidth := 30
-	list := orcaBox("controllers", listWidth, strings.Join(rows, "\n"), model.view == orcaControllersView)
+	list := orcBox("controllers", listWidth, strings.Join(rows, "\n"), model.view == orcControllersView)
 	detailWidth := width - lipgloss.Width(list) - 4
 	details := model.agentDetails(detailWidth)
 	body := lipgloss.JoinHorizontal(lipgloss.Top, list, "  ", details)
 	if width < 76 {
-		list = orcaBox("controllers", width-2, strings.Join(rows, "\n"), model.view == orcaControllersView)
+		list = orcBox("controllers", width-2, strings.Join(rows, "\n"), model.view == orcControllersView)
 		details = model.agentDetails(width - 2)
 		body = lipgloss.JoinVertical(lipgloss.Left, list, "", details)
 	}
 	return body
 }
 
-func (model orcaUIModel) workflowView(width int) string {
+func (model orcUIModel) workflowView(width int) string {
 	rows := model.visibleWorkflowRows()
 	listWidth := 34
-	list := orcaBox("runs", listWidth, strings.Join(rows, "\n"), model.view == orcaWorkflowsView)
+	list := orcBox("runs", listWidth, strings.Join(rows, "\n"), model.view == orcWorkflowsView)
 	detailWidth := width - lipgloss.Width(list) - 4
 	detailHeight := max(6, model.height-10)
 	details := model.workflowDetails(detailWidth, detailHeight)
 	body := lipgloss.JoinHorizontal(lipgloss.Top, list, "  ", details)
 	if width < 76 {
-		list = orcaBox("runs", width-2, strings.Join(rows, "\n"), model.view == orcaWorkflowsView)
+		list = orcBox("runs", width-2, strings.Join(rows, "\n"), model.view == orcWorkflowsView)
 		detailHeight = max(4, model.height-11-lipgloss.Height(list))
 		details = model.workflowDetails(width-2, detailHeight)
 		body = lipgloss.JoinVertical(lipgloss.Left, list, "", details)
@@ -582,9 +582,9 @@ func (model orcaUIModel) workflowView(width int) string {
 	return body
 }
 
-func (model orcaUIModel) visibleWorkflowRows() []string {
+func (model orcUIModel) visibleWorkflowRows() []string {
 	if len(model.workflows) == 0 {
-		return []string{orcaTagStyle.Render("No workflow runs")}
+		return []string{orcTagStyle.Render("No workflow runs")}
 	}
 	limit := model.height - 16
 	if limit < 4 {
@@ -612,21 +612,21 @@ func (model orcaUIModel) visibleWorkflowRows() []string {
 		run := model.workflows[index]
 		row := fmt.Sprintf(" %-19s %-9s", ansi.Truncate(string(run.ID), 19, "…"), run.State)
 		if index == model.workflowCursor {
-			row = orcaSelectedStyle.Width(29).Render(">" + row)
+			row = orcSelectedStyle.Width(29).Render(">" + row)
 		} else {
-			row = orcaValueStyle.Render(" " + row)
+			row = orcValueStyle.Render(" " + row)
 		}
 		rows = append(rows, row)
 	}
 	return rows
 }
 
-func (model orcaUIModel) workflowDetails(width int, height int) string {
+func (model orcUIModel) workflowDetails(width int, height int) string {
 	if width < 34 {
 		width = 34
 	}
 	if len(model.workflows) == 0 {
-		return orcaBox("graph", width, "Planning and spec work appears here as dedicated workflow runs.", false)
+		return orcBox("graph", width, "Planning and spec work appears here as dedicated workflow runs.", false)
 	}
 	lines := model.workflowDetailLines()
 	limit := max(2, height-2)
@@ -635,7 +635,7 @@ func (model orcaUIModel) workflowDetails(width int, height int) string {
 		offset := min(model.graphOffset, maximum)
 		end := min(len(lines), offset+limit-1)
 		visible := append([]string(nil), lines[offset:end]...)
-		visible = append(visible, orcaTagStyle.Render(fmt.Sprintf(
+		visible = append(visible, orcTagStyle.Render(fmt.Sprintf(
 			"rows %d-%d/%d  pgup/pgdn scroll", offset+1, end, len(lines),
 		)))
 		lines = visible
@@ -643,43 +643,43 @@ func (model orcaUIModel) workflowDetails(width int, height int) string {
 	for index, line := range lines {
 		lines[index] = ansi.Truncate(line, width-6, "…")
 	}
-	return orcaBox("graph", width, strings.Join(lines, "\n"), false)
+	return orcBox("graph", width, strings.Join(lines, "\n"), false)
 }
 
-func (model orcaUIModel) workflowDetailLines() []string {
+func (model orcUIModel) workflowDetailLines() []string {
 	lines := []string{
-		orcaTitleStyle.Render(string(model.workflow.Run.ID)),
-		orcaLabelStyle.Render("state    ") + orcaValueStyle.Render(string(model.workflow.Run.State)),
-		orcaLabelStyle.Render("version  ") + orcaValueStyle.Render(fmt.Sprintf("%d", model.workflow.Run.DefinitionVersion)),
+		orcTitleStyle.Render(string(model.workflow.Run.ID)),
+		orcLabelStyle.Render("state    ") + orcValueStyle.Render(string(model.workflow.Run.State)),
+		orcLabelStyle.Render("version  ") + orcValueStyle.Render(fmt.Sprintf("%d", model.workflow.Run.DefinitionVersion)),
 	}
 	if len(model.restartPoints) > 0 {
 		point := model.restartPoints[model.restartCursor]
 		lines = append(lines,
-			orcaLabelStyle.Render("restart  ")+orcaValueStyle.Render(fmt.Sprintf(
+			orcLabelStyle.Render("restart  ")+orcValueStyle.Render(fmt.Sprintf(
 				"%d/%d %s @ %d", model.restartCursor+1, len(model.restartPoints), point.Kind, point.EventCursor,
 			)),
-			orcaTagStyle.Render("          h/l selects, f forks snapshot and reruns nodes"),
+			orcTagStyle.Render("          h/l selects, f forks snapshot and reruns nodes"),
 		)
 	} else {
-		lines = append(lines, orcaLabelStyle.Render("restart  ")+orcaInactiveStyle.Render("none"))
+		lines = append(lines, orcLabelStyle.Render("restart  ")+orcInactiveStyle.Render("none"))
 	}
 	for _, fork := range model.forks {
 		relation := "child " + string(fork.ChildWorkflowRunID)
 		if fork.ChildWorkflowRunID == model.workflow.Run.ID {
 			relation = "parent " + string(fork.ParentWorkflowRunID)
 		}
-		lines = append(lines, orcaLabelStyle.Render("lineage  ")+orcaValueStyle.Render(
+		lines = append(lines, orcLabelStyle.Render("lineage  ")+orcValueStyle.Render(
 			relation+" via "+string(fork.RestartPointID),
 		))
 	}
-	lines = append(lines, "", orcaLabelStyle.Render("nodes"))
+	lines = append(lines, "", orcLabelStyle.Render("nodes"))
 	nodes := append([]domain.NodeRun(nil), model.workflow.Nodes...)
 	sort.Slice(nodes, func(first int, second int) bool { return nodes[first].NodeKey < nodes[second].NodeKey })
 	for _, node := range nodes {
 		lines = append(lines, fmt.Sprintf("  %-18s [%s]", node.NodeKey, node.State))
 	}
 	if len(model.definition.Edges) > 0 {
-		lines = append(lines, "", orcaLabelStyle.Render("edges"))
+		lines = append(lines, "", orcLabelStyle.Render("edges"))
 		for _, edge := range model.definition.Edges {
 			lines = append(lines, fmt.Sprintf("  %s.%s -> %s.%s", edge.From, edge.FromPort, edge.To, edge.ToPort))
 		}
@@ -687,24 +687,24 @@ func (model orcaUIModel) workflowDetailLines() []string {
 	return lines
 }
 
-func (model orcaUIModel) workerView(width int) string {
+func (model orcUIModel) workerView(width int) string {
 	rows := model.visibleWorkerRows()
 	listWidth := 34
-	list := orcaBox("workers", listWidth, strings.Join(rows, "\n"), model.view == orcaWorkersView)
+	list := orcBox("workers", listWidth, strings.Join(rows, "\n"), model.view == orcWorkersView)
 	detailWidth := width - lipgloss.Width(list) - 4
 	details := model.workerDetails(detailWidth)
 	body := lipgloss.JoinHorizontal(lipgloss.Top, list, "  ", details)
 	if width < 76 {
-		list = orcaBox("workers", width-2, strings.Join(rows, "\n"), model.view == orcaWorkersView)
+		list = orcBox("workers", width-2, strings.Join(rows, "\n"), model.view == orcWorkersView)
 		details = model.workerDetails(width - 2)
 		body = lipgloss.JoinVertical(lipgloss.Left, list, "", details)
 	}
 	return body
 }
 
-func (model orcaUIModel) visibleWorkerRows() []string {
+func (model orcUIModel) visibleWorkerRows() []string {
 	if len(model.workers) == 0 {
-		return []string{orcaTagStyle.Render("No workflow workers")}
+		return []string{orcTagStyle.Render("No workflow workers")}
 	}
 	limit := model.visibleRowLimit()
 	start, end := visibleRange(model.workerCursor, len(model.workers), limit)
@@ -713,21 +713,21 @@ func (model orcaUIModel) visibleWorkerRows() []string {
 		worker := model.workers[index]
 		row := fmt.Sprintf(" %-19s %-9s", ansi.Truncate(string(worker.ID), 19, "…"), worker.State)
 		if index == model.workerCursor {
-			row = orcaSelectedStyle.Width(29).Render(">" + row)
+			row = orcSelectedStyle.Width(29).Render(">" + row)
 		} else {
-			row = orcaValueStyle.Render(" " + row)
+			row = orcValueStyle.Render(" " + row)
 		}
 		rows = append(rows, row)
 	}
 	return rows
 }
 
-func (model orcaUIModel) workerDetails(width int) string {
+func (model orcUIModel) workerDetails(width int) string {
 	if width < 34 {
 		width = 34
 	}
 	if len(model.workers) == 0 {
-		return orcaBox("selected", width, "Workers appear after a workflow node starts an agent.", false)
+		return orcBox("selected", width, "Workers appear after a workflow node starts an agent.", false)
 	}
 	worker := model.workers[model.workerCursor]
 	action := "events only"
@@ -735,16 +735,16 @@ func (model orcaUIModel) workerDetails(width int) string {
 		action = "enter attaches"
 	}
 	lines := []string{
-		orcaTitleStyle.Render(string(worker.ID)),
-		orcaLabelStyle.Render("state     ") + orcaValueStyle.Render(string(worker.State)),
-		orcaLabelStyle.Render("workflow  ") + orcaValueStyle.Render(string(worker.WorkflowRunID)),
-		orcaLabelStyle.Render("node      ") + orcaValueStyle.Render(string(worker.NodeRunID)),
-		orcaLabelStyle.Render("runtime   ") + orcaValueStyle.Render(worker.RuntimeAdapterID),
-		orcaLabelStyle.Render("events    ") + orcaValueStyle.Render(fmt.Sprintf("%d", len(model.workerHistory.RuntimeEvents))),
-		orcaLabelStyle.Render("actions   ") + orcaValueStyle.Render(action),
+		orcTitleStyle.Render(string(worker.ID)),
+		orcLabelStyle.Render("state     ") + orcValueStyle.Render(string(worker.State)),
+		orcLabelStyle.Render("workflow  ") + orcValueStyle.Render(string(worker.WorkflowRunID)),
+		orcLabelStyle.Render("node      ") + orcValueStyle.Render(string(worker.NodeRunID)),
+		orcLabelStyle.Render("runtime   ") + orcValueStyle.Render(worker.RuntimeAdapterID),
+		orcLabelStyle.Render("events    ") + orcValueStyle.Render(fmt.Sprintf("%d", len(model.workerHistory.RuntimeEvents))),
+		orcLabelStyle.Render("actions   ") + orcValueStyle.Render(action),
 	}
 	if len(model.workerHistory.RuntimeEvents) > 0 {
-		lines = append(lines, "", orcaLabelStyle.Render("recent events"))
+		lines = append(lines, "", orcLabelStyle.Render("recent events"))
 		start := len(model.workerHistory.RuntimeEvents) - 4
 		if start < 0 {
 			start = 0
@@ -756,10 +756,10 @@ func (model orcaUIModel) workerDetails(width int) string {
 	for index, line := range lines {
 		lines[index] = ansi.Truncate(line, width-6, "…")
 	}
-	return orcaBox("selected", width, strings.Join(lines, "\n"), false)
+	return orcBox("selected", width, strings.Join(lines, "\n"), false)
 }
 
-func (model orcaUIModel) visibleRowLimit() int {
+func (model orcUIModel) visibleRowLimit() int {
 	limit := model.height - 16
 	if limit < 4 {
 		return 4
@@ -788,9 +788,9 @@ func visibleRange(cursor int, length int, limit int) (int, int) {
 	return start, end
 }
 
-func (model orcaUIModel) visibleAgentRows() []string {
+func (model orcUIModel) visibleAgentRows() []string {
 	if len(model.agents) == 0 {
-		return []string{orcaTagStyle.Render("No installed controllers")}
+		return []string{orcTagStyle.Render("No installed controllers")}
 	}
 	limit := model.height - 16
 	if limit < 4 {
@@ -826,21 +826,21 @@ func (model orcaUIModel) visibleAgentRows() []string {
 		}
 		row := fmt.Sprintf(" %s%-20s", glyph, ansi.Truncate(label, 20-lipgloss.Width(glyph), "…"))
 		if index == model.cursor {
-			row = orcaSelectedStyle.Width(25).Render(">" + row)
+			row = orcSelectedStyle.Width(25).Render(">" + row)
 		} else {
-			row = orcaValueStyle.Render(" " + row)
+			row = orcValueStyle.Render(" " + row)
 		}
 		rows = append(rows, row)
 	}
 	return rows
 }
 
-func (model orcaUIModel) agentDetails(width int) string {
+func (model orcUIModel) agentDetails(width int) string {
 	if width < 28 {
 		width = 28
 	}
 	if len(model.agents) == 0 {
-		return orcaBox("selected", width, "Install a controller to launch it here.", false)
+		return orcBox("selected", width, "Install a controller to launch it here.", false)
 	}
 	agent := model.agents[model.cursor]
 	label := agent.Label
@@ -849,54 +849,54 @@ func (model orcaUIModel) agentDetails(width int) string {
 	}
 	modelSupport := "uses command default"
 	if agent.Launch.ModelFlag != "" {
-		modelSupport = "accepts orca run --model"
+		modelSupport = "accepts orc run --model"
 	}
 	mcp := "unavailable"
 	if model.active {
 		mcp = "available in this scope"
 	}
 	lines := []string{
-		orcaTitleStyle.Render(label),
-		orcaTagStyle.Render(agent.Name),
+		orcTitleStyle.Render(label),
+		orcTagStyle.Render(agent.Name),
 		"",
-		orcaLabelStyle.Render("command  ") + orcaValueStyle.Render(agent.Command),
-		orcaLabelStyle.Render("model    ") + orcaValueStyle.Render(modelSupport),
-		orcaLabelStyle.Render("mcp      ") + orcaValueStyle.Render(mcp),
-		orcaLabelStyle.Render("new      ") + orcaValueStyle.Render("enter"),
+		orcLabelStyle.Render("command  ") + orcValueStyle.Render(agent.Command),
+		orcLabelStyle.Render("model    ") + orcValueStyle.Render(modelSupport),
+		orcLabelStyle.Render("mcp      ") + orcValueStyle.Render(mcp),
+		orcLabelStyle.Render("new      ") + orcValueStyle.Render("enter"),
 	}
 	resume := "unavailable"
 	if len(agent.Launch.ResumeArgs) > 0 {
 		resume = "R, native conversation picker"
 	}
-	lines = append(lines, orcaLabelStyle.Render("resume   ")+orcaValueStyle.Render(resume))
+	lines = append(lines, orcLabelStyle.Render("resume   ")+orcValueStyle.Render(resume))
 	if model.active && model.record.PID > 0 {
-		lines = append(lines, orcaLabelStyle.Render("broker   ")+orcaValueStyle.Render(fmt.Sprintf("pid %d", model.record.PID)))
+		lines = append(lines, orcLabelStyle.Render("broker   ")+orcValueStyle.Render(fmt.Sprintf("pid %d", model.record.PID)))
 	}
-	return orcaBox("selected", width, strings.Join(lines, "\n"), false)
+	return orcBox("selected", width, strings.Join(lines, "\n"), false)
 }
 
-func orcaBox(name string, inner int, body string, focused bool) string {
+func orcBox(name string, inner int, body string, focused bool) string {
 	if inner < 1 {
 		return body
 	}
-	edge := orcaRuleStyle
+	edge := orcRuleStyle
 	if focused {
-		edge = orcaTitleStyle
+		edge = orcTitleStyle
 	}
 	dashes := inner - 3 - lipgloss.Width(name)
 	if dashes < 0 {
 		dashes = 0
 	}
-	top := edge.Render("╭─ ") + orcaTitleStyle.Render(name) + edge.Render(" "+strings.Repeat("─", dashes)+"╮")
-	lines := []string{orcaFit(top, inner+2)}
+	top := edge.Render("╭─ ") + orcTitleStyle.Render(name) + edge.Render(" "+strings.Repeat("─", dashes)+"╮")
+	lines := []string{orcFit(top, inner+2)}
 	for _, line := range strings.Split(body, "\n") {
-		lines = append(lines, edge.Render("│")+orcaFit(line, inner)+edge.Render("│"))
+		lines = append(lines, edge.Render("│")+orcFit(line, inner)+edge.Render("│"))
 	}
 	lines = append(lines, edge.Render("╰"+strings.Repeat("─", inner)+"╯"))
 	return strings.Join(lines, "\n")
 }
 
-func orcaFit(value string, width int) string {
+func orcFit(value string, width int) string {
 	if width < 1 {
 		return ""
 	}
@@ -907,12 +907,12 @@ func orcaFit(value string, width int) string {
 	return value
 }
 
-func (model *orcaUIModel) refresh() error {
+func (model *orcUIModel) refresh() error {
 	return model.refreshState(true)
 }
 
-func (model *orcaUIModel) refreshState(loadWorkerHistory bool) error {
-	record, active, err := activeOrca("")
+func (model *orcUIModel) refreshState(loadWorkerHistory bool) error {
+	record, active, err := activeOrc("")
 	if err != nil {
 		return err
 	}
@@ -929,17 +929,17 @@ func (model *orcaUIModel) refreshState(loadWorkerHistory bool) error {
 		return nil
 	}
 	switch model.view {
-	case orcaWorkflowsView:
+	case orcWorkflowsView:
 		return model.loadWorkflows()
-	case orcaWorkersView:
+	case orcWorkersView:
 		return model.loadWorkers(loadWorkerHistory)
 	default:
 		return nil
 	}
 }
 
-func (model *orcaUIModel) moveCursor(delta int) bool {
-	if model.view == orcaControllersView {
+func (model *orcUIModel) moveCursor(delta int) bool {
+	if model.view == orcControllersView {
 		next := model.cursor + delta
 		if next >= 0 && next < len(model.agents) {
 			model.cursor = next
@@ -947,7 +947,7 @@ func (model *orcaUIModel) moveCursor(delta int) bool {
 		}
 		return false
 	}
-	if model.view == orcaWorkflowsView {
+	if model.view == orcWorkflowsView {
 		next := model.workflowCursor + delta
 		if next < 0 || next >= len(model.workflows) {
 			return false
@@ -964,7 +964,7 @@ func (model *orcaUIModel) moveCursor(delta int) bool {
 	return true
 }
 
-func (model *orcaUIModel) loadWorkflows() error {
+func (model *orcUIModel) loadWorkflows() error {
 	selected := model.requestedWorkflow
 	if selected == "" && model.workflowCursor >= 0 && model.workflowCursor < len(model.workflows) {
 		selected = model.workflows[model.workflowCursor].ID
@@ -999,7 +999,7 @@ func (model *orcaUIModel) loadWorkflows() error {
 	return model.loadSelectedWorkflow()
 }
 
-func (model *orcaUIModel) loadSelectedWorkflow() error {
+func (model *orcUIModel) loadSelectedWorkflow() error {
 	if len(model.workflows) == 0 {
 		return nil
 	}
@@ -1017,7 +1017,7 @@ func (model *orcaUIModel) loadSelectedWorkflow() error {
 	return model.loadWorkflowForks()
 }
 
-func (model *orcaUIModel) loadRestartPoints() error {
+func (model *orcUIModel) loadRestartPoints() error {
 	if len(model.workflows) == 0 {
 		model.restartPoints = nil
 		model.restartCursor = 0
@@ -1053,7 +1053,7 @@ func restartPointCursor(points []domain.RestartPoint, selected domain.RestartPoi
 	return 0
 }
 
-func (model *orcaUIModel) loadWorkflowForks() error {
+func (model *orcUIModel) loadWorkflowForks() error {
 	if len(model.workflows) == 0 {
 		model.forks = nil
 		return nil
@@ -1071,7 +1071,7 @@ func (model *orcaUIModel) loadWorkflowForks() error {
 	return json.Unmarshal(result, &model.forks)
 }
 
-func (model *orcaUIModel) loadWorkers(loadHistory bool) error {
+func (model *orcUIModel) loadWorkers(loadHistory bool) error {
 	var selected domain.SessionID
 	if model.workerCursor >= 0 && model.workerCursor < len(model.workers) {
 		selected = model.workers[model.workerCursor].ID
@@ -1105,7 +1105,7 @@ func (model *orcaUIModel) loadWorkers(loadHistory bool) error {
 	return model.loadSelectedWorker()
 }
 
-func (model *orcaUIModel) loadSelectedWorker() error {
+func (model *orcUIModel) loadSelectedWorker() error {
 	if len(model.workers) == 0 {
 		return nil
 	}
@@ -1122,8 +1122,8 @@ func (model *orcaUIModel) loadSelectedWorker() error {
 	return json.Unmarshal(result, &model.workerHistory)
 }
 
-func (model *orcaUIModel) moveRestartPoint(delta int) {
-	if model.view != orcaWorkflowsView || len(model.restartPoints) == 0 {
+func (model *orcUIModel) moveRestartPoint(delta int) {
+	if model.view != orcWorkflowsView || len(model.restartPoints) == 0 {
 		return
 	}
 	next := model.restartCursor + delta
@@ -1132,8 +1132,8 @@ func (model *orcaUIModel) moveRestartPoint(delta int) {
 	}
 }
 
-func (model *orcaUIModel) scrollGraph(direction int) {
-	if model.view != orcaWorkflowsView || len(model.workflows) == 0 {
+func (model *orcUIModel) scrollGraph(direction int) {
+	if model.view != orcWorkflowsView || len(model.workflows) == 0 {
 		return
 	}
 	limit := max(2, max(6, model.height-10)-2)
@@ -1142,13 +1142,13 @@ func (model *orcaUIModel) scrollGraph(direction int) {
 	model.graphOffset = min(max(0, model.graphOffset+direction*page), maximum)
 }
 
-func (model orcaUIModel) replaySelectedWorkflow() tea.Cmd {
+func (model orcUIModel) replaySelectedWorkflow() tea.Cmd {
 	run := model.workflows[model.workflowCursor]
 	point := model.restartPoints[model.restartCursor]
 	return func() tea.Msg {
 		identifier, err := localCommandID()
 		if err != nil {
-			return orcaActionMessage{err: err}
+			return orcActionMessage{err: err}
 		}
 		childID := domain.WorkflowRunID("run-" + identifier)
 		payload, err := json.Marshal(struct {
@@ -1166,30 +1166,30 @@ func (model orcaUIModel) replaySelectedWorkflow() tea.Cmd {
 			ExpectedParentVersion: run.Metadata.ResourceVersion,
 		})
 		if err != nil {
-			return orcaActionMessage{err: err}
+			return orcActionMessage{err: err}
 		}
 		if _, err := executeNativeCommand(model.record.StateDirectory, "workflow.replay", payload); err != nil {
-			return orcaActionMessage{err: err}
+			return orcActionMessage{err: err}
 		}
-		return orcaActionMessage{text: "Forked " + string(childID), workflowID: childID}
+		return orcActionMessage{text: "Forked " + string(childID), workflowID: childID}
 	}
 }
 
-type orcaWorkerTick time.Time
+type orcWorkerTick time.Time
 
-type orcaWorkerActionMessage struct {
+type orcWorkerActionMessage struct {
 	text string
 	err  error
 }
 
-type orcaWorkerEventsMessage struct {
+type orcWorkerEventsMessage struct {
 	events []domain.RuntimeEvent
 	state  *domain.SessionState
 	cursor domain.EventCursor
 	err    error
 }
 
-type orcaWorkerUIModel struct {
+type orcWorkerUIModel struct {
 	record       instance.Record
 	history      sqlite.SessionHistory
 	attachmentID string
@@ -1202,7 +1202,7 @@ type orcaWorkerUIModel struct {
 	eventCursor  domain.EventCursor
 }
 
-func runOrcaWorkerUI(
+func runOrcWorkerUI(
 	record instance.Record,
 	sessionID domain.SessionID,
 	stdout io.Writer,
@@ -1238,9 +1238,9 @@ func runOrcaWorkerUI(
 	input.Prompt = "> "
 	input.Placeholder = "send a message to this worker"
 	input.CharLimit = 4096
-	input.TextStyle = orcaValueStyle
-	input.PromptStyle = orcaSelectedStyle
-	model := orcaWorkerUIModel{
+	input.TextStyle = orcValueStyle
+	input.PromptStyle = orcSelectedStyle
+	model := orcWorkerUIModel{
 		record: record, history: history, attachmentID: attachmentID,
 		input: input, width: 92, height: 26, eventCursor: eventCursor,
 	}
@@ -1264,15 +1264,15 @@ func supportsWorkerAttachment(session domain.Session) bool {
 	return false
 }
 
-func (model orcaWorkerUIModel) Init() tea.Cmd {
+func (model orcWorkerUIModel) Init() tea.Cmd {
 	return workerRefreshTick()
 }
 
-func (model orcaWorkerUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
+func (model orcWorkerUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	switch typed := message.(type) {
-	case orcaWorkerTick:
+	case orcWorkerTick:
 		return model, tea.Batch(model.readEvents(), workerRefreshTick())
-	case orcaWorkerEventsMessage:
+	case orcWorkerEventsMessage:
 		if typed.err != nil {
 			model.message = typed.err.Error()
 			model.messageError = true
@@ -1288,7 +1288,7 @@ func (model orcaWorkerUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 				model.history.Session.RuntimeEventCursor = event.Sequence
 			}
 		}
-	case orcaWorkerActionMessage:
+	case orcWorkerActionMessage:
 		model.messageError = typed.err != nil
 		model.typing = false
 		model.input.Blur()
@@ -1343,39 +1343,39 @@ func (model orcaWorkerUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	return model, nil
 }
 
-func (model orcaWorkerUIModel) View() string {
+func (model orcWorkerUIModel) View() string {
 	if model.width < 60 || model.height < 16 {
-		return fmt.Sprintf("orca needs 60x16\nthis pane is %dx%d\nq detaches", model.width, model.height)
+		return fmt.Sprintf("orc needs 60x16\nthis pane is %dx%d\nq detaches", model.width, model.height)
 	}
 	session := model.history.Session
-	statusStyle := orcaInactiveStyle
+	statusStyle := orcInactiveStyle
 	switch session.State {
 	case domain.SessionStateStarting, domain.SessionStateRunning, domain.SessionStateWaiting:
-		statusStyle = orcaActiveStyle
+		statusStyle = orcActiveStyle
 	case domain.SessionStateFailed, domain.SessionStateCancelled, domain.SessionStateOrphaned:
-		statusStyle = orcaErrorStyle
+		statusStyle = orcErrorStyle
 	}
 	status := statusStyle.Render(string(session.State))
-	left := orcaTitleStyle.Render("🫍 orca") + "  " + orcaTagStyle.Render("worker attachment")
+	left := orcTitleStyle.Render("🫍 orc") + "  " + orcTagStyle.Render("worker attachment")
 	gap := model.width - lipgloss.Width(left) - lipgloss.Width(status)
 	if gap < 1 {
 		gap = 1
 	}
 	header := left + strings.Repeat(" ", gap) + status
-	scopeLabel := orcaLabelStyle.Render("workspace ")
-	scope := scopeLabel + orcaValueStyle.Render(ansi.Truncate(model.record.Scope, model.width-lipgloss.Width(scopeLabel), "…"))
+	scopeLabel := orcLabelStyle.Render("workspace ")
+	scope := scopeLabel + orcValueStyle.Render(ansi.Truncate(model.record.Scope, model.width-lipgloss.Width(scopeLabel), "…"))
 	identity := fmt.Sprintf(
 		"%s  %s  %s", session.ID, session.WorkflowRunID, session.NodeRunID,
 	)
-	footer := orcaTagStyle.Render("i input   r refresh   q detach")
-	before := []string{header, scope, orcaValueStyle.Render(ansi.Truncate(identity, model.width, "…"))}
+	footer := orcTagStyle.Render("i input   r refresh   q detach")
+	before := []string{header, scope, orcValueStyle.Render(ansi.Truncate(identity, model.width, "…"))}
 	after := make([]string, 0, 2)
 	if model.typing {
-		after = append(after, model.input.View()+"  "+orcaTagStyle.Render("enter send   esc cancel"))
+		after = append(after, model.input.View()+"  "+orcTagStyle.Render("enter send   esc cancel"))
 	} else if model.message != "" {
-		style := orcaMessageStyle
+		style := orcMessageStyle
 		if model.messageError {
-			style = orcaErrorStyle
+			style = orcErrorStyle
 		}
 		after = append(after, style.Render(ansi.Truncate(model.message, model.width, "…")))
 	}
@@ -1395,15 +1395,15 @@ func (model orcaWorkerUIModel) View() string {
 	if len(lines) > bodyHeight-2 {
 		lines = lines[len(lines)-(bodyHeight-2):]
 	}
-	body := orcaBox("events", model.width-2, strings.Join(lines, "\n"), true)
+	body := orcBox("events", model.width-2, strings.Join(lines, "\n"), true)
 	parts := append(before, body)
 	parts = append(parts, after...)
 	return strings.Join(parts, separator)
 }
 
-func (model orcaWorkerUIModel) workerEventLines() []string {
+func (model orcWorkerUIModel) workerEventLines() []string {
 	if len(model.history.RuntimeEvents) == 0 {
-		return []string{orcaTagStyle.Render("Waiting for worker events")}
+		return []string{orcTagStyle.Render("Waiting for worker events")}
 	}
 	lines := make([]string, 0, len(model.history.RuntimeEvents))
 	for _, event := range model.history.RuntimeEvents {
@@ -1436,28 +1436,28 @@ func runtimeEventDetail(event domain.RuntimeEvent) string {
 	return strings.TrimSpace(detail)
 }
 
-func (model orcaWorkerUIModel) sendMessage(message string) tea.Cmd {
+func (model orcWorkerUIModel) sendMessage(message string) tea.Cmd {
 	session := model.history.Session
 	stateDirectory := model.record.StateDirectory
 	return func() tea.Msg {
 		if err := sendWorkerMessage(stateDirectory, session, message); err != nil {
-			return orcaWorkerActionMessage{err: err}
+			return orcWorkerActionMessage{err: err}
 		}
-		return orcaWorkerActionMessage{text: "Message accepted"}
+		return orcWorkerActionMessage{text: "Message accepted"}
 	}
 }
 
-func (model orcaWorkerUIModel) readEvents() tea.Cmd {
+func (model orcWorkerUIModel) readEvents() tea.Cmd {
 	return func() tea.Msg {
 		events, state, cursor, err := readWorkerEvents(
 			model.record.Socket, model.eventCursor, model.history.Session.ID,
 		)
-		return orcaWorkerEventsMessage{events: events, state: state, cursor: cursor, err: err}
+		return orcWorkerEventsMessage{events: events, state: state, cursor: cursor, err: err}
 	}
 }
 
 func workerRefreshTick() tea.Cmd {
-	return tea.Tick(time.Second, func(now time.Time) tea.Msg { return orcaWorkerTick(now) })
+	return tea.Tick(time.Second, func(now time.Time) tea.Msg { return orcWorkerTick(now) })
 }
 
 func loadWorkerHistory(stateDirectory string, sessionID domain.SessionID) (sqlite.SessionHistory, error) {
@@ -1606,7 +1606,7 @@ func workerAttachmentRequest(
 	return broker.ForwardAttachmentRequest{
 		Intervention: sqlite.InterventionRequest{
 			ID: domain.InterventionID("intervention-" + identifier), SessionID: session.ID,
-			Kind: kind, Payload: input, Source: "orca-ui",
+			Kind: kind, Payload: input, Source: "orc-ui",
 		},
 		PluginID: session.RuntimePluginID,
 		Operation: plugin.OperationEnvelope{
@@ -1652,7 +1652,7 @@ func workerMessageRequest(session domain.Session, message string) (broker.Forwar
 	return broker.ForwardInterventionRequest{
 		Intervention: sqlite.InterventionRequest{
 			ID: domain.InterventionID("intervention-" + identifier), SessionID: session.ID,
-			Kind: domain.InterventionKindMessage, Payload: input, Source: "orca-ui",
+			Kind: domain.InterventionKindMessage, Payload: input, Source: "orc-ui",
 		},
 		Operation: plugin.OperationEnvelope{
 			ID: domain.OperationID("operation-" + identifier), AdapterID: session.RuntimeAdapterID,

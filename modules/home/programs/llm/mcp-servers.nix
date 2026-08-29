@@ -53,7 +53,7 @@ let
 
 in
 {
-  home.packages = [ pkgs.orca ];
+  home.packages = [ pkgs.orc ];
 
   sysinit.llm.mcp.additionalServers = {
     ast-grep = {
@@ -95,10 +95,10 @@ in
       description = "Computer use on this machine: screenshot the screen and run a task against the desktop";
     };
 
-    orca = {
-      command = "${lib.getExe pkgs.orca}";
+    orc = {
+      command = "${lib.getExe pkgs.orc}";
       args = [ "mcp" ];
-      description = "Optional local agent orchestration, with tools only inside an active Orca workspace";
+      description = "Optional local agent orchestration, with tools only inside an active Orc workspace";
     };
   };
 

@@ -783,7 +783,7 @@ func TestMCPInitializeIgnoresMalformedBrokerRecord(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(paths.StateDirectory, "instance.json"), []byte("{"), 0o600); err != nil {
 		t.Fatalf("WriteFile() returned %v", err)
 	}
-	t.Setenv("ORCA_STATE_DIR", stateDirectory)
+	t.Setenv("ORC_STATE_DIR", stateDirectory)
 	input := strings.NewReader(
 		`{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25"}}` + "\n",
 	)
@@ -1149,7 +1149,7 @@ func shortStateDirectory(t *testing.T) string {
 	return directory
 }
 
-func TestOrcaPickerUsesRecentAgentAndResponsiveLayout(t *testing.T) {
+func TestOrcPickerUsesRecentAgentAndResponsiveLayout(t *testing.T) {
 	t.Setenv("XDG_STATE_HOME", t.TempDir())
 	available := []agents.Agent{
 		{Name: "claude", Label: "Claude", Command: "claude"},
@@ -1165,26 +1165,26 @@ func TestOrcaPickerUsesRecentAgentAndResponsiveLayout(t *testing.T) {
 		t.Fatalf("first agent = %q, want codex", available[0].Name)
 	}
 
-	model := orcaUIModel{
+	model := orcUIModel{
 		record: instance.Record{Scope: "/workspace/project", PID: 42},
 		active: true,
 		agents: available,
 		help:   help.New(),
 	}
 	resized, _ := model.Update(tea.WindowSizeMsg{Width: 110, Height: 30})
-	model = resized.(orcaUIModel)
+	model = resized.(orcUIModel)
 	view := ansi.Strip(model.View())
-	for _, expected := range []string{"🫍 orca", "running", "controllers 2", "Codex", "pid 42", "enter open"} {
+	for _, expected := range []string{"🫍 orc", "running", "controllers 2", "Codex", "pid 42", "enter open"} {
 		if !strings.Contains(view, expected) {
 			t.Fatalf("View() omitted %q:\n%s", expected, view)
 		}
 	}
 	selected, command := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
-	if command == nil || selected.(orcaUIModel).selected != "codex" {
+	if command == nil || selected.(orcUIModel).selected != "codex" {
 		t.Fatalf("enter selected %#v", selected)
 	}
 	resumed, command := model.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'R'}})
-	if command == nil || resumed.(orcaUIModel).selected != "codex" || !resumed.(orcaUIModel).selectedResume {
+	if command == nil || resumed.(orcUIModel).selected != "codex" || !resumed.(orcUIModel).selectedResume {
 		t.Fatalf("resume selected %#v", resumed)
 	}
 
@@ -1217,15 +1217,15 @@ func TestOrcaPickerUsesRecentAgentAndResponsiveLayout(t *testing.T) {
 		t.Fatalf("workflow View() omitted lineage:\n%s", lineage)
 	}
 	confirmation, command := model.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'f'}})
-	if command != nil || !confirmation.(orcaUIModel).confirmReplay {
+	if command != nil || !confirmation.(orcUIModel).confirmReplay {
 		t.Fatalf("first replay key = %#v, command = %#v", confirmation, command)
 	}
-	confirmed, command := confirmation.(orcaUIModel).Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'f'}})
-	if command == nil || confirmed.(orcaUIModel).confirmReplay {
+	confirmed, command := confirmation.(orcUIModel).Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'f'}})
+	if command == nil || confirmed.(orcUIModel).confirmReplay {
 		t.Fatalf("second replay key = %#v, command = %#v", confirmed, command)
 	}
 
-	model.view = orcaWorkersView
+	model.view = orcWorkersView
 	model.workers = []domain.Session{{
 		ID: "worker-42", WorkflowRunID: "plan-42", NodeRunID: "node-42",
 		RuntimeAdapterID: "pi", State: domain.SessionStateRunning,
@@ -1245,15 +1245,15 @@ func TestOrcaPickerUsesRecentAgentAndResponsiveLayout(t *testing.T) {
 	}
 	model.workers[0].Capabilities = nil
 	unavailable, command := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
-	if command != nil || unavailable.(orcaUIModel).selectedWorker != "" ||
-		!strings.Contains(unavailable.(orcaUIModel).message, "no interactive attachment") {
+	if command != nil || unavailable.(orcUIModel).selectedWorker != "" ||
+		!strings.Contains(unavailable.(orcUIModel).message, "no interactive attachment") {
 		t.Fatalf("unavailable attachment = %#v, command = %#v", unavailable, command)
 	}
 }
 
-func TestOrcaWorkflowGraphUsesViewport(t *testing.T) {
-	model := orcaUIModel{
-		view: orcaWorkflowsView, width: 100, height: 24, help: help.New(),
+func TestOrcWorkflowGraphUsesViewport(t *testing.T) {
+	model := orcUIModel{
+		view: orcWorkflowsView, width: 100, height: 24, help: help.New(),
 		workflows: []domain.WorkflowRun{{ID: "run-large", State: domain.WorkflowRunStateRunning}},
 		workflow:  workflowViewResult{Run: domain.WorkflowRun{ID: "run-large"}},
 	}
@@ -1271,36 +1271,36 @@ func TestOrcaWorkflowGraphUsesViewport(t *testing.T) {
 		t.Fatalf("large graph has no viewport:\n%s", view)
 	}
 	scrolled, _ := model.Update(tea.KeyMsg{Type: tea.KeyPgDown})
-	if scrolled.(orcaUIModel).graphOffset == 0 {
+	if scrolled.(orcUIModel).graphOffset == 0 {
 		t.Fatal("page down did not scroll the graph")
 	}
 	for range 10 {
-		scrolled, _ = scrolled.(orcaUIModel).Update(tea.KeyMsg{Type: tea.KeyPgDown})
+		scrolled, _ = scrolled.(orcUIModel).Update(tea.KeyMsg{Type: tea.KeyPgDown})
 	}
-	bottom := scrolled.(orcaUIModel).graphOffset
-	scrolled, _ = scrolled.(orcaUIModel).Update(tea.KeyMsg{Type: tea.KeyPgUp})
-	if moved := bottom - scrolled.(orcaUIModel).graphOffset; moved <= 1 {
+	bottom := scrolled.(orcUIModel).graphOffset
+	scrolled, _ = scrolled.(orcUIModel).Update(tea.KeyMsg{Type: tea.KeyPgUp})
+	if moved := bottom - scrolled.(orcUIModel).graphOffset; moved <= 1 {
 		t.Fatalf("page up moved %d rows from offset %d", moved, bottom)
 	}
 }
 
-func TestOrcaUIRejectsPaneThatHidesControls(t *testing.T) {
-	model := orcaUIModel{width: 40, height: 10, help: help.New()}
+func TestOrcUIRejectsPaneThatHidesControls(t *testing.T) {
+	model := orcUIModel{width: 40, height: 10, help: help.New()}
 	view := ansi.Strip(model.View())
-	if strings.Count(view, "\n") != 2 || !strings.Contains(view, "orca needs 76x20") ||
+	if strings.Count(view, "\n") != 2 || !strings.Contains(view, "orc needs 76x20") ||
 		!strings.Contains(view, "q quits") {
 		t.Fatalf("small main UI = %q", view)
 	}
-	worker := orcaWorkerUIModel{width: 40, height: 10}
+	worker := orcWorkerUIModel{width: 40, height: 10}
 	view = ansi.Strip(worker.View())
-	if strings.Count(view, "\n") != 2 || !strings.Contains(view, "orca needs 60x16") ||
+	if strings.Count(view, "\n") != 2 || !strings.Contains(view, "orc needs 60x16") ||
 		!strings.Contains(view, "q detaches") {
 		t.Fatalf("small worker UI = %q", view)
 	}
 }
 
-func TestOrcaWorkerAttachmentFitsEightyByTwentyFour(t *testing.T) {
-	model := orcaWorkerUIModel{
+func TestOrcWorkerAttachmentFitsEightyByTwentyFour(t *testing.T) {
+	model := orcWorkerUIModel{
 		record:  instance.Record{Scope: "/workspace/project"},
 		width:   80,
 		height:  24,
@@ -1321,20 +1321,20 @@ func TestOrcaWorkerAttachmentFitsEightyByTwentyFour(t *testing.T) {
 	}
 }
 
-func TestOrcaFullHelpOnlyShowsActionsForCurrentView(t *testing.T) {
-	model := orcaUIModel{help: help.New()}
+func TestOrcFullHelpOnlyShowsActionsForCurrentView(t *testing.T) {
+	model := orcUIModel{help: help.New()}
 	model.help.ShowAll = true
 	model.help.Width = 120
 	controllerHelp := model.help.View(model.helpKeys())
 	if !strings.Contains(controllerHelp, "resume controller") || strings.Contains(controllerHelp, "fork from restart point") {
 		t.Fatalf("controller help = %q", controllerHelp)
 	}
-	model.view = orcaWorkersView
+	model.view = orcWorkersView
 	workerHelp := model.help.View(model.helpKeys())
 	if strings.Contains(workerHelp, "resume controller") || strings.Contains(workerHelp, "graph down") {
 		t.Fatalf("worker help = %q", workerHelp)
 	}
-	model.view = orcaWorkflowsView
+	model.view = orcWorkflowsView
 	model.width = 80
 	model.height = 24
 	model.help.Width = 80
@@ -1354,15 +1354,15 @@ func TestRestartPointCursorDoesNotLeakAcrossWorkflows(t *testing.T) {
 	}
 }
 
-func TestOrcaWorkerPreventsDuplicateSendAndShowsFailure(t *testing.T) {
+func TestOrcWorkerPreventsDuplicateSendAndShowsFailure(t *testing.T) {
 	input := textinput.New()
 	input.SetValue("Review this failure")
-	model := orcaWorkerUIModel{
+	model := orcWorkerUIModel{
 		typing: true, input: input,
 		history: sqlite.SessionHistory{Session: domain.Session{ID: "worker-send"}},
 	}
 	updated, command := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
-	model = updated.(orcaWorkerUIModel)
+	model = updated.(orcWorkerUIModel)
 	if command == nil || model.typing || model.message != "Sending message" {
 		t.Fatalf("first enter = %#v, command = %#v", model, command)
 	}
@@ -1370,23 +1370,23 @@ func TestOrcaWorkerPreventsDuplicateSendAndShowsFailure(t *testing.T) {
 	if duplicate != nil {
 		t.Fatalf("second enter returned command %#v", duplicate)
 	}
-	failed, _ := updated.(orcaWorkerUIModel).Update(orcaWorkerActionMessage{err: errors.New("send failed")})
-	model = failed.(orcaWorkerUIModel)
+	failed, _ := updated.(orcWorkerUIModel).Update(orcWorkerActionMessage{err: errors.New("send failed")})
+	model = failed.(orcWorkerUIModel)
 	if !model.messageError || model.message != "send failed" || model.typing {
 		t.Fatalf("failed send state = %#v", model)
 	}
 }
 
-func TestOrcaRefreshTickClearsStoppedBrokerState(t *testing.T) {
+func TestOrcRefreshTickClearsStoppedBrokerState(t *testing.T) {
 	t.Setenv("XDG_STATE_HOME", t.TempDir())
-	t.Setenv("ORCA_STATE_DIR", "")
-	model := orcaUIModel{
+	t.Setenv("ORC_STATE_DIR", "")
+	model := orcUIModel{
 		active:    true,
 		workflows: []domain.WorkflowRun{{ID: "stale-run"}},
 		help:      help.New(),
 	}
-	updated, command := model.Update(orcaRefreshTick(time.Now()))
-	model = updated.(orcaUIModel)
+	updated, command := model.Update(orcRefreshTick(time.Now()))
+	model = updated.(orcUIModel)
 	if command == nil || !model.refreshing {
 		t.Fatalf("refresh tick state = %#v, command = %#v", model, command)
 	}
@@ -1395,22 +1395,22 @@ func TestOrcaRefreshTickClearsStoppedBrokerState(t *testing.T) {
 		t.Fatalf("refresh tick command = %#v", batch)
 	}
 	updated, _ = model.Update(batch[0]())
-	model = updated.(orcaUIModel)
+	model = updated.(orcUIModel)
 	if model.active || len(model.workflows) != 0 || model.refreshing {
 		t.Fatalf("refresh result state = %#v", model)
 	}
 }
 
-func TestOrcaRefreshPreservesCoalescedWorkerHistoryRequest(t *testing.T) {
-	model := orcaUIModel{
-		view: orcaWorkersView, refreshing: true, refreshRevision: 2,
+func TestOrcRefreshPreservesCoalescedWorkerHistoryRequest(t *testing.T) {
+	model := orcUIModel{
+		view: orcWorkersView, refreshing: true, refreshRevision: 2,
 		workers: []domain.Session{{ID: "worker-b"}}, workerCursor: 0,
 	}
 	if command := model.beginRefresh(true, ""); command != nil || !model.pendingWorkerHistory {
 		t.Fatalf("coalesced refresh = %#v, command = %#v", model, command)
 	}
-	updated, command := model.Update(orcaRefreshResult{revision: 1})
-	model = updated.(orcaUIModel)
+	updated, command := model.Update(orcRefreshResult{revision: 1})
+	model = updated.(orcUIModel)
 	if command == nil || !model.refreshing || model.pendingWorkerHistory {
 		t.Fatalf("retried refresh = %#v, command = %#v", model, command)
 	}
@@ -1459,27 +1459,27 @@ func TestWorkflowViewAcceptsAdvertisedWorkerControls(t *testing.T) {
 			t.Fatalf("workflowViewControlKind(%q) = %q, %v", control, kind, found)
 		}
 	}
-	if !strings.Contains(orcaUsage, "orca view --run") || !strings.Contains(orcaUsage, "orca events") {
-		t.Fatalf("orca help omits read-only commands:\n%s", orcaUsage)
+	if !strings.Contains(orcUsage, "orc view --run") || !strings.Contains(orcUsage, "orc events") {
+		t.Fatalf("orc help omits read-only commands:\n%s", orcUsage)
 	}
 }
 
-func TestOrcaHelpListsNativeCommands(t *testing.T) {
+func TestOrcHelpListsNativeCommands(t *testing.T) {
 	for _, command := range []string{"workflow <create|run", "graph patch", "replay run", "worker <start|list"} {
-		if !strings.Contains(orcaUsage, command) {
-			t.Fatalf("orca help omits %q", command)
+		if !strings.Contains(orcUsage, command) {
+			t.Fatalf("orc help omits %q", command)
 		}
 	}
 }
 
-func TestParseOrcaControllerUsesControllerTerminology(t *testing.T) {
-	_, _, _, err := parseOrcaController(nil, "resume")
-	if err == nil || !strings.Contains(err.Error(), "orca resume <controller>") {
+func TestParseOrcControllerUsesControllerTerminology(t *testing.T) {
+	_, _, _, err := parseOrcController(nil, "resume")
+	if err == nil || !strings.Contains(err.Error(), "orc resume <controller>") {
 		t.Fatalf("resume usage error = %v", err)
 	}
 }
 
-func TestOrcaWorkerRequestsTargetRuntimeAndAttachment(t *testing.T) {
+func TestOrcWorkerRequestsTargetRuntimeAndAttachment(t *testing.T) {
 	handle := domain.AdapterHandleID("handle-worker")
 	session := domain.Session{
 		ID: "worker-42", RuntimePluginID: "pi-plugin", RuntimeAdapterID: "pi",
@@ -1545,15 +1545,15 @@ func TestFilterWorkerEventsUsesReadOnlyEventStream(t *testing.T) {
 	}
 }
 
-func TestCleanOrcaLeasesRemovesExitedProcesses(t *testing.T) {
+func TestCleanOrcLeasesRemovesExitedProcesses(t *testing.T) {
 	stateDirectory := t.TempDir()
-	directory := orcaLeaseDirectory(stateDirectory)
+	directory := orcLeaseDirectory(stateDirectory)
 	if err := os.Mkdir(directory, 0o700); err != nil {
 		t.Fatalf("Mkdir() returned %v", err)
 	}
-	active, err := createOrcaLease(directory)
+	active, err := createOrcLease(directory)
 	if err != nil {
-		t.Fatalf("createOrcaLease() returned %v", err)
+		t.Fatalf("createOrcLease() returned %v", err)
 	}
 	stale := filepath.Join(directory, "stale")
 	if err := os.WriteFile(stale, []byte(`{"pid":2147483647,"identity":1}`), 0o600); err != nil {
@@ -1565,9 +1565,9 @@ func TestCleanOrcaLeasesRemovesExitedProcesses(t *testing.T) {
 	); err != nil {
 		t.Fatalf("WriteFile() returned %v", err)
 	}
-	remaining, err := cleanOrcaLeases(stateDirectory)
+	remaining, err := cleanOrcLeases(stateDirectory)
 	if err != nil {
-		t.Fatalf("cleanOrcaLeases() returned %v", err)
+		t.Fatalf("cleanOrcLeases() returned %v", err)
 	}
 	if remaining != 1 {
 		t.Fatalf("remaining leases = %d, want 1", remaining)
@@ -1583,9 +1583,9 @@ func TestCleanOrcaLeasesRemovesExitedProcesses(t *testing.T) {
 	}
 }
 
-func TestOrcaCandidateUsesContainingWorkspace(t *testing.T) {
+func TestOrcCandidateUsesContainingWorkspace(t *testing.T) {
 	t.Setenv("XDG_STATE_HOME", t.TempDir())
-	t.Setenv("ORCA_STATE_DIR", "")
+	t.Setenv("ORC_STATE_DIR", "")
 	parent := t.TempDir()
 	nested := filepath.Join(parent, "nested")
 	if err := os.Mkdir(nested, 0o700); err != nil {
@@ -1601,9 +1601,9 @@ func TestOrcaCandidateUsesContainingWorkspace(t *testing.T) {
 		t.Fatalf("Write() returned %v", err)
 	}
 	t.Chdir(nested)
-	candidate, err := orcaStartCandidate("")
+	candidate, err := orcStartCandidate("")
 	if err != nil || candidate.Scope != record.Scope {
-		t.Fatalf("orcaStartCandidate() = %#v, %v", candidate, err)
+		t.Fatalf("orcStartCandidate() = %#v, %v", candidate, err)
 	}
 }
 
@@ -1647,7 +1647,7 @@ func TestAutomaticMonitorMarksBrokerStoppingBeforeCancellation(t *testing.T) {
 	}
 }
 
-func TestInactiveOrcaStatusOmitsStaleProcess(t *testing.T) {
+func TestInactiveOrcStatusOmitsStaleProcess(t *testing.T) {
 	record := instance.Record{
 		Scope: "/workspace", StateDirectory: "/state", Socket: "/state/broker.sock",
 		Service: "launchd:stale", PID: 42, StartedAt: "stale",
@@ -1660,37 +1660,37 @@ func TestInactiveOrcaStatusOmitsStaleProcess(t *testing.T) {
 
 func TestPinnedBrokerIgnoresAutomaticServiceArgument(t *testing.T) {
 	stateDirectory := t.TempDir()
-	if automatic, err := automaticOrcaBroker(stateDirectory, true); err != nil || !automatic {
-		t.Fatalf("automaticOrcaBroker(unpinned) = %v, %v", automatic, err)
+	if automatic, err := automaticOrcBroker(stateDirectory, true); err != nil || !automatic {
+		t.Fatalf("automaticOrcBroker(unpinned) = %v, %v", automatic, err)
 	}
-	if err := setOrcaPinned(stateDirectory, true); err != nil {
-		t.Fatalf("setOrcaPinned() returned %v", err)
+	if err := setOrcPinned(stateDirectory, true); err != nil {
+		t.Fatalf("setOrcPinned() returned %v", err)
 	}
-	if automatic, err := automaticOrcaBroker(stateDirectory, true); err != nil || automatic {
-		t.Fatalf("automaticOrcaBroker(pinned) = %v, %v", automatic, err)
+	if automatic, err := automaticOrcBroker(stateDirectory, true); err != nil || automatic {
+		t.Fatalf("automaticOrcBroker(pinned) = %v, %v", automatic, err)
 	}
 }
 
 func TestStartFailurePreservesExistingPin(t *testing.T) {
 	record := instance.Record{StateDirectory: t.TempDir()}
-	if err := setOrcaPinned(record.StateDirectory, true); err != nil {
-		t.Fatalf("setOrcaPinned() returned %v", err)
+	if err := setOrcPinned(record.StateDirectory, true); err != nil {
+		t.Fatalf("setOrcPinned() returned %v", err)
 	}
 	startError := errors.New("start failed")
-	_, _, err := startPinnedOrca(record, func(instance.Record, bool) (bool, string, error) {
+	_, _, err := startPinnedOrc(record, func(instance.Record, bool) (bool, string, error) {
 		return false, "", startError
 	})
 	if !errors.Is(err, startError) {
-		t.Fatalf("startPinnedOrca() error = %v", err)
+		t.Fatalf("startPinnedOrc() error = %v", err)
 	}
-	if pinned, err := orcaPinned(record.StateDirectory); err != nil || !pinned {
-		t.Fatalf("orcaPinned() = %v, %v", pinned, err)
+	if pinned, err := orcPinned(record.StateDirectory); err != nil || !pinned {
+		t.Fatalf("orcPinned() = %v, %v", pinned, err)
 	}
 }
 
 func TestStopRemovesInactiveInstanceRecord(t *testing.T) {
 	t.Setenv("XDG_STATE_HOME", t.TempDir())
-	t.Setenv("ORCA_STATE_DIR", "")
+	t.Setenv("ORC_STATE_DIR", "")
 	scope := t.TempDir()
 	record, _, err := instance.Candidate(scope)
 	if err != nil {
@@ -1701,26 +1701,26 @@ func TestStopRemovesInactiveInstanceRecord(t *testing.T) {
 	if err := instance.Write(record); err != nil {
 		t.Fatalf("Write() returned %v", err)
 	}
-	if err := setOrcaPinned(record.StateDirectory, true); err != nil {
-		t.Fatalf("setOrcaPinned() returned %v", err)
+	if err := setOrcPinned(record.StateDirectory, true); err != nil {
+		t.Fatalf("setOrcPinned() returned %v", err)
 	}
-	t.Setenv("ORCA_STATE_DIR", record.StateDirectory)
+	t.Setenv("ORC_STATE_DIR", record.StateDirectory)
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
-	if exit := runOrcaStop(nil, &stdout, &stderr); exit != 0 {
-		t.Fatalf("runOrcaStop() exit = %d, stderr = %q", exit, stderr.String())
+	if exit := runOrcStop(nil, &stdout, &stderr); exit != 0 {
+		t.Fatalf("runOrcStop() exit = %d, stderr = %q", exit, stderr.String())
 	}
 	if _, err := instance.Read(filepath.Join(record.StateDirectory, "instance.json")); !errors.Is(err, os.ErrNotExist) {
 		t.Fatalf("instance record read error = %v", err)
 	}
-	if pinned, err := orcaPinned(record.StateDirectory); err != nil || pinned {
-		t.Fatalf("orcaPinned() = %v, %v", pinned, err)
+	if pinned, err := orcPinned(record.StateDirectory); err != nil || pinned {
+		t.Fatalf("orcPinned() = %v, %v", pinned, err)
 	}
 }
 
 func TestScopedStatusResolvesBrokerOutsideItsWorkspace(t *testing.T) {
 	t.Setenv("XDG_STATE_HOME", t.TempDir())
-	t.Setenv("ORCA_STATE_DIR", "")
+	t.Setenv("ORC_STATE_DIR", "")
 	scope := t.TempDir()
 	record, _, err := instance.Candidate(scope)
 	if err != nil {
@@ -1733,9 +1733,9 @@ func TestScopedStatusResolvesBrokerOutsideItsWorkspace(t *testing.T) {
 	}
 	outside := t.TempDir()
 	t.Chdir(outside)
-	resolved, active, err := activeOrca(scope)
+	resolved, active, err := activeOrc(scope)
 	if err != nil || active || resolved.StateDirectory != record.StateDirectory {
-		t.Fatalf("activeOrca(%q) = %#v, %v, %v", scope, resolved, active, err)
+		t.Fatalf("activeOrc(%q) = %#v, %v, %v", scope, resolved, active, err)
 	}
 }
 
@@ -1746,7 +1746,7 @@ func TestPinnedLeaseChecksBrokerExecutable(t *testing.T) {
 		t.Fatalf("Candidate() returned %v", err)
 	}
 	called := false
-	record, err := refreshPinnedOrca(candidate, func(record instance.Record, automatic bool) (bool, string, error) {
+	record, err := refreshPinnedOrc(candidate, func(record instance.Record, automatic bool) (bool, string, error) {
 		called = true
 		if automatic {
 			t.Fatal("pinned broker started as automatic")
@@ -1756,7 +1756,7 @@ func TestPinnedLeaseChecksBrokerExecutable(t *testing.T) {
 		return true, "test", instance.Write(record)
 	})
 	if err != nil || !called || record.PID != os.Getpid() {
-		t.Fatalf("refreshPinnedOrca() = %#v, %v, called = %v", record, err, called)
+		t.Fatalf("refreshPinnedOrc() = %#v, %v, called = %v", record, err, called)
 	}
 }
 

@@ -201,7 +201,7 @@
             "traces"
             "ask"
             "sysinit-utils"
-            "orca"
+            "orc"
             "ioskeleyMono"
             "wumpusMono"
             "bookerly"

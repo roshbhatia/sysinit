@@ -5,11 +5,11 @@
 {
   editor-config = import ./editor-config.nix { inherit pkgs; };
   go-tests = pkgs.sysinit-gotools;
-  orca-no-startup-units = pkgs.runCommand "orca-no-startup-units" { } ''
-    test ! -e ${pkgs.orca}/etc/systemd
-    test ! -e ${pkgs.orca}/lib/systemd
-    test ! -e ${pkgs.orca}/Library/LaunchAgents
-    test ! -e ${pkgs.orca}/Library/LaunchDaemons
+  orc-no-startup-units = pkgs.runCommand "orc-no-startup-units" { } ''
+    test ! -e ${pkgs.orc}/etc/systemd
+    test ! -e ${pkgs.orc}/lib/systemd
+    test ! -e ${pkgs.orc}/Library/LaunchAgents
+    test ! -e ${pkgs.orc}/Library/LaunchDaemons
     touch $out
   '';
   colchis-workflow-schema =

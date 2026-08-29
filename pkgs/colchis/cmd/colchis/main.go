@@ -33,11 +33,11 @@ func main() {
 
 func run(args []string, stdout io.Writer, stderr io.Writer) int {
 	if len(args) == 0 {
-		return runOrcaAutoUI(stdout, stderr)
+		return runOrcAutoUI(stdout, stderr)
 	}
 	command := args[0]
-	if isOrcaCommand(command) {
-		return runOrcaCommand(args, stdout, stderr)
+	if isOrcCommand(command) {
+		return runOrcCommand(args, stdout, stderr)
 	}
 	if command == "mcp" {
 		return runMCP(args[1:], os.Stdin, stdout, stderr)
@@ -81,7 +81,7 @@ func run(args []string, stdout io.Writer, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "export requires --output")
 		return 2
 	}
-	paths, err := resolveOrcaPaths(*stateDirectory)
+	paths, err := resolveOrcPaths(*stateDirectory)
 	if err != nil {
 		fmt.Fprintf(stderr, "resolve state paths: %v\n", err)
 		return 1
@@ -102,7 +102,7 @@ func run(args []string, stdout io.Writer, stderr io.Writer) int {
 			fmt.Fprintf(stderr, "enter workspace: %v\n", err)
 			return 1
 		}
-		automaticBroker, pinErr := automaticOrcaBroker(paths.StateDirectory, *automatic)
+		automaticBroker, pinErr := automaticOrcBroker(paths.StateDirectory, *automatic)
 		if pinErr != nil {
 			fmt.Fprintf(stderr, "read broker pin: %v\n", pinErr)
 			return 1
@@ -342,7 +342,7 @@ func executeNativeCommand(
 	if err != nil {
 		return domain.CommandRecord{}, err
 	}
-	paths, err := resolveOrcaPaths(stateDirectory)
+	paths, err := resolveOrcPaths(stateDirectory)
 	if err != nil {
 		return domain.CommandRecord{}, err
 	}
@@ -362,7 +362,7 @@ func executeNativeQuery(
 	kind string,
 	payload json.RawMessage,
 ) (json.RawMessage, error) {
-	paths, err := resolveOrcaPaths(stateDirectory)
+	paths, err := resolveOrcPaths(stateDirectory)
 	if err != nil {
 		return nil, err
 	}
@@ -503,7 +503,7 @@ func runControlCommand(kind string, args []string, stdout io.Writer, stderr io.W
 	if *idempotencyKey == "" {
 		*idempotencyKey = "cli-" + *commandID
 	}
-	paths, err := resolveOrcaPaths(*stateDirectory)
+	paths, err := resolveOrcPaths(*stateDirectory)
 	if err != nil {
 		fmt.Fprintf(stderr, "resolve state paths: %v\n", err)
 		return 1
@@ -585,7 +585,7 @@ func runEvents(args []string, stdout io.Writer, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "events requires a limit from 1 through 1000")
 		return 2
 	}
-	paths, err := resolveOrcaPaths(*stateDirectory)
+	paths, err := resolveOrcPaths(*stateDirectory)
 	if err != nil {
 		fmt.Fprintf(stderr, "resolve state paths: %v\n", err)
 		return 1
