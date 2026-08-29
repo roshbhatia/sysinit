@@ -1127,12 +1127,19 @@ func TestCleanOrcaLeasesRemovesExitedProcesses(t *testing.T) {
 	if err := os.Mkdir(directory, 0o700); err != nil {
 		t.Fatalf("Mkdir() returned %v", err)
 	}
-	active := filepath.Join(directory, fmt.Sprintf("%d-active", os.Getpid()))
-	stale := filepath.Join(directory, "2147483647-stale")
-	for _, path := range []string{active, stale} {
-		if err := os.WriteFile(path, nil, 0o600); err != nil {
-			t.Fatalf("WriteFile() returned %v", err)
-		}
+	active, err := createOrcaLease(directory)
+	if err != nil {
+		t.Fatalf("createOrcaLease() returned %v", err)
+	}
+	stale := filepath.Join(directory, "stale")
+	if err := os.WriteFile(stale, []byte(`{"pid":2147483647,"identity":1}`), 0o600); err != nil {
+		t.Fatalf("WriteFile() returned %v", err)
+	}
+	reused := filepath.Join(directory, "reused")
+	if err := os.WriteFile(
+		reused, []byte(fmt.Sprintf(`{"pid":%d,"identity":1}`, os.Getpid())), 0o600,
+	); err != nil {
+		t.Fatalf("WriteFile() returned %v", err)
 	}
 	remaining, err := cleanOrcaLeases(stateDirectory)
 	if err != nil {
@@ -1141,8 +1148,66 @@ func TestCleanOrcaLeasesRemovesExitedProcesses(t *testing.T) {
 	if remaining != 1 {
 		t.Fatalf("remaining leases = %d, want 1", remaining)
 	}
+	if _, err := os.Stat(active); err != nil {
+		t.Fatalf("active lease stat error = %v", err)
+	}
 	if _, err := os.Stat(stale); !errors.Is(err, os.ErrNotExist) {
 		t.Fatalf("stale lease stat error = %v", err)
+	}
+	if _, err := os.Stat(reused); !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("reused PID lease stat error = %v", err)
+	}
+}
+
+func TestOrcaCandidateUsesContainingWorkspace(t *testing.T) {
+	t.Setenv("XDG_STATE_HOME", t.TempDir())
+	t.Setenv("ORCA_STATE_DIR", "")
+	parent := t.TempDir()
+	nested := filepath.Join(parent, "nested")
+	if err := os.Mkdir(nested, 0o700); err != nil {
+		t.Fatalf("Mkdir() returned %v", err)
+	}
+	record, _, err := instance.Candidate(parent)
+	if err != nil {
+		t.Fatalf("Candidate() returned %v", err)
+	}
+	record.PID = os.Getpid()
+	record.StartedAt = time.Now().UTC().Format(time.RFC3339Nano)
+	if err := instance.Write(record); err != nil {
+		t.Fatalf("Write() returned %v", err)
+	}
+	t.Chdir(nested)
+	candidate, err := orcaStartCandidate("")
+	if err != nil || candidate.Scope != record.Scope {
+		t.Fatalf("orcaStartCandidate() = %#v, %v", candidate, err)
+	}
+}
+
+func TestAutomaticMonitorMarksBrokerStoppingBeforeCancellation(t *testing.T) {
+	stateDirectory := t.TempDir()
+	record := instance.Record{
+		Version: instance.Version, Scope: t.TempDir(), StateDirectory: stateDirectory,
+		Socket: filepath.Join(stateDirectory, "broker.sock"), Automatic: true,
+		PID: os.Getpid(), StartedAt: time.Now().UTC().Format(time.RFC3339Nano),
+	}
+	if err := instance.Write(record); err != nil {
+		t.Fatalf("Write() returned %v", err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	stopped := make(chan instance.Record, 1)
+	go monitorAutomaticBroker(ctx, stateDirectory, func() {
+		current, _ := instance.Read(filepath.Join(stateDirectory, "instance.json"))
+		stopped <- current
+		cancel()
+	})
+	select {
+	case current := <-stopped:
+		if !current.Stopping {
+			t.Fatalf("monitor cancellation record = %#v", current)
+		}
+	case <-time.After(3 * time.Second):
+		t.Fatal("automatic monitor did not stop an idle broker")
 	}
 }
 

@@ -381,9 +381,6 @@ func validateSocketAncestors(path string) error {
 
 func validateSocketAncestorChain(path string, allowRootSymlinks bool) error {
 	for current := path; ; current = filepath.Dir(current) {
-		parent := filepath.Dir(current)
-		// A namespace can report an unmapped owner for its root. No parent entry can replace that root.
-		root := parent == current
 		info, err := os.Lstat(current)
 		if err != nil {
 			return socketError("inspect socket directory ancestor", current, err)
@@ -396,7 +393,7 @@ func validateSocketAncestorChain(path string, allowRootSymlinks bool) error {
 					Message: "socket directory ancestor is an untrusted symbolic link",
 				}
 			}
-		} else if !ok || (!root && stat.Uid != 0 && stat.Uid != uint32(os.Geteuid())) {
+		} else if !ok || (stat.Uid != 0 && stat.Uid != uint32(os.Geteuid())) {
 			return &domain.Error{
 				Code: domain.ErrorCodeUnauthorized, Resource: current,
 				Message: "socket directory ancestor has an untrusted owner",
@@ -407,7 +404,8 @@ func validateSocketAncestorChain(path string, allowRootSymlinks bool) error {
 				Message: "socket directory ancestor permits replacement",
 			}
 		}
-		if root {
+		parent := filepath.Dir(current)
+		if parent == current {
 			return nil
 		}
 	}

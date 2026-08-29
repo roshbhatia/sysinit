@@ -29,6 +29,7 @@ type Record struct {
 	Socket         string `json:"socket"`
 	Service        string `json:"service,omitempty"`
 	Automatic      bool   `json:"automatic,omitempty"`
+	Stopping       bool   `json:"stopping,omitempty"`
 	PID            int    `json:"pid"`
 	StartedAt      string `json:"startedAt"`
 }
@@ -80,17 +81,25 @@ func Candidate(scope string) (Record, config.Paths, error) {
 }
 
 func Active(directory string) (Record, bool, error) {
+	record, found, err := Match(directory)
+	if err != nil || !found {
+		return record, false, err
+	}
+	return record, Live(record), nil
+}
+
+func Match(directory string) (Record, bool, error) {
 	if stateDirectory := os.Getenv("ORCA_STATE_DIR"); stateDirectory != "" {
 		resolved, err := config.ResolvePaths(stateDirectory)
 		if err != nil {
 			return Record{}, false, err
 		}
-		record := Record{
-			Version: Version, Scope: os.Getenv("ORCA_SCOPE"),
-			StateDirectory: resolved.StateDirectory, Socket: resolved.Socket,
-		}
-		if Live(record) {
+		record, err := Read(filepath.Join(resolved.StateDirectory, "instance.json"))
+		if err == nil {
 			return record, true, nil
+		}
+		if !errors.Is(err, os.ErrNotExist) {
+			return Record{}, false, err
 		}
 	}
 	physical, err := Physical(directory)
@@ -102,7 +111,7 @@ func Active(directory string) (Record, bool, error) {
 		return Record{}, false, err
 	}
 	for _, record := range records {
-		if Contains(record.Scope, physical) && Live(record) {
+		if Contains(record.Scope, physical) {
 			return record, true, nil
 		}
 	}

@@ -22,6 +22,7 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/config"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/domain"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/instance"
+	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/plugin"
 	"github.com/roshbhatia/sysinit/pkgs/internal/agents"
 )
 
@@ -113,12 +114,7 @@ func runOrcaStart(args []string, stdout io.Writer, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "start accepts no positional arguments")
 		return 2
 	}
-	scope, err := orcaScope(*scopeFlag)
-	if err != nil {
-		fmt.Fprintf(stderr, "resolve scope: %v\n", err)
-		return 1
-	}
-	record, _, err := instance.Candidate(scope)
+	record, err := orcaStartCandidate(*scopeFlag)
 	if err != nil {
 		fmt.Fprintf(stderr, "resolve instance: %v\n", err)
 		return 1
@@ -147,18 +143,41 @@ func runOrcaStop(args []string, stdout io.Writer, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "stop accepts no arguments")
 		return 2
 	}
-	record, active, err := activeOrca()
+	record, _, err := activeOrca()
 	if err != nil {
 		fmt.Fprintf(stderr, "resolve instance: %v\n", err)
 		return 1
 	}
-	if !active {
-		fmt.Fprintln(stdout, "orca is inactive")
-		return 0
-	}
-	if err := stopOrcaService(record); err != nil {
+	stopped := false
+	err = withOrcaLeaseLock(record.StateDirectory, func() error {
+		current, readErr := instance.Read(filepath.Join(record.StateDirectory, "instance.json"))
+		if errors.Is(readErr, os.ErrNotExist) {
+			return nil
+		}
+		if readErr != nil {
+			return readErr
+		}
+		present, presentErr := orcaServicePresent(current)
+		if presentErr != nil {
+			return presentErr
+		}
+		if !instance.Live(current) && !present {
+			return nil
+		}
+		current.Stopping = true
+		if err := instance.Write(current); err != nil {
+			return err
+		}
+		stopped = true
+		return stopOrcaService(current)
+	})
+	if err != nil {
 		fmt.Fprintf(stderr, "stop broker: %v\n", err)
 		return 1
+	}
+	if !stopped {
+		fmt.Fprintln(stdout, "orca is inactive")
+		return 0
 	}
 	if !waitForOrca(record, false, 5*time.Second) {
 		fmt.Fprintf(stderr, "broker did not stop for %s\n", record.Scope)
@@ -272,7 +291,11 @@ func runOrcaAttach(args []string, stdout io.Writer, stderr io.Writer) int {
 }
 
 func runOrcaController(args []string, stderr io.Writer, resume bool) int {
-	name, model, passthrough, err := parseOrcaRun(args)
+	action := "run"
+	if resume {
+		action = "resume"
+	}
+	name, model, passthrough, err := parseOrcaController(args, action)
 	if err != nil {
 		fmt.Fprintln(stderr, err)
 		return 2
@@ -284,7 +307,7 @@ func runOrcaController(args []string, stderr io.Writer, resume bool) int {
 	}
 	agent, found := registry.Find(name)
 	if !found || agent.Command == "" {
-		fmt.Fprintf(stderr, "unknown agent %q\n", name)
+		fmt.Fprintf(stderr, "unknown controller %q\n", name)
 		return 1
 	}
 	executable, err := exec.LookPath(agent.Command)
@@ -335,9 +358,11 @@ func runOrcaController(args []string, stderr io.Writer, resume bool) int {
 	return 0
 }
 
-func parseOrcaRun(args []string) (string, string, []string, error) {
+func parseOrcaController(args []string, action string) (string, string, []string, error) {
 	if len(args) == 0 {
-		return "", "", nil, errors.New("usage: orca run <agent> [--model <model>] [-- <agent arguments>]")
+		return "", "", nil, fmt.Errorf(
+			"usage: orca %s <controller> [--model <model>] [-- <controller arguments>]", action,
+		)
 	}
 	name := args[0]
 	model := ""
@@ -354,7 +379,9 @@ func parseOrcaRun(args []string) (string, string, []string, error) {
 			passthrough = append(passthrough, args[index+1:]...)
 			return name, model, passthrough, nil
 		default:
-			return "", "", nil, fmt.Errorf("unknown run option %q; pass agent arguments after --", args[index])
+			return "", "", nil, fmt.Errorf(
+				"unknown %s option %q; pass controller arguments after --", action, args[index],
+			)
 		}
 	}
 	return name, model, passthrough, nil
@@ -371,13 +398,37 @@ func orcaScope(configured string) (string, error) {
 	return instance.DefaultScope(directory)
 }
 
+func orcaStartCandidate(configured string) (instance.Record, error) {
+	if configured != "" {
+		scope, err := orcaScope(configured)
+		if err != nil {
+			return instance.Record{}, err
+		}
+		record, _, err := instance.Candidate(scope)
+		return record, err
+	}
+	directory, err := os.Getwd()
+	if err != nil {
+		return instance.Record{}, err
+	}
+	if record, found, err := instance.Match(directory); err != nil || found {
+		return record, err
+	}
+	scope, err := instance.DefaultScope(directory)
+	if err != nil {
+		return instance.Record{}, err
+	}
+	record, _, err := instance.Candidate(scope)
+	return record, err
+}
+
 func activeOrca() (instance.Record, bool, error) {
 	directory, err := os.Getwd()
 	if err != nil {
 		return instance.Record{}, false, err
 	}
-	if record, active, err := instance.Active(directory); err != nil || active {
-		return record, active, err
+	if record, found, err := instance.Match(directory); err != nil || found {
+		return record, found && instance.Live(record), err
 	}
 	scope, err := instance.DefaultScope(directory)
 	if err != nil {
@@ -461,6 +512,34 @@ func startOrcaService(record instance.Record, automatic bool) (string, error) {
 	}
 }
 
+func orcaServicePresent(record instance.Record) (bool, error) {
+	switch {
+	case strings.HasPrefix(record.Service, "launchd:"):
+		label := strings.TrimPrefix(record.Service, "launchd:")
+		target := fmt.Sprintf("gui/%d/%s", os.Getuid(), label)
+		err := exec.Command("/bin/launchctl", "print", target).Run()
+		if err == nil {
+			return true, nil
+		}
+		var exit *exec.ExitError
+		if errors.As(err, &exit) {
+			return false, nil
+		}
+		return false, err
+	case strings.HasPrefix(record.Service, "systemd:"):
+		unit := strings.TrimPrefix(record.Service, "systemd:")
+		output, err := exec.Command(
+			"systemctl", "--user", "show", "--property", "LoadState", "--value", unit,
+		).CombinedOutput()
+		if err != nil {
+			return false, fmt.Errorf("systemctl show: %s: %w", strings.TrimSpace(string(output)), err)
+		}
+		return strings.TrimSpace(string(output)) != "not-found", nil
+	default:
+		return false, nil
+	}
+}
+
 func stopOrcaService(record instance.Record) error {
 	var stopErr error
 	switch {
@@ -530,10 +609,17 @@ func withEnvironment(current []string, values map[string]string) []string {
 }
 
 func startOrcaInstance(record instance.Record, automatic bool) (bool, string, error) {
+	current, readErr := instance.Read(filepath.Join(record.StateDirectory, "instance.json"))
+	if readErr == nil && current.Stopping {
+		if !waitForOrca(current, false, 5*time.Second) {
+			return false, "", fmt.Errorf("stopping broker did not exit for %s", current.Scope)
+		}
+		current = instance.Record{}
+		readErr = os.ErrNotExist
+	}
 	if instance.Live(record) {
-		current, err := instance.Read(filepath.Join(record.StateDirectory, "instance.json"))
-		if err != nil {
-			return false, "", err
+		if readErr != nil {
+			return false, "", readErr
 		}
 		if !automatic && current.Automatic {
 			current.Automatic = false
@@ -542,6 +628,17 @@ func startOrcaInstance(record instance.Record, automatic bool) (bool, string, er
 			}
 		}
 		return false, current.Service, nil
+	}
+	if readErr == nil {
+		present, err := orcaServicePresent(current)
+		if err != nil {
+			return false, "", err
+		}
+		if present {
+			return false, "", fmt.Errorf("broker service is registered but unresponsive for %s", current.Scope)
+		}
+	} else if !errors.Is(readErr, os.ErrNotExist) {
+		return false, "", readErr
 	}
 	if err := os.MkdirAll(record.StateDirectory, 0o700); err != nil {
 		return false, "", fmt.Errorf("create state directory: %w", err)
@@ -555,14 +652,40 @@ func startOrcaInstance(record instance.Record, automatic bool) (bool, string, er
 		if detail := orcaErrorLog(record); detail != "" {
 			message += ": " + detail
 		}
+		failed := record
+		failed.Service = service
+		stopErr := stopOrcaService(failed)
+		if stopErr != nil {
+			message += "; cleanup failed: " + stopErr.Error()
+		} else if !waitForOrcaService(failed, false, 5*time.Second) {
+			message += "; cleanup left the service registered"
+		}
 		return false, "", errors.New(message)
 	}
 	return true, service, nil
 }
 
+func waitForOrcaService(record instance.Record, wantPresent bool, timeout time.Duration) bool {
+	deadline := time.Now().Add(timeout)
+	for time.Now().Before(deadline) {
+		present, err := orcaServicePresent(record)
+		if err == nil && present == wantPresent {
+			return true
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
+	present, err := orcaServicePresent(record)
+	return err == nil && present == wantPresent
+}
+
 type orcaLease struct {
 	record instance.Record
 	path   string
+}
+
+type orcaLeaseRecord struct {
+	PID      int    `json:"pid"`
+	Identity uint64 `json:"identity"`
 }
 
 func runOrcaAutoUI(stdout io.Writer, stderr io.Writer) int {
@@ -580,11 +703,7 @@ func runOrcaAutoUI(stdout io.Writer, stderr io.Writer) int {
 }
 
 func acquireOrcaLease() (orcaLease, error) {
-	scope, err := orcaScope("")
-	if err != nil {
-		return orcaLease{}, err
-	}
-	candidate, _, err := instance.Candidate(scope)
+	candidate, err := orcaStartCandidate("")
 	if err != nil {
 		return orcaLease{}, err
 	}
@@ -607,13 +726,8 @@ func acquireOrcaLease() (orcaLease, error) {
 		if err := os.MkdirAll(directory, 0o700); err != nil {
 			return err
 		}
-		file, err := os.CreateTemp(directory, strconv.Itoa(os.Getpid())+"-")
+		lease.path, err = createOrcaLease(directory)
 		if err != nil {
-			return err
-		}
-		lease.path = file.Name()
-		if err := errors.Join(file.Chmod(0o600), file.Close()); err != nil {
-			_ = os.Remove(lease.path)
 			return err
 		}
 		if _, _, err := startOrcaInstance(candidate, true); err != nil {
@@ -648,6 +762,10 @@ func (lease orcaLease) release() error {
 			return nil
 		}
 		if err != nil || !current.Automatic || !instance.Live(current) {
+			return err
+		}
+		current.Stopping = true
+		if err := instance.Write(current); err != nil {
 			return err
 		}
 		if err := stopOrcaService(current); err != nil {
@@ -690,15 +808,24 @@ func cleanOrcaLeases(stateDirectory string) (int, error) {
 	}
 	remaining := 0
 	for _, entry := range entries {
-		pidText, _, found := strings.Cut(entry.Name(), "-")
-		pid, parseErr := strconv.Atoi(pidText)
-		if !found || parseErr != nil || pid < 1 {
+		if entry.IsDir() {
 			remaining++
 			continue
 		}
-		if err := syscall.Kill(pid, 0); err != nil && errors.Is(err, syscall.ESRCH) {
-			if err := os.Remove(filepath.Join(orcaLeaseDirectory(stateDirectory), entry.Name())); err != nil &&
-				!errors.Is(err, os.ErrNotExist) {
+		path := filepath.Join(orcaLeaseDirectory(stateDirectory), entry.Name())
+		data, readErr := os.ReadFile(path)
+		var lease orcaLeaseRecord
+		decodeErr := json.Unmarshal(data, &lease)
+		alive := false
+		if readErr == nil && decodeErr == nil && lease.PID > 0 && lease.Identity > 0 {
+			identity, found, identityErr := plugin.ProcessIdentity(lease.PID)
+			if identityErr != nil {
+				return 0, identityErr
+			}
+			alive = found && identity == lease.Identity
+		}
+		if !alive {
+			if err := os.Remove(path); err != nil && !errors.Is(err, os.ErrNotExist) {
 				return 0, err
 			}
 			continue
@@ -706,6 +833,30 @@ func cleanOrcaLeases(stateDirectory string) (int, error) {
 		remaining++
 	}
 	return remaining, nil
+}
+
+func createOrcaLease(directory string) (string, error) {
+	identity, found, err := plugin.ProcessIdentity(os.Getpid())
+	if err != nil {
+		return "", err
+	}
+	if !found {
+		return "", syscall.ESRCH
+	}
+	file, err := os.CreateTemp(directory, strconv.Itoa(os.Getpid())+"-")
+	if err != nil {
+		return "", err
+	}
+	path := file.Name()
+	if err := file.Chmod(0o600); err == nil {
+		err = json.NewEncoder(file).Encode(orcaLeaseRecord{PID: os.Getpid(), Identity: identity})
+	}
+	err = errors.Join(err, file.Close())
+	if err != nil {
+		_ = os.Remove(path)
+		return "", err
+	}
+	return path, nil
 }
 
 func monitorAutomaticBroker(ctx context.Context, stateDirectory string, stop context.CancelFunc) {
@@ -716,31 +867,38 @@ func monitorAutomaticBroker(ctx context.Context, stateDirectory string, stop con
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			remaining := 1
-			pinned := false
+			stopBroker := false
 			err := withOrcaLeaseLock(stateDirectory, func() error {
 				record, readErr := instance.Read(filepath.Join(stateDirectory, "instance.json"))
 				if readErr == nil && !record.Automatic {
-					pinned = true
-					return nil
+					return errBrokerPinned
 				}
 				if readErr != nil && !errors.Is(readErr, os.ErrNotExist) {
 					return readErr
 				}
-				var countErr error
-				remaining, countErr = cleanOrcaLeases(stateDirectory)
-				return countErr
+				remaining, countErr := cleanOrcaLeases(stateDirectory)
+				if countErr != nil || remaining != 0 || readErr != nil {
+					return countErr
+				}
+				record.Stopping = true
+				if err := instance.Write(record); err != nil {
+					return err
+				}
+				stopBroker = true
+				stop()
+				return nil
 			})
-			if err == nil && pinned {
+			if errors.Is(err, errBrokerPinned) {
 				return
 			}
-			if err == nil && remaining == 0 {
-				stop()
+			if err == nil && stopBroker {
 				return
 			}
 		}
 	}
 }
+
+var errBrokerPinned = errors.New("broker is pinned")
 
 func orcaRecentDirectory() string {
 	return filepath.Join(filepath.Dir(instance.BaseDirectory()), "recent")

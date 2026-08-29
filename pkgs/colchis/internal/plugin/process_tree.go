@@ -22,6 +22,10 @@ type ProcessSupervisor struct {
 	waitErr  error
 }
 
+func ProcessIdentity(pid int) (uint64, bool, error) {
+	return currentProcessIdentity(pid)
+}
+
 func SuperviseStartedCommand(command *exec.Cmd) (*ProcessSupervisor, error) {
 	if command == nil || command.Process == nil {
 		return nil, syscall.ESRCH
