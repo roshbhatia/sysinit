@@ -1130,16 +1130,6 @@ func (model *orcaUIModel) scrollGraph(direction int) {
 	model.graphOffset = min(max(0, model.graphOffset+direction*page), maximum)
 }
 
-func (model *orcaUIModel) selectWorkflow(id domain.WorkflowRunID) {
-	for index, run := range model.workflows {
-		if run.ID == id {
-			model.workflowCursor = index
-			model.graphOffset = 0
-			return
-		}
-	}
-}
-
 func (model orcaUIModel) replaySelectedWorkflow() tea.Cmd {
 	run := model.workflows[model.workflowCursor]
 	point := model.restartPoints[model.restartCursor]
