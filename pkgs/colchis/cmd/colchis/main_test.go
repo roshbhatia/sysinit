@@ -790,6 +790,33 @@ func TestInactiveMCPAdvertisesProtocolsWithoutTools(t *testing.T) {
 	}
 }
 
+func TestMCPInitializeIgnoresMalformedBrokerRecord(t *testing.T) {
+	stateDirectory := shortStateDirectory(t)
+	paths, err := config.ResolvePaths(stateDirectory)
+	if err != nil {
+		t.Fatalf("ResolvePaths() returned %v", err)
+	}
+	if err := os.MkdirAll(paths.StateDirectory, 0o700); err != nil {
+		t.Fatalf("MkdirAll() returned %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(paths.StateDirectory, "instance.json"), []byte("{"), 0o600); err != nil {
+		t.Fatalf("WriteFile() returned %v", err)
+	}
+	t.Setenv("ORCA_STATE_DIR", stateDirectory)
+	input := strings.NewReader(
+		`{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25"}}` + "\n",
+	)
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	if exit := runMCP(nil, input, &stdout, &stderr); exit != 0 {
+		t.Fatalf("runMCP() exit = %d, stderr = %q", exit, stderr.String())
+	}
+	var response mcpResponse
+	if err := json.Unmarshal(stdout.Bytes(), &response); err != nil || response.Error != nil {
+		t.Fatalf("initialize response = %#v, %v", response, err)
+	}
+}
+
 func TestMCPResolvesBrokerStateForEachRequest(t *testing.T) {
 	stateDirectory := shortStateDirectory(t)
 	client, active, err := resolveMCPClient(stateDirectory)
@@ -854,6 +881,11 @@ func TestMCPNotifiesWhenBrokerToolsBecomeAvailable(t *testing.T) {
 	if err := json.Unmarshal(initialized.Result, &capabilities); err != nil ||
 		!capabilities.Capabilities.Tools.ListChanged {
 		t.Fatalf("initialize capabilities = %#v, %v", capabilities, err)
+	}
+	if _, err := fmt.Fprintln(
+		inputWriter, `{"jsonrpc":"2.0","method":"notifications/initialized"}`,
+	); err != nil {
+		t.Fatalf("write initialized notification: %v", err)
 	}
 
 	paths, err := config.ResolvePaths(stateDirectory)

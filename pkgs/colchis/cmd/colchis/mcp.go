@@ -201,14 +201,21 @@ func runMCP(args []string, stdin io.Reader, stdout io.Writer, stderr io.Writer) 
 			}
 			continue
 		}
-		client, active, err := resolveMCPClient(*stateDirectory)
-		if err != nil {
-			response := mcpToolError(request, err)
-			if encodeErr := encode(response); encodeErr != nil {
-				fmt.Fprintf(stderr, "write MCP response: %v\n", encodeErr)
-				return 1
+		var client *socket.Client
+		var active bool
+		if mcpMethodUsesBroker(request.Method) {
+			var err error
+			client, active, err = resolveMCPClient(*stateDirectory)
+			if err != nil {
+				if len(request.ID) != 0 {
+					response := mcpToolError(request, err)
+					if encodeErr := encode(response); encodeErr != nil {
+						fmt.Fprintf(stderr, "write MCP response: %v\n", encodeErr)
+						return 1
+					}
+				}
+				continue
 			}
-			continue
 		}
 		response, send := handleMCPRequest(context.Background(), client, active, request)
 		if client != nil {
@@ -220,13 +227,19 @@ func runMCP(args []string, stdin io.Reader, stdout io.Writer, stderr io.Writer) 
 				return 1
 			}
 		}
-		if request.Method == "initialize" && !watching {
-			watching = true
-			watchGroup.Add(1)
-			go func(initial bool) {
-				defer watchGroup.Done()
-				watchMCPToolList(watchContext, *stateDirectory, initial, encode)
-			}(active)
+		if request.Method == "notifications/initialized" && !watching {
+			watchClient, initial, watchErr := resolveMCPClient(*stateDirectory)
+			if watchClient != nil {
+				watchClient.Close()
+			}
+			if watchErr == nil {
+				watching = true
+				watchGroup.Add(1)
+				go func() {
+					defer watchGroup.Done()
+					watchMCPToolList(watchContext, *stateDirectory, initial, encode)
+				}()
+			}
 		}
 	}
 	if err := scanner.Err(); err != nil {
@@ -234,6 +247,10 @@ func runMCP(args []string, stdin io.Reader, stdout io.Writer, stderr io.Writer) 
 		return 1
 	}
 	return 0
+}
+
+func mcpMethodUsesBroker(method string) bool {
+	return method == "tools/list" || method == "tools/call"
 }
 
 func watchMCPToolList(
