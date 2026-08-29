@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/api/socket"
@@ -36,6 +37,11 @@ type mcpResponse struct {
 	ID      json.RawMessage `json:"id"`
 	Result  json.RawMessage `json:"result,omitempty"`
 	Error   *mcpError       `json:"error,omitempty"`
+}
+
+type mcpNotification struct {
+	JSONRPC string `json:"jsonrpc"`
+	Method  string `json:"method"`
 }
 
 type mcpError struct {
@@ -170,10 +176,23 @@ func runMCP(args []string, stdin io.Reader, stdout io.Writer, stderr io.Writer) 
 	scanner.Buffer(make([]byte, 4096), 1<<20)
 	encoder := json.NewEncoder(stdout)
 	encoder.SetEscapeHTML(false)
+	var outputMu sync.Mutex
+	encode := func(value interface{}) error {
+		outputMu.Lock()
+		defer outputMu.Unlock()
+		return encoder.Encode(value)
+	}
+	watchContext, stopWatch := context.WithCancel(context.Background())
+	var watchGroup sync.WaitGroup
+	defer func() {
+		stopWatch()
+		watchGroup.Wait()
+	}()
+	watching := false
 	for scanner.Scan() {
 		var request mcpRequest
 		if err := json.Unmarshal(scanner.Bytes(), &request); err != nil {
-			if err := encoder.Encode(mcpResponse{
+			if err := encode(mcpResponse{
 				JSONRPC: mcpJSONRPCVersion, ID: json.RawMessage(`null`),
 				Error: &mcpError{Code: -32700, Message: "request is not valid JSON"},
 			}); err != nil {
@@ -185,7 +204,7 @@ func runMCP(args []string, stdin io.Reader, stdout io.Writer, stderr io.Writer) 
 		client, active, err := resolveMCPClient(*stateDirectory)
 		if err != nil {
 			response := mcpToolError(request, err)
-			if encodeErr := encoder.Encode(response); encodeErr != nil {
+			if encodeErr := encode(response); encodeErr != nil {
 				fmt.Fprintf(stderr, "write MCP response: %v\n", encodeErr)
 				return 1
 			}
@@ -196,10 +215,18 @@ func runMCP(args []string, stdin io.Reader, stdout io.Writer, stderr io.Writer) 
 			client.Close()
 		}
 		if send {
-			if err := encoder.Encode(response); err != nil {
+			if err := encode(response); err != nil {
 				fmt.Fprintf(stderr, "write MCP response: %v\n", err)
 				return 1
 			}
+		}
+		if request.Method == "initialize" && !watching {
+			watching = true
+			watchGroup.Add(1)
+			go func(initial bool) {
+				defer watchGroup.Done()
+				watchMCPToolList(watchContext, *stateDirectory, initial, encode)
+			}(active)
 		}
 	}
 	if err := scanner.Err(); err != nil {
@@ -207,6 +234,36 @@ func runMCP(args []string, stdin io.Reader, stdout io.Writer, stderr io.Writer) 
 		return 1
 	}
 	return 0
+}
+
+func watchMCPToolList(
+	ctx context.Context,
+	stateDirectory string,
+	active bool,
+	encode func(interface{}) error,
+) {
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			client, current, err := resolveMCPClient(stateDirectory)
+			if client != nil {
+				client.Close()
+			}
+			if err != nil || current == active {
+				continue
+			}
+			active = current
+			if err := encode(mcpNotification{
+				JSONRPC: mcpJSONRPCVersion, Method: "notifications/tools/list_changed",
+			}); err != nil {
+				return
+			}
+		}
+	}
 }
 
 func resolveMCPClient(stateDirectory string) (*socket.Client, bool, error) {
@@ -268,14 +325,14 @@ func handleMCPRequest(
 		}
 		result := json.RawMessage(`{
   "protocolVersion":"` + protocolVersion + `",
-  "capabilities":{"tools":{"listChanged":false}},
+  "capabilities":{"tools":{"listChanged":true}},
   "serverInfo":{"name":"orca","version":"0.1.0"}
 }`)
 		return mcpSuccess(request.ID, result), true
 	case "server/discover":
 		result := json.RawMessage(`{
   "supportedVersions":["` + mcpCurrentVersion + `"],
-  "capabilities":{"tools":{"listChanged":false}},
+  "capabilities":{"tools":{"listChanged":true}},
   "instructions":"Use Orca tools when a local broker is active.",
   "ttlMs":300000,"cacheScope":"private"
 }`)

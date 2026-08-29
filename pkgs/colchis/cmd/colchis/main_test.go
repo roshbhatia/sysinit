@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -816,6 +817,82 @@ func TestMCPResolvesBrokerStateForEachRequest(t *testing.T) {
 	client, active, err = resolveMCPClient(stateDirectory)
 	if err != nil || active || client != nil {
 		t.Fatalf("resolveMCPClient(stopped) = %#v, %v, %v", client, active, err)
+	}
+}
+
+func TestMCPNotifiesWhenBrokerToolsBecomeAvailable(t *testing.T) {
+	stateDirectory := shortStateDirectory(t)
+	inputReader, inputWriter := io.Pipe()
+	outputReader, outputWriter := io.Pipe()
+	var stderr bytes.Buffer
+	mcpExit := make(chan int, 1)
+	go func() {
+		mcpExit <- runMCP([]string{"--state-dir", stateDirectory}, inputReader, outputWriter, &stderr)
+		_ = outputWriter.Close()
+	}()
+	defer inputWriter.Close()
+
+	if _, err := fmt.Fprintln(
+		inputWriter,
+		`{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25"}}`,
+	); err != nil {
+		t.Fatalf("write initialize request: %v", err)
+	}
+	decoder := json.NewDecoder(outputReader)
+	var initialized mcpResponse
+	if err := decoder.Decode(&initialized); err != nil {
+		t.Fatalf("decode initialize response: %v", err)
+	}
+	var capabilities struct {
+		Capabilities struct {
+			Tools struct {
+				ListChanged bool `json:"listChanged"`
+			} `json:"tools"`
+		} `json:"capabilities"`
+	}
+	if err := json.Unmarshal(initialized.Result, &capabilities); err != nil ||
+		!capabilities.Capabilities.Tools.ListChanged {
+		t.Fatalf("initialize capabilities = %#v, %v", capabilities, err)
+	}
+
+	paths, err := config.ResolvePaths(stateDirectory)
+	if err != nil {
+		t.Fatalf("ResolvePaths() returned %v", err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	serveErrors := make(chan error, 1)
+	go func() { serveErrors <- serve(ctx, paths) }()
+	waitForSocket(t, paths.Socket, cancel, serveErrors)
+	defer func() {
+		cancel()
+		if err := <-serveErrors; err != nil {
+			t.Errorf("serve() returned %v", err)
+		}
+		_ = inputWriter.Close()
+		if exit := <-mcpExit; exit != 0 {
+			t.Errorf("runMCP() exit = %d, stderr = %q", exit, stderr.String())
+		}
+	}()
+
+	notifications := make(chan mcpNotification, 1)
+	decodeErrors := make(chan error, 1)
+	go func() {
+		var notification mcpNotification
+		if err := decoder.Decode(&notification); err != nil {
+			decodeErrors <- err
+			return
+		}
+		notifications <- notification
+	}()
+	select {
+	case notification := <-notifications:
+		if notification.Method != "notifications/tools/list_changed" {
+			t.Fatalf("notification = %#v", notification)
+		}
+	case err := <-decodeErrors:
+		t.Fatalf("decode tool-list notification: %v", err)
+	case <-time.After(3 * time.Second):
+		t.Fatal("MCP did not report the broker tool-list change")
 	}
 }
 
