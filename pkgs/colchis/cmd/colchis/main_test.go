@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"syscall"
 	"testing"
 	"time"
 
@@ -41,6 +42,34 @@ func TestMain(tests *testing.M) {
 		os.Exit(runSmokePlugin())
 	}
 	os.Exit(tests.Run())
+}
+
+func TestLinuxSandboxRootDiagnostic(t *testing.T) {
+	if runtime.GOOS != "linux" {
+		t.Skip("requires Linux")
+	}
+	info, err := os.Lstat(string(os.PathSeparator))
+	if err != nil {
+		t.Fatalf("Lstat(/) returned %v", err)
+	}
+	stat, ok := info.Sys().(*syscall.Stat_t)
+	if !ok {
+		t.Fatal("Lstat(/) returned no syscall metadata")
+	}
+	mountInfo, mountErr := os.ReadFile("/proc/self/mountinfo")
+	overflow, overflowErr := os.ReadFile("/proc/sys/kernel/overflowuid")
+	uidMap, uidMapErr := os.ReadFile("/proc/self/uid_map")
+	rootMounts := make([]string, 0)
+	for _, line := range strings.Split(string(mountInfo), "\n") {
+		fields := strings.Fields(line)
+		if len(fields) > 5 && fields[4] == string(os.PathSeparator) {
+			rootMounts = append(rootMounts, line)
+		}
+	}
+	t.Fatalf(
+		"sandbox root observed: uid=%d euid=%d mode=%v mountErr=%v overflow=%q overflowErr=%v uidMap=%q uidMapErr=%v rootMounts=%q",
+		stat.Uid, os.Geteuid(), info.Mode(), mountErr, overflow, overflowErr, uidMap, uidMapErr, rootMounts,
+	)
 }
 
 func runSmokePlugin() int {
