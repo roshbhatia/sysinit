@@ -23,7 +23,6 @@ import (
 	openspecadapter "github.com/roshbhatia/sysinit/pkgs/colchis/internal/adapter/openspec"
 	piadapter "github.com/roshbhatia/sysinit/pkgs/colchis/internal/adapter/pi"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/adapter/seshy"
-	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/api/socket"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/broker"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/config"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/domain"
@@ -568,27 +567,9 @@ func TestRunSmokeWorkflowFromCleanState(t *testing.T) {
 	if err := json.Unmarshal(snapshotCommand.Result, &snapshot); err != nil {
 		t.Fatalf("Unmarshal() snapshot returned %v", err)
 	}
-	client, err := socket.NewClient(paths.Socket)
-	if err != nil {
-		t.Fatalf("NewClient() returned %v", err)
-	}
-	events, err := client.Events(ctx, 0, 200)
-	client.Close()
-	if err != nil {
-		t.Fatalf("Events() returned %v", err)
-	}
-	var restartCursor domain.EventCursor
-	for _, event := range events {
-		if event.Aggregate.Kind == "workflow-run" && event.Aggregate.ID == "run-smoke" {
-			restartCursor = event.Cursor
-		}
-	}
-	if restartCursor == 0 {
-		t.Fatal("workflow restart cursor is missing")
-	}
 	restartPayload, err := json.Marshal(sqlite.RestartPointRequest{
 		ID: "restart-smoke", Kind: domain.RestartPointRunAdmission, WorkflowRunID: "run-smoke",
-		EventCursor: restartCursor, SnapshotID: snapshot.ID,
+		SnapshotID:   snapshot.ID,
 		AdmissionIDs: []domain.AdmissionID{}, CheckpointIDs: []domain.CheckpointID{},
 	})
 	if err != nil {
@@ -1339,6 +1320,18 @@ func TestPlanningPrimitivesAreNotPublicCLICommands(t *testing.T) {
 	for _, args := range [][]string{{"planning", "discover"}, {"planning", "snapshot"}, {"planning", "action"}} {
 		if kind, _, found := controlCommandKind(args); found || kind != "" {
 			t.Fatalf("controlCommandKind(%q) = %q, %v", args, kind, found)
+		}
+	}
+}
+
+func TestWorkflowRestartMetadataHasNativeCLICommands(t *testing.T) {
+	for args, expected := range map[string]string{
+		"workflow restart-points": "workflow.restart-points",
+		"workflow forks":          "workflow.forks",
+	} {
+		kind, offset, found := controlCommandKind(strings.Fields(args))
+		if !found || kind != expected || offset != 2 {
+			t.Fatalf("controlCommandKind(%q) = %q, %d, %v", args, kind, offset, found)
 		}
 	}
 }

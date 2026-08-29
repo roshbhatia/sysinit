@@ -32,7 +32,6 @@ type RestartPointRequest struct {
 	ID            domain.RestartPointID   `json:"id"`
 	Kind          domain.RestartPointKind `json:"kind"`
 	WorkflowRunID domain.WorkflowRunID    `json:"workflowRunId"`
-	EventCursor   domain.EventCursor      `json:"eventCursor"`
 	SnapshotID    domain.SnapshotID       `json:"snapshotId"`
 	NodeRunID     *domain.NodeRunID       `json:"nodeRunId,omitempty"`
 	AdmissionIDs  []domain.AdmissionID    `json:"admissionIds"`
@@ -286,9 +285,6 @@ func (store *Store) CreateRestartPoint(
 				Message: "workflow run does not exist",
 			}
 		}
-		if err := transaction.validateRestartCursor(ctx, run.ID, request); err != nil {
-			return err
-		}
 		if _, found, err := transaction.snapshot(ctx, request.SnapshotID); err != nil {
 			return err
 		} else if !found {
@@ -296,6 +292,10 @@ func (store *Store) CreateRestartPoint(
 				Code: domain.ErrorCodeNotFound, Op: "create", Resource: string(request.SnapshotID),
 				Message: "restart snapshot does not exist",
 			}
+		}
+		snapshotCursor, err := transaction.snapshotEventCursor(ctx, request.SnapshotID)
+		if err != nil {
+			return err
 		}
 		if request.NodeRunID != nil {
 			node, found, err := transaction.nodeRun(ctx, *request.NodeRunID)
@@ -370,7 +370,7 @@ func (store *Store) CreateRestartPoint(
 		point = domain.RestartPoint{
 			Metadata: newRecordMetadata(now), ID: request.ID, Kind: request.Kind,
 			WorkflowRunID: run.ID, WorkflowDefinitionID: run.WorkflowDefinition,
-			DefinitionVersion: run.DefinitionVersion, EventCursor: request.EventCursor,
+			DefinitionVersion: run.DefinitionVersion, EventCursor: snapshotCursor,
 			SnapshotID: request.SnapshotID, NodeRunID: request.NodeRunID,
 			AdmissionIDs:  append([]domain.AdmissionID(nil), request.AdmissionIDs...),
 			CheckpointIDs: append([]domain.CheckpointID(nil), request.CheckpointIDs...),
@@ -847,38 +847,26 @@ func (transaction *Tx) earliestRestartPoint(
 	return points[0].ID, true, nil
 }
 
-func (transaction *Tx) validateRestartCursor(
+func (transaction *Tx) snapshotEventCursor(
 	ctx context.Context,
-	runID domain.WorkflowRunID,
-	request RestartPointRequest,
-) error {
-	var aggregateKind string
-	var aggregateID string
+	snapshotID domain.SnapshotID,
+) (domain.EventCursor, error) {
+	var cursor domain.EventCursor
 	err := transaction.tx.QueryRowContext(
 		ctx,
-		"SELECT aggregate_kind, aggregate_id FROM events WHERE cursor = ?",
-		request.EventCursor,
-	).Scan(&aggregateKind, &aggregateID)
+		"SELECT cursor FROM events WHERE aggregate_kind = ? AND aggregate_id = ? AND event_type = ?",
+		snapshotRecordKind, string(snapshotID), "workspace.snapshot.created",
+	).Scan(&cursor)
 	if errors.Is(err, sql.ErrNoRows) {
-		return &domain.Error{
-			Code: domain.ErrorCodeInvalidArgument, Op: "create", Resource: fmt.Sprint(request.EventCursor),
-			Message: "restart event cursor does not exist",
+		return 0, &domain.Error{
+			Code: domain.ErrorCodeInternal, Op: "create", Resource: string(snapshotID),
+			Message: "restart snapshot has no creation event",
 		}
 	}
 	if err != nil {
-		return wrap("read restart event cursor", fmt.Sprint(request.EventCursor), err)
+		return 0, wrap("read restart snapshot cursor", string(snapshotID), err)
 	}
-	valid := aggregateKind == workflowRunRecordKind && aggregateID == string(runID)
-	if request.Kind == domain.RestartPointNodeAdmission && request.NodeRunID != nil {
-		valid = valid || aggregateKind == nodeRunRecordKind && aggregateID == string(*request.NodeRunID)
-	}
-	if !valid {
-		return &domain.Error{
-			Code: domain.ErrorCodeInvalidArgument, Op: "create", Resource: fmt.Sprint(request.EventCursor),
-			Message: "restart event cursor does not belong to the workflow run",
-		}
-	}
-	return nil
+	return cursor, nil
 }
 
 func newWorkflowRunRecords(
@@ -943,10 +931,10 @@ func validateRestartPointRequest(request RestartPointRequest) error {
 			return validation
 		}
 	}
-	if !request.Kind.Valid() || request.EventCursor == 0 {
+	if !request.Kind.Valid() {
 		return &domain.Error{
 			Code: domain.ErrorCodeInvalidArgument, Op: "create", Resource: string(request.ID),
-			Message: "restart point kind and event cursor are required",
+			Message: "restart point kind is required",
 		}
 	}
 	if request.Kind == domain.RestartPointNodeAdmission && request.NodeRunID == nil {

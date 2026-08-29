@@ -554,6 +554,9 @@ func (host *Host) AdapterCapabilities() map[string][]string {
 	counts := make(map[string]int)
 	for pluginID, active := range host.plugins {
 		for _, adapter := range active.manifest.Adapters {
+			if adapter.Port != domain.AdapterPortAgentRuntime {
+				continue
+			}
 			selector := string(pluginID) + "::" + adapter.ID
 			capabilities[selector] = append([]string(nil), adapter.Capabilities...)
 			counts[adapter.ID]++
@@ -561,6 +564,9 @@ func (host *Host) AdapterCapabilities() map[string][]string {
 	}
 	for _, active := range host.plugins {
 		for _, adapter := range active.manifest.Adapters {
+			if adapter.Port != domain.AdapterPortAgentRuntime {
+				continue
+			}
 			if counts[adapter.ID] == 1 {
 				capabilities[adapter.ID] = append([]string(nil), adapter.Capabilities...)
 			}

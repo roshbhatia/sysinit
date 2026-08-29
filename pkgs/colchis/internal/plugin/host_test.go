@@ -422,6 +422,23 @@ func TestHostUsesQualifiedSelectorsForDuplicateAdapters(t *testing.T) {
 	}
 }
 
+func TestAdapterCapabilitiesExcludeNonRuntimePorts(t *testing.T) {
+	t.Parallel()
+
+	host := &Host{plugins: map[domain.PluginID]*activePlugin{
+		"fixture": {
+			manifest: InitializeResult{Adapters: []AdapterManifest{
+				{ID: "runtime", Port: domain.AdapterPortAgentRuntime, Capabilities: []string{"job-policy"}},
+				{ID: "openspec", Port: domain.AdapterPortPlanning, Capabilities: []string{"planning.framework.openspec"}},
+			}},
+		},
+	}}
+	capabilities := host.AdapterCapabilities()
+	if _, found := capabilities["openspec"]; found || len(capabilities["runtime"]) != 1 {
+		t.Fatalf("AdapterCapabilities() = %#v", capabilities)
+	}
+}
+
 func TestHostFailsClosedBeforePluginExecution(t *testing.T) {
 	t.Parallel()
 

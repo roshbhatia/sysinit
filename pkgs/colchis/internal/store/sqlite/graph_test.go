@@ -70,10 +70,9 @@ func TestApplyGraphPatchReportsRestartForStartedWork(t *testing.T) {
 	if _, err := store.CreateWorkspaceSnapshot(ctx, "snapshot-start", "workspace-start", workspace); err != nil {
 		t.Fatalf("CreateWorkspaceSnapshot() returned %v", err)
 	}
-	cursor := graphTestRunCursor(t, ctx, store, "run-started")
 	point, err := store.CreateRestartPoint(ctx, RestartPointRequest{
 		ID: "restart-admission", Kind: domain.RestartPointRunAdmission,
-		WorkflowRunID: "run-started", EventCursor: cursor, SnapshotID: "snapshot-start",
+		WorkflowRunID: "run-started", SnapshotID: "snapshot-start",
 	})
 	if err != nil {
 		t.Fatalf("CreateRestartPoint() returned %v", err)
@@ -150,13 +149,23 @@ func TestReplayWorkflowCreatesChildAndPreservesParent(t *testing.T) {
 	if _, err := store.CreateWorkspaceSnapshot(ctx, "snapshot-replay", "workspace-replay", workspace); err != nil {
 		t.Fatalf("CreateWorkspaceSnapshot() returned %v", err)
 	}
-	cursor := graphTestRunCursor(t, ctx, store, parent.ID)
 	point, err := store.CreateRestartPoint(ctx, RestartPointRequest{
 		ID: "restart-replay", Kind: domain.RestartPointRunAdmission,
-		WorkflowRunID: parent.ID, EventCursor: cursor, SnapshotID: "snapshot-replay",
+		WorkflowRunID: parent.ID, SnapshotID: "snapshot-replay",
 	})
 	if err != nil {
 		t.Fatalf("CreateRestartPoint() returned %v", err)
+	}
+	var snapshotCursor domain.EventCursor
+	if err := store.db.QueryRowContext(
+		ctx,
+		"SELECT cursor FROM events WHERE aggregate_kind = ? AND aggregate_id = ? AND event_type = ?",
+		snapshotRecordKind, "snapshot-replay", "workspace.snapshot.created",
+	).Scan(&snapshotCursor); err != nil {
+		t.Fatalf("read snapshot cursor: %v", err)
+	}
+	if point.EventCursor != snapshotCursor {
+		t.Fatalf("restart cursor = %d, want snapshot cursor %d", point.EventCursor, snapshotCursor)
 	}
 	child, fork, err := store.ReplayWorkflow(ctx, ReplayRequest{
 		ID: "fork-1", ParentWorkflowRunID: parent.ID, ChildWorkflowRunID: "run-child",
@@ -217,8 +226,7 @@ func TestReplayWorkflowRejectsUnrelatedDefinition(t *testing.T) {
 	}
 	point, err := store.CreateRestartPoint(ctx, RestartPointRequest{
 		ID: "restart-lineage", Kind: domain.RestartPointRunAdmission,
-		WorkflowRunID: parent.ID, EventCursor: graphTestRunCursor(t, ctx, store, parent.ID),
-		SnapshotID: "snapshot-lineage",
+		WorkflowRunID: parent.ID, SnapshotID: "snapshot-lineage",
 	})
 	if err != nil {
 		t.Fatalf("CreateRestartPoint() returned %v", err)
@@ -249,8 +257,8 @@ func TestOrchestrationRestartPointRequiresOwnedCheckpoint(t *testing.T) {
 	}
 	_, err := store.CreateRestartPoint(ctx, RestartPointRequest{
 		ID: "restart-missing-checkpoint", Kind: domain.RestartPointOrchestrationCheckpoint,
-		WorkflowRunID: parent.ID, EventCursor: graphTestRunCursor(t, ctx, store, parent.ID),
-		SnapshotID: "snapshot-checkpoint", CheckpointIDs: []domain.CheckpointID{"checkpoint-missing"},
+		WorkflowRunID: parent.ID, SnapshotID: "snapshot-checkpoint",
+		CheckpointIDs: []domain.CheckpointID{"checkpoint-missing"},
 	})
 	if !domain.IsErrorCode(err, domain.ErrorCodeNotFound) {
 		t.Fatalf("CreateRestartPoint() error = %v", err)
@@ -333,22 +341,4 @@ func graphTestInsertOperation(t *testing.T) domain.GraphPatchOperation {
 		TargetEdgeKey: &target, InstanceNodeKey: &instance, StageTemplateKey: &templateKey,
 		Value: value,
 	}
-}
-
-func graphTestRunCursor(
-	t *testing.T,
-	ctx context.Context,
-	store *Store,
-	runID domain.WorkflowRunID,
-) domain.EventCursor {
-	t.Helper()
-	var cursor domain.EventCursor
-	if err := store.db.QueryRowContext(
-		ctx,
-		"SELECT MAX(cursor) FROM events WHERE aggregate_kind = ? AND aggregate_id = ?",
-		workflowRunRecordKind, string(runID),
-	).Scan(&cursor); err != nil {
-		t.Fatalf("reading run event cursor returned %v", err)
-	}
-	return cursor
 }

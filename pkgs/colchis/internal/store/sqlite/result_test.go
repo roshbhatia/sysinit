@@ -232,8 +232,8 @@ func TestReplayRerunsNodesFromRestartSnapshot(t *testing.T) {
 	}
 	point, err := store.CreateRestartPoint(ctx, RestartPointRequest{
 		ID: "restart-current-admission", Kind: domain.RestartPointNodeAdmission,
-		WorkflowRunID: parent.ID, EventCursor: graphTestRunCursor(t, ctx, store, parent.ID),
-		SnapshotID: restartSnapshot.ID, NodeRunID: nodeIDPointer(nodeRunID(parent.ID, "implement")),
+		WorkflowRunID: parent.ID, SnapshotID: restartSnapshot.ID,
+		NodeRunID:    nodeIDPointer(nodeRunID(parent.ID, "implement")),
 		AdmissionIDs: []domain.AdmissionID{admission.ID},
 	})
 	if err != nil {

@@ -222,19 +222,6 @@ func TestControlExecutorCreatesAndInspectsWorkflow(t *testing.T) {
 	if err != nil || !strings.Contains(string(scheduled), `"state":"running"`) {
 		t.Fatalf("workflow.schedule = %s, %v", scheduled, err)
 	}
-	events, err := store.EventsAfter(ctx, 0, 100)
-	if err != nil {
-		t.Fatalf("EventsAfter() returned %v", err)
-	}
-	var restartCursor domain.EventCursor
-	for _, event := range events {
-		if event.Aggregate.Kind == "workflow-run" && event.Aggregate.ID == "run-control" {
-			restartCursor = event.Cursor
-		}
-	}
-	if restartCursor == 0 {
-		t.Fatal("workflow run event cursor is missing")
-	}
 	workspace := t.TempDir()
 	if err := os.WriteFile(filepath.Join(workspace, "state.txt"), []byte("restart"), 0o600); err != nil {
 		t.Fatalf("WriteFile() returned %v", err)
@@ -244,8 +231,7 @@ func TestControlExecutorCreatesAndInspectsWorkflow(t *testing.T) {
 	}
 	restartPayload, err := json.Marshal(sqlite.RestartPointRequest{
 		ID: "restart-control", Kind: domain.RestartPointRunAdmission,
-		WorkflowRunID: "run-control", EventCursor: restartCursor,
-		SnapshotID: "snapshot-control", AdmissionIDs: []domain.AdmissionID{},
+		WorkflowRunID: "run-control", SnapshotID: "snapshot-control", AdmissionIDs: []domain.AdmissionID{},
 		CheckpointIDs: []domain.CheckpointID{},
 	})
 	if err != nil {

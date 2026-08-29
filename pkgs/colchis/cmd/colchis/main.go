@@ -413,6 +413,8 @@ func controlCommandKind(args []string) (string, int, bool) {
 		"workflow create":          "workflow.create",
 		"workflow run":             "workflow.run",
 		"workflow list":            "workflow.list",
+		"workflow restart-points":  "workflow.restart-points",
+		"workflow forks":           "workflow.forks",
 		"workflow schedule":        "workflow.schedule",
 		"workflow inspect":         "workflow.inspect",
 		"workflow export":          "workflow.export",
