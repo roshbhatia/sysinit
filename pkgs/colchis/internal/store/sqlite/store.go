@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -562,43 +563,43 @@ func validateAncestorChain(path string, allowRootSymlinks bool) error {
 }
 
 func trustedAncestorOwner(uid uint32, isFilesystemRoot bool) bool {
-	if uid == 0 || uid == uint32(os.Geteuid()) {
+	if uid == 0 {
 		return true
+	}
+	if uid == uint32(os.Geteuid()) {
+		overflow, mapped, err := currentOverflowOwnership(uid)
+		return effectiveOwnerTrusted(runtime.GOOS, overflow, mapped, err)
 	}
 	if !isFilesystemRoot {
 		return false
 	}
 	mountInfo, err := os.ReadFile("/proc/self/mountinfo")
-	if err != nil || !rootSuperblockReadOnly(string(mountInfo)) {
+	if err != nil || !rootMountsReadOnly(string(mountInfo)) {
 		return false
 	}
-	overflowRaw, err := os.ReadFile("/proc/sys/kernel/overflowuid")
-	if err != nil {
-		return false
-	}
-	overflow, err := strconv.ParseUint(strings.TrimSpace(string(overflowRaw)), 10, 32)
-	if err != nil || uid != uint32(overflow) {
-		return false
-	}
-	mapping, err := os.ReadFile("/proc/self/uid_map")
-	if err != nil {
-		return false
-	}
-	mapped, err := uidMapContains(string(mapping), uid)
-	return err == nil && !mapped
+	overflow, mapped, err := currentOverflowOwnership(uid)
+	return err == nil && overflow && !mapped
 }
 
-func rootSuperblockReadOnly(mountInfo string) bool {
-	foundRoot := false
+func rootMountsReadOnly(mountInfo string) bool {
+	type mountRecord struct {
+		parent   uint64
+		readOnly bool
+	}
+
+	mounts := make(map[uint64]mountRecord)
+	rootIDs := make(map[uint64]struct{})
 	for _, line := range strings.Split(mountInfo, "\n") {
 		fields := strings.Fields(line)
-		if len(fields) < 10 || fields[4] != string(os.PathSeparator) {
+		if len(fields) == 0 {
 			continue
 		}
-		foundRoot = true
+		if len(fields) < 10 {
+			return false
+		}
 		separator := -1
-		for index, field := range fields {
-			if field == "-" {
+		for index := 6; index < len(fields); index++ {
+			if fields[index] == "-" {
 				separator = index
 				break
 			}
@@ -606,18 +607,95 @@ func rootSuperblockReadOnly(mountInfo string) bool {
 		if separator < 0 || separator+3 >= len(fields) {
 			return false
 		}
+		id, idErr := strconv.ParseUint(fields[0], 10, 64)
+		parent, parentErr := strconv.ParseUint(fields[1], 10, 64)
+		if idErr != nil || parentErr != nil {
+			return false
+		}
+		if _, duplicate := mounts[id]; duplicate {
+			return false
+		}
+		root := fields[4] == string(os.PathSeparator)
 		readOnly := false
-		for _, option := range strings.Split(fields[separator+3], ",") {
-			if option == "ro" {
-				readOnly = true
+		if root {
+			for _, option := range strings.Split(fields[5], ",") {
+				if option == "ro" {
+					readOnly = true
+					break
+				}
+			}
+			rootIDs[id] = struct{}{}
+		}
+		mounts[id] = mountRecord{parent: parent, readOnly: readOnly}
+	}
+	if len(rootIDs) == 0 {
+		return false
+	}
+
+	hiddenRoots := make(map[uint64]struct{})
+	for id := range rootIDs {
+		seen := make(map[uint64]struct{})
+		parent := mounts[id].parent
+		for {
+			if _, cycle := seen[parent]; cycle {
+				return false
+			}
+			seen[parent] = struct{}{}
+			if _, root := rootIDs[parent]; root {
+				hiddenRoots[parent] = struct{}{}
+			}
+			record, found := mounts[parent]
+			if !found || record.parent == parent {
 				break
 			}
+			parent = record.parent
 		}
-		if !readOnly {
+	}
+
+	visibleRoots := 0
+	visibleReadOnly := false
+	for id := range rootIDs {
+		if _, hidden := hiddenRoots[id]; hidden {
+			continue
+		}
+		visibleRoots++
+		visibleReadOnly = mounts[id].readOnly
+		if visibleRoots > 1 {
 			return false
 		}
 	}
-	return foundRoot
+	return visibleRoots == 1 && visibleReadOnly
+}
+
+func currentOverflowOwnership(uid uint32) (bool, bool, error) {
+	overflowRaw, err := os.ReadFile("/proc/sys/kernel/overflowuid")
+	if err != nil {
+		return false, false, err
+	}
+	mapping, err := os.ReadFile("/proc/self/uid_map")
+	if err != nil {
+		return false, false, err
+	}
+	return overflowOwnership(uid, string(overflowRaw), string(mapping))
+}
+
+func effectiveOwnerTrusted(goos string, overflow bool, mapped bool, metadataErr error) bool {
+	if metadataErr != nil {
+		return goos != "linux"
+	}
+	return !overflow || !mapped
+}
+
+func overflowOwnership(uid uint32, overflowRaw string, mapping string) (bool, bool, error) {
+	overflow, err := strconv.ParseUint(strings.TrimSpace(overflowRaw), 10, 32)
+	if err != nil {
+		return false, false, err
+	}
+	if uid != uint32(overflow) {
+		return false, false, nil
+	}
+	mapped, err := uidMapContains(mapping, uid)
+	return true, mapped, err
 }
 
 func uidMapContains(mapping string, uid uint32) (bool, error) {

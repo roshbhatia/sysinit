@@ -506,24 +506,67 @@ func TestUIDMapContains(t *testing.T) {
 	}
 }
 
-func TestRootSuperblockReadOnly(t *testing.T) {
+func TestRootMountsReadOnly(t *testing.T) {
 	t.Parallel()
 
-	readOnly := "36 25 0:32 / / ro,relatime - tmpfs tmpfs ro,size=1024k\n"
-	if !rootSuperblockReadOnly(readOnly) {
-		t.Fatal("rootSuperblockReadOnly() rejected a read-only root superblock")
+	readOnly := "36 25 0:32 / / ro,relatime - tmpfs tmpfs rw,size=1024k\n"
+	if !rootMountsReadOnly(readOnly) {
+		t.Fatal("rootMountsReadOnly() rejected a read-only root mount")
 	}
-	readOnlyMount := "36 25 0:32 / / ro,relatime - tmpfs tmpfs rw,size=1024k\n"
-	if rootSuperblockReadOnly(readOnlyMount) {
-		t.Fatal("rootSuperblockReadOnly() accepted a writable root superblock")
+	writableMount := "36 25 0:32 / / rw,relatime - tmpfs tmpfs ro,size=1024k\n"
+	if rootMountsReadOnly(writableMount) {
+		t.Fatal("rootMountsReadOnly() accepted a writable root mount")
 	}
-	overmounted := readOnly + "38 25 0:34 / / rw,relatime - tmpfs tmpfs rw,size=1024k\n"
-	if rootSuperblockReadOnly(overmounted) {
-		t.Fatal("rootSuperblockReadOnly() accepted a hidden writable root superblock")
+	stackedReadOnly := "36 25 0:32 / / rw,relatime - tmpfs tmpfs rw,size=1024k\n" +
+		"38 36 0:34 / / ro,relatime - tmpfs tmpfs rw,size=1024k\n"
+	if !rootMountsReadOnly(stackedReadOnly) {
+		t.Fatal("rootMountsReadOnly() rejected a visible read-only root mount")
+	}
+	stackedWritable := readOnly + "38 36 0:34 / / rw,relatime - tmpfs tmpfs rw,size=1024k\n"
+	if rootMountsReadOnly(stackedWritable) {
+		t.Fatal("rootMountsReadOnly() accepted a visible writable root mount")
+	}
+	ambiguous := readOnly + "38 25 0:34 / / ro,relatime - tmpfs tmpfs rw,size=1024k\n"
+	if rootMountsReadOnly(ambiguous) {
+		t.Fatal("rootMountsReadOnly() accepted ambiguous visible root mounts")
+	}
+	malformed := "36 25 0:32 / / ro,relatime shared:1 tmpfs tmpfs rw,size=1024k\n"
+	if rootMountsReadOnly(malformed) {
+		t.Fatal("rootMountsReadOnly() accepted metadata without a field separator")
 	}
 	otherMount := "37 25 0:33 / /build rw,relatime - tmpfs tmpfs rw,size=1024k\n"
-	if rootSuperblockReadOnly(otherMount) {
-		t.Fatal("rootSuperblockReadOnly() accepted metadata without a root mount")
+	if rootMountsReadOnly(otherMount) {
+		t.Fatal("rootMountsReadOnly() accepted metadata without a root mount")
+	}
+}
+
+func TestOverflowOwnership(t *testing.T) {
+	t.Parallel()
+
+	overflow, mapped, err := overflowOwnership(65534, "65534\n", "65534 1000 1\n")
+	if err != nil || !overflow || !mapped {
+		t.Fatalf("overflowOwnership() = (%v, %v, %v), want (true, true, nil)", overflow, mapped, err)
+	}
+	overflow, mapped, err = overflowOwnership(65534, "65534\n", "0 30001 1\n")
+	if err != nil || !overflow || mapped {
+		t.Fatalf("overflowOwnership() = (%v, %v, %v), want (true, false, nil)", overflow, mapped, err)
+	}
+}
+
+func TestEffectiveOwnerTrusted(t *testing.T) {
+	t.Parallel()
+
+	if effectiveOwnerTrusted("linux", false, false, errors.New("proc unavailable")) {
+		t.Fatal("effectiveOwnerTrusted() accepted unavailable Linux namespace metadata")
+	}
+	if !effectiveOwnerTrusted("darwin", false, false, errors.New("proc unavailable")) {
+		t.Fatal("effectiveOwnerTrusted() rejected a Darwin owner without procfs")
+	}
+	if effectiveOwnerTrusted("linux", true, true, nil) {
+		t.Fatal("effectiveOwnerTrusted() accepted a mapped overflow owner")
+	}
+	if !effectiveOwnerTrusted("linux", true, false, nil) {
+		t.Fatal("effectiveOwnerTrusted() rejected an unmapped overflow owner")
 	}
 }
 
