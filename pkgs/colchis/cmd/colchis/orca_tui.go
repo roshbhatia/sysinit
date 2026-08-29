@@ -1023,15 +1023,11 @@ func (model orcaUIModel) replaySelectedWorkflow() tea.Cmd {
 			TargetDefinitionID      domain.WorkflowDefinitionID `json:"targetWorkflowDefinitionId"`
 			TargetDefinitionVersion uint64                      `json:"targetDefinitionVersion"`
 			ExpectedParentVersion   domain.ResourceVersion      `json:"expectedParentVersion"`
-			ReusedAdmissionIDs      []domain.AdmissionID        `json:"reusedAdmissionIds"`
-			EnvironmentIDs          map[string]string           `json:"environmentIds,omitempty"`
 		}{
 			ID: domain.RunForkID("fork-" + identifier), ParentWorkflowRunID: run.ID,
 			ChildWorkflowRunID: childID, RestartPointID: point.ID,
 			TargetDefinitionID: run.WorkflowDefinition, TargetDefinitionVersion: run.DefinitionVersion,
 			ExpectedParentVersion: run.Metadata.ResourceVersion,
-			ReusedAdmissionIDs:    []domain.AdmissionID{},
-			EnvironmentIDs:        map[string]string{},
 		})
 		if err != nil {
 			return orcaActionMessage{err: err}
