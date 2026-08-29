@@ -169,7 +169,13 @@ func runOrcaStop(args []string, stdout io.Writer, stderr io.Writer) int {
 			return err
 		}
 		stopped = true
-		return stopOrcaService(current)
+		if err := stopOrcaService(current); err != nil {
+			return err
+		}
+		if !waitForOrca(current, false, 5*time.Second) {
+			return fmt.Errorf("broker did not stop for %s", current.Scope)
+		}
+		return instance.Remove(current)
 	})
 	if err != nil {
 		fmt.Fprintf(stderr, "stop broker: %v\n", err)
@@ -178,10 +184,6 @@ func runOrcaStop(args []string, stdout io.Writer, stderr io.Writer) int {
 	if !stopped {
 		fmt.Fprintln(stdout, "orca is inactive")
 		return 0
-	}
-	if !waitForOrca(record, false, 5*time.Second) {
-		fmt.Fprintf(stderr, "broker did not stop for %s\n", record.Scope)
-		return 1
 	}
 	fmt.Fprintf(stdout, "orca stopped for %s\n", record.Scope)
 	return 0
@@ -587,10 +589,16 @@ func orcaErrorLog(record instance.Record) string {
 }
 
 func statusOf(record instance.Record, active bool) orcaStatus {
-	return orcaStatus{
+	status := orcaStatus{
 		Active: active, Scope: record.Scope, StateDirectory: record.StateDirectory,
-		Socket: record.Socket, Service: record.Service, PID: record.PID, StartedAt: record.StartedAt,
+		Socket: record.Socket,
 	}
+	if active {
+		status.Service = record.Service
+		status.PID = record.PID
+		status.StartedAt = record.StartedAt
+	}
+	return status
 }
 
 func withEnvironment(current []string, values map[string]string) []string {

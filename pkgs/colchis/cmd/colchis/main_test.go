@@ -1275,6 +1275,17 @@ func TestAutomaticMonitorMarksBrokerStoppingBeforeCancellation(t *testing.T) {
 	}
 }
 
+func TestInactiveOrcaStatusOmitsStaleProcess(t *testing.T) {
+	record := instance.Record{
+		Scope: "/workspace", StateDirectory: "/state", Socket: "/state/broker.sock",
+		Service: "launchd:stale", PID: 42, StartedAt: "stale",
+	}
+	status := statusOf(record, false)
+	if status.Service != "" || status.PID != 0 || status.StartedAt != "" {
+		t.Fatalf("inactive status = %#v", status)
+	}
+}
+
 func waitForSocket(t *testing.T, path string, cancel context.CancelFunc, serveErrors <-chan error) {
 	t.Helper()
 	deadline := time.Now().Add(5 * time.Second)
