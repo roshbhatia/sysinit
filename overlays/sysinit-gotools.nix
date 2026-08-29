@@ -157,7 +157,7 @@ in
         ''
       );
 
-  orc =
+  sysinit-orc =
     let
       runtimePackages = [
         final.ask
