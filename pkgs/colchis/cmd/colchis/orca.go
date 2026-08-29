@@ -906,7 +906,9 @@ func createOrcaLease(directory string) (string, error) {
 		return "", err
 	}
 	path := file.Name()
-	if err := file.Chmod(0o600); err == nil {
+	if chmodErr := file.Chmod(0o600); chmodErr != nil {
+		err = chmodErr
+	} else {
 		err = json.NewEncoder(file).Encode(orcaLeaseRecord{PID: os.Getpid(), Identity: identity})
 	}
 	err = errors.Join(err, file.Close())
