@@ -238,7 +238,6 @@ func TestReplayReusesOnlyCurrentAdmission(t *testing.T) {
 		TargetDefinitionID: parent.WorkflowDefinition, TargetDefinitionVersion: parent.DefinitionVersion,
 		ExpectedParentVersion: parent.Metadata.ResourceVersion,
 		ReusedAdmissionIDs:    []domain.AdmissionID{admission.ID},
-		EnvironmentIDs:        map[string]string{"nix": "nix:environment-1"},
 		CommandID:             "command-current-admission", Principal: "owner",
 	})
 	if err != nil {

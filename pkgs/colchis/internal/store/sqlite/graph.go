@@ -474,6 +474,15 @@ func (store *Store) ReplayWorkflow(
 		reused, err := transaction.reusableAdmissions(
 			ctx, request.ReusedAdmissionIDs, definition, request.EnvironmentIDs,
 		)
+		if err != nil && request.EnvironmentIDs == nil && len(request.ReusedAdmissionIDs) != 0 {
+			environmentIDs, identityErr := transaction.replayEnvironmentIDs(ctx, request.ReusedAdmissionIDs)
+			if identityErr != nil {
+				return identityErr
+			}
+			reused, err = transaction.reusableAdmissions(
+				ctx, request.ReusedAdmissionIDs, definition, environmentIDs,
+			)
+		}
 		if err != nil {
 			return err
 		}
@@ -488,6 +497,7 @@ func (store *Store) ReplayWorkflow(
 		if err := applyReusedAdmissions(nodes, reused, definition); err != nil {
 			return err
 		}
+		seedRestartSnapshot(nodes, point.SnapshotID)
 		childPayload, err := json.Marshal(child)
 		if err != nil {
 			return wrap("encode child workflow run", string(child.ID), err)
@@ -550,6 +560,53 @@ func (store *Store) ReplayWorkflow(
 		return err
 	})
 	return child, fork, err
+}
+
+func (transaction *Tx) replayEnvironmentIDs(
+	ctx context.Context,
+	ids []domain.AdmissionID,
+) (map[string]string, error) {
+	identities := make(map[string]string)
+	for _, id := range ids {
+		payload, found, err := transaction.recordPayload(ctx, admissionRecordKind, string(id))
+		if err != nil {
+			return nil, err
+		}
+		if !found {
+			return nil, staleReplayAdmission(id)
+		}
+		var admission domain.Admission
+		if err := json.Unmarshal(payload, &admission); err != nil {
+			return nil, wrap("decode replay admission", string(id), err)
+		}
+		evidence, err := transaction.loadTaskContext(ctx, admission.TaskRecordID)
+		if err != nil {
+			return nil, err
+		}
+		validations, err := transaction.validations(ctx, admission.ValidationIDs)
+		if err != nil {
+			return nil, err
+		}
+		for _, validation := range validations {
+			definition, found := verificationByKey(evidence.template.Verification, validation.Key)
+			if !found {
+				return nil, staleReplayAdmission(id)
+			}
+			if current, found := identities[definition.Environment]; found && current != validation.EnvironmentID {
+				return nil, staleReplayAdmission(id)
+			}
+			identities[definition.Environment] = validation.EnvironmentID
+		}
+	}
+	return identities, nil
+}
+
+func seedRestartSnapshot(nodes []domain.NodeRun, snapshotID domain.SnapshotID) {
+	for index := range nodes {
+		if nodes[index].State == domain.NodeRunStateReady && len(nodes[index].InputSnapshotIDs) == 0 {
+			nodes[index].InputSnapshotIDs = []domain.SnapshotID{snapshotID}
+		}
+	}
 }
 
 type reusableAdmission struct {
@@ -1092,12 +1149,6 @@ func validateReplayRequest(request ReplayRequest) error {
 		return &domain.Error{
 			Code: domain.ErrorCodeInvalidArgument, Op: "replay", Resource: string(request.ID),
 			Message: "reused admission identifiers must be unique",
-		}
-	}
-	if len(request.ReusedAdmissionIDs) != 0 && request.EnvironmentIDs == nil {
-		return &domain.Error{
-			Code: domain.ErrorCodeInvalidArgument, Op: "replay", Resource: string(request.ID),
-			Message: "current environment identities are required for admission reuse",
 		}
 	}
 	return nil

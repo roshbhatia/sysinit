@@ -182,6 +182,9 @@ func TestReplayWorkflowCreatesChildAndPreservesParent(t *testing.T) {
 	}
 	if _, nodes, err := store.WorkflowRun(ctx, child.ID); err != nil || len(nodes) != 2 {
 		t.Fatalf("child workflow run = %#v, %v", nodes, err)
+	} else if root := nodeByKey(t, nodes, "implement"); len(root.InputSnapshotIDs) != 1 ||
+		root.InputSnapshotIDs[0] != point.SnapshotID {
+		t.Fatalf("child root inputs = %#v", root.InputSnapshotIDs)
 	}
 }
 
