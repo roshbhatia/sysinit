@@ -77,20 +77,6 @@ func (keys orcKeyMap) FullHelp() [][]key.Binding {
 	}
 }
 
-type orcHelpKeyMap struct {
-	orcKeyMap
-	short []key.Binding
-	full  [][]key.Binding
-}
-
-func (keys orcHelpKeyMap) ShortHelp() []key.Binding {
-	return keys.short
-}
-
-func (keys orcHelpKeyMap) FullHelp() [][]key.Binding {
-	return keys.full
-}
-
 var orcKeys = orcKeyMap{
 	up:         key.NewBinding(key.WithKeys("up", "k"), key.WithHelp("up/k", "previous")),
 	down:       key.NewBinding(key.WithKeys("down", "j"), key.WithHelp("down/j", "next")),
@@ -965,34 +951,6 @@ func shortDuration(value time.Duration) string {
 	return fmt.Sprintf("%dd ago", int(value.Hours()/24))
 }
 
-func (model orcUIModel) helpView() string {
-	if !model.help.ShowAll || model.width > 90 {
-		return model.help.View(model.helpKeys())
-	}
-	var lines []string
-	switch model.view {
-	case orcControllersView:
-		lines = []string{"up/down select   enter open   R resume", "tab view   s broker   r refresh   ? less   q quit"}
-	case orcWorkflowsView:
-		lines = []string{"up/down run   h/l restart   pgup/pgdn graph   f fork", "tab view   s broker   r refresh   ? less   q quit"}
-	case orcWorkersView:
-		lines = []string{"up/down select   enter attach", "tab view   s broker   r refresh   ? less   q quit"}
-	}
-	for index := range lines {
-		lines[index] = orcTagStyle.Render(ansi.Truncate(lines[index], model.width, "…"))
-	}
-	return strings.Join(lines, "\n")
-}
-
-func orcFitBlockHeight(value string, height int) string {
-	lines := strings.Split(value, "\n")
-	if len(lines) <= height {
-		return value
-	}
-	visible := append([]string(nil), lines[:height-1]...)
-	return strings.Join(append(visible, lines[len(lines)-1]), "\n")
-}
-
 func orcRefreshCommand() tea.Cmd {
 	return tea.Tick(time.Second, func(now time.Time) tea.Msg { return orcRefreshTick(now) })
 }
@@ -1042,35 +1000,6 @@ func (model *orcUIModel) applyRefresh(updated orcUIModel) {
 	model.requestedWorkflow = updated.requestedWorkflow
 }
 
-func (model orcUIModel) helpKeys() orcHelpKeyMap {
-	short := []key.Binding{orcKeys.switchView, orcKeys.refresh, orcKeys.showHelp, orcKeys.quit}
-	full := [][]key.Binding{
-		{orcKeys.up, orcKeys.down},
-		{orcKeys.switchView, orcKeys.toggle, orcKeys.refresh, orcKeys.showHelp, orcKeys.quit},
-	}
-	switch model.view {
-	case orcControllersView:
-		short = []key.Binding{orcKeys.switchView, orcKeys.open, orcKeys.refresh, orcKeys.showHelp, orcKeys.quit}
-		full = [][]key.Binding{
-			{orcKeys.up, orcKeys.down, orcKeys.open, orcKeys.resume},
-			{orcKeys.switchView, orcKeys.toggle, orcKeys.refresh, orcKeys.showHelp, orcKeys.quit},
-		}
-	case orcWorkflowsView:
-		full = [][]key.Binding{
-			{orcKeys.up, orcKeys.down, orcKeys.left, orcKeys.right},
-			{orcKeys.pageUp, orcKeys.pageDown, orcKeys.replay},
-			{orcKeys.switchView, orcKeys.toggle, orcKeys.refresh, orcKeys.showHelp, orcKeys.quit},
-		}
-	case orcWorkersView:
-		short = []key.Binding{orcKeys.switchView, orcKeys.open, orcKeys.refresh, orcKeys.showHelp, orcKeys.quit}
-		full = [][]key.Binding{
-			{orcKeys.up, orcKeys.down, orcKeys.open},
-			{orcKeys.switchView, orcKeys.toggle, orcKeys.refresh, orcKeys.showHelp, orcKeys.quit},
-		}
-	}
-	return orcHelpKeyMap{orcKeyMap: orcKeys, short: short, full: full}
-}
-
 func (model orcUIModel) header(width int) string {
 	status := orcInactiveStyle.Render("broker stopped")
 	if model.active {
@@ -1087,139 +1016,6 @@ func (model orcUIModel) header(width int) string {
 		gap = 1
 	}
 	return ansi.Truncate(left+strings.Repeat(" ", gap)+status, width, "")
-}
-
-func (model orcUIModel) scopeLine(width int) string {
-	scope := model.record.Scope
-	if scope == "" {
-		if current, err := os.Getwd(); err == nil {
-			scope = current
-		} else {
-			scope = "."
-		}
-	}
-	label := orcLabelStyle.Render("workspace ")
-	return label + orcValueStyle.Render(ansi.Truncate(filepath.Clean(scope), width-lipgloss.Width(label), "…"))
-}
-
-func (model orcUIModel) navigation() string {
-	agentsTab := fmt.Sprintf(" controllers %d ", len(model.agents))
-	workflowsTab := fmt.Sprintf(" workflows %d ", len(model.workflows))
-	workersTab := fmt.Sprintf(" workers %d ", len(model.workers))
-	switch model.view {
-	case orcControllersView:
-		agentsTab = orcSelectedStyle.Render(agentsTab)
-	case orcWorkflowsView:
-		workflowsTab = orcSelectedStyle.Render(workflowsTab)
-	case orcWorkersView:
-		workersTab = orcSelectedStyle.Render(workersTab)
-	}
-	if model.view != orcControllersView {
-		agentsTab = orcTagStyle.Render(agentsTab)
-	}
-	if model.view != orcWorkflowsView {
-		workflowsTab = orcTagStyle.Render(workflowsTab)
-	}
-	if model.view != orcWorkersView {
-		workersTab = orcTagStyle.Render(workersTab)
-	}
-	return agentsTab + "  " + workflowsTab + "  " + workersTab
-}
-
-func (model orcUIModel) agentView(width int) string {
-	rows := model.visibleAgentRows()
-	listWidth := 30
-	list := orcBox("controllers", listWidth, strings.Join(rows, "\n"), model.view == orcControllersView)
-	detailWidth := width - lipgloss.Width(list) - 4
-	details := model.agentDetails(detailWidth)
-	body := lipgloss.JoinHorizontal(lipgloss.Top, list, "  ", details)
-	if width < 76 {
-		list = orcBox("controllers", width-2, strings.Join(rows, "\n"), model.view == orcControllersView)
-		details = model.agentDetails(width - 2)
-		body = lipgloss.JoinVertical(lipgloss.Left, list, "", details)
-	}
-	return body
-}
-
-func (model orcUIModel) workflowView(width int) string {
-	rows := model.visibleWorkflowRows()
-	listWidth := 34
-	list := orcBox("runs", listWidth, strings.Join(rows, "\n"), model.view == orcWorkflowsView)
-	detailWidth := width - lipgloss.Width(list) - 4
-	detailHeight := max(6, model.height-10)
-	details := model.workflowDetails(detailWidth, detailHeight)
-	body := lipgloss.JoinHorizontal(lipgloss.Top, list, "  ", details)
-	if width < 76 {
-		list = orcBox("runs", width-2, strings.Join(rows, "\n"), model.view == orcWorkflowsView)
-		detailHeight = max(4, model.height-11-lipgloss.Height(list))
-		details = model.workflowDetails(width-2, detailHeight)
-		body = lipgloss.JoinVertical(lipgloss.Left, list, "", details)
-	}
-	return body
-}
-
-func (model orcUIModel) visibleWorkflowRows() []string {
-	if len(model.workflows) == 0 {
-		return []string{orcTagStyle.Render("No workflow runs")}
-	}
-	limit := model.height - 16
-	if limit < 4 {
-		limit = 4
-	}
-	if limit > 10 {
-		limit = 10
-	}
-	start := model.workflowCursor - limit/2
-	if start < 0 {
-		start = 0
-	}
-	if start+limit > len(model.workflows) {
-		start = len(model.workflows) - limit
-		if start < 0 {
-			start = 0
-		}
-	}
-	end := start + limit
-	if end > len(model.workflows) {
-		end = len(model.workflows)
-	}
-	rows := make([]string, 0, end-start)
-	for index := start; index < end; index++ {
-		run := model.workflows[index]
-		row := fmt.Sprintf(" %-19s %-9s", ansi.Truncate(string(run.ID), 19, "…"), run.State)
-		if index == model.workflowCursor {
-			row = orcSelectedStyle.Width(29).Render(">" + row)
-		} else {
-			row = orcValueStyle.Render(" " + row)
-		}
-		rows = append(rows, row)
-	}
-	return rows
-}
-
-func (model orcUIModel) workflowDetails(width int, height int) string {
-	if width < 34 {
-		width = 34
-	}
-	if len(model.workflows) == 0 {
-		return orcBox("graph", width, "Planning and spec work appears here as dedicated workflow runs.", false)
-	}
-	lines := model.workflowDetailLines()
-	limit := max(2, height-2)
-	if len(lines) > limit {
-		maximum := len(lines) - limit + 1
-		offset := min(model.graphOffset, maximum)
-		end := min(len(lines), offset+limit-1)
-		visible := append([]string(nil), lines[offset:end]...)
-		visible = append(visible, orcTagStyle.Render(fmt.Sprintf(
-			"rows %d-%d/%d  pgup/pgdn scroll", offset+1, end, len(lines),
-		)))
-		lines = visible
-	}
-	for index, line := range lines {
-		lines[index] = ansi.Truncate(line, width-6, "…")
-	}
-	return orcBox("graph", width, strings.Join(lines, "\n"), false)
 }
 
 func (model orcUIModel) workflowDetailLines() []string {
@@ -1346,89 +1142,6 @@ func (model orcUIModel) selectedNodeDetailLines() []string {
 	return lines
 }
 
-func (model orcUIModel) workerView(width int) string {
-	rows := model.visibleWorkerRows()
-	listWidth := 34
-	list := orcBox("workers", listWidth, strings.Join(rows, "\n"), model.view == orcWorkersView)
-	detailWidth := width - lipgloss.Width(list) - 4
-	details := model.workerDetails(detailWidth)
-	body := lipgloss.JoinHorizontal(lipgloss.Top, list, "  ", details)
-	if width < 76 {
-		list = orcBox("workers", width-2, strings.Join(rows, "\n"), model.view == orcWorkersView)
-		details = model.workerDetails(width - 2)
-		body = lipgloss.JoinVertical(lipgloss.Left, list, "", details)
-	}
-	return body
-}
-
-func (model orcUIModel) visibleWorkerRows() []string {
-	if len(model.workers) == 0 {
-		return []string{orcTagStyle.Render("No workflow workers")}
-	}
-	limit := model.visibleRowLimit()
-	start, end := visibleRange(model.workerCursor, len(model.workers), limit)
-	rows := make([]string, 0, end-start)
-	for index := start; index < end; index++ {
-		worker := model.workers[index]
-		row := fmt.Sprintf(" %-19s %-9s", ansi.Truncate(string(worker.ID), 19, "…"), worker.State)
-		if index == model.workerCursor {
-			row = orcSelectedStyle.Width(29).Render(">" + row)
-		} else {
-			row = orcValueStyle.Render(" " + row)
-		}
-		rows = append(rows, row)
-	}
-	return rows
-}
-
-func (model orcUIModel) workerDetails(width int) string {
-	if width < 34 {
-		width = 34
-	}
-	if len(model.workers) == 0 {
-		return orcBox("selected", width, "Workers appear after a workflow node starts an agent.", false)
-	}
-	worker := model.workers[model.workerCursor]
-	action := "events only"
-	if supportsWorkerAttachment(worker) {
-		action = "enter attaches"
-	}
-	lines := []string{
-		orcTitleStyle.Render(string(worker.ID)),
-		orcLabelStyle.Render("state     ") + orcValueStyle.Render(string(worker.State)),
-		orcLabelStyle.Render("workflow  ") + orcValueStyle.Render(string(worker.WorkflowRunID)),
-		orcLabelStyle.Render("node      ") + orcValueStyle.Render(string(worker.NodeRunID)),
-		orcLabelStyle.Render("runtime   ") + orcValueStyle.Render(worker.RuntimeAdapterID),
-		orcLabelStyle.Render("events    ") + orcValueStyle.Render(fmt.Sprintf("%d", len(model.workerHistory.RuntimeEvents))),
-		orcLabelStyle.Render("actions   ") + orcValueStyle.Render(action),
-	}
-	if len(model.workerHistory.RuntimeEvents) > 0 {
-		lines = append(lines, "", orcLabelStyle.Render("recent events"))
-		start := len(model.workerHistory.RuntimeEvents) - 4
-		if start < 0 {
-			start = 0
-		}
-		for _, event := range model.workerHistory.RuntimeEvents[start:] {
-			lines = append(lines, fmt.Sprintf("  %d  %s  %s", event.Sequence, event.Kind, event.ProviderEventType))
-		}
-	}
-	for index, line := range lines {
-		lines[index] = ansi.Truncate(line, width-6, "…")
-	}
-	return orcBox("selected", width, strings.Join(lines, "\n"), false)
-}
-
-func (model orcUIModel) visibleRowLimit() int {
-	limit := model.height - 16
-	if limit < 4 {
-		return 4
-	}
-	if limit > 10 {
-		return 10
-	}
-	return limit
-}
-
 func visibleRange(cursor int, length int, limit int) (int, int) {
 	start := cursor - limit/2
 	if start < 0 {
@@ -1445,93 +1158,6 @@ func visibleRange(cursor int, length int, limit int) (int, int) {
 		end = length
 	}
 	return start, end
-}
-
-func (model orcUIModel) visibleAgentRows() []string {
-	if len(model.agents) == 0 {
-		return []string{orcTagStyle.Render("No installed controllers")}
-	}
-	limit := model.height - 16
-	if limit < 4 {
-		limit = 4
-	}
-	if limit > 10 {
-		limit = 10
-	}
-	start := model.cursor - limit/2
-	if start < 0 {
-		start = 0
-	}
-	if start+limit > len(model.agents) {
-		start = len(model.agents) - limit
-		if start < 0 {
-			start = 0
-		}
-	}
-	end := start + limit
-	if end > len(model.agents) {
-		end = len(model.agents)
-	}
-	rows := make([]string, 0, end-start)
-	for index := start; index < end; index++ {
-		agent := model.agents[index]
-		label := agent.Label
-		if label == "" {
-			label = agent.Name
-		}
-		glyph := strings.TrimSpace(agent.Glyph)
-		if glyph != "" {
-			glyph += " "
-		}
-		row := fmt.Sprintf(" %s%-20s", glyph, ansi.Truncate(label, 20-lipgloss.Width(glyph), "…"))
-		if index == model.cursor {
-			row = orcSelectedStyle.Width(25).Render(">" + row)
-		} else {
-			row = orcValueStyle.Render(" " + row)
-		}
-		rows = append(rows, row)
-	}
-	return rows
-}
-
-func (model orcUIModel) agentDetails(width int) string {
-	if width < 28 {
-		width = 28
-	}
-	if len(model.agents) == 0 {
-		return orcBox("selected", width, "Install a controller to launch it here.", false)
-	}
-	agent := model.agents[model.cursor]
-	label := agent.Label
-	if label == "" {
-		label = agent.Name
-	}
-	modelSupport := "uses command default"
-	if agent.Launch.ModelFlag != "" {
-		modelSupport = "accepts orc run --model"
-	}
-	mcp := "unavailable"
-	if model.active {
-		mcp = "available in this scope"
-	}
-	lines := []string{
-		orcTitleStyle.Render(label),
-		orcTagStyle.Render(agent.Name),
-		"",
-		orcLabelStyle.Render("command  ") + orcValueStyle.Render(agent.Command),
-		orcLabelStyle.Render("model    ") + orcValueStyle.Render(modelSupport),
-		orcLabelStyle.Render("mcp      ") + orcValueStyle.Render(mcp),
-		orcLabelStyle.Render("new      ") + orcValueStyle.Render("enter"),
-	}
-	resume := "unavailable"
-	if len(agent.Launch.ResumeArgs) > 0 {
-		resume = "R, native conversation picker"
-	}
-	lines = append(lines, orcLabelStyle.Render("resume   ")+orcValueStyle.Render(resume))
-	if model.active && model.record.PID > 0 {
-		lines = append(lines, orcLabelStyle.Render("broker   ")+orcValueStyle.Render(fmt.Sprintf("pid %d", model.record.PID)))
-	}
-	return orcBox("selected", width, strings.Join(lines, "\n"), false)
 }
 
 func orcBox(name string, inner int, body string, focused bool) string {
