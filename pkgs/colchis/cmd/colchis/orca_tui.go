@@ -20,6 +20,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
+	"github.com/muesli/termenv"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/api/socket"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/broker"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/config"
@@ -36,6 +37,8 @@ type orcaActionMessage struct {
 	err        error
 	workflowID domain.WorkflowRunID
 }
+
+type orcaRefreshTick time.Time
 
 type orcaKeyMap struct {
 	up         key.Binding
@@ -172,6 +175,8 @@ func runOrcaUI(stdout io.Writer, stderr io.Writer) int {
 }
 
 func newOrcaUIModel() (orcaUIModel, error) {
+	lipgloss.SetColorProfile(termenv.ANSI)
+	lipgloss.SetHasDarkBackground(true)
 	model := orcaUIModel{help: help.New(), width: 92, height: 26}
 	model.help.ShortSeparator = "   "
 	model.help.Styles.ShortKey = orcaTitleStyle
@@ -203,11 +208,17 @@ func newOrcaUIModel() (orcaUIModel, error) {
 }
 
 func (model orcaUIModel) Init() tea.Cmd {
-	return nil
+	return orcaRefreshCommand()
 }
 
 func (model orcaUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	switch typed := message.(type) {
+	case orcaRefreshTick:
+		if err := model.refresh(); err != nil {
+			model.message = err.Error()
+			model.messageError = true
+		}
+		return model, orcaRefreshCommand()
 	case orcaActionMessage:
 		model.messageError = typed.err != nil
 		if typed.err != nil {
@@ -225,7 +236,7 @@ func (model orcaUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		model.width = typed.Width
 		model.height = typed.Height
-		model.help.Width = typed.Width - 6
+		model.help.Width = typed.Width
 	case tea.KeyMsg:
 		if !key.Matches(typed, orcaKeys.replay) {
 			model.confirmReplay = false
@@ -345,17 +356,62 @@ func (model orcaUIModel) View() string {
 		body = model.workerView(contentWidth)
 	}
 
-	parts := []string{header, scope, navigation, body}
+	before := []string{header, scope, navigation}
+	after := make([]string, 0, 2)
 	if model.message != "" {
 		style := orcaMessageStyle
 		if model.messageError {
 			style = orcaErrorStyle
 		}
-		parts = append(parts, style.Render(ansi.Truncate(model.message, contentWidth, "…")))
+		after = append(after, style.Render(ansi.Truncate(model.message, contentWidth, "…")))
 	}
-	parts = append(parts, model.help.View(model.helpKeys()))
+	after = append(after, model.helpView())
+	separator := "\n\n"
+	separatorHeight := 2
+	if model.height <= 24 {
+		separator = "\n"
+		separatorHeight = 1
+	}
+	fixedHeight := separatorHeight * (len(before) + len(after))
+	for _, part := range append(append([]string(nil), before...), after...) {
+		fixedHeight += lipgloss.Height(part)
+	}
+	body = orcaFitBlockHeight(body, max(3, model.height-fixedHeight))
+	parts := append(before, body)
+	parts = append(parts, after...)
+	return strings.Join(parts, separator)
+}
 
-	return strings.Join(parts, "\n\n")
+func (model orcaUIModel) helpView() string {
+	if !model.help.ShowAll || model.width > 90 {
+		return model.help.View(model.helpKeys())
+	}
+	var lines []string
+	switch model.view {
+	case orcaControllersView:
+		lines = []string{"up/down select   enter open   R resume", "tab view   s broker   r refresh   ? less   q quit"}
+	case orcaWorkflowsView:
+		lines = []string{"up/down run   h/l restart   pgup/pgdn graph   f fork", "tab view   s broker   r refresh   ? less   q quit"}
+	case orcaWorkersView:
+		lines = []string{"up/down select   enter attach", "tab view   s broker   r refresh   ? less   q quit"}
+	}
+	for index := range lines {
+		lines[index] = orcaTagStyle.Render(ansi.Truncate(lines[index], model.width, "…"))
+	}
+	return strings.Join(lines, "\n")
+}
+
+func orcaFitBlockHeight(value string, height int) string {
+	lines := strings.Split(value, "\n")
+	if len(lines) <= height {
+		return value
+	}
+	visible := append([]string(nil), lines[:height-1]...)
+	return strings.Join(append(visible, lines[len(lines)-1]), "\n")
+}
+
+func orcaRefreshCommand() tea.Cmd {
+	return tea.Tick(time.Second, func(now time.Time) tea.Msg { return orcaRefreshTick(now) })
 }
 
 func (model orcaUIModel) helpKeys() orcaHelpKeyMap {
@@ -795,7 +851,7 @@ func orcaFit(value string, width int) string {
 }
 
 func (model *orcaUIModel) refresh() error {
-	record, active, err := activeOrca()
+	record, active, err := activeOrca("")
 	if err != nil {
 		return err
 	}
@@ -1093,6 +1149,8 @@ func runOrcaWorkerUI(
 	stdout io.Writer,
 	stderr io.Writer,
 ) int {
+	lipgloss.SetColorProfile(termenv.ANSI)
+	lipgloss.SetHasDarkBackground(true)
 	eventCursor, err := latestBrokerEventCursor(record.StateDirectory)
 	if err != nil {
 		fmt.Fprintf(stderr, "read broker cursor: %v\n", err)
@@ -1136,6 +1194,9 @@ func runOrcaWorkerUI(
 }
 
 func supportsWorkerAttachment(session domain.Session) bool {
+	if session.State != domain.SessionStateRunning && session.State != domain.SessionStateWaiting {
+		return false
+	}
 	for _, capability := range session.Capabilities {
 		if capability == "native-attachment" {
 			return true
@@ -1228,7 +1289,14 @@ func (model orcaWorkerUIModel) View() string {
 		return fmt.Sprintf("orca needs 60x16\nthis pane is %dx%d\nq detaches", model.width, model.height)
 	}
 	session := model.history.Session
-	status := orcaActiveStyle.Render(string(session.State))
+	statusStyle := orcaInactiveStyle
+	switch session.State {
+	case domain.SessionStateStarting, domain.SessionStateRunning, domain.SessionStateWaiting:
+		statusStyle = orcaActiveStyle
+	case domain.SessionStateFailed, domain.SessionStateCancelled, domain.SessionStateOrphaned:
+		statusStyle = orcaErrorStyle
+	}
+	status := statusStyle.Render(string(session.State))
 	left := orcaTitleStyle.Render("🫍 orca") + "  " + orcaTagStyle.Render("worker attachment")
 	gap := model.width - lipgloss.Width(left) - lipgloss.Width(status)
 	if gap < 1 {

@@ -1281,6 +1281,14 @@ func TestOrcaFullHelpOnlyShowsActionsForCurrentView(t *testing.T) {
 	if strings.Contains(workerHelp, "resume controller") || strings.Contains(workerHelp, "graph down") {
 		t.Fatalf("worker help = %q", workerHelp)
 	}
+	model.view = orcaWorkflowsView
+	model.width = 80
+	model.height = 24
+	model.help.Width = 80
+	workflowView := ansi.Strip(model.View())
+	if lines := strings.Count(workflowView, "\n") + 1; lines > 24 || !strings.Contains(workflowView, "f fork") {
+		t.Fatalf("80x24 workflow help has %d lines:\n%s", lines, workflowView)
+	}
 }
 
 func TestRestartPointCursorDoesNotLeakAcrossWorkflows(t *testing.T) {
@@ -1313,6 +1321,21 @@ func TestOrcaWorkerPreventsDuplicateSendAndShowsFailure(t *testing.T) {
 	model = failed.(orcaWorkerUIModel)
 	if !model.messageError || model.message != "send failed" || model.typing {
 		t.Fatalf("failed send state = %#v", model)
+	}
+}
+
+func TestOrcaRefreshTickClearsStoppedBrokerState(t *testing.T) {
+	t.Setenv("XDG_STATE_HOME", t.TempDir())
+	t.Setenv("ORCA_STATE_DIR", "")
+	model := orcaUIModel{
+		active:    true,
+		workflows: []domain.WorkflowRun{{ID: "stale-run"}},
+		help:      help.New(),
+	}
+	updated, command := model.Update(orcaRefreshTick(time.Now()))
+	model = updated.(orcaUIModel)
+	if command == nil || model.active || len(model.workflows) != 0 {
+		t.Fatalf("refresh tick state = %#v, command = %#v", model, command)
 	}
 }
 
@@ -1368,6 +1391,19 @@ func TestOrcaWorkerRequestsTargetRuntimeAndAttachment(t *testing.T) {
 	}
 	if !strings.Contains(string(message.Operation.Input), `"behavior":"steer"`) {
 		t.Fatalf("worker message input = %s", message.Operation.Input)
+	}
+}
+
+func TestCompletedWorkerDoesNotAdvertiseAttachment(t *testing.T) {
+	session := domain.Session{
+		State: domain.SessionStateCompleted, Capabilities: []string{"native-attachment"},
+	}
+	if supportsWorkerAttachment(session) {
+		t.Fatal("completed worker supports attachment")
+	}
+	session.State = domain.SessionStateRunning
+	if !supportsWorkerAttachment(session) {
+		t.Fatal("running worker lost attachment")
 	}
 }
 
