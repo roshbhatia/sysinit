@@ -8,11 +8,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-bA9xgbau0Ac0aayWPcAgVCeLC1x/mifc25QlQkDW6Ck=",
+            "sha256": "sha256-pk/lGFFc2Uzc3AW5mKxCuY4QH6+PAM+gyxgJpUXFs4M=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1787947269-g83b159/amp-darwin-arm64.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1787961677-g372167/amp-darwin-arm64.gz"
         },
-        "version": "0.0.1787947269-g83b159"
+        "version": "0.0.1787961677-g372167"
     },
     "amp-cli-aarch64-linux": {
         "cargoLock": null,
@@ -23,11 +23,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-hgMwOeARxbikBEBWVUmYhjIU9X0YXE+5gU903oeF9zQ=",
+            "sha256": "sha256-2InzkLtLnDMKqN3zqJDRIysTZjC8s6GK0tC89lmQF5k=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1787947269-g83b159/amp-linux-arm64.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1787961677-g372167/amp-linux-arm64.gz"
         },
-        "version": "0.0.1787947269-g83b159"
+        "version": "0.0.1787961677-g372167"
     },
     "amp-cli-x86_64-linux": {
         "cargoLock": null,
@@ -38,11 +38,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-UMk/z6ItrqJ3zwU7PBSYdHBjiyJpxzDaNaPM7mIzUs8=",
+            "sha256": "sha256-N9SqDkcGjLeH5UxUG8ElkOBNNuItn/H+KAf8MPoOJbw=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1787947269-g83b159/amp-linux-x64-baseline.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1787961677-g372167/amp-linux-x64-baseline.gz"
         },
-        "version": "0.0.1787947269-g83b159"
+        "version": "0.0.1787961677-g372167"
     },
     "atomic-coding-agent": {
         "cargoLock": null,
@@ -473,11 +473,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-ASDJ+Z6gX+gB5ufCydkd1lY2VjyggDcRs3ufMpINS2M=",
+            "sha256": "sha256-xo46xNBbTigqqrLmx28WHT6eaPGaIuOJE8v6rbbIAPA=",
             "type": "url",
-            "url": "https://github.com/earendil-works/pi/releases/download/v0.84.3/pi-darwin-arm64.tar.gz"
+            "url": "https://github.com/earendil-works/pi/releases/download/v0.84.4/pi-darwin-arm64.tar.gz"
         },
-        "version": "0.84.3"
+        "version": "0.84.4"
     },
     "pi-coding-agent-aarch64-linux": {
         "cargoLock": null,
@@ -488,11 +488,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-581IzW9ktwjoRZqJCIKxAHMy9ua4dv4f1cUgOr0K3bc=",
+            "sha256": "sha256-E1WA9rlCFRZG5nuLhm2YfSjOPP9aSXAwd13dKWWflD0=",
             "type": "url",
-            "url": "https://github.com/earendil-works/pi/releases/download/v0.84.3/pi-linux-arm64.tar.gz"
+            "url": "https://github.com/earendil-works/pi/releases/download/v0.84.4/pi-linux-arm64.tar.gz"
         },
-        "version": "0.84.3"
+        "version": "0.84.4"
     },
     "pi-coding-agent-x86_64-darwin": {
         "cargoLock": null,
@@ -503,11 +503,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-uZcGsyVPqvNpU5Xstpy34fTUgivT+DLm0fJjbYlra94=",
+            "sha256": "sha256-egQtZBMGVCE4cAGkmGGQoaAxhslaaV9N7gvcduYN6Pc=",
             "type": "url",
-            "url": "https://github.com/earendil-works/pi/releases/download/v0.84.3/pi-darwin-x64.tar.gz"
+            "url": "https://github.com/earendil-works/pi/releases/download/v0.84.4/pi-darwin-x64.tar.gz"
         },
-        "version": "0.84.3"
+        "version": "0.84.4"
     },
     "pi-coding-agent-x86_64-linux": {
         "cargoLock": null,
@@ -518,11 +518,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-b4u2fCG8a4qKEG01T1bX/UoZCjzYrToy20X20oGl0Ag=",
+            "sha256": "sha256-wvPD5qGFC9h2VMw8qIEQEycjl8PQQqTipkxD7htCOXI=",
             "type": "url",
-            "url": "https://github.com/earendil-works/pi/releases/download/v0.84.3/pi-linux-x64.tar.gz"
+            "url": "https://github.com/earendil-works/pi/releases/download/v0.84.4/pi-linux-x64.tar.gz"
         },
-        "version": "0.84.3"
+        "version": "0.84.4"
     },
     "prime-agent": {
         "cargoLock": null,
