@@ -1299,6 +1299,28 @@ func TestOrcaUIRejectsPaneThatHidesControls(t *testing.T) {
 	}
 }
 
+func TestOrcaWorkerAttachmentFitsEightyByTwentyFour(t *testing.T) {
+	model := orcaWorkerUIModel{
+		record:  instance.Record{Scope: "/workspace/project"},
+		width:   80,
+		height:  24,
+		message: "Worker refreshed",
+		history: sqlite.SessionHistory{Session: domain.Session{
+			ID: "worker-fit", WorkflowRunID: "run-fit", NodeRunID: "node-fit",
+			State: domain.SessionStateRunning,
+		}},
+	}
+	for sequence := uint64(1); sequence <= 11; sequence++ {
+		model.history.RuntimeEvents = append(model.history.RuntimeEvents, domain.RuntimeEvent{
+			Sequence: sequence, Kind: "tool_call", ProviderEventType: "tool_execution_start",
+		})
+	}
+	view := ansi.Strip(model.View())
+	if lines := strings.Count(view, "\n") + 1; lines > 24 || !strings.Contains(view, "q detach") {
+		t.Fatalf("80x24 worker attachment has %d lines:\n%s", lines, view)
+	}
+}
+
 func TestOrcaFullHelpOnlyShowsActionsForCurrentView(t *testing.T) {
 	model := orcaUIModel{help: help.New()}
 	model.help.ShowAll = true
@@ -1365,8 +1387,17 @@ func TestOrcaRefreshTickClearsStoppedBrokerState(t *testing.T) {
 	}
 	updated, command := model.Update(orcaRefreshTick(time.Now()))
 	model = updated.(orcaUIModel)
-	if command == nil || model.active || len(model.workflows) != 0 {
+	if command == nil || !model.refreshing {
 		t.Fatalf("refresh tick state = %#v, command = %#v", model, command)
+	}
+	batch, ok := command().(tea.BatchMsg)
+	if !ok || len(batch) != 2 {
+		t.Fatalf("refresh tick command = %#v", batch)
+	}
+	updated, _ = model.Update(batch[0]())
+	model = updated.(orcaUIModel)
+	if model.active || len(model.workflows) != 0 || model.refreshing {
+		t.Fatalf("refresh result state = %#v", model)
 	}
 }
 
@@ -1400,6 +1431,21 @@ func TestWorkerTerminologyHasNativeCLIAliases(t *testing.T) {
 		if !found || kind != expected || offset != 2 {
 			t.Fatalf("controlCommandKind(%q) = %q, %d, %v", args, kind, offset, found)
 		}
+	}
+}
+
+func TestWorkflowViewAcceptsAdvertisedWorkerControls(t *testing.T) {
+	for control, expected := range map[string]string{
+		"worker attach": "agent.attach", "worker detach": "agent.detach",
+		"worker intervene": "agent.intervene", "worker policy": "agent.policy",
+	} {
+		kind, found := workflowViewControlKind(control)
+		if !found || kind != expected {
+			t.Fatalf("workflowViewControlKind(%q) = %q, %v", control, kind, found)
+		}
+	}
+	if !strings.Contains(orcaUsage, "orca view --run") || !strings.Contains(orcaUsage, "orca events") {
+		t.Fatalf("orca help omits read-only commands:\n%s", orcaUsage)
 	}
 }
 

@@ -80,6 +80,45 @@ func (client *Client) Command(
 	return decoded.Command, nil
 }
 
+func (client *Client) Query(
+	ctx context.Context,
+	request QueryRequest,
+) (json.RawMessage, error) {
+	payload, err := json.Marshal(request)
+	if err != nil {
+		return nil, err
+	}
+	httpRequest, err := http.NewRequestWithContext(
+		ctx, http.MethodPost, "http://colchis/v1/queries", bytes.NewReader(payload),
+	)
+	if err != nil {
+		return nil, err
+	}
+	httpRequest.Header.Set("Content-Type", "application/json")
+	response, err := client.http.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+	body, err := io.ReadAll(io.LimitReader(response.Body, maxClientResponseBytes+1))
+	if err != nil {
+		return nil, err
+	}
+	if len(body) > maxClientResponseBytes {
+		return nil, &domain.Error{
+			Code: domain.ErrorCodeBudgetExhausted, Resource: "query response", Message: "response exceeds its byte limit",
+		}
+	}
+	if response.StatusCode != http.StatusOK {
+		return nil, decodeClientError(response.StatusCode, body)
+	}
+	var decoded queryResponse
+	if err := json.Unmarshal(body, &decoded); err != nil {
+		return nil, err
+	}
+	return decoded.Result, nil
+}
+
 func (client *Client) Events(
 	ctx context.Context,
 	after domain.EventCursor,

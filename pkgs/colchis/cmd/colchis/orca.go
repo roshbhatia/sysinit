@@ -38,6 +38,8 @@ Usage:
   orca run <controller> [--model <model>] [-- <controller arguments>]
   orca resume <controller> [--model <model>] [-- <controller arguments>]
   orca attach <worker-id>
+  orca view --run <workflow-run-id> [--control <action> --payload <json|@file>]
+  orca events [--after <cursor>] [--limit <count>]
 
 Native commands:
   orca workflow <create|run|list|schedule|inspect|export|restart-point|restart-points|forks>

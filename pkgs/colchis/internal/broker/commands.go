@@ -230,3 +230,29 @@ func (service *CommandService) HandleCommand(
 		context.Background(), record.ID, domain.CommandStateSucceeded, result,
 	)
 }
+
+func (service *CommandService) HandleQuery(
+	ctx context.Context,
+	principal socket.Principal,
+	request socket.QueryRequest,
+) (json.RawMessage, error) {
+	switch request.Kind {
+	case "workflow.list", "workflow.restart-points", "workflow.forks", "workflow.inspect",
+		"agent.list", "agent.history":
+	default:
+		return nil, &domain.Error{
+			Code: domain.ErrorCodeInvalidArgument, Op: "query", Resource: request.Kind,
+			Message: "query kind is not read-only",
+		}
+	}
+	executor, ok := service.executor.(CommandResultExecutor)
+	if !ok {
+		return nil, &domain.Error{
+			Code: domain.ErrorCodeInternal, Op: "query", Resource: request.Kind,
+			Message: "query result executor is unavailable",
+		}
+	}
+	return executor.ExecuteCommandResult(ctx, principal, domain.CommandRequest{
+		Kind: request.Kind, Payload: request.Payload,
+	})
+}

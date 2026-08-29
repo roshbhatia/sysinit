@@ -44,6 +44,29 @@ type CommandHandler interface {
 	HandleCommand(context.Context, Principal, CommandRequest) (domain.CommandRecord, error)
 }
 
+type QueryRequest struct {
+	Kind    string          `json:"kind"`
+	Payload json.RawMessage `json:"payload"`
+}
+
+func (request QueryRequest) Validate() error {
+	if request.Kind == "" {
+		return &domain.Error{
+			Code: domain.ErrorCodeInvalidArgument, Resource: "query kind", Message: "kind is empty",
+		}
+	}
+	if len(request.Payload) == 0 || !json.Valid(request.Payload) {
+		return &domain.Error{
+			Code: domain.ErrorCodeInvalidArgument, Resource: "query payload", Message: "payload is invalid",
+		}
+	}
+	return nil
+}
+
+type QueryHandler interface {
+	HandleQuery(context.Context, Principal, QueryRequest) (json.RawMessage, error)
+}
+
 type InterruptedCommandRecoverer interface {
 	RecoverInterruptedCommands(context.Context) error
 }
@@ -68,6 +91,7 @@ type Server struct {
 	lock            *os.File
 	httpServer      *http.Server
 	commands        CommandHandler
+	queries         QueryHandler
 	events          EventReader
 	requestMu       sync.Mutex
 	activeRequests  uint64
@@ -95,6 +119,10 @@ type principalContextKey struct{}
 
 type commandResponse struct {
 	Command domain.CommandRecord `json:"command"`
+}
+
+type queryResponse struct {
+	Result json.RawMessage `json:"result"`
 }
 
 type errorResponse struct {
@@ -170,16 +198,19 @@ func OpenOwned(path string, ownership *Ownership, commands CommandHandler, event
 		}
 	}
 	authenticated := &authenticatedListener{Listener: listener, ownerUID: uint32(os.Geteuid())}
+	queries, _ := commands.(QueryHandler)
 	server := &Server{
 		path:            path,
 		listener:        authenticated,
 		lock:            lock,
 		commands:        commands,
+		queries:         queries,
 		events:          events,
 		requestsDrained: make(chan struct{}),
 	}
 	mux := http.NewServeMux()
 	mux.Handle("/v1/commands", server.trackRequests(http.HandlerFunc(server.handleCommands)))
+	mux.Handle("/v1/queries", server.trackRequests(http.HandlerFunc(server.handleQueries)))
 	mux.Handle("/v1/events", server.trackRequests(http.HandlerFunc(server.handleEvents)))
 	server.httpServer = &http.Server{
 		Handler:           mux,
@@ -543,6 +574,70 @@ func (server *Server) handleCommands(writer http.ResponseWriter, request *http.R
 	encoder := json.NewEncoder(writer)
 	encoder.SetEscapeHTML(false)
 	_ = encoder.Encode(commandResponse{Command: record})
+}
+
+func (server *Server) handleQueries(writer http.ResponseWriter, request *http.Request) {
+	if request.Method != http.MethodPost {
+		writer.Header().Set("Allow", http.MethodPost)
+		writeError(writer, http.StatusMethodNotAllowed, &domain.Error{
+			Code: domain.ErrorCodeInvalidArgument, Resource: "query endpoint", Message: "method is not allowed",
+		})
+		return
+	}
+	if server.queries == nil {
+		writeError(writer, http.StatusNotImplemented, &domain.Error{
+			Code: domain.ErrorCodeInternal, Resource: "query endpoint", Message: "query handler is unavailable",
+		})
+		return
+	}
+	mediaType, _, err := mime.ParseMediaType(request.Header.Get("Content-Type"))
+	if err != nil || mediaType != "application/json" {
+		writeError(writer, http.StatusUnsupportedMediaType, &domain.Error{
+			Code: domain.ErrorCodeInvalidArgument, Resource: "query endpoint", Message: "content type must be application/json",
+		})
+		return
+	}
+	request.Body = http.MaxBytesReader(writer, request.Body, maxCommandBytes)
+	decoder := json.NewDecoder(request.Body)
+	decoder.DisallowUnknownFields()
+	var query QueryRequest
+	if err := decoder.Decode(&query); err != nil {
+		writeError(writer, http.StatusBadRequest, &domain.Error{
+			Code: domain.ErrorCodeInvalidArgument, Resource: "query", Message: "request body is invalid",
+		})
+		return
+	}
+	if err := decoder.Decode(&struct{}{}); !errors.Is(err, io.EOF) {
+		writeError(writer, http.StatusBadRequest, &domain.Error{
+			Code: domain.ErrorCodeInvalidArgument, Resource: "query", Message: "request body contains multiple values",
+		})
+		return
+	}
+	if err := query.Validate(); err != nil {
+		writeDomainError(writer, err)
+		return
+	}
+	principal, ok := request.Context().Value(principalContextKey{}).(Principal)
+	if !ok {
+		writeError(writer, http.StatusUnauthorized, &domain.Error{
+			Code: domain.ErrorCodeUnauthorized, Resource: "socket peer", Message: "authenticated principal is unavailable",
+		})
+		return
+	}
+	result, err := server.queries.HandleQuery(request.Context(), principal, query)
+	if err != nil {
+		writeDomainError(writer, err)
+		return
+	}
+	if result == nil {
+		result = json.RawMessage(`null`)
+	}
+	writer.Header().Set("Content-Type", "application/json")
+	writer.Header().Set("Cache-Control", "no-store")
+	writer.WriteHeader(http.StatusOK)
+	encoder := json.NewEncoder(writer)
+	encoder.SetEscapeHTML(false)
+	_ = encoder.Encode(queryResponse{Result: result})
 }
 
 func (server *Server) handleEvents(writer http.ResponseWriter, request *http.Request) {

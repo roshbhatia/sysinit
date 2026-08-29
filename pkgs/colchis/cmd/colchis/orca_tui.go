@@ -40,6 +40,13 @@ type orcaActionMessage struct {
 
 type orcaRefreshTick time.Time
 
+type orcaRefreshResult struct {
+	model    orcaUIModel
+	revision uint64
+	success  string
+	err      error
+}
+
 type orcaKeyMap struct {
 	up         key.Binding
 	down       key.Binding
@@ -102,31 +109,34 @@ var orcaKeys = orcaKeyMap{
 }
 
 type orcaUIModel struct {
-	record         instance.Record
-	active         bool
-	agents         []agents.Agent
-	cursor         int
-	message        string
-	messageError   bool
-	selected       string
-	selectedResume bool
-	selectedWorker domain.SessionID
-	width          int
-	height         int
-	help           help.Model
-	view           int
-	workflows      []domain.WorkflowRun
-	workflow       workflowViewResult
-	definition     workflowmodel.Definition
-	workflowCursor int
-	restartPoints  []domain.RestartPoint
-	restartCursor  int
-	forks          []domain.RunFork
-	workers        []domain.Session
-	workerHistory  sqlite.SessionHistory
-	workerCursor   int
-	confirmReplay  bool
-	graphOffset    int
+	record            instance.Record
+	active            bool
+	agents            []agents.Agent
+	cursor            int
+	message           string
+	messageError      bool
+	selected          string
+	selectedResume    bool
+	selectedWorker    domain.SessionID
+	width             int
+	height            int
+	help              help.Model
+	view              int
+	workflows         []domain.WorkflowRun
+	workflow          workflowViewResult
+	definition        workflowmodel.Definition
+	workflowCursor    int
+	restartPoints     []domain.RestartPoint
+	restartCursor     int
+	forks             []domain.RunFork
+	workers           []domain.Session
+	workerHistory     sqlite.SessionHistory
+	workerCursor      int
+	confirmReplay     bool
+	graphOffset       int
+	refreshing        bool
+	refreshRevision   uint64
+	requestedWorkflow domain.WorkflowRunID
 }
 
 const (
@@ -214,11 +224,23 @@ func (model orcaUIModel) Init() tea.Cmd {
 func (model orcaUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	switch typed := message.(type) {
 	case orcaRefreshTick:
-		if err := model.refreshState(false); err != nil {
-			model.message = err.Error()
+		refresh := model.beginRefresh(false, "")
+		return model, tea.Batch(refresh, orcaRefreshCommand())
+	case orcaRefreshResult:
+		model.refreshing = false
+		if typed.err != nil {
+			model.message = typed.err.Error()
 			model.messageError = true
+		} else if typed.revision == model.refreshRevision {
+			model.applyRefresh(typed.model)
+			if typed.success != "" {
+				model.message = typed.success
+				model.messageError = false
+			}
 		}
-		return model, orcaRefreshCommand()
+		if typed.revision != model.refreshRevision {
+			return model, model.beginRefresh(false, "")
+		}
 	case orcaActionMessage:
 		model.messageError = typed.err != nil
 		if typed.err != nil {
@@ -226,13 +248,11 @@ func (model orcaUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		} else {
 			model.message = typed.text
 		}
-		if err := model.refresh(); err != nil {
-			model.message = err.Error()
-			model.messageError = true
-		}
 		if typed.workflowID != "" {
-			model.selectWorkflow(typed.workflowID)
+			model.requestedWorkflow = typed.workflowID
+			model.refreshRevision++
 		}
+		return model, model.beginRefresh(true, "")
 	case tea.WindowSizeMsg:
 		model.width = typed.Width
 		model.height = typed.Height
@@ -245,14 +265,14 @@ func (model orcaUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(typed, orcaKeys.quit):
 			return model, tea.Quit
 		case key.Matches(typed, orcaKeys.up):
-			if err := model.moveCursor(-1); err != nil {
-				model.message = err.Error()
-				model.messageError = true
+			if model.moveCursor(-1) {
+				model.refreshRevision++
+				return model, model.beginRefresh(true, "")
 			}
 		case key.Matches(typed, orcaKeys.down):
-			if err := model.moveCursor(1); err != nil {
-				model.message = err.Error()
-				model.messageError = true
+			if model.moveCursor(1) {
+				model.refreshRevision++
+				return model, model.beginRefresh(true, "")
 			}
 		case key.Matches(typed, orcaKeys.left):
 			model.moveRestartPoint(-1)
@@ -265,20 +285,12 @@ func (model orcaUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(typed, orcaKeys.switchView):
 			model.view = (model.view + 1) % 3
 			model.message = ""
-			if err := model.refresh(); err != nil {
-				model.message = err.Error()
-				model.messageError = true
-			}
+			model.refreshRevision++
+			return model, model.beginRefresh(true, "")
 		case key.Matches(typed, orcaKeys.showHelp):
 			model.help.ShowAll = !model.help.ShowAll
 		case key.Matches(typed, orcaKeys.refresh):
-			if err := model.refresh(); err != nil {
-				model.message = err.Error()
-				model.messageError = true
-			} else {
-				model.message = "Status refreshed"
-				model.messageError = false
-			}
+			return model, model.beginRefresh(true, "Status refreshed")
 		case key.Matches(typed, orcaKeys.toggle):
 			active := model.active
 			model.message = "Updating broker state"
@@ -416,6 +428,35 @@ func orcaFitBlockHeight(value string, height int) string {
 
 func orcaRefreshCommand() tea.Cmd {
 	return tea.Tick(time.Second, func(now time.Time) tea.Msg { return orcaRefreshTick(now) })
+}
+
+func (model *orcaUIModel) beginRefresh(loadWorkerHistory bool, success string) tea.Cmd {
+	if model.refreshing {
+		return nil
+	}
+	model.refreshing = true
+	snapshot := *model
+	revision := model.refreshRevision
+	return func() tea.Msg {
+		err := snapshot.refreshState(loadWorkerHistory)
+		return orcaRefreshResult{model: snapshot, revision: revision, success: success, err: err}
+	}
+}
+
+func (model *orcaUIModel) applyRefresh(updated orcaUIModel) {
+	model.record = updated.record
+	model.active = updated.active
+	model.workflows = updated.workflows
+	model.workflow = updated.workflow
+	model.definition = updated.definition
+	model.workflowCursor = updated.workflowCursor
+	model.restartPoints = updated.restartPoints
+	model.restartCursor = updated.restartCursor
+	model.forks = updated.forks
+	model.workers = updated.workers
+	model.workerHistory = updated.workerHistory
+	model.workerCursor = updated.workerCursor
+	model.requestedWorkflow = updated.requestedWorkflow
 }
 
 func (model orcaUIModel) helpKeys() orcaHelpKeyMap {
@@ -885,41 +926,42 @@ func (model *orcaUIModel) refreshState(loadWorkerHistory bool) error {
 	}
 }
 
-func (model *orcaUIModel) moveCursor(delta int) error {
+func (model *orcaUIModel) moveCursor(delta int) bool {
 	if model.view == orcaControllersView {
 		next := model.cursor + delta
 		if next >= 0 && next < len(model.agents) {
 			model.cursor = next
+			return true
 		}
-		return nil
+		return false
 	}
 	if model.view == orcaWorkflowsView {
 		next := model.workflowCursor + delta
 		if next < 0 || next >= len(model.workflows) {
-			return nil
+			return false
 		}
 		model.workflowCursor = next
 		model.graphOffset = 0
-		return model.loadSelectedWorkflow()
+		return true
 	}
 	next := model.workerCursor + delta
 	if next < 0 || next >= len(model.workers) {
-		return nil
+		return false
 	}
 	model.workerCursor = next
-	return model.loadSelectedWorker()
+	return true
 }
 
 func (model *orcaUIModel) loadWorkflows() error {
-	var selected domain.WorkflowRunID
-	if model.workflowCursor >= 0 && model.workflowCursor < len(model.workflows) {
+	selected := model.requestedWorkflow
+	if selected == "" && model.workflowCursor >= 0 && model.workflowCursor < len(model.workflows) {
 		selected = model.workflows[model.workflowCursor].ID
 	}
-	command, err := executeNativeCommand(model.record.StateDirectory, "workflow.list", json.RawMessage(`{}`))
+	result, err := executeNativeQuery(model.record.StateDirectory, "workflow.list", json.RawMessage(`{}`))
 	if err != nil {
 		return err
 	}
-	if err := json.Unmarshal(command.Result, &model.workflows); err != nil {
+	if err := json.Unmarshal(result, &model.workflows); err != nil {
 		return err
 	}
 	if len(model.workflows) == 0 {
@@ -934,6 +976,7 @@ func (model *orcaUIModel) loadWorkflows() error {
 		for index := range model.workflows {
 			if model.workflows[index].ID == selected {
 				model.workflowCursor = index
+				model.requestedWorkflow = ""
 				break
 			}
 		}
@@ -978,11 +1021,11 @@ func (model *orcaUIModel) loadRestartPoints() error {
 	if model.restartCursor >= 0 && model.restartCursor < len(model.restartPoints) {
 		selected = model.restartPoints[model.restartCursor].ID
 	}
-	command, err := executeNativeCommand(model.record.StateDirectory, "workflow.restart-points", payload)
+	result, err := executeNativeQuery(model.record.StateDirectory, "workflow.restart-points", payload)
 	if err != nil {
 		return err
 	}
-	if err := json.Unmarshal(command.Result, &model.restartPoints); err != nil {
+	if err := json.Unmarshal(result, &model.restartPoints); err != nil {
 		return err
 	}
 	model.restartCursor = restartPointCursor(model.restartPoints, selected)
@@ -1009,11 +1052,11 @@ func (model *orcaUIModel) loadWorkflowForks() error {
 	if err != nil {
 		return err
 	}
-	command, err := executeNativeCommand(model.record.StateDirectory, "workflow.forks", payload)
+	result, err := executeNativeQuery(model.record.StateDirectory, "workflow.forks", payload)
 	if err != nil {
 		return err
 	}
-	return json.Unmarshal(command.Result, &model.forks)
+	return json.Unmarshal(result, &model.forks)
 }
 
 func (model *orcaUIModel) loadWorkers(loadHistory bool) error {
@@ -1021,11 +1064,11 @@ func (model *orcaUIModel) loadWorkers(loadHistory bool) error {
 	if model.workerCursor >= 0 && model.workerCursor < len(model.workers) {
 		selected = model.workers[model.workerCursor].ID
 	}
-	command, err := executeNativeCommand(model.record.StateDirectory, "agent.list", json.RawMessage(`{}`))
+	result, err := executeNativeQuery(model.record.StateDirectory, "agent.list", json.RawMessage(`{}`))
 	if err != nil {
 		return err
 	}
-	if err := json.Unmarshal(command.Result, &model.workers); err != nil {
+	if err := json.Unmarshal(result, &model.workers); err != nil {
 		return err
 	}
 	if len(model.workers) == 0 {
@@ -1060,11 +1103,11 @@ func (model *orcaUIModel) loadSelectedWorker() error {
 	if err != nil {
 		return err
 	}
-	command, err := executeNativeCommand(model.record.StateDirectory, "agent.history", payload)
+	result, err := executeNativeQuery(model.record.StateDirectory, "agent.history", payload)
 	if err != nil {
 		return err
 	}
-	return json.Unmarshal(command.Result, &model.workerHistory)
+	return json.Unmarshal(result, &model.workerHistory)
 }
 
 func (model *orcaUIModel) moveRestartPoint(delta int) {
@@ -1092,7 +1135,6 @@ func (model *orcaUIModel) selectWorkflow(id domain.WorkflowRunID) {
 		if run.ID == id {
 			model.workflowCursor = index
 			model.graphOffset = 0
-			_ = model.loadSelectedWorkflow()
 			return
 		}
 	}
@@ -1323,28 +1365,38 @@ func (model orcaWorkerUIModel) View() string {
 	identity := fmt.Sprintf(
 		"%s  %s  %s", session.ID, session.WorkflowRunID, session.NodeRunID,
 	)
-	lines := model.workerEventLines()
-	bodyHeight := model.height - 13
-	if bodyHeight < 4 {
-		bodyHeight = 4
-	}
-	if len(lines) > bodyHeight {
-		lines = lines[len(lines)-bodyHeight:]
-	}
-	body := orcaBox("events", model.width-2, strings.Join(lines, "\n"), true)
 	footer := orcaTagStyle.Render("i input   r refresh   q detach")
-	parts := []string{header, scope, orcaValueStyle.Render(ansi.Truncate(identity, model.width, "…")), body}
+	before := []string{header, scope, orcaValueStyle.Render(ansi.Truncate(identity, model.width, "…"))}
+	after := make([]string, 0, 2)
 	if model.typing {
-		parts = append(parts, model.input.View()+"  "+orcaTagStyle.Render("enter send   esc cancel"))
+		after = append(after, model.input.View()+"  "+orcaTagStyle.Render("enter send   esc cancel"))
 	} else if model.message != "" {
 		style := orcaMessageStyle
 		if model.messageError {
 			style = orcaErrorStyle
 		}
-		parts = append(parts, style.Render(ansi.Truncate(model.message, model.width, "…")))
+		after = append(after, style.Render(ansi.Truncate(model.message, model.width, "…")))
 	}
-	parts = append(parts, footer)
-	return strings.Join(parts, "\n\n")
+	after = append(after, footer)
+	separator := "\n\n"
+	separatorHeight := 2
+	if model.height <= 24 {
+		separator = "\n"
+		separatorHeight = 1
+	}
+	fixedHeight := separatorHeight * (len(before) + len(after))
+	for _, part := range append(append([]string(nil), before...), after...) {
+		fixedHeight += lipgloss.Height(part)
+	}
+	lines := model.workerEventLines()
+	bodyHeight := max(3, model.height-fixedHeight)
+	if len(lines) > bodyHeight-2 {
+		lines = lines[len(lines)-(bodyHeight-2):]
+	}
+	body := orcaBox("events", model.width-2, strings.Join(lines, "\n"), true)
+	parts := append(before, body)
+	parts = append(parts, after...)
+	return strings.Join(parts, separator)
 }
 
 func (model orcaWorkerUIModel) workerEventLines() []string {

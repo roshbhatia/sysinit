@@ -244,12 +244,12 @@ func loadWorkflowView(
 	if err != nil {
 		return workflowViewResult{}, workflowmodel.Definition{}, err
 	}
-	record, err := executeNativeCommand(stateDirectory, "workflow.inspect", payload)
+	result, err := executeNativeQuery(stateDirectory, "workflow.inspect", payload)
 	if err != nil {
 		return workflowViewResult{}, workflowmodel.Definition{}, err
 	}
 	var view workflowViewResult
-	if err := json.Unmarshal(record.Result, &view); err != nil {
+	if err := json.Unmarshal(result, &view); err != nil {
 		return workflowViewResult{}, workflowmodel.Definition{}, err
 	}
 	var definition workflowmodel.Definition
@@ -323,8 +323,10 @@ func requireViewTarget(document map[string]json.RawMessage, field string, want s
 func workflowViewControlKind(control string) (string, bool) {
 	kinds := map[string]string{
 		"graph patch": "graph.patch", "replay run": "workflow.replay",
-		"agent attach": "agent.attach", "agent detach": "agent.detach",
-		"agent intervene": "agent.intervene", "agent policy": "agent.policy",
+		"agent attach": "agent.attach", "worker attach": "agent.attach",
+		"agent detach": "agent.detach", "worker detach": "agent.detach",
+		"agent intervene": "agent.intervene", "worker intervene": "agent.intervene",
+		"agent policy": "agent.policy", "worker policy": "agent.policy",
 		"provenance relation": "provenance.relation", "effect reconcile": "effect.reconcile",
 	}
 	kind, found := kinds[control]
@@ -353,6 +355,25 @@ func executeNativeCommand(
 		ID: domain.CommandID(commandID), IdempotencyKey: "view-" + commandID,
 		Kind: kind, Payload: payload,
 	})
+}
+
+func executeNativeQuery(
+	stateDirectory string,
+	kind string,
+	payload json.RawMessage,
+) (json.RawMessage, error) {
+	paths, err := resolveOrcaPaths(stateDirectory)
+	if err != nil {
+		return nil, err
+	}
+	client, err := socket.NewClient(paths.Socket)
+	if err != nil {
+		return nil, err
+	}
+	defer client.Close()
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	return client.Query(ctx, socket.QueryRequest{Kind: kind, Payload: payload})
 }
 
 func renderWorkflowView(stdout io.Writer, view workflowViewResult, definition workflowmodel.Definition) {

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -348,6 +349,50 @@ func TestCommandServicePersistsTypedResult(t *testing.T) {
 	)
 	if err != nil || string(record.Result) != `{"workflowRunId":"run-1"}` {
 		t.Fatalf("HandleCommand() = %#v, %v", record, err)
+	}
+}
+
+func TestCommandServiceQueriesDoNotPersistCommands(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	store, err := sqlite.Open(ctx, filepath.Join(t.TempDir(), "colchis.db"))
+	if err != nil {
+		t.Fatalf("Open() returned %v", err)
+	}
+	defer store.Close()
+	service, err := NewCommandService(store, CommandResultExecutorFunc(func(
+		_ context.Context,
+		_ socket.Principal,
+		request domain.CommandRequest,
+	) (json.RawMessage, error) {
+		return json.Marshal(map[string]string{"kind": request.Kind})
+	}))
+	if err != nil {
+		t.Fatalf("NewCommandService() returned %v", err)
+	}
+	before, err := store.Inspect(ctx)
+	if err != nil {
+		t.Fatalf("Inspect(before) returned %v", err)
+	}
+	result, err := service.HandleQuery(ctx, socket.Principal{UID: 501, Role: socket.PrincipalRoleOwner}, socket.QueryRequest{
+		Kind: "workflow.list", Payload: json.RawMessage(`{}`),
+	})
+	if err != nil || !strings.Contains(string(result), `"kind":"workflow.list"`) {
+		t.Fatalf("HandleQuery() = %s, %v", result, err)
+	}
+	after, err := store.Inspect(ctx)
+	if err != nil {
+		t.Fatalf("Inspect(after) returned %v", err)
+	}
+	if before.LastEventCursor != after.LastEventCursor || !reflect.DeepEqual(before.Tables, after.Tables) {
+		t.Fatalf("query changed durable state: before=%#v after=%#v", before, after)
+	}
+	_, err = service.HandleQuery(ctx, socket.Principal{}, socket.QueryRequest{
+		Kind: "workflow.run", Payload: json.RawMessage(`{}`),
+	})
+	if !domain.IsErrorCode(err, domain.ErrorCodeInvalidArgument) {
+		t.Fatalf("mutating query error = %v", err)
 	}
 }
 

@@ -59,6 +59,11 @@ type recordingCommandHandler struct {
 	calls chan commandCall
 }
 
+type recordingQueryHandler struct {
+	recordingCommandHandler
+	queries chan QueryRequest
+}
+
 type blockingCommandHandler struct {
 	started chan struct{}
 	release chan struct{}
@@ -100,6 +105,18 @@ func (handler *recordingCommandHandler) HandleCommand(
 		State:           domain.CommandStateAccepted,
 		Payload:         request.Payload,
 	}, nil
+}
+
+func (handler *recordingQueryHandler) HandleQuery(
+	_ context.Context,
+	principal Principal,
+	request QueryRequest,
+) (json.RawMessage, error) {
+	if principal.Role != PrincipalRoleOwner {
+		return nil, errors.New("query principal is not the owner")
+	}
+	handler.queries <- request
+	return json.RawMessage(`{"runs":[]}`), nil
 }
 
 type eventCall struct {
@@ -163,6 +180,39 @@ func TestCommandEndpointBindsPeerPrincipal(t *testing.T) {
 	}
 	if info.Mode().Perm() != 0o600 {
 		t.Fatalf("socket mode = %o", info.Mode().Perm())
+	}
+}
+
+func TestQueryEndpointReturnsReadOnlyResult(t *testing.T) {
+	handler := &recordingQueryHandler{
+		recordingCommandHandler: recordingCommandHandler{calls: make(chan commandCall, 1)},
+		queries:                 make(chan QueryRequest, 1),
+	}
+	reader := &recordingEventReader{calls: make(chan eventCall, 1)}
+	_, socketPath := startTestServer(t, handler, reader)
+	client, err := NewClient(socketPath)
+	if err != nil {
+		t.Fatalf("NewClient() returned %v", err)
+	}
+	defer client.Close()
+	result, err := client.Query(context.Background(), QueryRequest{
+		Kind: "workflow.list", Payload: json.RawMessage(`{}`),
+	})
+	if err != nil || string(result) != `{"runs":[]}` {
+		t.Fatalf("Query() = %s, %v", result, err)
+	}
+	select {
+	case query := <-handler.queries:
+		if query.Kind != "workflow.list" {
+			t.Fatalf("query = %#v", query)
+		}
+	default:
+		t.Fatal("query handler was not called")
+	}
+	select {
+	case call := <-handler.calls:
+		t.Fatalf("query persisted command call %#v", call)
+	default:
 	}
 }
 
