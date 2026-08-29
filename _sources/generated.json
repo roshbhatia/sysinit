@@ -8,11 +8,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-xumXBtAvBEnzScW74e8HMzf1CtnkHYcPyxVHfWprbpY=",
+            "sha256": "sha256-W6A3w3BK3wpD2JFvWNbW8vHz1oq7f1g+xDfzkT9uhyg=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1788004847-g6059f6/amp-darwin-arm64.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1788033637-g4c86ff/amp-darwin-arm64.gz"
         },
-        "version": "0.0.1788004847-g6059f6"
+        "version": "0.0.1788033637-g4c86ff"
     },
     "amp-cli-aarch64-linux": {
         "cargoLock": null,
@@ -23,11 +23,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-W1TR0cH3bPXFrgiE8w1YYPZ2X2e02z7LCFgow15PDdk=",
+            "sha256": "sha256-i7R93L4GAQi/AOSwa6+FF2ux6+V2NY0JtGuxHfR3DEg=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1788004847-g6059f6/amp-linux-arm64.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1788033637-g4c86ff/amp-linux-arm64.gz"
         },
-        "version": "0.0.1788004847-g6059f6"
+        "version": "0.0.1788033637-g4c86ff"
     },
     "amp-cli-x86_64-linux": {
         "cargoLock": null,
@@ -38,11 +38,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-7KOovhwISORKiBvryhBtjPQ5z0XroinykjEXuFY6vKU=",
+            "sha256": "sha256-gPHhEaFN/X3Ki8UdblUcBLUH3WgOmGsMcT4v4mU5Vq0=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1788004847-g6059f6/amp-linux-x64-baseline.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1788033637-g4c86ff/amp-linux-x64-baseline.gz"
         },
-        "version": "0.0.1788004847-g6059f6"
+        "version": "0.0.1788033637-g4c86ff"
     },
     "atomic-coding-agent": {
         "cargoLock": null,
@@ -53,11 +53,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-xBIp+E+Sipk/sAJtn0DtN528UMzcw22nKM7Ne7Hztfc=",
+            "sha256": "sha256-lNmDtJaFMyxZkD055K/RJErv7zi8PbSt4XFOPM+LZUc=",
             "type": "url",
-            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.16/atomic-darwin-arm64.tar.gz"
+            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.17/atomic-darwin-arm64.tar.gz"
         },
-        "version": "0.9.16"
+        "version": "0.9.17"
     },
     "atomic-coding-agent-aarch64-linux": {
         "cargoLock": null,
@@ -68,11 +68,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-Ed4DYP0t1RYdjX9CI1hK7JAJHm8depaMFrn4Q0BHZgE=",
+            "sha256": "sha256-betV5BqXlIpETZC4UcK+SwG6xqeyClBTLjxeblChywA=",
             "type": "url",
-            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.16/atomic-linux-arm64.tar.gz"
+            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.17/atomic-linux-arm64.tar.gz"
         },
-        "version": "0.9.16"
+        "version": "0.9.17"
     },
     "atomic-coding-agent-x86_64-darwin": {
         "cargoLock": null,
@@ -83,11 +83,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-ILctZNjuUc6o3a6PVIuwmBrjoIydGrdz2ri2a9xGN+k=",
+            "sha256": "sha256-CsI15CSYrOMj4KBUGk+ZGFshHXRcWjbC9qszHaKTHZU=",
             "type": "url",
-            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.16/atomic-darwin-x64.tar.gz"
+            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.17/atomic-darwin-x64.tar.gz"
         },
-        "version": "0.9.16"
+        "version": "0.9.17"
     },
     "atomic-coding-agent-x86_64-linux": {
         "cargoLock": null,
@@ -98,11 +98,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-DLjXdjO2lztG4M9YvJRRohb27eYesxrBo+QKQSSpRA0=",
+            "sha256": "sha256-Yps1slitJTl6o9n5UQzrikAKFys5wVAZOnhQETP/rLg=",
             "type": "url",
-            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.16/atomic-linux-x64.tar.gz"
+            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.17/atomic-linux-x64.tar.gz"
         },
-        "version": "0.9.16"
+        "version": "0.9.17"
     },
     "crush": {
         "cargoLock": null,
@@ -173,11 +173,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-n8GNXDQpraslTMK2JslnnoZr4mSW4J1764dU9sHFhsk=",
+            "sha256": "sha256-SXy6vFDFfs+B+K/+BCoH2TDAQYho52eyivraS93QV0g=",
             "type": "url",
-            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.6/fx-macos-aarch64.tar.gz"
+            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.7/fx-macos-aarch64.tar.gz"
         },
-        "version": "0.0.6"
+        "version": "0.0.7"
     },
     "fx-aarch64-linux": {
         "cargoLock": null,
@@ -188,11 +188,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-Df1TIkxezt5gG7jOZJ+E+rbbBaOa+81bOeYJGDP2xNc=",
+            "sha256": "sha256-Sj+xsBFLik+TPeZPhfsiiAlcF2MaDDyol6oFYB0EmXQ=",
             "type": "url",
-            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.6/fx-linux-aarch64.tar.gz"
+            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.7/fx-linux-aarch64.tar.gz"
         },
-        "version": "0.0.6"
+        "version": "0.0.7"
     },
     "fx-x86_64-darwin": {
         "cargoLock": null,
@@ -203,11 +203,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-7vDya/QZ0w4Hv8TDROU3TdFw0McR+ZZcsLCK/HTk4/w=",
+            "sha256": "sha256-xFfk70H7z8tncYugeiH14AQYKVEn+ZmA6ozjjZVd1UY=",
             "type": "url",
-            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.6/fx-macos-x86_64.tar.gz"
+            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.7/fx-macos-x86_64.tar.gz"
         },
-        "version": "0.0.6"
+        "version": "0.0.7"
     },
     "fx-x86_64-linux": {
         "cargoLock": null,
@@ -218,11 +218,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-Eg+pkt+Mr5guF8qenjlmx5Cw0VBIBRHq9ROS5moPC4Q=",
+            "sha256": "sha256-xXh+oEHTtVIexnXxraePMM8bEQIf/KxItJac9b62XEU=",
             "type": "url",
-            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.6/fx-linux-x86_64.tar.gz"
+            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.7/fx-linux-x86_64.tar.gz"
         },
-        "version": "0.0.6"
+        "version": "0.0.7"
     },
     "go-enum": {
         "cargoLock": null,
