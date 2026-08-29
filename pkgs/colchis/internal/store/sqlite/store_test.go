@@ -476,6 +476,57 @@ func TestOpenRejectsStateDirectorySymlinkWithoutCreatingDatabase(t *testing.T) {
 	}
 }
 
+func TestUIDMapContains(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		mapping string
+		uid     uint32
+		mapped  bool
+		wantErr bool
+	}{
+		{name: "full map", mapping: "0 0 4294967295\n", uid: 65534, mapped: true},
+		{name: "sandbox map", mapping: "0 30001 1\n", uid: 65534, mapped: false},
+		{name: "second range", mapping: "0 30001 1\n1000 1000 10\n", uid: 1005, mapped: true},
+		{name: "invalid entry", mapping: "0 0\n", uid: 0, wantErr: true},
+		{name: "empty map", mapping: "\n", uid: 0, wantErr: true},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			mapped, err := uidMapContains(test.mapping, test.uid)
+			if (err != nil) != test.wantErr {
+				t.Fatalf("uidMapContains() error = %v, wantErr %v", err, test.wantErr)
+			}
+			if mapped != test.mapped {
+				t.Fatalf("uidMapContains() = %v, want %v", mapped, test.mapped)
+			}
+		})
+	}
+}
+
+func TestRootSuperblockReadOnly(t *testing.T) {
+	t.Parallel()
+
+	readOnly := "36 25 0:32 / / ro,relatime - tmpfs tmpfs ro,size=1024k\n"
+	if !rootSuperblockReadOnly(readOnly) {
+		t.Fatal("rootSuperblockReadOnly() rejected a read-only root superblock")
+	}
+	readOnlyMount := "36 25 0:32 / / ro,relatime - tmpfs tmpfs rw,size=1024k\n"
+	if rootSuperblockReadOnly(readOnlyMount) {
+		t.Fatal("rootSuperblockReadOnly() accepted a writable root superblock")
+	}
+	overmounted := readOnly + "38 25 0:34 / / rw,relatime - tmpfs tmpfs rw,size=1024k\n"
+	if rootSuperblockReadOnly(overmounted) {
+		t.Fatal("rootSuperblockReadOnly() accepted a hidden writable root superblock")
+	}
+	otherMount := "37 25 0:33 / /build rw,relatime - tmpfs tmpfs rw,size=1024k\n"
+	if rootSuperblockReadOnly(otherMount) {
+		t.Fatal("rootSuperblockReadOnly() accepted metadata without a root mount")
+	}
+}
+
 func TestOpenCreatesOwnerOnlyMaterializationLock(t *testing.T) {
 	t.Parallel()
 

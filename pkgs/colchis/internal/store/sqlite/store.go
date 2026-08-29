@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -528,6 +529,8 @@ func validateAncestorChain(path string, allowRootSymlinks bool) error {
 		if err != nil {
 			return wrap("inspect state directory ancestor", current, err)
 		}
+		parent := filepath.Dir(current)
+		isFilesystemRoot := parent == current
 		if info.Mode()&os.ModeSymlink != 0 {
 			stat, ok := info.Sys().(*syscall.Stat_t)
 			if !allowRootSymlinks || !ok || stat.Uid != 0 {
@@ -536,8 +539,7 @@ func validateAncestorChain(path string, allowRootSymlinks bool) error {
 					Message: "state directory ancestor is an untrusted symbolic link",
 				}
 			}
-		} else if stat, ok := info.Sys().(*syscall.Stat_t); !ok ||
-			(stat.Uid != 0 && stat.Uid != uint32(os.Geteuid())) {
+		} else if stat, ok := info.Sys().(*syscall.Stat_t); !ok || !trustedAncestorOwner(stat.Uid, isFilesystemRoot) {
 			return &domain.Error{
 				Code: domain.ErrorCodeUnauthorized, Op: "use state directory", Resource: current,
 				Message: "state directory ancestor has an untrusted owner",
@@ -553,11 +555,97 @@ func validateAncestorChain(path string, allowRootSymlinks bool) error {
 				Message: "state directory ancestor permits untrusted replacement",
 			}
 		}
-		parent := filepath.Dir(current)
-		if parent == current {
+		if isFilesystemRoot {
 			return nil
 		}
 	}
+}
+
+func trustedAncestorOwner(uid uint32, isFilesystemRoot bool) bool {
+	if uid == 0 || uid == uint32(os.Geteuid()) {
+		return true
+	}
+	if !isFilesystemRoot {
+		return false
+	}
+	mountInfo, err := os.ReadFile("/proc/self/mountinfo")
+	if err != nil || !rootSuperblockReadOnly(string(mountInfo)) {
+		return false
+	}
+	overflowRaw, err := os.ReadFile("/proc/sys/kernel/overflowuid")
+	if err != nil {
+		return false
+	}
+	overflow, err := strconv.ParseUint(strings.TrimSpace(string(overflowRaw)), 10, 32)
+	if err != nil || uid != uint32(overflow) {
+		return false
+	}
+	mapping, err := os.ReadFile("/proc/self/uid_map")
+	if err != nil {
+		return false
+	}
+	mapped, err := uidMapContains(string(mapping), uid)
+	return err == nil && !mapped
+}
+
+func rootSuperblockReadOnly(mountInfo string) bool {
+	foundRoot := false
+	for _, line := range strings.Split(mountInfo, "\n") {
+		fields := strings.Fields(line)
+		if len(fields) < 10 || fields[4] != string(os.PathSeparator) {
+			continue
+		}
+		foundRoot = true
+		separator := -1
+		for index, field := range fields {
+			if field == "-" {
+				separator = index
+				break
+			}
+		}
+		if separator < 0 || separator+3 >= len(fields) {
+			return false
+		}
+		readOnly := false
+		for _, option := range strings.Split(fields[separator+3], ",") {
+			if option == "ro" {
+				readOnly = true
+				break
+			}
+		}
+		if !readOnly {
+			return false
+		}
+	}
+	return foundRoot
+}
+
+func uidMapContains(mapping string, uid uint32) (bool, error) {
+	entries := 0
+	for _, line := range strings.Split(mapping, "\n") {
+		fields := strings.Fields(line)
+		if len(fields) == 0 {
+			continue
+		}
+		if len(fields) != 3 {
+			return false, errors.New("uid map entry has an invalid field count")
+		}
+		inside, insideErr := strconv.ParseUint(fields[0], 10, 32)
+		_, outsideErr := strconv.ParseUint(fields[1], 10, 32)
+		length, lengthErr := strconv.ParseUint(fields[2], 10, 32)
+		if insideErr != nil || outsideErr != nil || lengthErr != nil || length == 0 {
+			return false, errors.New("uid map entry is invalid")
+		}
+		entries++
+		value := uint64(uid)
+		if value >= inside && value < inside+length {
+			return true, nil
+		}
+	}
+	if entries == 0 {
+		return false, errors.New("uid map has no entries")
+	}
+	return false, nil
 }
 
 func secureDatabaseFile(path string) error {
