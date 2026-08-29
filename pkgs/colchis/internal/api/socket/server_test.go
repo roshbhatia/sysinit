@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -23,8 +24,15 @@ type commandCall struct {
 	request   CommandRequest
 }
 
+func shortSocketTempRoot() string {
+	if runtime.GOOS == "darwin" {
+		return "/tmp"
+	}
+	return ""
+}
+
 func TestAcquireOwnershipRejectsNonPortableSocketPath(t *testing.T) {
-	directory, err := os.MkdirTemp("/tmp", "colchis-path-")
+	directory, err := os.MkdirTemp(shortSocketTempRoot(), "colchis-path-")
 	if err != nil {
 		t.Fatalf("MkdirTemp() returned %v", err)
 	}
@@ -159,7 +167,7 @@ func TestCommandEndpointBindsPeerPrincipal(t *testing.T) {
 }
 
 func TestOpenFencesRecoveryWithSocketOwnership(t *testing.T) {
-	private, err := os.MkdirTemp("/tmp", "colchis-fence-")
+	private, err := os.MkdirTemp(shortSocketTempRoot(), "colchis-fence-")
 	if err != nil {
 		t.Fatalf("MkdirTemp() returned %v", err)
 	}
@@ -341,7 +349,7 @@ func TestOpenRejectsAccessibleDirectoryAndNonSocketPath(t *testing.T) {
 		t.Fatalf("unsafe ancestor Open() = %#v, %v", server, err)
 	}
 
-	private, err := os.MkdirTemp("/tmp", "colchis-private-")
+	private, err := os.MkdirTemp(shortSocketTempRoot(), "colchis-private-")
 	if err != nil {
 		t.Fatalf("MkdirTemp() returned %v", err)
 	}
@@ -361,7 +369,7 @@ func TestOpenRejectsAccessibleDirectoryAndNonSocketPath(t *testing.T) {
 }
 
 func TestCloseRetainsOwnershipUntilTimedOutHandlerFinishes(t *testing.T) {
-	directory, err := os.MkdirTemp("/tmp", "colchis-close-")
+	directory, err := os.MkdirTemp(shortSocketTempRoot(), "colchis-close-")
 	if err != nil {
 		t.Fatalf("MkdirTemp() returned %v", err)
 	}
@@ -438,7 +446,7 @@ func startTestServer(
 	reader EventReader,
 ) (*http.Client, string) {
 	t.Helper()
-	private, err := os.MkdirTemp("/tmp", "colchis-")
+	private, err := os.MkdirTemp(shortSocketTempRoot(), "colchis-")
 	if err != nil {
 		t.Fatalf("MkdirTemp() returned %v", err)
 	}

@@ -524,6 +524,9 @@ func validateStateAncestors(path string) error {
 
 func validateAncestorChain(path string, allowRootSymlinks bool) error {
 	for current := path; ; current = filepath.Dir(current) {
+		parent := filepath.Dir(current)
+		// A namespace can report an unmapped owner for its root. No parent entry can replace that root.
+		root := parent == current
 		info, err := os.Lstat(current)
 		if err != nil {
 			return wrap("inspect state directory ancestor", current, err)
@@ -537,7 +540,7 @@ func validateAncestorChain(path string, allowRootSymlinks bool) error {
 				}
 			}
 		} else if stat, ok := info.Sys().(*syscall.Stat_t); !ok ||
-			(stat.Uid != 0 && stat.Uid != uint32(os.Geteuid())) {
+			(!root && stat.Uid != 0 && stat.Uid != uint32(os.Geteuid())) {
 			return &domain.Error{
 				Code: domain.ErrorCodeUnauthorized, Op: "use state directory", Resource: current,
 				Message: "state directory ancestor has an untrusted owner",
@@ -553,8 +556,7 @@ func validateAncestorChain(path string, allowRootSymlinks bool) error {
 				Message: "state directory ancestor permits untrusted replacement",
 			}
 		}
-		parent := filepath.Dir(current)
-		if parent == current {
+		if root {
 			return nil
 		}
 	}
