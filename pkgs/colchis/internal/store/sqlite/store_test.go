@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"syscall"
@@ -567,6 +568,33 @@ func TestEffectiveOwnerTrusted(t *testing.T) {
 	}
 	if !effectiveOwnerTrusted("linux", true, false, nil) {
 		t.Fatal("effectiveOwnerTrusted() rejected an unmapped overflow owner")
+	}
+}
+
+func TestNixBuildSandboxRootOwnerAccepted(t *testing.T) {
+	if runtime.GOOS != "linux" || os.Getenv("NIX_BUILD_TOP") == "" {
+		t.Skip("requires a Linux Nix build sandbox")
+	}
+	info, err := os.Lstat(string(os.PathSeparator))
+	if err != nil {
+		t.Fatalf("Lstat(/) returned %v", err)
+	}
+	stat, ok := info.Sys().(*syscall.Stat_t)
+	if !ok {
+		t.Fatal("Lstat(/) returned no syscall metadata")
+	}
+	if stat.Uid == 0 || stat.Uid == uint32(os.Geteuid()) {
+		t.Skip("sandbox root already has a directly trusted owner")
+	}
+	mountInfo, mountErr := os.ReadFile("/proc/self/mountinfo")
+	overflow, overflowErr := os.ReadFile("/proc/sys/kernel/overflowuid")
+	uidMap, uidMapErr := os.ReadFile("/proc/self/uid_map")
+	if !trustedAncestorOwner(stat.Uid, true) {
+		t.Fatalf(
+			"sandbox root rejected: uid=%d euid=%d mode=%v mountErr=%v overflow=%q overflowErr=%v uidMap=%q uidMapErr=%v rootReadOnly=%v mountInfo=%q",
+			stat.Uid, os.Geteuid(), info.Mode(), mountErr, overflow, overflowErr, uidMap, uidMapErr,
+			rootMountsReadOnly(string(mountInfo)), mountInfo,
+		)
 	}
 }
 
