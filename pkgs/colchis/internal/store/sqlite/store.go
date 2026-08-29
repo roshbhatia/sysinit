@@ -574,20 +574,32 @@ func trustedAncestorOwner(uid uint32, isFilesystemRoot bool) bool {
 		return false
 	}
 	mountInfo, err := os.ReadFile("/proc/self/mountinfo")
-	if err != nil || !rootMountsReadOnly(string(mountInfo)) {
+	if err != nil || !rootMountSafeForOverflowOwner(string(mountInfo)) {
 		return false
 	}
 	overflow, mapped, err := currentOverflowOwnership(uid)
 	return err == nil && overflow && !mapped
 }
 
-func rootMountsReadOnly(mountInfo string) bool {
-	type mountRecord struct {
-		parent   uint64
-		readOnly bool
-	}
+type rootMountRecord struct {
+	parent     uint64
+	readOnly   bool
+	sourceRoot string
+}
 
-	mounts := make(map[uint64]mountRecord)
+func rootMountsReadOnly(mountInfo string) bool {
+	root, ok := visibleRootMount(mountInfo)
+	return ok && root.readOnly
+}
+
+func rootMountSafeForOverflowOwner(mountInfo string) bool {
+	root, ok := visibleRootMount(mountInfo)
+	return ok && (root.readOnly || nixBuildSandboxRoot(root.sourceRoot))
+}
+
+func visibleRootMount(mountInfo string) (rootMountRecord, bool) {
+
+	mounts := make(map[uint64]rootMountRecord)
 	rootIDs := make(map[uint64]struct{})
 	for _, line := range strings.Split(mountInfo, "\n") {
 		fields := strings.Fields(line)
@@ -595,7 +607,7 @@ func rootMountsReadOnly(mountInfo string) bool {
 			continue
 		}
 		if len(fields) < 10 {
-			return false
+			return rootMountRecord{}, false
 		}
 		separator := -1
 		for index := 6; index < len(fields); index++ {
@@ -605,15 +617,15 @@ func rootMountsReadOnly(mountInfo string) bool {
 			}
 		}
 		if separator < 0 || separator+3 >= len(fields) {
-			return false
+			return rootMountRecord{}, false
 		}
 		id, idErr := strconv.ParseUint(fields[0], 10, 64)
 		parent, parentErr := strconv.ParseUint(fields[1], 10, 64)
 		if idErr != nil || parentErr != nil {
-			return false
+			return rootMountRecord{}, false
 		}
 		if _, duplicate := mounts[id]; duplicate {
-			return false
+			return rootMountRecord{}, false
 		}
 		root := fields[4] == string(os.PathSeparator)
 		readOnly := false
@@ -626,10 +638,10 @@ func rootMountsReadOnly(mountInfo string) bool {
 			}
 			rootIDs[id] = struct{}{}
 		}
-		mounts[id] = mountRecord{parent: parent, readOnly: readOnly}
+		mounts[id] = rootMountRecord{parent: parent, readOnly: readOnly, sourceRoot: fields[3]}
 	}
 	if len(rootIDs) == 0 {
-		return false
+		return rootMountRecord{}, false
 	}
 
 	hiddenRoots := make(map[uint64]struct{})
@@ -638,7 +650,7 @@ func rootMountsReadOnly(mountInfo string) bool {
 		parent := mounts[id].parent
 		for {
 			if _, cycle := seen[parent]; cycle {
-				return false
+				return rootMountRecord{}, false
 			}
 			seen[parent] = struct{}{}
 			if _, root := rootIDs[parent]; root {
@@ -653,18 +665,40 @@ func rootMountsReadOnly(mountInfo string) bool {
 	}
 
 	visibleRoots := 0
-	visibleReadOnly := false
+	visible := rootMountRecord{}
 	for id := range rootIDs {
 		if _, hidden := hiddenRoots[id]; hidden {
 			continue
 		}
 		visibleRoots++
-		visibleReadOnly = mounts[id].readOnly
+		visible = mounts[id]
 		if visibleRoots > 1 {
+			return rootMountRecord{}, false
+		}
+	}
+	return visible, visibleRoots == 1
+}
+
+func nixBuildSandboxRoot(root string) bool {
+	clean := filepath.Clean(root)
+	if filepath.Base(clean) != "root" {
+		return false
+	}
+	chroot := filepath.Dir(clean)
+	if filepath.Dir(chroot) != "/nix/store" {
+		return false
+	}
+	name := strings.TrimSuffix(filepath.Base(chroot), ".drv.chroot")
+	if name == filepath.Base(chroot) || len(name) < 34 || name[32] != '-' {
+		return false
+	}
+	const nixBase32 = "0123456789abcdfghijklmnpqrsvwxyz"
+	for _, character := range name[:32] {
+		if !strings.ContainsRune(nixBase32, character) {
 			return false
 		}
 	}
-	return visibleRoots == 1 && visibleReadOnly
+	return true
 }
 
 func currentOverflowOwnership(uid uint32) (bool, bool, error) {

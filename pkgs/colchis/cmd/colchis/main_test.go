@@ -44,9 +44,13 @@ func TestMain(tests *testing.M) {
 	os.Exit(tests.Run())
 }
 
-func TestLinuxSandboxRootDiagnostic(t *testing.T) {
+func TestLinuxSandboxStateDirectoryAccepted(t *testing.T) {
 	if runtime.GOOS != "linux" {
 		t.Skip("requires Linux")
+	}
+	prepareErr := sqlite.PrepareStateDirectory(t.TempDir())
+	if prepareErr == nil {
+		return
 	}
 	info, err := os.Lstat(string(os.PathSeparator))
 	if err != nil {
@@ -67,8 +71,8 @@ func TestLinuxSandboxRootDiagnostic(t *testing.T) {
 		}
 	}
 	t.Fatalf(
-		"sandbox root observed: uid=%d euid=%d mode=%v mountErr=%v overflow=%q overflowErr=%v uidMap=%q uidMapErr=%v rootMounts=%q",
-		stat.Uid, os.Geteuid(), info.Mode(), mountErr, overflow, overflowErr, uidMap, uidMapErr, rootMounts,
+		"PrepareStateDirectory() error=%v; sandbox root observed: uid=%d euid=%d mode=%v mountErr=%v overflow=%q overflowErr=%v uidMap=%q uidMapErr=%v rootMounts=%q",
+		prepareErr, stat.Uid, os.Geteuid(), info.Mode(), mountErr, overflow, overflowErr, uidMap, uidMapErr, rootMounts,
 	)
 }
 

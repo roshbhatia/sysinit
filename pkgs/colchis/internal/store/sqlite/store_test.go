@@ -538,6 +538,34 @@ func TestRootMountsReadOnly(t *testing.T) {
 	if rootMountsReadOnly(otherMount) {
 		t.Fatal("rootMountsReadOnly() accepted metadata without a root mount")
 	}
+	writableNixSandbox := "591 566 8:1 /nix/store/jv6sdfjrlia7nh393dqr9dv4zp8014aa-sysinit-gotools-0.1.0.drv.chroot/root / rw,relatime - ext4 /dev/root rw\n"
+	if !rootMountSafeForOverflowOwner(writableNixSandbox) {
+		t.Fatal("rootMountSafeForOverflowOwner() rejected a Nix build sandbox")
+	}
+	if rootMountSafeForOverflowOwner(writableMount) {
+		t.Fatal("rootMountSafeForOverflowOwner() accepted a general writable root")
+	}
+	if !rootMountSafeForOverflowOwner(readOnly) {
+		t.Fatal("rootMountSafeForOverflowOwner() rejected a read-only root")
+	}
+}
+
+func TestNixBuildSandboxRoot(t *testing.T) {
+	t.Parallel()
+
+	valid := "/nix/store/jv6sdfjrlia7nh393dqr9dv4zp8014aa-sysinit-gotools-0.1.0.drv.chroot/root"
+	if !nixBuildSandboxRoot(valid) {
+		t.Fatal("nixBuildSandboxRoot() rejected a Nix daemon chroot")
+	}
+	for _, invalid := range []string{
+		"/tmp/jv6sdfjrlia7nh393dqr9dv4zp8014aa-build.drv.chroot/root",
+		"/nix/store/not-a-store-path.drv.chroot/root",
+		"/nix/store/jv6sdfjrlia7nh393dqr9dv4zp8014aa-build.drv.chroot/not-root",
+	} {
+		if nixBuildSandboxRoot(invalid) {
+			t.Fatalf("nixBuildSandboxRoot() accepted %q", invalid)
+		}
+	}
 }
 
 func TestOverflowOwnership(t *testing.T) {
