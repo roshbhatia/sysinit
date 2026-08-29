@@ -102,7 +102,12 @@ func run(args []string, stdout io.Writer, stderr io.Writer) int {
 			fmt.Fprintf(stderr, "enter workspace: %v\n", err)
 			return 1
 		}
-		record, _, err := instance.NewRecord(scope, *service, *automatic)
+		automaticBroker, pinErr := automaticOrcaBroker(paths.StateDirectory, *automatic)
+		if pinErr != nil {
+			fmt.Fprintf(stderr, "read broker pin: %v\n", pinErr)
+			return 1
+		}
+		record, _, err := instance.NewRecord(scope, *service, automaticBroker)
 		if err != nil {
 			fmt.Fprintf(stderr, "prepare instance record: %v\n", err)
 			return 1
@@ -111,7 +116,7 @@ func run(args []string, stdout io.Writer, stderr io.Writer) int {
 		record.Socket = paths.Socket
 		ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 		defer stop()
-		if *automatic {
+		if automaticBroker {
 			go monitorAutomaticBroker(ctx, paths.StateDirectory, stop)
 		}
 		published := false
@@ -404,9 +409,6 @@ func controlCommandKind(args []string) (string, int, bool) {
 	}
 	key := args[0] + " " + args[1]
 	kinds := map[string]string{
-		"planning discover":        "planning.discover",
-		"planning snapshot":        "planning.snapshot",
-		"planning action":          "planning.action",
 		"adapter invoke":           "adapter.invoke",
 		"workflow create":          "workflow.create",
 		"workflow run":             "workflow.run",

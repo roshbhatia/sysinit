@@ -423,8 +423,7 @@ func (executor *ControlExecutor) invokeAdapter(
 
 func genericAdapterOperationAllowed(operation string) bool {
 	switch operation {
-	case "planning.discover", "planning.snapshot", "planning.action",
-		"workspace.snapshot", "environment.resolve", "environment.check",
+	case "workspace.snapshot", "environment.resolve", "environment.check",
 		"activity.import", "activity.observe", "agent-runtime.reconcile":
 		return true
 	default:

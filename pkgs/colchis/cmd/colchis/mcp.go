@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"time"
 
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/api/socket"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/config"
@@ -165,46 +166,6 @@ func runMCP(args []string, stdin io.Reader, stdout io.Writer, stderr io.Writer) 
 		fmt.Fprintln(stderr, "mcp accepts no positional arguments")
 		return 2
 	}
-	var client *socket.Client
-	active := false
-	if *stateDirectory != "" {
-		paths, err := config.ResolvePaths(*stateDirectory)
-		if err != nil {
-			fmt.Fprintf(stderr, "resolve state paths: %v\n", err)
-			return 1
-		}
-		record := instance.Record{StateDirectory: paths.StateDirectory, Socket: paths.Socket}
-		active = instance.Live(record)
-		if active {
-			client, err = socket.NewClient(paths.Socket)
-			if err != nil {
-				fmt.Fprintf(stderr, "create broker client: %v\n", err)
-				return 1
-			}
-		}
-	} else {
-		directory, err := os.Getwd()
-		if err != nil {
-			fmt.Fprintf(stderr, "resolve current directory: %v\n", err)
-			return 1
-		}
-		record, found, err := instance.Active(directory)
-		if err != nil {
-			fmt.Fprintf(stderr, "resolve Orca instance: %v\n", err)
-			return 1
-		}
-		active = found
-		if active {
-			client, err = socket.NewClient(record.Socket)
-			if err != nil {
-				fmt.Fprintf(stderr, "create broker client: %v\n", err)
-				return 1
-			}
-		}
-	}
-	if client != nil {
-		defer client.Close()
-	}
 	scanner := bufio.NewScanner(stdin)
 	scanner.Buffer(make([]byte, 4096), 1<<20)
 	encoder := json.NewEncoder(stdout)
@@ -221,7 +182,19 @@ func runMCP(args []string, stdin io.Reader, stdout io.Writer, stderr io.Writer) 
 			}
 			continue
 		}
+		client, active, err := resolveMCPClient(*stateDirectory)
+		if err != nil {
+			response := mcpToolError(request, err)
+			if encodeErr := encoder.Encode(response); encodeErr != nil {
+				fmt.Fprintf(stderr, "write MCP response: %v\n", encodeErr)
+				return 1
+			}
+			continue
+		}
 		response, send := handleMCPRequest(context.Background(), client, active, request)
+		if client != nil {
+			client.Close()
+		}
 		if send {
 			if err := encoder.Encode(response); err != nil {
 				fmt.Fprintf(stderr, "write MCP response: %v\n", err)
@@ -234,6 +207,41 @@ func runMCP(args []string, stdin io.Reader, stdout io.Writer, stderr io.Writer) 
 		return 1
 	}
 	return 0
+}
+
+func resolveMCPClient(stateDirectory string) (*socket.Client, bool, error) {
+	var record instance.Record
+	if stateDirectory != "" {
+		paths, err := config.ResolvePaths(stateDirectory)
+		if err != nil {
+			return nil, false, fmt.Errorf("resolve state paths: %w", err)
+		}
+		record = instance.Record{StateDirectory: paths.StateDirectory, Socket: paths.Socket}
+	} else {
+		directory, err := os.Getwd()
+		if err != nil {
+			return nil, false, fmt.Errorf("resolve current directory: %w", err)
+		}
+		var found bool
+		record, found, err = instance.Match(directory)
+		if err != nil {
+			return nil, false, fmt.Errorf("resolve Orca instance: %w", err)
+		}
+		if !found {
+			return nil, false, nil
+		}
+	}
+	client, err := socket.NewClient(record.Socket)
+	if err != nil {
+		return nil, false, fmt.Errorf("create broker client: %w", err)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+	defer cancel()
+	if _, err := client.Events(ctx, 0, 1); err != nil {
+		client.Close()
+		return nil, false, nil
+	}
+	return client, true, nil
 }
 
 func handleMCPRequest(

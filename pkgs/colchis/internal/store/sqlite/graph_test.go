@@ -188,6 +188,61 @@ func TestReplayWorkflowCreatesChildAndPreservesParent(t *testing.T) {
 	}
 }
 
+func TestReplayWorkflowRejectsUnrelatedDefinition(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	store, evaluator := openGraphTestStore(t, ctx)
+	defer store.Close()
+	parent, _ := createGraphTestRun(t, ctx, store, evaluator, "definition-parent", "run-parent-lineage")
+	unrelated, _ := createGraphTestRun(t, ctx, store, evaluator, "definition-unrelated", "run-unrelated")
+	workspace := t.TempDir()
+	writeSnapshotTestFile(t, filepath.Join(workspace, "input.txt"), "lineage")
+	if _, err := store.CreateWorkspaceSnapshot(ctx, "snapshot-lineage", "workspace-lineage", workspace); err != nil {
+		t.Fatalf("CreateWorkspaceSnapshot() returned %v", err)
+	}
+	point, err := store.CreateRestartPoint(ctx, RestartPointRequest{
+		ID: "restart-lineage", Kind: domain.RestartPointRunAdmission,
+		WorkflowRunID: parent.ID, EventCursor: graphTestRunCursor(t, ctx, store, parent.ID),
+		SnapshotID: "snapshot-lineage",
+	})
+	if err != nil {
+		t.Fatalf("CreateRestartPoint() returned %v", err)
+	}
+	_, _, err = store.ReplayWorkflow(ctx, ReplayRequest{
+		ID: "fork-unrelated", ParentWorkflowRunID: parent.ID, ChildWorkflowRunID: "run-unrelated-child",
+		RestartPointID: point.ID, TargetDefinitionID: unrelated.WorkflowDefinition,
+		TargetDefinitionVersion: unrelated.DefinitionVersion,
+		ExpectedParentVersion:   parent.Metadata.ResourceVersion,
+		CommandID:               "command-unrelated", Principal: "owner",
+	})
+	if !domain.IsErrorCode(err, domain.ErrorCodeInvalidArgument) || !strings.Contains(err.Error(), "lineage") {
+		t.Fatalf("ReplayWorkflow() error = %v", err)
+	}
+}
+
+func TestOrchestrationRestartPointRequiresOwnedCheckpoint(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	store, evaluator := openGraphTestStore(t, ctx)
+	defer store.Close()
+	parent, _ := createGraphTestRun(t, ctx, store, evaluator, "definition-checkpoint", "run-checkpoint")
+	workspace := t.TempDir()
+	writeSnapshotTestFile(t, filepath.Join(workspace, "input.txt"), "checkpoint")
+	if _, err := store.CreateWorkspaceSnapshot(ctx, "snapshot-checkpoint", "workspace-checkpoint", workspace); err != nil {
+		t.Fatalf("CreateWorkspaceSnapshot() returned %v", err)
+	}
+	_, err := store.CreateRestartPoint(ctx, RestartPointRequest{
+		ID: "restart-missing-checkpoint", Kind: domain.RestartPointOrchestrationCheckpoint,
+		WorkflowRunID: parent.ID, EventCursor: graphTestRunCursor(t, ctx, store, parent.ID),
+		SnapshotID: "snapshot-checkpoint", CheckpointIDs: []domain.CheckpointID{"checkpoint-missing"},
+	})
+	if !domain.IsErrorCode(err, domain.ErrorCodeNotFound) {
+		t.Fatalf("CreateRestartPoint() error = %v", err)
+	}
+}
+
 func TestReusableAdmissionTopologyRequiresCurrentDependencies(t *testing.T) {
 	t.Parallel()
 

@@ -515,8 +515,6 @@ func TestRunSmokeWorkflowFromCleanState(t *testing.T) {
 		}
 		return command
 	}
-	runCommand("planning", "discover", []byte(`{"pluginId":"smoke","adapterId":"openspec","input":{}}`))
-	runCommand("planning", "snapshot", []byte(`{"pluginId":"smoke","adapterId":"openspec","input":{"change":"build-composable-agent-harness"}}`))
 	invokeAdapter := func(
 		id string,
 		adapterID string,
@@ -793,6 +791,37 @@ func TestInactiveMCPAdvertisesProtocolsWithoutTools(t *testing.T) {
 	}
 }
 
+func TestMCPResolvesBrokerStateForEachRequest(t *testing.T) {
+	stateDirectory := shortStateDirectory(t)
+	client, active, err := resolveMCPClient(stateDirectory)
+	if err != nil || active || client != nil {
+		t.Fatalf("resolveMCPClient(inactive) = %#v, %v, %v", client, active, err)
+	}
+	paths, err := config.ResolvePaths(stateDirectory)
+	if err != nil {
+		t.Fatalf("ResolvePaths() returned %v", err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	serveErrors := make(chan error, 1)
+	go func() { serveErrors <- serve(ctx, paths) }()
+	waitForSocket(t, paths.Socket, cancel, serveErrors)
+	client, active, err = resolveMCPClient(stateDirectory)
+	if err != nil || !active || client == nil {
+		cancel()
+		<-serveErrors
+		t.Fatalf("resolveMCPClient(active) = %#v, %v, %v", client, active, err)
+	}
+	client.Close()
+	cancel()
+	if err := <-serveErrors; err != nil {
+		t.Fatalf("serve() returned %v", err)
+	}
+	client, active, err = resolveMCPClient(stateDirectory)
+	if err != nil || active || client != nil {
+		t.Fatalf("resolveMCPClient(stopped) = %#v, %v, %v", client, active, err)
+	}
+}
+
 func TestMCPUsesWorkflowAndWorkerVocabulary(t *testing.T) {
 	names := make(map[string]bool, len(mcpToolDefinitions))
 	for _, tool := range mcpToolDefinitions {
@@ -1055,6 +1084,9 @@ func TestOrcaPickerUsesRecentAgentAndResponsiveLayout(t *testing.T) {
 			t.Fatalf("workflow View() omitted %q:\n%s", expected, graph)
 		}
 	}
+	if strings.Contains(graph, "enter open") {
+		t.Fatalf("workflow View() advertised an unavailable action:\n%s", graph)
+	}
 	model.restartPoints = []domain.RestartPoint{{
 		ID: "restart-42", WorkflowRunID: "plan-42", EventCursor: 7,
 	}}
@@ -1122,6 +1154,37 @@ func TestOrcaWorkflowGraphUsesViewport(t *testing.T) {
 	scrolled, _ := model.Update(tea.KeyMsg{Type: tea.KeyPgDown})
 	if scrolled.(orcaUIModel).graphOffset == 0 {
 		t.Fatal("page down did not scroll the graph")
+	}
+	for range 10 {
+		scrolled, _ = scrolled.(orcaUIModel).Update(tea.KeyMsg{Type: tea.KeyPgDown})
+	}
+	bottom := scrolled.(orcaUIModel).graphOffset
+	scrolled, _ = scrolled.(orcaUIModel).Update(tea.KeyMsg{Type: tea.KeyPgUp})
+	if moved := bottom - scrolled.(orcaUIModel).graphOffset; moved <= 1 {
+		t.Fatalf("page up moved %d rows from offset %d", moved, bottom)
+	}
+}
+
+func TestOrcaUIRejectsPaneThatHidesControls(t *testing.T) {
+	model := orcaUIModel{width: 40, height: 10, help: help.New()}
+	view := ansi.Strip(model.View())
+	if strings.Count(view, "\n") != 2 || !strings.Contains(view, "orca needs 82x20") ||
+		!strings.Contains(view, "q quits") {
+		t.Fatalf("small main UI = %q", view)
+	}
+	worker := orcaWorkerUIModel{width: 40, height: 10}
+	view = ansi.Strip(worker.View())
+	if strings.Count(view, "\n") != 2 || !strings.Contains(view, "orca needs 60x16") ||
+		!strings.Contains(view, "q detaches") {
+		t.Fatalf("small worker UI = %q", view)
+	}
+}
+
+func TestPlanningPrimitivesAreNotPublicCLICommands(t *testing.T) {
+	for _, args := range [][]string{{"planning", "discover"}, {"planning", "snapshot"}, {"planning", "action"}} {
+		if kind, _, found := controlCommandKind(args); found || kind != "" {
+			t.Fatalf("controlCommandKind(%q) = %q, %v", args, kind, found)
+		}
 	}
 }
 
@@ -1283,6 +1346,19 @@ func TestInactiveOrcaStatusOmitsStaleProcess(t *testing.T) {
 	status := statusOf(record, false)
 	if status.Service != "" || status.PID != 0 || status.StartedAt != "" {
 		t.Fatalf("inactive status = %#v", status)
+	}
+}
+
+func TestPinnedBrokerIgnoresAutomaticServiceArgument(t *testing.T) {
+	stateDirectory := t.TempDir()
+	if automatic, err := automaticOrcaBroker(stateDirectory, true); err != nil || !automatic {
+		t.Fatalf("automaticOrcaBroker(unpinned) = %v, %v", automatic, err)
+	}
+	if err := setOrcaPinned(stateDirectory, true); err != nil {
+		t.Fatalf("setOrcaPinned() returned %v", err)
+	}
+	if automatic, err := automaticOrcaBroker(stateDirectory, true); err != nil || automatic {
+		t.Fatalf("automaticOrcaBroker(pinned) = %v, %v", automatic, err)
 	}
 }
 

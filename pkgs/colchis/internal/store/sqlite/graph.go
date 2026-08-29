@@ -342,6 +342,32 @@ func (store *Store) CreateRestartPoint(
 				return staleReplayAdmission(admissionID)
 			}
 		}
+		for _, checkpointID := range request.CheckpointIDs {
+			checkpoint, found, err := typedRecord[domain.Checkpoint](
+				transaction, ctx, checkpointRecordKind, string(checkpointID),
+			)
+			if err != nil {
+				return err
+			}
+			if !found {
+				return &domain.Error{
+					Code: domain.ErrorCodeNotFound, Op: "create", Resource: string(checkpointID),
+					Message: "restart checkpoint does not exist",
+				}
+			}
+			session, found, err := typedRecord[domain.Session](
+				transaction, ctx, sessionRecordKind, string(checkpoint.SessionID),
+			)
+			if err != nil {
+				return err
+			}
+			if !found || session.WorkflowRunID != run.ID || checkpoint.WorkflowVersion != run.DefinitionVersion {
+				return &domain.Error{
+					Code: domain.ErrorCodeInvalidArgument, Op: "create", Resource: string(checkpointID),
+					Message: "restart checkpoint does not belong to this workflow version",
+				}
+			}
+		}
 		now := time.Now().UTC()
 		point = domain.RestartPoint{
 			Metadata: newRecordMetadata(now), ID: request.ID, Kind: request.Kind,
@@ -451,6 +477,12 @@ func (store *Store) ReplayWorkflow(
 				Message: "reused admission is absent from the restart point",
 			}
 		}
+		if point.Kind == domain.RestartPointOrchestrationCheckpoint {
+			return &domain.Error{
+				Code: domain.ErrorCodeUnsupportedVersion, Op: "replay", Resource: string(point.ID),
+				Message: "orchestration checkpoint replay is not supported",
+			}
+		}
 		target, found, err := transaction.workflowDefinition(ctx, request.TargetDefinitionID)
 		if err != nil {
 			return err
@@ -467,6 +499,18 @@ func (store *Store) ReplayWorkflow(
 				Message: "target workflow definition version changed",
 			}
 		}
+		descendant, err := transaction.workflowDefinitionDescendsFrom(
+			ctx, target.ID, point.WorkflowDefinitionID,
+		)
+		if err != nil {
+			return err
+		}
+		if !descendant {
+			return &domain.Error{
+				Code: domain.ErrorCodeInvalidArgument, Op: "replay", Resource: string(target.ID),
+				Message: "target workflow definition is outside the restart point lineage",
+			}
+		}
 		definition, err := decodeResolvedDefinition(target)
 		if err != nil {
 			return err
@@ -474,15 +518,6 @@ func (store *Store) ReplayWorkflow(
 		reused, err := transaction.reusableAdmissions(
 			ctx, request.ReusedAdmissionIDs, definition, request.EnvironmentIDs,
 		)
-		if err != nil && request.EnvironmentIDs == nil && len(request.ReusedAdmissionIDs) != 0 {
-			environmentIDs, identityErr := transaction.replayEnvironmentIDs(ctx, request.ReusedAdmissionIDs)
-			if identityErr != nil {
-				return identityErr
-			}
-			reused, err = transaction.reusableAdmissions(
-				ctx, request.ReusedAdmissionIDs, definition, environmentIDs,
-			)
-		}
 		if err != nil {
 			return err
 		}
@@ -562,51 +597,41 @@ func (store *Store) ReplayWorkflow(
 	return child, fork, err
 }
 
-func (transaction *Tx) replayEnvironmentIDs(
-	ctx context.Context,
-	ids []domain.AdmissionID,
-) (map[string]string, error) {
-	identities := make(map[string]string)
-	for _, id := range ids {
-		payload, found, err := transaction.recordPayload(ctx, admissionRecordKind, string(id))
-		if err != nil {
-			return nil, err
-		}
-		if !found {
-			return nil, staleReplayAdmission(id)
-		}
-		var admission domain.Admission
-		if err := json.Unmarshal(payload, &admission); err != nil {
-			return nil, wrap("decode replay admission", string(id), err)
-		}
-		evidence, err := transaction.loadTaskContext(ctx, admission.TaskRecordID)
-		if err != nil {
-			return nil, err
-		}
-		validations, err := transaction.validations(ctx, admission.ValidationIDs)
-		if err != nil {
-			return nil, err
-		}
-		for _, validation := range validations {
-			definition, found := verificationByKey(evidence.template.Verification, validation.Key)
-			if !found {
-				return nil, staleReplayAdmission(id)
-			}
-			if current, found := identities[definition.Environment]; found && current != validation.EnvironmentID {
-				return nil, staleReplayAdmission(id)
-			}
-			identities[definition.Environment] = validation.EnvironmentID
-		}
-	}
-	return identities, nil
-}
-
 func seedRestartSnapshot(nodes []domain.NodeRun, snapshotID domain.SnapshotID) {
 	for index := range nodes {
-		if nodes[index].State == domain.NodeRunStateReady && len(nodes[index].InputSnapshotIDs) == 0 {
+		if nodes[index].State == domain.NodeRunStateReady {
 			nodes[index].InputSnapshotIDs = []domain.SnapshotID{snapshotID}
 		}
 	}
+}
+
+func (transaction *Tx) workflowDefinitionDescendsFrom(
+	ctx context.Context,
+	targetID domain.WorkflowDefinitionID,
+	ancestorID domain.WorkflowDefinitionID,
+) (bool, error) {
+	seen := make(map[domain.WorkflowDefinitionID]struct{})
+	for targetID != "" {
+		if targetID == ancestorID {
+			return true, nil
+		}
+		if _, found := seen[targetID]; found {
+			return false, &domain.Error{
+				Code: domain.ErrorCodeInternal, Op: "replay", Resource: string(targetID),
+				Message: "workflow definition lineage contains a cycle",
+			}
+		}
+		seen[targetID] = struct{}{}
+		definition, found, err := transaction.workflowDefinition(ctx, targetID)
+		if err != nil {
+			return false, err
+		}
+		if !found || definition.PredecessorID == nil {
+			return false, nil
+		}
+		targetID = *definition.PredecessorID
+	}
+	return false, nil
 }
 
 type reusableAdmission struct {

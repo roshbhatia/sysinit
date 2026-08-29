@@ -217,8 +217,15 @@ func TestReplayReusesOnlyCurrentAdmission(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
-	store, admission, snapshot, _ := openAdmittedResultTest(t, ctx)
+	store, admission, snapshot, workspace := openAdmittedResultTest(t, ctx)
 	defer store.Close()
+	writeSnapshotTestFile(t, filepath.Join(workspace, "input.txt"), "restart")
+	restartSnapshot, err := store.CreateWorkspaceSnapshot(
+		ctx, "snapshot-restart-admission", snapshot.WorkspaceID, workspace,
+	)
+	if err != nil {
+		t.Fatalf("CreateWorkspaceSnapshot(restart) returned %v", err)
+	}
 	parent, _, err := store.WorkflowRun(ctx, "run-admission")
 	if err != nil {
 		t.Fatalf("WorkflowRun() returned %v", err)
@@ -226,11 +233,22 @@ func TestReplayReusesOnlyCurrentAdmission(t *testing.T) {
 	point, err := store.CreateRestartPoint(ctx, RestartPointRequest{
 		ID: "restart-current-admission", Kind: domain.RestartPointNodeAdmission,
 		WorkflowRunID: parent.ID, EventCursor: graphTestRunCursor(t, ctx, store, parent.ID),
-		SnapshotID: snapshot.ID, NodeRunID: nodeIDPointer(nodeRunID(parent.ID, "implement")),
+		SnapshotID: restartSnapshot.ID, NodeRunID: nodeIDPointer(nodeRunID(parent.ID, "implement")),
 		AdmissionIDs: []domain.AdmissionID{admission.ID},
 	})
 	if err != nil {
 		t.Fatalf("CreateRestartPoint() returned %v", err)
+	}
+	_, _, err = store.ReplayWorkflow(ctx, ReplayRequest{
+		ID: "fork-missing-environment", ParentWorkflowRunID: parent.ID,
+		ChildWorkflowRunID: "run-missing-environment", RestartPointID: point.ID,
+		TargetDefinitionID: parent.WorkflowDefinition, TargetDefinitionVersion: parent.DefinitionVersion,
+		ExpectedParentVersion: parent.Metadata.ResourceVersion,
+		ReusedAdmissionIDs:    []domain.AdmissionID{admission.ID},
+		CommandID:             "command-missing-environment", Principal: "owner",
+	})
+	if !domain.IsErrorCode(err, domain.ErrorCodeInvalidArgument) {
+		t.Fatalf("ReplayWorkflow(missing environment) error = %v", err)
 	}
 	child, _, err := store.ReplayWorkflow(ctx, ReplayRequest{
 		ID: "fork-current-admission", ParentWorkflowRunID: parent.ID,
@@ -238,6 +256,7 @@ func TestReplayReusesOnlyCurrentAdmission(t *testing.T) {
 		TargetDefinitionID: parent.WorkflowDefinition, TargetDefinitionVersion: parent.DefinitionVersion,
 		ExpectedParentVersion: parent.Metadata.ResourceVersion,
 		ReusedAdmissionIDs:    []domain.AdmissionID{admission.ID},
+		EnvironmentIDs:        map[string]string{"nix": "nix:environment-1"},
 		CommandID:             "command-current-admission", Principal: "owner",
 	})
 	if err != nil {
@@ -251,7 +270,7 @@ func TestReplayReusesOnlyCurrentAdmission(t *testing.T) {
 	judge := nodeByKey(t, nodes, "judge")
 	if implement.State != domain.NodeRunStateSucceeded || implement.AdmissionID == nil ||
 		*implement.AdmissionID != admission.ID || judge.State != domain.NodeRunStateReady ||
-		len(judge.InputSnapshotIDs) != 1 || judge.InputSnapshotIDs[0] != snapshot.ID {
+		len(judge.InputSnapshotIDs) != 1 || judge.InputSnapshotIDs[0] != restartSnapshot.ID {
 		t.Fatalf("replayed nodes = %#v, %#v", implement, judge)
 	}
 	if _, current, err := store.RefreshAdmission(ctx, AdmissionFreshnessRequest{

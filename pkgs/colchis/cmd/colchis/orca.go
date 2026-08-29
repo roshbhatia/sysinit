@@ -122,8 +122,14 @@ func runOrcaStart(args []string, stdout io.Writer, stderr io.Writer) int {
 	var started bool
 	var service string
 	err = withOrcaLeaseLock(record.StateDirectory, func() error {
+		if err := setOrcaPinned(record.StateDirectory, true); err != nil {
+			return err
+		}
 		var startErr error
 		started, service, startErr = startOrcaInstance(record, false)
+		if startErr != nil {
+			_ = setOrcaPinned(record.StateDirectory, false)
+		}
 		return startErr
 	})
 	if err != nil {
@@ -150,6 +156,9 @@ func runOrcaStop(args []string, stdout io.Writer, stderr io.Writer) int {
 	}
 	stopped := false
 	err = withOrcaLeaseLock(record.StateDirectory, func() error {
+		if err := setOrcaPinned(record.StateDirectory, false); err != nil {
+			return err
+		}
 		current, readErr := instance.Read(filepath.Join(record.StateDirectory, "instance.json"))
 		if errors.Is(readErr, os.ErrNotExist) {
 			return nil
@@ -788,6 +797,47 @@ func (lease orcaLease) release() error {
 
 func orcaLeaseDirectory(stateDirectory string) string {
 	return filepath.Join(stateDirectory, "leases")
+}
+
+func orcaPinPath(stateDirectory string) string {
+	return filepath.Join(stateDirectory, "pinned")
+}
+
+func orcaPinned(stateDirectory string) (bool, error) {
+	_, err := os.Stat(orcaPinPath(stateDirectory))
+	if err == nil {
+		return true, nil
+	}
+	if errors.Is(err, os.ErrNotExist) {
+		return false, nil
+	}
+	return false, err
+}
+
+func automaticOrcaBroker(stateDirectory string, requested bool) (bool, error) {
+	if !requested {
+		return false, nil
+	}
+	pinned, err := orcaPinned(stateDirectory)
+	return !pinned, err
+}
+
+func setOrcaPinned(stateDirectory string, pinned bool) error {
+	path := orcaPinPath(stateDirectory)
+	if !pinned {
+		if err := os.Remove(path); err != nil && !errors.Is(err, os.ErrNotExist) {
+			return err
+		}
+		return nil
+	}
+	if err := os.MkdirAll(stateDirectory, 0o700); err != nil {
+		return err
+	}
+	file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
+	if err != nil {
+		return err
+	}
+	return file.Close()
 }
 
 func withOrcaLeaseLock(stateDirectory string, action func() error) error {

@@ -67,6 +67,15 @@ func (keys orcaKeyMap) FullHelp() [][]key.Binding {
 	}
 }
 
+type orcaHelpKeyMap struct {
+	orcaKeyMap
+	short []key.Binding
+}
+
+func (keys orcaHelpKeyMap) ShortHelp() []key.Binding {
+	return keys.short
+}
+
 var orcaKeys = orcaKeyMap{
 	up:         key.NewBinding(key.WithKeys("up", "k"), key.WithHelp("up/k", "previous")),
 	down:       key.NewBinding(key.WithKeys("down", "j"), key.WithHelp("down/j", "next")),
@@ -277,9 +286,14 @@ func (model orcaUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case key.Matches(typed, orcaKeys.replay):
 			if model.view == orcaWorkflowsView && len(model.restartPoints) > 0 {
+				if model.restartPoints[model.restartCursor].Kind == domain.RestartPointOrchestrationCheckpoint {
+					model.message = "Checkpoint continuation is unavailable; choose a run or node point"
+					model.messageError = true
+					return model, nil
+				}
 				if !model.confirmReplay {
 					model.confirmReplay = true
-					model.message = "Press f again to fork a child run from this restart point"
+					model.message = "Press f again to fork from this snapshot; every node reruns"
 					model.messageError = false
 					return model, nil
 				}
@@ -310,8 +324,8 @@ func (model orcaUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (model orcaUIModel) View() string {
-	if model.width < 40 || model.height < 10 {
-		return fmt.Sprintf("orca needs 40x10\nthis pane is %dx%d", model.width, model.height)
+	if model.width < 82 || model.height < 20 {
+		return fmt.Sprintf("orca needs 82x20\nthis pane is %dx%d\nq quits", model.width, model.height)
 	}
 	contentWidth := model.width
 
@@ -334,9 +348,21 @@ func (model orcaUIModel) View() string {
 		}
 		parts = append(parts, style.Render(ansi.Truncate(model.message, contentWidth, "…")))
 	}
-	parts = append(parts, model.help.View(orcaKeys))
+	parts = append(parts, model.help.View(model.helpKeys()))
 
 	return strings.Join(parts, "\n\n")
+}
+
+func (model orcaUIModel) helpKeys() orcaHelpKeyMap {
+	short := []key.Binding{orcaKeys.switchView, orcaKeys.refresh, orcaKeys.showHelp, orcaKeys.quit}
+	if model.view == orcaControllersView || model.view == orcaWorkersView {
+		short = []key.Binding{orcaKeys.switchView, orcaKeys.open, orcaKeys.refresh, orcaKeys.showHelp, orcaKeys.quit}
+	}
+	keys := orcaKeys
+	if model.view == orcaWorkflowsView {
+		keys.open.SetEnabled(false)
+	}
+	return orcaHelpKeyMap{orcaKeyMap: keys, short: short}
 }
 
 func (model orcaUIModel) header(width int) string {
@@ -497,7 +523,7 @@ func (model orcaUIModel) workflowDetailLines() []string {
 			orcaLabelStyle.Render("restart  ")+orcaValueStyle.Render(fmt.Sprintf(
 				"%d/%d %s @ %d", model.restartCursor+1, len(model.restartPoints), point.Kind, point.EventCursor,
 			)),
-			orcaTagStyle.Render("          h/l selects, f forks a child run"),
+			orcaTagStyle.Render("          h/l selects, f forks snapshot and reruns nodes"),
 		)
 	} else {
 		lines = append(lines, orcaLabelStyle.Render("restart  ")+orcaInactiveStyle.Render("none"))
@@ -795,6 +821,10 @@ func (model *orcaUIModel) moveCursor(delta int) error {
 }
 
 func (model *orcaUIModel) loadWorkflows() error {
+	var selected domain.WorkflowRunID
+	if model.workflowCursor >= 0 && model.workflowCursor < len(model.workflows) {
+		selected = model.workflows[model.workflowCursor].ID
+	}
 	command, err := executeNativeCommand(model.record.StateDirectory, "workflow.list", json.RawMessage(`{}`))
 	if err != nil {
 		return err
@@ -809,6 +839,14 @@ func (model *orcaUIModel) loadWorkflows() error {
 		model.restartPoints = nil
 		model.forks = nil
 		return nil
+	}
+	if selected != "" {
+		for index := range model.workflows {
+			if model.workflows[index].ID == selected {
+				model.workflowCursor = index
+				break
+			}
+		}
 	}
 	if model.workflowCursor >= len(model.workflows) {
 		model.workflowCursor = len(model.workflows) - 1
@@ -846,12 +884,24 @@ func (model *orcaUIModel) loadRestartPoints() error {
 	if err != nil {
 		return err
 	}
+	var selected domain.RestartPointID
+	if model.restartCursor >= 0 && model.restartCursor < len(model.restartPoints) {
+		selected = model.restartPoints[model.restartCursor].ID
+	}
 	command, err := executeNativeCommand(model.record.StateDirectory, "workflow.restart-points", payload)
 	if err != nil {
 		return err
 	}
 	if err := json.Unmarshal(command.Result, &model.restartPoints); err != nil {
 		return err
+	}
+	if selected != "" {
+		for index := range model.restartPoints {
+			if model.restartPoints[index].ID == selected {
+				model.restartCursor = index
+				break
+			}
+		}
 	}
 	if model.restartCursor >= len(model.restartPoints) {
 		model.restartCursor = max(0, len(model.restartPoints)-1)
@@ -878,6 +928,10 @@ func (model *orcaUIModel) loadWorkflowForks() error {
 }
 
 func (model *orcaUIModel) loadWorkers() error {
+	var selected domain.SessionID
+	if model.workerCursor >= 0 && model.workerCursor < len(model.workers) {
+		selected = model.workers[model.workerCursor].ID
+	}
 	command, err := executeNativeCommand(model.record.StateDirectory, "agent.list", json.RawMessage(`{}`))
 	if err != nil {
 		return err
@@ -889,6 +943,14 @@ func (model *orcaUIModel) loadWorkers() error {
 		model.workerCursor = 0
 		model.workerHistory = sqlite.SessionHistory{}
 		return nil
+	}
+	if selected != "" {
+		for index := range model.workers {
+			if model.workers[index].ID == selected {
+				model.workerCursor = index
+				break
+			}
+		}
 	}
 	if model.workerCursor >= len(model.workers) {
 		model.workerCursor = len(model.workers) - 1
@@ -927,8 +989,9 @@ func (model *orcaUIModel) scrollGraph(direction int) {
 	if model.view != orcaWorkflowsView || len(model.workflows) == 0 {
 		return
 	}
-	page := max(1, model.height-14)
-	maximum := max(0, len(model.workflowDetailLines())-2)
+	limit := max(2, max(6, model.height-10)-2)
+	page := max(1, limit-1)
+	maximum := max(0, len(model.workflowDetailLines())-limit+1)
 	model.graphOffset = min(max(0, model.graphOffset+direction*page), maximum)
 }
 
@@ -967,7 +1030,8 @@ func (model orcaUIModel) replaySelectedWorkflow() tea.Cmd {
 			ChildWorkflowRunID: childID, RestartPointID: point.ID,
 			TargetDefinitionID: run.WorkflowDefinition, TargetDefinitionVersion: run.DefinitionVersion,
 			ExpectedParentVersion: run.Metadata.ResourceVersion,
-			ReusedAdmissionIDs:    append([]domain.AdmissionID(nil), point.AdmissionIDs...),
+			ReusedAdmissionIDs:    []domain.AdmissionID{},
+			EnvironmentIDs:        map[string]string{},
 		})
 		if err != nil {
 			return orcaActionMessage{err: err}
@@ -1012,6 +1076,11 @@ func runOrcaWorkerUI(
 	stdout io.Writer,
 	stderr io.Writer,
 ) int {
+	eventCursor, err := latestBrokerEventCursor(record.StateDirectory)
+	if err != nil {
+		fmt.Fprintf(stderr, "read broker cursor: %v\n", err)
+		return 1
+	}
 	history, err := loadWorkerHistory(record.StateDirectory, sessionID)
 	if err != nil {
 		fmt.Fprintf(stderr, "read worker: %v\n", err)
@@ -1031,11 +1100,6 @@ func runOrcaWorkerUI(
 			fmt.Fprintf(stderr, "detach worker: %v\n", err)
 		}
 	}()
-	eventCursor, err := latestBrokerEventCursor(record.StateDirectory)
-	if err != nil {
-		fmt.Fprintf(stderr, "read broker cursor: %v\n", err)
-		return 1
-	}
 	input := textinput.New()
 	input.Prompt = "> "
 	input.Placeholder = "send a message to this worker"
@@ -1141,8 +1205,8 @@ func (model orcaWorkerUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (model orcaWorkerUIModel) View() string {
-	if model.width < 40 || model.height < 10 {
-		return fmt.Sprintf("orca needs 40x10\nthis pane is %dx%d", model.width, model.height)
+	if model.width < 60 || model.height < 16 {
+		return fmt.Sprintf("orca needs 60x16\nthis pane is %dx%d\nq detaches", model.width, model.height)
 	}
 	session := model.history.Session
 	status := orcaActiveStyle.Render(string(session.State))
