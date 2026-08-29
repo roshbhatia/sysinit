@@ -145,6 +145,7 @@ func Manifests() ([]plugin.AdapterManifest, error) {
 			ID: RuntimeAdapterID, Port: domain.AdapterPortAgentRuntime,
 			Capabilities: []string{
 				"structured-result", "job-policy", "live-input", "queued-input", "interrupt", "resume", "rpc", "normalized-events",
+				"native-attachment",
 			},
 			HandleVersions: []uint32{1, 2},
 			Operations: map[string]plugin.SchemaContract{

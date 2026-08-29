@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -19,7 +20,9 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
+	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/api/socket"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/broker"
+	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/config"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/domain"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/instance"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/plugin"
@@ -43,6 +46,8 @@ type orcaKeyMap struct {
 	open       key.Binding
 	resume     key.Binding
 	replay     key.Binding
+	pageUp     key.Binding
+	pageDown   key.Binding
 	refresh    key.Binding
 	switchView key.Binding
 	showHelp   key.Binding
@@ -56,7 +61,8 @@ func (keys orcaKeyMap) ShortHelp() []key.Binding {
 func (keys orcaKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{keys.up, keys.down, keys.left, keys.right},
-		{keys.open, keys.resume, keys.replay, keys.switchView, keys.toggle},
+		{keys.pageUp, keys.pageDown, keys.open, keys.resume, keys.replay},
+		{keys.switchView, keys.toggle},
 		{keys.refresh, keys.showHelp, keys.quit},
 	}
 }
@@ -70,6 +76,8 @@ var orcaKeys = orcaKeyMap{
 	open:       key.NewBinding(key.WithKeys("enter"), key.WithHelp("enter", "open")),
 	resume:     key.NewBinding(key.WithKeys("R"), key.WithHelp("R", "resume controller")),
 	replay:     key.NewBinding(key.WithKeys("f"), key.WithHelp("f", "fork from restart point")),
+	pageUp:     key.NewBinding(key.WithKeys("pgup", "ctrl+u"), key.WithHelp("pgup/^u", "graph up")),
+	pageDown:   key.NewBinding(key.WithKeys("pgdown", "ctrl+d"), key.WithHelp("pgdn/^d", "graph down")),
 	refresh:    key.NewBinding(key.WithKeys("r"), key.WithHelp("r", "refresh")),
 	switchView: key.NewBinding(key.WithKeys("tab"), key.WithHelp("tab", "change view")),
 	showHelp:   key.NewBinding(key.WithKeys("?"), key.WithHelp("?", "more keys")),
@@ -101,6 +109,7 @@ type orcaUIModel struct {
 	workerHistory  sqlite.SessionHistory
 	workerCursor   int
 	confirmReplay  bool
+	graphOffset    int
 }
 
 const (
@@ -224,6 +233,10 @@ func (model orcaUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 			model.moveRestartPoint(-1)
 		case key.Matches(typed, orcaKeys.right):
 			model.moveRestartPoint(1)
+		case key.Matches(typed, orcaKeys.pageUp):
+			model.scrollGraph(-1)
+		case key.Matches(typed, orcaKeys.pageDown):
+			model.scrollGraph(1)
 		case key.Matches(typed, orcaKeys.switchView):
 			model.view = (model.view + 1) % 3
 			model.message = ""
@@ -282,6 +295,11 @@ func (model orcaUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			case orcaWorkersView:
 				if len(model.workers) > 0 {
+					if !supportsWorkerAttachment(model.workers[model.workerCursor]) {
+						model.message = "This worker has no interactive attachment"
+						model.messageError = true
+						return model, nil
+					}
 					model.selectedWorker = model.workers[model.workerCursor].ID
 					return model, tea.Quit
 				}
@@ -326,7 +344,7 @@ func (model orcaUIModel) header(width int) string {
 	if model.active {
 		status = orcaActiveStyle.Render("broker running")
 	}
-	left := orcaTitleStyle.Render("🫍 orca") + "  " + orcaTagStyle.Render("local agent orchestrator")
+	left := orcaTitleStyle.Render("🫍 orca") + "  " + orcaTagStyle.Render("local orchestrator")
 	gap := width - lipgloss.Width(left) - lipgloss.Width(status)
 	if gap < 1 {
 		gap = 1
@@ -391,11 +409,13 @@ func (model orcaUIModel) workflowView(width int) string {
 	listWidth := 34
 	list := orcaBox("runs", listWidth, strings.Join(rows, "\n"), model.view == orcaWorkflowsView)
 	detailWidth := width - lipgloss.Width(list) - 4
-	details := model.workflowDetails(detailWidth)
+	detailHeight := max(6, model.height-10)
+	details := model.workflowDetails(detailWidth, detailHeight)
 	body := lipgloss.JoinHorizontal(lipgloss.Top, list, "  ", details)
 	if width < 82 {
 		list = orcaBox("runs", width-2, strings.Join(rows, "\n"), model.view == orcaWorkflowsView)
-		details = model.workflowDetails(width - 2)
+		detailHeight = max(4, model.height-11-lipgloss.Height(list))
+		details = model.workflowDetails(width-2, detailHeight)
 		body = lipgloss.JoinVertical(lipgloss.Left, list, "", details)
 	}
 	return body
@@ -440,13 +460,32 @@ func (model orcaUIModel) visibleWorkflowRows() []string {
 	return rows
 }
 
-func (model orcaUIModel) workflowDetails(width int) string {
+func (model orcaUIModel) workflowDetails(width int, height int) string {
 	if width < 34 {
 		width = 34
 	}
 	if len(model.workflows) == 0 {
 		return orcaBox("graph", width, "Planning and spec work appears here as dedicated workflow runs.", false)
 	}
+	lines := model.workflowDetailLines()
+	limit := max(2, height-2)
+	if len(lines) > limit {
+		maximum := len(lines) - limit + 1
+		offset := min(model.graphOffset, maximum)
+		end := min(len(lines), offset+limit-1)
+		visible := append([]string(nil), lines[offset:end]...)
+		visible = append(visible, orcaTagStyle.Render(fmt.Sprintf(
+			"rows %d-%d/%d  pgup/pgdn scroll", offset+1, end, len(lines),
+		)))
+		lines = visible
+	}
+	for index, line := range lines {
+		lines[index] = ansi.Truncate(line, width-6, "…")
+	}
+	return orcaBox("graph", width, strings.Join(lines, "\n"), false)
+}
+
+func (model orcaUIModel) workflowDetailLines() []string {
 	lines := []string{
 		orcaTitleStyle.Render(string(model.workflow.Run.ID)),
 		orcaLabelStyle.Render("state    ") + orcaValueStyle.Render(string(model.workflow.Run.State)),
@@ -484,10 +523,7 @@ func (model orcaUIModel) workflowDetails(width int) string {
 			lines = append(lines, fmt.Sprintf("  %s.%s -> %s.%s", edge.From, edge.FromPort, edge.To, edge.ToPort))
 		}
 	}
-	for index, line := range lines {
-		lines[index] = ansi.Truncate(line, width-6, "…")
-	}
-	return orcaBox("graph", width, strings.Join(lines, "\n"), false)
+	return lines
 }
 
 func (model orcaUIModel) workerView(width int) string {
@@ -533,6 +569,10 @@ func (model orcaUIModel) workerDetails(width int) string {
 		return orcaBox("selected", width, "Workers appear after a workflow node starts an agent.", false)
 	}
 	worker := model.workers[model.workerCursor]
+	action := "events only"
+	if supportsWorkerAttachment(worker) {
+		action = "enter attaches"
+	}
 	lines := []string{
 		orcaTitleStyle.Render(string(worker.ID)),
 		orcaLabelStyle.Render("state     ") + orcaValueStyle.Render(string(worker.State)),
@@ -540,7 +580,7 @@ func (model orcaUIModel) workerDetails(width int) string {
 		orcaLabelStyle.Render("node      ") + orcaValueStyle.Render(string(worker.NodeRunID)),
 		orcaLabelStyle.Render("runtime   ") + orcaValueStyle.Render(worker.RuntimeAdapterID),
 		orcaLabelStyle.Render("events    ") + orcaValueStyle.Render(fmt.Sprintf("%d", len(model.workerHistory.RuntimeEvents))),
-		orcaLabelStyle.Render("actions   ") + orcaValueStyle.Render("enter attaches"),
+		orcaLabelStyle.Render("actions   ") + orcaValueStyle.Render(action),
 	}
 	if len(model.workerHistory.RuntimeEvents) > 0 {
 		lines = append(lines, "", orcaLabelStyle.Render("recent events"))
@@ -743,6 +783,7 @@ func (model *orcaUIModel) moveCursor(delta int) error {
 			return nil
 		}
 		model.workflowCursor = next
+		model.graphOffset = 0
 		return model.loadSelectedWorkflow()
 	}
 	next := model.workerCursor + delta
@@ -882,10 +923,20 @@ func (model *orcaUIModel) moveRestartPoint(delta int) {
 	}
 }
 
+func (model *orcaUIModel) scrollGraph(direction int) {
+	if model.view != orcaWorkflowsView || len(model.workflows) == 0 {
+		return
+	}
+	page := max(1, model.height-14)
+	maximum := max(0, len(model.workflowDetailLines())-2)
+	model.graphOffset = min(max(0, model.graphOffset+direction*page), maximum)
+}
+
 func (model *orcaUIModel) selectWorkflow(id domain.WorkflowRunID) {
 	for index, run := range model.workflows {
 		if run.ID == id {
 			model.workflowCursor = index
+			model.graphOffset = 0
 			_ = model.loadSelectedWorkflow()
 			return
 		}
@@ -915,7 +966,8 @@ func (model orcaUIModel) replaySelectedWorkflow() tea.Cmd {
 			ID: domain.RunForkID("fork-" + identifier), ParentWorkflowRunID: run.ID,
 			ChildWorkflowRunID: childID, RestartPointID: point.ID,
 			TargetDefinitionID: run.WorkflowDefinition, TargetDefinitionVersion: run.DefinitionVersion,
-			ExpectedParentVersion: run.Metadata.ResourceVersion, ReusedAdmissionIDs: []domain.AdmissionID{},
+			ExpectedParentVersion: run.Metadata.ResourceVersion,
+			ReusedAdmissionIDs:    append([]domain.AdmissionID(nil), point.AdmissionIDs...),
 		})
 		if err != nil {
 			return orcaActionMessage{err: err}
@@ -934,6 +986,13 @@ type orcaWorkerActionMessage struct {
 	err  error
 }
 
+type orcaWorkerEventsMessage struct {
+	events []domain.RuntimeEvent
+	state  *domain.SessionState
+	cursor domain.EventCursor
+	err    error
+}
+
 type orcaWorkerUIModel struct {
 	record       instance.Record
 	history      sqlite.SessionHistory
@@ -944,6 +1003,7 @@ type orcaWorkerUIModel struct {
 	messageError bool
 	width        int
 	height       int
+	eventCursor  domain.EventCursor
 }
 
 func runOrcaWorkerUI(
@@ -957,6 +1017,10 @@ func runOrcaWorkerUI(
 		fmt.Fprintf(stderr, "read worker: %v\n", err)
 		return 1
 	}
+	if !supportsWorkerAttachment(history.Session) {
+		fmt.Fprintf(stderr, "worker %s has no interactive attachment\n", sessionID)
+		return 1
+	}
 	attachmentID, err := openWorkerAttachment(record.StateDirectory, history.Session)
 	if err != nil {
 		fmt.Fprintf(stderr, "attach worker: %v\n", err)
@@ -967,6 +1031,11 @@ func runOrcaWorkerUI(
 			fmt.Fprintf(stderr, "detach worker: %v\n", err)
 		}
 	}()
+	eventCursor, err := latestBrokerEventCursor(record.StateDirectory)
+	if err != nil {
+		fmt.Fprintf(stderr, "read broker cursor: %v\n", err)
+		return 1
+	}
 	input := textinput.New()
 	input.Prompt = "> "
 	input.Placeholder = "send a message to this worker"
@@ -975,7 +1044,7 @@ func runOrcaWorkerUI(
 	input.PromptStyle = orcaSelectedStyle
 	model := orcaWorkerUIModel{
 		record: record, history: history, attachmentID: attachmentID,
-		input: input, width: 92, height: 26,
+		input: input, width: 92, height: 26, eventCursor: eventCursor,
 	}
 	program := tea.NewProgram(model, tea.WithInput(os.Stdin), tea.WithOutput(stdout), tea.WithAltScreen())
 	if _, err := program.Run(); err != nil {
@@ -985,6 +1054,15 @@ func runOrcaWorkerUI(
 	return 0
 }
 
+func supportsWorkerAttachment(session domain.Session) bool {
+	for _, capability := range session.Capabilities {
+		if capability == "native-attachment" {
+			return true
+		}
+	}
+	return false
+}
+
 func (model orcaWorkerUIModel) Init() tea.Cmd {
 	return workerRefreshTick()
 }
@@ -992,14 +1070,23 @@ func (model orcaWorkerUIModel) Init() tea.Cmd {
 func (model orcaWorkerUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	switch typed := message.(type) {
 	case orcaWorkerTick:
-		history, err := loadWorkerHistory(model.record.StateDirectory, model.history.Session.ID)
-		if err != nil {
-			model.message = err.Error()
+		return model, tea.Batch(model.readEvents(), workerRefreshTick())
+	case orcaWorkerEventsMessage:
+		if typed.err != nil {
+			model.message = typed.err.Error()
 			model.messageError = true
-		} else {
-			model.history = history
+			break
 		}
-		return model, workerRefreshTick()
+		model.eventCursor = typed.cursor
+		if typed.state != nil {
+			model.history.Session.State = *typed.state
+		}
+		for _, event := range typed.events {
+			if event.Sequence > model.history.Session.RuntimeEventCursor {
+				model.history.RuntimeEvents = append(model.history.RuntimeEvents, event)
+				model.history.Session.RuntimeEventCursor = event.Sequence
+			}
+		}
 	case orcaWorkerActionMessage:
 		model.messageError = typed.err != nil
 		if typed.err != nil {
@@ -1140,26 +1227,94 @@ func (model orcaWorkerUIModel) sendMessage(message string) tea.Cmd {
 	}
 }
 
+func (model orcaWorkerUIModel) readEvents() tea.Cmd {
+	return func() tea.Msg {
+		events, state, cursor, err := readWorkerEvents(
+			model.record.Socket, model.eventCursor, model.history.Session.ID,
+		)
+		return orcaWorkerEventsMessage{events: events, state: state, cursor: cursor, err: err}
+	}
+}
+
 func workerRefreshTick() tea.Cmd {
 	return tea.Tick(time.Second, func(now time.Time) tea.Msg { return orcaWorkerTick(now) })
 }
 
 func loadWorkerHistory(stateDirectory string, sessionID domain.SessionID) (sqlite.SessionHistory, error) {
-	payload, err := json.Marshal(struct {
-		SessionID domain.SessionID `json:"sessionId"`
-	}{SessionID: sessionID})
+	paths, err := config.ResolvePaths(stateDirectory)
 	if err != nil {
 		return sqlite.SessionHistory{}, err
 	}
-	command, err := executeNativeCommand(stateDirectory, "agent.history", payload)
+	store, err := sqlite.OpenReadOnly(context.Background(), paths.Database)
 	if err != nil {
 		return sqlite.SessionHistory{}, err
 	}
-	var history sqlite.SessionHistory
-	if err := json.Unmarshal(command.Result, &history); err != nil {
-		return sqlite.SessionHistory{}, err
+	defer store.Close()
+	return store.SessionHistory(context.Background(), sessionID)
+}
+
+func latestBrokerEventCursor(stateDirectory string) (domain.EventCursor, error) {
+	paths, err := config.ResolvePaths(stateDirectory)
+	if err != nil {
+		return 0, err
 	}
-	return history, nil
+	store, err := sqlite.OpenReadOnly(context.Background(), paths.Database)
+	if err != nil {
+		return 0, err
+	}
+	defer store.Close()
+	inspection, err := store.Inspect(context.Background())
+	return inspection.LastEventCursor, err
+}
+
+func readWorkerEvents(
+	socketPath string,
+	after domain.EventCursor,
+	sessionID domain.SessionID,
+) ([]domain.RuntimeEvent, *domain.SessionState, domain.EventCursor, error) {
+	client, err := socket.NewClient(socketPath)
+	if err != nil {
+		return nil, nil, after, err
+	}
+	defer client.Close()
+	envelopes, err := client.Events(context.Background(), after, 1000)
+	if err != nil {
+		return nil, nil, after, err
+	}
+	return filterWorkerEvents(envelopes, after, sessionID)
+}
+
+func filterWorkerEvents(
+	envelopes []domain.EventEnvelope,
+	after domain.EventCursor,
+	sessionID domain.SessionID,
+) ([]domain.RuntimeEvent, *domain.SessionState, domain.EventCursor, error) {
+	cursor := after
+	var runtimeEvents []domain.RuntimeEvent
+	var state *domain.SessionState
+	for _, envelope := range envelopes {
+		cursor = envelope.Cursor
+		if envelope.Aggregate.Kind != "session" || envelope.Aggregate.ID != string(sessionID) {
+			continue
+		}
+		switch envelope.Type {
+		case "session.runtime.event":
+			var event domain.RuntimeEvent
+			if err := json.Unmarshal(envelope.Payload, &event); err != nil {
+				return nil, nil, after, err
+			}
+			runtimeEvents = append(runtimeEvents, event)
+		case "session.state.changed":
+			var changed struct {
+				State domain.SessionState `json:"state"`
+			}
+			if err := json.Unmarshal(envelope.Payload, &changed); err != nil {
+				return nil, nil, after, err
+			}
+			state = &changed.State
+		}
+	}
+	return runtimeEvents, state, cursor, nil
 }
 
 func openWorkerAttachment(stateDirectory string, session domain.Session) (string, error) {

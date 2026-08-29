@@ -1078,6 +1078,7 @@ func TestOrcaPickerUsesRecentAgentAndResponsiveLayout(t *testing.T) {
 	model.workers = []domain.Session{{
 		ID: "worker-42", WorkflowRunID: "plan-42", NodeRunID: "node-42",
 		RuntimeAdapterID: "pi", State: domain.SessionStateRunning,
+		Capabilities: []string{"native-attachment"},
 	}}
 	model.workerHistory = sqlite.SessionHistory{
 		Session: model.workers[0],
@@ -1090,6 +1091,44 @@ func TestOrcaPickerUsesRecentAgentAndResponsiveLayout(t *testing.T) {
 		if !strings.Contains(workerView, expected) {
 			t.Fatalf("worker View() omitted %q:\n%s", expected, workerView)
 		}
+	}
+	model.workers[0].Capabilities = nil
+	unavailable, command := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	if command != nil || unavailable.(orcaUIModel).selectedWorker != "" ||
+		!strings.Contains(unavailable.(orcaUIModel).message, "no interactive attachment") {
+		t.Fatalf("unavailable attachment = %#v, command = %#v", unavailable, command)
+	}
+}
+
+func TestOrcaWorkflowGraphUsesViewport(t *testing.T) {
+	model := orcaUIModel{
+		view: orcaWorkflowsView, width: 100, height: 24, help: help.New(),
+		workflows: []domain.WorkflowRun{{ID: "run-large", State: domain.WorkflowRunStateRunning}},
+		workflow:  workflowViewResult{Run: domain.WorkflowRun{ID: "run-large"}},
+	}
+	for index := 0; index < 20; index++ {
+		key := domain.NodeKey(fmt.Sprintf("node-%02d", index))
+		model.workflow.Nodes = append(model.workflow.Nodes, domain.NodeRun{NodeKey: key})
+		if index > 0 {
+			model.definition.Edges = append(model.definition.Edges, workflowmodel.Edge{
+				From: domain.NodeKey(fmt.Sprintf("node-%02d", index-1)), To: key,
+			})
+		}
+	}
+	view := ansi.Strip(model.View())
+	if !strings.Contains(view, "pgup/pgdn scroll") || strings.Count(view, "node-") >= 39 {
+		t.Fatalf("large graph has no viewport:\n%s", view)
+	}
+	scrolled, _ := model.Update(tea.KeyMsg{Type: tea.KeyPgDown})
+	if scrolled.(orcaUIModel).graphOffset == 0 {
+		t.Fatal("page down did not scroll the graph")
+	}
+}
+
+func TestParseOrcaControllerUsesControllerTerminology(t *testing.T) {
+	_, _, _, err := parseOrcaController(nil, "resume")
+	if err == nil || !strings.Contains(err.Error(), "orca resume <controller>") {
+		t.Fatalf("resume usage error = %v", err)
 	}
 }
 
@@ -1118,6 +1157,31 @@ func TestOrcaWorkerRequestsTargetRuntimeAndAttachment(t *testing.T) {
 	}
 	if !strings.Contains(string(message.Operation.Input), `"behavior":"steer"`) {
 		t.Fatalf("worker message input = %s", message.Operation.Input)
+	}
+}
+
+func TestFilterWorkerEventsUsesReadOnlyEventStream(t *testing.T) {
+	runtimePayload, err := json.Marshal(domain.RuntimeEvent{
+		Sequence: 9, Kind: "message", ProviderEventType: "assistant_message",
+	})
+	if err != nil {
+		t.Fatalf("Marshal() returned %v", err)
+	}
+	envelopes := []domain.EventEnvelope{
+		{Cursor: 6, Aggregate: domain.ResourceReference{Kind: "session", ID: "other"}},
+		{
+			Cursor: 7, Aggregate: domain.ResourceReference{Kind: "session", ID: "worker-42"},
+			Type: "session.runtime.event", Payload: runtimePayload,
+		},
+		{
+			Cursor: 8, Aggregate: domain.ResourceReference{Kind: "session", ID: "worker-42"},
+			Type: "session.state.changed", Payload: json.RawMessage(`{"state":"completed"}`),
+		},
+	}
+	events, state, cursor, err := filterWorkerEvents(envelopes, 5, "worker-42")
+	if err != nil || len(events) != 1 || events[0].Sequence != 9 || state == nil ||
+		*state != domain.SessionStateCompleted || cursor != 8 {
+		t.Fatalf("filterWorkerEvents() = %#v, %v, %d, %v", events, state, cursor, err)
 	}
 }
 
