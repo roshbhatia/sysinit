@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -24,6 +26,7 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/instance"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/plugin"
 	"github.com/roshbhatia/sysinit/pkgs/internal/agents"
+	"github.com/roshbhatia/sysinit/pkgs/internal/paths"
 )
 
 const orcUsage = `orc: optional local agent orchestration
@@ -37,7 +40,10 @@ Usage:
   orc prompt
   orc run <controller> [--model <model>] [-- <controller arguments>]
   orc resume <controller> [--model <model>] [-- <controller arguments>]
-  orc attach <worker-id>
+  orc inject [--harness <name>] [--pane <pane-id>] [<session-id>]
+  orc eject <session-id>
+  orc session <current|list|register|remove|focus|traces>
+  orc attach <session-or-worker-id>
   orc view --run <workflow-run-id> [--control <action> --payload <json|@file>]
   orc events [--after <cursor>] [--limit <count>]
 
@@ -50,6 +56,7 @@ Native commands:
 
 Native commands accept --payload <json|@file>, --id, --idempotency-key, and --state-dir.
 
+Session means one registered harness conversation, whether Orc launched or injected it.
 Controller means the interactive Claude, Codex, or other top-level process.
 Workflow means a durable execution graph. Worker means one broker-managed workflow node session.
 The bare command, run, resume, and attach hold a broker lease for their lifetime.
@@ -71,7 +78,7 @@ type orcStatus struct {
 
 func isOrcCommand(command string) bool {
 	switch command {
-	case "start", "stop", "status", "list", "prompt", "run", "resume", "attach", "help", "ui", "-h", "--help":
+	case "start", "stop", "status", "list", "prompt", "run", "resume", "inject", "eject", "session", "attach", "help", "ui", "-h", "--help":
 		return true
 	default:
 		return false
@@ -94,6 +101,12 @@ func runOrcCommand(args []string, stdout io.Writer, stderr io.Writer) int {
 		return runOrcAgent(args[1:], stderr)
 	case "resume":
 		return runOrcController(args[1:], stderr, true)
+	case "inject":
+		return runOrcInject(args[1:], stdout, stderr)
+	case "eject":
+		return runOrcSessionRemove(args[1:], stdout, stderr)
+	case "session":
+		return runOrcSession(args[1:], stdout, stderr)
 	case "attach":
 		return runOrcAttach(args[1:], stdout, stderr)
 	case "ui":
@@ -330,6 +343,12 @@ func runOrcAttach(args []string, stdout io.Writer, stderr io.Writer) int {
 			fmt.Fprintf(stderr, "release broker lease: %v\n", err)
 		}
 	}()
+	if session, found, lookupErr := instance.SessionByID(lease.record, args[0]); lookupErr != nil {
+		fmt.Fprintf(stderr, "read session: %v\n", lookupErr)
+		return 1
+	} else if found {
+		return focusOrcSession(session, stdout, stderr)
+	}
 	return runOrcWorkerUI(lease.record, domain.SessionID(args[0]), stdout, stderr)
 }
 
@@ -385,14 +404,36 @@ func runOrcController(args []string, stderr io.Writer, resume bool) int {
 		command = append(command, agent.Launch.ResumeArgs...)
 	}
 	command = append(command, passthrough...)
-	environment := withEnvironment(os.Environ(), map[string]string{
-		"ORC_AGENT": name, "ORC_SCOPE": record.Scope,
-		"ORC_SOCKET": record.Socket, "ORC_STATE_DIR": record.StateDirectory,
-	})
 	if err := recordAgentUse(name); err != nil {
 		fmt.Fprintf(stderr, "record agent use: %v\n", err)
 		return 1
 	}
+	directory, err := os.Getwd()
+	if err != nil {
+		fmt.Fprintf(stderr, "resolve controller directory: %v\n", err)
+		return 1
+	}
+	identity, _, _ := plugin.ProcessIdentity(os.Getpid())
+	identifier, err := localCommandID()
+	if err != nil {
+		fmt.Fprintf(stderr, "create controller session id: %v\n", err)
+		return 1
+	}
+	session, err := instance.RegisterSession(record, instance.SessionRegistration{
+		ID: "session-" + identifier, Harness: name, Directory: directory, Pane: os.Getenv("WEZTERM_PANE"),
+		Mux: currentWezTermMuxID(), PID: os.Getpid(),
+		ProcessIdentity: identity,
+		Status:          "working", Reason: action, Registration: "spawned",
+		Capabilities: []string{"observe", "focus", "trace"},
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "register controller session: %v\n", err)
+		return 1
+	}
+	environment := withEnvironment(os.Environ(), map[string]string{
+		"ORC_AGENT": name, "ORC_SCOPE": record.Scope,
+		"ORC_SOCKET": record.Socket, "ORC_STATE_DIR": record.StateDirectory, "ORC_SESSION_ID": session.ID,
+	})
 	// Exec keeps the lease PID attached to the agent without a supervising wrapper process.
 	if err := syscall.Exec(executable, command, environment); err != nil {
 		fmt.Fprintf(stderr, "start %s: %v\n", name, err)
@@ -428,6 +469,676 @@ func parseOrcController(args []string, action string) (string, string, []string,
 		}
 	}
 	return name, model, passthrough, nil
+}
+
+func runOrcSession(args []string, stdout io.Writer, stderr io.Writer) int {
+	if len(args) == 0 {
+		fmt.Fprintln(stderr, "usage: orc session <current|list|register|remove|focus|traces>")
+		return 2
+	}
+	switch args[0] {
+	case "current":
+		return runOrcSessionCurrent(args[1:], stdout, stderr)
+	case "list":
+		return runOrcSessionList(args[1:], stdout, stderr)
+	case "register":
+		return runOrcSessionRegister(args[1:], stdout, stderr)
+	case "remove":
+		return runOrcSessionRemove(args[1:], stdout, stderr)
+	case "focus":
+		return runOrcSessionFocus(args[1:], stdout, stderr)
+	case "traces":
+		return runOrcSessionTraces(args[1:], stdout, stderr)
+	default:
+		fmt.Fprintf(stderr, "unknown session action %q\n", args[0])
+		return 2
+	}
+}
+
+func runOrcSessionCurrent(args []string, stdout io.Writer, stderr io.Writer) int {
+	flags := flag.NewFlagSet("session current", flag.ContinueOnError)
+	flags.SetOutput(stderr)
+	jsonOutput := flags.Bool("json", false, "write JSON")
+	quiet := flags.Bool("quiet", false, "write no output")
+	if err := flags.Parse(args); err != nil || flags.NArg() != 0 {
+		return 2
+	}
+	record, active, err := activeOrc("")
+	if err == nil && active {
+		var found bool
+		var session instance.Session
+		session, found, err = instance.CurrentSession(record)
+		if err == nil && found {
+			if *quiet {
+				return 0
+			}
+			if *jsonOutput {
+				if err := json.NewEncoder(stdout).Encode(session); err != nil {
+					fmt.Fprintf(stderr, "write current session: %v\n", err)
+					return 1
+				}
+			} else {
+				fmt.Fprintln(stdout, session.ID)
+			}
+			return 0
+		}
+	}
+	if !*quiet {
+		if err == nil {
+			err = errors.New("this process is not registered with Orc")
+		}
+		fmt.Fprintf(stderr, "current session: %v\n", err)
+	}
+	return 1
+}
+
+func runOrcSessionList(args []string, stdout io.Writer, stderr io.Writer) int {
+	flags := flag.NewFlagSet("session list", flag.ContinueOnError)
+	flags.SetOutput(stderr)
+	jsonOutput := flags.Bool("json", false, "write JSON")
+	if err := flags.Parse(args); err != nil || flags.NArg() != 0 {
+		return 2
+	}
+	record, active, err := activeOrc("")
+	if err != nil || !active {
+		if err == nil {
+			err = errors.New("orc is inactive for this directory")
+		}
+		fmt.Fprintf(stderr, "list sessions: %v\n", err)
+		return 1
+	}
+	sessions, err := controlPlaneSessions(record)
+	if err != nil {
+		fmt.Fprintf(stderr, "list sessions: %v\n", err)
+		return 1
+	}
+	if *jsonOutput {
+		if err := json.NewEncoder(stdout).Encode(sessions); err != nil {
+			fmt.Fprintf(stderr, "write sessions: %v\n", err)
+			return 1
+		}
+		return 0
+	}
+	for _, session := range sessions {
+		fmt.Fprintf(stdout, "%s\t%s\t%s\t%s\t%s\n", session.ID, session.Harness, session.Status,
+			session.Registration, session.Pane)
+	}
+	return 0
+}
+
+func runOrcSessionRegister(args []string, stdout io.Writer, stderr io.Writer) int {
+	flags := flag.NewFlagSet("session register", flag.ContinueOnError)
+	flags.SetOutput(stderr)
+	id := flags.String("id", os.Getenv("ORC_SESSION_ID"), "Orc session id")
+	harness := flags.String("harness", firstValue(os.Getenv("ORC_AGENT"), os.Getenv("AGENT")), "harness name")
+	native := flags.String("native-id", nativeSessionID(), "harness session id")
+	trace := flags.String("trace-id", "", "Traces session id")
+	pane := flags.String("pane", "", "WezTerm pane id")
+	mux := flags.Int("mux", currentWezTermMuxID(), "WezTerm mux process id")
+	pid := flags.Int("pid", os.Getppid(), "harness process id")
+	status := flags.String("status", "working", "session status")
+	reason := flags.String("reason", "", "session status detail")
+	source := flags.String("source", "registered", "registration source")
+	capabilities := flags.String("capabilities", "observe,focus,trace", "comma-separated capabilities")
+	jsonOutput := flags.Bool("json", false, "write JSON")
+	if err := flags.Parse(args); err != nil || flags.NArg() != 0 {
+		return 2
+	}
+	directory, err := os.Getwd()
+	if err != nil {
+		fmt.Fprintf(stderr, "register session: %v\n", err)
+		return 1
+	}
+	record, active, err := activeOrc("")
+	if err != nil {
+		fmt.Fprintf(stderr, "register session: %v\n", err)
+		return 1
+	}
+	// Hooks treat an absent broker as success, so direct harness launches stay independent.
+	if !active {
+		return 0
+	}
+	identity, _, _ := plugin.ProcessIdentity(*pid)
+	registered, err := instance.RegisterSession(record, instance.SessionRegistration{
+		ID: *id, Harness: *harness, NativeSessionID: *native, TraceSessionID: *trace,
+		Directory: directory, Pane: *pane, Mux: *mux, PID: *pid, ProcessIdentity: identity, Status: *status,
+		Reason: *reason, Registration: *source, Capabilities: splitComma(*capabilities),
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "register session: %v\n", err)
+		return 1
+	}
+	if *jsonOutput {
+		if err := json.NewEncoder(stdout).Encode(registered); err != nil {
+			fmt.Fprintf(stderr, "write session: %v\n", err)
+			return 1
+		}
+	} else {
+		fmt.Fprintln(stdout, registered.ID)
+	}
+	return 0
+}
+
+func runOrcSessionRemove(args []string, stdout io.Writer, stderr io.Writer) int {
+	if len(args) != 1 {
+		fmt.Fprintln(stderr, "usage: orc session remove <session-id>")
+		return 2
+	}
+	record, active, err := activeOrc("")
+	if err != nil || !active {
+		if err == nil {
+			err = errors.New("orc is inactive for this directory")
+		}
+		fmt.Fprintf(stderr, "remove session: %v\n", err)
+		return 1
+	}
+	if err := instance.RemoveSession(record, args[0]); err != nil {
+		fmt.Fprintf(stderr, "remove session: %v\n", err)
+		return 1
+	}
+	fmt.Fprintf(stdout, "removed %s\n", args[0])
+	return 0
+}
+
+func runOrcSessionFocus(args []string, stdout io.Writer, stderr io.Writer) int {
+	if len(args) != 1 {
+		fmt.Fprintln(stderr, "usage: orc session focus <session-id>")
+		return 2
+	}
+	record, _, err := activeOrc("")
+	if err != nil {
+		fmt.Fprintf(stderr, "focus session: %v\n", err)
+		return 1
+	}
+	session, found, err := findControlSession(record, args[0])
+	if err != nil || !found {
+		if err == nil {
+			err = fmt.Errorf("session %q was not found", args[0])
+		}
+		fmt.Fprintf(stderr, "focus session: %v\n", err)
+		return 1
+	}
+	return focusOrcSession(session, stdout, stderr)
+}
+
+func runOrcSessionTraces(args []string, stdout io.Writer, stderr io.Writer) int {
+	if len(args) != 1 {
+		fmt.Fprintln(stderr, "usage: orc session traces <session-id>")
+		return 2
+	}
+	record, _, err := activeOrc("")
+	if err != nil {
+		fmt.Fprintf(stderr, "open Traces: %v\n", err)
+		return 1
+	}
+	session, found, err := findControlSession(record, args[0])
+	if err != nil || !found {
+		if err == nil {
+			err = fmt.Errorf("session %q was not found", args[0])
+		}
+		fmt.Fprintf(stderr, "open Traces: %v\n", err)
+		return 1
+	}
+	return traceOrcSession(session, stdout, stderr)
+}
+
+func runOrcInject(args []string, stdout io.Writer, stderr io.Writer) int {
+	flags := flag.NewFlagSet("inject", flag.ContinueOnError)
+	flags.SetOutput(stderr)
+	if len(args) > 1 && !strings.HasPrefix(args[0], "-") {
+		args = append(append([]string(nil), args[1:]...), args[0])
+	}
+	pane := flags.String("pane", os.Getenv("WEZTERM_PANE"), "WezTerm pane id")
+	harness := flags.String("harness", "", "harness name")
+	native := flags.String("native-id", "", "harness session id")
+	mux := flags.Int("mux", currentWezTermMuxID(), "WezTerm mux process id")
+	if err := flags.Parse(args); err != nil || flags.NArg() > 1 {
+		return 2
+	}
+	record, active, err := activeOrc("")
+	if err != nil || !active {
+		if err == nil {
+			err = errors.New("start Orc before injecting a session")
+		}
+		fmt.Fprintf(stderr, "inject session: %v\n", err)
+		return 1
+	}
+	sessions, err := controlPlaneSessions(record)
+	if err != nil {
+		fmt.Fprintf(stderr, "inject session: %v\n", err)
+		return 1
+	}
+	wanted := ""
+	if flags.NArg() == 1 {
+		wanted = flags.Arg(0)
+	}
+	if wanted == "" && *pane == "" {
+		*pane = os.Getenv("WEZTERM_PANE")
+	}
+	for _, session := range sessions {
+		if wanted != "" && session.ID != wanted {
+			continue
+		}
+		if wanted == "" && (*pane == "" || session.Pane != *pane || *mux > 0 && session.Mux != *mux ||
+			*harness != "" && session.Harness != *harness) {
+			continue
+		}
+		if session.Status == "disconnected" || !orcSessionProcessLive(session) {
+			continue
+		}
+		registered, registerErr := instance.RegisterSession(record, instance.SessionRegistration{
+			ID: session.ID, Harness: session.Harness, NativeSessionID: session.NativeSessionID,
+			TraceSessionID: session.TraceSessionID, Directory: session.Directory, Pane: session.Pane, Mux: session.Mux,
+			PID: session.PID, ProcessIdentity: session.ProcessIdentity,
+			Status: session.Status, Reason: session.Reason, Registration: "injected",
+			Capabilities: session.Capabilities,
+		})
+		if registerErr != nil {
+			fmt.Fprintf(stderr, "inject session: %v\n", registerErr)
+			return 1
+		}
+		fmt.Fprintf(stdout, "injected %s\n", registered.ID)
+		return 0
+	}
+	if *harness != "" && *pane != "" {
+		live, available := liveWezTermPanes()
+		paneProcess, found := live[*pane]
+		if !available || !found {
+			fmt.Fprintf(stderr, "inject session: pane %s is not live\n", *pane)
+			return 1
+		}
+		if *mux <= 0 || *mux != currentWezTermMuxID() {
+			fmt.Fprintln(stderr, "inject session: pane injection needs a verified mux id")
+			return 1
+		}
+		directory := paneProcess.Directory
+		if directory == "" || !instance.Contains(record.Scope, directory) {
+			fmt.Fprintln(stderr, "inject session: pane is outside this Orc workspace")
+			return 1
+		}
+		capabilities := []string{"observe", "focus"}
+		if *native != "" {
+			capabilities = append(capabilities, "trace")
+		}
+		identity, _, _ := plugin.ProcessIdentity(paneProcess.PID)
+		registered, registerErr := instance.RegisterSession(record, instance.SessionRegistration{
+			ID: wanted, Harness: *harness, NativeSessionID: *native, TraceSessionID: *native,
+			Directory: directory, Pane: *pane, Mux: *mux, PID: paneProcess.PID, ProcessIdentity: identity,
+			Status: "working", Reason: "injected",
+			Registration: "injected", Capabilities: capabilities,
+		})
+		if registerErr != nil {
+			fmt.Fprintf(stderr, "inject session: %v\n", registerErr)
+			return 1
+		}
+		fmt.Fprintf(stdout, "injected %s\n", registered.ID)
+		return 0
+	}
+	fmt.Fprintln(stderr, "inject session: no matching live harness pane")
+	return 1
+}
+
+func currentWezTermMuxID() int {
+	name := filepath.Base(os.Getenv("WEZTERM_UNIX_SOCKET"))
+	const prefix = "gui-sock-"
+	if strings.HasPrefix(name, prefix) {
+		pid, err := strconv.Atoi(strings.TrimPrefix(name, prefix))
+		if err == nil && pid > 0 {
+			return pid
+		}
+	}
+	output, err := exec.Command("wezterm", "cli", "--no-auto-start", "list-clients", "--format", "json").Output()
+	if err != nil {
+		return 0
+	}
+	var clients []struct {
+		PID         int             `json:"pid"`
+		FocusedPane json.RawMessage `json:"focused_pane_id"`
+	}
+	if json.Unmarshal(output, &clients) != nil {
+		return 0
+	}
+	pane := os.Getenv("WEZTERM_PANE")
+	for _, client := range clients {
+		if client.PID > 0 && (len(clients) == 1 || strings.Trim(string(client.FocusedPane), "\"") == pane) {
+			return client.PID
+		}
+	}
+	return 0
+}
+
+func controlPlaneSessions(record instance.Record) ([]instance.Session, error) {
+	registered, err := instance.Sessions(record)
+	if err != nil {
+		return nil, err
+	}
+	byPane := make(map[string]int, len(registered))
+	for index, session := range registered {
+		if session.Pane != "" {
+			key := fmt.Sprintf("%s:%d:%s:%d", session.Harness, session.Mux, session.Pane, session.ProcessIdentity)
+			if _, found := byPane[key]; !found {
+				byPane[key] = index
+			}
+		}
+	}
+	observed, err := observedHarnessSessions(record)
+	if err != nil {
+		return nil, err
+	}
+	for _, session := range observed {
+		key := fmt.Sprintf("%s:%d:%s:%d", session.Harness, session.Mux, session.Pane, session.ProcessIdentity)
+		if index, found := byPane[key]; found {
+			registered[index].Status = session.Status
+			registered[index].Reason = session.Reason
+			registered[index].PID = session.PID
+			registered[index].ProcessIdentity = session.ProcessIdentity
+			registered[index].UpdatedAt = session.UpdatedAt
+			continue
+		}
+		registered = append(registered, session)
+	}
+	for index := range registered {
+		if registered[index].Registration != "observed" && registered[index].Status != "disconnected" &&
+			!orcSessionProcessLive(registered[index]) {
+			registered[index].Status = "disconnected"
+			registered[index].Reason = "process exited"
+		}
+	}
+	sort.SliceStable(registered, func(first, second int) bool {
+		return registered[first].UpdatedAt > registered[second].UpdatedAt
+	})
+	return registered, nil
+}
+
+func observedHarnessSessions(record instance.Record) ([]instance.Session, error) {
+	live, available := liveWezTermPanes()
+	if !available {
+		return nil, nil
+	}
+	mux := currentWezTermMuxID()
+	if mux <= 0 {
+		return nil, nil
+	}
+	registry, registryErr := agents.Load()
+	harnessByCommand := make(map[string]string)
+	if registryErr == nil {
+		harnessByCommand = make(map[string]string, len(registry.Agents))
+		for _, agent := range registry.Agents {
+			if agent.Command != "" {
+				harnessByCommand[filepath.Base(agent.Command)] = agent.Name
+			}
+		}
+	}
+	entries, err := os.ReadDir(paths.AgentPanes())
+	if errors.Is(err, os.ErrNotExist) {
+		entries = nil
+	}
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return nil, err
+	}
+	var sessions []instance.Session
+	seen := make(map[string]bool, len(entries))
+	for _, entry := range entries {
+		if entry.IsDir() || filepath.Ext(entry.Name()) != ".json" {
+			continue
+		}
+		data, readErr := os.ReadFile(filepath.Join(paths.AgentPanes(), entry.Name()))
+		if readErr != nil {
+			continue
+		}
+		var pane struct {
+			Pane     json.RawMessage `json:"pane"`
+			Mux      int             `json:"mux"`
+			Agent    string          `json:"agent"`
+			Status   string          `json:"status"`
+			Reason   string          `json:"reason"`
+			Worktree string          `json:"worktree"`
+			Since    int64           `json:"since"`
+		}
+		if json.Unmarshal(data, &pane) != nil || pane.Agent == "" || pane.Worktree == "" {
+			continue
+		}
+		paneID := strings.Trim(string(pane.Pane), "\"")
+		paneProcess, found := live[paneID]
+		if !found || pane.Mux != mux || !instance.Contains(record.Scope, pane.Worktree) {
+			continue
+		}
+		if detected := harnessByCommand[filepath.Base(paneProcess.Command)]; detected != "" && detected != pane.Agent {
+			continue
+		}
+		if paneProcess.PID <= 0 {
+			continue
+		}
+		identity, found, identityErr := plugin.ProcessIdentity(paneProcess.PID)
+		if identityErr != nil || !found {
+			continue
+		}
+		updated := time.Unix(pane.Since, 0).UTC().Format(time.RFC3339Nano)
+		digest := sha256.Sum256([]byte(fmt.Sprintf("%s\x00%d\x00%s\x00%d", pane.Agent, pane.Mux, paneID, identity)))
+		sessions = append(sessions, instance.Session{
+			Version: instance.SessionVersion, ID: pane.Agent + "-" + fmt.Sprintf("%x", digest[:6]),
+			Role: "controller", Harness: pane.Agent, Scope: record.Scope, Directory: pane.Worktree,
+			Pane: paneID, Mux: pane.Mux, PID: paneProcess.PID, ProcessIdentity: identity,
+			Status: pane.Status, Reason: pane.Reason, Registration: "observed",
+			Capabilities: []string{"observe", "focus"}, StartedAt: updated, UpdatedAt: updated,
+		})
+		seen[paneID] = true
+	}
+	if registryErr != nil {
+		return sessions, nil
+	}
+	now := time.Now().UTC().Format(time.RFC3339Nano)
+	for paneID, pane := range live {
+		if seen[paneID] || pane.PID <= 0 || !instance.Contains(record.Scope, pane.Directory) {
+			continue
+		}
+		harness := harnessByCommand[filepath.Base(pane.Command)]
+		if harness == "" {
+			continue
+		}
+		identity, found, identityErr := plugin.ProcessIdentity(pane.PID)
+		if identityErr != nil || !found {
+			continue
+		}
+		digest := sha256.Sum256([]byte(fmt.Sprintf("%s\x00%d\x00%s\x00%d", harness, mux, paneID, identity)))
+		sessions = append(sessions, instance.Session{
+			Version: instance.SessionVersion, ID: harness + "-" + fmt.Sprintf("%x", digest[:6]),
+			Role: "controller", Harness: harness, Scope: record.Scope, Directory: pane.Directory,
+			Pane: paneID, Mux: mux, PID: pane.PID, ProcessIdentity: identity,
+			Status: "working", Reason: "discovered", Registration: "observed",
+			Capabilities: []string{"observe", "focus"}, StartedAt: now, UpdatedAt: now,
+		})
+	}
+	return sessions, nil
+}
+
+type liveWezTermPane struct {
+	PID       int
+	Command   string
+	Directory string
+}
+
+func liveWezTermPanes() (map[string]liveWezTermPane, bool) {
+	output, err := exec.Command("wezterm", "cli", "--no-auto-start", "list", "--format", "json").Output()
+	if err != nil {
+		return nil, false
+	}
+	var rows []struct {
+		Pane json.RawMessage `json:"pane_id"`
+		PID  int             `json:"pid"`
+		TTY  string          `json:"tty_name"`
+		Cwd  string          `json:"cwd"`
+	}
+	if json.Unmarshal(output, &rows) != nil {
+		return nil, false
+	}
+	result := make(map[string]liveWezTermPane, len(rows))
+	for _, row := range rows {
+		foregroundPID, command := foregroundProcess(row.TTY)
+		if row.PID <= 0 {
+			row.PID = foregroundPID
+		}
+		result[strings.Trim(string(row.Pane), "\"")] = liveWezTermPane{
+			PID: row.PID, Command: command, Directory: wezTermDirectory(row.Cwd),
+		}
+	}
+	return result, true
+}
+
+func foregroundProcess(tty string) (int, string) {
+	if tty = filepath.Base(tty); tty == "." || tty == "" {
+		return 0, ""
+	}
+	ps := "/bin/ps"
+	if _, err := os.Stat(ps); err != nil {
+		ps, err = exec.LookPath("ps")
+		if err != nil {
+			return 0, ""
+		}
+	}
+	output, err := exec.Command(ps, "-o", "pid=,tpgid=,comm=", "-t", tty).Output()
+	if err != nil {
+		return 0, ""
+	}
+	for _, line := range strings.Split(string(output), "\n") {
+		fields := strings.Fields(line)
+		if len(fields) < 3 {
+			continue
+		}
+		pid, pidErr := strconv.Atoi(fields[0])
+		group, groupErr := strconv.Atoi(fields[1])
+		if pidErr == nil && groupErr == nil && pid > 0 && pid == group {
+			return pid, strings.Join(fields[2:], " ")
+		}
+	}
+	return 0, ""
+}
+
+func wezTermDirectory(value string) string {
+	parsed, err := url.Parse(value)
+	if err != nil || parsed.Scheme != "file" {
+		return ""
+	}
+	return parsed.Path
+}
+
+func findControlSession(record instance.Record, id string) (instance.Session, bool, error) {
+	sessions, err := controlPlaneSessions(record)
+	if err != nil {
+		return instance.Session{}, false, err
+	}
+	for _, session := range sessions {
+		if session.ID == id {
+			return session, true, nil
+		}
+	}
+	matches := make([]instance.Session, 0, 1)
+	for _, session := range sessions {
+		if strings.HasPrefix(session.ID, id) {
+			matches = append(matches, session)
+		}
+	}
+	if len(matches) == 1 {
+		return matches[0], true, nil
+	}
+	if len(matches) > 1 {
+		return instance.Session{}, false, fmt.Errorf("session prefix %q is ambiguous", id)
+	}
+	return instance.Session{}, false, nil
+}
+
+func focusOrcSession(session instance.Session, stdout io.Writer, stderr io.Writer) int {
+	if session.Pane == "" {
+		fmt.Fprintln(stderr, "focus session: this session has no terminal pane")
+		return 1
+	}
+	if session.Mux <= 0 {
+		fmt.Fprintln(stderr, "focus session: this session has no WezTerm mux")
+		return 1
+	}
+	command := exec.Command("wezterm", "cli", "--no-auto-start", "activate-pane", "--pane-id", session.Pane)
+	if currentWezTermMuxID() != session.Mux {
+		socket, found := wezTermSocketForMux(session.Mux)
+		if !found {
+			fmt.Fprintln(stderr, "focus session: the session WezTerm mux is unavailable")
+			return 1
+		}
+		command.Env = withEnvironment(os.Environ(), map[string]string{"WEZTERM_UNIX_SOCKET": socket})
+	}
+	if output, err := command.CombinedOutput(); err != nil {
+		fmt.Fprintf(stderr, "focus session: %s: %v\n", strings.TrimSpace(string(output)), err)
+		return 1
+	}
+	fmt.Fprintf(stdout, "focused %s\n", session.ID)
+	return 0
+}
+
+func wezTermSocketForMux(mux int) (string, bool) {
+	current := os.Getenv("WEZTERM_UNIX_SOCKET")
+	if filepath.Base(current) == fmt.Sprintf("gui-sock-%d", mux) {
+		if info, err := os.Stat(current); err == nil && info.Mode()&os.ModeSocket != 0 {
+			return current, true
+		}
+	}
+	directories := []string{os.Getenv("XDG_DATA_HOME")}
+	if home, err := os.UserHomeDir(); err == nil {
+		directories = append(directories, filepath.Join(home, ".local", "share"))
+	}
+	for _, directory := range directories {
+		if directory == "" {
+			continue
+		}
+		candidate := filepath.Join(directory, "wezterm", fmt.Sprintf("gui-sock-%d", mux))
+		if info, err := os.Stat(candidate); err == nil && info.Mode()&os.ModeSocket != 0 {
+			return candidate, true
+		}
+	}
+	return "", false
+}
+
+func traceOrcSession(session instance.Session, stdout io.Writer, stderr io.Writer) int {
+	id := firstValue(session.TraceSessionID, session.NativeSessionID)
+	if id == "" {
+		fmt.Fprintln(stderr, "open Traces: this session has no telemetry session id")
+		return 1
+	}
+	command := exec.Command("traces", "--session", id)
+	command.Stdin = os.Stdin
+	command.Stdout = stdout
+	command.Stderr = stderr
+	if err := command.Run(); err != nil {
+		fmt.Fprintf(stderr, "open Traces: %v\n", err)
+		return 1
+	}
+	return 0
+}
+
+func nativeSessionID() string {
+	for _, key := range []string{"CLAUDE_CODE_SESSION_ID", "CODEX_SESSION_ID", "CODEX_THREAD_ID"} {
+		if value := os.Getenv(key); value != "" {
+			return value
+		}
+	}
+	return ""
+}
+
+func firstValue(values ...string) string {
+	for _, value := range values {
+		if value != "" {
+			return value
+		}
+	}
+	return ""
+}
+
+func splitComma(value string) []string {
+	var values []string
+	for _, part := range strings.Split(value, ",") {
+		if part = strings.TrimSpace(part); part != "" {
+			values = append(values, part)
+		}
+	}
+	return values
 }
 
 func orcScope(configured string) (string, error) {
@@ -879,6 +1590,9 @@ func (lease orcLease) release() error {
 		if err != nil || remaining != 0 {
 			return err
 		}
+		if activeOrcSessionProcess(lease.record) {
+			return nil
+		}
 		current, err := instance.Read(filepath.Join(lease.record.StateDirectory, "instance.json"))
 		if errors.Is(err, os.ErrNotExist) {
 			return nil
@@ -1037,7 +1751,17 @@ func monitorAutomaticBrokerWithRetire(
 	retire func(instance.Record) error,
 	stop context.CancelFunc,
 ) {
-	ticker := time.NewTicker(2 * time.Second)
+	monitorAutomaticBrokerWithInterval(ctx, stateDirectory, retire, stop, 2*time.Second)
+}
+
+func monitorAutomaticBrokerWithInterval(
+	ctx context.Context,
+	stateDirectory string,
+	retire func(instance.Record) error,
+	stop context.CancelFunc,
+	interval time.Duration,
+) {
+	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 	for {
 		select {
@@ -1055,7 +1779,7 @@ func monitorAutomaticBrokerWithRetire(
 					return readErr
 				}
 				remaining, countErr := cleanOrcLeases(stateDirectory)
-				if countErr != nil || remaining != 0 || readErr != nil {
+				if countErr != nil || remaining != 0 || readErr != nil || activeOrcSessionProcess(record) {
 					return countErr
 				}
 				record.Stopping = true
@@ -1078,6 +1802,30 @@ func monitorAutomaticBrokerWithRetire(
 }
 
 var errBrokerPinned = errors.New("broker is pinned")
+
+func activeOrcSessionProcess(record instance.Record) bool {
+	sessions, err := instance.Sessions(record)
+	if err != nil {
+		return false
+	}
+	for _, session := range sessions {
+		if session.Status == "disconnected" {
+			continue
+		}
+		if orcSessionProcessLive(session) {
+			return true
+		}
+	}
+	return false
+}
+
+func orcSessionProcessLive(session instance.Session) bool {
+	if session.PID <= 0 || session.ProcessIdentity == 0 {
+		return false
+	}
+	identity, found, err := plugin.ProcessIdentity(session.PID)
+	return err == nil && found && identity == session.ProcessIdentity
+}
 
 func orcRecentDirectory() string {
 	return filepath.Join(filepath.Dir(instance.BaseDirectory()), "recent")

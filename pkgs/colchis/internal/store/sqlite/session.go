@@ -43,6 +43,7 @@ type BindSessionHandleRequest struct {
 	FormatVersion   uint32
 	OpaqueValue     json.RawMessage
 	State           domain.SessionState
+	TraceSessionID  string
 }
 
 type SessionTransitionRequest struct {
@@ -343,6 +344,7 @@ func (store *Store) BindSessionHandle(
 		updated = current
 		updated.RuntimeHandle = &handle.ID
 		updated.HandleFormatVersion = handle.FormatVersion
+		updated.TraceSessionID = request.TraceSessionID
 		updated.State = request.State
 		if updated.State == "" {
 			updated.State = domain.SessionStateRunning

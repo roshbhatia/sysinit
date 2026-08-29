@@ -212,6 +212,7 @@ type Session struct {
 	RuntimeAdapterID    string           `json:"runtimeAdapterId"`
 	RuntimeHandle       *AdapterHandleID `json:"runtimeHandleId,omitempty"`
 	HandleFormatVersion uint32           `json:"handleFormatVersion"`
+	TraceSessionID      string           `json:"traceSessionId,omitempty"`
 	State               SessionState     `json:"state"`
 	Capabilities        []string         `json:"capabilities"`
 	JobPolicy           JobPolicy        `json:"jobPolicy"`

@@ -947,7 +947,7 @@ func TestMCPUsesWorkflowAndWorkerVocabulary(t *testing.T) {
 		names[tool.Name] = true
 	}
 	for _, expected := range []string{
-		"workflow_list", "workflow_restart_points", "workflow_forks", "worker_list", "worker_attach",
+		"orc_current_session", "workflow_list", "workflow_restart_points", "workflow_forks", "worker_list", "worker_attach",
 	} {
 		if !names[expected] {
 			t.Fatalf("MCP tools omitted %q", expected)
@@ -957,6 +957,56 @@ func TestMCPUsesWorkflowAndWorkerVocabulary(t *testing.T) {
 		if names[rejected] {
 			t.Fatalf("MCP tools retained %q", rejected)
 		}
+	}
+}
+
+func TestMCPBindsWorkflowToCurrentOrcSession(t *testing.T) {
+	stateDirectory := shortStateDirectory(t)
+	paths, err := config.ResolvePaths(stateDirectory)
+	if err != nil {
+		t.Fatalf("ResolvePaths() returned %v", err)
+	}
+	record := instance.Record{
+		Version: instance.Version, Scope: t.TempDir(), StateDirectory: paths.StateDirectory, Socket: paths.Socket,
+	}
+	if err := instance.Write(record); err != nil {
+		t.Fatalf("Write() returned %v", err)
+	}
+	identity, found, err := plugin.ProcessIdentity(os.Getpid())
+	if err != nil || !found {
+		t.Fatalf("ProcessIdentity() = %d, %t, %v", identity, found, err)
+	}
+	session, err := instance.RegisterSession(record, instance.SessionRegistration{
+		ID: "session-current", Harness: "codex", PID: os.Getpid(), ProcessIdentity: identity,
+		Registration: "spawned",
+	})
+	if err != nil {
+		t.Fatalf("RegisterSession() returned %v", err)
+	}
+	t.Setenv("ORC_STATE_DIR", stateDirectory)
+	t.Setenv("ORC_SESSION_ID", session.ID)
+
+	bound := bindMCPWorkflowSession(json.RawMessage(`{"definitionId":"plan"}`))
+	var payload map[string]string
+	if err := json.Unmarshal(bound, &payload); err != nil || payload["orchestrationSessionId"] != session.ID {
+		t.Fatalf("bound payload = %s, %v", bound, err)
+	}
+	params, err := json.Marshal(mcpCallParams{
+		Name: "orc_current_session", Arguments: json.RawMessage(`{"payload":{}}`),
+	})
+	if err != nil {
+		t.Fatalf("Marshal() returned %v", err)
+	}
+	response := callMCPTool(context.Background(), nil, mcpRequest{
+		JSONRPC: mcpJSONRPCVersion, ID: json.RawMessage(`1`), Method: "tools/call", Params: params,
+	})
+	var result mcpCallResult
+	if err := json.Unmarshal(response.Result, &result); err != nil {
+		t.Fatalf("tool result = %s, %v", response.Result, err)
+	}
+	var current instance.Session
+	if err := json.Unmarshal(result.StructuredContent, &current); err != nil || current.ID != session.ID {
+		t.Fatalf("current session = %#v, %v", current, err)
 	}
 }
 
@@ -1187,16 +1237,22 @@ func TestOrcPickerUsesRecentAgentAndResponsiveLayout(t *testing.T) {
 	resized, _ := model.Update(tea.WindowSizeMsg{Width: 110, Height: 30})
 	model = resized.(orcUIModel)
 	view := ansi.Strip(model.View())
-	for _, expected := range []string{"⚔ orc", "running", "controllers 2", "Codex", "pid 42", "enter open"} {
+	for _, expected := range []string{"⚔ orc", "running", "workflows 0", "sessions 0", "<space> actions"} {
 		if !strings.Contains(view, expected) {
 			t.Fatalf("View() omitted %q:\n%s", expected, view)
 		}
 	}
-	selected, command := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	withLeader, _ := model.Update(tea.KeyMsg{Type: tea.KeySpace})
+	picker, _ := withLeader.(orcUIModel).Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'n'}})
+	if pickerView := ansi.Strip(picker.(orcUIModel).View()); !strings.Contains(pickerView, "new session") ||
+		!strings.Contains(pickerView, "Codex") {
+		t.Fatalf("controller picker = %q", pickerView)
+	}
+	selected, command := picker.(orcUIModel).Update(tea.KeyMsg{Type: tea.KeyEnter})
 	if command == nil || selected.(orcUIModel).selected != "codex" {
 		t.Fatalf("enter selected %#v", selected)
 	}
-	resumed, command := model.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'R'}})
+	resumed, command := picker.(orcUIModel).Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'R'}})
 	if command == nil || resumed.(orcUIModel).selected != "codex" || !resumed.(orcUIModel).selectedResume {
 		t.Fatalf("resume selected %#v", resumed)
 	}
@@ -1210,6 +1266,7 @@ func TestOrcPickerUsesRecentAgentAndResponsiveLayout(t *testing.T) {
 	model.definition = workflowmodel.Definition{
 		Edges: []workflowmodel.Edge{{From: "research", FromPort: "notes", To: "draft", ToPort: "context"}},
 	}
+	model.graphMode = true
 	graph := ansi.Strip(model.View())
 	for _, expected := range []string{"workflows 1", "plan-42", "draft", "research.notes -> draft.context"} {
 		if !strings.Contains(graph, expected) {
@@ -1239,34 +1296,21 @@ func TestOrcPickerUsesRecentAgentAndResponsiveLayout(t *testing.T) {
 	}
 
 	model.view = orcWorkersView
-	model.workers = []domain.Session{{
-		ID: "worker-42", WorkflowRunID: "plan-42", NodeRunID: "node-42",
-		RuntimeAdapterID: "pi", State: domain.SessionStateRunning,
+	model.sessions = []instance.Session{{
+		ID: "worker-42", Role: "worker", Harness: "pi", Status: "running", Registration: "managed",
 		Capabilities: []string{"native-attachment"},
 	}}
-	model.workerHistory = sqlite.SessionHistory{
-		Session: model.workers[0],
-		RuntimeEvents: []domain.RuntimeEvent{{
-			Sequence: 3, Kind: "tool_call", ProviderEventType: "tool_execution_start",
-		}},
-	}
 	workerView := ansi.Strip(model.View())
-	for _, expected := range []string{"workers 1", "worker-42", "plan-42", "tool_execution_start", "enter attaches"} {
+	for _, expected := range []string{"sessions 1", "worker-42", "worker", "managed", "native-attachment"} {
 		if !strings.Contains(workerView, expected) {
 			t.Fatalf("worker View() omitted %q:\n%s", expected, workerView)
 		}
-	}
-	model.workers[0].Capabilities = nil
-	unavailable, command := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
-	if command != nil || unavailable.(orcUIModel).selectedWorker != "" ||
-		!strings.Contains(unavailable.(orcUIModel).message, "no interactive attachment") {
-		t.Fatalf("unavailable attachment = %#v, command = %#v", unavailable, command)
 	}
 }
 
 func TestOrcWorkflowGraphUsesViewport(t *testing.T) {
 	model := orcUIModel{
-		view: orcWorkflowsView, width: 100, height: 24, help: help.New(),
+		view: orcWorkflowsView, width: 100, height: 24, help: help.New(), graphMode: true,
 		workflows: []domain.WorkflowRun{{ID: "run-large", State: domain.WorkflowRunStateRunning}},
 		workflow:  workflowViewResult{Run: domain.WorkflowRun{ID: "run-large"}},
 	}
@@ -1280,7 +1324,7 @@ func TestOrcWorkflowGraphUsesViewport(t *testing.T) {
 		}
 	}
 	view := ansi.Strip(model.View())
-	if !strings.Contains(view, "pgup/pgdn scroll") || strings.Count(view, "node-") >= 39 {
+	if !strings.Contains(view, "rows ") || strings.Count(view, "node-") >= 39 {
 		t.Fatalf("large graph has no viewport:\n%s", view)
 	}
 	scrolled, _ := model.Update(tea.KeyMsg{Type: tea.KeyPgDown})
@@ -1298,11 +1342,17 @@ func TestOrcWorkflowGraphUsesViewport(t *testing.T) {
 }
 
 func TestOrcUIRejectsPaneThatHidesControls(t *testing.T) {
-	model := orcUIModel{width: 40, height: 10, help: help.New()}
+	model := orcUIModel{width: 39, height: 9, help: help.New()}
 	view := ansi.Strip(model.View())
-	if strings.Count(view, "\n") != 2 || !strings.Contains(view, "orc needs 76x20") ||
+	if strings.Count(view, "\n") != 2 || !strings.Contains(view, "orc needs 40x10") ||
 		!strings.Contains(view, "q quits") {
 		t.Fatalf("small main UI = %q", view)
+	}
+	model.width = 40
+	model.height = 10
+	view = ansi.Strip(model.View())
+	if lines := strings.Count(view, "\n") + 1; lines != 10 || !strings.Contains(view, "<space> actions") {
+		t.Fatalf("40x10 main UI has %d lines: %q", lines, view)
 	}
 	worker := orcWorkerUIModel{width: 40, height: 10}
 	view = ansi.Strip(worker.View())
@@ -1335,25 +1385,38 @@ func TestOrcWorkerAttachmentFitsEightyByTwentyFour(t *testing.T) {
 }
 
 func TestOrcFullHelpOnlyShowsActionsForCurrentView(t *testing.T) {
-	model := orcUIModel{help: help.New()}
+	model := orcUIModel{help: help.New(), width: 80, height: 24}
 	model.help.ShowAll = true
-	model.help.Width = 120
-	controllerHelp := model.help.View(model.helpKeys())
-	if !strings.Contains(controllerHelp, "resume controller") || strings.Contains(controllerHelp, "fork from restart point") {
-		t.Fatalf("controller help = %q", controllerHelp)
-	}
-	model.view = orcWorkersView
-	workerHelp := model.help.View(model.helpKeys())
-	if strings.Contains(workerHelp, "resume controller") || strings.Contains(workerHelp, "graph down") {
-		t.Fatalf("worker help = %q", workerHelp)
-	}
-	model.view = orcWorkflowsView
-	model.width = 80
-	model.height = 24
-	model.help.Width = 80
 	workflowView := ansi.Strip(model.View())
-	if lines := strings.Count(workflowView, "\n") + 1; lines > 24 || !strings.Contains(workflowView, "f fork") {
+	if lines := strings.Count(workflowView, "\n") + 1; lines != 24 ||
+		!strings.Contains(workflowView, "<space>t") || !strings.Contains(workflowView, "ctrl+j") {
 		t.Fatalf("80x24 workflow help has %d lines:\n%s", lines, workflowView)
+	}
+	model.width = 40
+	model.height = 10
+	small := ansi.Strip(model.View())
+	if lines := strings.Count(small, "\n") + 1; lines != 10 || !strings.Contains(small, "esc return") {
+		t.Fatalf("40x10 help has %d lines:\n%s", lines, small)
+	}
+	updated, _ := model.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'j'}})
+	if updated.(orcUIModel).helpOffset == 0 {
+		t.Fatal("small help did not scroll")
+	}
+}
+
+func TestSelectedNodeWithoutTraceDoesNotOpenControllerTrace(t *testing.T) {
+	controllerID := domain.SessionID("controller")
+	model := orcUIModel{
+		view: orcWorkflowsView, graphMode: true,
+		workflows: []domain.WorkflowRun{{ID: "run-1"}},
+		workflow: workflowViewResult{
+			Run:   domain.WorkflowRun{ID: "run-1", OrchestrationSession: &controllerID},
+			Nodes: []domain.NodeRun{{ID: "node-1", NodeKey: "build"}},
+		},
+		sessions: []instance.Session{{ID: "controller", TraceSessionID: "trace-controller"}},
+	}
+	if session, found := model.selectedTrace(); found {
+		t.Fatalf("selectedTrace() = %#v, want unavailable", session)
 	}
 }
 
@@ -1489,6 +1552,21 @@ func TestParseOrcControllerUsesControllerTerminology(t *testing.T) {
 	_, _, _, err := parseOrcController(nil, "resume")
 	if err == nil || !strings.Contains(err.Error(), "orc resume <controller>") {
 		t.Fatalf("resume usage error = %v", err)
+	}
+}
+
+func TestControlPlaneMarksExitedSessionDisconnected(t *testing.T) {
+	record := instance.Record{Version: instance.Version, Scope: t.TempDir(), StateDirectory: t.TempDir()}
+	created, err := instance.RegisterSession(record, instance.SessionRegistration{
+		Harness: "codex", Pane: "19", Mux: 73, PID: os.Getpid(), ProcessIdentity: 1,
+		Status: "working", Registration: "injected",
+	})
+	if err != nil {
+		t.Fatalf("RegisterSession() returned %v", err)
+	}
+	sessions, err := controlPlaneSessions(record)
+	if err != nil || len(sessions) != 1 || sessions[0].ID != created.ID || sessions[0].Status != "disconnected" {
+		t.Fatalf("controlPlaneSessions() = %#v, %v", sessions, err)
 	}
 }
 
@@ -1634,14 +1712,14 @@ func TestAutomaticMonitorMarksBrokerStoppingBeforeCancellation(t *testing.T) {
 	defer cancel()
 	stopped := make(chan instance.Record, 1)
 	retired := make(chan instance.Record, 1)
-	go monitorAutomaticBrokerWithRetire(ctx, stateDirectory, func(record instance.Record) error {
+	go monitorAutomaticBrokerWithInterval(ctx, stateDirectory, func(record instance.Record) error {
 		retired <- record
 		return nil
 	}, func() {
 		current, _ := instance.Read(filepath.Join(stateDirectory, "instance.json"))
 		stopped <- current
 		cancel()
-	})
+	}, 10*time.Millisecond)
 	select {
 	case current := <-stopped:
 		if !current.Stopping {
@@ -1655,7 +1733,7 @@ func TestAutomaticMonitorMarksBrokerStoppingBeforeCancellation(t *testing.T) {
 		default:
 			t.Fatal("automatic monitor did not retire its service")
 		}
-	case <-time.After(3 * time.Second):
+	case <-time.After(time.Second):
 		t.Fatal("automatic monitor did not stop an idle broker")
 	}
 }

@@ -169,12 +169,13 @@ type OperationEnvelope struct {
 }
 
 type OperationResult struct {
-	ID           domain.OperationID    `json:"id"`
-	State        domain.OperationState `json:"state"`
-	SessionState domain.SessionState   `json:"sessionState,omitempty"`
-	Output       json.RawMessage       `json:"output,omitempty"`
-	Handle       *AdapterHandleValue   `json:"handle,omitempty"`
-	Error        *RPCError             `json:"error,omitempty"`
+	ID             domain.OperationID    `json:"id"`
+	State          domain.OperationState `json:"state"`
+	SessionState   domain.SessionState   `json:"sessionState,omitempty"`
+	TraceSessionID string                `json:"traceSessionId,omitempty"`
+	Output         json.RawMessage       `json:"output,omitempty"`
+	Handle         *AdapterHandleValue   `json:"handle,omitempty"`
+	Error          *RPCError             `json:"error,omitempty"`
 }
 
 type AdapterHandleValue struct {

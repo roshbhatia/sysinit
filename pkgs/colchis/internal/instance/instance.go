@@ -10,16 +10,24 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
+	"golang.org/x/sys/unix"
+
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/api/socket"
 	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/config"
+	"github.com/roshbhatia/sysinit/pkgs/colchis/internal/plugin"
 	gitutil "github.com/roshbhatia/sysinit/pkgs/internal/git"
 	"github.com/roshbhatia/sysinit/pkgs/internal/paths"
 )
 
 const Version = 1
+
+const SessionVersion = 1
+
+var ErrSessionNotRegistered = errors.New("session is not registered with Orc")
 
 type Record struct {
 	Version        int    `json:"version"`
@@ -33,6 +41,45 @@ type Record struct {
 	Stopping       bool   `json:"stopping,omitempty"`
 	PID            int    `json:"pid"`
 	StartedAt      string `json:"startedAt"`
+}
+
+// Session is a harness-owned conversation registered with an Orc workspace.
+type Session struct {
+	Version         int      `json:"version"`
+	ID              string   `json:"id"`
+	Role            string   `json:"role"`
+	Harness         string   `json:"harness"`
+	NativeSessionID string   `json:"nativeSessionId,omitempty"`
+	TraceSessionID  string   `json:"traceSessionId,omitempty"`
+	Scope           string   `json:"scope"`
+	Directory       string   `json:"directory,omitempty"`
+	Pane            string   `json:"pane,omitempty"`
+	Mux             int      `json:"mux,omitempty"`
+	PID             int      `json:"pid,omitempty"`
+	ProcessIdentity uint64   `json:"processIdentity,omitempty"`
+	Status          string   `json:"status"`
+	Reason          string   `json:"reason,omitempty"`
+	Registration    string   `json:"registration"`
+	Origin          string   `json:"origin,omitempty"`
+	Capabilities    []string `json:"capabilities"`
+	StartedAt       string   `json:"startedAt"`
+	UpdatedAt       string   `json:"updatedAt"`
+}
+
+type SessionRegistration struct {
+	ID              string
+	Harness         string
+	NativeSessionID string
+	TraceSessionID  string
+	Directory       string
+	Pane            string
+	Mux             int
+	PID             int
+	ProcessIdentity uint64
+	Status          string
+	Reason          string
+	Registration    string
+	Capabilities    []string
 }
 
 func BaseDirectory() string {
@@ -205,6 +252,316 @@ func Remove(record Record) error {
 		return fmt.Errorf("instance record now belongs to process %d", current.PID)
 	}
 	return os.Remove(path)
+}
+
+func RegisterSession(record Record, registration SessionRegistration) (Session, error) {
+	if registration.Harness == "" {
+		return Session{}, errors.New("session harness is empty")
+	}
+	if !safeSessionIdentifier(registration.Harness) ||
+		registration.ID != "" && !safeSessionIdentifier(registration.ID) {
+		return Session{}, errors.New("session harness or id contains an unsupported character")
+	}
+	if registration.ID == "" && registration.NativeSessionID == "" && registration.Pane == "" {
+		return Session{}, errors.New("session needs an id, native id, or pane")
+	}
+	directory := filepath.Join(record.StateDirectory, "controller-sessions")
+	if err := os.MkdirAll(directory, 0o700); err != nil {
+		return Session{}, err
+	}
+	lock, err := os.OpenFile(filepath.Join(directory, ".lock"), os.O_CREATE|os.O_RDWR, 0o600)
+	if err != nil {
+		return Session{}, err
+	}
+	defer lock.Close()
+	if err := unix.Flock(int(lock.Fd()), unix.LOCK_EX); err != nil {
+		return Session{}, err
+	}
+	defer unix.Flock(int(lock.Fd()), unix.LOCK_UN)
+	sessions, err := Sessions(record)
+	if err != nil {
+		return Session{}, err
+	}
+	current := Session{}
+	for _, candidate := range sessions {
+		matches := false
+		if registration.ID != "" {
+			matches = candidate.ID == registration.ID
+		} else if registration.NativeSessionID != "" {
+			matches = candidate.Harness == registration.Harness &&
+				(candidate.NativeSessionID == registration.NativeSessionID ||
+					candidate.NativeSessionID == "" && candidate.Status != "disconnected" &&
+						candidate.Pane != "" && candidate.Pane == registration.Pane &&
+						candidate.Mux == registration.Mux)
+		} else if registration.Pane != "" && registration.Registration != "spawned" {
+			matches = candidate.Harness == registration.Harness && candidate.Pane == registration.Pane &&
+				candidate.Mux == registration.Mux && candidate.Status != "disconnected"
+		}
+		if matches {
+			current = candidate
+			break
+		}
+	}
+	if current.ID == "" && registration.Registration == "hook" {
+		return Session{}, ErrSessionNotRegistered
+	}
+	if current.ID == "" {
+		current.ID = registration.ID
+		if current.ID == "" {
+			current.ID = availableSessionID(sessions, registration)
+		}
+		now := time.Now().UTC().Format(time.RFC3339Nano)
+		current.Version = SessionVersion
+		current.Role = "controller"
+		current.Scope = record.Scope
+		current.StartedAt = now
+	}
+	current.Harness = registration.Harness
+	if registration.NativeSessionID != "" {
+		current.NativeSessionID = registration.NativeSessionID
+	}
+	if registration.TraceSessionID != "" {
+		current.TraceSessionID = registration.TraceSessionID
+	} else if current.TraceSessionID == "" && current.NativeSessionID != "" {
+		current.TraceSessionID = current.NativeSessionID
+	}
+	if registration.Directory != "" {
+		current.Directory = registration.Directory
+	}
+	if registration.Pane != "" {
+		current.Pane = registration.Pane
+	}
+	if registration.Mux > 0 {
+		current.Mux = registration.Mux
+	}
+	preserveProcess := false
+	if registration.Registration == "hook" && current.PID > 0 && current.ProcessIdentity > 0 {
+		identity, found, identityErr := plugin.ProcessIdentity(current.PID)
+		preserveProcess = identityErr == nil && found && identity == current.ProcessIdentity
+	}
+	if registration.PID > 0 && !preserveProcess {
+		current.PID = registration.PID
+		current.ProcessIdentity = registration.ProcessIdentity
+	}
+	if registration.Status != "" {
+		current.Status = registration.Status
+	} else if current.Status == "" {
+		current.Status = "working"
+	}
+	if registration.Reason != "" {
+		current.Reason = registration.Reason
+	}
+	source := registration.Registration
+	switch source {
+	case "observed", "managed":
+		current.Registration = source
+	default:
+		current.Registration = "registered"
+	}
+	if current.Origin == "" || source == "spawned" || source == "injected" {
+		current.Origin = source
+	}
+	if len(registration.Capabilities) > 0 {
+		current.Capabilities = uniqueStrings(registration.Capabilities)
+	}
+	current.UpdatedAt = time.Now().UTC().Format(time.RFC3339Nano)
+	if err := writeSession(record, current); err != nil {
+		return Session{}, err
+	}
+	return current, nil
+}
+
+func Sessions(record Record) ([]Session, error) {
+	directory := filepath.Join(record.StateDirectory, "controller-sessions")
+	entries, err := os.ReadDir(directory)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	sessions := make([]Session, 0, len(entries))
+	for _, entry := range entries {
+		if entry.IsDir() || filepath.Ext(entry.Name()) != ".json" {
+			continue
+		}
+		data, readErr := os.ReadFile(filepath.Join(directory, entry.Name()))
+		if readErr != nil {
+			continue
+		}
+		var session Session
+		if json.Unmarshal(data, &session) == nil && session.Version == SessionVersion && session.ID != "" {
+			sessions = append(sessions, session)
+		}
+	}
+	sort.Slice(sessions, func(first, second int) bool {
+		return sessions[first].UpdatedAt > sessions[second].UpdatedAt
+	})
+	return sessions, nil
+}
+
+func SessionByID(record Record, id string) (Session, bool, error) {
+	sessions, err := Sessions(record)
+	if err != nil {
+		return Session{}, false, err
+	}
+	for _, session := range sessions {
+		if session.ID == id {
+			return session, true, nil
+		}
+	}
+	return Session{}, false, nil
+}
+
+func CurrentSession(record Record) (Session, bool, error) {
+	sessions, err := Sessions(record)
+	if err != nil {
+		return Session{}, false, err
+	}
+	id := os.Getenv("ORC_SESSION_ID")
+	pane := os.Getenv("WEZTERM_PANE")
+	mux := wezTermMuxID()
+	native := ""
+	nativeHarness := ""
+	for _, candidate := range []struct {
+		key     string
+		harness string
+	}{
+		{key: "CLAUDE_CODE_SESSION_ID", harness: "claude"},
+		{key: "CODEX_SESSION_ID", harness: "codex"},
+		{key: "CODEX_THREAD_ID", harness: "codex"},
+	} {
+		if native = os.Getenv(candidate.key); native != "" {
+			nativeHarness = candidate.harness
+			break
+		}
+	}
+	for _, session := range sessions {
+		if session.Status == "disconnected" {
+			continue
+		}
+		if id != "" && session.ID == id ||
+			native != "" && session.Harness == nativeHarness && session.NativeSessionID == native {
+			if sessionProcessMatches(session) {
+				return session, true, nil
+			}
+			continue
+		}
+		if pane != "" && session.Pane == pane && session.Mux > 0 && mux == session.Mux {
+			if sessionProcessMatches(session) {
+				return session, true, nil
+			}
+		}
+	}
+	return Session{}, false, nil
+}
+
+func sessionProcessMatches(session Session) bool {
+	if session.PID <= 0 || session.ProcessIdentity == 0 {
+		return false
+	}
+	identity, found, err := plugin.ProcessIdentity(session.PID)
+	return err == nil && found && identity == session.ProcessIdentity
+}
+
+func RemoveSession(record Record, id string) error {
+	if !safeSessionIdentifier(id) {
+		return errors.New("session id contains an unsupported character")
+	}
+	path := filepath.Join(record.StateDirectory, "controller-sessions", id+".json")
+	if err := os.Remove(path); err != nil && !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+	return nil
+}
+
+func writeSession(record Record, session Session) error {
+	directory := filepath.Join(record.StateDirectory, "controller-sessions")
+	if err := os.MkdirAll(directory, 0o700); err != nil {
+		return err
+	}
+	data, err := json.Marshal(session)
+	if err != nil {
+		return err
+	}
+	temporary, err := os.CreateTemp(directory, ".session-*.json")
+	if err != nil {
+		return err
+	}
+	name := temporary.Name()
+	defer os.Remove(name)
+	if err := temporary.Chmod(0o600); err != nil {
+		_ = temporary.Close()
+		return err
+	}
+	if _, err := temporary.Write(append(data, '\n')); err != nil {
+		_ = temporary.Close()
+		return err
+	}
+	if err := temporary.Close(); err != nil {
+		return err
+	}
+	return os.Rename(name, filepath.Join(directory, session.ID+".json"))
+}
+
+func sessionID(harness string, native string, pane string, mux int) string {
+	digest := sha256.Sum256([]byte(fmt.Sprintf("%s\x00%s\x00%s\x00%d", harness, native, pane, mux)))
+	return harness + "-" + hex.EncodeToString(digest[:6])
+}
+
+func availableSessionID(sessions []Session, registration SessionRegistration) string {
+	base := sessionID(registration.Harness, registration.NativeSessionID, registration.Pane, registration.Mux)
+	for _, session := range sessions {
+		if session.ID == base {
+			digest := sha256.Sum256([]byte(fmt.Sprintf("%s\x00%d", base, time.Now().UnixNano())))
+			return base + "-" + hex.EncodeToString(digest[:3])
+		}
+	}
+	return base
+}
+
+func safeSessionIdentifier(value string) bool {
+	if value == "" || value == "." || value == ".." {
+		return false
+	}
+	for _, character := range value {
+		if character >= 'a' && character <= 'z' || character >= 'A' && character <= 'Z' ||
+			character >= '0' && character <= '9' || strings.ContainsRune("._-", character) {
+			continue
+		}
+		return false
+	}
+	return true
+}
+
+func wezTermMuxID() int {
+	name := filepath.Base(os.Getenv("WEZTERM_UNIX_SOCKET"))
+	const prefix = "gui-sock-"
+	if !strings.HasPrefix(name, prefix) {
+		return 0
+	}
+	pid, err := strconv.Atoi(strings.TrimPrefix(name, prefix))
+	if err != nil || pid <= 0 {
+		return 0
+	}
+	return pid
+}
+
+func uniqueStrings(values []string) []string {
+	seen := make(map[string]struct{}, len(values))
+	result := make([]string, 0, len(values))
+	for _, value := range values {
+		if value == "" {
+			continue
+		}
+		if _, found := seen[value]; found {
+			continue
+		}
+		seen[value] = struct{}{}
+		result = append(result, value)
+	}
+	sort.Strings(result)
+	return result
 }
 
 func Live(record Record) bool {

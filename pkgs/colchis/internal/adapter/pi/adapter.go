@@ -249,6 +249,7 @@ func (adapter *Adapter) start(
 		envelope.ID, sessionResult{State: snapshot.State, Capabilities: runtimeCapabilities()}, handle,
 	)
 	result.SessionState = domain.SessionStateRunning
+	result.TraceSessionID = snapshot.SessionID
 	return result, err
 }
 

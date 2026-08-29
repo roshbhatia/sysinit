@@ -199,7 +199,7 @@ func (service *SessionService) StartSession(
 	boundSession, handle, err := service.store.BindSessionHandle(ctx, sqlite.BindSessionHandleRequest{
 		SessionID: session.ID, ExpectedVersion: session.Metadata.ResourceVersion,
 		HandleID: request.HandleID, FormatVersion: result.Handle.FormatVersion,
-		OpaqueValue: result.Handle.OpaqueValue, State: result.SessionState,
+		OpaqueValue: result.Handle.OpaqueValue, State: result.SessionState, TraceSessionID: result.TraceSessionID,
 	})
 	if err != nil {
 		orphaned, transitionErr := service.store.TransitionSession(context.Background(), sqlite.SessionTransitionRequest{

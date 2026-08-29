@@ -121,11 +121,13 @@ type orcUIModel struct {
 	width                int
 	height               int
 	help                 help.Model
+	helpOffset           int
 	view                 int
 	workflows            []domain.WorkflowRun
 	workflow             workflowViewResult
 	definition           workflowmodel.Definition
 	workflowCursor       int
+	nodeCursor           int
 	restartPoints        []domain.RestartPoint
 	restartCursor        int
 	forks                []domain.RunFork
@@ -139,6 +141,19 @@ type orcUIModel struct {
 	requestedWorkflow    domain.WorkflowRunID
 	pendingWorkerHistory bool
 	pendingRefreshStatus string
+	sessions             []instance.Session
+	sessionCursor        int
+	focus                int
+	leader               bool
+	controllerPicker     bool
+	graphMode            bool
+	pendingTop           bool
+	inspectorTab         int
+	inspectorHidden      bool
+	inspectorOffset      int
+	filter               textinput.Model
+	filtering            bool
+	query                string
 }
 
 const (
@@ -189,7 +204,10 @@ func runOrcUI(stdout io.Writer, stderr io.Writer) int {
 func newOrcUIModel() (orcUIModel, error) {
 	lipgloss.SetColorProfile(termenv.ANSI)
 	lipgloss.SetHasDarkBackground(true)
-	model := orcUIModel{help: help.New(), width: 92, height: 26}
+	filter := textinput.New()
+	filter.Prompt = "/"
+	filter.CharLimit = 80
+	model := orcUIModel{help: help.New(), filter: filter, width: 92, height: 26, view: orcWorkersView}
 	model.help.ShortSeparator = "   "
 	model.help.Styles.ShortKey = orcTitleStyle
 	model.help.Styles.FullKey = orcTitleStyle
@@ -213,8 +231,13 @@ func newOrcUIModel() (orcUIModel, error) {
 		}
 	}
 	sortAgentsByRecency(model.agents)
-	if len(model.workflows) > 0 {
+	if len(model.sessions) == 0 {
 		model.view = orcWorkflowsView
+		if model.active {
+			if err := model.loadWorkflows(); err != nil {
+				return model, err
+			}
+		}
 	}
 	return model, nil
 }
@@ -259,7 +282,252 @@ func (model orcUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		model.width = typed.Width
 		model.height = typed.Height
 		model.help.Width = typed.Width
+		if typed.Height < 14 {
+			model.focus = 0
+			model.inspectorOffset = 0
+		}
 	case tea.KeyMsg:
+		pressed := typed.String()
+		if model.filtering {
+			switch pressed {
+			case "esc":
+				model.filtering = false
+				model.filter.SetValue(model.query)
+				return model, nil
+			case "enter":
+				model.filtering = false
+				model.query = strings.TrimSpace(model.filter.Value())
+				if model.view == orcWorkflowsView {
+					model.nodeCursor = 0
+					model.inspectorOffset = 0
+					model.refreshRevision++
+					return model, model.beginRefresh(true, "")
+				}
+				model.moveToStart()
+				return model, nil
+			}
+			var command tea.Cmd
+			model.filter, command = model.filter.Update(typed)
+			return model, command
+		}
+		if model.help.ShowAll {
+			switch {
+			case pressed == "?" || pressed == "esc" || pressed == "q":
+				model.help.ShowAll = false
+			case key.Matches(typed, orcKeys.up):
+				model.helpOffset = max(0, model.helpOffset-1)
+			case key.Matches(typed, orcKeys.down):
+				model.helpOffset = min(model.maxHelpOffset(), model.helpOffset+1)
+			case key.Matches(typed, orcKeys.pageUp):
+				model.helpOffset = max(0, model.helpOffset-max(1, model.height/2))
+			case key.Matches(typed, orcKeys.pageDown):
+				model.helpOffset = min(model.maxHelpOffset(), model.helpOffset+max(1, model.height/2))
+			}
+			return model, nil
+		}
+		if model.controllerPicker {
+			switch {
+			case pressed == "esc" || pressed == "q":
+				model.controllerPicker = false
+			case key.Matches(typed, orcKeys.up):
+				if len(model.agents) > 0 {
+					model.cursor = max(0, model.cursor-1)
+				}
+			case key.Matches(typed, orcKeys.down):
+				if len(model.agents) > 0 {
+					model.cursor = min(len(model.agents)-1, model.cursor+1)
+				}
+			case pressed == "R":
+				if len(model.agents) > 0 && len(model.agents[model.cursor].Launch.ResumeArgs) > 0 {
+					model.selected = model.agents[model.cursor].Name
+					model.selectedResume = true
+					return model, tea.Quit
+				}
+			case pressed == "enter":
+				if len(model.agents) > 0 {
+					model.selected = model.agents[model.cursor].Name
+					return model, tea.Quit
+				}
+			}
+			return model, nil
+		}
+		if model.leader {
+			model.leader = false
+			switch pressed {
+			case "v":
+				if model.view == orcWorkflowsView {
+					model.view = orcWorkersView
+				} else {
+					model.view = orcWorkflowsView
+				}
+				model.refreshRevision++
+				return model, model.beginRefresh(true, "")
+			case "g":
+				model.graphMode = !model.graphMode
+				return model, nil
+			case "n":
+				model.controllerPicker = true
+				return model, nil
+			case "i":
+				model.inspectorHidden = !model.inspectorHidden
+				if model.inspectorHidden {
+					model.focus = 0
+					model.inspectorOffset = 0
+				}
+				return model, nil
+			case "t":
+				if session, found := model.selectedTrace(); found {
+					id := firstValue(session.TraceSessionID, session.NativeSessionID)
+					if id == "" {
+						model.message = "This session has no Traces session ID"
+						model.messageError = true
+						return model, nil
+					}
+					command := exec.Command("traces", "--session", id)
+					return model, tea.ExecProcess(command, func(err error) tea.Msg {
+						if err != nil {
+							return orcActionMessage{err: fmt.Errorf("open Traces: %w", err)}
+						}
+						return orcActionMessage{text: "Returned from Traces"}
+					})
+				}
+			case "c":
+				if session, found := model.selectedSession(); found {
+					if session.Registration == "managed" {
+						command := exec.Command(os.Args[0], "attach", session.ID)
+						return model, tea.ExecProcess(command, func(err error) tea.Msg {
+							if err != nil {
+								return orcActionMessage{err: fmt.Errorf("interact with session: %w", err)}
+							}
+							return orcActionMessage{text: "Returned from session"}
+						})
+					}
+					if session.Pane != "" {
+						return model, func() tea.Msg {
+							var stdout, stderr bytes.Buffer
+							if focusOrcSession(session, &stdout, &stderr) != 0 {
+								return orcActionMessage{err: errors.New(strings.TrimSpace(stderr.String()))}
+							}
+							return orcActionMessage{text: strings.TrimSpace(stdout.String())}
+						}
+					}
+				}
+			case "r":
+				if session, found := model.selectedSession(); found && session.Registration == "observed" {
+					return model, func() tea.Msg {
+						registered, err := instance.RegisterSession(model.record, instance.SessionRegistration{
+							ID: session.ID, Harness: session.Harness, Directory: session.Directory, Pane: session.Pane, Mux: session.Mux,
+							PID: session.PID, ProcessIdentity: session.ProcessIdentity,
+							Status: session.Status, Reason: session.Reason, Registration: "injected",
+							Capabilities: session.Capabilities,
+						})
+						if err != nil {
+							return orcActionMessage{err: err}
+						}
+						return orcActionMessage{text: "Injected " + registered.ID}
+					}
+				}
+			case "x":
+				if session, found := model.selectedSession(); found && session.Registration == "registered" {
+					return model, func() tea.Msg {
+						if err := instance.RemoveSession(model.record, session.ID); err != nil {
+							return orcActionMessage{err: err}
+						}
+						return orcActionMessage{text: "Ejected " + session.ID + "; the harness continues independently"}
+					}
+				}
+			case "b":
+				active := model.active
+				return model, func() tea.Msg {
+					var stdout, stderr bytes.Buffer
+					code := runOrcStart(nil, &stdout, &stderr)
+					if active {
+						code = runOrcStop(nil, &stdout, &stderr)
+					}
+					if code != 0 {
+						return orcActionMessage{err: errors.New(strings.TrimSpace(stderr.String()))}
+					}
+					return orcActionMessage{text: strings.TrimSpace(stdout.String())}
+				}
+			}
+			return model, nil
+		}
+		if pressed == " " {
+			model.leader = true
+			return model, nil
+		}
+		if pressed == "/" {
+			model.filtering = true
+			model.filter.SetValue(model.query)
+			model.filter.CursorEnd()
+			return model, model.filter.Focus()
+		}
+		if pressed == "ctrl+j" {
+			if !model.inspectorHidden && model.height >= 14 {
+				model.focus = 1
+			}
+			return model, nil
+		}
+		if pressed == "ctrl+k" {
+			model.focus = 0
+			return model, nil
+		}
+		if pressed == "tab" || pressed == "shift+tab" {
+			if pressed == "tab" {
+				model.inspectorTab = (model.inspectorTab + 1) % 2
+			} else {
+				model.inspectorTab = (model.inspectorTab + 1) % 2
+			}
+			model.inspectorOffset = 0
+			return model, nil
+		}
+		if model.focus == 1 && key.Matches(typed, orcKeys.up) {
+			model.inspectorOffset = max(0, model.inspectorOffset-1)
+			return model, nil
+		}
+		if model.focus == 1 && key.Matches(typed, orcKeys.down) {
+			model.inspectorOffset = min(model.maxInspectorOffset(), model.inspectorOffset+1)
+			return model, nil
+		}
+		if key.Matches(typed, orcKeys.pageUp) && (model.focus == 1 || model.view == orcWorkersView) {
+			if model.focus == 1 {
+				model.inspectorOffset = max(0, model.inspectorOffset-max(1, model.height/4))
+			} else {
+				indices := model.matchingSessionIndices()
+				position := max(0, indexPosition(indices, model.sessionCursor)-max(1, model.height/3))
+				if len(indices) > 0 {
+					model.sessionCursor = indices[position]
+				}
+			}
+			return model, nil
+		}
+		if key.Matches(typed, orcKeys.pageDown) && (model.focus == 1 || model.view == orcWorkersView) {
+			if model.focus == 1 {
+				model.inspectorOffset = min(model.maxInspectorOffset(),
+					model.inspectorOffset+max(1, model.height/4))
+			} else {
+				indices := model.matchingSessionIndices()
+				position := min(max(0, len(indices)-1), indexPosition(indices, model.sessionCursor)+max(1, model.height/3))
+				if len(indices) > 0 {
+					model.sessionCursor = indices[position]
+				}
+			}
+			return model, nil
+		}
+		if pressed == "G" {
+			model.moveToEnd()
+			return model, model.beginRefresh(true, "")
+		}
+		if pressed == "g" {
+			if model.pendingTop {
+				model.moveToStart()
+				model.pendingTop = false
+				return model, model.beginRefresh(true, "")
+			}
+			model.pendingTop = true
+			return model, nil
+		}
+		model.pendingTop = false
 		if !key.Matches(typed, orcKeys.replay) {
 			model.confirmReplay = false
 		}
@@ -281,9 +549,19 @@ func (model orcUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(typed, orcKeys.right):
 			model.moveRestartPoint(1)
 		case key.Matches(typed, orcKeys.pageUp):
-			model.scrollGraph(-1)
+			if model.view == orcWorkflowsView && model.graphMode {
+				model.nodeCursor = max(0, model.nodeCursor-max(1, model.height/3))
+				model.graphOffset = model.nodeCursor
+			} else {
+				model.scrollGraph(-1)
+			}
 		case key.Matches(typed, orcKeys.pageDown):
-			model.scrollGraph(1)
+			if model.view == orcWorkflowsView && model.graphMode {
+				model.nodeCursor = min(max(0, len(model.workflowNodes())-1), model.nodeCursor+max(1, model.height/3))
+				model.graphOffset = model.nodeCursor
+			} else {
+				model.scrollGraph(1)
+			}
 		case key.Matches(typed, orcKeys.switchView):
 			model.view = (model.view + 1) % 3
 			model.message = ""
@@ -291,6 +569,7 @@ func (model orcUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 			return model, model.beginRefresh(true, "")
 		case key.Matches(typed, orcKeys.showHelp):
 			model.help.ShowAll = !model.help.ShowAll
+			model.helpOffset = 0
 		case key.Matches(typed, orcKeys.refresh):
 			return model, model.beginRefresh(true, "Status refreshed")
 		case key.Matches(typed, orcKeys.toggle):
@@ -320,6 +599,9 @@ func (model orcUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case key.Matches(typed, orcKeys.replay):
 			if model.view == orcWorkflowsView && len(model.restartPoints) > 0 {
+				if _, found := model.selectedWorkflow(); !found {
+					return model, nil
+				}
 				if model.restartPoints[model.restartCursor].Kind == domain.RestartPointOrchestrationCheckpoint {
 					model.message = "Checkpoint continuation is unavailable; choose a run or node point"
 					model.messageError = true
@@ -341,16 +623,6 @@ func (model orcUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 					model.selected = model.agents[model.cursor].Name
 					return model, tea.Quit
 				}
-			case orcWorkersView:
-				if len(model.workers) > 0 {
-					if !supportsWorkerAttachment(model.workers[model.workerCursor]) {
-						model.message = "This worker has no interactive attachment"
-						model.messageError = true
-						return model, nil
-					}
-					model.selectedWorker = model.workers[model.workerCursor].ID
-					return model, tea.Quit
-				}
 			}
 		}
 	}
@@ -358,46 +630,339 @@ func (model orcUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (model orcUIModel) View() string {
-	if model.width < 76 || model.height < 20 {
-		return fmt.Sprintf("orc needs 76x20\nthis pane is %dx%d\nq quits", model.width, model.height)
+	if model.width < 40 || model.height < 10 {
+		return fmt.Sprintf("orc needs 40x10\nthis pane is %dx%d\nq quits", model.width, model.height)
 	}
-	contentWidth := model.width
-
-	header := model.header(contentWidth)
-	scope := model.scopeLine(contentWidth)
-	navigation := model.navigation()
-	body := model.agentView(contentWidth)
-	switch model.view {
-	case orcWorkflowsView:
-		body = model.workflowView(contentWidth)
-	case orcWorkersView:
-		body = model.workerView(contentWidth)
+	if model.controllerPicker {
+		return model.controllerPickerView()
 	}
-
-	before := []string{header, scope, navigation}
-	after := make([]string, 0, 2)
+	if model.help.ShowAll {
+		return model.fullHelpView()
+	}
+	header := model.header(model.width)
+	footer := model.controlFooter()
+	if model.filtering {
+		footer = orcSelectedStyle.Render(model.filter.View()) + orcTagStyle.Render("  enter apply  esc cancel")
+	}
+	footer = ansi.Truncate(footer, model.width, "")
+	strip := ansi.Truncate(model.resourceStrip(), model.width, "")
+	messageHeight := 0
+	message := ""
 	if model.message != "" {
 		style := orcMessageStyle
 		if model.messageError {
 			style = orcErrorStyle
 		}
-		after = append(after, style.Render(ansi.Truncate(model.message, contentWidth, "…")))
+		singleLine := strings.ReplaceAll(strings.ReplaceAll(model.message, "\r", " "), "\n", " ")
+		message = style.Render(ansi.Truncate(singleLine, model.width, "…"))
+		messageHeight = 1
 	}
-	after = append(after, model.helpView())
-	separator := "\n\n"
-	separatorHeight := 2
-	if model.height <= 24 {
-		separator = "\n"
-		separatorHeight = 1
+	available := model.height - 3 - messageHeight
+	primaryHeight := available
+	inspectorHeight := 0
+	if !model.inspectorHidden && model.height >= 14 {
+		primaryHeight = max(5, available*3/5)
+		inspectorHeight = max(4, available-primaryHeight)
 	}
-	fixedHeight := separatorHeight * (len(before) + len(after))
-	for _, part := range append(append([]string(nil), before...), after...) {
-		fixedHeight += lipgloss.Height(part)
+	primary := orcPanel(model.resourceTitle(), model.width, primaryHeight, model.resourceBody(primaryHeight-2), model.focus == 0)
+	parts := []string{header, primary, strip}
+	if inspectorHeight > 0 {
+		parts = append(parts, orcPanel(model.inspectorTitle(), model.width, inspectorHeight,
+			model.inspectorBody(inspectorHeight-2), model.focus == 1))
 	}
-	body = orcFitBlockHeight(body, max(3, model.height-fixedHeight))
-	parts := append(before, body)
-	parts = append(parts, after...)
-	return strings.Join(parts, separator)
+	if message != "" {
+		parts = append(parts, message)
+	}
+	parts = append(parts, footer)
+	return strings.Join(parts, "\n")
+}
+
+func (model orcUIModel) resourceTitle() string {
+	workflows := fmt.Sprintf("workflows %d", len(model.workflows))
+	sessions := fmt.Sprintf("sessions %d", len(model.sessions))
+	if model.view == orcWorkflowsView {
+		workflows = orcSelectedStyle.Render(workflows)
+	} else {
+		sessions = orcSelectedStyle.Render(sessions)
+	}
+	mode := "list"
+	if model.graphMode && model.view == orcWorkflowsView {
+		mode = "graph"
+	}
+	title := workflows + "  " + sessions + "  " + orcTagStyle.Render(mode)
+	if model.query != "" {
+		title += "  " + orcTagStyle.Render("filter "+model.query)
+	}
+	return title
+}
+
+func (model orcUIModel) resourceBody(height int) string {
+	if model.view == orcWorkflowsView {
+		indices := model.matchingWorkflowIndices()
+		if len(indices) == 0 {
+			return orcTagStyle.Render("No workflow runs")
+		}
+		if model.graphMode {
+			if _, found := model.selectedWorkflow(); !found {
+				return orcTagStyle.Render("No workflow run matches this filter")
+			}
+			return strings.Join(model.fitLines(model.workflowGraphLines(height), height), "\n")
+		}
+		position := indexPosition(indices, model.workflowCursor)
+		start, end := visibleRange(position, len(indices), max(1, height-1))
+		rows := []string{orcLabelStyle.Render("  state       workflow                    updated")}
+		for rowIndex := start; rowIndex < end; rowIndex++ {
+			index := indices[rowIndex]
+			run := model.workflows[index]
+			row := fmt.Sprintf("  %-11s %-27s %s", run.State, ansi.Truncate(string(run.ID), 27, "…"),
+				relativeTime(run.Metadata.UpdatedAt))
+			rows = append(rows, model.selectedRow(row, index == model.workflowCursor))
+		}
+		return strings.Join(model.fitLines(rows, height), "\n")
+	}
+	indices := model.matchingSessionIndices()
+	if len(indices) == 0 {
+		return orcTagStyle.Render("No harness sessions. Use <space>n to launch one.")
+	}
+	position := indexPosition(indices, model.sessionCursor)
+	start, end := visibleRange(position, len(indices), max(1, height-1))
+	rows := []string{orcLabelStyle.Render("  state       harness       role        control       updated")}
+	for rowIndex := start; rowIndex < end; rowIndex++ {
+		index := indices[rowIndex]
+		session := model.sessions[index]
+		row := fmt.Sprintf("  %-11s %-13s %-11s %-13s %s", session.Status,
+			ansi.Truncate(session.Harness, 13, "…"), session.Role, session.Registration,
+			relativeTimestamp(session.UpdatedAt))
+		rows = append(rows, model.selectedRow(row, index == model.sessionCursor))
+	}
+	return strings.Join(model.fitLines(rows, height), "\n")
+}
+
+func (model orcUIModel) selectedRow(row string, selected bool) string {
+	if !selected {
+		return orcValueStyle.Render(" " + row[1:])
+	}
+	return orcSelectedStyle.Render("▸" + row[1:])
+}
+
+func (model orcUIModel) inspectorTitle() string {
+	tabs := []string{"summary", "events"}
+	tabs[model.inspectorTab%len(tabs)] = orcSelectedStyle.Render(tabs[model.inspectorTab%len(tabs)])
+	return strings.Join(tabs, "  ")
+}
+
+func (model orcUIModel) inspectorBody(height int) string {
+	var lines []string
+	if model.view == orcWorkflowsView {
+		if _, found := model.selectedWorkflow(); !found {
+			lines = []string{"Select or create a workflow run."}
+		} else if model.graphMode && model.inspectorTab%2 == 0 {
+			lines = model.selectedNodeDetailLines()
+		} else if model.graphMode {
+			lines = []string{orcLabelStyle.Render("events"), "  Open this node session in Traces for turn-level events."}
+		} else if model.inspectorTab%2 == 0 {
+			lines = model.workflowDetailLines()
+		} else {
+			lines = []string{orcLabelStyle.Render("events"), "  Open a node session in Traces for turn-level events."}
+		}
+	} else if session, found := model.selectedSession(); found {
+		if model.inspectorTab%2 == 0 {
+			lines = []string{
+				orcTitleStyle.Render(session.ID),
+				orcLabelStyle.Render("harness       ") + orcValueStyle.Render(session.Harness),
+				orcLabelStyle.Render("role          ") + orcValueStyle.Render(session.Role),
+				orcLabelStyle.Render("state         ") + orcValueStyle.Render(session.Status),
+				orcLabelStyle.Render("control       ") + orcValueStyle.Render(session.Registration),
+				orcLabelStyle.Render("origin        ") + orcValueStyle.Render(firstValue(session.Origin, "unknown")),
+				orcLabelStyle.Render("capabilities  ") + orcValueStyle.Render(strings.Join(session.Capabilities, ", ")),
+				orcLabelStyle.Render("native id     ") + orcValueStyle.Render(firstValue(session.NativeSessionID, "unavailable")),
+				orcLabelStyle.Render("pane          ") + orcValueStyle.Render(firstValue(session.Pane, "unavailable")),
+				orcLabelStyle.Render("directory     ") + orcValueStyle.Render(session.Directory),
+			}
+		} else {
+			lines = []string{
+				orcLabelStyle.Render("latest activity"),
+				"  " + session.Status + "  " + session.Reason,
+				"  " + relativeTimestamp(session.UpdatedAt),
+			}
+		}
+	} else {
+		lines = []string{"Select a harness session."}
+	}
+	maximum := max(0, len(lines)-height)
+	offset := min(model.inspectorOffset, maximum)
+	return strings.Join(model.fitLines(lines[offset:], height), "\n")
+}
+
+func (model orcUIModel) fitLines(lines []string, height int) []string {
+	if height < 1 {
+		return nil
+	}
+	if len(lines) > height {
+		lines = append([]string(nil), lines[:height]...)
+	}
+	for len(lines) < height {
+		lines = append(lines, "")
+	}
+	for index := range lines {
+		lines[index] = ansi.Truncate(lines[index], max(1, model.width-4), "…")
+	}
+	return lines
+}
+
+func (model orcUIModel) resourceStrip() string {
+	if run, found := model.selectedWorkflow(); found {
+		if model.graphMode {
+			nodes := model.workflowNodes()
+			if node, selected := model.selectedNode(); selected {
+				return orcTagStyle.Render(fmt.Sprintf("node %d/%d · %s · %s · attempt %d",
+					model.nodeCursor+1, len(nodes), node.NodeKey, node.State, node.Attempt))
+			}
+		}
+		return orcTagStyle.Render(fmt.Sprintf("workflow %d/%d · %s · %s", model.workflowCursor+1,
+			len(model.workflows), run.State, relativeTime(run.Metadata.UpdatedAt)))
+	}
+	if session, found := model.selectedSession(); found {
+		return orcTagStyle.Render(fmt.Sprintf("session %d/%d · %s · %s · %s", model.sessionCursor+1,
+			len(model.sessions), session.Harness, session.Status, session.Registration))
+	}
+	return orcTagStyle.Render("no resources")
+}
+
+func (model orcUIModel) controlFooter() string {
+	if model.leader {
+		actions := []string{"v view"}
+		if model.view == orcWorkflowsView {
+			actions = append(actions, "g graph")
+		}
+		actions = append(actions, "n new")
+		if _, found := model.selectedTrace(); found {
+			actions = append(actions, "t traces")
+		}
+		if session, found := model.selectedSession(); found && (session.Pane != "" || session.Registration == "managed") {
+			actions = append(actions, "c focus/interact")
+		}
+		if session, found := model.selectedSession(); found && session.Registration == "observed" {
+			actions = append(actions, "r inject")
+		}
+		if session, found := model.selectedSession(); found && session.Registration == "registered" {
+			actions = append(actions, "x eject")
+		}
+		actions = append(actions, "i inspector", "b broker")
+		return orcSelectedStyle.Render("<space>") + orcTagStyle.Render("  "+strings.Join(actions, "  "))
+	}
+	if model.width < 70 {
+		return orcTagStyle.Render("j/k row  / filter  <space> actions  ? help  q quit")
+	}
+	return orcTagStyle.Render("j/k row   ctrl+j/k focus   tab inspector   gg/G ends   / filter   <space> actions   ? help   q quit")
+}
+
+func (model orcUIModel) fullHelpView() string {
+	lines := model.fullHelpLines()
+	bodyHeight := max(1, model.height-3)
+	offset := min(model.helpOffset, max(0, len(lines)-bodyHeight))
+	visible := lines[offset:]
+	footer := orcTagStyle.Render("esc return   j/k scroll   ctrl+d/u page")
+	return orcPanel("help", model.width, model.height-1,
+		strings.Join(model.fitLines(visible, bodyHeight), "\n"), true) + "\n" +
+		ansi.Truncate(footer, model.width, "")
+}
+
+func (model orcUIModel) fullHelpLines() []string {
+	return []string{
+		orcTitleStyle.Render("⚔ orc help"), "",
+		orcLabelStyle.Render("navigation"),
+		"  j/k, arrows       move within the focused pane",
+		"  ctrl+j, ctrl+k    focus resources or inspector",
+		"  gg, G             first or last resource",
+		"  ctrl+d, ctrl+u    move by half a page",
+		"  tab               change inspector tab", "",
+		orcLabelStyle.Render("leader actions"),
+		"  <space>v          workflows or sessions",
+		"  <space>g          workflow list or graph",
+		"  <space>n          recency-based harness picker",
+		"  <space>t          open Traces for this session",
+		"  <space>c          focus or interact with this session",
+		"  <space>r          inject an observed session",
+		"  <space>x          eject a registered session",
+		"  <space>i          show or hide the inspector",
+		"  <space>b          start or stop the broker",
+	}
+}
+
+func (model orcUIModel) maxHelpOffset() int {
+	return max(0, len(model.fullHelpLines())-max(1, model.height-3))
+}
+
+func (model orcUIModel) controllerPickerView() string {
+	lines := []string{orcLabelStyle.Render("  harness                  resume")}
+	start, end := visibleRange(model.cursor, len(model.agents), max(1, model.height-5))
+	for index := start; index < end; index++ {
+		agent := model.agents[index]
+		label := firstValue(agent.Label, agent.Name)
+		resume := "no"
+		if len(agent.Launch.ResumeArgs) > 0 {
+			resume = "yes"
+		}
+		row := fmt.Sprintf("  %-24s %s", ansi.Truncate(label, 24, "…"), resume)
+		lines = append(lines, model.selectedRow(row, index == model.cursor))
+	}
+	lines = model.fitLines(lines, model.height-3)
+	footer := orcTagStyle.Render("j/k select   enter new   R resume   esc cancel")
+	return orcPanel("new session · recent first", model.width, model.height-1, strings.Join(lines, "\n"), true) + "\n" +
+		ansi.Truncate(footer, model.width, "")
+}
+
+func orcPanel(name string, width int, height int, body string, focused bool) string {
+	if width < 4 || height < 2 {
+		return body
+	}
+	edge := orcRuleStyle
+	if focused {
+		edge = orcTitleStyle
+	}
+	inner := width - 2
+	title := "─ " + name + " "
+	top := edge.Render("╭" + title + strings.Repeat("─", max(0, inner-ansi.StringWidth(title))) + "╮")
+	lines := []string{orcFit(top, width)}
+	bodyLines := strings.Split(body, "\n")
+	for index := 0; index < height-2; index++ {
+		line := ""
+		if index < len(bodyLines) {
+			line = bodyLines[index]
+		}
+		lines = append(lines, edge.Render("│")+orcFit(line, inner)+edge.Render("│"))
+	}
+	lines = append(lines, edge.Render("╰"+strings.Repeat("─", inner)+"╯"))
+	return strings.Join(lines, "\n")
+}
+
+func relativeTime(value time.Time) string {
+	if value.IsZero() {
+		return "unknown"
+	}
+	return shortDuration(time.Since(value))
+}
+
+func relativeTimestamp(value string) string {
+	parsed, err := time.Parse(time.RFC3339Nano, value)
+	if err != nil {
+		return "unknown"
+	}
+	return shortDuration(time.Since(parsed))
+}
+
+func shortDuration(value time.Duration) string {
+	if value < time.Minute {
+		return fmt.Sprintf("%ds ago", max(0, int(value.Seconds())))
+	}
+	if value < time.Hour {
+		return fmt.Sprintf("%dm ago", int(value.Minutes()))
+	}
+	if value < 24*time.Hour {
+		return fmt.Sprintf("%dh ago", int(value.Hours()))
+	}
+	return fmt.Sprintf("%dd ago", int(value.Hours()/24))
 }
 
 func (model orcUIModel) helpView() string {
@@ -462,12 +1027,18 @@ func (model *orcUIModel) applyRefresh(updated orcUIModel) {
 	model.workflow = updated.workflow
 	model.definition = updated.definition
 	model.workflowCursor = updated.workflowCursor
+	model.nodeCursor = min(model.nodeCursor, max(0, len(updated.workflow.Nodes)-1))
 	model.restartPoints = updated.restartPoints
 	model.restartCursor = updated.restartCursor
 	model.forks = updated.forks
 	model.workers = updated.workers
 	model.workerHistory = updated.workerHistory
 	model.workerCursor = updated.workerCursor
+	model.sessions = updated.sessions
+	model.sessionCursor = updated.sessionCursor
+	if indices := model.matchingSessionIndices(); len(indices) > 0 && !containsIndex(indices, model.sessionCursor) {
+		model.sessionCursor = indices[0]
+	}
 	model.requestedWorkflow = updated.requestedWorkflow
 }
 
@@ -503,14 +1074,19 @@ func (model orcUIModel) helpKeys() orcHelpKeyMap {
 func (model orcUIModel) header(width int) string {
 	status := orcInactiveStyle.Render("broker stopped")
 	if model.active {
-		status = orcActiveStyle.Render("broker running")
+		status = orcActiveStyle.Render(fmt.Sprintf("broker running · %d sessions", len(model.sessions)))
 	}
-	left := orcTitleStyle.Render("⚔ orc") + "  " + orcTagStyle.Render("local orchestrator")
+	scope := model.record.Scope
+	if scope == "" {
+		scope, _ = os.Getwd()
+	}
+	left := orcTitleStyle.Render("⚔ orc") + "  " + orcValueStyle.Render(filepath.Base(scope)) + "  " +
+		orcTagStyle.Render(ansi.Truncate(scope, max(1, width/2), "…"))
 	gap := width - lipgloss.Width(left) - lipgloss.Width(status)
 	if gap < 1 {
 		gap = 1
 	}
-	return left + strings.Repeat(" ", gap) + status
+	return ansi.Truncate(left+strings.Repeat(" ", gap)+status, width, "")
 }
 
 func (model orcUIModel) scopeLine(width int) string {
@@ -684,6 +1260,89 @@ func (model orcUIModel) workflowDetailLines() []string {
 			lines = append(lines, fmt.Sprintf("  %s.%s -> %s.%s", edge.From, edge.FromPort, edge.To, edge.ToPort))
 		}
 	}
+	return lines
+}
+
+func (model orcUIModel) workflowNodes() []domain.NodeRun {
+	nodes := append([]domain.NodeRun(nil), model.workflow.Nodes...)
+	sort.Slice(nodes, func(first int, second int) bool { return nodes[first].NodeKey < nodes[second].NodeKey })
+	return nodes
+}
+
+func (model orcUIModel) selectedNode() (domain.NodeRun, bool) {
+	nodes := model.workflowNodes()
+	if !model.graphMode || model.nodeCursor < 0 || model.nodeCursor >= len(nodes) {
+		return domain.NodeRun{}, false
+	}
+	return nodes[model.nodeCursor], true
+}
+
+func (model orcUIModel) workflowGraphLines(height int) []string {
+	nodes := model.workflowNodes()
+	if len(nodes) == 0 {
+		return []string{orcTagStyle.Render("This workflow has no nodes.")}
+	}
+	rows := []string{
+		orcTitleStyle.Render("workflow " + string(model.workflow.Run.ID)),
+		orcLabelStyle.Render("  state       node                       adapter       attempt"),
+	}
+	position := min(model.nodeCursor, len(nodes)-1)
+	start, end := visibleRange(position, len(nodes), max(1, height-3))
+	for index := start; index < end; index++ {
+		node := nodes[index]
+		row := fmt.Sprintf("  %-11s %-26s %-13s %d", node.State,
+			ansi.Truncate(string(node.NodeKey), 26, "…"), ansi.Truncate(node.Adapter, 13, "…"), node.Attempt)
+		rows = append(rows, model.selectedRow(row, index == model.nodeCursor))
+	}
+	rows = append(rows, orcTagStyle.Render(fmt.Sprintf("rows %d-%d/%d · %d edges", start+1, end,
+		len(nodes), len(model.definition.Edges))))
+	return rows
+}
+
+func (model orcUIModel) selectedNodeDetailLines() []string {
+	node, found := model.selectedNode()
+	if !found {
+		return []string{"Select a workflow node."}
+	}
+	lines := []string{orcTitleStyle.Render("workflow " + string(model.workflow.Run.ID))}
+	if len(model.restartPoints) > 0 {
+		point := model.restartPoints[model.restartCursor]
+		lines = append(lines, orcLabelStyle.Render("restart     ")+orcValueStyle.Render(string(point.ID)))
+	}
+	for _, fork := range model.forks {
+		relation := "child " + string(fork.ChildWorkflowRunID)
+		if fork.ChildWorkflowRunID == model.workflow.Run.ID {
+			relation = "parent " + string(fork.ParentWorkflowRunID)
+		}
+		lines = append(lines, orcLabelStyle.Render("lineage     ")+orcValueStyle.Render(
+			relation+" via "+string(fork.RestartPointID)))
+	}
+	lines = append(lines,
+		orcTitleStyle.Render(string(node.NodeKey)),
+		orcLabelStyle.Render("state       ")+orcValueStyle.Render(string(node.State)),
+		orcLabelStyle.Render("adapter     ")+orcValueStyle.Render(node.Adapter),
+		orcLabelStyle.Render("attempt     ")+orcValueStyle.Render(fmt.Sprintf("%d", node.Attempt)),
+		orcLabelStyle.Render("repair      ")+orcValueStyle.Render(fmt.Sprintf("%d", node.RepairAttempt)),
+		orcLabelStyle.Render("node run    ")+orcValueStyle.Render(string(node.ID)),
+	)
+	if node.SessionID != nil {
+		lines = append(lines, orcLabelStyle.Render("session     ")+orcValueStyle.Render(string(*node.SessionID)))
+	} else {
+		lines = append(lines, orcLabelStyle.Render("session     ")+orcInactiveStyle.Render("not started"))
+	}
+	var incoming, outgoing []string
+	for _, edge := range model.definition.Edges {
+		if edge.To == node.NodeKey {
+			incoming = append(incoming, fmt.Sprintf("%s.%s -> %s.%s", edge.From, edge.FromPort, edge.To, edge.ToPort))
+		}
+		if edge.From == node.NodeKey {
+			outgoing = append(outgoing, fmt.Sprintf("%s.%s -> %s.%s", edge.From, edge.FromPort, edge.To, edge.ToPort))
+		}
+	}
+	lines = append(lines,
+		orcLabelStyle.Render("depends on  ")+orcValueStyle.Render(firstValue(strings.Join(incoming, ", "), "none")),
+		orcLabelStyle.Render("unblocks    ")+orcValueStyle.Render(firstValue(strings.Join(outgoing, ", "), "none")),
+	)
 	return lines
 }
 
@@ -926,16 +1585,60 @@ func (model *orcUIModel) refreshState(loadWorkerHistory bool) error {
 		model.forks = nil
 		model.workers = nil
 		model.workerHistory = sqlite.SessionHistory{}
+		model.sessions = nil
 		return nil
 	}
 	switch model.view {
 	case orcWorkflowsView:
-		return model.loadWorkflows()
+		if err := model.loadWorkflows(); err != nil {
+			return err
+		}
+		return model.loadSessionResources(false)
 	case orcWorkersView:
-		return model.loadWorkers(loadWorkerHistory)
+		return model.loadSessionResources(loadWorkerHistory)
 	default:
 		return nil
 	}
+}
+
+func (model *orcUIModel) loadSessionResources(loadWorkerHistory bool) error {
+	selected := ""
+	if model.sessionCursor >= 0 && model.sessionCursor < len(model.sessions) {
+		selected = model.sessions[model.sessionCursor].ID
+	}
+	if err := model.loadWorkers(loadWorkerHistory); err != nil {
+		return err
+	}
+	sessions, err := controlPlaneSessions(model.record)
+	if err != nil {
+		return err
+	}
+	model.sessions = sessions
+	for _, worker := range model.workers {
+		model.sessions = append(model.sessions, instance.Session{
+			Version: instance.SessionVersion, ID: string(worker.ID), Role: "worker",
+			Harness: worker.RuntimeAdapterID, Scope: model.record.Scope, Status: string(worker.State),
+			TraceSessionID: worker.TraceSessionID,
+			Registration:   "managed", Origin: "workflow", Capabilities: append([]string(nil), worker.Capabilities...),
+			StartedAt: worker.Metadata.CreatedAt.Format(time.RFC3339Nano),
+			UpdatedAt: worker.Metadata.UpdatedAt.Format(time.RFC3339Nano),
+		})
+	}
+	sort.SliceStable(model.sessions, func(first, second int) bool {
+		return model.sessions[first].UpdatedAt > model.sessions[second].UpdatedAt
+	})
+	if selected != "" {
+		for index := range model.sessions {
+			if model.sessions[index].ID == selected {
+				model.sessionCursor = index
+				break
+			}
+		}
+	}
+	if model.sessionCursor >= len(model.sessions) {
+		model.sessionCursor = max(0, len(model.sessions)-1)
+	}
+	return nil
 }
 
 func (model *orcUIModel) moveCursor(delta int) bool {
@@ -948,20 +1651,223 @@ func (model *orcUIModel) moveCursor(delta int) bool {
 		return false
 	}
 	if model.view == orcWorkflowsView {
-		next := model.workflowCursor + delta
-		if next < 0 || next >= len(model.workflows) {
+		if model.graphMode {
+			next := model.nodeCursor + delta
+			if next >= 0 && next < len(model.workflowNodes()) {
+				model.nodeCursor = next
+				model.inspectorOffset = 0
+			}
 			return false
 		}
-		model.workflowCursor = next
+		indices := model.matchingWorkflowIndices()
+		next := indexPosition(indices, model.workflowCursor) + delta
+		if next < 0 || next >= len(indices) {
+			return false
+		}
+		model.workflowCursor = indices[next]
+		model.nodeCursor = 0
 		model.graphOffset = 0
+		model.inspectorOffset = 0
 		return true
 	}
-	next := model.workerCursor + delta
-	if next < 0 || next >= len(model.workers) {
+	indices := model.matchingSessionIndices()
+	next := indexPosition(indices, model.sessionCursor) + delta
+	if next < 0 || next >= len(indices) {
 		return false
 	}
-	model.workerCursor = next
+	model.sessionCursor = indices[next]
+	model.inspectorOffset = 0
 	return true
+}
+
+func (model orcUIModel) selectedSession() (instance.Session, bool) {
+	if model.view != orcWorkersView || model.sessionCursor < 0 || model.sessionCursor >= len(model.sessions) {
+		return instance.Session{}, false
+	}
+	if model.query != "" {
+		visible := false
+		for _, index := range model.matchingSessionIndices() {
+			if index == model.sessionCursor {
+				visible = true
+				break
+			}
+		}
+		if !visible {
+			return instance.Session{}, false
+		}
+	}
+	return model.sessions[model.sessionCursor], true
+}
+
+func (model orcUIModel) selectedWorkflow() (domain.WorkflowRun, bool) {
+	if model.view != orcWorkflowsView || model.workflowCursor < 0 || model.workflowCursor >= len(model.workflows) {
+		return domain.WorkflowRun{}, false
+	}
+	if model.query != "" {
+		visible := false
+		for _, index := range model.matchingWorkflowIndices() {
+			if index == model.workflowCursor {
+				visible = true
+				break
+			}
+		}
+		if !visible {
+			return domain.WorkflowRun{}, false
+		}
+	}
+	return model.workflows[model.workflowCursor], true
+}
+
+func (model orcUIModel) selectedTrace() (instance.Session, bool) {
+	if session, found := model.selectedSession(); found && firstValue(session.TraceSessionID, session.NativeSessionID) != "" {
+		return session, true
+	}
+	if model.view == orcWorkflowsView {
+		if _, found := model.selectedWorkflow(); !found {
+			return instance.Session{}, false
+		}
+	}
+	if node, found := model.selectedNode(); found {
+		if node.SessionID == nil {
+			return instance.Session{}, false
+		}
+		wanted := string(*node.SessionID)
+		for _, session := range model.sessions {
+			if session.ID == wanted && firstValue(session.TraceSessionID, session.NativeSessionID) != "" {
+				return session, true
+			}
+		}
+		return instance.Session{}, false
+	}
+	if _, found := model.selectedWorkflow(); !found || model.workflow.Run.OrchestrationSession == nil {
+		return instance.Session{}, false
+	}
+	wanted := string(*model.workflow.Run.OrchestrationSession)
+	for _, session := range model.sessions {
+		if session.ID == wanted && firstValue(session.TraceSessionID, session.NativeSessionID) != "" {
+			return session, true
+		}
+	}
+	return instance.Session{}, false
+}
+
+func (model orcUIModel) maxInspectorOffset() int {
+	lines := 0
+	if model.view == orcWorkflowsView {
+		if model.graphMode {
+			if model.inspectorTab%2 == 0 {
+				lines = len(model.selectedNodeDetailLines())
+			} else {
+				lines = 2
+			}
+		} else if model.inspectorTab%2 == 0 {
+			lines = len(model.workflowDetailLines())
+		} else {
+			lines = 2
+		}
+	} else if _, found := model.selectedSession(); found {
+		if model.inspectorTab%2 == 0 {
+			lines = 10
+		} else {
+			lines = 3
+		}
+	}
+	return max(0, lines-model.inspectorBodyHeight())
+}
+
+func (model orcUIModel) inspectorBodyHeight() int {
+	if model.inspectorHidden || model.height < 14 {
+		return 0
+	}
+	messageHeight := 0
+	if model.message != "" {
+		messageHeight = 1
+	}
+	available := model.height - 3 - messageHeight
+	primaryHeight := max(5, available*3/5)
+	return max(1, available-primaryHeight-2)
+}
+
+func (model *orcUIModel) moveToStart() {
+	if model.view == orcWorkflowsView {
+		if model.graphMode {
+			model.nodeCursor = 0
+			model.inspectorOffset = 0
+			return
+		}
+		if indices := model.matchingWorkflowIndices(); len(indices) > 0 {
+			model.workflowCursor = indices[0]
+		}
+		model.inspectorOffset = 0
+		return
+	}
+	if indices := model.matchingSessionIndices(); len(indices) > 0 {
+		model.sessionCursor = indices[0]
+	}
+	model.inspectorOffset = 0
+}
+
+func (model *orcUIModel) moveToEnd() {
+	if model.view == orcWorkflowsView {
+		if model.graphMode {
+			model.nodeCursor = max(0, len(model.workflowNodes())-1)
+			model.inspectorOffset = 0
+			return
+		}
+		if indices := model.matchingWorkflowIndices(); len(indices) > 0 {
+			model.workflowCursor = indices[len(indices)-1]
+		}
+		model.inspectorOffset = 0
+		return
+	}
+	if indices := model.matchingSessionIndices(); len(indices) > 0 {
+		model.sessionCursor = indices[len(indices)-1]
+	}
+	model.inspectorOffset = 0
+}
+
+func (model orcUIModel) matchingWorkflowIndices() []int {
+	query := strings.ToLower(model.query)
+	indices := make([]int, 0, len(model.workflows))
+	for index, workflow := range model.workflows {
+		text := strings.ToLower(string(workflow.ID) + " " + string(workflow.State))
+		if query == "" || strings.Contains(text, query) {
+			indices = append(indices, index)
+		}
+	}
+	return indices
+}
+
+func (model orcUIModel) matchingSessionIndices() []int {
+	query := strings.ToLower(model.query)
+	indices := make([]int, 0, len(model.sessions))
+	for index, session := range model.sessions {
+		text := strings.ToLower(strings.Join([]string{
+			session.ID, session.Harness, session.Role, session.Status, session.Registration, session.Reason,
+		}, " "))
+		if query == "" || strings.Contains(text, query) {
+			indices = append(indices, index)
+		}
+	}
+	return indices
+}
+
+func indexPosition(indices []int, selected int) int {
+	for position, index := range indices {
+		if index == selected {
+			return position
+		}
+	}
+	return 0
+}
+
+func containsIndex(indices []int, wanted int) bool {
+	for _, index := range indices {
+		if index == wanted {
+			return true
+		}
+	}
+	return false
 }
 
 func (model *orcUIModel) loadWorkflows() error {
@@ -995,6 +1901,18 @@ func (model *orcUIModel) loadWorkflows() error {
 	}
 	if model.workflowCursor >= len(model.workflows) {
 		model.workflowCursor = len(model.workflows) - 1
+	}
+	indices := model.matchingWorkflowIndices()
+	if len(indices) == 0 {
+		model.workflow = workflowViewResult{}
+		model.definition = workflowmodel.Definition{}
+		model.restartPoints = nil
+		model.forks = nil
+		return nil
+	}
+	if !containsIndex(indices, model.workflowCursor) {
+		model.workflowCursor = indices[0]
+		model.nodeCursor = 0
 	}
 	return model.loadSelectedWorkflow()
 }

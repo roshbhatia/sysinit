@@ -115,6 +115,9 @@ func TestAdapterControlsSessionAndReturnsNormalizedEvents(t *testing.T) {
 		storedHandle.Workspace != directory {
 		t.Fatalf("stored handle = %#v, %v", storedHandle, err)
 	}
+	if startResult.TraceSessionID == "" || startResult.TraceSessionID != storedHandle.PiSessionID {
+		t.Fatalf("trace session = %q, handle = %#v", startResult.TraceSessionID, storedHandle)
+	}
 	handleID := domain.AdapterHandleID("handle-1")
 	handle := plugin.HandleDescriptor{
 		ID: handleID, PluginID: "fixture", Port: domain.AdapterPortAgentRuntime,

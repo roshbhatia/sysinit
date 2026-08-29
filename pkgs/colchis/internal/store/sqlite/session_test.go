@@ -27,7 +27,7 @@ func TestSessionHistorySurvivesRestart(t *testing.T) {
 	session, handle, err := store.BindSessionHandle(ctx, BindSessionHandleRequest{
 		SessionID: session.ID, ExpectedVersion: session.Metadata.ResourceVersion,
 		HandleID: "handle-session-1", FormatVersion: 1,
-		OpaqueValue: json.RawMessage(`{"runtimeSession":"private-1"}`),
+		OpaqueValue: json.RawMessage(`{"runtimeSession":"private-1"}`), TraceSessionID: "trace-session-1",
 	})
 	if err != nil {
 		t.Fatalf("BindSessionHandle() returned %v", err)
@@ -81,7 +81,8 @@ func TestSessionHistorySurvivesRestart(t *testing.T) {
 		t.Fatalf("SessionHistory() returned %v", err)
 	}
 	if history.Session.State != domain.SessionStateCompleted || len(history.Checkpoints) != 1 ||
-		len(history.Interventions) != 1 || history.Interventions[0].State != domain.InterventionStateQueued {
+		len(history.Interventions) != 1 || history.Interventions[0].State != domain.InterventionStateQueued ||
+		history.Session.TraceSessionID != "trace-session-1" {
 		t.Fatalf("session history = %#v", history)
 	}
 	restoredHandle, err := store.AdapterHandle(ctx, handle.ID)

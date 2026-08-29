@@ -120,6 +120,17 @@ var mcpOutputSchema = json.RawMessage(`{
   }
 }`)
 
+var mcpSessionOutputSchema = json.RawMessage(`{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "type":"object","required":["version","id","role","harness","scope","status","registration"],
+  "properties":{
+    "version":{"type":"integer"},"id":{"type":"string"},"role":{"type":"string"},
+    "harness":{"type":"string"},"scope":{"type":"string"},"status":{"type":"string"},
+    "registration":{"type":"string"},"nativeSessionId":{"type":"string"},
+    "traceSessionId":{"type":"string"},"capabilities":{"type":"array","items":{"type":"string"}}
+  }
+}`)
+
 var mcpReadOnlyAnnotations = json.RawMessage(`{
   "readOnlyHint":true,"destructiveHint":false,"idempotentHint":true,"openWorldHint":false
 }`)
@@ -129,6 +140,12 @@ var mcpMutatingAnnotations = json.RawMessage(`{
 }`)
 
 var mcpToolDefinitions = []mcpTool{
+	{
+		Name: "orc_current_session", Title: "Inspect the current Orc session",
+		Description: "Return the harness session that authorizes this MCP connection.",
+		InputSchema: mcpInputSchema, OutputSchema: mcpSessionOutputSchema,
+		Annotations: mcpReadOnlyAnnotations, nativeKind: "orc.session.current",
+	},
 	newMCPTool("workflow_create", "Create a dedicated workflow definition, including planning and spec work", "workflow.create", false),
 	newMCPTool("workflow_run", "Create a dedicated workflow run", "workflow.run", false),
 	newMCPTool("workflow_list", "List workflow runs", "workflow.list", true),
@@ -396,6 +413,11 @@ func resolveMCPClient(stateDirectory string) (*socket.Client, bool, error) {
 		if !found {
 			return nil, false, nil
 		}
+		if _, registered, sessionErr := instance.CurrentSession(record); sessionErr != nil {
+			return nil, false, fmt.Errorf("resolve Orc session: %w", sessionErr)
+		} else if !registered {
+			return nil, false, nil
+		}
 	}
 	client, err := socket.NewClient(record.Socket)
 	if err != nil {
@@ -490,6 +512,16 @@ func callMCPTool(ctx context.Context, client *socket.Client, request mcpRequest)
 	if err := decodeMCPStrict(params.Arguments, &arguments); err != nil || !mcpJSONObject(arguments.Payload) {
 		return mcpProtocolError(request.ID, -32602, "tool arguments are invalid")
 	}
+	if definition.nativeKind == "orc.session.current" {
+		session, err := currentMCPSession()
+		if err != nil {
+			return mcpToolError(request, err)
+		}
+		return mcpStructuredSuccess(request, session)
+	}
+	if definition.nativeKind == "workflow.run" {
+		arguments.Payload = bindMCPWorkflowSession(arguments.Payload)
+	}
 	if arguments.CommandID == "" {
 		value, err := localCommandID()
 		if err != nil {
@@ -515,6 +547,66 @@ func callMCPTool(ctx context.Context, client *socket.Client, request mcpRequest)
 	result, err := json.Marshal(mcpCallResult{
 		Content:           []mcpTextContent{{Type: "text", Text: string(structured)}},
 		StructuredContent: structured,
+	})
+	if err != nil {
+		return mcpProtocolError(request.ID, -32603, err.Error())
+	}
+	return mcpRequestSuccess(request, result)
+}
+
+func bindMCPWorkflowSession(payload json.RawMessage) json.RawMessage {
+	var object map[string]json.RawMessage
+	if json.Unmarshal(payload, &object) != nil || object == nil {
+		return payload
+	}
+	if _, supplied := object["orchestrationSessionId"]; supplied {
+		return payload
+	}
+	session, err := currentMCPSession()
+	if err != nil {
+		return payload
+	}
+	encoded, err := json.Marshal(session.ID)
+	if err != nil {
+		return payload
+	}
+	object["orchestrationSessionId"] = encoded
+	bound, err := json.Marshal(object)
+	if err != nil {
+		return payload
+	}
+	return bound
+}
+
+func currentMCPSession() (instance.Session, error) {
+	directory, err := os.Getwd()
+	if err != nil {
+		return instance.Session{}, err
+	}
+	record, found, err := instance.Match(directory)
+	if err != nil {
+		return instance.Session{}, err
+	}
+	if !found {
+		return instance.Session{}, errors.New("this process has no Orc workspace")
+	}
+	session, found, err := instance.CurrentSession(record)
+	if err != nil {
+		return instance.Session{}, err
+	}
+	if !found {
+		return instance.Session{}, errors.New("this process is not registered with Orc")
+	}
+	return session, nil
+}
+
+func mcpStructuredSuccess(request mcpRequest, value interface{}) mcpResponse {
+	structured, err := json.Marshal(value)
+	if err != nil {
+		return mcpProtocolError(request.ID, -32603, err.Error())
+	}
+	result, err := json.Marshal(mcpCallResult{
+		Content: []mcpTextContent{{Type: "text", Text: string(structured)}}, StructuredContent: structured,
 	})
 	if err != nil {
 		return mcpProtocolError(request.ID, -32603, err.Error())
