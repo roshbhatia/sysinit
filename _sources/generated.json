@@ -8,11 +8,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-pk/lGFFc2Uzc3AW5mKxCuY4QH6+PAM+gyxgJpUXFs4M=",
+            "sha256": "sha256-xumXBtAvBEnzScW74e8HMzf1CtnkHYcPyxVHfWprbpY=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1787961677-g372167/amp-darwin-arm64.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1788004847-g6059f6/amp-darwin-arm64.gz"
         },
-        "version": "0.0.1787961677-g372167"
+        "version": "0.0.1788004847-g6059f6"
     },
     "amp-cli-aarch64-linux": {
         "cargoLock": null,
@@ -23,11 +23,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-2InzkLtLnDMKqN3zqJDRIysTZjC8s6GK0tC89lmQF5k=",
+            "sha256": "sha256-W1TR0cH3bPXFrgiE8w1YYPZ2X2e02z7LCFgow15PDdk=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1787961677-g372167/amp-linux-arm64.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1788004847-g6059f6/amp-linux-arm64.gz"
         },
-        "version": "0.0.1787961677-g372167"
+        "version": "0.0.1788004847-g6059f6"
     },
     "amp-cli-x86_64-linux": {
         "cargoLock": null,
@@ -38,11 +38,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-N9SqDkcGjLeH5UxUG8ElkOBNNuItn/H+KAf8MPoOJbw=",
+            "sha256": "sha256-7KOovhwISORKiBvryhBtjPQ5z0XroinykjEXuFY6vKU=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1787961677-g372167/amp-linux-x64-baseline.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1788004847-g6059f6/amp-linux-x64-baseline.gz"
         },
-        "version": "0.0.1787961677-g372167"
+        "version": "0.0.1788004847-g6059f6"
     },
     "atomic-coding-agent": {
         "cargoLock": null,
@@ -53,11 +53,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-hNJqER41XStdY+YhrOpy+L9R66l0xfo6i5UW5L/2hds=",
+            "sha256": "sha256-xBIp+E+Sipk/sAJtn0DtN528UMzcw22nKM7Ne7Hztfc=",
             "type": "url",
-            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.15/atomic-darwin-arm64.tar.gz"
+            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.16/atomic-darwin-arm64.tar.gz"
         },
-        "version": "0.9.15"
+        "version": "0.9.16"
     },
     "atomic-coding-agent-aarch64-linux": {
         "cargoLock": null,
@@ -68,11 +68,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-I2TZaNNN7sPmSseV8/s966yEY3Rbicp7bnFGn71CAKg=",
+            "sha256": "sha256-Ed4DYP0t1RYdjX9CI1hK7JAJHm8depaMFrn4Q0BHZgE=",
             "type": "url",
-            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.15/atomic-linux-arm64.tar.gz"
+            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.16/atomic-linux-arm64.tar.gz"
         },
-        "version": "0.9.15"
+        "version": "0.9.16"
     },
     "atomic-coding-agent-x86_64-darwin": {
         "cargoLock": null,
@@ -83,11 +83,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-74x0rfdHse8p8P3UEJszCuFjCG9t36DLXTp6XyTr9NU=",
+            "sha256": "sha256-ILctZNjuUc6o3a6PVIuwmBrjoIydGrdz2ri2a9xGN+k=",
             "type": "url",
-            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.15/atomic-darwin-x64.tar.gz"
+            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.16/atomic-darwin-x64.tar.gz"
         },
-        "version": "0.9.15"
+        "version": "0.9.16"
     },
     "atomic-coding-agent-x86_64-linux": {
         "cargoLock": null,
@@ -98,11 +98,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-71/tazUQsYQq2Nd2jPt4snZZCT43peB41+sspzY2NPE=",
+            "sha256": "sha256-DLjXdjO2lztG4M9YvJRRohb27eYesxrBo+QKQSSpRA0=",
             "type": "url",
-            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.15/atomic-linux-x64.tar.gz"
+            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.16/atomic-linux-x64.tar.gz"
         },
-        "version": "0.9.15"
+        "version": "0.9.16"
     },
     "crush": {
         "cargoLock": null,
