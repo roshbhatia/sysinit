@@ -356,8 +356,9 @@ local function setup_catppuccin(palette, is_transparent)
       return vim.tbl_extend("force", {
         CursorLineNr = { fg = colors.lavender, bold = true },
 
-        Visual = { bg = colors.overlay2, fg = colors.crust, bold = true },
-        VisualNOS = { bg = colors.overlay2, fg = colors.crust, bold = true },
+        -- Keep syntax foregrounds intact until OSC 17 replaces this fallback.
+        Visual = { bg = colors.surface1 },
+        VisualNOS = { bg = colors.surface1 },
 
         CursorLine = { bg = colors.overlay1 },
 
@@ -394,7 +395,14 @@ local function setup_catppuccin(palette, is_transparent)
   })
 end
 
+local selection_bg = nil
+
 local function apply_highlights()
+  if selection_bg then
+    vim.api.nvim_set_hl(0, "Visual", { bg = selection_bg })
+    vim.api.nvim_set_hl(0, "VisualNOS", { bg = selection_bg })
+  end
+
   if transparent then
     for _, group in ipairs(TRANSPARENT_GROUPS) do
       vim.api.nvim_set_hl(0, group, { bg = "none" })
@@ -422,8 +430,13 @@ return {
         callback = apply_highlights,
       })
 
-      terminal.query_colors(function(term_colors, bg)
+      terminal.query_colors(function(term_colors, bg, selection)
+        if selection and selection.bg then
+          selection_bg = selection.bg
+        end
+
         if vim.tbl_isempty(term_colors) and not bg then
+          apply_highlights()
           return
         end
 

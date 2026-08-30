@@ -60,37 +60,22 @@ local function parse_osc_rgb(rgb_str)
   return string.format("#%s%s%s", to_byte(r), to_byte(g), to_byte(b))
 end
 
+-- Use TermResponse because Nvim owns and consumes terminal replies.
 function M.query_colors(callback)
   local colors = {}
   local bg_color = nil
+  local selection = nil
 
-  if not vim.fn.has("gui_running") and vim.fn.has("nvim") == 1 and #vim.api.nvim_list_uis() == 0 then
+  if #vim.api.nvim_list_uis() == 0 then
     vim.schedule(function()
-      callback(colors, bg_color)
+      callback(colors, bg_color, selection)
     end)
     return
   end
 
-  local fd, open_err = vim.uv.fs_open("/dev/tty", "r+", 438)
-  if not fd then
-    vim.schedule(function()
-      callback(colors, bg_color)
-    end)
-    return
-  end
-
-  local ok, tty = pcall(vim.uv.new_tty, fd, true)
-  if not ok or not tty then
-    vim.uv.fs_close(fd)
-    vim.schedule(function()
-      callback(colors, bg_color)
-    end)
-    return
-  end
-
-  local response_buf = ""
-  local timer = vim.uv.new_timer()
   local done = false
+  local timer = assert(vim.uv.new_timer())
+  local autocmd_id
 
   local function finish()
     if done then
@@ -98,55 +83,71 @@ function M.query_colors(callback)
     end
     done = true
 
-    if timer then
-      timer:stop()
-      timer:close()
-    end
-    pcall(function()
-      tty:read_stop()
-    end)
-    pcall(function()
-      tty:close()
-    end)
-
-    local buf = response_buf:gsub("\27\27", "\27")
-
-    for idx, rgb in buf:gmatch("\27%]4;(%d+);(rgb:%x+/%x+/%x+)") do
-      local hex = parse_osc_rgb(rgb)
-      if hex then
-        colors[tonumber(idx)] = hex
-      end
-    end
-
-    local bg_rgb = buf:match("\27%]11;(rgb:%x+/%x+/%x+)")
-    if bg_rgb then
-      bg_color = parse_osc_rgb(bg_rgb)
-    end
+    timer:stop()
+    timer:close()
+    pcall(vim.api.nvim_del_autocmd, autocmd_id)
 
     vim.schedule(function()
-      callback(colors, bg_color)
+      callback(colors, bg_color, selection)
     end)
   end
 
-  tty:read_start(function(err, data)
-    if err or not data then
-      return
-    end
-    response_buf = response_buf .. data
-  end)
+  local function set_selection(key, hex)
+    selection = selection or {}
+    selection[key] = hex
+  end
+
+  autocmd_id = vim.api.nvim_create_autocmd("TermResponse", {
+    nested = true,
+    callback = function(ev)
+      local resp = type(ev.data) == "table" and ev.data.sequence or ev.data
+      if type(resp) ~= "string" then
+        return
+      end
+
+      local idx, rgb = resp:match("\27%]4;(%d+);(rgb:%x+/%x+/%x+)")
+      if idx then
+        local hex = parse_osc_rgb(rgb)
+        if hex then
+          colors[tonumber(idx)] = hex
+        end
+        return
+      end
+
+      local bg_rgb = resp:match("\27%]11;(rgb:%x+/%x+/%x+)")
+      if bg_rgb then
+        bg_color = parse_osc_rgb(bg_rgb)
+        return
+      end
+
+      local sel_bg = resp:match("\27%]17;(rgb:%x+/%x+/%x+)")
+      if sel_bg then
+        set_selection("bg", parse_osc_rgb(sel_bg))
+        return
+      end
+
+      local sel_fg = resp:match("\27%]19;(rgb:%x+/%x+/%x+)")
+      if sel_fg then
+        set_selection("fg", parse_osc_rgb(sel_fg))
+      end
+    end,
+  })
 
   local parts = {}
 
   for i = 0, 15 do
-    parts[#parts + 1] = string.format("\27]4;%d;?\7", i)
+    parts[#parts + 1] = string.format("\27]4;%d;?\27\\", i)
   end
 
-  parts[#parts + 1] = "\27]11;?\7"
+  parts[#parts + 1] = "\27]11;?\27\\"
+  -- Use OSC 17 and 19 because ANSI ramp slots vary across schemes.
+  parts[#parts + 1] = "\27]17;?\27\\"
+  parts[#parts + 1] = "\27]19;?\27\\"
 
-  tty:write(table.concat(parts))
+  vim.api.nvim_ui_send(table.concat(parts))
 
-  timer:start(200, 0, function()
-    finish()
+  timer:start(300, 0, function()
+    vim.schedule(finish)
   end)
 end
 
