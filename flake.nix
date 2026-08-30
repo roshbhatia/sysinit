@@ -251,6 +251,7 @@
               pkgs.jq
               pkgs.libxml2
               pkgs.fd
+              pkgs.ripgrep
               pkgs.ast-grep
               pkgs.statix
               pkgs.deadnix
