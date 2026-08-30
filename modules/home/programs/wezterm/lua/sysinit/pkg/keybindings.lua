@@ -31,6 +31,7 @@ local TRACE_NAV = (function()
     both[#both + 1] = name
   end
   both[#both + 1] = "traces"
+  both[#both + 1] = "colchis"
   return both
 end)()
 
@@ -90,10 +91,10 @@ local function get_pane_keys()
       passthrough = EDITORS,
     }),
 
-    create_smart_keybind("s", "SUPER|SHIFT", act.SplitVertical({ domain = "CurrentPaneDomain", args = { "top" } }), {
+    create_smart_keybind("s", "CTRL|SHIFT", act.SplitPane({ direction = "Down", top_level = true }), {
       passthrough = EDITORS,
     }),
-    create_smart_keybind("v", "SUPER|SHIFT", act.SplitHorizontal({ domain = "CurrentPaneDomain", args = { "top" } }), {
+    create_smart_keybind("v", "CTRL|SHIFT", act.SplitPane({ direction = "Right", top_level = true }), {
       passthrough = EDITORS,
     }),
     -- CTRL-m is a carriage return, but nothing types it instead of Enter, and a
@@ -104,11 +105,7 @@ local function get_pane_keys()
 
   for _, key in ipairs({ "h", "j", "k", "l" }) do
     local dir = DIRECTION_KEYS[key]
-    local passthrough = (key == "j" or key == "k") and TRACE_NAV or EDITORS
-    table.insert(
-      keys,
-      create_smart_keybind(key, "CTRL", { ActivatePaneDirection = dir }, { passthrough = passthrough })
-    )
+    table.insert(keys, create_smart_keybind(key, "CTRL", { ActivatePaneDirection = dir }, { passthrough = TRACE_NAV }))
     table.insert(
       keys,
       create_smart_keybind(key, "CTRL|SHIFT", { AdjustPaneSize = { dir, 3 } }, { passthrough = EDITORS })
@@ -302,7 +299,6 @@ local function get_system_keys()
     create_smart_keybind("m", "SUPER", act.Hide),
     create_smart_keybind("q", "SUPER", act.QuitApplication),
     create_smart_keybind("v", "SUPER", act.PasteFrom("Clipboard")),
-    create_smart_keybind("v", "CTRL|SHIFT", act.PasteFrom("Clipboard")),
     watch_keybind("w", "no working directory", function(pane)
       local cwd = pane_cwd(pane)
       if not cwd then
