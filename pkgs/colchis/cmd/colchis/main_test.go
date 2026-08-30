@@ -1770,6 +1770,23 @@ func TestOrcCompactLeaderShowsContextActionsWithinWidth(t *testing.T) {
 	}
 }
 
+func TestOrcControlPlaneOrchestratorOffersTraces(t *testing.T) {
+	model := orcUIModel{
+		view: orcWorkflowsView, workflowRootSelected: true, leader: true, width: 80, height: 24,
+		orchestratorID: "controller",
+		sessions: []instance.Session{{
+			ID: "controller", Role: "controller", TraceSessionID: "trace-controller",
+		}},
+	}
+	session, found := model.selectedTrace()
+	if !found || session.ID != "controller" {
+		t.Fatalf("selectedTrace() = %#v, %t", session, found)
+	}
+	if footer := ansi.Strip(model.controlFooter()); !strings.Contains(footer, "t traces") {
+		t.Fatalf("control-plane leader actions = %q", footer)
+	}
+}
+
 func TestOrcWorkflowGraphUsesOrchestratorAndWorkerCards(t *testing.T) {
 	rootID := domain.SessionID("root-session")
 	workerID := domain.SessionID("worker-session")

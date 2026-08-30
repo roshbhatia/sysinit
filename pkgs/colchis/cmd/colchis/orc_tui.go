@@ -2770,7 +2770,7 @@ func (model orcUIModel) workflowLoaded() bool {
 }
 
 func (model orcUIModel) selectedTrace() (instance.Session, bool) {
-	if session, found := model.selectedSession(); found && firstValue(session.TraceSessionID, session.NativeSessionID) != "" {
+	if session, found := model.selectedAttachSession(); found && firstValue(session.TraceSessionID, session.NativeSessionID) != "" {
 		return session, true
 	}
 	if model.view != orcWorkflowsView {
