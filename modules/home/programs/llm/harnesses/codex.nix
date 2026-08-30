@@ -68,13 +68,15 @@ let
   '';
 in
 {
-  home.activation.codexRetireLegacyHooks = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    $DRY_RUN_CMD ${retireLegacyHooks}
-  '';
-
-  home.file = lib.genAttrs (map (f: ".codex/${f}") codexManagedFiles) (_: {
-    enable = lib.mkForce false;
-  });
+  home = {
+    packages = [ bashGuardScript ];
+    activation.codexRetireLegacyHooks = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      $DRY_RUN_CMD ${retireLegacyHooks}
+    '';
+    file = lib.genAttrs (map (f: ".codex/${f}") codexManagedFiles) (_: {
+      enable = lib.mkForce false;
+    });
+  };
 
   assertions = [
     {
@@ -174,7 +176,7 @@ in
             hooks = [
               {
                 type = "command";
-                command = "${lib.getExe bashGuardScript}";
+                command = "${profileBin}/codex-bash-guard";
               }
             ];
           }
