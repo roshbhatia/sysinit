@@ -1278,13 +1278,40 @@ func TestResumeEnrollmentDoesNotAuthorizeAnotherProcess(t *testing.T) {
 	}
 }
 
-func TestResumeEnvironmentClearsInheritedOrcSession(t *testing.T) {
-	environment := withEnvironment([]string{"ORC_SESSION_ID=parent-session", "KEEP=value"}, map[string]string{
-		"ORC_SESSION_ID": "",
-	})
-	if strings.Contains(strings.Join(environment, "\n"), "ORC_SESSION_ID=parent-session") ||
-		!slices.Contains(environment, "ORC_SESSION_ID=") || !slices.Contains(environment, "KEEP=value") {
-		t.Fatalf("resume environment = %#v", environment)
+func TestControllerEnvironmentClearsInheritedSessionIdentities(t *testing.T) {
+	record := instance.Record{Scope: "/workspace", Socket: "/state/broker.sock", StateDirectory: "/state"}
+	parent := []string{
+		"ORC_SESSION_ID=parent-orc", "ORC_SESSION_ENROLL_PID=11",
+		"CLAUDE_CODE_SESSION_ID=parent-claude", "CODEX_SESSION_ID=parent-codex",
+		"CODEX_THREAD_ID=parent-thread", "KEEP=value",
+	}
+	for _, test := range []struct {
+		name      string
+		resume    bool
+		sessionID string
+		wantOrc   string
+		wantPID   string
+	}{
+		{name: "run", sessionID: "session-run", wantOrc: "ORC_SESSION_ID=session-run", wantPID: "ORC_SESSION_ENROLL_PID="},
+		{name: "resume", resume: true, wantOrc: "ORC_SESSION_ID=", wantPID: "ORC_SESSION_ENROLL_PID=42"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			environment := withEnvironment(parent,
+				orcControllerEnvironmentValues("codex", record, test.sessionID, test.resume, 42))
+			for _, expected := range []string{
+				test.wantOrc, test.wantPID, "CLAUDE_CODE_SESSION_ID=", "CODEX_SESSION_ID=", "CODEX_THREAD_ID=", "KEEP=value",
+			} {
+				if !slices.Contains(environment, expected) {
+					t.Fatalf("%s environment omitted %q: %#v", test.name, expected, environment)
+				}
+			}
+			joined := strings.Join(environment, "\n")
+			for _, inherited := range []string{"parent-orc", "parent-claude", "parent-codex", "parent-thread"} {
+				if strings.Contains(joined, inherited) {
+					t.Fatalf("%s environment kept %q: %#v", test.name, inherited, environment)
+				}
+			}
+		})
 	}
 }
 
@@ -1313,7 +1340,7 @@ func TestOrcPickerUsesRecentAgentAndResponsiveLayout(t *testing.T) {
 	resized, _ := model.Update(tea.WindowSizeMsg{Width: 110, Height: 30})
 	model = resized.(orcUIModel)
 	view := ansi.Strip(model.View())
-	for _, expected := range []string{"⚔ orc", "running", "workflows 0", "sessions 0", "<space> actions"} {
+	for _, expected := range []string{"⚔ orc", "running", "graph  0 sessions", "<space> actions"} {
 		if !strings.Contains(view, expected) {
 			t.Fatalf("View() omitted %q:\n%s", expected, view)
 		}
@@ -1344,7 +1371,7 @@ func TestOrcPickerUsesRecentAgentAndResponsiveLayout(t *testing.T) {
 	}
 	model.graphMode = true
 	graph := ansi.Strip(model.View())
-	for _, expected := range []string{"workflows 1", "plan-42", "draft", "research.notes -> draft.context"} {
+	for _, expected := range []string{"workflows 1", "plan-42", "draft", "1 edges"} {
 		if !strings.Contains(graph, expected) {
 			t.Fatalf("workflow View() omitted %q:\n%s", expected, graph)
 		}
@@ -1371,20 +1398,456 @@ func TestOrcPickerUsesRecentAgentAndResponsiveLayout(t *testing.T) {
 		t.Fatalf("second replay key = %#v, command = %#v", confirmed, command)
 	}
 
-	model.view = orcWorkersView
+	model.view = orcSessionsView
 	model.sessions = []instance.Session{{
 		ID: "worker-42", Role: "worker", Harness: "pi", Status: "running", Registration: "managed",
 		Capabilities: []string{"native-attachment"},
 	}}
 	workerView := ansi.Strip(model.View())
-	for _, expected := range []string{"sessions 1", "worker-42", "worker", "managed", "native-attachment", "enter attach"} {
+	for _, expected := range []string{"graph  1 sessions", "worker-42", "worker", "managed", "enter attach"} {
 		if !strings.Contains(workerView, expected) {
 			t.Fatalf("worker View() omitted %q:\n%s", expected, workerView)
 		}
 	}
+	if details := ansi.Strip(model.inspectorBody(12)); !strings.Contains(details, "native-attachment") {
+		t.Fatalf("worker details omitted capability:\n%s", details)
+	}
 	attached, command := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
 	if command == nil || attached.(orcUIModel).messageError {
 		t.Fatalf("enter attachment = %#v, command = %#v", attached, command)
+	}
+}
+
+func TestOrcSessionGraphNestsWorkflowWorkersUnderOrchestrator(t *testing.T) {
+	rootID := domain.SessionID("root-session")
+	model := orcUIModel{
+		view: orcSessionsView, help: help.New(), width: 100, height: 24,
+		workflows: []domain.WorkflowRun{{ID: "run-1", OrchestrationSession: &rootID}},
+		workers:   []domain.Session{{ID: "worker-session", WorkflowRunID: "run-1"}},
+		sessions: []instance.Session{
+			{ID: "worker-session", Role: "worker", Harness: "codex", Status: "running", Registration: "managed"},
+			{ID: "root-session", Role: "controller", Harness: "claude", Status: "working", Registration: "observed"},
+		},
+	}
+
+	entries := model.sessionTreeEntries()
+	if len(entries) != 2 || model.sessions[entries[0].sessionIndex].ID != "root-session" ||
+		model.sessions[entries[1].sessionIndex].ID != "worker-session" || entries[1].depth != 1 {
+		t.Fatalf("session tree = %#v", entries)
+	}
+	view := ansi.Strip(model.View())
+	for _, expected := range []string{"orchestrator · claude", "id  root-session", "worker · codex", "id  worker-session", "└─"} {
+		if !strings.Contains(view, expected) {
+			t.Fatalf("session graph omitted %q:\n%s", expected, view)
+		}
+	}
+}
+
+func TestOrcSessionTreeKeepsSiblingOrderAndFilteredAncestor(t *testing.T) {
+	rootID := domain.SessionID("root-session")
+	model := orcUIModel{
+		view: orcSessionsView, sessionCursor: 1,
+		workflows: []domain.WorkflowRun{{ID: "run-1", OrchestrationSession: &rootID}},
+		workers: []domain.Session{
+			{ID: "worker-b", WorkflowRunID: "run-1"},
+			{ID: "worker-a", WorkflowRunID: "run-1"},
+		},
+		sessions: []instance.Session{
+			{ID: "worker-b", Role: "worker"},
+			{ID: "root-session", Role: "controller"},
+			{ID: "worker-a", Role: "worker"},
+		},
+	}
+	want := []string{"root-session", "worker-b", "worker-a"}
+	for range 20 {
+		entries := model.sessionTreeEntries()
+		for index, entry := range entries {
+			if got := model.sessions[entry.sessionIndex].ID; got != want[index] {
+				t.Fatalf("session tree order = %#v", entries)
+			}
+		}
+	}
+	if strip := ansi.Strip(model.resourceStrip()); !strings.Contains(strip, "session 1/3") {
+		t.Fatalf("root resource position = %q", strip)
+	}
+	model.query = "worker-a"
+	entries := model.matchingSessionTreeEntries()
+	if len(entries) != 2 || model.sessions[entries[0].sessionIndex].ID != "root-session" ||
+		model.sessions[entries[1].sessionIndex].ID != "worker-a" {
+		t.Fatalf("filtered session tree = %#v", entries)
+	}
+}
+
+func TestOrcExplorerUsesWideSplitAndPaneFocus(t *testing.T) {
+	model := orcUIModel{
+		view: orcSessionsView, help: help.New(), width: 100, height: 24, explorer: true,
+		sessions: []instance.Session{{ID: "session-1", Harness: "codex", Status: "working"}},
+	}
+	view := ansi.Strip(model.View())
+	if lines := strings.Count(view, "\n") + 1; lines != 24 || !strings.Contains(view, "explorer") ||
+		!strings.Contains(view, "graph  1 sessions") || !strings.Contains(view, "details") {
+		t.Fatalf("wide explorer has %d lines:\n%s", lines, view)
+	}
+	focused, _ := model.Update(tea.KeyMsg{Type: tea.KeyCtrlH})
+	if focused.(orcUIModel).focus != orcExplorerFocus {
+		t.Fatalf("ctrl+h focus = %d", focused.(orcUIModel).focus)
+	}
+	focused, _ = focused.(orcUIModel).Update(tea.KeyMsg{Type: tea.KeyCtrlL})
+	if focused.(orcUIModel).focus != orcGraphFocus {
+		t.Fatalf("ctrl+l focus = %d", focused.(orcUIModel).focus)
+	}
+	model.width = 40
+	model.height = 10
+	narrow := ansi.Strip(model.View())
+	if lines := strings.Count(narrow, "\n") + 1; lines != 10 || strings.Contains(narrow, "explorer") ||
+		strings.Contains(narrow, "details") || !strings.Contains(narrow, "session-1") {
+		t.Fatalf("narrow graph has %d lines:\n%s", lines, narrow)
+	}
+}
+
+func TestOrcNarrowExplorerUsesOnePane(t *testing.T) {
+	model := orcUIModel{
+		view: orcSessionsView, help: help.New(), width: 60, height: 16, explorer: true,
+		focus:    orcExplorerFocus,
+		sessions: []instance.Session{{ID: "session-1", Harness: "codex", Status: "working"}},
+	}
+	explorer := ansi.Strip(model.View())
+	if lines := strings.Count(explorer, "\n") + 1; lines != 16 || !strings.Contains(explorer, "explorer") ||
+		strings.Contains(explorer, "details") {
+		t.Fatalf("narrow explorer has %d lines:\n%s", lines, explorer)
+	}
+	model.message = "Session is unavailable"
+	model.messageError = true
+	explorer = ansi.Strip(model.View())
+	if !strings.Contains(explorer, "Session is unavailable") || strings.Count(explorer, "\n")+1 != 16 {
+		t.Fatalf("narrow explorer omitted error:\n%s", explorer)
+	}
+	updated, _ := model.Update(tea.KeyMsg{Type: tea.KeyCtrlL})
+	graph := ansi.Strip(updated.(orcUIModel).View())
+	if strings.Contains(graph, "╭─ explorer") || !strings.Contains(graph, "graph  1 sessions") {
+		t.Fatalf("ctrl+l did not restore graph:\n%s", graph)
+	}
+}
+
+func TestOrcCompactFooterKeepsHelpAndQuit(t *testing.T) {
+	for _, width := range []int{70, 80} {
+		model := orcUIModel{
+			view: orcSessionsView, help: help.New(), width: width, height: 24,
+			sessions: []instance.Session{{
+				ID: "session-with-a-long-identifier", Harness: "codex", Status: "working",
+				Registration: "observed", Pane: "7", Mux: 42,
+			}},
+		}
+		footer := ansi.Strip(model.bottomFooter())
+		if !strings.Contains(footer, "? help") || !strings.Contains(footer, "q quit") || ansi.StringWidth(footer) > width {
+			t.Fatalf("%d-column footer = %q", width, footer)
+		}
+		header := ansi.Strip(model.header(width))
+		if !strings.Contains(header, "broker stopped") || ansi.StringWidth(header) > width {
+			t.Fatalf("%d-column header = %q", width, header)
+		}
+		model.active = true
+		header = ansi.Strip(model.header(width))
+		if !strings.Contains(header, "broker running · 1 sessions") || ansi.StringWidth(header) > width {
+			t.Fatalf("%d-column active header = %q", width, header)
+		}
+		model.leader = true
+		leader := ansi.Strip(model.bottomFooter())
+		if !strings.Contains(leader, "? help") || ansi.StringWidth(leader) > width {
+			t.Fatalf("%d-column leader footer = %q", width, leader)
+		}
+	}
+}
+
+func TestOrcMinimumWidthFooterKeepsAttachmentHelpAndQuit(t *testing.T) {
+	model := orcUIModel{
+		view: orcSessionsView, width: 40, height: 10,
+		sessions: []instance.Session{{
+			ID: "session-1", Registration: "observed", Status: "working", Pane: "7", Mux: 42,
+		}},
+	}
+	footer := ansi.Strip(model.bottomFooter())
+	for _, expected := range []string{"enter attach", "? help", "q quit"} {
+		if !strings.Contains(footer, expected) {
+			t.Fatalf("40-column footer omitted %q: %q", expected, footer)
+		}
+	}
+	if ansi.StringWidth(footer) > 40 {
+		t.Fatalf("40-column footer has width %d: %q", ansi.StringWidth(footer), footer)
+	}
+	model.message = "Connected session-1"
+	view := ansi.Strip(model.View())
+	for _, expected := range []string{"enter attach", "? help", "q quit"} {
+		if !strings.Contains(view, expected) {
+			t.Fatalf("40-column message view omitted %q: %q", expected, view)
+		}
+	}
+	if !strings.Contains(view, "Connected session-1") || strings.Count(view, "\n")+1 != 10 {
+		t.Fatalf("40-column message view = %q", view)
+	}
+}
+
+func TestOrcMinimumWidthPickerKeepsCancel(t *testing.T) {
+	model := orcUIModel{controllerPicker: true, width: 40, height: 10}
+	view := ansi.Strip(model.View())
+	for _, expected := range []string{"enter new", "R resume", "esc cancel"} {
+		if !strings.Contains(view, expected) {
+			t.Fatalf("40-column picker omitted %q: %q", expected, view)
+		}
+	}
+	if lines := strings.Count(view, "\n") + 1; lines != 10 {
+		t.Fatalf("40-column picker has %d lines: %q", lines, view)
+	}
+}
+
+func TestOrcMinimumWidthFilterKeepsControls(t *testing.T) {
+	filter := textinput.New()
+	filter.Prompt = "/"
+	model := orcUIModel{view: orcSessionsView, filtering: true, filter: filter, width: 40, height: 10}
+	resizeTextInput(&model.filter, orcFilterInputWidth(model.width))
+	model.filter.SetValue("abcdefghijklmnopqrstuvwxyz0123456789")
+	model.filter.Focus()
+	view := ansi.Strip(model.View())
+	for _, expected := range []string{"6789", "enter apply", "esc cancel"} {
+		if !strings.Contains(view, expected) {
+			t.Fatalf("40-column filter omitted %q: %q", expected, view)
+		}
+	}
+	if lines := strings.Count(view, "\n") + 1; lines != 10 {
+		t.Fatalf("40-column filter has %d lines: %q", lines, view)
+	}
+}
+
+func TestOrcCompactLeaderAdvertisesVisiblePanes(t *testing.T) {
+	model := orcUIModel{view: orcSessionsView, leader: true, width: 40, height: 10}
+	footer := ansi.Strip(model.controlFooter())
+	if strings.Contains(footer, "e tree") || strings.Contains(footer, "i details") {
+		t.Fatalf("40-column leader advertises hidden panes: %q", footer)
+	}
+	model.width = 44
+	footer = ansi.Strip(model.controlFooter())
+	if !strings.Contains(footer, "e tree") || strings.Contains(footer, "i details") ||
+		!strings.Contains(footer, "? help") || ansi.StringWidth(footer) > 44 {
+		t.Fatalf("44-column leader actions = %q", footer)
+	}
+	model.width = 72
+	model.height = 18
+	footer = ansi.Strip(model.controlFooter())
+	if !strings.Contains(footer, "e tree") || !strings.Contains(footer, "i details") {
+		t.Fatalf("72-column leader actions = %q", footer)
+	}
+}
+
+func TestOrcCompactLeaderShowsContextActionsWithinWidth(t *testing.T) {
+	model := orcUIModel{
+		view: orcSessionsView, leader: true, width: 92, height: 24,
+		sessions: []instance.Session{{
+			ID: "session-1", Registration: "observed", TraceSessionID: "trace-1",
+		}},
+	}
+	footer := ansi.Strip(model.controlFooter())
+	if !strings.Contains(footer, "r connect") || !strings.Contains(footer, "t traces") ||
+		!strings.Contains(footer, "? help") || ansi.StringWidth(footer) > 92 {
+		t.Fatalf("92-column observed actions = %q", footer)
+	}
+	model.sessions[0].Registration = "injected"
+	footer = ansi.Strip(model.controlFooter())
+	if !strings.Contains(footer, "x disconnect") || !strings.Contains(footer, "t traces") ||
+		!strings.Contains(footer, "? help") || ansi.StringWidth(footer) > 92 {
+		t.Fatalf("92-column connected actions = %q", footer)
+	}
+	model.width = 40
+	model.height = 10
+	footer = ansi.Strip(model.controlFooter())
+	if !strings.Contains(footer, "t traces") || !strings.Contains(footer, "? help") || ansi.StringWidth(footer) > 40 {
+		t.Fatalf("40-column trace actions = %q", footer)
+	}
+}
+
+func TestOrcWorkflowGraphUsesOrchestratorAndWorkerCards(t *testing.T) {
+	rootID := domain.SessionID("root-session")
+	workerID := domain.SessionID("worker-session")
+	secondWorkerID := domain.SessionID("review-session")
+	model := orcUIModel{
+		view: orcWorkflowsView, graphMode: true, help: help.New(), width: 100, height: 24, explorer: true,
+		workflows: []domain.WorkflowRun{{ID: "run-1", State: domain.WorkflowRunStateRunning, OrchestrationSession: &rootID}},
+		workflow: workflowViewResult{
+			Run: domain.WorkflowRun{ID: "run-1", State: domain.WorkflowRunStateRunning, OrchestrationSession: &rootID},
+			Nodes: []domain.NodeRun{
+				{ID: "node-1", NodeKey: "build", Adapter: "codex", SessionID: &workerID},
+				{ID: "node-2", NodeKey: "review", Adapter: "claude", SessionID: &secondWorkerID},
+			},
+		},
+		definition: workflowmodel.Definition{Edges: []workflowmodel.Edge{{From: "build", To: "review"}}},
+	}
+	view := ansi.Strip(model.View())
+	for _, expected := range []string{
+		"orchestrator · workflow", "id  root-session", "worker · codex", "id  worker-session",
+		"worker · claude", "id  review-session", "build", "review", "explorer",
+	} {
+		if !strings.Contains(view, expected) {
+			t.Fatalf("workflow graph omitted %q:\n%s", expected, view)
+		}
+	}
+}
+
+func TestOrcWorkflowGraphBoundsCyclesAndExplorerWidth(t *testing.T) {
+	model := orcUIModel{
+		view: orcWorkflowsView, graphMode: true, help: help.New(), width: 72, height: 18, explorer: true,
+		workflowRootSelected: true,
+		workflows:            []domain.WorkflowRun{{ID: "run-1"}},
+		workflow: workflowViewResult{
+			Run: domain.WorkflowRun{ID: "run-1"},
+			Nodes: []domain.NodeRun{
+				{ID: "node-a", NodeKey: "a", Adapter: "codex"},
+				{ID: "node-b", NodeKey: "b", Adapter: "claude"},
+			},
+		},
+		definition: workflowmodel.Definition{Edges: []workflowmodel.Edge{{From: "a", To: "b"}, {From: "b", To: "a"}}},
+	}
+	for node, depth := range model.workflowNodeDepths(model.workflowNodes()) {
+		if depth < 1 || depth > 2 {
+			t.Fatalf("cycle depth for %s = %d", node, depth)
+		}
+	}
+	view := ansi.Strip(model.View())
+	for _, line := range strings.Split(view, "\n") {
+		if ansi.StringWidth(line) > 72 {
+			t.Fatalf("72-column graph line has width %d: %q", ansi.StringWidth(line), line)
+		}
+	}
+	if explorer := ansi.Strip(model.workflowExplorerBody(1)); !strings.Contains(explorer, "run-1") {
+		t.Fatalf("selected workflow root scrolled out of explorer: %q", explorer)
+	}
+}
+
+func TestOrcWorkflowGraphUsesTopologicalOrderAndOneSelection(t *testing.T) {
+	model := orcUIModel{
+		view: orcWorkflowsView, graphMode: true, explorer: true, workflowRootSelected: true,
+		width: 100, height: 24,
+		workflows: []domain.WorkflowRun{{ID: "run-1"}},
+		workflow: workflowViewResult{
+			Run: domain.WorkflowRun{ID: "run-1"},
+			Nodes: []domain.NodeRun{
+				{ID: "child", NodeKey: "a-child"},
+				{ID: "parent", NodeKey: "z-parent"},
+			},
+		},
+		definition: workflowmodel.Definition{Edges: []workflowmodel.Edge{{From: "z-parent", To: "a-child"}}},
+	}
+	nodes := model.workflowNodes()
+	if len(nodes) != 2 || nodes[0].NodeKey != "z-parent" || nodes[1].NodeKey != "a-child" {
+		t.Fatalf("workflow order = %#v", nodes)
+	}
+	view := ansi.Strip(model.View())
+	if strings.Count(view, "▸") != 1 {
+		t.Fatalf("workflow root selection = %q", view)
+	}
+	if parents := model.workflowNodeParents("a-child"); len(parents) != 1 || parents[0] != "z-parent" {
+		t.Fatalf("workflow child parents = %#v", parents)
+	}
+}
+
+func TestOrcNarrowWorkflowKeepsSelectedNodeVisible(t *testing.T) {
+	model := orcUIModel{
+		view: orcWorkflowsView, graphMode: true, workflowRootSelected: true,
+		width: 60, height: 16,
+		workflows: []domain.WorkflowRun{{ID: "run-many"}},
+		workflow:  workflowViewResult{Run: domain.WorkflowRun{ID: "run-many"}},
+	}
+	for index := 0; index < 20; index++ {
+		model.workflow.Nodes = append(model.workflow.Nodes, domain.NodeRun{
+			ID: domain.NodeRunID(fmt.Sprintf("node-%02d", index)), NodeKey: domain.NodeKey(fmt.Sprintf("node-%02d", index)),
+		})
+	}
+	updated, _ := model.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'G'}})
+	view := ansi.Strip(updated.(orcUIModel).View())
+	if !strings.Contains(view, "node-19") || !strings.Contains(view, "▸") {
+		t.Fatalf("narrow selected node is outside viewport:\n%s", view)
+	}
+}
+
+func TestOrcHelpHasOneAttachActionAndNoPlaceholderTab(t *testing.T) {
+	model := orcUIModel{view: orcSessionsView, help: help.New(), width: 90, height: 24}
+	helpText := ansi.Strip(strings.Join(model.fullHelpLines(), "\n"))
+	if strings.Contains(helpText, "<space>c") || strings.Contains(helpText, "events") ||
+		strings.Contains(helpText, "tab") || !strings.Contains(helpText, "/                 filter resources") ||
+		!strings.Contains(helpText, "connect an observed session") || strings.Contains(helpText, "select a restart point") ||
+		strings.Count(helpText, "open workflow or attach session") != 1 {
+		t.Fatalf("help exposes duplicate or placeholder actions:\n%s", helpText)
+	}
+}
+
+func TestOrcHelpUsesConnectionTerms(t *testing.T) {
+	if strings.Contains(orcUsage, "orc inject") || strings.Contains(orcUsage, "orc eject") ||
+		!strings.Contains(orcUsage, "orc connect") || !strings.Contains(orcUsage, "orc disconnect") {
+		t.Fatalf("Orc help uses inconsistent connection terms:\n%s", orcUsage)
+	}
+	for _, registration := range []string{"registered", "spawned", "resume", "injected"} {
+		if connection := sessionConnection(instance.Session{Registration: registration}); connection != "connected" {
+			t.Fatalf("%s registration displays as %q", registration, connection)
+		}
+		if !canDisconnectOrcSession(instance.Session{Registration: registration}) {
+			t.Fatalf("%s registration cannot disconnect", registration)
+		}
+	}
+	for origin, expected := range map[string]string{"injected": "connected", "spawned": "launched", "resume": "resumed"} {
+		if displayed := sessionOrigin(instance.Session{Origin: origin}); displayed != expected {
+			t.Fatalf("%s origin displays as %q", origin, displayed)
+		}
+	}
+	model := orcUIModel{
+		view: orcSessionsView, query: "connected",
+		sessions: []instance.Session{
+			{ID: "connected", Registration: "injected"},
+			{ID: "observed", Registration: "observed"},
+		},
+	}
+	entries := model.matchingSessionTreeEntries()
+	if len(entries) != 1 || model.sessions[entries[0].sessionIndex].ID != "connected" {
+		t.Fatalf("connected filter = %#v", entries)
+	}
+}
+
+func TestOrcDisconnectUsesTopLevelErrors(t *testing.T) {
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	if exit := runOrcCommand([]string{"disconnect"}, &stdout, &stderr); exit != 2 ||
+		stderr.String() != "usage: orc disconnect <session-id>\n" {
+		t.Fatalf("disconnect usage exit = %d, stderr = %q", exit, stderr.String())
+	}
+	t.Setenv("XDG_STATE_HOME", t.TempDir())
+	t.Setenv("ORC_STATE_DIR", t.TempDir())
+	t.Chdir(t.TempDir())
+	stderr.Reset()
+	if exit := runOrcCommand([]string{"disconnect", "session-1"}, &stdout, &stderr); exit != 1 ||
+		!strings.Contains(stderr.String(), "disconnect session: orc is inactive") {
+		t.Fatalf("inactive disconnect exit = %d, stderr = %q", exit, stderr.String())
+	}
+}
+
+func TestOrcDisconnectActionHandlesInjectedSession(t *testing.T) {
+	record := instance.Record{Version: instance.Version, Scope: t.TempDir(), StateDirectory: t.TempDir()}
+	created, err := instance.RegisterSession(record, instance.SessionRegistration{
+		ID: "session-injected", Harness: "codex", Status: "working", Registration: "injected",
+	})
+	if err != nil {
+		t.Fatalf("RegisterSession() returned %v", err)
+	}
+	model := orcUIModel{
+		view: orcSessionsView, leader: true, record: record,
+		sessions: []instance.Session{created},
+	}
+	updated, command := model.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'x'}})
+	if command == nil {
+		t.Fatalf("disconnect action = %#v, command = nil", updated)
+	}
+	message := command()
+	if action, ok := message.(orcActionMessage); !ok || action.err != nil {
+		t.Fatalf("disconnect result = %#v", message)
+	}
+	if _, found, err := instance.SessionByID(record, created.ID); err != nil || found {
+		t.Fatalf("SessionByID() found = %v, error = %v", found, err)
 	}
 }
 
@@ -1412,9 +1875,93 @@ func TestOrcEnterAttachesSelectedWorkflowNode(t *testing.T) {
 	}
 }
 
+func TestOrcWorkflowGraphSelectsAndAttachesRoot(t *testing.T) {
+	rootID := domain.SessionID("root-session")
+	model := orcUIModel{
+		view: orcWorkflowsView, help: help.New(), width: 90, height: 24,
+		workflows: []domain.WorkflowRun{{ID: "run-1", OrchestrationSession: &rootID}},
+		workflow: workflowViewResult{
+			Run:   domain.WorkflowRun{ID: "run-1", OrchestrationSession: &rootID},
+			Nodes: []domain.NodeRun{{ID: "node-1", NodeKey: "build"}},
+		},
+		sessions: []instance.Session{{
+			ID: "root-session", Harness: "codex", Registration: "observed", Pane: "7", Mux: 42,
+		}},
+	}
+
+	if footer := ansi.Strip(model.controlFooter()); !strings.Contains(footer, "enter open") || strings.Contains(footer, "enter attach") {
+		t.Fatalf("workflow list footer = %q", footer)
+	}
+	opened, command := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	model = opened.(orcUIModel)
+	if command != nil || !model.graphMode || !model.workflowRootSelected {
+		t.Fatalf("workflow open = %#v, command = %#v", model, command)
+	}
+	view := ansi.Strip(model.View())
+	if !strings.Contains(view, "role          orchestrator") || !strings.Contains(view, "enter attach") {
+		t.Fatalf("selected root omitted details or attachment:\n%s", view)
+	}
+	attached, command := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	if command == nil || attached.(orcUIModel).messageError {
+		t.Fatalf("root attachment = %#v, command = %#v", attached, command)
+	}
+}
+
+func TestOrcWorkflowGraphHidesStaleRun(t *testing.T) {
+	model := orcUIModel{
+		view: orcWorkflowsView, graphMode: true, explorer: true, width: 90, height: 24,
+		workflowCursor: 1,
+		workflows:      []domain.WorkflowRun{{ID: "run-old"}, {ID: "run-new"}},
+		workflow: workflowViewResult{
+			Run:   domain.WorkflowRun{ID: "run-old"},
+			Nodes: []domain.NodeRun{{ID: "old-node", NodeKey: "old-node"}},
+		},
+	}
+	view := ansi.Strip(model.View())
+	if !strings.Contains(view, "Loading workflow graph") || strings.Contains(view, "old-node") {
+		t.Fatalf("stale workflow graph is visible:\n%s", view)
+	}
+}
+
+func TestOrcWorkflowListHidesStaleDetails(t *testing.T) {
+	model := orcUIModel{
+		view: orcWorkflowsView, width: 90, height: 24,
+		workflowCursor: 1,
+		workflows:      []domain.WorkflowRun{{ID: "run-old"}, {ID: "run-new"}},
+		workflow: workflowViewResult{
+			Run: domain.WorkflowRun{ID: "run-old", State: domain.WorkflowRunStateSucceeded},
+		},
+	}
+	details := ansi.Strip(model.inspectorBody(8))
+	if !strings.Contains(details, "Loading workflow details") || strings.Contains(details, "succeeded") {
+		t.Fatalf("stale workflow details are visible:\n%s", details)
+	}
+}
+
+func TestOrcWorkflowGraphMovesBetweenRootAndWorkers(t *testing.T) {
+	model := orcUIModel{
+		view: orcWorkflowsView, graphMode: true, workflowRootSelected: true,
+		workflows: []domain.WorkflowRun{{ID: "run-1"}},
+		workflow: workflowViewResult{
+			Run:   domain.WorkflowRun{ID: "run-1"},
+			Nodes: []domain.NodeRun{{ID: "node-1", NodeKey: "build"}},
+		},
+	}
+	down, _ := model.Update(tea.KeyMsg{Type: tea.KeyDown})
+	model = down.(orcUIModel)
+	if model.workflowRootSelected || model.selectedNodeID != "node-1" {
+		t.Fatalf("down selection = %#v", model)
+	}
+	up, _ := model.Update(tea.KeyMsg{Type: tea.KeyUp})
+	model = up.(orcUIModel)
+	if !model.workflowRootSelected || model.selectedNodeID != "" {
+		t.Fatalf("up selection = %#v", model)
+	}
+}
+
 func TestOrcEnterExplainsUnavailableAttachment(t *testing.T) {
 	model := orcUIModel{
-		view: orcWorkersView, help: help.New(), width: 90, height: 24,
+		view: orcSessionsView, help: help.New(), width: 90, height: 24,
 		sessions: []instance.Session{{ID: "detached", Harness: "codex", Registration: "observed"}},
 	}
 
@@ -1427,7 +1974,7 @@ func TestOrcEnterExplainsUnavailableAttachment(t *testing.T) {
 
 func TestOrcEnterDoesNotAttachDisconnectedSession(t *testing.T) {
 	model := orcUIModel{
-		view: orcWorkersView, help: help.New(), width: 90, height: 24,
+		view: orcSessionsView, help: help.New(), width: 90, height: 24,
 		sessions: []instance.Session{{
 			ID: "disconnected", Harness: "codex", Registration: "registered",
 			Status: "disconnected", Pane: "7", Mux: 42,
@@ -1440,6 +1987,18 @@ func TestOrcEnterDoesNotAttachDisconnectedSession(t *testing.T) {
 	updated, command := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
 	if command != nil || !updated.(orcUIModel).messageError {
 		t.Fatalf("disconnected attachment = %#v, command = %#v", updated, command)
+	}
+}
+
+func TestOrcCLIAttachRejectsDisconnectedSession(t *testing.T) {
+	session := instance.Session{
+		ID: "disconnected", Status: "disconnected", Registration: "registered", Pane: "7", Mux: 42,
+	}
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	if exit := focusAvailableOrcSession(session, &stdout, &stderr); exit != 1 ||
+		!strings.Contains(stderr.String(), "session is unavailable") {
+		t.Fatalf("disconnected attach exit = %d, stderr = %q", exit, stderr.String())
 	}
 }
 
@@ -1569,7 +2128,8 @@ func TestOrcUIRejectsPaneThatHidesControls(t *testing.T) {
 	model.width = 40
 	model.height = 10
 	view = ansi.Strip(model.View())
-	if lines := strings.Count(view, "\n") + 1; lines != 10 || !strings.Contains(view, "<space> actions") {
+	if lines := strings.Count(view, "\n") + 1; lines != 10 || !strings.Contains(view, "? help") ||
+		!strings.Contains(view, "q quit") {
 		t.Fatalf("40x10 main UI has %d lines: %q", lines, view)
 	}
 	worker := orcWorkerUIModel{width: 40, height: 10}
@@ -1597,18 +2157,52 @@ func TestOrcWorkerAttachmentFitsEightyByTwentyFour(t *testing.T) {
 		})
 	}
 	view := ansi.Strip(model.View())
-	if lines := strings.Count(view, "\n") + 1; lines > 24 || !strings.Contains(view, "q detach") {
+	if lines := strings.Count(view, "\n") + 1; lines != 24 || !strings.Contains(view, "q detach") {
 		t.Fatalf("80x24 worker attachment has %d lines:\n%s", lines, view)
 	}
 }
 
+func TestOrcWorkerPromptKeepsControlsAtMinimumWidth(t *testing.T) {
+	input := textinput.New()
+	input.SetValue(strings.Repeat("prompt", 20))
+	model := orcWorkerUIModel{
+		width: 60, height: 16, typing: true, input: input,
+		history: sqlite.SessionHistory{Session: domain.Session{
+			ID: "worker-prompt", State: domain.SessionStateRunning,
+		}},
+	}
+	view := ansi.Strip(model.View())
+	for _, expected := range []string{"enter send", "esc cancel"} {
+		if !strings.Contains(view, expected) {
+			t.Fatalf("60-column worker prompt omitted %q: %q", expected, view)
+		}
+	}
+	for _, line := range strings.Split(view, "\n") {
+		if ansi.StringWidth(line) > 60 {
+			t.Fatalf("60-column worker line has width %d: %q", ansi.StringWidth(line), line)
+		}
+	}
+	if lines := strings.Count(view, "\n") + 1; lines != 16 {
+		t.Fatalf("60x16 worker prompt has %d lines: %q", lines, view)
+	}
+}
+
 func TestOrcFullHelpOnlyShowsActionsForCurrentView(t *testing.T) {
-	model := orcUIModel{help: help.New(), width: 80, height: 24}
+	model := orcUIModel{view: orcWorkflowsView, help: help.New(), width: 80, height: 24}
 	model.help.ShowAll = true
+	workflowHelp := ansi.Strip(strings.Join(model.fullHelpLines(), "\n"))
 	workflowView := ansi.Strip(model.View())
-	if lines := strings.Count(workflowView, "\n") + 1; lines != 24 ||
-		!strings.Contains(workflowView, "<space>t") || !strings.Contains(workflowView, "ctrl+j") {
+	if lines := strings.Count(workflowView, "\n") + 1; lines != 24 || !strings.Contains(workflowHelp, "<space>g") ||
+		!strings.Contains(workflowHelp, "select a restart point") || strings.Contains(workflowHelp, "<space>r") {
 		t.Fatalf("80x24 workflow help has %d lines:\n%s", lines, workflowView)
+	}
+	model.view = orcSessionsView
+	model.helpOffset = 0
+	sessionView := ansi.Strip(model.View())
+	sessionHelp := ansi.Strip(strings.Join(model.fullHelpLines(), "\n"))
+	if !strings.Contains(sessionHelp, "<space>r") || !strings.Contains(sessionHelp, "<space>x") ||
+		strings.Contains(sessionHelp, "<space>g") || strings.Contains(sessionHelp, "select a restart point") {
+		t.Fatalf("80x24 session help:\n%s", sessionView)
 	}
 	model.width = 40
 	model.height = 10
@@ -1664,10 +2258,35 @@ func TestOrcWorkerPreventsDuplicateSendAndShowsFailure(t *testing.T) {
 	if duplicate != nil {
 		t.Fatalf("second enter returned command %#v", duplicate)
 	}
+	updated, duplicate = updated.(orcWorkerUIModel).Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'i'}})
+	model = updated.(orcWorkerUIModel)
+	if duplicate != nil || model.typing || !model.sending || !model.messageError {
+		t.Fatalf("input during send = %#v, command = %#v", model, duplicate)
+	}
 	failed, _ := updated.(orcWorkerUIModel).Update(orcWorkerActionMessage{err: errors.New("send failed")})
 	model = failed.(orcWorkerUIModel)
-	if !model.messageError || model.message != "send failed" || model.typing {
+	if !model.messageError || model.message != "send failed" || model.typing || model.sending {
 		t.Fatalf("failed send state = %#v", model)
+	}
+}
+
+func TestOrcWorkerIgnoresOutOfOrderEventResults(t *testing.T) {
+	running := domain.SessionStateRunning
+	waiting := domain.SessionStateWaiting
+	failed := domain.SessionStateFailed
+	model := orcWorkerUIModel{
+		eventCursor: 10,
+		history:     sqlite.SessionHistory{Session: domain.Session{ID: "worker-order", State: running}},
+	}
+	updated, _ := model.Update(orcWorkerEventsMessage{cursor: 12, state: &waiting})
+	model = updated.(orcWorkerUIModel)
+	updated, _ = model.Update(orcWorkerEventsMessage{
+		cursor: 11, state: &failed,
+		events: []domain.RuntimeEvent{{Sequence: 11, Kind: "stale"}},
+	})
+	model = updated.(orcWorkerUIModel)
+	if model.eventCursor != 12 || model.history.Session.State != waiting || len(model.history.RuntimeEvents) != 0 {
+		t.Fatalf("out-of-order worker result = %#v", model)
 	}
 }
 
@@ -1695,18 +2314,83 @@ func TestOrcRefreshTickClearsStoppedBrokerState(t *testing.T) {
 	}
 }
 
-func TestOrcRefreshPreservesCoalescedWorkerHistoryRequest(t *testing.T) {
+func TestOrcRefreshPreservesCoalescedStatus(t *testing.T) {
 	model := orcUIModel{
-		view: orcWorkersView, refreshing: true, refreshRevision: 2,
-		workers: []domain.Session{{ID: "worker-b"}}, workerCursor: 0,
+		view: orcSessionsView, refreshing: true, refreshRevision: 2,
 	}
-	if command := model.beginRefresh(true, ""); command != nil || !model.pendingWorkerHistory {
+	if command := model.beginRefresh("Status refreshed"); command != nil || model.pendingRefreshStatus == "" {
 		t.Fatalf("coalesced refresh = %#v, command = %#v", model, command)
 	}
 	updated, command := model.Update(orcRefreshResult{revision: 1})
 	model = updated.(orcUIModel)
-	if command == nil || !model.refreshing || model.pendingWorkerHistory {
+	if command == nil || !model.refreshing || model.pendingRefreshStatus != "" {
 		t.Fatalf("retried refresh = %#v, command = %#v", model, command)
+	}
+}
+
+func TestOrcNavigationInvalidatesOlderRefresh(t *testing.T) {
+	model := orcUIModel{
+		view: orcSessionsView, refreshing: true, refreshRevision: 7,
+		sessions: []instance.Session{{ID: "first"}, {ID: "second"}},
+	}
+	updated, command := model.Update(tea.KeyMsg{Type: tea.KeyDown})
+	model = updated.(orcUIModel)
+	if command != nil || model.sessionCursor != 1 || model.refreshRevision != 8 {
+		t.Fatalf("session navigation = %#v, command = %#v", model, command)
+	}
+	snapshot := model
+	snapshot.sessionCursor = 0
+	updated, command = model.Update(orcRefreshResult{model: snapshot, revision: 7, err: errors.New("stale refresh")})
+	model = updated.(orcUIModel)
+	if model.sessionCursor != 1 || command == nil || strings.Contains(model.message, "stale refresh") {
+		t.Fatalf("stale refresh restored selection = %#v, command = %#v", model, command)
+	}
+}
+
+func TestOrcWorkflowNavigationDisablesStaleRestartActions(t *testing.T) {
+	model := orcUIModel{
+		view:      orcWorkflowsView,
+		workflows: []domain.WorkflowRun{{ID: "run-old"}, {ID: "run-new"}},
+		workflow:  workflowViewResult{Run: domain.WorkflowRun{ID: "run-old"}},
+		restartPoints: []domain.RestartPoint{
+			{ID: "restart-old", WorkflowRunID: "run-old", Kind: domain.RestartPointNodeAdmission},
+			{ID: "restart-second", WorkflowRunID: "run-old", Kind: domain.RestartPointNodeAdmission},
+		},
+	}
+	updated, refresh := model.Update(tea.KeyMsg{Type: tea.KeyDown})
+	model = updated.(orcUIModel)
+	if refresh == nil || model.workflowCursor != 1 || model.workflowLoaded() {
+		t.Fatalf("workflow navigation = %#v, refresh = %#v", model, refresh)
+	}
+	updated, command := model.Update(tea.KeyMsg{Type: tea.KeyRight})
+	model = updated.(orcUIModel)
+	if command != nil || model.restartCursor != 0 {
+		t.Fatalf("stale restart navigation = %#v, command = %#v", model, command)
+	}
+	updated, command = model.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'f'}})
+	model = updated.(orcUIModel)
+	if command != nil || model.confirmReplay {
+		t.Fatalf("stale restart replay = %#v, command = %#v", model, command)
+	}
+}
+
+func TestOrcWorkflowListPageNavigationMovesSelection(t *testing.T) {
+	model := orcUIModel{view: orcWorkflowsView, width: 90, height: 24, workflowCursor: 10}
+	for index := 0; index < 20; index++ {
+		model.workflows = append(model.workflows, domain.WorkflowRun{ID: domain.WorkflowRunID(fmt.Sprintf("run-%02d", index))})
+	}
+	model.workflow.Run.ID = "run-10"
+	updated, refresh := model.Update(tea.KeyMsg{Type: tea.KeyCtrlD})
+	model = updated.(orcUIModel)
+	if refresh == nil || model.workflowCursor <= 10 {
+		t.Fatalf("page down selection = %d, refresh = %#v", model.workflowCursor, refresh)
+	}
+	model.refreshing = false
+	model.workflow.Run.ID = model.workflows[model.workflowCursor].ID
+	updated, refresh = model.Update(tea.KeyMsg{Type: tea.KeyCtrlU})
+	model = updated.(orcUIModel)
+	if refresh == nil || model.workflowCursor >= 18 {
+		t.Fatalf("page up selection = %d, refresh = %#v", model.workflowCursor, refresh)
 	}
 }
 
@@ -1766,10 +2450,42 @@ func TestOrcHelpListsNativeCommands(t *testing.T) {
 	}
 }
 
-func TestParseOrcControllerUsesControllerTerminology(t *testing.T) {
+func TestParseOrcControllerUsesHarnessTerminology(t *testing.T) {
 	_, _, _, err := parseOrcController(nil, "resume")
-	if err == nil || !strings.Contains(err.Error(), "orc resume <controller>") {
+	if err == nil || !strings.Contains(err.Error(), "orc resume <harness>") {
 		t.Fatalf("resume usage error = %v", err)
+	}
+}
+
+func TestDisconnectOrcSessionRemovesResolvedPrefix(t *testing.T) {
+	record := instance.Record{Version: instance.Version, Scope: t.TempDir(), StateDirectory: t.TempDir()}
+	created, err := instance.RegisterSession(record, instance.SessionRegistration{
+		ID: "session-abcdef", Harness: "codex", Status: "working", Registration: "registered",
+	})
+	if err != nil {
+		t.Fatalf("RegisterSession() returned %v", err)
+	}
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	if exit := disconnectOrcSessionFrom(record, "session-abc", []instance.Session{created}, &stdout, &stderr); exit != 0 {
+		t.Fatalf("disconnectOrcSessionFrom() exit = %d, stderr = %q", exit, stderr.String())
+	}
+	if _, found, err := instance.SessionByID(record, created.ID); err != nil || found {
+		t.Fatalf("SessionByID() found = %v, error = %v", found, err)
+	}
+	if stdout.String() != "disconnected session-abcdef\n" {
+		t.Fatalf("disconnect output = %q", stdout.String())
+	}
+}
+
+func TestDisconnectOrcSessionRejectsObservedSession(t *testing.T) {
+	record := instance.Record{Version: instance.Version, Scope: t.TempDir(), StateDirectory: t.TempDir()}
+	session := instance.Session{ID: "session-observed", Registration: "observed"}
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	if exit := disconnectOrcSessionFrom(record, session.ID, []instance.Session{session}, &stdout, &stderr); exit != 1 ||
+		!strings.Contains(stderr.String(), "only observed; connect it first") {
+		t.Fatalf("observed disconnect exit = %d, stderr = %q", exit, stderr.String())
 	}
 }
 
