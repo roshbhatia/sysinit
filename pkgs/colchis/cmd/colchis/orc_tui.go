@@ -83,7 +83,7 @@ var orcKeys = orcKeyMap{
 	left:       key.NewBinding(key.WithKeys("left", "h"), key.WithHelp("left/h", "previous restart point")),
 	right:      key.NewBinding(key.WithKeys("right", "l"), key.WithHelp("right/l", "next restart point")),
 	toggle:     key.NewBinding(key.WithKeys("s"), key.WithHelp("s", "start or stop")),
-	open:       key.NewBinding(key.WithKeys("enter"), key.WithHelp("enter", "open")),
+	open:       key.NewBinding(key.WithKeys("enter"), key.WithHelp("enter", "attach")),
 	resume:     key.NewBinding(key.WithKeys("R"), key.WithHelp("R", "resume controller")),
 	replay:     key.NewBinding(key.WithKeys("f"), key.WithHelp("f", "fork from restart point")),
 	pageUp:     key.NewBinding(key.WithKeys("pgup", "ctrl+u"), key.WithHelp("pgup/^u", "graph up")),
@@ -378,26 +378,7 @@ func (model orcUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 					})
 				}
 			case "c":
-				if session, found := model.selectedSession(); found {
-					if session.Registration == "managed" {
-						command := exec.Command(os.Args[0], "attach", session.ID)
-						return model, tea.ExecProcess(command, func(err error) tea.Msg {
-							if err != nil {
-								return orcActionMessage{err: fmt.Errorf("interact with session: %w", err)}
-							}
-							return orcActionMessage{text: "Returned from session"}
-						})
-					}
-					if session.Pane != "" {
-						return model, func() tea.Msg {
-							var stdout, stderr bytes.Buffer
-							if focusOrcSession(session, &stdout, &stderr) != 0 {
-								return orcActionMessage{err: errors.New(strings.TrimSpace(stderr.String()))}
-							}
-							return orcActionMessage{text: strings.TrimSpace(stdout.String())}
-						}
-					}
-				}
+				return model.attachSelected()
 			case "r":
 				if session, found := model.selectedSession(); found && session.Registration == "observed" {
 					return model, func() tea.Msg {
@@ -603,13 +584,7 @@ func (model orcUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 				return model, model.replaySelectedWorkflow()
 			}
 		case key.Matches(typed, orcKeys.open):
-			switch model.view {
-			case orcControllersView:
-				if len(model.agents) > 0 {
-					model.selected = model.agents[model.cursor].Name
-					return model, tea.Quit
-				}
-			}
+			return model.attachSelected()
 		}
 	}
 	return model, nil
@@ -825,8 +800,8 @@ func (model orcUIModel) controlFooter() string {
 		if _, found := model.selectedTrace(); found {
 			actions = append(actions, "t traces")
 		}
-		if session, found := model.selectedSession(); found && (session.Pane != "" || session.Registration == "managed") {
-			actions = append(actions, "c focus/interact")
+		if session, found := model.selectedAttachSession(); found && canAttachOrcSession(session) {
+			actions = append(actions, "c attach")
 		}
 		if session, found := model.selectedSession(); found && session.Registration == "observed" {
 			actions = append(actions, "r inject")
@@ -837,10 +812,14 @@ func (model orcUIModel) controlFooter() string {
 		actions = append(actions, "i inspector", "b broker")
 		return orcSelectedStyle.Render("<space>") + orcTagStyle.Render("  "+strings.Join(actions, "  "))
 	}
-	if model.width < 70 {
-		return orcTagStyle.Render("j/k row  / filter  <space> actions  ? help  q quit")
+	attach := ""
+	if session, found := model.selectedAttachSession(); found && canAttachOrcSession(session) {
+		attach = "enter attach  "
 	}
-	return orcTagStyle.Render("j/k row   ctrl+j/k focus   tab inspector   gg/G ends   / filter   <space> actions   ? help   q quit")
+	if model.width < 70 {
+		return orcTagStyle.Render(attach + "j/k row  <space> actions  ? help  q quit")
+	}
+	return orcTagStyle.Render(attach + "j/k row   ctrl+j/k focus   tab inspector   / filter   <space> actions   ? help   q quit")
 }
 
 func (model orcUIModel) fullHelpView() string {
@@ -859,6 +838,7 @@ func (model orcUIModel) fullHelpLines() []string {
 		orcTitleStyle.Render("⚔ orc help"), "",
 		orcLabelStyle.Render("navigation"),
 		"  j/k, arrows       move within the focused pane",
+		"  enter             attach to the selected session",
 		"  ctrl+j, ctrl+k    focus resources or inspector",
 		"  gg, G             first or last resource",
 		"  ctrl+d, ctrl+u    move by half a page",
@@ -868,7 +848,7 @@ func (model orcUIModel) fullHelpLines() []string {
 		"  <space>g          workflow list or graph",
 		"  <space>n          recency-based harness picker",
 		"  <space>t          open Traces for this session",
-		"  <space>c          focus or interact with this session",
+		"  <space>c          attach to the selected session",
 		"  <space>r          inject an observed session",
 		"  <space>x          eject a registered session",
 		"  <space>i          show or hide the inspector",
@@ -1325,6 +1305,93 @@ func (model orcUIModel) selectedSession() (instance.Session, bool) {
 	return model.sessions[model.sessionCursor], true
 }
 
+func (model orcUIModel) selectedAttachSession() (instance.Session, bool) {
+	if session, found := model.selectedSession(); found {
+		return session, true
+	}
+	if model.view != orcWorkflowsView {
+		return instance.Session{}, false
+	}
+	run, found := model.selectedWorkflow()
+	if !found {
+		return instance.Session{}, false
+	}
+	if model.graphMode && model.workflow.Run.ID != run.ID {
+		return instance.Session{}, false
+	}
+	if node, found := model.selectedNode(); found {
+		if node.SessionID == nil {
+			return instance.Session{}, false
+		}
+		return model.sessionByID(string(*node.SessionID))
+	}
+	if run.OrchestrationSession == nil {
+		return instance.Session{}, false
+	}
+	return model.sessionByID(string(*run.OrchestrationSession))
+}
+
+func (model orcUIModel) sessionByID(id string) (instance.Session, bool) {
+	for _, session := range model.sessions {
+		if session.ID == id {
+			return session, true
+		}
+	}
+	return instance.Session{}, false
+}
+
+func canAttachOrcSession(session instance.Session) bool {
+	if session.Registration == "managed" {
+		if session.Status != string(domain.SessionStateRunning) && session.Status != string(domain.SessionStateWaiting) {
+			return false
+		}
+		for _, capability := range session.Capabilities {
+			if capability == "native-attachment" {
+				return true
+			}
+		}
+		return false
+	}
+	return session.Status != "disconnected" && session.Pane != "" && session.Mux > 0
+}
+
+func (model orcUIModel) attachSelected() (tea.Model, tea.Cmd) {
+	session, found := model.selectedAttachSession()
+	if model.view == orcWorkflowsView && !model.graphMode && (!found || !canAttachOrcSession(session)) {
+		model.graphMode = true
+		model.nodeCursor = 0
+		model.graphOffset = 0
+		model.inspectorOffset = 0
+		return model, nil
+	}
+	if !found {
+		model.message = "This selection has no session to attach"
+		model.messageError = true
+		return model, nil
+	}
+	if !canAttachOrcSession(session) {
+		model.message = "This session is unavailable for attachment"
+		model.messageError = true
+		return model, nil
+	}
+	if session.Registration == "managed" {
+		command := exec.Command(os.Args[0], "attach", session.ID)
+		return model, tea.ExecProcess(command, func(err error) tea.Msg {
+			if err != nil {
+				return orcActionMessage{err: fmt.Errorf("attach to session: %w", err)}
+			}
+			return orcActionMessage{text: "Returned from session"}
+		})
+	}
+	return model, func() tea.Msg {
+		var stdout, stderr bytes.Buffer
+		if focusOrcSession(session, &stdout, &stderr) != 0 {
+			return orcActionMessage{err: errors.New(strings.TrimSpace(stderr.String()))}
+		}
+		return orcActionMessage{text: strings.TrimSpace(stdout.String())}
+	}
+}
+
 func (model orcUIModel) selectedWorkflow() (domain.WorkflowRun, bool) {
 	if model.view != orcWorkflowsView || model.workflowCursor < 0 || model.workflowCursor >= len(model.workflows) {
 		return domain.WorkflowRun{}, false
@@ -1348,10 +1415,12 @@ func (model orcUIModel) selectedTrace() (instance.Session, bool) {
 	if session, found := model.selectedSession(); found && firstValue(session.TraceSessionID, session.NativeSessionID) != "" {
 		return session, true
 	}
-	if model.view == orcWorkflowsView {
-		if _, found := model.selectedWorkflow(); !found {
-			return instance.Session{}, false
-		}
+	if model.view != orcWorkflowsView {
+		return instance.Session{}, false
+	}
+	run, found := model.selectedWorkflow()
+	if !found || model.graphMode && model.workflow.Run.ID != run.ID {
+		return instance.Session{}, false
 	}
 	if node, found := model.selectedNode(); found {
 		if node.SessionID == nil {
@@ -1365,10 +1434,10 @@ func (model orcUIModel) selectedTrace() (instance.Session, bool) {
 		}
 		return instance.Session{}, false
 	}
-	if _, found := model.selectedWorkflow(); !found || model.workflow.Run.OrchestrationSession == nil {
+	if run.OrchestrationSession == nil {
 		return instance.Session{}, false
 	}
-	wanted := string(*model.workflow.Run.OrchestrationSession)
+	wanted := string(*run.OrchestrationSession)
 	for _, session := range model.sessions {
 		if session.ID == wanted && firstValue(session.TraceSessionID, session.NativeSessionID) != "" {
 			return session, true

@@ -1323,10 +1323,152 @@ func TestOrcPickerUsesRecentAgentAndResponsiveLayout(t *testing.T) {
 		Capabilities: []string{"native-attachment"},
 	}}
 	workerView := ansi.Strip(model.View())
-	for _, expected := range []string{"sessions 1", "worker-42", "worker", "managed", "native-attachment"} {
+	for _, expected := range []string{"sessions 1", "worker-42", "worker", "managed", "native-attachment", "enter attach"} {
 		if !strings.Contains(workerView, expected) {
 			t.Fatalf("worker View() omitted %q:\n%s", expected, workerView)
 		}
+	}
+	attached, command := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	if command == nil || attached.(orcUIModel).messageError {
+		t.Fatalf("enter attachment = %#v, command = %#v", attached, command)
+	}
+}
+
+func TestOrcEnterAttachesSelectedWorkflowNode(t *testing.T) {
+	sessionID := domain.SessionID("node-session")
+	model := orcUIModel{
+		view: orcWorkflowsView, graphMode: true, help: help.New(), width: 90, height: 24,
+		workflows: []domain.WorkflowRun{{ID: "run-1"}},
+		workflow: workflowViewResult{
+			Run:   domain.WorkflowRun{ID: "run-1"},
+			Nodes: []domain.NodeRun{{ID: "node-1", NodeKey: "build", SessionID: &sessionID}},
+		},
+		sessions: []instance.Session{{
+			ID: "node-session", Harness: "codex", Registration: "observed", Pane: "7", Mux: 42,
+		}},
+	}
+
+	view := ansi.Strip(model.View())
+	if !strings.Contains(view, "enter attach") {
+		t.Fatalf("workflow node omitted attachment action:\n%s", view)
+	}
+	updated, command := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	if command == nil || updated.(orcUIModel).messageError {
+		t.Fatalf("enter attachment = %#v, command = %#v", updated, command)
+	}
+}
+
+func TestOrcEnterExplainsUnavailableAttachment(t *testing.T) {
+	model := orcUIModel{
+		view: orcWorkersView, help: help.New(), width: 90, height: 24,
+		sessions: []instance.Session{{ID: "detached", Harness: "codex", Registration: "observed"}},
+	}
+
+	updated, command := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	result := updated.(orcUIModel)
+	if command != nil || !result.messageError || result.message != "This session is unavailable for attachment" {
+		t.Fatalf("unavailable attachment = %#v, command = %#v", result, command)
+	}
+}
+
+func TestOrcEnterDoesNotAttachDisconnectedSession(t *testing.T) {
+	model := orcUIModel{
+		view: orcWorkersView, help: help.New(), width: 90, height: 24,
+		sessions: []instance.Session{{
+			ID: "disconnected", Harness: "codex", Registration: "registered",
+			Status: "disconnected", Pane: "7", Mux: 42,
+		}},
+	}
+
+	if view := ansi.Strip(model.View()); strings.Contains(view, "enter attach") {
+		t.Fatalf("disconnected session advertised attachment:\n%s", view)
+	}
+	updated, command := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	if command != nil || !updated.(orcUIModel).messageError {
+		t.Fatalf("disconnected attachment = %#v, command = %#v", updated, command)
+	}
+}
+
+func TestOrcEnterOpensWorkflowWithoutRootSession(t *testing.T) {
+	model := orcUIModel{
+		view: orcWorkflowsView, help: help.New(), width: 90, height: 24,
+		workflows: []domain.WorkflowRun{{ID: "run-1"}},
+		workflow:  workflowViewResult{Run: domain.WorkflowRun{ID: "run-1"}},
+	}
+
+	updated, command := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	result := updated.(orcUIModel)
+	if command != nil || !result.graphMode || result.messageError {
+		t.Fatalf("workflow open = %#v, command = %#v", result, command)
+	}
+}
+
+func TestOrcEnterOpensWorkflowWithDisconnectedRoot(t *testing.T) {
+	sessionID := domain.SessionID("root-session")
+	model := orcUIModel{
+		view: orcWorkflowsView, help: help.New(), width: 90, height: 24,
+		workflows: []domain.WorkflowRun{{ID: "run-1", OrchestrationSession: &sessionID}},
+		workflow:  workflowViewResult{Run: domain.WorkflowRun{ID: "run-1", OrchestrationSession: &sessionID}},
+		sessions: []instance.Session{{
+			ID: "root-session", Registration: "registered", Status: "disconnected", Pane: "1", Mux: 42,
+		}},
+	}
+
+	updated, command := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	result := updated.(orcUIModel)
+	if command != nil || !result.graphMode || result.messageError {
+		t.Fatalf("workflow open = %#v, command = %#v", result, command)
+	}
+}
+
+func TestOrcEnterDoesNotAttachStaleWorkflowDetails(t *testing.T) {
+	oldSession := domain.SessionID("old-session")
+	newSession := domain.SessionID("new-session")
+	model := orcUIModel{
+		view: orcWorkflowsView, graphMode: true, help: help.New(), width: 90, height: 24,
+		workflowCursor: 1,
+		workflows: []domain.WorkflowRun{
+			{ID: "old-run", OrchestrationSession: &oldSession},
+			{ID: "new-run", OrchestrationSession: &newSession},
+		},
+		workflow: workflowViewResult{
+			Run:   domain.WorkflowRun{ID: "old-run", OrchestrationSession: &oldSession},
+			Nodes: []domain.NodeRun{{ID: "old-node", NodeKey: "build", SessionID: &oldSession}},
+		},
+		sessions: []instance.Session{
+			{ID: "old-session", Registration: "observed", Status: "working", Pane: "1", Mux: 42},
+			{ID: "new-session", Registration: "observed", Status: "working", Pane: "2", Mux: 42},
+		},
+	}
+
+	updated, command := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	result := updated.(orcUIModel)
+	if command != nil || !result.messageError || result.message != "This selection has no session to attach" {
+		t.Fatalf("stale workflow attachment = %#v, command = %#v", result, command)
+	}
+}
+
+func TestOrcStaleWorkflowDetailsDoNotExposeTrace(t *testing.T) {
+	oldSession := domain.SessionID("old-session")
+	newSession := domain.SessionID("new-session")
+	model := orcUIModel{
+		view: orcWorkflowsView, graphMode: true, workflowCursor: 1,
+		workflows: []domain.WorkflowRun{
+			{ID: "old-run", OrchestrationSession: &oldSession},
+			{ID: "new-run", OrchestrationSession: &newSession},
+		},
+		workflow: workflowViewResult{
+			Run:   domain.WorkflowRun{ID: "old-run", OrchestrationSession: &oldSession},
+			Nodes: []domain.NodeRun{{ID: "old-node", NodeKey: "build", SessionID: &oldSession}},
+		},
+		sessions: []instance.Session{
+			{ID: "old-session", TraceSessionID: "trace-old"},
+			{ID: "new-session", TraceSessionID: "trace-new"},
+		},
+	}
+
+	if session, found := model.selectedTrace(); found {
+		t.Fatalf("selectedTrace() = %#v, want unavailable while details refresh", session)
 	}
 }
 

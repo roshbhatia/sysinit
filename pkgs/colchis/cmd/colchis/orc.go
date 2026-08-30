@@ -330,7 +330,7 @@ func runOrcAgent(args []string, stderr io.Writer) int {
 
 func runOrcAttach(args []string, stdout io.Writer, stderr io.Writer) int {
 	if len(args) != 1 {
-		fmt.Fprintln(stderr, "usage: orc attach <worker-id>")
+		fmt.Fprintln(stderr, "usage: orc attach <session-id>")
 		return 2
 	}
 	lease, err := acquireOrcLease()
