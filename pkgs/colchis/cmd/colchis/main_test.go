@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 	"syscall"
 	"testing"
@@ -1231,6 +1232,59 @@ func TestOrcPromptUsesControllerEnvironment(t *testing.T) {
 	t.Setenv("ORC_SCOPE", "/workspace/project")
 	if code := runOrcPrompt(nil, &output, io.Discard); code != 0 || output.String() != "|⚔|" {
 		t.Fatalf("active prompt = %q with code %d", output.String(), code)
+	}
+}
+
+func TestResumeHookReusesNativeSessionIdentity(t *testing.T) {
+	record := instance.Record{Version: instance.Version, Scope: "/workspace", StateDirectory: t.TempDir()}
+	previous, err := instance.RegisterSession(record, instance.SessionRegistration{
+		ID: "session-old", Harness: "codex", NativeSessionID: "thread-42",
+		Status: "disconnected", Registration: "spawned",
+	})
+	if err != nil {
+		t.Fatalf("RegisterSession() returned %v", err)
+	}
+	t.Setenv("ORC_SESSION_ENROLL_PID", "42")
+	resumed, err := instance.RegisterSession(record, instance.SessionRegistration{
+		Harness: "codex", NativeSessionID: "thread-42", PID: 42,
+		Status: "working", Registration: orcSessionRegistrationSource("hook", 42),
+	})
+	if err != nil || resumed.ID != previous.ID || resumed.NativeSessionID != "thread-42" {
+		t.Fatalf("resumed session = %#v, %v", resumed, err)
+	}
+}
+
+func TestResumeHookEnrollsUnseenNativeSession(t *testing.T) {
+	record := instance.Record{Version: instance.Version, Scope: "/workspace", StateDirectory: t.TempDir()}
+	t.Setenv("ORC_SESSION_ENROLL_PID", "42")
+	registered, err := instance.RegisterSession(record, instance.SessionRegistration{
+		Harness: "codex", NativeSessionID: "thread-new", PID: 42,
+		Status: "working", Registration: orcSessionRegistrationSource("hook", 42),
+	})
+	if err != nil || registered.ID == "" || registered.NativeSessionID != "thread-new" {
+		t.Fatalf("registered session = %#v, %v", registered, err)
+	}
+}
+
+func TestResumeEnrollmentDoesNotAuthorizeAnotherProcess(t *testing.T) {
+	record := instance.Record{Version: instance.Version, Scope: "/workspace", StateDirectory: t.TempDir()}
+	t.Setenv("ORC_SESSION_ENROLL_PID", "42")
+	_, err := instance.RegisterSession(record, instance.SessionRegistration{
+		Harness: "codex", NativeSessionID: "thread-other", PID: 43,
+		Status: "working", Registration: orcSessionRegistrationSource("hook", 43),
+	})
+	if !errors.Is(err, instance.ErrSessionNotRegistered) {
+		t.Fatalf("RegisterSession() returned %v", err)
+	}
+}
+
+func TestResumeEnvironmentClearsInheritedOrcSession(t *testing.T) {
+	environment := withEnvironment([]string{"ORC_SESSION_ID=parent-session", "KEEP=value"}, map[string]string{
+		"ORC_SESSION_ID": "",
+	})
+	if strings.Contains(strings.Join(environment, "\n"), "ORC_SESSION_ID=parent-session") ||
+		!slices.Contains(environment, "ORC_SESSION_ID=") || !slices.Contains(environment, "KEEP=value") {
+		t.Fatalf("resume environment = %#v", environment)
 	}
 }
 

@@ -410,30 +410,37 @@ func runOrcController(args []string, stderr io.Writer, resume bool) int {
 	}
 	directory, err := os.Getwd()
 	if err != nil {
-		fmt.Fprintf(stderr, "resolve controller directory: %v\n", err)
+		fmt.Fprintf(stderr, "resolve orchestrator directory: %v\n", err)
 		return 1
 	}
-	identity, _, _ := plugin.ProcessIdentity(os.Getpid())
-	identifier, err := localCommandID()
-	if err != nil {
-		fmt.Fprintf(stderr, "create controller session id: %v\n", err)
-		return 1
-	}
-	session, err := instance.RegisterSession(record, instance.SessionRegistration{
-		ID: "session-" + identifier, Harness: name, Directory: directory, Pane: os.Getenv("WEZTERM_PANE"),
-		Mux: currentWezTermMuxID(), PID: os.Getpid(),
-		ProcessIdentity: identity,
-		Status:          "working", Reason: action, Registration: "spawned",
-		Capabilities: []string{"observe", "focus", "trace"},
-	})
-	if err != nil {
-		fmt.Fprintf(stderr, "register controller session: %v\n", err)
-		return 1
-	}
-	environment := withEnvironment(os.Environ(), map[string]string{
+	environmentValues := map[string]string{
 		"ORC_AGENT": name, "ORC_SCOPE": record.Scope,
-		"ORC_SOCKET": record.Socket, "ORC_STATE_DIR": record.StateDirectory, "ORC_SESSION_ID": session.ID,
-	})
+		"ORC_SOCKET": record.Socket, "ORC_STATE_DIR": record.StateDirectory,
+	}
+	if resume {
+		environmentValues["ORC_SESSION_ENROLL_PID"] = strconv.Itoa(os.Getpid())
+		environmentValues["ORC_SESSION_ID"] = ""
+	} else {
+		identity, _, _ := plugin.ProcessIdentity(os.Getpid())
+		identifier, idErr := localCommandID()
+		if idErr != nil {
+			fmt.Fprintf(stderr, "create orchestrator session id: %v\n", idErr)
+			return 1
+		}
+		session, registerErr := instance.RegisterSession(record, instance.SessionRegistration{
+			ID: "session-" + identifier, Harness: name, Directory: directory, Pane: os.Getenv("WEZTERM_PANE"),
+			Mux: currentWezTermMuxID(), PID: os.Getpid(),
+			ProcessIdentity: identity,
+			Status:          "working", Reason: action, Registration: "spawned",
+			Capabilities: []string{"observe", "focus", "trace"},
+		})
+		if registerErr != nil {
+			fmt.Fprintf(stderr, "register orchestrator session: %v\n", registerErr)
+			return 1
+		}
+		environmentValues["ORC_SESSION_ID"] = session.ID
+	}
+	environment := withEnvironment(os.Environ(), environmentValues)
 	// Exec keeps the lease PID attached to the agent without a supervising wrapper process.
 	if err := syscall.Exec(executable, command, environment); err != nil {
 		fmt.Fprintf(stderr, "start %s: %v\n", name, err)
@@ -599,10 +606,11 @@ func runOrcSessionRegister(args []string, stdout io.Writer, stderr io.Writer) in
 		return 0
 	}
 	identity, _, _ := plugin.ProcessIdentity(*pid)
+	registrationSource := orcSessionRegistrationSource(*source, *pid)
 	registered, err := instance.RegisterSession(record, instance.SessionRegistration{
 		ID: *id, Harness: *harness, NativeSessionID: *native, TraceSessionID: *trace,
 		Directory: directory, Pane: *pane, Mux: *mux, PID: *pid, ProcessIdentity: identity, Status: *status,
-		Reason: *reason, Registration: *source, Capabilities: splitComma(*capabilities),
+		Reason: *reason, Registration: registrationSource, Capabilities: splitComma(*capabilities),
 	})
 	if err != nil {
 		fmt.Fprintf(stderr, "register session: %v\n", err)
@@ -617,6 +625,17 @@ func runOrcSessionRegister(args []string, stdout io.Writer, stderr io.Writer) in
 		fmt.Fprintln(stdout, registered.ID)
 	}
 	return 0
+}
+
+func orcSessionRegistrationSource(source string, pid int) string {
+	if source != "hook" {
+		return source
+	}
+	enrollmentPID, err := strconv.Atoi(os.Getenv("ORC_SESSION_ENROLL_PID"))
+	if err == nil && enrollmentPID > 0 && enrollmentPID == pid {
+		return "resume"
+	}
+	return source
 }
 
 func runOrcSessionRemove(args []string, stdout io.Writer, stderr io.Writer) int {
