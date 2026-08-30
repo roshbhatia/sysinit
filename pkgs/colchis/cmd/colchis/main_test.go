@@ -1990,6 +1990,52 @@ func TestOrcEnterDoesNotAttachDisconnectedSession(t *testing.T) {
 	}
 }
 
+func TestOrcEnterPromptsToResumeDisconnectedSessionInSplit(t *testing.T) {
+	agent := agents.Agent{Name: "codex", Label: "Codex", Command: "codex"}
+	agent.Launch.ResumeArgs = []string{"resume"}
+	model := orcUIModel{
+		view: orcSessionsView, help: help.New(), width: 90, height: 24,
+		agents: []agents.Agent{agent},
+		sessions: []instance.Session{{
+			ID: "disconnected", Harness: "codex", NativeSessionID: "native-42",
+			Directory: "/workspace/project", Registration: "registered", Status: "disconnected",
+		}},
+	}
+
+	if footer := ansi.Strip(model.controlFooter()); !strings.Contains(footer, "enter reopen") {
+		t.Fatalf("disconnected session footer = %q", footer)
+	}
+	updated, command := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	model = updated.(orcUIModel)
+	if command != nil || model.openSession != "disconnected" || model.messageError ||
+		model.message != "Resume Codex session in a right split? y/N" {
+		t.Fatalf("open prompt = %#v, command = %#v", model, command)
+	}
+	if footer := ansi.Strip(model.controlFooter()); footer != "y open split   n cancel" {
+		t.Fatalf("open prompt footer = %q", footer)
+	}
+	updated, command = model.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'y'}})
+	model = updated.(orcUIModel)
+	if command == nil || model.openSession != "" || model.messageError ||
+		model.message != "Opening Codex in a right split" {
+		t.Fatalf("open confirmation = %#v, command = %#v", model, command)
+	}
+}
+
+func TestOrcSessionSplitArgumentsResumeExactConversation(t *testing.T) {
+	session := instance.Session{
+		Harness: "codex", NativeSessionID: "native-42", Directory: "/workspace/project",
+	}
+	arguments := orcSessionSplitArguments("/nix/store/orc/bin/orc", "7", session, true)
+	want := []string{
+		"cli", "--no-auto-start", "split-pane", "--pane-id", "7", "--right", "--percent", "50",
+		"--cwd", "/workspace/project", "--", "/nix/store/orc/bin/orc", "resume", "codex", "--", "native-42",
+	}
+	if !slices.Equal(arguments, want) {
+		t.Fatalf("split arguments = %q, want %q", arguments, want)
+	}
+}
+
 func TestOrcCLIAttachRejectsDisconnectedSession(t *testing.T) {
 	session := instance.Session{
 		ID: "disconnected", Status: "disconnected", Registration: "registered", Pane: "7", Mux: 42,

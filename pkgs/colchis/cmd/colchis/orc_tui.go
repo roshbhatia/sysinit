@@ -138,6 +138,7 @@ type orcUIModel struct {
 	filter               textinput.Model
 	filtering            bool
 	query                string
+	openSession          string
 }
 
 const (
@@ -331,6 +332,26 @@ func (model orcUIModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 					model.selected = model.agents[model.cursor].Name
 					return model, tea.Quit
 				}
+			}
+			return model, nil
+		}
+		if model.openSession != "" {
+			session, found := model.sessionByID(model.openSession)
+			switch pressed {
+			case "y":
+				model.openSession = ""
+				if !found {
+					model.message = "This session is no longer available"
+					model.messageError = true
+					return model, nil
+				}
+				model.message = "Opening " + model.sessionOpenLabel(session) + " in a right split"
+				model.messageError = false
+				return model, model.openSessionSplit(session)
+			case "n", "esc", "enter", "q":
+				model.openSession = ""
+				model.message = "Open cancelled"
+				model.messageError = false
 			}
 			return model, nil
 		}
@@ -1132,6 +1153,9 @@ func (model orcUIModel) resourceStrip() string {
 }
 
 func (model orcUIModel) controlFooter() string {
+	if model.openSession != "" {
+		return orcTagStyle.Render("y open split   n cancel")
+	}
 	if model.leader {
 		if model.width < 100 {
 			actions := []string{"v view"}
@@ -1175,6 +1199,8 @@ func (model orcUIModel) controlFooter() string {
 		attach = "enter open  "
 	} else if session, found := model.selectedAttachSession(); found && canAttachOrcSession(session) {
 		attach = "enter attach  "
+	} else if found && model.canOpenSession(session) {
+		attach = "enter reopen  "
 	}
 	if model.width < 72 {
 		if attach != "" {
@@ -2053,6 +2079,12 @@ func (model orcUIModel) attachSelected() (tea.Model, tea.Cmd) {
 		return model, nil
 	}
 	if !canAttachOrcSession(session) {
+		if model.canOpenSession(session) {
+			model.openSession = session.ID
+			model.message = model.sessionOpenPrompt(session)
+			model.messageError = false
+			return model, nil
+		}
 		model.message = "This session is unavailable for attachment"
 		model.messageError = true
 		return model, nil
@@ -2073,6 +2105,86 @@ func (model orcUIModel) attachSelected() (tea.Model, tea.Cmd) {
 		}
 		return orcActionMessage{text: strings.TrimSpace(stdout.String())}
 	}
+}
+
+func (model orcUIModel) canOpenSession(session instance.Session) bool {
+	if session.Status != "disconnected" || session.Registration == "managed" || session.Harness == "" {
+		return false
+	}
+	_, found := model.agentByName(session.Harness)
+	return found
+}
+
+func (model orcUIModel) agentByName(name string) (agents.Agent, bool) {
+	for _, agent := range model.agents {
+		if agent.Name == name {
+			return agent, true
+		}
+	}
+	return agents.Agent{}, false
+}
+
+func (model orcUIModel) sessionOpenLabel(session instance.Session) string {
+	if agent, found := model.agentByName(session.Harness); found {
+		return firstValue(agent.Label, agent.Name)
+	}
+	return session.Harness
+}
+
+func (model orcUIModel) sessionOpenPrompt(session instance.Session) string {
+	agent, _ := model.agentByName(session.Harness)
+	action := "Start a new"
+	if len(agent.Launch.ResumeArgs) > 0 {
+		action = "Resume"
+	}
+	return fmt.Sprintf("%s %s session in a right split? y/N", action, model.sessionOpenLabel(session))
+}
+
+func (model orcUIModel) openSessionSplit(session instance.Session) tea.Cmd {
+	agent, _ := model.agentByName(session.Harness)
+	resume := len(agent.Launch.ResumeArgs) > 0
+	return func() tea.Msg {
+		if err := openOrcSessionSplit(session, resume); err != nil {
+			return orcActionMessage{err: fmt.Errorf("open session split: %w", err)}
+		}
+		return orcActionMessage{text: "Opened " + model.sessionOpenLabel(session) + " in a right split"}
+	}
+}
+
+func openOrcSessionSplit(session instance.Session, resume bool) error {
+	pane := os.Getenv("WEZTERM_PANE")
+	if pane == "" {
+		return errors.New("the Orc UI is not running in a WezTerm pane")
+	}
+	executable, err := os.Executable()
+	if err != nil {
+		return fmt.Errorf("find Orc executable: %w", err)
+	}
+	arguments := orcSessionSplitArguments(executable, pane, session, resume)
+	command := exec.Command("wezterm", arguments...)
+	output, err := command.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("wezterm: %s: %w", strings.TrimSpace(string(output)), err)
+	}
+	return nil
+}
+
+func orcSessionSplitArguments(executable string, pane string, session instance.Session, resume bool) []string {
+	arguments := []string{
+		"cli", "--no-auto-start", "split-pane", "--pane-id", pane, "--right", "--percent", "50",
+	}
+	if session.Directory != "" {
+		arguments = append(arguments, "--cwd", session.Directory)
+	}
+	action := "run"
+	if resume {
+		action = "resume"
+	}
+	arguments = append(arguments, "--", executable, action, session.Harness)
+	if resume && session.NativeSessionID != "" {
+		arguments = append(arguments, "--", session.NativeSessionID)
+	}
+	return arguments
 }
 
 func (model orcUIModel) selectedWorkflow() (domain.WorkflowRun, bool) {
