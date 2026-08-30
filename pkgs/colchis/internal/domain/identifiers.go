@@ -25,6 +25,7 @@ type AnnotationReplyID string
 type TaskResultID string
 type TaskRecordID string
 type AdmissionID string
+type AdmissionReuseID string
 type ArtifactID string
 type ValidationID string
 type PluginID string
@@ -118,6 +119,10 @@ func (id TaskRecordID) Validate() error {
 
 func (id AdmissionID) Validate() error {
 	return validateIdentifier("admission", string(id))
+}
+
+func (id AdmissionReuseID) Validate() error {
+	return validateIdentifier("admission reuse", string(id))
 }
 
 func (id ArtifactID) Validate() error {

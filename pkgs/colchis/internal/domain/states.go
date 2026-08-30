@@ -141,12 +141,37 @@ const (
 	InterventionKindAttach    InterventionKind = "attach"
 	InterventionKindDetach    InterventionKind = "detach"
 	InterventionKindPolicy    InterventionKind = "policy"
+	InterventionKindPause     InterventionKind = "pause"
+	InterventionKindResume    InterventionKind = "resume"
+	InterventionKindRetry     InterventionKind = "retry"
+	InterventionKindCancel    InterventionKind = "cancel"
+	InterventionKindBranch    InterventionKind = "branch"
 )
 
 func (kind InterventionKind) Valid() bool {
 	switch kind {
 	case InterventionKindMessage, InterventionKindInterrupt, InterventionKindAttach, InterventionKindDetach,
-		InterventionKindPolicy:
+		InterventionKindPolicy, InterventionKindPause, InterventionKindResume, InterventionKindRetry,
+		InterventionKindCancel, InterventionKindBranch:
+		return true
+	default:
+		return false
+	}
+}
+
+type PauseCauseKind string
+
+const (
+	PauseCauseOwnerInput            PauseCauseKind = "owner_input"
+	PauseCauseCapabilityUnavailable PauseCauseKind = "capability_unavailable"
+	PauseCauseContractIncomplete    PauseCauseKind = "contract_incomplete"
+	PauseCauseLimitReached          PauseCauseKind = "limit_reached"
+)
+
+func (kind PauseCauseKind) Valid() bool {
+	switch kind {
+	case PauseCauseOwnerInput, PauseCauseCapabilityUnavailable,
+		PauseCauseContractIncomplete, PauseCauseLimitReached:
 		return true
 	default:
 		return false

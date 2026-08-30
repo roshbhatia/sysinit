@@ -68,6 +68,14 @@ type graphPatchCommand struct {
 	Operations                []domain.GraphPatchOperation `json:"operations"`
 }
 
+type workflowReviseCommand struct {
+	ID                        domain.GraphPatchID          `json:"id"`
+	BaseDefinitionID          domain.WorkflowDefinitionID  `json:"baseWorkflowDefinitionId"`
+	ResultDefinitionID        domain.WorkflowDefinitionID  `json:"resultWorkflowDefinitionId"`
+	ExpectedDefinitionVersion uint64                       `json:"expectedDefinitionVersion"`
+	Operations                []domain.GraphPatchOperation `json:"operations"`
+}
+
 type replayCommand struct {
 	ID                      domain.RunForkID            `json:"id"`
 	ParentWorkflowRunID     domain.WorkflowRunID        `json:"parentWorkflowRunId"`
@@ -93,6 +101,11 @@ type sessionCancelResult struct {
 	Intervention domain.Intervention `json:"intervention"`
 }
 
+type admissionRefreshResult struct {
+	Admission domain.Admission `json:"admission"`
+	Current   bool             `json:"current"`
+}
+
 type workflowRunResult struct {
 	Run        domain.WorkflowRun         `json:"run"`
 	Definition *domain.WorkflowDefinition `json:"definition,omitempty"`
@@ -107,6 +120,17 @@ type graphPatchResult struct {
 type replayResult struct {
 	Run  domain.WorkflowRun `json:"run"`
 	Fork domain.RunFork     `json:"fork"`
+}
+
+type workflowPauseResult struct {
+	Run          domain.WorkflowRun  `json:"run"`
+	Intervention domain.Intervention `json:"intervention"`
+}
+
+type workflowRetryResult struct {
+	Run          domain.WorkflowRun  `json:"run"`
+	Node         domain.NodeRun      `json:"node"`
+	Intervention domain.Intervention `json:"intervention"`
 }
 
 type effectReconcileResult struct {
@@ -197,9 +221,60 @@ func (executor *ControlExecutor) ExecuteCommandResult(
 		return executor.inspectWorkflow(ctx, request)
 	case "workflow.export":
 		return executor.exportWorkflow(ctx, request)
+	case "workflow.pause":
+		var command sqlite.WorkflowPauseRequest
+		if err := decodeControlPayload(request, &command); err != nil {
+			return nil, err
+		}
+		if err := applyExpectedVersion(request, &command.ExpectedVersion); err != nil {
+			return nil, err
+		}
+		command.Source = principal.Identifier()
+		command.CommandID = request.ID
+		run, intervention, err := executor.store.PauseWorkflow(ctx, command)
+		return encodeControlResult(workflowPauseResult{Run: run, Intervention: intervention}, err)
+	case "workflow.resume":
+		var command sqlite.WorkflowResumeRequest
+		if err := decodeControlPayload(request, &command); err != nil {
+			return nil, err
+		}
+		if err := applyExpectedVersion(request, &command.ExpectedVersion); err != nil {
+			return nil, err
+		}
+		command.Source = principal.Identifier()
+		command.CommandID = request.ID
+		run, intervention, err := executor.store.ResumeWorkflow(ctx, command)
+		return encodeControlResult(workflowPauseResult{Run: run, Intervention: intervention}, err)
+	case "workflow.retry":
+		var command sqlite.WorkflowRetryRequest
+		if err := decodeControlPayload(request, &command); err != nil {
+			return nil, err
+		}
+		if err := applyExpectedVersion(request, &command.ExpectedVersion); err != nil {
+			return nil, err
+		}
+		command.Source = principal.Identifier()
+		command.CommandID = request.ID
+		run, node, intervention, err := executor.store.RetryWorkflowNode(ctx, command)
+		return encodeControlResult(workflowRetryResult{Run: run, Node: node, Intervention: intervention}, err)
+	case "workflow.revise":
+		var command workflowReviseCommand
+		if err := decodeControlPayload(request, &command); err != nil {
+			return nil, err
+		}
+		definition, patch, err := executor.store.ReviseWorkflowDefinition(
+			ctx, sqlite.WorkflowRevisionRequest{
+				ID: command.ID, BaseDefinitionID: command.BaseDefinitionID,
+				ResultDefinitionID:        command.ResultDefinitionID,
+				ExpectedDefinitionVersion: command.ExpectedDefinitionVersion,
+				CommandID:                 request.ID, Operations: command.Operations,
+				Source: "command", SourceID: request.IdempotencyKey,
+			}, executor.evaluator, workflowmodel.CapabilityMap(executor.capabilities.AdapterCapabilities()),
+		)
+		return encodeControlResult(graphPatchResult{Definition: definition, Patch: patch}, err)
 	case "graph.patch":
 		return executor.patchGraph(ctx, request)
-	case "workflow.replay":
+	case "workflow.branch":
 		return executor.replayWorkflow(ctx, principal, request)
 	case "workflow.restart-point":
 		var command sqlite.RestartPointRequest
@@ -294,6 +369,15 @@ func (executor *ControlExecutor) ExecuteCommandResult(
 		}
 		result, err := executor.store.DecideAdmission(ctx, command)
 		return encodeControlResult(result, err)
+	case "verification.refresh":
+		var command sqlite.AdmissionFreshnessRequest
+		if err := decodeControlPayload(request, &command); err != nil {
+			return nil, err
+		}
+		result, current, err := executor.sessions.RefreshAdmission(ctx, AdmissionRefreshRequest{
+			Freshness: command, CommandID: request.ID, Source: principal.Identifier(),
+		})
+		return encodeControlResult(admissionRefreshResult{Admission: result, Current: current}, err)
 	case "effect.reconcile":
 		var command effectReconcileCommand
 		if err := decodeControlPayload(request, &command); err != nil {
@@ -466,6 +550,7 @@ func (executor *ControlExecutor) patchGraph(
 		ID: command.ID, RunID: command.RunID, ResultDefinitionID: command.ResultDefinitionID,
 		ExpectedDefinitionVersion: command.ExpectedDefinitionVersion,
 		CommandID:                 request.ID, Operations: command.Operations,
+		Source: "command", SourceID: request.IdempotencyKey,
 	}, executor.evaluator, workflowmodel.CapabilityMap(executor.capabilities.AdapterCapabilities()))
 	return encodeControlResult(graphPatchResult{Definition: definition, Patch: patch}, err)
 }
@@ -508,12 +593,14 @@ func decodeEffectObservation(payload json.RawMessage) (effectObservationResult, 
 
 func decodeControlPayload[Value interface {
 	*adapterCommand | *workflowCreateCommand | *workflowRunCommand | *workflowScheduleCommand |
-		*workflowInspectCommand | *workflowExportCommand | *graphPatchCommand | *replayCommand |
+		*workflowInspectCommand | *workflowExportCommand | *graphPatchCommand | *workflowReviseCommand | *replayCommand |
 		*sqlite.RestartPointRequest | *StartSessionRequest | *ForwardInterventionRequest |
 		*ForwardAttachmentRequest | *sqlite.InterventionRequest |
 		*sessionHistoryCommand | *workspaceSnapshotCommand | *sqlite.ArtifactRequest |
 		*sqlite.TaskResultRequest | *sqlite.TaskRecordRequest | *sqlite.ValidationRequest |
-		*sqlite.AdmissionRequest | *effectReconcileCommand |
+		*sqlite.AdmissionRequest | *sqlite.AdmissionFreshnessRequest |
+		*sqlite.WorkflowPauseRequest | *sqlite.WorkflowResumeRequest |
+		*sqlite.WorkflowRetryRequest | *effectReconcileCommand |
 		*domain.CommitObservation | *domain.ProvenanceRelation | *provenanceInspectCommand
 }](request domain.CommandRequest, target Value) error {
 	decoder := json.NewDecoder(bytes.NewReader(request.Payload))
@@ -532,11 +619,20 @@ type controlResult interface {
 	json.RawMessage | []domain.NodeRun | []domain.WorkflowRun | []domain.RestartPoint | []domain.RunFork | []domain.Session |
 		AdapterInvocationResult | StartSessionResult |
 		ForwardInterventionResult | ForwardAttachmentResult |
-		sessionCancelResult | sqlite.SessionHistory | workflowRunResult | graphPatchResult | replayResult |
+		sessionCancelResult | admissionRefreshResult | sqlite.SessionHistory | workflowRunResult | graphPatchResult | replayResult |
+		workflowPauseResult | workflowRetryResult |
 		effectReconcileResult |
 		domain.WorkflowDefinition | domain.Snapshot | domain.Artifact | sqlite.TaskResultSubmission |
 		domain.TaskRecord | domain.Validation | domain.Admission | domain.CommitObservation |
 		domain.ProvenanceRelation | domain.RestartPoint | sqlite.ProvenanceInspection | sqlite.Inspection
+}
+
+func applyExpectedVersion(request domain.CommandRequest, target *domain.ResourceVersion) error {
+	if request.ExpectedVersion == nil {
+		return controlError(request.Kind, "expectedVersion is required")
+	}
+	*target = *request.ExpectedVersion
+	return nil
 }
 
 func encodeControlResult[Value controlResult](value Value, resultErr error) (json.RawMessage, error) {

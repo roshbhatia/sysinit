@@ -112,6 +112,11 @@ func run(args []string, stdout io.Writer, stderr io.Writer) int {
 			fmt.Fprintf(stderr, "prepare instance record: %v\n", err)
 			return 1
 		}
+		record.Executable, err = orcExecutable()
+		if err != nil {
+			fmt.Fprintf(stderr, "resolve Orc executable: %v\n", err)
+			return 1
+		}
 		record.StateDirectory = paths.StateDirectory
 		record.Socket = paths.Socket
 		ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -208,21 +213,25 @@ func runWorkflowView(args []string, stdout io.Writer, stderr io.Writer) int {
 			fmt.Fprintf(stderr, "validate view control %s: %v\n", kind, err)
 			return 2
 		}
-		result, err := executeNativeCommand(*stateDirectory, kind, controlPayload)
+		expectedVersion := domain.ResourceVersion(0)
+		if kind == "workflow.pause" || kind == "workflow.resume" || kind == "workflow.retry" {
+			expectedVersion = view.Run.Metadata.ResourceVersion
+		}
+		result, err := executeNativeCommandAtVersion(*stateDirectory, kind, controlPayload, expectedVersion)
 		if err != nil {
 			fmt.Fprintf(stderr, "execute view control %s: %v\n", kind, err)
 			return 1
 		}
 		fmt.Fprintf(stdout, "control %s [%s]\n", kind, result.State)
-		if kind == "workflow.replay" {
-			var replay struct {
+		if kind == "workflow.branch" {
+			var branch struct {
 				Run domain.WorkflowRun `json:"run"`
 			}
-			if err := json.Unmarshal(result.Result, &replay); err != nil || replay.Run.ID == "" {
-				fmt.Fprintf(stderr, "decode replay control result: %v\n", err)
+			if err := json.Unmarshal(result.Result, &branch); err != nil || branch.Run.ID == "" {
+				fmt.Fprintf(stderr, "decode branch control result: %v\n", err)
 				return 1
 			}
-			*runID = string(replay.Run.ID)
+			*runID = string(branch.Run.ID)
 		}
 		view, definition, err = loadWorkflowView(*stateDirectory, *runID)
 		if err != nil {
@@ -279,8 +288,10 @@ func validateWorkflowViewControl(
 	switch kind {
 	case "graph.patch":
 		return requireViewTarget(document, "workflowRunId", wantRunID)
-	case "workflow.replay":
+	case "workflow.branch":
 		return requireViewTarget(document, "parentWorkflowRunId", wantRunID)
+	case "workflow.pause", "workflow.resume", "workflow.retry":
+		return requireViewTarget(document, "runId", wantRunID)
 	case "effect.reconcile":
 		return requireViewTarget(document, "workflowRunId", wantRunID)
 	case "agent.attach", "agent.detach", "agent.intervene", "agent.policy":
@@ -322,7 +333,9 @@ func requireViewTarget(document map[string]json.RawMessage, field string, want s
 
 func workflowViewControlKind(control string) (string, bool) {
 	kinds := map[string]string{
-		"graph patch": "graph.patch", "replay run": "workflow.replay",
+		"graph patch": "graph.patch", "branch run": "workflow.branch",
+		"workflow pause": "workflow.pause", "workflow resume": "workflow.resume",
+		"stage retry":  "workflow.retry",
 		"agent attach": "agent.attach", "worker attach": "agent.attach",
 		"agent detach": "agent.detach", "worker detach": "agent.detach",
 		"agent intervene": "agent.intervene", "worker intervene": "agent.intervene",
@@ -338,6 +351,15 @@ func executeNativeCommand(
 	kind string,
 	payload json.RawMessage,
 ) (domain.CommandRecord, error) {
+	return executeNativeCommandAtVersion(stateDirectory, kind, payload, 0)
+}
+
+func executeNativeCommandAtVersion(
+	stateDirectory string,
+	kind string,
+	payload json.RawMessage,
+	expectedVersion domain.ResourceVersion,
+) (domain.CommandRecord, error) {
 	commandID, err := localCommandID()
 	if err != nil {
 		return domain.CommandRecord{}, err
@@ -351,10 +373,14 @@ func executeNativeCommand(
 		return domain.CommandRecord{}, err
 	}
 	defer client.Close()
-	return client.Command(context.Background(), domain.CommandRequest{
+	request := domain.CommandRequest{
 		ID: domain.CommandID(commandID), IdempotencyKey: "view-" + commandID,
 		Kind: kind, Payload: payload,
-	})
+	}
+	if expectedVersion != 0 {
+		request.ExpectedVersion = &expectedVersion
+	}
+	return client.Command(context.Background(), request)
 }
 
 func executeNativeQuery(
@@ -421,7 +447,7 @@ func renderWorkflowView(stdout io.Writer, view workflowViewResult, definition wo
 			)
 		}
 	}
-	fmt.Fprintln(stdout, "controls: graph patch | replay run | worker attach | worker detach | worker intervene | worker policy | provenance relation | effect reconcile")
+	fmt.Fprintln(stdout, "controls: graph patch | branch run | workflow pause | workflow resume | stage retry | worker attach | worker detach | worker intervene | worker policy | provenance relation | effect reconcile")
 }
 
 func controlCommandKind(args []string) (string, int, bool) {
@@ -440,8 +466,12 @@ func controlCommandKind(args []string) (string, int, bool) {
 		"workflow inspect":         "workflow.inspect",
 		"workflow export":          "workflow.export",
 		"workflow restart-point":   "workflow.restart-point",
+		"workflow pause":           "workflow.pause",
+		"workflow resume":          "workflow.resume",
+		"workflow revise":          "workflow.revise",
 		"graph patch":              "graph.patch",
-		"replay run":               "workflow.replay",
+		"stage retry":              "workflow.retry",
+		"branch run":               "workflow.branch",
 		"agent start":              "agent.start",
 		"agent attach":             "agent.attach",
 		"agent detach":             "agent.detach",
@@ -493,6 +523,9 @@ func runControlCommand(kind string, args []string, stdout io.Writer, stderr io.W
 		fmt.Fprintf(stderr, "read command payload: %v\n", err)
 		return 2
 	}
+	if kind == "workflow.run" {
+		payload = bindCurrentWorkflowSession(payload)
+	}
 	if *commandID == "" {
 		*commandID, err = localCommandID()
 		if err != nil {
@@ -506,6 +539,13 @@ func runControlCommand(kind string, args []string, stdout io.Writer, stderr io.W
 	paths, err := resolveOrcPaths(*stateDirectory)
 	if err != nil {
 		fmt.Fprintf(stderr, "resolve state paths: %v\n", err)
+		return 1
+	}
+	if _, err := refreshOrcGeneration(instance.Record{
+		StateDirectory: paths.StateDirectory,
+		Socket:         paths.Socket,
+	}); err != nil {
+		fmt.Fprintf(stderr, "refresh broker generation: %v\n", err)
 		return 1
 	}
 	client, err := socket.NewClient(paths.Socket)

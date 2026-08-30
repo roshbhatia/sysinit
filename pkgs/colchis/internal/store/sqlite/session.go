@@ -67,12 +67,13 @@ type CheckpointRequest struct {
 }
 
 type InterventionRequest struct {
-	ID        domain.InterventionID
-	SessionID domain.SessionID
-	Kind      domain.InterventionKind
-	Payload   json.RawMessage
-	Source    string
-	Deadline  *time.Time
+	ID        domain.InterventionID    `json:"id"`
+	Target    domain.ResourceReference `json:"target"`
+	SessionID domain.SessionID         `json:"sessionId,omitempty"`
+	Kind      domain.InterventionKind  `json:"kind"`
+	Payload   json.RawMessage          `json:"payload"`
+	Source    string                   `json:"source"`
+	Deadline  *time.Time               `json:"deadline,omitempty"`
 }
 
 type SessionHistory struct {
@@ -114,7 +115,7 @@ func (store *Store) CreateSession(
 		now := time.Now().UTC()
 		created = domain.Session{
 			Metadata: newRecordMetadata(now), ID: request.ID,
-			WorkflowRunID: request.WorkflowRunID, NodeRunID: request.NodeRunID,
+			WorkflowRunID: request.WorkflowRunID, NodeRunID: request.NodeRunID, Attempt: node.Attempt,
 			RuntimePluginID: request.RuntimePluginID, RuntimeAdapterID: request.RuntimeAdapterID,
 			State: domain.SessionStateStarting, Capabilities: append([]string(nil), request.Capabilities...),
 			JobPolicy: jobPolicy,
@@ -841,7 +842,23 @@ func (transaction *Tx) updateNodeForSessionState(
 	if target == node.State {
 		return nil
 	}
-	return transaction.transitionNodeRun(ctx, &node, target, now)
+	if err := transaction.transitionNodeRun(ctx, &node, target, now); err != nil {
+		return err
+	}
+	if target != domain.NodeRunStateFailed && target != domain.NodeRunStateCapped {
+		return nil
+	}
+	run, found, err := transaction.workflowRun(ctx, node.WorkflowRunID)
+	if err != nil {
+		return err
+	}
+	if !found {
+		return notFound("pause failed workflow", string(node.WorkflowRunID), "workflow run does not exist")
+	}
+	return transaction.pauseWorkflowForNode(
+		ctx, &run, node, domain.WorkflowRunStateFailed,
+		domain.PauseCauseContractIncomplete, "worker session failed", now,
+	)
 }
 
 func (store *Store) ReconcileSession(
@@ -1162,16 +1179,20 @@ func (store *Store) RecordIntervention(
 		} else if found {
 			return conflict("record intervention", string(request.ID), "intervention already exists")
 		}
-		if _, found, err := typedRecord[domain.Session](
-			transaction, ctx, sessionRecordKind, string(request.SessionID),
-		); err != nil {
+		target := request.Target
+		if target.Kind == "" && request.SessionID != "" {
+			target = domain.ResourceReference{Kind: sessionRecordKind, ID: string(request.SessionID)}
+		}
+		found, err := transaction.resourceExists(ctx, target)
+		if err != nil {
 			return err
-		} else if !found {
-			return notFound("record intervention", string(request.SessionID), "session does not exist")
+		}
+		if !found {
+			return notFound("record intervention", target.Kind+":"+target.ID, "intervention target does not exist")
 		}
 		now := time.Now().UTC()
 		intervention = domain.Intervention{
-			Metadata: newRecordMetadata(now), ID: request.ID, SessionID: request.SessionID,
+			Metadata: newRecordMetadata(now), ID: request.ID, Target: target, SessionID: request.SessionID,
 			Kind: request.Kind, State: domain.InterventionStateRecorded,
 			Payload: append(json.RawMessage(nil), request.Payload...), Source: request.Source,
 			Authority: domain.AuthorityOwner, Deadline: request.Deadline, RecordedAt: now,
@@ -1188,7 +1209,11 @@ func (store *Store) RecordIntervention(
 		); err != nil {
 			return err
 		}
-		return appendRecordEvent(transaction, ctx, now, sessionRecordKind, string(request.SessionID), "session.intervention.recorded", struct {
+		eventType := "intervention.recorded"
+		if target.Kind == sessionRecordKind {
+			eventType = "session.intervention.recorded"
+		}
+		return appendRecordEvent(transaction, ctx, now, target.Kind, target.ID, eventType, struct {
 			InterventionID domain.InterventionID   `json:"interventionId"`
 			Kind           domain.InterventionKind `json:"kind"`
 		}{InterventionID: intervention.ID, Kind: intervention.Kind})
@@ -1244,7 +1269,15 @@ func (store *Store) TransitionIntervention(
 		); err != nil {
 			return err
 		}
-		return appendRecordEvent(transaction, ctx, now, sessionRecordKind, string(updated.SessionID), "session.intervention.changed", struct {
+		target := updated.Target
+		if target.Kind == "" {
+			target = domain.ResourceReference{Kind: sessionRecordKind, ID: string(updated.SessionID)}
+		}
+		eventType := "intervention.changed"
+		if target.Kind == sessionRecordKind {
+			eventType = "session.intervention.changed"
+		}
+		return appendRecordEvent(transaction, ctx, now, target.Kind, target.ID, eventType, struct {
 			InterventionID domain.InterventionID    `json:"interventionId"`
 			State          domain.InterventionState `json:"state"`
 		}{InterventionID: id, State: state})
@@ -1326,7 +1359,7 @@ type sessionStoredRecord interface {
 	domain.Session | domain.WorkflowRun | domain.AdapterHandle | domain.PromptArtifact | domain.Activity |
 		domain.Checkpoint | domain.Intervention | domain.CommitObservation |
 		domain.ProvenanceRelation | domain.Annotation | domain.AnnotationReply | domain.RestartPoint | domain.RunFork |
-		domain.GraphPatch
+		domain.GraphPatch | domain.AdmissionReuse
 }
 
 func typedRecord[Record sessionStoredRecord](
@@ -1426,7 +1459,19 @@ type jsonRecordPayload interface {
 		State          domain.InterventionState `json:"state"`
 	} | struct {
 		Adapter string `json:"adapter"`
-	} | domain.JobPolicy | domain.RuntimeEvent
+	} | struct {
+		InterventionID domain.InterventionID `json:"interventionId"`
+		Cause          domain.PauseCause     `json:"cause"`
+	} | struct {
+		InterventionID domain.InterventionID `json:"interventionId"`
+		PauseID        domain.InterventionID `json:"pauseId"`
+	} | struct {
+		InterventionID domain.InterventionID `json:"interventionId"`
+		Attempt        uint32                `json:"previousAttempt"`
+	} | struct {
+		PatchID          domain.GraphPatchID `json:"patchId"`
+		AffectedNodeKeys []domain.NodeKey    `json:"affectedNodeKeys"`
+	} | domain.JobPolicy | domain.RuntimeEvent | domain.AdmissionReuse
 }
 
 func (transaction *Tx) validateActivityLineage(ctx context.Context, activity domain.Activity) error {
@@ -1716,9 +1761,22 @@ func validateCheckpointRequest(request CheckpointRequest) error {
 }
 
 func validateInterventionRequest(request InterventionRequest) error {
-	for _, err := range []error{request.ID.Validate(), request.SessionID.Validate()} {
-		if err != nil {
+	if err := request.ID.Validate(); err != nil {
+		return err
+	}
+	target := request.Target
+	if target.Kind == "" && request.SessionID != "" {
+		target = domain.ResourceReference{Kind: sessionRecordKind, ID: string(request.SessionID)}
+	}
+	if err := target.Validate(); err != nil {
+		return err
+	}
+	if request.SessionID != "" {
+		if err := request.SessionID.Validate(); err != nil {
 			return err
+		}
+		if target.Kind != sessionRecordKind || target.ID != string(request.SessionID) {
+			return invalidSessionArgument("record intervention", string(request.ID), "session target does not match sessionId")
 		}
 	}
 	if !request.Kind.Valid() || !json.Valid(request.Payload) || request.Source == "" {

@@ -2573,8 +2573,10 @@ func (store *Store) RecoverRunningCommands(ctx context.Context) ([]domain.Comman
 
 	recovered := make([]domain.CommandRecord, 0, len(running))
 	for _, command := range running {
-		if command.Kind == "workflow.replay" {
-			result, found, err := store.completedReplayCommandResult(ctx, command.ID)
+		if command.Kind == "workflow.branch" || command.Kind == "workflow.pause" ||
+			command.Kind == "workflow.resume" || command.Kind == "workflow.retry" ||
+			command.Kind == "workflow.revise" || command.Kind == "verification.refresh" {
+			result, found, err := store.completedRecoverableCommandResult(ctx, command)
 			if err != nil {
 				return nil, err
 			}
@@ -2615,6 +2617,135 @@ func (store *Store) RecoverRunningCommands(ctx context.Context) ([]domain.Comman
 	return recovered, nil
 }
 
+func (store *Store) completedRecoverableCommandResult(
+	ctx context.Context,
+	command domain.CommandRecord,
+) (json.RawMessage, bool, error) {
+	if command.Kind == "workflow.branch" {
+		return store.completedReplayCommandResult(ctx, command.ID)
+	}
+	var result json.RawMessage
+	var found bool
+	err := store.Transaction(ctx, func(transaction *Tx) error {
+		switch command.Kind {
+		case "workflow.pause", "workflow.resume":
+			var request struct {
+				ID    domain.InterventionID `json:"id"`
+				RunID domain.WorkflowRunID  `json:"runId"`
+			}
+			if err := json.Unmarshal(command.Payload, &request); err != nil {
+				return wrap("decode recoverable workflow command", string(command.ID), err)
+			}
+			intervention, present, err := typedRecord[domain.Intervention](
+				transaction, ctx, interventionRecordKind, string(request.ID),
+			)
+			if err != nil || !present {
+				return err
+			}
+			expectedKind := domain.InterventionKindPause
+			if command.Kind == "workflow.resume" {
+				expectedKind = domain.InterventionKindResume
+			}
+			if intervention.CommandID != command.ID || intervention.Kind != expectedKind ||
+				intervention.Target.Kind != workflowRunRecordKind || intervention.Target.ID != string(request.RunID) {
+				return nil
+			}
+			run, present, err := transaction.workflowRun(ctx, request.RunID)
+			if err != nil || !present {
+				return err
+			}
+			result, err = json.Marshal(struct {
+				Run          domain.WorkflowRun  `json:"run"`
+				Intervention domain.Intervention `json:"intervention"`
+			}{Run: run, Intervention: intervention})
+			found = err == nil
+			return err
+		case "workflow.retry":
+			var request struct {
+				ID        domain.InterventionID `json:"id"`
+				RunID     domain.WorkflowRunID  `json:"runId"`
+				NodeRunID domain.NodeRunID      `json:"nodeRunId"`
+			}
+			if err := json.Unmarshal(command.Payload, &request); err != nil {
+				return wrap("decode recoverable workflow command", string(command.ID), err)
+			}
+			intervention, present, err := typedRecord[domain.Intervention](
+				transaction, ctx, interventionRecordKind, string(request.ID),
+			)
+			if err != nil || !present {
+				return err
+			}
+			if intervention.CommandID != command.ID || intervention.Kind != domain.InterventionKindRetry ||
+				intervention.Target.Kind != nodeRunRecordKind || intervention.Target.ID != string(request.NodeRunID) {
+				return nil
+			}
+			run, present, err := transaction.workflowRun(ctx, request.RunID)
+			if err != nil || !present {
+				return err
+			}
+			node, present, err := transaction.nodeRun(ctx, request.NodeRunID)
+			if err != nil || !present {
+				return err
+			}
+			result, err = json.Marshal(struct {
+				Run          domain.WorkflowRun  `json:"run"`
+				Node         domain.NodeRun      `json:"node"`
+				Intervention domain.Intervention `json:"intervention"`
+			}{Run: run, Node: node, Intervention: intervention})
+			found = err == nil
+			return err
+		case "workflow.revise":
+			var request struct {
+				ID                 domain.GraphPatchID         `json:"id"`
+				ResultDefinitionID domain.WorkflowDefinitionID `json:"resultWorkflowDefinitionId"`
+			}
+			if err := json.Unmarshal(command.Payload, &request); err != nil {
+				return wrap("decode recoverable workflow command", string(command.ID), err)
+			}
+			patch, present, err := typedRecord[domain.GraphPatch](
+				transaction, ctx, graphPatchRecordKind, string(request.ID),
+			)
+			if err != nil || !present {
+				return err
+			}
+			if patch.CommandID != command.ID || patch.ResultWorkflowDefinitionID != request.ResultDefinitionID {
+				return nil
+			}
+			definition, present, err := transaction.workflowDefinition(ctx, request.ResultDefinitionID)
+			if err != nil || !present {
+				return err
+			}
+			result, err = json.Marshal(struct {
+				Definition domain.WorkflowDefinition `json:"definition"`
+				Patch      domain.GraphPatch         `json:"patch"`
+			}{Definition: definition, Patch: patch})
+			found = err == nil
+			return err
+		case "verification.refresh":
+			var request AdmissionFreshnessRequest
+			if err := json.Unmarshal(command.Payload, &request); err != nil {
+				return nil
+			}
+			if err := validateAdmissionFreshnessRequest(request); err != nil {
+				return nil
+			}
+			admission, present, err := transaction.admission(ctx, request.ID)
+			if err != nil || !present || admission.State != domain.AdmissionStateStale {
+				return err
+			}
+			result, err = json.Marshal(struct {
+				Admission domain.Admission `json:"admission"`
+				Current   bool             `json:"current"`
+			}{Admission: admission, Current: false})
+			found = err == nil
+			return err
+		default:
+			return nil
+		}
+	})
+	return result, found, err
+}
+
 func (store *Store) completedReplayCommandResult(
 	ctx context.Context,
 	commandID domain.CommandID,
@@ -2634,7 +2765,7 @@ func (store *Store) completedReplayCommandResult(
 			if found {
 				return &domain.Error{
 					Code: domain.ErrorCodeInternal, Op: "recover", Resource: string(commandID),
-					Message: "replay command produced multiple forks",
+					Message: "branch command produced multiple forks",
 				}
 			}
 			match = fork
@@ -2650,7 +2781,7 @@ func (store *Store) completedReplayCommandResult(
 		if !runFound {
 			return &domain.Error{
 				Code: domain.ErrorCodeInternal, Op: "recover", Resource: string(commandID),
-				Message: "replay child workflow run is unavailable",
+				Message: "branch child workflow run is unavailable",
 			}
 		}
 		result, err = json.Marshal(struct {

@@ -82,6 +82,12 @@ type SyncSessionResult struct {
 	More    bool
 }
 
+type AdmissionRefreshRequest struct {
+	Freshness sqlite.AdmissionFreshnessRequest
+	CommandID domain.CommandID
+	Source    string
+}
+
 type PluginEventRecorder struct {
 	store *sqlite.Store
 }
@@ -464,6 +470,51 @@ func (service *SessionService) CancelSession(
 		interventionState,
 	)
 	return current, completed, errors.Join(cancelErr, readErr, interventionErr)
+}
+
+func (service *SessionService) RefreshAdmission(
+	ctx context.Context,
+	request AdmissionRefreshRequest,
+) (domain.Admission, bool, error) {
+	if err := request.CommandID.Validate(); err != nil {
+		return domain.Admission{}, false, err
+	}
+	if request.Source == "" {
+		return domain.Admission{}, false, invalidSessionService(
+			string(request.Freshness.ID), "admission refresh source is required",
+		)
+	}
+	for attempt := 0; attempt < 4; attempt++ {
+		refreshed, current, err := service.store.RefreshAdmission(ctx, request.Freshness)
+		if err == nil || !domain.IsErrorCode(err, domain.ErrorCodeConflict) {
+			return refreshed, current, err
+		}
+		sessions, inspectErr := service.store.AdmissionConsumerSessions(ctx, request.Freshness.ID)
+		if inspectErr != nil || len(sessions) == 0 {
+			return domain.Admission{}, false, errors.Join(err, inspectErr)
+		}
+		for _, session := range sessions {
+			now := time.Now().UTC()
+			digest := sha256.Sum256([]byte(
+				string(request.CommandID) + "\x00" + string(session.ID) + "\x00" + fmt.Sprint(now.UnixNano()),
+			))
+			deadline := now.Add(5 * time.Second)
+			_, _, cancelErr := service.CancelSession(ctx, sqlite.InterventionRequest{
+				ID:        domain.InterventionID(fmt.Sprintf("intervention-refresh-%x", digest[:12])),
+				Target:    domain.ResourceReference{Kind: "session", ID: string(session.ID)},
+				SessionID: session.ID, Kind: domain.InterventionKindInterrupt,
+				Payload: json.RawMessage(`{"reason":"input admission became stale"}`),
+				Source:  request.Source, Deadline: &deadline,
+			})
+			if cancelErr != nil {
+				return domain.Admission{}, false, cancelErr
+			}
+		}
+	}
+	return domain.Admission{}, false, &domain.Error{
+		Code: domain.ErrorCodeConflict, Op: "refresh admission", Resource: string(request.Freshness.ID),
+		Message: "admission consumers changed during cancellation",
+	}
 }
 
 func (service *SessionService) RecoverSessions(ctx context.Context) ([]domain.Session, error) {

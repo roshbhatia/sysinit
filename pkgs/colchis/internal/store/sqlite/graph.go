@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"context"
+	"crypto/sha256"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -14,9 +15,10 @@ import (
 )
 
 const (
-	graphPatchRecordKind   = "graph-patch"
-	restartPointRecordKind = "restart-point"
-	runForkRecordKind      = "run-fork"
+	graphPatchRecordKind     = "graph-patch"
+	restartPointRecordKind   = "restart-point"
+	runForkRecordKind        = "run-fork"
+	admissionReuseRecordKind = "admission-reuse"
 )
 
 type GraphPatchRequest struct {
@@ -26,6 +28,19 @@ type GraphPatchRequest struct {
 	ExpectedDefinitionVersion uint64                       `json:"expectedDefinitionVersion"`
 	CommandID                 domain.CommandID             `json:"commandId"`
 	Operations                []domain.GraphPatchOperation `json:"operations"`
+	Source                    string                       `json:"source"`
+	SourceID                  string                       `json:"sourceId,omitempty"`
+}
+
+type WorkflowRevisionRequest struct {
+	ID                        domain.GraphPatchID          `json:"id"`
+	BaseDefinitionID          domain.WorkflowDefinitionID  `json:"baseWorkflowDefinitionId"`
+	ResultDefinitionID        domain.WorkflowDefinitionID  `json:"resultWorkflowDefinitionId"`
+	ExpectedDefinitionVersion uint64                       `json:"expectedDefinitionVersion"`
+	CommandID                 domain.CommandID             `json:"commandId"`
+	Operations                []domain.GraphPatchOperation `json:"operations"`
+	Source                    string                       `json:"source"`
+	SourceID                  string                       `json:"sourceId,omitempty"`
 }
 
 type RestartPointRequest struct {
@@ -56,6 +71,9 @@ func (store *Store) ApplyGraphPatch(
 	evaluator *workflowmodel.Evaluator,
 	resolver workflowmodel.CapabilityResolver,
 ) (domain.WorkflowDefinition, domain.GraphPatch, error) {
+	if request.Source == "" {
+		request.Source = "command"
+	}
 	if err := validateGraphPatchRequest(request); err != nil {
 		return domain.WorkflowDefinition{}, domain.GraphPatch{}, err
 	}
@@ -178,7 +196,12 @@ func (store *Store) ApplyGraphPatch(
 			ResultWorkflowDefinitionID: request.ResultDefinitionID,
 			ExpectedDefinitionVersion:  request.ExpectedDefinitionVersion,
 			CommandID:                  request.CommandID, Operations: append([]domain.GraphPatchOperation(nil), request.Operations...),
+			AffectedNodeKeys: append([]domain.NodeKey(nil), patched.AffectedNodes...),
+			Source:           request.Source, SourceID: request.SourceID,
 		}
+		sort.Slice(patchRecord.AffectedNodeKeys, func(first int, second int) bool {
+			return patchRecord.AffectedNodeKeys[first] < patchRecord.AffectedNodeKeys[second]
+		})
 		patchPayload, err := json.Marshal(patchRecord)
 		if err != nil {
 			return wrap("encode graph patch", string(request.ID), err)
@@ -240,6 +263,117 @@ func (store *Store) ApplyGraphPatch(
 			Type:      "workflow.graph.patched", Payload: eventPayload,
 		})
 		return err
+	})
+	return definitionRecord, patchRecord, err
+}
+
+func (store *Store) ReviseWorkflowDefinition(
+	ctx context.Context,
+	request WorkflowRevisionRequest,
+	evaluator *workflowmodel.Evaluator,
+	resolver workflowmodel.CapabilityResolver,
+) (domain.WorkflowDefinition, domain.GraphPatch, error) {
+	if err := validateWorkflowRevisionRequest(request); err != nil {
+		return domain.WorkflowDefinition{}, domain.GraphPatch{}, err
+	}
+	if evaluator == nil {
+		return domain.WorkflowDefinition{}, domain.GraphPatch{}, &domain.Error{
+			Code: domain.ErrorCodeInvalidArgument, Op: "revise", Resource: string(request.ID),
+			Message: "workflow evaluator is nil",
+		}
+	}
+	baseRecord, err := store.WorkflowDefinition(ctx, request.BaseDefinitionID)
+	if err != nil {
+		return domain.WorkflowDefinition{}, domain.GraphPatch{}, err
+	}
+	if baseRecord.DefinitionVersion != request.ExpectedDefinitionVersion {
+		return domain.WorkflowDefinition{}, domain.GraphPatch{}, &domain.Error{
+			Code: domain.ErrorCodeConflict, Op: "revise", Resource: string(baseRecord.ID),
+			Message: "workflow definition version changed",
+		}
+	}
+	base, err := decodeResolvedDefinition(baseRecord)
+	if err != nil {
+		return domain.WorkflowDefinition{}, domain.GraphPatch{}, err
+	}
+	patched, err := evaluator.ApplyOperations(base, request.Operations, resolver)
+	if err != nil {
+		return domain.WorkflowDefinition{}, domain.GraphPatch{}, err
+	}
+	var definitionRecord domain.WorkflowDefinition
+	var patchRecord domain.GraphPatch
+	err = store.Transaction(ctx, func(transaction *Tx) error {
+		if _, found, err := transaction.workflowDefinition(ctx, request.ResultDefinitionID); err != nil {
+			return err
+		} else if found {
+			return conflict("revise", string(request.ResultDefinitionID), "result workflow definition already exists")
+		}
+		if _, found, err := typedRecord[domain.GraphPatch](
+			transaction, ctx, graphPatchRecordKind, string(request.ID),
+		); err != nil {
+			return err
+		} else if found {
+			return conflict("revise", string(request.ID), "workflow revision already exists")
+		}
+		current, found, err := transaction.workflowDefinition(ctx, request.BaseDefinitionID)
+		if err != nil {
+			return err
+		}
+		if !found || current.Metadata.ResourceVersion != baseRecord.Metadata.ResourceVersion ||
+			current.DefinitionVersion != request.ExpectedDefinitionVersion {
+			return conflict("revise", string(request.BaseDefinitionID), "base workflow definition changed")
+		}
+		if current.DefinitionVersion == ^uint64(0) {
+			return conflict("revise", string(current.ID), "workflow definition version is exhausted")
+		}
+		now := time.Now().UTC()
+		predecessorID := current.ID
+		definitionRecord = domain.WorkflowDefinition{
+			Metadata: newRecordMetadata(now), ID: request.ResultDefinitionID,
+			PredecessorID: &predecessorID, DefinitionVersion: current.DefinitionVersion + 1,
+			DefinitionSchemaVersion: patched.Resolved.Definition.SchemaVersion,
+			DefinitionDigest:        patched.Resolved.DefinitionDigest, SchemaDigest: patched.Resolved.SchemaDigest,
+			EvaluatorVersion: patched.Resolved.Definition.EvaluatorVersion,
+			Document:         append(json.RawMessage(nil), patched.Resolved.Document...),
+			ResolvedDocument: append(json.RawMessage(nil), patched.Resolved.Document...),
+		}
+		affected := append([]domain.NodeKey(nil), patched.AffectedNodes...)
+		sort.Slice(affected, func(first int, second int) bool { return affected[first] < affected[second] })
+		patchRecord = domain.GraphPatch{
+			Metadata: newRecordMetadata(now), ID: request.ID,
+			BaseWorkflowDefinitionID: current.ID, ResultWorkflowDefinitionID: definitionRecord.ID,
+			ExpectedDefinitionVersion: request.ExpectedDefinitionVersion, CommandID: request.CommandID,
+			Operations:       append([]domain.GraphPatchOperation(nil), request.Operations...),
+			AffectedNodeKeys: affected, Source: request.Source, SourceID: request.SourceID,
+		}
+		definitionPayload, err := json.Marshal(definitionRecord)
+		if err != nil {
+			return wrap("encode revised workflow definition", string(definitionRecord.ID), err)
+		}
+		patchPayload, err := json.Marshal(patchRecord)
+		if err != nil {
+			return wrap("encode workflow revision", string(patchRecord.ID), err)
+		}
+		if err := transaction.reserveRecordBytes(ctx, uint64(len(definitionPayload)+len(patchPayload)), 2); err != nil {
+			return err
+		}
+		if err := transaction.putRecord(
+			ctx, workflowDefinitionRecordKind, string(definitionRecord.ID), definitionRecord.Metadata, definitionPayload,
+		); err != nil {
+			return err
+		}
+		if err := transaction.putRecord(
+			ctx, graphPatchRecordKind, string(patchRecord.ID), patchRecord.Metadata, patchPayload,
+		); err != nil {
+			return err
+		}
+		return appendRecordEvent(
+			transaction, ctx, now, workflowDefinitionRecordKind, string(definitionRecord.ID),
+			"workflow.definition.revised", struct {
+				PatchID          domain.GraphPatchID `json:"patchId"`
+				AffectedNodeKeys []domain.NodeKey    `json:"affectedNodeKeys"`
+			}{PatchID: patchRecord.ID, AffectedNodeKeys: affected},
+		)
 	})
 	return definitionRecord, patchRecord, err
 }
@@ -520,7 +654,7 @@ func (store *Store) ReplayWorkflow(
 				Message: "target workflow definition version changed",
 			}
 		}
-		descendant, err := transaction.workflowDefinitionDescendsFrom(
+		descendant, affectedNodes, reuseSafe, err := transaction.workflowDefinitionLineage(
 			ctx, target.ID, point.WorkflowDefinitionID,
 		)
 		if err != nil {
@@ -539,12 +673,18 @@ func (store *Store) ReplayWorkflow(
 		now := time.Now().UTC()
 		var nodes []domain.NodeRun
 		child, nodes, err = newWorkflowRunRecords(
-			store, request.ChildWorkflowRunID, target, definition, nil, now,
+			store, request.ChildWorkflowRunID, target, definition, parent.OrchestrationSession, now,
 		)
 		if err != nil {
 			return err
 		}
 		seedRestartSnapshot(nodes, point.SnapshotID)
+		reuses, err := transaction.prepareAdmissionReuses(
+			ctx, request.ID, point, affectedNodes, reuseSafe, definition, nodes, now,
+		)
+		if err != nil {
+			return err
+		}
 		childPayload, err := json.Marshal(child)
 		if err != nil {
 			return wrap("encode child workflow run", string(child.ID), err)
@@ -557,6 +697,9 @@ func (store *Store) ReplayWorkflow(
 			ExpectedParentVersion:   request.ExpectedParentVersion,
 			StartingSnapshotID:      point.SnapshotID,
 			CommandID:               request.CommandID, Principal: request.Principal,
+		}
+		for _, reuse := range reuses {
+			fork.AdmissionReuseIDs = append(fork.AdmissionReuseIDs, reuse.ID)
 		}
 		forkPayload, err := json.Marshal(fork)
 		if err != nil {
@@ -571,7 +714,17 @@ func (store *Store) ReplayWorkflow(
 			}
 			totalBytes += uint64(len(nodePayloads[index]))
 		}
-		if err := transaction.reserveRecordBytes(ctx, totalBytes, uint64(len(nodes)+2)); err != nil {
+		reusePayloads := make([][]byte, len(reuses))
+		for index := range reuses {
+			reusePayloads[index], err = json.Marshal(reuses[index])
+			if err != nil {
+				return wrap("encode admission reuse", string(reuses[index].ID), err)
+			}
+			totalBytes += uint64(len(reusePayloads[index]))
+		}
+		if err := transaction.reserveRecordBytes(
+			ctx, totalBytes, uint64(len(nodes)+len(reuses)+2),
+		); err != nil {
 			return err
 		}
 		if err := transaction.putRecord(
@@ -586,10 +739,41 @@ func (store *Store) ReplayWorkflow(
 				return err
 			}
 		}
+		for index := range reuses {
+			if err := transaction.putRecord(
+				ctx, admissionReuseRecordKind, string(reuses[index].ID), reuses[index].Metadata, reusePayloads[index],
+			); err != nil {
+				return err
+			}
+		}
 		if err := transaction.putRecord(
 			ctx, runForkRecordKind, string(fork.ID), fork.Metadata, forkPayload,
 		); err != nil {
 			return err
+		}
+		if err := transaction.advanceDependentNodes(ctx, child.ID, definition, now); err != nil {
+			return err
+		}
+		if err := transaction.completeWorkflowRun(ctx, child.ID, now); err != nil {
+			return err
+		}
+		child, found, err = transaction.workflowRun(ctx, child.ID)
+		if err != nil {
+			return err
+		}
+		if !found {
+			return &domain.Error{
+				Code: domain.ErrorCodeInternal, Op: "branch", Resource: string(request.ChildWorkflowRunID),
+				Message: "child workflow run is unavailable",
+			}
+		}
+		for _, reuse := range reuses {
+			if err := appendRecordEvent(
+				transaction, ctx, now, nodeRunRecordKind, string(reuse.ChildNodeRunID),
+				"workflow.admission.reused", reuse,
+			); err != nil {
+				return err
+			}
 		}
 		payload, err := json.Marshal(struct {
 			ForkID            domain.RunForkID            `json:"forkId"`
@@ -613,6 +797,195 @@ func (store *Store) ReplayWorkflow(
 	return child, fork, err
 }
 
+func (transaction *Tx) prepareAdmissionReuses(
+	ctx context.Context,
+	forkID domain.RunForkID,
+	point domain.RestartPoint,
+	affectedNodes map[domain.NodeKey]struct{},
+	reuseSafe bool,
+	definition workflowmodel.Definition,
+	nodes []domain.NodeRun,
+	now time.Time,
+) ([]domain.AdmissionReuse, error) {
+	if !reuseSafe {
+		return nil, nil
+	}
+	restartSnapshot, found, err := transaction.snapshot(ctx, point.SnapshotID)
+	if err != nil {
+		return nil, err
+	}
+	if !found {
+		return nil, &domain.Error{
+			Code: domain.ErrorCodeInternal, Op: "reuse admission", Resource: string(point.SnapshotID),
+			Message: "restart snapshot is unavailable",
+		}
+	}
+	byKey := make(map[domain.NodeKey]*domain.NodeRun, len(nodes))
+	for index := range nodes {
+		byKey[nodes[index].NodeKey] = &nodes[index]
+	}
+	type reuseCandidate struct {
+		admissionID domain.AdmissionID
+		cursor      domain.EventCursor
+		evidence    taskEvidenceContext
+		snapshotID  domain.SnapshotID
+	}
+	candidates := make(map[domain.NodeKey]reuseCandidate, len(point.AdmissionIDs))
+	for _, admissionID := range point.AdmissionIDs {
+		admission, found, err := transaction.admission(ctx, admissionID)
+		if err != nil {
+			return nil, err
+		}
+		if !found || admission.State != domain.AdmissionStateAdmitted {
+			continue
+		}
+		evidence, err := transaction.loadTaskContext(ctx, admission.TaskRecordID)
+		if err != nil {
+			return nil, err
+		}
+		childNode, found := byKey[evidence.node.NodeKey]
+		if !found || childNode.NodeDefinitionDigest != evidence.node.NodeDefinitionDigest ||
+			evidence.node.AdmissionID == nil || *evidence.node.AdmissionID != admissionID {
+			continue
+		}
+		if evidence.snapshot.WorkspaceID != restartSnapshot.WorkspaceID {
+			continue
+		}
+		if _, affected := affectedNodes[childNode.NodeKey]; affected {
+			continue
+		}
+		cursor, found, err := transaction.admissionEventCursor(ctx, admissionID)
+		if err != nil {
+			return nil, err
+		}
+		if !found || cursor > point.EventCursor {
+			continue
+		}
+		snapshotID, current, err := transaction.currentAdmissionSnapshot(ctx, admissionID)
+		if err != nil {
+			return nil, err
+		}
+		if !current {
+			continue
+		}
+		candidates[childNode.NodeKey] = reuseCandidate{
+			admissionID: admissionID, cursor: cursor, evidence: evidence, snapshotID: snapshotID,
+		}
+	}
+	backEdges := make(map[domain.EdgeKey]struct{}, len(definition.Loops))
+	for _, loop := range definition.Loops {
+		backEdges[loop.BackEdge] = struct{}{}
+	}
+	for changed := true; changed; {
+		changed = false
+		for nodeKey, candidate := range candidates {
+			expectedInputs := make([]domain.SnapshotID, 0)
+			valid := true
+			for _, edge := range definition.Edges {
+				if edge.To != nodeKey {
+					continue
+				}
+				if _, backEdge := backEdges[edge.ID]; backEdge {
+					continue
+				}
+				upstream, found := candidates[edge.From]
+				if !found {
+					if edge.Required {
+						valid = false
+						break
+					}
+					continue
+				}
+				expectedInputs = append(expectedInputs, upstream.snapshotID)
+			}
+			if valid && !sameSnapshotSet(expectedInputs, candidate.evidence.node.InputSnapshotIDs) {
+				valid = false
+			}
+			if !valid {
+				delete(candidates, nodeKey)
+				changed = true
+			}
+		}
+	}
+	reuses := make([]domain.AdmissionReuse, 0, len(candidates))
+	for _, admissionID := range point.AdmissionIDs {
+		var candidate reuseCandidate
+		found := false
+		for _, value := range candidates {
+			if value.admissionID == admissionID {
+				candidate = value
+				found = true
+				break
+			}
+		}
+		if !found {
+			continue
+		}
+		childNode := byKey[candidate.evidence.node.NodeKey]
+		digest := sha256.Sum256([]byte(string(forkID) + "\x00" + string(admissionID)))
+		reuse := domain.AdmissionReuse{
+			Metadata: newRecordMetadata(now), ID: domain.AdmissionReuseID(fmt.Sprintf("reuse-%x", digest)),
+			RunForkID: forkID, RestartPointID: point.ID, AdmissionID: admissionID,
+			ParentNodeRunID: candidate.evidence.node.ID, ChildNodeRunID: childNode.ID,
+			NodeKey: childNode.NodeKey, NodeDefinitionDigest: childNode.NodeDefinitionDigest,
+			SourceEventCursor: candidate.cursor, Basis: domain.ProvenanceBasisDerived,
+			Source: "restart-point:" + string(point.ID),
+		}
+		childNode.State = domain.NodeRunStateSucceeded
+		childNode.AdmissionID = &reuse.AdmissionID
+		childNode.InputSnapshotIDs = nil
+		reuses = append(reuses, reuse)
+	}
+	return reuses, nil
+}
+
+func sameSnapshotSet(first []domain.SnapshotID, second []domain.SnapshotID) bool {
+	first = uniqueSortedSnapshots(first)
+	second = uniqueSortedSnapshots(second)
+	if len(first) != len(second) {
+		return false
+	}
+	for index := range first {
+		if first[index] != second[index] {
+			return false
+		}
+	}
+	return true
+}
+
+func uniqueSortedSnapshots(ids []domain.SnapshotID) []domain.SnapshotID {
+	seen := make(map[domain.SnapshotID]struct{}, len(ids))
+	result := make([]domain.SnapshotID, 0, len(ids))
+	for _, id := range ids {
+		if _, found := seen[id]; found {
+			continue
+		}
+		seen[id] = struct{}{}
+		result = append(result, id)
+	}
+	sort.Slice(result, func(left int, right int) bool { return result[left] < result[right] })
+	return result
+}
+
+func (transaction *Tx) admissionEventCursor(
+	ctx context.Context,
+	id domain.AdmissionID,
+) (domain.EventCursor, bool, error) {
+	var cursor uint64
+	err := transaction.tx.QueryRowContext(
+		ctx,
+		"SELECT cursor FROM events WHERE aggregate_kind = ? AND aggregate_id = ? AND event_type = ? ORDER BY cursor DESC LIMIT 1",
+		admissionRecordKind, string(id), "workflow.admission.decided",
+	).Scan(&cursor)
+	if errors.Is(err, sql.ErrNoRows) {
+		return 0, false, nil
+	}
+	if err != nil {
+		return 0, false, wrap("read admission event cursor", string(id), err)
+	}
+	return domain.EventCursor(cursor), true, nil
+}
+
 func seedRestartSnapshot(nodes []domain.NodeRun, snapshotID domain.SnapshotID) {
 	for index := range nodes {
 		if nodes[index].State == domain.NodeRunStateReady {
@@ -621,19 +994,19 @@ func seedRestartSnapshot(nodes []domain.NodeRun, snapshotID domain.SnapshotID) {
 	}
 }
 
-func (transaction *Tx) workflowDefinitionDescendsFrom(
+func (transaction *Tx) workflowDefinitionLineage(
 	ctx context.Context,
 	targetID domain.WorkflowDefinitionID,
 	ancestorID domain.WorkflowDefinitionID,
-) (bool, error) {
+) (bool, map[domain.NodeKey]struct{}, bool, error) {
 	patches, err := typedRecords[domain.GraphPatch](transaction, ctx, graphPatchRecordKind)
 	if err != nil {
-		return false, err
+		return false, nil, false, err
 	}
 	byResult := make(map[domain.WorkflowDefinitionID]domain.GraphPatch, len(patches))
 	for _, patch := range patches {
 		if _, found := byResult[patch.ResultWorkflowDefinitionID]; found {
-			return false, &domain.Error{
+			return false, nil, false, &domain.Error{
 				Code: domain.ErrorCodeInternal, Op: "replay", Resource: string(patch.ResultWorkflowDefinitionID),
 				Message: "workflow definition has multiple graph patch origins",
 			}
@@ -641,12 +1014,14 @@ func (transaction *Tx) workflowDefinitionDescendsFrom(
 		byResult[patch.ResultWorkflowDefinitionID] = patch
 	}
 	seen := make(map[domain.WorkflowDefinitionID]struct{})
+	affected := make(map[domain.NodeKey]struct{})
+	reuseSafe := true
 	for targetID != "" {
 		if targetID == ancestorID {
-			return true, nil
+			return true, affected, reuseSafe, nil
 		}
 		if _, found := seen[targetID]; found {
-			return false, &domain.Error{
+			return false, nil, false, &domain.Error{
 				Code: domain.ErrorCodeInternal, Op: "replay", Resource: string(targetID),
 				Message: "workflow definition lineage contains a cycle",
 			}
@@ -654,11 +1029,17 @@ func (transaction *Tx) workflowDefinitionDescendsFrom(
 		seen[targetID] = struct{}{}
 		patch, found := byResult[targetID]
 		if !found {
-			return false, nil
+			return false, nil, false, nil
+		}
+		if len(patch.Operations) > 0 && len(patch.AffectedNodeKeys) == 0 {
+			reuseSafe = false
+		}
+		for _, nodeKey := range patch.AffectedNodeKeys {
+			affected[nodeKey] = struct{}{}
 		}
 		targetID = patch.BaseWorkflowDefinitionID
 	}
-	return false, nil
+	return false, nil, false, nil
 }
 
 func staleReplayAdmission(id domain.AdmissionID) error {
@@ -1028,6 +1409,24 @@ func validateGraphPatchRequest(request GraphPatchRequest) error {
 		return &domain.Error{
 			Code: domain.ErrorCodeInvalidArgument, Op: "patch", Resource: string(request.ID),
 			Message: "expected definition version and operations are required",
+		}
+	}
+	return nil
+}
+
+func validateWorkflowRevisionRequest(request WorkflowRevisionRequest) error {
+	for _, validation := range []error{
+		request.ID.Validate(), request.BaseDefinitionID.Validate(),
+		request.ResultDefinitionID.Validate(), request.CommandID.Validate(),
+	} {
+		if validation != nil {
+			return validation
+		}
+	}
+	if request.ExpectedDefinitionVersion == 0 || len(request.Operations) == 0 || request.Source == "" {
+		return &domain.Error{
+			Code: domain.ErrorCodeInvalidArgument, Op: "revise", Resource: string(request.ID),
+			Message: "expected definition version, operations, and source are required",
 		}
 	}
 	return nil

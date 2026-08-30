@@ -171,6 +171,16 @@ in
       };
 
       hooks = {
+        SessionStart = [
+          {
+            hooks = [
+              {
+                type = "command";
+                command = "${profileBin}/orc session register --hook-input --source hook --harness codex --quiet";
+              }
+            ];
+          }
+        ];
         PreToolUse = [
           {
             hooks = [

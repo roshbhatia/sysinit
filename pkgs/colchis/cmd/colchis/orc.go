@@ -48,9 +48,10 @@ Usage:
   orc events [--after <cursor>] [--limit <count>]
 
 Native commands:
-  orc workflow <create|run|list|schedule|inspect|export|restart-point|restart-points|forks>
+  orc workflow <create|run|list|schedule|inspect|export|restart-point|restart-points|forks|pause|resume|revise>
+  orc stage retry
+  orc branch run
   orc graph patch
-  orc replay run
   orc worker <start|list|attach|detach|intervene|policy|cancel|history>
   orc <workspace|artifact|verification|effect|provenance|broker> <action>
 
@@ -607,7 +608,7 @@ func runOrcSessionRegister(args []string, stdout io.Writer, stderr io.Writer) in
 	harness := flags.String("harness", firstValue(os.Getenv("ORC_AGENT"), os.Getenv("AGENT")), "harness name")
 	native := flags.String("native-id", nativeSessionID(), "harness session id")
 	trace := flags.String("trace-id", "", "Traces session id")
-	pane := flags.String("pane", "", "WezTerm pane id")
+	pane := flags.String("pane", os.Getenv("WEZTERM_PANE"), "WezTerm pane id")
 	mux := flags.Int("mux", currentWezTermMuxID(), "WezTerm mux process id")
 	pid := flags.Int("pid", os.Getppid(), "harness process id")
 	status := flags.String("status", "working", "session status")
@@ -615,13 +616,39 @@ func runOrcSessionRegister(args []string, stdout io.Writer, stderr io.Writer) in
 	source := flags.String("source", "registered", "registration source")
 	capabilities := flags.String("capabilities", "observe,focus,trace", "comma-separated capabilities")
 	jsonOutput := flags.Bool("json", false, "write JSON")
+	quiet := flags.Bool("quiet", false, "write no output")
+	hookInput := flags.Bool("hook-input", false, "read native session data from hook input")
 	if err := flags.Parse(args); err != nil || flags.NArg() != 0 {
 		return 2
 	}
-	directory, err := os.Getwd()
-	if err != nil {
-		fmt.Fprintf(stderr, "register session: %v\n", err)
-		return 1
+	directory := ""
+	if *hookInput {
+		input, err := readOrcSessionHookInput(os.Stdin)
+		if err != nil {
+			fmt.Fprintf(stderr, "register session: %v\n", err)
+			return 1
+		}
+		if input.NativeSessionID != "" {
+			*native = input.NativeSessionID
+		}
+		directory = input.Directory
+	}
+	if directory == "" {
+		var err error
+		directory, err = os.Getwd()
+		if err != nil {
+			fmt.Fprintf(stderr, "register session: %v\n", err)
+			return 1
+		}
+	}
+	pidExplicit := false
+	flags.Visit(func(current *flag.Flag) {
+		pidExplicit = pidExplicit || current.Name == "pid"
+	})
+	if *source == "hook" && !pidExplicit {
+		if enrollmentPID, err := strconv.Atoi(os.Getenv("ORC_SESSION_ENROLL_PID")); err == nil && enrollmentPID > 0 {
+			*pid = enrollmentPID
+		}
 	}
 	record, active, err := activeOrc("")
 	if err != nil {
@@ -639,9 +666,15 @@ func runOrcSessionRegister(args []string, stdout io.Writer, stderr io.Writer) in
 		Directory: directory, Pane: *pane, Mux: *mux, PID: *pid, ProcessIdentity: identity, Status: *status,
 		Reason: *reason, Registration: registrationSource, Capabilities: splitComma(*capabilities),
 	})
+	if errors.Is(err, instance.ErrSessionNotRegistered) && *source == "hook" {
+		return 0
+	}
 	if err != nil {
 		fmt.Fprintf(stderr, "register session: %v\n", err)
 		return 1
+	}
+	if *quiet {
+		return 0
 	}
 	if *jsonOutput {
 		if err := json.NewEncoder(stdout).Encode(registered); err != nil {
@@ -652,6 +685,29 @@ func runOrcSessionRegister(args []string, stdout io.Writer, stderr io.Writer) in
 		fmt.Fprintln(stdout, registered.ID)
 	}
 	return 0
+}
+
+type orcSessionHookInput struct {
+	SessionID      string `json:"session_id"`
+	ThreadID       string `json:"thread_id"`
+	ConversationID string `json:"conversation_id"`
+	CWD            string `json:"cwd"`
+}
+
+type orcSessionHookRegistration struct {
+	NativeSessionID string
+	Directory       string
+}
+
+func readOrcSessionHookInput(reader io.Reader) (orcSessionHookRegistration, error) {
+	var input orcSessionHookInput
+	if err := json.NewDecoder(reader).Decode(&input); err != nil {
+		return orcSessionHookRegistration{}, fmt.Errorf("decode hook input: %w", err)
+	}
+	return orcSessionHookRegistration{
+		NativeSessionID: firstValue(input.SessionID, input.ThreadID, input.ConversationID),
+		Directory:       input.CWD,
+	}, nil
 }
 
 func orcSessionRegistrationSource(source string, pid int) string {
@@ -1365,6 +1421,40 @@ func resolveOrcPaths(override string) (config.Paths, error) {
 	}
 	_, resolved, err := instance.Candidate(scope)
 	return resolved, err
+}
+
+func refreshOrcGeneration(record instance.Record) (instance.Record, error) {
+	current, err := instance.Read(filepath.Join(record.StateDirectory, "instance.json"))
+	if errors.Is(err, os.ErrNotExist) {
+		return record, nil
+	}
+	if err != nil {
+		return instance.Record{}, err
+	}
+	executable, err := orcExecutable()
+	if err != nil {
+		return instance.Record{}, err
+	}
+	if !instance.Live(current) || current.Executable == executable {
+		return current, nil
+	}
+	var refreshed instance.Record
+	err = withOrcLeaseLock(current.StateDirectory, func() error {
+		latest, readErr := instance.Read(filepath.Join(current.StateDirectory, "instance.json"))
+		if readErr != nil {
+			return readErr
+		}
+		if !instance.Live(latest) || latest.Executable == executable {
+			refreshed = latest
+			return nil
+		}
+		if _, _, startErr := startOrcInstance(latest, latest.Automatic); startErr != nil {
+			return startErr
+		}
+		refreshed, readErr = instance.Read(filepath.Join(current.StateDirectory, "instance.json"))
+		return readErr
+	})
+	return refreshed, err
 }
 
 func startOrcService(record instance.Record, automatic bool) (string, error) {

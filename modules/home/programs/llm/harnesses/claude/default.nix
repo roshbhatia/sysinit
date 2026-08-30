@@ -290,6 +290,15 @@ in
         ];
         SessionStart = [
           {
+            matcher = "";
+            hooks = [
+              {
+                type = "command";
+                command = "${profileBin}/orc session register --hook-input --source hook --harness claude --quiet";
+              }
+            ];
+          }
+          {
             # Not the empty matcher. `resume` and `fork` replay a transcript that
             # already carries this injection, so matching them states the same
             # four rules twice. `startup`, `clear` and `compact` are the three

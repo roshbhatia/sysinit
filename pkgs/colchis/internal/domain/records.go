@@ -108,6 +108,7 @@ type WorkflowRun struct {
 	DefinitionVersion    uint64               `json:"definitionVersion"`
 	State                WorkflowRunState     `json:"state"`
 	OrchestrationSession *SessionID           `json:"orchestrationSessionId,omitempty"`
+	ActivePauseID        *InterventionID      `json:"activePauseId,omitempty"`
 	Budgets              Budgets              `json:"budgets"`
 }
 
@@ -146,6 +147,9 @@ type GraphPatch struct {
 	ExpectedDefinitionVersion  uint64                `json:"expectedDefinitionVersion"`
 	CommandID                  CommandID             `json:"commandId"`
 	Operations                 []GraphPatchOperation `json:"operations"`
+	AffectedNodeKeys           []NodeKey             `json:"affectedNodeKeys"`
+	Source                     string                `json:"source"`
+	SourceID                   string                `json:"sourceId,omitempty"`
 }
 
 type RestartPoint struct {
@@ -174,6 +178,22 @@ type RunFork struct {
 	StartingSnapshotID         SnapshotID           `json:"startingSnapshotId"`
 	CommandID                  CommandID            `json:"commandId"`
 	Principal                  string               `json:"principal"`
+	AdmissionReuseIDs          []AdmissionReuseID   `json:"admissionReuseIds"`
+}
+
+type AdmissionReuse struct {
+	Metadata             RecordMetadata   `json:"metadata"`
+	ID                   AdmissionReuseID `json:"id"`
+	RunForkID            RunForkID        `json:"runForkId"`
+	RestartPointID       RestartPointID   `json:"restartPointId"`
+	AdmissionID          AdmissionID      `json:"admissionId"`
+	ParentNodeRunID      NodeRunID        `json:"parentNodeRunId"`
+	ChildNodeRunID       NodeRunID        `json:"childNodeRunId"`
+	NodeKey              NodeKey          `json:"nodeKey"`
+	NodeDefinitionDigest string           `json:"nodeDefinitionDigest"`
+	SourceEventCursor    EventCursor      `json:"sourceEventCursor"`
+	Basis                ProvenanceBasis  `json:"basis"`
+	Source               string           `json:"source"`
 }
 
 type CommandRecord struct {
@@ -208,6 +228,7 @@ type Session struct {
 	ID                  SessionID        `json:"id"`
 	WorkflowRunID       WorkflowRunID    `json:"workflowRunId"`
 	NodeRunID           NodeRunID        `json:"nodeRunId"`
+	Attempt             uint32           `json:"attempt"`
 	RuntimePluginID     PluginID         `json:"runtimePluginId"`
 	RuntimeAdapterID    string           `json:"runtimeAdapterId"`
 	RuntimeHandle       *AdapterHandleID `json:"runtimeHandleId,omitempty"`
@@ -242,7 +263,9 @@ type RuntimeEventBatch struct {
 type Intervention struct {
 	Metadata    RecordMetadata    `json:"metadata"`
 	ID          InterventionID    `json:"id"`
-	SessionID   SessionID         `json:"sessionId"`
+	CommandID   CommandID         `json:"commandId,omitempty"`
+	Target      ResourceReference `json:"target"`
+	SessionID   SessionID         `json:"sessionId,omitempty"`
 	Kind        InterventionKind  `json:"kind"`
 	State       InterventionState `json:"state"`
 	Payload     json.RawMessage   `json:"payload"`
@@ -252,6 +275,41 @@ type Intervention struct {
 	RecordedAt  time.Time         `json:"recordedAt"`
 	ForwardedAt *time.Time        `json:"forwardedAt,omitempty"`
 	CompletedAt *time.Time        `json:"completedAt,omitempty"`
+}
+
+type PauseCause struct {
+	Kind              PauseCauseKind      `json:"kind"`
+	Evidence          []ResourceReference `json:"evidence"`
+	AllowedActions    []InterventionKind  `json:"allowedActions"`
+	RecommendedAction InterventionKind    `json:"recommendedAction"`
+	Message           string              `json:"message,omitempty"`
+}
+
+func (cause PauseCause) Validate() error {
+	if !cause.Kind.Valid() || !cause.RecommendedAction.Valid() || len(cause.AllowedActions) == 0 {
+		return &Error{Code: ErrorCodeInvalidArgument, Resource: "pause cause", Message: "kind and actions are required"}
+	}
+	recommended := false
+	seen := make(map[InterventionKind]struct{}, len(cause.AllowedActions))
+	for _, action := range cause.AllowedActions {
+		if !action.Valid() {
+			return &Error{Code: ErrorCodeInvalidArgument, Resource: "pause cause", Message: "allowed action is invalid"}
+		}
+		if _, found := seen[action]; found {
+			return &Error{Code: ErrorCodeInvalidArgument, Resource: "pause cause", Message: "allowed actions must be unique"}
+		}
+		seen[action] = struct{}{}
+		recommended = recommended || action == cause.RecommendedAction
+	}
+	if !recommended {
+		return &Error{Code: ErrorCodeInvalidArgument, Resource: "pause cause", Message: "recommended action is not allowed"}
+	}
+	for _, evidence := range cause.Evidence {
+		if err := evidence.Validate(); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 type Checkpoint struct {
@@ -364,6 +422,7 @@ type TaskResult struct {
 	Metadata     RecordMetadata  `json:"metadata"`
 	ID           TaskResultID    `json:"id"`
 	NodeRunID    NodeRunID       `json:"nodeRunId"`
+	Attempt      uint32          `json:"attempt,omitempty"`
 	SchemaDigest string          `json:"schemaDigest"`
 	Value        json.RawMessage `json:"value"`
 	ArtifactIDs  []ArtifactID    `json:"artifactIds"`

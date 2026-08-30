@@ -58,6 +58,83 @@ func TestApplyGraphPatchInsertsJudgeAndExportsDefinition(t *testing.T) {
 	}
 }
 
+func TestReviseWorkflowDefinitionPersistsOfflineLineage(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	store, evaluator := openGraphTestStore(t, ctx)
+	defer store.Close()
+	createGraphTestRun(t, ctx, store, evaluator, "definition-revise", "run-revise")
+	definition, patch, err := store.ReviseWorkflowDefinition(ctx, WorkflowRevisionRequest{
+		ID: "revision-offline", BaseDefinitionID: "definition-revise",
+		ResultDefinitionID: "definition-revised", ExpectedDefinitionVersion: 1,
+		CommandID: "command-revise", Operations: []domain.GraphPatchOperation{graphTestInsertOperation(t)},
+		Source: "owner", SourceID: "design-session",
+	}, evaluator, graphTestCapabilities())
+	if err != nil {
+		t.Fatalf("ReviseWorkflowDefinition() returned %v", err)
+	}
+	if definition.DefinitionVersion != 2 || definition.PredecessorID == nil ||
+		*definition.PredecessorID != "definition-revise" || patch.WorkflowRunID != nil ||
+		patch.Source != "owner" || patch.SourceID != "design-session" || len(patch.AffectedNodeKeys) == 0 {
+		t.Fatalf("offline revision = %#v, %#v", definition, patch)
+	}
+	run, _, err := store.WorkflowRun(ctx, "run-revise")
+	if err != nil || run.WorkflowDefinition != "definition-revise" || run.DefinitionVersion != 1 {
+		t.Fatalf("live run changed = %#v, %v", run, err)
+	}
+}
+
+func TestWorkflowRevisionCommandRecoveryCompletesCommittedPatch(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	store, evaluator := openGraphTestStore(t, ctx)
+	defer store.Close()
+	createGraphTestRun(t, ctx, store, evaluator, "definition-revise-recovery", "run-revise-recovery")
+	if err := store.EnableEmergencyReserve(); err != nil {
+		t.Fatalf("EnableEmergencyReserve() returned %v", err)
+	}
+	payload, err := json.Marshal(struct {
+		ID                 domain.GraphPatchID         `json:"id"`
+		ResultDefinitionID domain.WorkflowDefinitionID `json:"resultWorkflowDefinitionId"`
+	}{ID: "revision-recovery", ResultDefinitionID: "definition-revised-recovery"})
+	if err != nil {
+		t.Fatalf("Marshal() returned %v", err)
+	}
+	command := domain.CommandRequest{
+		ID: "command-revision-recovery", IdempotencyKey: "revision-recovery",
+		Kind: "workflow.revise", Payload: payload,
+	}
+	if _, created, err := store.AcceptCommand(ctx, "owner", command); err != nil || !created {
+		t.Fatalf("AcceptCommand() = %t, %v", created, err)
+	}
+	if _, claimed, err := store.ClaimCommand(ctx, command.ID); err != nil || !claimed {
+		t.Fatalf("ClaimCommand() = %t, %v", claimed, err)
+	}
+	definition, patch, err := store.ReviseWorkflowDefinition(ctx, WorkflowRevisionRequest{
+		ID: "revision-recovery", BaseDefinitionID: "definition-revise-recovery",
+		ResultDefinitionID: "definition-revised-recovery", ExpectedDefinitionVersion: 1,
+		CommandID: command.ID, Operations: []domain.GraphPatchOperation{graphTestInsertOperation(t)},
+		Source: "owner",
+	}, evaluator, graphTestCapabilities())
+	if err != nil {
+		t.Fatalf("ReviseWorkflowDefinition() returned %v", err)
+	}
+	recovered, err := store.RecoverRunningCommands(ctx)
+	if err != nil || len(recovered) != 1 || recovered[0].State != domain.CommandStateSucceeded {
+		t.Fatalf("RecoverRunningCommands() = %#v, %v", recovered, err)
+	}
+	var result struct {
+		Definition domain.WorkflowDefinition `json:"definition"`
+		Patch      domain.GraphPatch         `json:"patch"`
+	}
+	if err := json.Unmarshal(recovered[0].Result, &result); err != nil ||
+		result.Definition.ID != definition.ID || result.Patch.ID != patch.ID {
+		t.Fatalf("recovered revision = %#v, %v", result, err)
+	}
+}
+
 func TestApplyGraphPatchReportsRestartForStartedWork(t *testing.T) {
 	t.Parallel()
 
@@ -171,7 +248,7 @@ func TestReplayWorkflowCreatesChildAndPreservesParent(t *testing.T) {
 		t.Fatalf("EnableEmergencyReserve() returned %v", err)
 	}
 	commandRequest := domain.CommandRequest{
-		ID: "command-replay", IdempotencyKey: "request-replay", Kind: "workflow.replay",
+		ID: "command-replay", IdempotencyKey: "request-replay", Kind: "workflow.branch",
 		Payload: json.RawMessage(`{}`),
 	}
 	if _, created, err := store.AcceptCommand(ctx, "owner", commandRequest); err != nil || !created {
@@ -236,6 +313,50 @@ func TestReplayWorkflowCreatesChildAndPreservesParent(t *testing.T) {
 	}
 }
 
+func TestReplayWorkflowPreservesOrchestrationSession(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	store, evaluator := openGraphTestStore(t, ctx)
+	defer store.Close()
+	seed, _ := createGraphTestRun(t, ctx, store, evaluator, "definition-orchestrated-replay", "run-orchestrated-seed")
+	orchestrationSession := domain.SessionID("session-orchestrator")
+	parent, _, err := store.CreateWorkflowRun(
+		ctx, "run-orchestrated-parent", seed.WorkflowDefinition, &orchestrationSession,
+	)
+	if err != nil {
+		t.Fatalf("CreateWorkflowRun() returned %v", err)
+	}
+	workspace := t.TempDir()
+	writeSnapshotTestFile(t, filepath.Join(workspace, "input.txt"), "orchestrated replay")
+	snapshot, err := store.CreateWorkspaceSnapshot(
+		ctx, "snapshot-orchestrated-replay", "workspace-orchestrated-replay", workspace,
+	)
+	if err != nil {
+		t.Fatalf("CreateWorkspaceSnapshot() returned %v", err)
+	}
+	point, err := store.CreateRestartPoint(ctx, RestartPointRequest{
+		ID: "restart-orchestrated-replay", Kind: domain.RestartPointRunAdmission,
+		WorkflowRunID: parent.ID, SnapshotID: snapshot.ID,
+	})
+	if err != nil {
+		t.Fatalf("CreateRestartPoint() returned %v", err)
+	}
+	child, _, err := store.ReplayWorkflow(ctx, ReplayRequest{
+		ID: "fork-orchestrated-replay", ParentWorkflowRunID: parent.ID,
+		ChildWorkflowRunID: "run-orchestrated-child", RestartPointID: point.ID,
+		TargetDefinitionID: parent.WorkflowDefinition, TargetDefinitionVersion: parent.DefinitionVersion,
+		ExpectedParentVersion: parent.Metadata.ResourceVersion,
+		CommandID:             "command-orchestrated-replay", Principal: "owner",
+	})
+	if err != nil {
+		t.Fatalf("ReplayWorkflow() returned %v", err)
+	}
+	if child.OrchestrationSession == nil || *child.OrchestrationSession != orchestrationSession {
+		t.Fatalf("child orchestration session = %#v", child.OrchestrationSession)
+	}
+}
+
 func TestReplayRecoveryRetriesBeforeForkCommit(t *testing.T) {
 	t.Parallel()
 
@@ -247,7 +368,7 @@ func TestReplayRecoveryRetriesBeforeForkCommit(t *testing.T) {
 	}
 	request := domain.CommandRequest{
 		ID: "command-replay-before", IdempotencyKey: "request-replay-before",
-		Kind: "workflow.replay", Payload: json.RawMessage(`{}`),
+		Kind: "workflow.branch", Payload: json.RawMessage(`{}`),
 	}
 	if _, created, err := store.AcceptCommand(ctx, "owner", request); err != nil || !created {
 		t.Fatalf("AcceptCommand() = %v, %v", created, err)

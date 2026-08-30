@@ -279,6 +279,63 @@ func TestControlExecutorCreatesAndInspectsWorkflow(t *testing.T) {
 	if err != nil || !strings.Contains(string(runs), `"id":"run-control"`) {
 		t.Fatalf("workflow.list = %s, %v", runs, err)
 	}
+	current, _, err := store.WorkflowRun(ctx, "run-control")
+	if err != nil {
+		t.Fatalf("WorkflowRun() returned %v", err)
+	}
+	pausePayload := json.RawMessage(`{
+		"id":"pause-control",
+		"runId":"run-control",
+		"cause":{
+			"kind":"owner_input",
+			"evidence":[{"kind":"workflow-run","id":"run-control"}],
+			"allowedActions":["resume","cancel"],
+			"recommendedAction":"resume"
+		}
+	}`)
+	pauseVersion := current.Metadata.ResourceVersion
+	paused, err := executor.ExecuteCommandResult(ctx, principal, domain.CommandRequest{
+		ID: "command-pause", Kind: "workflow.pause", ExpectedVersion: &pauseVersion, Payload: pausePayload,
+	})
+	if err != nil || !strings.Contains(string(paused), `"activePauseId":"pause-control"`) {
+		t.Fatalf("workflow.pause = %s, %v", paused, err)
+	}
+	current, _, err = store.WorkflowRun(ctx, "run-control")
+	if err != nil {
+		t.Fatalf("paused WorkflowRun() returned %v", err)
+	}
+	resumeVersion := current.Metadata.ResourceVersion
+	resumed, err := executor.ExecuteCommandResult(ctx, principal, domain.CommandRequest{
+		ID: "command-resume", Kind: "workflow.resume", ExpectedVersion: &resumeVersion,
+		Payload: json.RawMessage(`{"id":"resume-control","runId":"run-control","pauseId":"pause-control"}`),
+	})
+	if err != nil || strings.Contains(string(resumed), `"activePauseId"`) {
+		t.Fatalf("workflow.resume = %s, %v", resumed, err)
+	}
+	current, _, err = store.WorkflowRun(ctx, "run-control")
+	if err != nil {
+		t.Fatalf("resumed WorkflowRun() returned %v", err)
+	}
+	branchPayload, err := json.Marshal(replayCommand{
+		ID: "fork-control", ParentWorkflowRunID: current.ID, ChildWorkflowRunID: "run-control-child",
+		RestartPointID: "restart-control", TargetDefinitionID: current.WorkflowDefinition,
+		TargetDefinitionVersion: current.DefinitionVersion,
+		ExpectedParentVersion:   current.Metadata.ResourceVersion,
+	})
+	if err != nil {
+		t.Fatalf("Marshal(branch) returned %v", err)
+	}
+	branched, err := executor.ExecuteCommandResult(ctx, principal, domain.CommandRequest{
+		ID: "command-branch", Kind: "workflow.branch", Payload: branchPayload,
+	})
+	if err != nil || !strings.Contains(string(branched), `"id":"run-control-child"`) {
+		t.Fatalf("workflow.branch = %s, %v", branched, err)
+	}
+	if _, err := executor.ExecuteCommandResult(ctx, principal, domain.CommandRequest{
+		ID: "command-replay-removed", Kind: "workflow.replay", Payload: branchPayload,
+	}); !domain.IsErrorCode(err, domain.ErrorCodeInvalidArgument) {
+		t.Fatalf("workflow.replay error = %v", err)
+	}
 	provenance, err := executor.ExecuteCommandResult(ctx, principal, domain.CommandRequest{
 		ID: "command-provenance", Kind: "provenance.inspect", Payload: json.RawMessage(`{}`),
 	})

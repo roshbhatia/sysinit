@@ -24,6 +24,7 @@ const (
 type TaskResultRequest struct {
 	ID           domain.TaskResultID `json:"id"`
 	NodeRunID    domain.NodeRunID    `json:"nodeRunId"`
+	Attempt      uint32              `json:"attempt"`
 	SchemaDigest string              `json:"schemaDigest"`
 	Value        json.RawMessage     `json:"value"`
 	ArtifactIDs  []domain.ArtifactID `json:"artifactIds"`
@@ -97,6 +98,13 @@ func (store *Store) SubmitTaskResult(
 				Message: "node run is not accepting a task result",
 			}
 		}
+		if request.Attempt != node.Attempt {
+			return &domain.Error{
+				Code: domain.ErrorCodeConflict, Op: "submit", Resource: string(node.ID),
+				Message: "task result attempt is stale",
+			}
+		}
+		attempt := request.Attempt
 		run, found, err := transaction.workflowRun(ctx, node.WorkflowRunID)
 		if err != nil {
 			return err
@@ -163,6 +171,14 @@ func (store *Store) SubmitTaskResult(
 			); err != nil {
 				return err
 			}
+			if node.State == domain.NodeRunStateFailed {
+				if err := transaction.pauseWorkflowForNode(
+					ctx, &run, node, domain.WorkflowRunStateFailed,
+					domain.PauseCauseContractIncomplete, "task result repair budget is exhausted", now,
+				); err != nil {
+					return err
+				}
+			}
 			eventType := "workflow.task-result.repair-requested"
 			if submission.Decision.Exhausted {
 				eventType = "workflow.task-result.rejected"
@@ -183,6 +199,7 @@ func (store *Store) SubmitTaskResult(
 		}
 		result := domain.TaskResult{
 			Metadata: newRecordMetadata(now), ID: request.ID, NodeRunID: node.ID,
+			Attempt:      attempt,
 			SchemaDigest: request.SchemaDigest,
 			Value:        append(json.RawMessage(nil), request.Value...),
 			ArtifactIDs:  append([]domain.ArtifactID(nil), request.ArtifactIDs...),
@@ -274,6 +291,12 @@ func validateTaskResultRequest(request TaskResultRequest) error {
 	}
 	if err := request.NodeRunID.Validate(); err != nil {
 		return err
+	}
+	if request.Attempt == 0 {
+		return &domain.Error{
+			Code: domain.ErrorCodeInvalidArgument, Op: "submit", Resource: string(request.ID),
+			Message: "task result attempt is required",
+		}
 	}
 	if request.SchemaDigest == "" {
 		return &domain.Error{
@@ -892,15 +915,35 @@ func (transaction *Tx) capLoop(
 	if err != nil {
 		return err
 	}
+	var cappedNode *domain.NodeRun
 	for _, node := range nodes {
-		if _, found := members[node.NodeKey]; !found || node.State == domain.NodeRunStateCapped {
+		if _, found := members[node.NodeKey]; !found {
 			continue
 		}
-		if err := transaction.transitionNodeRun(ctx, &node, domain.NodeRunStateCapped, now); err != nil {
-			return err
+		if node.State != domain.NodeRunStateCapped {
+			if err := transaction.transitionNodeRun(ctx, &node, domain.NodeRunStateCapped, now); err != nil {
+				return err
+			}
+		}
+		if cappedNode == nil {
+			copy := node
+			cappedNode = &copy
 		}
 	}
-	if err := transaction.transitionWorkflowRun(ctx, runID, domain.WorkflowRunStateCapped, now); err != nil {
+	run, found, err := transaction.workflowRun(ctx, runID)
+	if err != nil {
+		return err
+	}
+	if !found || cappedNode == nil {
+		return &domain.Error{
+			Code: domain.ErrorCodeInternal, Op: "cap loop", Resource: string(runID),
+			Message: "workflow run or capped node is unavailable",
+		}
+	}
+	if err := transaction.pauseWorkflowForNode(
+		ctx, &run, *cappedNode, domain.WorkflowRunStateCapped,
+		domain.PauseCauseLimitReached, "loop iteration budget is exhausted", now,
+	); err != nil {
 		return err
 	}
 	payload, err := json.Marshal(struct {
@@ -1010,6 +1053,9 @@ func (transaction *Tx) transitionWorkflowRun(
 	}
 	previousVersion := run.Metadata.ResourceVersion
 	run.State = state
+	if state == domain.WorkflowRunStateSucceeded {
+		run.ActivePauseID = nil
+	}
 	run.Metadata.ResourceVersion++
 	run.Metadata.UpdatedAt = now
 	encoded, err := json.Marshal(run)
@@ -1627,40 +1673,21 @@ func admissionMatchesEnvironment(
 	return true, nil
 }
 
-func (transaction *Tx) blockReadyDependents(
-	ctx context.Context,
-	runID domain.WorkflowRunID,
-	upstreamKey domain.NodeKey,
-	definition workflowmodel.Definition,
-	now time.Time,
-) error {
-	blocked := make(map[domain.NodeKey]struct{})
-	for _, edge := range definition.Edges {
-		if edge.From == upstreamKey && edge.Required && !isBackEdge(definition.Loops, edge.ID) {
-			blocked[edge.To] = struct{}{}
-		}
-	}
-	nodes, err := transaction.nodeRuns(ctx, &runID)
-	if err != nil {
-		return err
-	}
-	for _, node := range nodes {
-		if _, found := blocked[node.NodeKey]; !found || node.State != domain.NodeRunStateReady || node.Attempt != 0 {
-			continue
-		}
-		node.InputSnapshotIDs = []domain.SnapshotID{}
-		if err := transaction.transitionNodeRun(ctx, &node, domain.NodeRunStatePending, now); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func (transaction *Tx) invalidateAdmissionConsumers(
 	ctx context.Context,
 	id domain.AdmissionID,
 	now time.Time,
 ) error {
+	reuses, err := typedRecords[domain.AdmissionReuse](transaction, ctx, admissionReuseRecordKind)
+	if err != nil {
+		return err
+	}
+	reuseByNode := make(map[domain.NodeRunID]domain.AdmissionReuse, len(reuses))
+	for _, reuse := range reuses {
+		if reuse.AdmissionID == id {
+			reuseByNode[reuse.ChildNodeRunID] = reuse
+		}
+	}
 	nodes, err := transaction.nodeRuns(ctx, nil)
 	if err != nil {
 		return err
@@ -1668,21 +1695,6 @@ func (transaction *Tx) invalidateAdmissionConsumers(
 	for _, node := range nodes {
 		if node.AdmissionID == nil || *node.AdmissionID != id {
 			continue
-		}
-		if node.State == domain.NodeRunStateSucceeded {
-			previousVersion := node.Metadata.ResourceVersion
-			node.State = domain.NodeRunStateWaiting
-			node.Metadata.ResourceVersion++
-			node.Metadata.UpdatedAt = now
-			encoded, err := json.Marshal(node)
-			if err != nil {
-				return wrap("encode stale admission consumer", string(node.ID), err)
-			}
-			if err := transaction.updateRecord(
-				ctx, nodeRunRecordKind, string(node.ID), previousVersion, node.Metadata, encoded,
-			); err != nil {
-				return err
-			}
 		}
 		run, found, err := transaction.workflowRun(ctx, node.WorkflowRunID)
 		if err != nil {
@@ -1704,13 +1716,261 @@ func (transaction *Tx) invalidateAdmissionConsumers(
 		if err != nil {
 			return err
 		}
-		if err := transaction.blockReadyDependents(
-			ctx, node.WorkflowRunID, node.NodeKey, definition, now,
-		); err != nil {
+		reuse, reused := reuseByNode[node.ID]
+		affected := downstreamNodeKeys(definition, node.NodeKey)
+		runNodes, err := transaction.nodeRuns(ctx, &node.WorkflowRunID)
+		if err != nil {
 			return err
+		}
+		for _, current := range runNodes {
+			if _, found := affected[current.NodeKey]; !found {
+				continue
+			}
+			direct := current.ID == node.ID
+			if direct && !reused {
+				if current.State != domain.NodeRunStateSucceeded {
+					continue
+				}
+				current.State = domain.NodeRunStateWaiting
+			} else {
+				if current.SessionID != nil {
+					if err := transaction.requireTerminalSessionForInvalidation(
+						ctx, *current.SessionID, current.ID,
+					); err != nil {
+						return err
+					}
+				}
+				current.State = domain.NodeRunStatePending
+				current.AdmissionID = nil
+				current.TaskResultID = nil
+				current.SessionID = nil
+				current.InputSnapshotIDs = nil
+				if direct && !hasRequiredPredecessor(definition, current.NodeKey) {
+					fork, found, err := typedRecord[domain.RunFork](
+						transaction, ctx, runForkRecordKind, string(reuse.RunForkID),
+					)
+					if err != nil {
+						return err
+					}
+					if !found {
+						return &domain.Error{
+							Code: domain.ErrorCodeInternal, Op: "invalidate admission", Resource: string(reuse.ID),
+							Message: "admission reuse fork is unavailable",
+						}
+					}
+					current.State = domain.NodeRunStateReady
+					current.InputSnapshotIDs = []domain.SnapshotID{fork.StartingSnapshotID}
+				}
+			}
+			previousVersion := current.Metadata.ResourceVersion
+			current.Metadata.ResourceVersion++
+			current.Metadata.UpdatedAt = now
+			encoded, err := json.Marshal(current)
+			if err != nil {
+				return wrap("encode stale admission consumer", string(current.ID), err)
+			}
+			if err := transaction.updateRecord(
+				ctx, nodeRunRecordKind, string(current.ID), previousVersion, current.Metadata, encoded,
+			); err != nil {
+				return err
+			}
+		}
+		if err := transaction.advanceDependentNodes(ctx, node.WorkflowRunID, definition, now); err != nil {
+			return err
+		}
+		remainingActive := false
+		for _, current := range runNodes {
+			if _, reset := affected[current.NodeKey]; reset {
+				continue
+			}
+			active, err := transaction.nodeExecutionActive(ctx, current)
+			if err != nil {
+				return err
+			}
+			if active {
+				remainingActive = true
+				break
+			}
+		}
+		if run.State == domain.WorkflowRunStateSucceeded ||
+			run.State == domain.WorkflowRunStateRunning && !remainingActive {
+			previousVersion := run.Metadata.ResourceVersion
+			run.State = domain.WorkflowRunStatePending
+			run.ActivePauseID = nil
+			run.Metadata.ResourceVersion++
+			run.Metadata.UpdatedAt = now
+			encoded, err := json.Marshal(run)
+			if err != nil {
+				return wrap("encode reopened workflow run", string(run.ID), err)
+			}
+			if err := transaction.updateRecord(
+				ctx, workflowRunRecordKind, string(run.ID), previousVersion, run.Metadata, encoded,
+			); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
+}
+
+func (store *Store) AdmissionConsumerSessions(
+	ctx context.Context,
+	id domain.AdmissionID,
+) ([]domain.Session, error) {
+	if err := id.Validate(); err != nil {
+		return nil, err
+	}
+	var result []domain.Session
+	err := store.Transaction(ctx, func(transaction *Tx) error {
+		if _, found, err := transaction.admission(ctx, id); err != nil {
+			return err
+		} else if !found {
+			return &domain.Error{
+				Code: domain.ErrorCodeNotFound, Op: "inspect admission consumers", Resource: string(id),
+				Message: "admission does not exist",
+			}
+		}
+		nodes, err := transaction.nodeRuns(ctx, nil)
+		if err != nil {
+			return err
+		}
+		seen := make(map[domain.SessionID]struct{})
+		for _, node := range nodes {
+			if node.AdmissionID == nil || *node.AdmissionID != id {
+				continue
+			}
+			run, found, err := transaction.workflowRun(ctx, node.WorkflowRunID)
+			if err != nil {
+				return err
+			}
+			if !found {
+				return &domain.Error{
+					Code: domain.ErrorCodeInternal, Op: "inspect admission consumers", Resource: string(node.ID),
+					Message: "admission consumer workflow run is unavailable",
+				}
+			}
+			definitionRecord, err := transaction.workflowDefinitionAtVersion(
+				ctx, run.WorkflowDefinition, node.DefinitionVersion,
+			)
+			if err != nil {
+				return err
+			}
+			definition, err := decodeResolvedDefinition(definitionRecord)
+			if err != nil {
+				return err
+			}
+			affected := downstreamNodeKeys(definition, node.NodeKey)
+			runNodes, err := transaction.nodeRuns(ctx, &node.WorkflowRunID)
+			if err != nil {
+				return err
+			}
+			for _, candidate := range runNodes {
+				if _, found := affected[candidate.NodeKey]; !found || candidate.SessionID == nil {
+					continue
+				}
+				session, found, err := typedRecord[domain.Session](
+					transaction, ctx, sessionRecordKind, string(*candidate.SessionID),
+				)
+				if err != nil {
+					return err
+				}
+				if !found || session.NodeRunID != candidate.ID {
+					return &domain.Error{
+						Code: domain.ErrorCodeInternal, Op: "inspect admission consumers",
+						Resource: string(*candidate.SessionID), Message: "session node lineage is unavailable",
+					}
+				}
+				if terminalSessionState(session.State) {
+					continue
+				}
+				if _, found := seen[session.ID]; found {
+					continue
+				}
+				seen[session.ID] = struct{}{}
+				result = append(result, session)
+			}
+		}
+		sort.Slice(result, func(first int, second int) bool { return result[first].ID < result[second].ID })
+		return nil
+	})
+	return result, err
+}
+
+func (transaction *Tx) nodeExecutionActive(ctx context.Context, node domain.NodeRun) (bool, error) {
+	if node.State == domain.NodeRunStateRunning {
+		return true, nil
+	}
+	if node.SessionID == nil {
+		return false, nil
+	}
+	session, found, err := typedRecord[domain.Session](transaction, ctx, sessionRecordKind, string(*node.SessionID))
+	if err != nil {
+		return false, err
+	}
+	if !found || session.NodeRunID != node.ID {
+		return false, &domain.Error{
+			Code: domain.ErrorCodeInternal, Op: "inspect node execution", Resource: string(*node.SessionID),
+			Message: "session node lineage is unavailable",
+		}
+	}
+	return !terminalSessionState(session.State), nil
+}
+
+func (transaction *Tx) requireTerminalSessionForInvalidation(
+	ctx context.Context,
+	id domain.SessionID,
+	nodeID domain.NodeRunID,
+) error {
+	session, found, err := typedRecord[domain.Session](transaction, ctx, sessionRecordKind, string(id))
+	if err != nil {
+		return err
+	}
+	if !found || session.NodeRunID != nodeID {
+		return &domain.Error{
+			Code: domain.ErrorCodeInternal, Op: "invalidate admission", Resource: string(id),
+			Message: "active session lineage is unavailable",
+		}
+	}
+	if terminalSessionState(session.State) {
+		return nil
+	}
+	return &domain.Error{
+		Code: domain.ErrorCodeConflict, Op: "invalidate admission", Resource: string(id),
+		Message: "active downstream session must finish cancellation before invalidation",
+	}
+}
+
+func downstreamNodeKeys(
+	definition workflowmodel.Definition,
+	root domain.NodeKey,
+) map[domain.NodeKey]struct{} {
+	affected := map[domain.NodeKey]struct{}{root: {}}
+	for changed := true; changed; {
+		changed = false
+		for _, edge := range definition.Edges {
+			if isBackEdge(definition.Loops, edge.ID) {
+				continue
+			}
+			if _, found := affected[edge.From]; !found {
+				continue
+			}
+			if _, found := affected[edge.To]; found {
+				continue
+			}
+			affected[edge.To] = struct{}{}
+			changed = true
+		}
+	}
+	return affected
+}
+
+func hasRequiredPredecessor(definition workflowmodel.Definition, nodeKey domain.NodeKey) bool {
+	for _, edge := range definition.Edges {
+		if edge.To == nodeKey && edge.Required && !isBackEdge(definition.Loops, edge.ID) {
+			return true
+		}
+	}
+	return false
 }
 
 func isBackEdge(loops []workflowmodel.Loop, edgeID domain.EdgeKey) bool {

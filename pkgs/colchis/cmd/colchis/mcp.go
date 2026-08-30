@@ -150,13 +150,17 @@ var mcpToolDefinitions = []mcpTool{
 	newMCPTool("workflow_run", "Create a dedicated workflow run", "workflow.run", false),
 	newMCPTool("workflow_list", "List workflow runs", "workflow.list", true),
 	newMCPTool("workflow_restart_points", "List restart points for a workflow run", "workflow.restart-points", true),
-	newMCPTool("workflow_forks", "List replay lineage for a workflow run", "workflow.forks", true),
+	newMCPTool("workflow_forks", "List branch lineage for a workflow run", "workflow.forks", true),
 	newMCPTool("workflow_schedule", "Reserve ready workflow nodes", "workflow.schedule", false),
 	newMCPTool("workflow_inspect", "Inspect a workflow run", "workflow.inspect", true),
 	newMCPTool("workflow_export", "Export a workflow definition", "workflow.export", true),
 	newMCPTool("workflow_restart_point", "Create a workflow restart point", "workflow.restart-point", false),
+	newMCPTool("workflow_pause", "Pause a workflow run with a structured cause", "workflow.pause", false),
+	newMCPTool("workflow_resume", "Resume a paused workflow run", "workflow.resume", false),
+	newMCPTool("stage_retry", "Retry a failed workflow stage", "workflow.retry", false),
+	newMCPTool("workflow_branch", "Branch a workflow run from a restart point", "workflow.branch", false),
+	newMCPTool("workflow_revise", "Create an immutable workflow definition revision", "workflow.revise", false),
 	newMCPTool("graph_patch", "Patch a workflow graph", "graph.patch", false),
-	newMCPTool("workflow_replay", "Replay from a restart point", "workflow.replay", false),
 	newMCPTool("worker_start", "Start a workflow worker", "agent.start", false),
 	newMCPTool("worker_list", "List workflow workers", "agent.list", true),
 	newMCPTool("worker_attach", "Attach to a workflow worker", "agent.attach", false),
@@ -171,6 +175,7 @@ var mcpToolDefinitions = []mcpTool{
 	newMCPTool("verification_task_record", "Bind a result to a snapshot", "verification.task-record", false),
 	newMCPTool("verification_record", "Record verification evidence", "verification.record", false),
 	newMCPTool("verification_admit", "Decide result admission", "verification.admit", false),
+	newMCPTool("verification_refresh", "Refresh admission evidence", "verification.refresh", false),
 	newMCPTool("effect_reconcile", "Reconcile an indeterminate effect", "effect.reconcile", false),
 	newMCPTool("provenance_commit", "Record a commit observation", "provenance.commit", false),
 	newMCPTool("provenance_relation", "Record a provenance relation", "provenance.relation", false),
@@ -413,12 +418,17 @@ func resolveMCPClient(stateDirectory string) (*socket.Client, bool, error) {
 		if !found {
 			return nil, false, nil
 		}
-		if _, registered, sessionErr := instance.CurrentSession(record); sessionErr != nil {
-			return nil, false, fmt.Errorf("resolve Orc session: %w", sessionErr)
-		} else if !registered {
-			return nil, false, nil
-		}
 	}
+	if _, registered, sessionErr := instance.CurrentSession(record); sessionErr != nil {
+		return nil, false, fmt.Errorf("resolve Orc session: %w", sessionErr)
+	} else if !registered {
+		return nil, false, nil
+	}
+	refreshed, err := refreshOrcGeneration(record)
+	if err != nil {
+		return nil, false, fmt.Errorf("refresh Orc broker: %w", err)
+	}
+	record = refreshed
 	client, err := socket.NewClient(record.Socket)
 	if err != nil {
 		return nil, false, fmt.Errorf("create broker client: %w", err)
@@ -520,7 +530,7 @@ func callMCPTool(ctx context.Context, client *socket.Client, request mcpRequest)
 		return mcpStructuredSuccess(request, session)
 	}
 	if definition.nativeKind == "workflow.run" {
-		arguments.Payload = bindMCPWorkflowSession(arguments.Payload)
+		arguments.Payload = bindCurrentWorkflowSession(arguments.Payload)
 	}
 	if arguments.CommandID == "" {
 		value, err := localCommandID()
@@ -554,7 +564,7 @@ func callMCPTool(ctx context.Context, client *socket.Client, request mcpRequest)
 	return mcpRequestSuccess(request, result)
 }
 
-func bindMCPWorkflowSession(payload json.RawMessage) json.RawMessage {
+func bindCurrentWorkflowSession(payload json.RawMessage) json.RawMessage {
 	var object map[string]json.RawMessage
 	if json.Unmarshal(payload, &object) != nil || object == nil {
 		return payload

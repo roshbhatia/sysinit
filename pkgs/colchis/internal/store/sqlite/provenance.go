@@ -23,6 +23,7 @@ type AnnotationWithReplies struct {
 type ProvenanceInspection struct {
 	CommitObservations []domain.CommitObservation  `json:"commitObservations"`
 	Relations          []domain.ProvenanceRelation `json:"relations"`
+	AdmissionReuses    []domain.AdmissionReuse     `json:"admissionReuses"`
 	Activities         []domain.Activity           `json:"activities"`
 	PromptArtifacts    []domain.PromptArtifact     `json:"promptArtifacts"`
 }
@@ -39,6 +40,12 @@ func (store *Store) InspectProvenance(ctx context.Context) (ProvenanceInspection
 		}
 		inspection.Relations, err = typedRecords[domain.ProvenanceRelation](
 			transaction, ctx, provenanceRelationRecordKind,
+		)
+		if err != nil {
+			return err
+		}
+		inspection.AdmissionReuses, err = typedRecords[domain.AdmissionReuse](
+			transaction, ctx, admissionReuseRecordKind,
 		)
 		if err != nil {
 			return err

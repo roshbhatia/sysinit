@@ -579,6 +579,100 @@ func TestSessionCancellationInterruptsRuntimeWithoutActiveOperation(t *testing.T
 	}
 }
 
+func TestAdmissionRefreshCancelsRuntimeConsumersBeforeInvalidation(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	store, implement := createBrokerSessionRun(t, ctx, "run-admission-refresh")
+	defer store.Close()
+	workspace := t.TempDir()
+	if err := os.WriteFile(filepath.Join(workspace, "result.txt"), []byte("complete"), 0o600); err != nil {
+		t.Fatalf("WriteFile() returned %v", err)
+	}
+	snapshot, err := store.CreateWorkspaceSnapshot(
+		ctx, "snapshot-admission-refresh", "workspace-admission-refresh", workspace,
+	)
+	if err != nil {
+		t.Fatalf("CreateWorkspaceSnapshot() returned %v", err)
+	}
+	submission, err := store.SubmitTaskResult(ctx, sqlite.TaskResultRequest{
+		ID: "result-admission-refresh", NodeRunID: implement.ID, Attempt: implement.Attempt,
+		SchemaDigest: "sha256:ccb5a9d66e068ea8f4e205788589675a48e9e3754a840d8ac10120d14238e914",
+		Value:        json.RawMessage(`{"status":"complete"}`),
+	})
+	if err != nil || submission.Result == nil {
+		t.Fatalf("SubmitTaskResult() = %#v, %v", submission, err)
+	}
+	task, err := store.CreateTaskRecord(ctx, sqlite.TaskRecordRequest{
+		ID: "task-admission-refresh", TaskResultID: submission.Result.ID, SnapshotID: snapshot.ID,
+	})
+	if err != nil {
+		t.Fatalf("CreateTaskRecord() returned %v", err)
+	}
+	exitCode := 0
+	validation, err := store.RecordValidation(ctx, sqlite.ValidationRequest{
+		ID: "validation-admission-refresh", TaskRecordID: task.ID, Key: "unit-tests",
+		State: domain.ValidationStatePassed, Authority: domain.AuthorityRepository,
+		EnvironmentID: "nix:environment-1", ExitCode: &exitCode,
+	})
+	if err != nil {
+		t.Fatalf("RecordValidation() returned %v", err)
+	}
+	admission, err := store.DecideAdmission(ctx, sqlite.AdmissionRequest{
+		ID: "admission-refresh", TaskRecordID: task.ID, ValidationIDs: []domain.ValidationID{validation.ID},
+	})
+	if err != nil || admission.State != domain.AdmissionStateAdmitted {
+		t.Fatalf("DecideAdmission() = %#v, %v", admission, err)
+	}
+	reserved, err := store.ReserveReadyNodes(ctx, "run-admission-refresh", sqlite.AdapterCapacity{"pi": 1})
+	if err != nil || len(reserved) != 1 || reserved[0].NodeKey != "judge" {
+		t.Fatalf("ReserveReadyNodes(judge) = %#v, %v", reserved, err)
+	}
+	runtime := defaultFixtureSessionRuntime()
+	cancellations := 0
+	runtime.cancel = func(context.Context, domain.PluginID, plugin.CancelParams) error {
+		cancellations++
+		return nil
+	}
+	service, err := NewSessionService(store, runtime)
+	if err != nil {
+		t.Fatalf("NewSessionService() returned %v", err)
+	}
+	started, err := service.StartSession(
+		ctx, startSessionTestRequest(reserved[0], "run-admission-refresh", "session-admission-refresh", []byte("Judge.")),
+	)
+	if err != nil {
+		t.Fatalf("StartSession() returned %v", err)
+	}
+	operationID := domain.OperationID("operation-admission-refresh")
+	started.Session, err = store.SetSessionOperation(
+		ctx, started.Session.ID, started.Session.Metadata.ResourceVersion, &operationID,
+	)
+	if err != nil {
+		t.Fatalf("SetSessionOperation() returned %v", err)
+	}
+	refreshed, current, err := service.RefreshAdmission(ctx, AdmissionRefreshRequest{
+		Freshness: sqlite.AdmissionFreshnessRequest{
+			ID: admission.ID, EnvironmentIDs: map[string]string{"nix": "nix:environment-2"},
+		},
+		CommandID: "command-admission-refresh", Source: "owner-terminal",
+	})
+	if err != nil || current || refreshed.State != domain.AdmissionStateStale || cancellations != 1 {
+		t.Fatalf("RefreshAdmission() = %#v, %t, %d cancellations, %v", refreshed, current, cancellations, err)
+	}
+	history, err := store.SessionHistory(ctx, started.Session.ID)
+	if err != nil || history.Session.State != domain.SessionStateCancelled {
+		t.Fatalf("SessionHistory() = %#v, %v", history, err)
+	}
+	run, nodes, err := store.WorkflowRun(ctx, "run-admission-refresh")
+	if err != nil {
+		t.Fatalf("WorkflowRun() returned %v", err)
+	}
+	if run.State != domain.WorkflowRunStatePending || brokerNodeByKey(t, nodes, "judge").SessionID != nil {
+		t.Fatalf("invalidated workflow = %#v, %#v", run, nodes)
+	}
+}
+
 func TestSessionRecoveryRecordsAdoption(t *testing.T) {
 	t.Parallel()
 
@@ -972,6 +1066,17 @@ func createBrokerSessionRun(
 		t.Fatalf("ReserveReadyNodes() = %#v, %v", reserved, err)
 	}
 	return store, reserved[0]
+}
+
+func brokerNodeByKey(t *testing.T, nodes []domain.NodeRun, key domain.NodeKey) domain.NodeRun {
+	t.Helper()
+	for _, node := range nodes {
+		if node.NodeKey == key {
+			return node
+		}
+	}
+	t.Fatalf("node %q is absent from %#v", key, nodes)
+	return domain.NodeRun{}
 }
 
 func startSessionTestRequest(
