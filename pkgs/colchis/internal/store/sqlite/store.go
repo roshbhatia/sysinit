@@ -77,6 +77,7 @@ type Tx struct {
 	eventRate        *eventRateLimiter
 	emergencyReserve bool
 	reserveReleased  bool
+	reserveLock      *os.File
 }
 
 type eventRateLimiter struct {
@@ -159,6 +160,10 @@ func ensureEmergencyReserve(databasePath string, reserveBytes uint64) error {
 		return err
 	}
 	defer lock.Close()
+	return ensureEmergencyReserveLocked(databasePath, reserveBytes)
+}
+
+func ensureEmergencyReserveLocked(databasePath string, reserveBytes uint64) error {
 	stateDirectory := filepath.Dir(databasePath)
 	reservePath := filepath.Join(stateDirectory, emergencyReserveName)
 	degradedPath := filepath.Join(stateDirectory, emergencyDegradedName)
@@ -347,6 +352,10 @@ func releaseEmergencyReserve(databasePath string, reserveBytes uint64) error {
 		return err
 	}
 	defer lock.Close()
+	return releaseEmergencyReserveLocked(databasePath, reserveBytes)
+}
+
+func releaseEmergencyReserveLocked(databasePath string, reserveBytes uint64) error {
 	stateDirectory := filepath.Dir(databasePath)
 	reservePath := filepath.Join(stateDirectory, emergencyReserveName)
 	degradedPath := filepath.Join(stateDirectory, emergencyDegradedName)
@@ -2184,7 +2193,11 @@ func (transaction *Tx) restoreEmergencyReserve() error {
 	if !transaction.reserveReleased {
 		return nil
 	}
-	return ensureEmergencyReserve(transaction.path, transaction.budgets.EmergencyReserveBytes)
+	reserveErr := ensureEmergencyReserveLocked(transaction.path, transaction.budgets.EmergencyReserveBytes)
+	lockErr := transaction.reserveLock.Close()
+	transaction.reserveLock = nil
+	transaction.reserveReleased = false
+	return errors.Join(reserveErr, lockErr)
 }
 
 type TableInspection struct {
@@ -3134,9 +3147,15 @@ func (transaction *Tx) releaseEmergencyReserve() error {
 	if !transaction.emergencyReserve || transaction.reserveReleased {
 		return nil
 	}
-	if err := releaseEmergencyReserve(transaction.path, transaction.budgets.EmergencyReserveBytes); err != nil {
+	lock, err := acquireEmergencyStateLock(transaction.path)
+	if err != nil {
 		return err
 	}
+	if err := releaseEmergencyReserveLocked(transaction.path, transaction.budgets.EmergencyReserveBytes); err != nil {
+		lock.Close()
+		return err
+	}
+	transaction.reserveLock = lock
 	transaction.reserveReleased = true
 	return nil
 }
@@ -3147,12 +3166,19 @@ func (transaction *Tx) reserveStateCapacity(ctx context.Context, writeBytes uint
 			return err
 		}
 	} else if transaction.emergencyReserve {
-		if healthy, err := emergencyFileHasSize(
+		lock, err := acquireEmergencyStateLock(transaction.path)
+		if err != nil {
+			return err
+		}
+		healthy, healthErr := emergencyFileHasSize(
 			filepath.Join(filepath.Dir(transaction.path), emergencyReserveName),
 			transaction.budgets.EmergencyReserveBytes,
-		); err != nil {
+		)
+		lockErr := lock.Close()
+		if err := errors.Join(healthErr, lockErr); err != nil {
 			return err
-		} else if !healthy {
+		}
+		if !healthy {
 			return &domain.Error{
 				Code: domain.ErrorCodeBudgetExhausted, Op: "append event", Resource: transaction.path,
 				Message: "emergency reserve is unavailable",

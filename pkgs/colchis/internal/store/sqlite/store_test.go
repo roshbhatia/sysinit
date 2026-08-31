@@ -1500,6 +1500,54 @@ func TestEmergencyReserveSerializesStateTransitions(t *testing.T) {
 	}
 }
 
+func TestCriticalTransactionHoldsEmergencyStateLockUntilRestore(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	path := filepath.Join(t.TempDir(), "colchis.db")
+	store, err := Open(ctx, path)
+	if err != nil {
+		t.Fatalf("Open() returned %v", err)
+	}
+	defer store.Close()
+	if err := store.EnableEmergencyReserve(); err != nil {
+		t.Fatalf("EnableEmergencyReserve() returned %v", err)
+	}
+
+	released := make(chan struct{})
+	finish := make(chan struct{})
+	transactionDone := make(chan error, 1)
+	go func() {
+		transactionDone <- store.Transaction(ctx, func(transaction *Tx) error {
+			if err := transaction.releaseEmergencyReserve(); err != nil {
+				return err
+			}
+			close(released)
+			<-finish
+			return nil
+		})
+	}()
+	<-released
+
+	ensureDone := make(chan error, 1)
+	go func() {
+		ensureDone <- ensureEmergencyReserve(path, store.budgets.EmergencyReserveBytes)
+	}()
+	select {
+	case err := <-ensureDone:
+		close(finish)
+		t.Fatalf("ensureEmergencyReserve() bypassed the transaction lease: %v", err)
+	case <-time.After(100 * time.Millisecond):
+	}
+	close(finish)
+	if err := <-transactionDone; err != nil {
+		t.Fatalf("Transaction() returned %v", err)
+	}
+	if err := <-ensureDone; err != nil {
+		t.Fatalf("ensureEmergencyReserve() returned %v", err)
+	}
+}
+
 func TestOversizedDegradedMarkerRecoversAfterInterruptedRelease(t *testing.T) {
 	t.Parallel()
 
