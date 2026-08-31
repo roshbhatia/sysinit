@@ -370,11 +370,12 @@ func runOrcController(args []string, stderr io.Writer, resume bool) int {
 	if resume {
 		action = "resume"
 	}
-	name, model, passthrough, err := parseOrcController(args, action)
+	name, model, sessionID, zmxSession, passthrough, err := parseOrcController(args, action)
 	if err != nil {
 		fmt.Fprintln(stderr, err)
 		return 2
 	}
+	zmxSession = normalizeZMXSession(zmxSession)
 	registry, err := agents.Load()
 	if err != nil {
 		fmt.Fprintf(stderr, "read agent registry: %v\n", err)
@@ -401,7 +402,26 @@ func runOrcController(args []string, stderr io.Writer, resume bool) int {
 		}
 	}()
 	record := lease.record
+	if sessionID != "" {
+		existing, found, lookupErr := findControlSession(record, sessionID)
+		if lookupErr != nil {
+			fmt.Fprintf(stderr, "read Orc session: %v\n", lookupErr)
+			return 1
+		}
+		if !found || existing.Harness != name {
+			fmt.Fprintf(stderr, "resume session: %q does not belong to %s\n", sessionID, name)
+			return 1
+		}
+		if zmxSession == "" {
+			zmxSession = existing.ZMXSession
+		}
+	}
+	if zmxSession != "" && !resume && zmxSessionExists(zmxSession) {
+		fmt.Fprintf(stderr, "start %s: ZMX session %q already exists\n", name, zmxSession)
+		return 1
+	}
 	command := []string{executable}
+	execTarget := executable
 	if model != "" {
 		if agent.Launch.ModelFlag == "" {
 			fmt.Fprintf(stderr, "%s does not declare model selection\n", name)
@@ -426,7 +446,6 @@ func runOrcController(args []string, stderr io.Writer, resume bool) int {
 		fmt.Fprintf(stderr, "resolve orchestrator directory: %v\n", err)
 		return 1
 	}
-	sessionID := ""
 	if !resume {
 		identity, _, _ := plugin.ProcessIdentity(os.Getpid())
 		identifier, idErr := localCommandID()
@@ -436,7 +455,7 @@ func runOrcController(args []string, stderr io.Writer, resume bool) int {
 		}
 		session, registerErr := instance.RegisterSession(record, instance.SessionRegistration{
 			ID: "session-" + identifier, Harness: name, Directory: directory, Pane: os.Getenv("WEZTERM_PANE"),
-			Mux: currentWezTermMuxID(), PID: os.Getpid(),
+			Mux: currentWezTermMuxID(), ZMXSession: zmxSession, PID: os.Getpid(),
 			ProcessIdentity: identity,
 			Status:          "working", Reason: action, Registration: "spawned",
 			Capabilities: []string{"observe", "focus", "trace"},
@@ -447,10 +466,19 @@ func runOrcController(args []string, stderr io.Writer, resume bool) int {
 		}
 		sessionID = session.ID
 	}
+	if zmxSession != "" {
+		zmxExecutable, lookupErr := exec.LookPath("zmx")
+		if lookupErr != nil {
+			fmt.Fprintf(stderr, "find zmx: %v\n", lookupErr)
+			return 1
+		}
+		command = append([]string{zmxExecutable, "attach", zmxSession}, command...)
+		execTarget = zmxExecutable
+	}
 	environmentValues := orcControllerEnvironmentValues(name, record, sessionID, resume, os.Getpid())
 	environment := withEnvironment(os.Environ(), environmentValues)
 	// Exec keeps the lease PID attached to the agent without a supervising wrapper process.
-	if err := syscall.Exec(executable, command, environment); err != nil {
+	if err := syscall.Exec(execTarget, command, environment); err != nil {
 		fmt.Fprintf(stderr, "start %s: %v\n", name, err)
 		return 1
 	}
@@ -471,39 +499,52 @@ func orcControllerEnvironmentValues(
 		"CLAUDE_CODE_SESSION_ID": "", "CODEX_SESSION_ID": "", "CODEX_THREAD_ID": "",
 	}
 	if resume {
-		values["ORC_SESSION_ID"] = ""
 		values["ORC_SESSION_ENROLL_PID"] = strconv.Itoa(pid)
 	}
 	return values
 }
 
-func parseOrcController(args []string, action string) (string, string, []string, error) {
+func parseOrcController(args []string, action string) (string, string, string, string, []string, error) {
 	if len(args) == 0 {
-		return "", "", nil, fmt.Errorf(
-			"usage: orc %s <harness> [--model <model>] [-- <harness arguments>]", action,
+		return "", "", "", "", nil, fmt.Errorf(
+			"usage: orc %s <harness> [--model <model>] [--zmx <name>] [--session-id <id>] [-- <harness arguments>]", action,
 		)
 	}
 	name := args[0]
 	model := ""
+	sessionID := ""
+	zmxSession := ""
 	passthrough := make([]string, 0)
 	for index := 1; index < len(args); index++ {
 		switch args[index] {
 		case "--model":
 			if index+1 >= len(args) {
-				return "", "", nil, errors.New("--model requires a value")
+				return "", "", "", "", nil, errors.New("--model requires a value")
 			}
 			model = args[index+1]
 			index++
+		case "--zmx":
+			if index+1 >= len(args) {
+				return "", "", "", "", nil, errors.New("--zmx requires a session name")
+			}
+			zmxSession = args[index+1]
+			index++
+		case "--session-id":
+			if index+1 >= len(args) {
+				return "", "", "", "", nil, errors.New("--session-id requires a value")
+			}
+			sessionID = args[index+1]
+			index++
 		case "--":
 			passthrough = append(passthrough, args[index+1:]...)
-			return name, model, passthrough, nil
+			return name, model, sessionID, zmxSession, passthrough, nil
 		default:
-			return "", "", nil, fmt.Errorf(
+			return "", "", "", "", nil, fmt.Errorf(
 				"unknown %s option %q; pass harness arguments after --", action, args[index],
 			)
 		}
 	}
-	return name, model, passthrough, nil
+	return name, model, sessionID, zmxSession, passthrough, nil
 }
 
 func runOrcSession(args []string, stdout io.Writer, stderr io.Writer) int {
@@ -610,6 +651,7 @@ func runOrcSessionRegister(args []string, stdout io.Writer, stderr io.Writer) in
 	trace := flags.String("trace-id", "", "Traces session id")
 	pane := flags.String("pane", os.Getenv("WEZTERM_PANE"), "WezTerm pane id")
 	mux := flags.Int("mux", currentWezTermMuxID(), "WezTerm mux process id")
+	zmxSession := flags.String("zmx-session", normalizeZMXSession(os.Getenv("ZMX_SESSION")), "ZMX session name")
 	pid := flags.Int("pid", os.Getppid(), "harness process id")
 	status := flags.String("status", "working", "session status")
 	reason := flags.String("reason", "", "session status detail")
@@ -663,7 +705,8 @@ func runOrcSessionRegister(args []string, stdout io.Writer, stderr io.Writer) in
 	registrationSource := orcSessionRegistrationSource(*source, *pid)
 	registered, err := instance.RegisterSession(record, instance.SessionRegistration{
 		ID: *id, Harness: *harness, NativeSessionID: *native, TraceSessionID: *trace,
-		Directory: directory, Pane: *pane, Mux: *mux, PID: *pid, ProcessIdentity: identity, Status: *status,
+		Directory: directory, Pane: *pane, Mux: *mux, ZMXSession: normalizeZMXSession(*zmxSession),
+		PID: *pid, ProcessIdentity: identity, Status: *status,
 		Reason: *reason, Registration: registrationSource, Capabilities: splitComma(*capabilities),
 	})
 	if errors.Is(err, instance.ErrSessionNotRegistered) && *source == "hook" {
@@ -867,6 +910,7 @@ func runOrcConnect(args []string, stdout io.Writer, stderr io.Writer) int {
 	if wanted == "" && *pane == "" {
 		*pane = os.Getenv("WEZTERM_PANE")
 	}
+	liveZMX := liveZMXSessions()
 	for _, session := range sessions {
 		if wanted != "" && session.ID != wanted {
 			continue
@@ -875,7 +919,7 @@ func runOrcConnect(args []string, stdout io.Writer, stderr io.Writer) int {
 			*harness != "" && session.Harness != *harness) {
 			continue
 		}
-		if session.Status == "disconnected" || !orcSessionProcessLive(session) {
+		if session.Status == "disconnected" || !orcSessionLive(session, liveZMX) {
 			continue
 		}
 		registered, registerErr := instance.RegisterSession(record, instance.SessionRegistration{
@@ -989,9 +1033,10 @@ func controlPlaneSessions(record instance.Record) ([]instance.Session, error) {
 		}
 		registered = append(registered, session)
 	}
+	liveZMX := liveZMXSessions()
 	for index := range registered {
 		if registered[index].Registration != "observed" && registered[index].Status != "disconnected" &&
-			!orcSessionProcessLive(registered[index]) {
+			!orcSessionLive(registered[index], liveZMX) {
 			registered[index].Status = "disconnected"
 			registered[index].Reason = "process exited"
 		}
@@ -1240,6 +1285,17 @@ func findOrcSession(sessions []instance.Session, id string) (instance.Session, b
 }
 
 func focusOrcSession(session instance.Session, stdout io.Writer, stderr io.Writer) int {
+	if session.ZMXSession != "" {
+		command := exec.Command("zmx", "attach", normalizeZMXSession(session.ZMXSession))
+		command.Stdin = os.Stdin
+		command.Stdout = stdout
+		command.Stderr = stderr
+		if err := command.Run(); err != nil {
+			fmt.Fprintf(stderr, "attach through ZMX: %v\n", err)
+			return 1
+		}
+		return 0
+	}
 	if session.Pane == "" {
 		fmt.Fprintln(stderr, "focus session: this session has no terminal pane")
 		return 1
@@ -2034,23 +2090,54 @@ func activeOrcSessionProcess(record instance.Record) bool {
 	if err != nil {
 		return false
 	}
+	liveZMX := liveZMXSessions()
 	for _, session := range sessions {
 		if session.Status == "disconnected" {
 			continue
 		}
-		if orcSessionProcessLive(session) {
+		if orcSessionLive(session, liveZMX) {
 			return true
 		}
 	}
 	return false
 }
 
-func orcSessionProcessLive(session instance.Session) bool {
+func orcSessionLive(session instance.Session, liveZMX map[string]bool) bool {
+	if session.ZMXSession != "" && liveZMX[normalizeZMXSession(session.ZMXSession)] {
+		return true
+	}
 	if session.PID <= 0 || session.ProcessIdentity == 0 {
 		return false
 	}
 	identity, found, err := plugin.ProcessIdentity(session.PID)
 	return err == nil && found && identity == session.ProcessIdentity
+}
+
+func normalizeZMXSession(value string) string {
+	value = strings.TrimSpace(value)
+	if prefix := os.Getenv("ZMX_SESSION_PREFIX"); prefix != "" {
+		value = strings.TrimPrefix(value, prefix)
+	}
+	return value
+}
+
+func liveZMXSessions() map[string]bool {
+	result := make(map[string]bool)
+	command := exec.Command("zmx", "list", "--short")
+	output, err := command.Output()
+	if err != nil {
+		return result
+	}
+	for _, line := range strings.Split(string(output), "\n") {
+		if name := normalizeZMXSession(line); name != "" {
+			result[name] = true
+		}
+	}
+	return result
+}
+
+func zmxSessionExists(name string) bool {
+	return liveZMXSessions()[normalizeZMXSession(name)]
 }
 
 func orcRecentDirectory() string {

@@ -51,10 +51,19 @@ type Session struct {
 	Harness         string   `json:"harness"`
 	NativeSessionID string   `json:"nativeSessionId,omitempty"`
 	TraceSessionID  string   `json:"traceSessionId,omitempty"`
+	Title           string   `json:"title,omitempty"`
+	Purpose         string   `json:"purpose,omitempty"`
+	AgentRole       string   `json:"agentRole,omitempty"`
+	Goal            string   `json:"goal,omitempty"`
+	ExpectedOutput  string   `json:"expectedOutput,omitempty"`
+	SuccessCriteria []string `json:"successCriteria,omitempty"`
+	ReviewBy        string   `json:"reviewBy,omitempty"`
+	Handoff         string   `json:"handoff,omitempty"`
 	Scope           string   `json:"scope"`
 	Directory       string   `json:"directory,omitempty"`
 	Pane            string   `json:"pane,omitempty"`
 	Mux             int      `json:"mux,omitempty"`
+	ZMXSession      string   `json:"zmxSession,omitempty"`
 	PID             int      `json:"pid,omitempty"`
 	ProcessIdentity uint64   `json:"processIdentity,omitempty"`
 	Status          string   `json:"status"`
@@ -71,9 +80,18 @@ type SessionRegistration struct {
 	Harness         string
 	NativeSessionID string
 	TraceSessionID  string
+	Title           string
+	Purpose         string
+	AgentRole       string
+	Goal            string
+	ExpectedOutput  string
+	SuccessCriteria []string
+	ReviewBy        string
+	Handoff         string
 	Directory       string
 	Pane            string
 	Mux             int
+	ZMXSession      string
 	PID             int
 	ProcessIdentity uint64
 	Status          string
@@ -298,6 +316,9 @@ func RegisterSession(record Record, registration SessionRegistration) (Session, 
 				candidate.Mux == registration.Mux && candidate.Status != "disconnected"
 		}
 		if matches {
+			if registration.Harness != "" && candidate.Harness != "" && candidate.Harness != registration.Harness {
+				return Session{}, fmt.Errorf("session %q belongs to harness %q", candidate.ID, candidate.Harness)
+			}
 			current = candidate
 			break
 		}
@@ -325,6 +346,30 @@ func RegisterSession(record Record, registration SessionRegistration) (Session, 
 	} else if current.TraceSessionID == "" && current.NativeSessionID != "" {
 		current.TraceSessionID = current.NativeSessionID
 	}
+	if registration.Title != "" {
+		current.Title = registration.Title
+	}
+	if registration.Purpose != "" {
+		current.Purpose = registration.Purpose
+	}
+	if registration.AgentRole != "" {
+		current.AgentRole = registration.AgentRole
+	}
+	if registration.Goal != "" {
+		current.Goal = registration.Goal
+	}
+	if registration.ExpectedOutput != "" {
+		current.ExpectedOutput = registration.ExpectedOutput
+	}
+	if len(registration.SuccessCriteria) > 0 {
+		current.SuccessCriteria = uniqueStrings(registration.SuccessCriteria)
+	}
+	if registration.ReviewBy != "" {
+		current.ReviewBy = registration.ReviewBy
+	}
+	if registration.Handoff != "" {
+		current.Handoff = registration.Handoff
+	}
 	if registration.Directory != "" {
 		current.Directory = registration.Directory
 	}
@@ -334,8 +379,11 @@ func RegisterSession(record Record, registration SessionRegistration) (Session, 
 	if registration.Mux > 0 {
 		current.Mux = registration.Mux
 	}
+	if registration.ZMXSession != "" {
+		current.ZMXSession = registration.ZMXSession
+	}
 	preserveProcess := false
-	if registration.Registration == "hook" && current.PID > 0 && current.ProcessIdentity > 0 {
+	if registration.Registration == "hook" && current.ZMXSession == "" && current.PID > 0 && current.ProcessIdentity > 0 {
 		identity, found, identityErr := plugin.ProcessIdentity(current.PID)
 		preserveProcess = identityErr == nil && found && identity == current.ProcessIdentity
 	}
@@ -367,6 +415,17 @@ func RegisterSession(record Record, registration SessionRegistration) (Session, 
 	current.UpdatedAt = time.Now().UTC().Format(time.RFC3339Nano)
 	if err := writeSession(record, current); err != nil {
 		return Session{}, err
+	}
+	if registration.ID != "" && current.PID > 0 && current.ProcessIdentity > 0 {
+		for _, duplicate := range sessions {
+			if duplicate.ID == current.ID || duplicate.Harness != current.Harness ||
+				duplicate.PID != current.PID || duplicate.ProcessIdentity != current.ProcessIdentity {
+				continue
+			}
+			if err := removeSessionLocked(record, duplicate.ID); err != nil {
+				return Session{}, err
+			}
+		}
 	}
 	return current, nil
 }
@@ -465,6 +524,23 @@ func sessionProcessMatches(session Session) bool {
 }
 
 func RemoveSession(record Record, id string) error {
+	directory := filepath.Join(record.StateDirectory, "controller-sessions")
+	if err := os.MkdirAll(directory, 0o700); err != nil {
+		return err
+	}
+	lock, err := os.OpenFile(filepath.Join(directory, ".lock"), os.O_CREATE|os.O_RDWR, 0o600)
+	if err != nil {
+		return err
+	}
+	defer lock.Close()
+	if err := unix.Flock(int(lock.Fd()), unix.LOCK_EX); err != nil {
+		return err
+	}
+	defer unix.Flock(int(lock.Fd()), unix.LOCK_UN)
+	return removeSessionLocked(record, id)
+}
+
+func removeSessionLocked(record Record, id string) error {
 	if !safeSessionIdentifier(id) {
 		return errors.New("session id contains an unsupported character")
 	}

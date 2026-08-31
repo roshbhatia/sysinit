@@ -86,6 +86,31 @@ func TestRegisteredSessionKeepsIdentityAcrossHookUpdates(t *testing.T) {
 	}
 }
 
+func TestExplicitSessionIdentityRemovesSameProcessDuplicate(t *testing.T) {
+	record := Record{Version: Version, Scope: "/workspace", StateDirectory: t.TempDir()}
+	identity, found, err := plugin.ProcessIdentity(os.Getpid())
+	if err != nil || !found {
+		t.Fatalf("ProcessIdentity() = %d, %t, %v", identity, found, err)
+	}
+	if _, err := RegisterSession(record, SessionRegistration{
+		ID: "session-duplicate", Harness: "codex", PID: os.Getpid(), ProcessIdentity: identity,
+		Registration: "resume",
+	}); err != nil {
+		t.Fatalf("RegisterSession() duplicate returned %v", err)
+	}
+	kept, err := RegisterSession(record, SessionRegistration{
+		ID: "session-kept", Harness: "codex", NativeSessionID: "thread-new",
+		PID: os.Getpid(), ProcessIdentity: identity, Registration: "resume",
+	})
+	if err != nil {
+		t.Fatalf("RegisterSession() kept returned %v", err)
+	}
+	sessions, err := Sessions(record)
+	if err != nil || len(sessions) != 1 || sessions[0].ID != kept.ID {
+		t.Fatalf("Sessions() = %#v, %v", sessions, err)
+	}
+}
+
 func TestCurrentSessionUsesPaneBinding(t *testing.T) {
 	record := Record{Version: Version, Scope: "/workspace", StateDirectory: t.TempDir()}
 	identity, found, err := plugin.ProcessIdentity(os.Getpid())

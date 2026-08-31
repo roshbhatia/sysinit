@@ -71,9 +71,20 @@ import "list"
 })
 
 #Node: close({
-	template: #Identifier
-	adapter:  #Identifier
-	policy:   #JobPolicy
+	template:        #Identifier
+	adapter:         #Identifier
+	purpose?:        string & !=""
+	role?:           "planner" | "researcher" | "implementer" | "critic" | "judge" | "verifier" | "operator" | "generalist"
+	goal?:           string & !=""
+	expectedOutput?: string & !=""
+	successCriteria?: [string & !="", ...(string & !="")]
+	handoff?: *close({
+		mode: "orchestrator"
+	}) | close({
+		mode:     "review"
+		reviewer: #Identifier
+	})
+	policy: #JobPolicy
 	budget: *({maxAttempts: 1}) | close({
 		maxAttempts: *(1) | uint & >0 & <=100
 	})
@@ -87,6 +98,7 @@ import "list"
 	toPort:            #Identifier
 	valueSchemaDigest: #Digest
 	required:          *(true) | bool
+	relationship?:     "feeds" | "spawns" | "gates" | "reviews"
 })
 
 #StopCondition: close({
@@ -132,6 +144,13 @@ import "list"
 			"\(key)": {
 				template:    templates[node.template]
 				maxAttempts: templates[node.template].maxAttempts & >=node.budget.maxAttempts
+			}
+		}
+	}
+	_handoffChecks: {
+		for key, node in nodes if node.handoff.mode == "review" {
+			"\(key)": {
+				reviewer: nodes[node.handoff.reviewer]
 			}
 		}
 	}

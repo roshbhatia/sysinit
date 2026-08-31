@@ -89,11 +89,35 @@ type Verification struct {
 	TimeoutSeconds uint32   `json:"timeoutSeconds"`
 }
 
+type AgentRole string
+
+const (
+	AgentRolePlanner     AgentRole = "planner"
+	AgentRoleResearcher  AgentRole = "researcher"
+	AgentRoleImplementer AgentRole = "implementer"
+	AgentRoleCritic      AgentRole = "critic"
+	AgentRoleJudge       AgentRole = "judge"
+	AgentRoleVerifier    AgentRole = "verifier"
+	AgentRoleOperator    AgentRole = "operator"
+	AgentRoleGeneralist  AgentRole = "generalist"
+)
+
+type Handoff struct {
+	Mode     string         `json:"mode"`
+	Reviewer domain.NodeKey `json:"reviewer,omitempty"`
+}
+
 type Node struct {
-	Template domain.StageTemplateKey `json:"template"`
-	Adapter  string                  `json:"adapter"`
-	Policy   domain.JobPolicy        `json:"policy"`
-	Budget   NodeBudget              `json:"budget"`
+	Template        domain.StageTemplateKey `json:"template"`
+	Adapter         string                  `json:"adapter"`
+	Purpose         string                  `json:"purpose,omitempty"`
+	Role            AgentRole               `json:"role,omitempty"`
+	Goal            string                  `json:"goal,omitempty"`
+	ExpectedOutput  string                  `json:"expectedOutput,omitempty"`
+	SuccessCriteria []string                `json:"successCriteria,omitempty"`
+	Handoff         *Handoff                `json:"handoff,omitempty"`
+	Policy          domain.JobPolicy        `json:"policy"`
+	Budget          NodeBudget              `json:"budget"`
 }
 
 type NodeBudget struct {
@@ -108,6 +132,7 @@ type Edge struct {
 	ToPort            string         `json:"toPort"`
 	ValueSchemaDigest string         `json:"valueSchemaDigest"`
 	Required          bool           `json:"required"`
+	Relationship      string         `json:"relationship,omitempty"`
 }
 
 type StopCondition struct {
