@@ -4,11 +4,14 @@ local utils = require("sysinit.pkg.utils")
 
 local M = {}
 
--- A remote host has its own nix profile, so its zsh is never at the local path.
+-- A remote host has its own nix profile, so its shell is never at the local path.
+-- `nu -e` runs the jump and then stays interactive, so no exec is needed. The
+-- name is double-quoted because a nushell single-quoted string has no escape at
+-- all, while a double-quoted one takes \" and \\.
 local function seshy_spawn_args(name, shell)
-  local zsh = (shell and shell ~= "") and shell or utils.get_nix_binary("zsh")
-  local quoted = "'" .. name:gsub("'", "'\\''") .. "'"
-  return { zsh, "-i", "-c", string.format("s %s; exec %s -i", quoted, zsh) }
+  local nu = (shell and shell ~= "") and shell or utils.get_nix_binary("nu")
+  local quoted = '"' .. name:gsub("\\", "\\\\"):gsub('"', '\\"') .. '"'
+  return { nu, "-e", string.format("s %s", quoted) }
 end
 
 function M.gui_window_for_workspace(workspace)

@@ -6,7 +6,7 @@ local nf = wezterm.nerdfonts or {}
 
 local M = {}
 
-local SHELLS = { zsh = true, bash = true, fish = true, sh = true, ["-zsh"] = true }
+local SHELLS = { zsh = true, bash = true, fish = true, sh = true, nu = true, ["-zsh"] = true }
 
 function M.format(tab, cfg, ctx)
   local pane = tab.active_pane

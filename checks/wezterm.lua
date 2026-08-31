@@ -119,6 +119,12 @@ pane_vars = {}
 current_process = "zsh"
 key_binding("h", "CTRL").action(window, pane)
 assert(performed[2].ActivatePaneDirection == "Left", "CTRL-h did not move from a shell pane")
+-- nu is the pane shell now, so a shell list that forgot it would send every
+-- readline chord to wezterm instead of to the prompt.
+current_process = "nu"
+key_binding("u", "CTRL").action(window, pane)
+assert(performed[3].SendKey.key == "u", "CTRL-u did not pass through to a nushell pane")
+performed[3] = nil
 keybindings.locked_mode = true
 key_binding("h", "CTRL").action(window, pane)
 assert(performed[3].SendKey.mods == "CTRL", "locked mode consumed CTRL-h")

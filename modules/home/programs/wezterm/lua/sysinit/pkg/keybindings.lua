@@ -13,7 +13,7 @@ local EDITORS = { "nvim", "vim", "hx" }
 -- stays reachable from a shell prompt; the rest get EDITORS only, because in a
 -- terminal the pane is nearly always a shell and a shell passthrough would make
 -- the chord unreachable.
-local SHELLS = { "zsh", "bash", "fish", "sh" }
+local SHELLS = { "zsh", "bash", "fish", "sh", "nu" }
 local READLINE = (function()
   local both = {}
   for _, name in ipairs(EDITORS) do
