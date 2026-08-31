@@ -15,6 +15,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/charmbracelet/lipgloss"
+	"github.com/muesli/termenv"
 	"golang.org/x/term"
 
 	"github.com/roshbhatia/sysinit/pkgs/changes/internal/source"
@@ -50,11 +52,21 @@ func main() {
 	scan := flag.String("root", "", "scan from here with -r, instead of the workspace")
 	stat := flag.Bool("stat", false, "draw the tree and the churn, without the hunks")
 	flag.BoolVar(stat, "s", false, "shorthand for -stat")
+	color := flag.String("color", "auto", "color output: auto, always, or never")
 	flag.Usage = func() {
 		_, _ = fmt.Fprint(flag.CommandLine.Output(), usage)
 		flag.PrintDefaults()
 	}
 	flag.Parse()
+	switch *color {
+	case "auto":
+	case "always":
+		lipgloss.SetColorProfile(termenv.ANSI)
+	case "never":
+		lipgloss.SetColorProfile(termenv.Ascii)
+	default:
+		fail(fmt.Errorf("-color must be auto, always, or never"))
+	}
 
 	dir, err := os.Getwd()
 	if err != nil {

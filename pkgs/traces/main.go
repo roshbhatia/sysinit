@@ -20,6 +20,8 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/muesli/termenv"
 
 	"github.com/roshbhatia/sysinit/pkgs/internal/paths"
 	"github.com/roshbhatia/sysinit/pkgs/traces/internal/attach"
@@ -41,7 +43,18 @@ func main() {
 	all := flag.Bool("all", false, "show every run on this machine, not only this directory's")
 	asJSON := flag.Bool("json", false, "print the spans as newline delimited JSON and exit")
 	service := flag.String("service", "", "keep only this service, by name or prefix")
+	color := flag.String("color", "auto", "color output: auto, always, or never")
 	flag.Parse()
+	switch *color {
+	case "auto":
+	case "always":
+		lipgloss.SetColorProfile(termenv.ANSI)
+	case "never":
+		lipgloss.SetColorProfile(termenv.Ascii)
+	default:
+		fmt.Fprintln(os.Stderr, "traces: -color must be auto, always, or never")
+		os.Exit(1)
+	}
 
 	// traces opens on the work in front of the reader. Inside an agent session
 	// that is the session itself, and outside one it is whatever ran in this
