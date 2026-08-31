@@ -439,7 +439,11 @@ func (w *workspace) writeHeader(name, dir, command string) error {
 }
 
 func (w *workspace) send(target, name, body string) error {
-	line := fmt.Sprintf("\025clear; zsh %s 2>&1 | tee -a %s\n",
+	// The pane shell is nushell, which rejects `2>&1` and gives a single-quoted
+	// string no escape at all, so shellQuote's `'\''` would not survive there.
+	// The pipeline is therefore one fixed literal that zsh and nushell read the
+	// same way, and both paths ride in as argv words that zsh expands itself.
+	line := fmt.Sprintf("\025clear; zsh -c 'zsh \"$1\" 2>&1 | tee -a \"$2\"' worker %s %s\n",
 		shellQuote(body), shellQuote(w.logFile(name)))
 	return muxRun([]string{"cli", "send-text", "--pane-id", target, "--no-paste"}, line)
 }
