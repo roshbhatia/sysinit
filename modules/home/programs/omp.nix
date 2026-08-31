@@ -18,7 +18,10 @@ in
   programs.oh-my-posh = {
     enable = true;
     enableFishIntegration = true;
-    enableNushellIntegration = true;
+    # This one emits `oh-my-posh init nu` with no --print and no source, so it
+    # installs no prompt and still spawns oh-my-posh on every startup. The
+    # nushell module bakes the init script instead.
+    enableNushellIntegration = false;
     enableZshIntegration = true;
 
     settings = {

@@ -43,7 +43,7 @@ in
         ./mise.nix
         ./neovim
         ./nh.nix
-        ./nushell.nix
+        ./nushell
         ./otel-collector.nix
         ./otel-tui.nix
         ./seshy
