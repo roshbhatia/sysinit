@@ -206,7 +206,7 @@
             "traces"
             "ask"
             "sysinit-utils"
-            "orc"
+            "orc-cli"
             "ioskeleyMono"
             "wumpusMono"
             "bookerly"
