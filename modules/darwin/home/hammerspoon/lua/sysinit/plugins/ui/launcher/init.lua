@@ -130,8 +130,9 @@ end
 ---@param name string
 ---@param into table[]
 ---@param seen table<string, boolean>
-local function add_app(path, name, into, seen)
-  if seen[name] then
+---@param excluded table<string, boolean>
+local function add_app(path, name, into, seen, excluded)
+  if seen[name] or excluded[name] then
     return
   end
   seen[name] = true
@@ -148,7 +149,8 @@ end
 ---@param dir string
 ---@param into table[]
 ---@param seen table<string, boolean>
-local function scan(dir, into, seen)
+---@param excluded table<string, boolean>
+local function scan(dir, into, seen, excluded)
   local ok, iter, state = pcall(hs.fs.dir, dir)
   if not ok or not iter then
     return
@@ -158,7 +160,7 @@ local function scan(dir, into, seen)
     if name ~= "." and name ~= ".." then
       local path = dir .. "/" .. name
       if name:sub(-4) == ".app" then
-        add_app(path, name, into, seen)
+        add_app(path, name, into, seen, excluded)
       else
         nested[#nested + 1] = path
       end
@@ -171,7 +173,7 @@ local function scan(dir, into, seen)
       if sub_ok and sub_iter then
         for name in sub_iter, sub_state do
           if name:sub(-4) == ".app" then
-            add_app(path .. "/" .. name, name, into, seen)
+            add_app(path .. "/" .. name, name, into, seen, excluded)
           end
         end
       end
@@ -184,9 +186,12 @@ local function app_rows()
   if apps ~= nil then
     return apps
   end
-  local found, seen = {}, {}
+  local found, seen, excluded = {}, {}, {}
+  for _, name in ipairs(settings().appExcludes or {}) do
+    excluded[name] = true
+  end
   for _, dir in ipairs(settings().appDirs or {}) do
-    scan(dir, found, seen)
+    scan(dir, found, seen, excluded)
   end
   apps = found
   return apps

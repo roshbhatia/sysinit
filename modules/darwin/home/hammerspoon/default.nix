@@ -109,6 +109,7 @@ let
       "/Applications/Nix Apps"
       "${home}/Applications/Home Manager Apps"
     ];
+    appExcludes = config.sysinit.hammerspoon.appExcludes;
     commands = [
       {
         label = "Lock screen";
@@ -129,7 +130,38 @@ let
   };
 in
 {
-  home.file = {
+  options.sysinit.hammerspoon.appExcludes = lib.mkOption {
+    type = lib.types.listOf lib.types.str;
+    default = [
+      "Apps.app"
+      "Calendar.app"
+      "Chess.app"
+      "Clock.app"
+      "Freeform.app"
+      "GarageBand.app"
+      "Games.app"
+      "Home.app"
+      "Image Capture.app"
+      "Journal.app"
+      "Keynote.app"
+      "Mail.app"
+      "Maps.app"
+      "News.app"
+      "Numbers.app"
+      "Pages.app"
+      "Photos.app"
+      "Reminders.app"
+      "Siri.app"
+      "Stickies.app"
+      "Stocks.app"
+      "TV.app"
+      "Tips.app"
+      "Weather.app"
+    ];
+    description = "Application bundle names omitted from the Hammerspoon launcher";
+  };
+
+  config.home.file = {
     ".hammerspoon/init.lua".source = ./init.lua;
     ".hammerspoon/lua".source = ./lua;
     ".config/sysinit/launcher_config.json".text = builtins.toJSON launcherConfig;
