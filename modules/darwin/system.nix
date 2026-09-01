@@ -6,6 +6,17 @@
   ...
 }:
 
+let
+  systemPath = [
+    "/run/current-system/sw/bin"
+    "/nix/var/nix/profiles/default/bin"
+    "/usr/local/bin"
+    "/usr/bin"
+    "/bin"
+    "/usr/sbin"
+    "/sbin"
+  ];
+in
 {
   nix = {
     enable = false;
@@ -61,18 +72,13 @@
       "/share/nushell"
     ];
 
-    variables.PATH = lib.mkForce (
-      lib.concatStringsSep ":" [
-        "/run/current-system/sw/bin"
-        "/nix/var/nix/profiles/default/bin"
-        "/usr/local/bin"
-        "/usr/bin"
-        "/bin"
-        "/usr/sbin"
-        "/sbin"
-      ]
-    );
+    variables.PATH = lib.mkForce (lib.concatStringsSep ":" systemPath);
   };
+
+  launchd.user.envVariables.PATH = [
+    "/etc/profiles/per-user/${config.sysinit.user.username}/bin"
+  ]
+  ++ systemPath;
 
   documentation.enable = false;
   system.tools."darwin-uninstaller".enable = false;
