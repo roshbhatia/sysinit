@@ -53,13 +53,17 @@ let
     ${pkgs.vivid}/bin/vivid generate ${config.xdg.configFile."vivid/themes/stylix.yml".source} > $out
   '';
 
+  ompConfigFile = pkgs.runCommand "sysinit-oh-my-posh-config.json" { } ''
+    ln -s ${config.xdg.configFile."oh-my-posh/config.json".source} $out
+  '';
+
   # `oh-my-posh init nu` without --print writes nothing a shell can source, so
   # home-manager's nushell integration left the stock prompt in place and paid
   # 14ms per startup for it. Baked here, sourced once, measured at 0 subprocesses.
   ompInitFile = pkgs.runCommand "sysinit-omp-init.nu" { } ''
     export HOME=$(mktemp -d)
     ${config.programs.oh-my-posh.package}/bin/oh-my-posh init nu \
-      --config ${config.xdg.configFile."oh-my-posh/config.json".source} \
+      --config ${ompConfigFile} \
       --print > $out
   '';
 
@@ -81,7 +85,7 @@ in
 
   programs.nushell = {
     enable = true;
-    shellAliases = lib.mkDefault shell.commonAliases;
+    shellAliases = lib.mkDefault (builtins.removeAttrs shell.commonAliases [ "ll" ]);
 
     environmentVariables.LS_COLORS = lib.mkForce (
       lib.hm.nushell.mkNushellInline "(open --raw ${lsColorsFile} | str trim)"
@@ -147,7 +151,7 @@ in
       };
     };
 
-    extraEnv = ''
+    extraConfig = ''
       use std/util "path add"
 
       load-env (r###'${sessionVarsJson}'### | from json)
@@ -164,22 +168,24 @@ in
       ${lib.concatMapStringsSep "\n" (path: "path add \"${path}\"") pathsList}
 
       $env.CARAPACE_LENIENT = "1"
-    '';
-
-    extraConfig = ''
       use std/dirs shells-aliases *
 
       let carapace_completer = {|spans: list<string>|
         if $spans.0 == "nu" { return null }
 
-        let spans = if $spans.0 in ["k", "kubecolor"] {
+        let kubectl_alias = $spans.0 in ["k", "kubecolor"]
+        let spans = if $kubectl_alias {
           $spans | skip 1 | prepend "kubectl"
         } else {
           $spans
         }
 
+        # Kubectl may query the current cluster for dynamic results. Keep a
+        # failed cluster lookup below the delay a key press can expose.
+        let completion_timeout = if $kubectl_alias { 250ms } else { 3sec }
+
         let result = (
-          do { timeout 3 ${carapaceBin} $spans.0 nushell ...$spans }
+          do { timeout $completion_timeout ${carapaceBin} $spans.0 nushell ...$spans }
           | complete
         )
 
@@ -205,4 +211,6 @@ in
       ''}
     '';
   };
+
+  programs.eza.enableNushellIntegration = lib.mkForce false;
 }

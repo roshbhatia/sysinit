@@ -4,6 +4,45 @@
 # has always taken its own fallback branch instead.
 const SESHY_ROOT = "@seshySessions@"
 
+def sysinit-ls-icon [kind: string] {
+  match $kind {
+    dir => (char --integer 0xf07b)
+    symlink => (char --integer 0xf0c1)
+    socket => (char --integer 0xf6a7)
+    pipe => (char --integer 0xf569)
+    _ => (char --integer 0xf15b)
+  }
+}
+
+def ls [
+  --all (-a)
+  --long (-l)
+  --short-names (-s)
+  --full-paths (-f)
+  --du (-d)
+  --directory (-D)
+  --mime-type (-m)
+  --threads (-t)
+  ...pattern: glob
+]: [nothing -> table] {
+  let pattern = if ($pattern | is-empty) { [.] } else { $pattern }
+  (%ls
+    --all=$all
+    --long=$long
+    --short-names=$short_names
+    --full-paths=$full_paths
+    --du=$du
+    --directory=$directory
+    --mime-type=$mime_type
+    --threads=$threads
+    ...$pattern
+  )
+  | insert icon {|row| sysinit-ls-icon $row.type }
+  | move icon --before name
+}
+
+alias ll = ls --all --long
+
 def sysinit-seshy-session [dir: string] {
   if ($dir | str starts-with $"($SESHY_ROOT)/") {
     $dir | path relative-to $SESHY_ROOT | split row "/" | first

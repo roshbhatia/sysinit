@@ -9,9 +9,16 @@ local M = {}
 -- name is double-quoted because a nushell single-quoted string has no escape at
 -- all, while a double-quoted one takes \" and \\.
 local function seshy_spawn_args(name, shell)
-  local nu = (shell and shell ~= "") and shell or utils.get_nix_binary("nu")
+  local args
+  if shell and shell ~= "" then
+    args = { shell }
+  else
+    args = utils.get_nushell_args()
+  end
   local quoted = '"' .. name:gsub("\\", "\\\\"):gsub('"', '\\"') .. '"'
-  return { nu, "-e", string.format("s %s", quoted) }
+  args[#args + 1] = "-e"
+  args[#args + 1] = string.format("s %s", quoted)
+  return args
 end
 
 function M.gui_window_for_workspace(workspace)

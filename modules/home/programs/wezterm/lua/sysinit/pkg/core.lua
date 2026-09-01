@@ -5,10 +5,9 @@ local M = {}
 local function get_basic_config()
   local env_data = utils.load_json_file(utils.get_config_path("env.json"))
   local nix_zsh = utils.get_nix_binary("zsh")
-  local nix_nu = utils.get_nix_binary("nu")
 
   return {
-    default_prog = { nix_nu },
+    default_prog = utils.get_nushell_args(),
     set_environment_variables = {
       PATH = env_data.PATH,
       -- Deliberately not nu. Every `$SHELL -c` in every tool this config drives
