@@ -1021,11 +1021,11 @@
         "systems": "systems_7"
       },
       "locked": {
-        "lastModified": 1788294405,
-        "narHash": "sha256-5D8aYaTsQ/J8H0i2nmdBVPIkT5SSXREWWYFmkTFQ7Ww=",
+        "lastModified": 1788299719,
+        "narHash": "sha256-5hKLoMTVy7dWKBw8ZTt04QQ4kIlm9e3bC6RSxtsVP+Q=",
         "owner": "roshbhatia",
         "repo": "orc",
-        "rev": "726c19da37a2dedf48d8cba468ccd7e80d193b71",
+        "rev": "181f2a2531819c591bdb5c2f6ad53e7761e90948",
         "type": "github"
       },
       "original": {
