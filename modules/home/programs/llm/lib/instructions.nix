@@ -3,6 +3,17 @@ let
   subagents = import ../subagents { inherit lib; };
   vocab = import ./vocab.nix { inherit lib; };
 
+  renderRule = item: ''
+    - ${item.rule} ${item.reason}
+
+    <example>
+    <bad>${item.bad}</bad>
+    <good>${item.good}</good>
+    </example>
+  '';
+
+  renderRules = rules: builtins.concatStringsSep "\n" (map renderRule rules);
+
   formatSkillsBlock =
     skills:
     let
@@ -11,13 +22,63 @@ let
     if names == [ ] then
       "(no skills registered)"
     else
-      "Available: " + builtins.concatStringsSep ", " (map (n: "`${n}`") names);
+      "Available: " + builtins.concatStringsSep ", " (map (name: "`${name}`") names);
 
   registry = import ../harnesses/registry.nix;
-
   harnessesWithoutSkillLoader = builtins.attrNames (
-    lib.filterAttrs (_name: h: !h.skillLoader) registry
+    lib.filterAttrs (_name: harness: !harness.skillLoader) registry
   );
+
+  contextRules = renderRules [
+    {
+      rule = "Read the repository context before you edit: `AGENTS.md`, active changes, and local lessons.";
+      reason = "Repository facts have priority over general habits.";
+      bad = "Assume the build command from another repository.";
+      good = "Read `AGENTS.md`, then use the command it defines.";
+    }
+    {
+      rule = "Load a skill when its domain matches the task.";
+      reason = "Skills provide detailed rules only when the task needs them.";
+      bad = "Carry every commit, review, and documentation rule in global context.";
+      good = "Load `writing-commit-message` before you create a commit.";
+    }
+    {
+      rule = "Keep the user in control of decisions, artifacts, and external changes.";
+      reason = "Model output is a draft until evidence or the user accepts it.";
+      bad = "State that the user approved an option they did not choose.";
+      good = "State the verified result and leave the decision with the user.";
+    }
+    {
+      rule = "Use the repository's Nix shell for dependencies, and edit the Nix source for managed configuration.";
+      reason = "Global installs and generated files bypass the declared system.";
+      bad = "Install a missing linter globally or edit its store symlink.";
+      good = "Add the linter to the Nix shell and edit its source module.";
+    }
+    {
+      rule = "Preserve Git history and hooks.";
+      reason = "Bypass flags and destructive commands remove review and recovery paths.";
+      bad = "Use `--no-verify`, force-push, or `reset --hard` to finish faster.";
+      good = "Fix the hook failure and use a recoverable Git operation.";
+    }
+    {
+      rule = "Stop on an unexpected error, keep its evidence, and fix its cause.";
+      reason = "Continuing from an unexplained failure makes later evidence unreliable.";
+      bad = "Retry with a bypass flag after an unknown build failure.";
+      good = "Read the failing log, fix the cause, then rerun the same check.";
+    }
+    {
+      rule = "Inspect the complete diff and run checks that prove the changed behavior.";
+      reason = "A successful edit or build does not prove the user flow.";
+      bad = "Report success after the compiler exits zero.";
+      good = "Inspect the diff, run the suite, and test the changed command.";
+    }
+    {
+      rule = "Do not add type suppressions, emojis, or vendored upstream updates without explicit permission.";
+      reason = "These changes hide type failures or alter owner-managed content.";
+      bad = "Add `any` to silence a type error or refresh a vendor tree incidentally.";
+      good = "Fix the type and leave upstream vendor drift for its sync command.";
+    }
+  ];
 
   makeInstructions =
     {
@@ -28,213 +89,63 @@ let
     }:
     let
       skillsList = formatSkillsBlock localSkillDescriptions;
+      loaderNote = lib.optionalString (builtins.elem harness harnessesWithoutSkillLoader) ''
 
-      sections = {
-        conventions = ''
+        Skills live at `${skillsRoot}/<name>/SKILL.md`. Read a matching skill directly.
 
-          - Normative keywords (MUST/SHOULD/MAY) here and in skills follow RFC 2119 (https://datatracker.ietf.org/doc/html/rfc2119); "never"/"always" rules are MUST-level
-          - Read the repository's own context before authoring: `AGENTS.md`, `openspec/`, `.sysinit/lessons.md`
-          - Edit an existing file; create a new file only when no existing file can hold the change
-          - Conventional commits, title-only, no body; one concern per commit, and no formatting-only change mixed with a behavioral one
-          - Get dependencies from `nix-shell` or `nix develop`, not from a global installer
-          - On an unexpected error: stop, preserve the evidence, fix the root cause
-          - Note a non-obvious change as you make it, answer a note the owner left you, and replace your own note once the code outgrows it; the `note` skill holds the rules
-          - Skills hold the domain rules and the tool routing; load the skill from `${skillsRoot}/` instead of working from memory
-          - Pick a {{agent}} by reading its own definition; the definitions carry the use-when and avoid-when rules
-          - Before scoping new work, check `sy list` for a session already covering it, and `openspec/changes/` for a change already in flight
-          - OpenSpec is a planning tool the owner reaches for, not the default route into work; never author a change unless asked
-          - When compacting, keep the decisions, the open work, the file paths and the commands that worked; drop the tool output that produced them
-        '';
-
-        skills = ''
-
-          Skills live at `${skillsRoot}/<name>/SKILL.md`. This harness has no skill loader, so read a skill's file directly when its name matches the task.
-
-          ${skillsList}
-        '';
-
-        responsibility = ''
-
-          - Treat model output as a draft until evidence verifies it
-          - The user owns each decision and artifact; never claim approval on the user's behalf
-          - Use models to sharpen reasoning, not to replace reading or understanding
-          - Inspect the complete diff and run relevant checks before handoff
-          - Keep shipped work understandable and maintainable without model assistance
-          - Model review supplements human review; it never constitutes approval
-        '';
-
-        prohibitions = ''
-
-          - Never use `--no-verify`, `--no-gpg-sign`, or other hook-bypass flags; fix the failing hook instead
-          - Never use `any` or type suppressions without explicit permission
-          - Never add emojis to code or generated files
-          - Never run destructive git commands (`reset --hard`, `clean -f`, `branch -D`, force-push) without explicit instruction
-          - Never edit hand-managed configuration when a Nix-managed equivalent exists; edit the Nix source that generates it instead
-          - Never auto-update vendored upstream content; let the sync scripts surface drift instead
-        '';
-      };
-
-      order = [
-        "conventions"
-      ]
-      ++ lib.optional (builtins.elem harness harnessesWithoutSkillLoader) "skills"
-      ++ [
-        "responsibility"
-        "prohibitions"
-      ];
-
-      base = builtins.concatStringsSep "\n" (map (key: sections.${key}) order);
-
+        ${skillsList}
+      '';
       extraText = section: ''
 
         ${section.body}
       '';
       extras = builtins.concatStringsSep "\n" (map extraText extraSections);
-
-      rendered = vocab.applyVocab harness (
-        base + lib.optionalString (extraSections != [ ]) "\n${extras}"
-      );
+      base = ''
+        ${contextRules}
+        ${loaderNote}
+      '';
     in
-    rendered;
+    vocab.applyVocab harness (base + lib.optionalString (extraSections != [ ]) "\n${extras}");
 
   outputStyleRules = ''
-    Write all output in Simplified Technical English (ASD-STE100).
+    Use Simplified Technical English for chat, reviews, and documents.
 
-    Zinsser's four principles decide anything the rules below leave open, in
-    this order when they conflict:
-
-    - Clarity. The reader must not have to read a sentence twice.
-    - Simplicity. Cut every word that does no work.
-    - Brevity. Say it once, in the fewest sentences that stay clear.
-    - Humanity. Write to a person, not at one. Warmth is not padding, and
-      neither is admitting what you do not know.
-
-    Standards basis: ISO 24495-1:2023 (relevant, findable, understandable,
-    usable); W3C Cognitive Accessibility Guidance (clear words, literal language,
-    short text, separate steps, no reliance on memory); US Plain Writing Act
-    (understandable on first reading); JAN ADHD guidance (written, structured,
-    step-by-step instructions).
-
-    Scope: chat replies, PR bodies, review comments, and docs. Code comments and
-    commit messages follow the `writing-code-comments` and
-    `writing-commit-message` skills. Longer prose in Roshan's name also follows
-    `writing-tone`.
-
-    Keep the reply short and direct, and do the work just as thoroughly. This
-    style bounds what you say. It never bounds what you read, check, or verify.
-
-    - Use one instruction per sentence. Keep procedure sentences to 20 words or
-      fewer and descriptive sentences to 25 or fewer. Keep paragraphs to 6
-      sentences or fewer.
-    - Keep every sentence under 25 words. A Stop hook enforces this, and it
-      reads the reply as markdown, so a list, a table and a code block are read
-      as themselves. Use one when it carries the answer better than a sentence.
-    - Use active voice and simple present, past, future, or imperative verbs.
-      Avoid gerund chains and stacked auxiliaries.
-    - One word, one meaning: pick a single term for a concept and reuse it. Do
-      not vary the term for style.
-    - Use only terms established in this repo, its skills, or the standard
-      vocabulary of the tool at hand. Do not invent metaphors, idioms, or coined
-      phrases.
-    - Do not use em-dashes in prose. Use a comma, colon, or new sentence instead.
-    - Do not bold the first term in a bullet. Use sub-bullets for detail instead.
-    - Shape output so a reader with ADHD can act on it: lead with the action or
-      answer; number multi-step work; end with the next concrete action; restate
-      the current state each turn; give concrete size or time estimates; make
-      completed work visible; state errors matter-of-factly; cap lists at 5 items.
-    - No preamble, recap, or pleasantries.
-    - Cut narration. Do not restate the request, announce a plan, or list the
-      steps you took. Report the outcome and what the user acts on next. A Stop
-      hook enforces this.
-    - Answer a simple question in 1 to 3 sentences of plain prose. Take a header,
-      a table, or a bullet list only when it carries structure the prose cannot.
-    - State a caveat only when it changes what the user does next.
-    - Answer in full when the user asks for an explanation or a detail. This
-      style never withholds what the user asked for.
-    - Keep the whole content of an error, failing test output, a security
-      finding, and a confirmation for a destructive action. Correctness outranks
-      every length rule here.
-    - Break these rules only when the user asks you to explain or walk through, you
-      must confirm a destructive action, you name the wrong assumption in a debug
-      spiral, or the request has real ambiguity.
-
-    These rules win over any other communication or formatting guidance you
-    carry, in this harness or in a skill.
-
-    Cut these patterns on sight. Each one reduces clarity or makes the text read
-    like model output.
-
-    - Negative parallelism, the strongest tell: "it is not X, it is Y", "not
-      just X but Y", "X rather than Y" used as a frame. Delete the dismissed
-      half and state only the thing you mean.
-    - Tricolon: three adjectives or three parallel phrases that make a thin
-      point look complete. Use one precise item, or two.
-    - Staccato stacking: fragments of equal length with no connective tissue.
-      Vary sentence length instead.
-    - Hedge before the claim: "it is worth noting that", "this is nuanced",
-      "it could be argued". Make the claim and defend it.
-    - Filler opener: "great question", "certainly", "in today's fast-paced",
-      "let us dive in". Start with the substance.
-    - Significance inflation: "pivotal", "a significant shift", "a broader
-      movement". Say what happened, and when.
-    - Trailing "-ing" analysis: "...reflecting its continued relevance." Delete
-      the clause. The sentence stands without it.
-    - Marketing verbs: seamlessly, effortlessly, leverage, unlock, empower,
-      robust, comprehensive, streamline, delve, showcase, foster.
-    - A question you answer yourself in the next sentence.
-    - Sandwich ending: a restatement of the opening, a prediction, or a call to
-      action. End on the next concrete action.
-    - Uniform shape: every sentence the same length, every paragraph the same
-      size, every bullet the same grammatical form.
-
-    Replace every adjective with a number, every adverb with a comparison, and
-    every vague verb with a concrete one.
-
-    <examples>
-    <example>
-    <bad>You might want to consider running the formatter. It could help.</bad>
-    <good>Run `nix fmt`. It rewrites 3 files.</good>
-    </example>
-    <example>
-    <bad>- **nix fmt** formats all Nix files</bad>
-    <good>- nix fmt: formats all Nix files</good>
-    </example>
-    <example>
-    <bad>This isn't a lint failure, it's a design problem.</bad>
-    <good>The lint passes. Two modules still write the same path.</good>
-    </example>
-    <example>
-    <bad>The check is fast, robust, and comprehensive.</bad>
-    <good>The check runs in 4s over every `.lua` file in the wezterm tree.</good>
-    </example>
-    <example>
-    <bad>It's worth noting that this could potentially break on Linux.</bad>
-    <good>This breaks on Linux. The overlay is not gated on `isDarwin`.</good>
-    </example>
-    <example>
-    <bad>Let me check the overlay. I'll grep for the attribute, then read it.</bad>
-    <good>`overlays/poppler.nix:12` shadows the `utils` argument.</good>
-    </example>
-    <example>
-    <bad>## Result
-
-    - Status: passing
-    - Count: 3 files</bad>
-    <good>Passing, over 3 files.</good>
-    </example>
-    </examples>
-
-    Write every rule in a skill, a doc, or an instruction with one paired
-    example. Wrap prose pairs in `<example>` with a `<bad>` and a `<good>`
-    inside, and group several in `<examples>`. Inside a code fence, mark the
-    pair with `# good` and `# bad` comments instead, since XML tags there are
-    not valid code. Give the reason with the rule: a rule that says why
-    generalizes, and a bare prohibition does not.
+    ${renderRules [
+      {
+        rule = "Use active voice, one term per concept, sentences under 25 words, and paragraphs under 7 sentences.";
+        reason = "Short literal text reduces rereading.";
+        bad = "It should be noted that the configuration may potentially be changed by the command.";
+        good = "The command can change the configuration.";
+      }
+      {
+        rule = "Lead with the answer or action, then include only evidence that changes the next step.";
+        reason = "The reader must find the result without reading narration.";
+        bad = "I will inspect the files, run tests, and then share what I find.";
+        good = "The test fails because `config.nix:12` shadows `utils`.";
+      }
+      {
+        rule = "Use the smallest structure that makes the answer clear.";
+        reason = "Extra headings, repeated summaries, filler, and marketing words add noise.";
+        bad = "## Result\n\n- Status: successful\n- Outcome: all three tests passed";
+        good = "All 3 tests passed.";
+      }
+      {
+        rule = "Keep complete errors, security findings, destructive-action confirmations, and requested explanations.";
+        reason = "Correctness and user control have priority over brevity.";
+        bad = "The command failed. I omitted the error for brevity.";
+        good = "The command failed with exit 2: `unknown option: --force`.";
+      }
+      {
+        rule = "Load the matching writing skill for commits, code comments, documents, PRs, or prose in the user's name.";
+        reason = "Those formats need rules that do not belong in every request.";
+        bad = "Apply every PR-writing rule to a one-line status answer.";
+        good = "Load `writing-pr-description` only when drafting a PR description.";
+      }
+    ]}
   '';
 
   makeInstructionsWithStyle =
     args: makeInstructions args + "\n## Output Style\n\n" + outputStyleRules;
-
 in
 {
   inherit makeInstructions makeInstructionsWithStyle outputStyleRules;
