@@ -13,7 +13,7 @@ import (
 	"strings"
 	"sync"
 
-	wsroot "github.com/roshbhatia/sysinit/pkgs/internal/workspace"
+	wsroot "github.com/roshbhatia/go-utils/workspace"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/repo"
 )
 

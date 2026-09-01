@@ -1,3 +1,4 @@
+{ inputs }:
 final: _prev:
 let
   # Not `gotools`. That name is taken by the nixpkgs package holding goimports
@@ -8,7 +9,7 @@ let
 
     src = ../pkgs;
 
-    vendorHash = "sha256-5HFRHQ+NkA3+bnd277kxM6TJGKVcF5941W3xhQrPXms=";
+    vendorHash = "sha256-dnGhWezb1M8h1hRA8EUMMe838vo6nLOKndYRgVIPjwo=";
 
     nativeCheckInputs = [ final.git ];
 
@@ -18,6 +19,7 @@ let
   select =
     {
       pname,
+      package,
       binary,
       names,
       completionNames ? [ ],
@@ -27,13 +29,13 @@ let
       {
         inherit meta;
         nativeBuildInputs = final.lib.optional (completionNames != [ ]) final.installShellFiles;
-        passthru = { inherit sysinit-gotools; };
+        passthru = { inherit package; };
       }
       (
         ''
           mkdir -p "$out/bin"
           ${final.lib.concatMapStringsSep "\n" (name: ''
-            ln -s "${sysinit-gotools}/bin/${binary}" "$out/bin/${name}"
+            ln -s "${package}/bin/${binary}" "$out/bin/${name}"
           '') names}
         ''
         +
@@ -43,8 +45,8 @@ let
               for name in ${final.lib.escapeShellArgs completionNames}; do
                 bash_completion="$TMPDIR/$name.bash"
                 zsh_completion="$TMPDIR/_$name"
-                HOME="$TMPDIR" "${sysinit-gotools}/bin/${binary}" completion bash > "$bash_completion"
-                HOME="$TMPDIR" "${sysinit-gotools}/bin/${binary}" completion zsh > "$zsh_completion"
+                HOME="$TMPDIR" "${package}/bin/${binary}" completion bash > "$bash_completion"
+                HOME="$TMPDIR" "${package}/bin/${binary}" completion zsh > "$zsh_completion"
                 installShellCompletion --cmd "$name" \
                   --bash "$bash_completion" \
                   --zsh "$zsh_completion"
@@ -57,7 +59,8 @@ in
 
   seshy = select {
     pname = "seshy";
-    binary = "seshy";
+    package = final.seshy-cli;
+    binary = "sy";
     names = [
       "sy"
       "seshy"
@@ -72,6 +75,7 @@ in
 
   specutil = select {
     pname = "specutil";
+    package = final.specutil-cli;
     binary = "specutil";
     names = [ "specutil" ];
     completionNames = [ "specutil" ];
@@ -94,7 +98,7 @@ in
         final.calldiff
       ];
     in
-    final.runCommand "changes-${sysinit-gotools.version}"
+    final.runCommand "changes-${final.changes-cli.version}"
       {
         nativeBuildInputs = [ final.makeBinaryWrapper ];
         meta = {
@@ -105,12 +109,13 @@ in
       }
       ''
         mkdir -p "$out/bin"
-        makeWrapper "${sysinit-gotools}/bin/changes" "$out/bin/changes" \
+        makeWrapper "${final.changes-cli}/bin/changes" "$out/bin/changes" \
           --prefix PATH : "${runtimePath}"
       '';
 
   traces = select {
     pname = "traces";
+    package = final.traces-cli;
     binary = "traces";
     names = [ "traces" ];
     meta = {
@@ -122,13 +127,12 @@ in
 
   ask =
     let
-      # pkgs/ask/wrappers.txt is the one list of the names the binary answers
-      # to; pkgs/ask/main.go dispatches on the same names.
+      # wrappers.txt is the one list of the names the binary answers to.
       wrappers = final.lib.filter (name: name != "") (
-        final.lib.splitString "\n" (builtins.readFile ../pkgs/ask/wrappers.txt)
+        final.lib.splitString "\n" (builtins.readFile (inputs.ask + "/wrappers.txt"))
       );
     in
-    final.runCommand "ask-${sysinit-gotools.version}"
+    final.runCommand "ask-${final.ask-cli.version}"
       {
         nativeBuildInputs = [ final.installShellFiles ];
         meta = {
@@ -141,7 +145,7 @@ in
         ''
           mkdir -p "$out/bin"
           for name in ask ${final.lib.escapeShellArgs wrappers}; do
-            ln -s "${sysinit-gotools}/bin/ask" "$out/bin/$name"
+            ln -s "${final.ask-cli}/bin/ask" "$out/bin/$name"
           done
         ''
         + final.lib.optionalString (final.stdenv.buildPlatform.canExecute final.stdenv.hostPlatform) ''

@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/roshbhatia/sysinit/pkgs/internal/git"
-	"github.com/roshbhatia/sysinit/pkgs/internal/paths"
-	"github.com/roshbhatia/sysinit/pkgs/internal/workspace"
+	"github.com/roshbhatia/go-utils/git"
+	"github.com/roshbhatia/go-utils/paths"
+	"github.com/roshbhatia/go-utils/workspace"
 )
 
 func RootAt(dir string) (string, error) { return git.Root(dir) }

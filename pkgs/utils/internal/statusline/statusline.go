@@ -10,7 +10,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/roshbhatia/sysinit/pkgs/internal/paths"
+	"github.com/roshbhatia/go-utils/paths"
 )
 
 const Summary = "render the claude status line"

@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/roshbhatia/sysinit/pkgs/internal/agents"
-	"github.com/roshbhatia/sysinit/pkgs/internal/paths"
+	"github.com/roshbhatia/go-utils/agents"
+	"github.com/roshbhatia/go-utils/paths"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/repo"
 )
 

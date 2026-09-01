@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/roshbhatia/sysinit/pkgs/internal/paths"
+	"github.com/roshbhatia/go-utils/paths"
 )
 
 func TestTidyFoldsEverySeparatorItOwns(t *testing.T) {

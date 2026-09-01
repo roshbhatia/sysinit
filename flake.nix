@@ -60,7 +60,32 @@
     };
 
     orc = {
-      url = "github:roshbhatia/orc/v0.2.0";
+      url = "github:roshbhatia/orc/main";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    ask = {
+      url = "github:roshbhatia/ask/main";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    changes = {
+      url = "github:roshbhatia/changes/main";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    seshy = {
+      url = "github:roshbhatia/seshy/main";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    specutil = {
+      url = "github:roshbhatia/specutil/main";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    traces = {
+      url = "github:roshbhatia/traces/main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

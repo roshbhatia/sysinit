@@ -11,7 +11,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/roshbhatia/sysinit/pkgs/internal/paths"
+	"github.com/roshbhatia/go-utils/paths"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/hookfmt"
 )
 

@@ -15,7 +15,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/roshbhatia/sysinit/pkgs/internal/paths"
+	"github.com/roshbhatia/go-utils/paths"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/agentstate"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/repo"
 )
