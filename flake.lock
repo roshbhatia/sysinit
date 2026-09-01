@@ -989,11 +989,11 @@
         "systems": "systems_5"
       },
       "locked": {
-        "lastModified": 1788241081,
-        "narHash": "sha256-L1fIZrKhI6EAhT6OZHRNanHzcJRN8iP5iAcUyzh11cw=",
+        "lastModified": 1788241585,
+        "narHash": "sha256-qG/vfNxD0W7bXfhWyESNlXl5oQTlfVOu9x1rnbJ3FWw=",
         "owner": "roshbhatia",
         "repo": "orc",
-        "rev": "142dc0e54da573102dcdd3b44c54efc43ee28835",
+        "rev": "25271dee0d75ff91ac9fe018a3104a4578a209d8",
         "type": "github"
       },
       "original": {
