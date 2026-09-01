@@ -18,22 +18,47 @@ let
   providers = {
     changes = {
       capabilities = [ "changes.inspect" ];
+      kind = "changes";
       package = mkProvider "changes" [ pkgs.changes ];
+      priority = 100;
+    };
+    harness = {
+      capabilities = [
+        "session.attach"
+        "session.bind"
+      ];
+      kind = "harness";
+      package = mkProvider "harness" [ ];
+      priority = 100;
     };
     traces = {
-      capabilities = [ "session.inspect" ];
+      capabilities = [
+        "session.bind"
+        "session.describe"
+        "session.inspect"
+      ];
+      kind = "activity";
       package = mkProvider "traces" [ pkgs.traces ];
+      priority = 100;
     };
     wezterm = {
-      capabilities = [ "terminal.open" ];
+      capabilities = [
+        "session.bind"
+        "terminal.open"
+      ];
+      kind = "display";
       package = mkProvider "wezterm" [ pkgs.wezterm ];
+      priority = 100;
     };
     zmx = {
       capabilities = [
-        "session.attach"
+        "session.bind"
         "session.launch"
+        "session.persist"
       ];
+      kind = "persistence";
       package = mkProvider "zmx" [ pkgs.zmx ];
+      priority = 200;
     };
   };
 in
@@ -46,9 +71,8 @@ in
       lib.nameValuePair "orc/providers/${name}.json" {
         text = builtins.toJSON {
           inherit name;
-          inherit (provider) capabilities;
+          inherit (provider) capabilities kind priority;
           command = lib.getExe provider.package;
-          priority = 100;
           version = "orc.provider/v1";
         };
       }

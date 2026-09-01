@@ -37,6 +37,10 @@ let
           ${final.lib.concatMapStringsSep "\n" (name: ''
             ln -s "${package}/bin/${binary}" "$out/bin/${name}"
           '') names}
+          if [ -d "${package}/share" ]; then
+            mkdir -p "$out/share"
+            cp -rs "${package}/share/." "$out/share/"
+          fi
         ''
         +
           final.lib.optionalString
@@ -96,6 +100,11 @@ in
         final.git
         final.ast-grep
         final.calldiff
+        final.delta
+        final.diff-so-fancy
+        final.difftastic
+        final.ripgrep
+        final.tree-sitter
       ];
     in
     final.runCommand "changes-${final.changes-cli.version}"
@@ -110,20 +119,31 @@ in
       ''
         mkdir -p "$out/bin"
         makeWrapper "${final.changes-cli}/bin/changes" "$out/bin/changes" \
-          --prefix PATH : "${runtimePath}"
+          --prefix PATH : "${runtimePath}" \
+          --set-default CHANGES_DIFF_ENGINE delta \
+          --set-default CHANGES_DIFF_LAYOUT side-by-side
+        mkdir -p "$out/share"
+        cp -rs "${final.changes-cli}/share/." "$out/share/"
       '';
 
-  traces = select {
-    pname = "traces";
-    package = final.traces-cli;
-    binary = "traces";
-    names = [ "traces" ];
-    meta = {
-      description = "Agent trace view over the local OTLP collector's spans";
-      mainProgram = "traces";
-      platforms = final.lib.platforms.unix;
-    };
-  };
+  traces =
+    final.runCommand "traces-${final.traces-cli.version}"
+      {
+        nativeBuildInputs = [ final.makeBinaryWrapper ];
+        meta = {
+          description = "Agent trace view over the local OTLP collector's spans";
+          mainProgram = "traces";
+          platforms = final.lib.platforms.unix;
+        };
+      }
+      ''
+          mkdir -p "$out/bin"
+          makeWrapper "${final.traces-cli}/bin/traces" "$out/bin/traces" \
+            --prefix PATH : "${final.lib.makeBinPath [ final.changes ]}" \
+            --set-default TRACES_DIFF_PROVIDER changes
+        mkdir -p "$out/share"
+        cp -rs "${final.traces-cli}/share/." "$out/share/"
+      '';
 
   ask =
     let
@@ -151,12 +171,19 @@ in
         + final.lib.optionalString (final.stdenv.buildPlatform.canExecute final.stdenv.hostPlatform) ''
           for name in ask ${final.lib.escapeShellArgs wrappers}; do
             bash_completion="$TMPDIR/$name.bash"
+            fish_completion="$TMPDIR/$name.fish"
+            nu_completion="$TMPDIR/$name.nu"
             zsh_completion="$TMPDIR/_$name"
             "$out/bin/$name" completion bash > "$bash_completion"
+            "$out/bin/$name" completion fish > "$fish_completion"
+            "$out/bin/$name" completion nu > "$nu_completion"
             "$out/bin/$name" completion zsh > "$zsh_completion"
             installShellCompletion --cmd "$name" \
               --bash "$bash_completion" \
+              --fish "$fish_completion" \
               --zsh "$zsh_completion"
+            mkdir -p "$out/share/nushell/vendor/autoload"
+            cp "$nu_completion" "$out/share/nushell/vendor/autoload/$name.nu"
           done
         ''
       );
