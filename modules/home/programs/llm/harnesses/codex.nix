@@ -146,6 +146,16 @@ in
 
       shell_environment_policy = {
         experimental_use_profile = true;
+        set.PATH = lib.concatStringsSep ":" [
+          profileBin
+          "/run/current-system/sw/bin"
+          "/nix/var/nix/profiles/default/bin"
+          "/usr/local/bin"
+          "/usr/bin"
+          "/bin"
+          "/usr/sbin"
+          "/sbin"
+        ];
       };
 
       tools = {
