@@ -129,6 +129,12 @@ nix = "gh"
 nix = "delta"
 
 [[tool]]
+nix = "diff-so-fancy"
+
+[[tool]]
+nix = "difftastic"
+
+[[tool]]
 nix = "git-crypt"
 
 [[tool]]
