@@ -446,48 +446,32 @@ function M.setup(config, wm, ctx)
     end
   end
 
-  local tree_state = { pending_filter = nil, pending_action = nil, current_filter = "all", key_table_active = false }
-  -- [ and ] step to the previous or next session and leave the tree. They live
-  -- here and not on a SUPER chord because cmd+[ and cmd+] are back and forward
-  -- in most macOS apps, and the tree is where a session step is already the
-  -- obvious next key.
-  local function tree_step_key(key, step)
-    return {
-      key = key,
-      mods = "NONE",
-      action = wezterm.action_callback(function(win, pane)
-        tree_state.pending_action = "step:" .. tostring(step)
-        tree_state.key_table_active = false
-        win:perform_action(wezterm.action.PopKeyTable, pane)
-        win:perform_action(wezterm.action.SendKey({ key = "Enter" }), pane)
-      end),
-    }
-  end
-  config.key_tables = config.key_tables or {}
-  config.key_tables.session_tree_actions = {
-    tree_step_key("[", -1),
-    tree_step_key("]", 1),
-    {
-      key = ".",
-      mods = "NONE",
-      action = wezterm.action_callback(function(win, pane)
-        tree_state.pending_filter = tree_state.current_filter == "dormant" and "all" or "dormant"
-        tree_state.key_table_active = false
-        win:perform_action(wezterm.action.PopKeyTable, pane)
-        win:perform_action(wezterm.action.SendKey({ key = "Enter" }), pane)
-      end),
-    },
-    {
-      key = "x",
-      mods = "NONE",
-      action = wezterm.action_callback(function(win, pane)
-        tree_state.pending_action = "delete"
-        tree_state.key_table_active = false
-        win:perform_action(wezterm.action.PopKeyTable, pane)
-        win:perform_action(wezterm.action.SendKey({ key = "Enter" }), pane)
-      end),
-    },
+  local tree_action_specs = {
+    { name = "toggle_dormant", key = ".", id = "action:toggle-dormant", label = "show dormant sessions" },
+    { name = "previous_session", key = "[", id = "action:previous-session", label = "previous session" },
+    { name = "next_session", key = "]", id = "action:next-session", label = "next session" },
+    { name = "close_target", key = "x", id = "action:close-target", label = "close a session target" },
   }
+  local tree_action = {}
+  for _, spec in ipairs(tree_action_specs) do
+    tree_action[spec.name] = spec.id
+  end
+
+  local function tree_selector_controls(filter)
+    local choices, keys, help = {}, {}, { "j/k nav" }
+    for _, spec in ipairs(tree_action_specs) do
+      local label = spec.label
+      if spec.name == "toggle_dormant" and filter == "dormant" then
+        label = "show all sessions"
+      end
+      choices[#choices + 1] = { id = spec.id, label = label }
+      keys[#keys + 1] = spec.key
+      help[#help + 1] = spec.key .. " " .. (spec.name == "toggle_dormant" and "dormant" or spec.label)
+    end
+    help[#help + 1] = "/ filter"
+    help[#help + 1] = "Esc quit"
+    return choices, table.concat(keys) .. "1234567890abcdefghilmnopqrstuvwyz", "  " .. table.concat(help, "  ")
+  end
 
   local function close_session_target(win, pane, id, by_id)
     local rec = by_id[id]
@@ -578,65 +562,81 @@ function M.setup(config, wm, ctx)
 
   local function open_session_tree(win, pane, filter, notice)
     filter = filter or "all"
-    tree_state.current_filter = filter
     ui_sessions.refresh_remote()
     local tree = ctx.tree()
     local colors = ctx.colors(win)
     local by_id = {}
-    local choices = session_tree_choices(tree, by_id, filter, colors)
-    if #choices == 0 then
+    local target_choices = session_tree_choices(tree, by_id, filter, colors)
+    if #target_choices == 0 then
       if filter and filter ~= "all" then
         filter, by_id = "all", {}
-        choices = session_tree_choices(tree, by_id, "all", colors)
+        target_choices = session_tree_choices(tree, by_id, "all", colors)
       end
-      if #choices == 0 then
+      if #target_choices == 0 then
         return
       end
     end
+    local choices, tree_alphabet, tree_description = tree_selector_controls(filter)
+    for _, choice in ipairs(target_choices) do
+      choices[#choices + 1] = choice
+    end
     local title
     if filter == "dormant" then
-      title = "Sessions  [dormant · . all · / filter · [ ] step · x close]"
+      title = "Sessions  [dormant · . all · / filter]"
     else
-      title = "Sessions  [. dormant · / filter · [ ] step · x close]"
+      title = "Sessions  [. dormant · / filter]"
     end
     if notice then
       title = title .. "  · " .. notice
     end
-    tree_state.pending_filter = nil
-    tree_state.key_table_active = true
     win:perform_action(
       wezterm.action.InputSelector({
         title = title,
         choices = choices,
+        alphabet = tree_alphabet,
         fuzzy = false,
-        description = "  j/k nav  1-9 jump  [ ] step  . dormant  / filter  x close  Esc quit",
+        description = tree_description,
         action = wezterm.action_callback(function(inner_win, inner_pane, id, _label)
-          if tree_state.key_table_active then
-            tree_state.key_table_active = false
-            inner_win:perform_action(wezterm.action.PopKeyTable, inner_pane)
-          end
-          local pa = tree_state.pending_action
-          tree_state.pending_action = nil
-          local pf = tree_state.pending_filter
-          tree_state.pending_filter = nil
-          local step = type(pa) == "string" and pa:match("^step:(-?%d+)$")
-          if step then
-            ui_actions.step_session(inner_win, inner_pane, tonumber(step))
+          if id == tree_action.previous_session then
+            ui_actions.step_session(inner_win, inner_pane, -1)
             return
           end
-          if pa == "delete" and id then
-            local close_notice, reopen = close_session_target(inner_win, inner_pane, id, by_id)
-            if reopen then
-              wezterm.time.call_after(0.15, function()
-                open_session_tree(inner_win, inner_pane, tree_state.current_filter, close_notice)
-              end)
-            end
+          if id == tree_action.next_session then
+            ui_actions.step_session(inner_win, inner_pane, 1)
             return
           end
-          if pf then
+          if id == tree_action.toggle_dormant then
+            local next_filter = filter == "dormant" and "all" or "dormant"
             wezterm.time.call_after(0.05, function()
-              open_session_tree(inner_win, inner_pane, pf)
+              open_session_tree(inner_win, inner_pane, next_filter)
             end)
+            return
+          end
+          if id == tree_action.close_target then
+            local close_choices = {}
+            for _, choice in ipairs(target_choices) do
+              if not choice.id:match("^host:") then
+                close_choices[#close_choices + 1] = choice
+              end
+            end
+            inner_win:perform_action(
+              wezterm.action.InputSelector({
+                title = "Close session target",
+                choices = close_choices,
+                fuzzy = false,
+                description = "  j/k nav  Enter close  / filter  Esc back",
+                action = wezterm.action_callback(function(close_win, close_pane, close_id, _close_label)
+                  local close_notice
+                  if close_id then
+                    close_notice = select(1, close_session_target(close_win, close_pane, close_id, by_id))
+                  end
+                  wezterm.time.call_after(0.15, function()
+                    open_session_tree(close_win, close_pane, filter, close_notice)
+                  end)
+                end),
+              }),
+              inner_pane
+            )
             return
           end
           session_tree_dispatch(inner_win, inner_pane, id, by_id)
@@ -644,8 +644,6 @@ function M.setup(config, wm, ctx)
       }),
       pane
     )
-    -- The selector owns its own key table, so session actions must sit above it.
-    win:perform_action(wezterm.action.ActivateKeyTable({ name = "session_tree_actions", one_shot = false }), pane)
   end
 
   wm.session_enabled = true
