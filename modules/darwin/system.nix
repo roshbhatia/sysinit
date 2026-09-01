@@ -63,6 +63,7 @@
 
     variables.PATH = lib.mkForce (
       lib.concatStringsSep ":" [
+        "/etc/profiles/per-user/${config.sysinit.user.username}/bin"
         "/run/current-system/sw/bin"
         "/nix/var/nix/profiles/default/bin"
         "/usr/local/bin"
