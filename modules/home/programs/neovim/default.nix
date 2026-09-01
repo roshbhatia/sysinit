@@ -9,6 +9,7 @@
     vimAlias = true;
     viAlias = true;
     sideloadInitLua = true;
+    plugins = [ pkgs.nvim-nu ];
   };
 
   home.packages = [

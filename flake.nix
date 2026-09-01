@@ -89,6 +89,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nuvim = {
+      url = "git+https://github.com/roshbhatia/nu_plugin_nvim.git?ref=main";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     meat = {
       url = "github:boldsoftware/meat";
       flake = false;
@@ -232,6 +237,7 @@
             "ask"
             "sysinit-utils"
             "orc-cli"
+            "nuvim"
             "ioskeleyMono"
             "wumpusMono"
             "bookerly"

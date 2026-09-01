@@ -87,6 +87,7 @@ in
   programs = {
     nushell = {
       enable = true;
+      plugins = [ pkgs.nu-plugin-nuvim ];
       # Nushell still opens env.nu when config.nu owns every environment value.
       # A nonempty value makes Home Manager install the required file.
       extraEnv = "# Environment values are generated in config.nu.\n";
