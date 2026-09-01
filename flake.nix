@@ -276,6 +276,8 @@
               pkgs.shellcheck
               pkgs.zsh
               pkgs.nushell
+              pkgs.fish
+              pkgs.carapace
               pkgs.lua5_4
               pkgs.lua-language-server
               pkgs.jq

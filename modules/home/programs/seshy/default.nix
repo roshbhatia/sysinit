@@ -49,6 +49,12 @@ let
   # name, so a stray registry entry would fail every new session's postCreate.
   openspecTools = lib.intersectLists supportedTools declaredTools;
 
+  syFishCompletion = pkgs.runCommand "sy-fish-completion" { } ''
+    export HOME="$TMPDIR"
+    export XDG_CONFIG_HOME="$TMPDIR/config"
+    ${lib.getExe pkgs.seshy} completion fish > "$out"
+  '';
+
   settings = {
     branchFormat = "dev/{{.User}}/{{.Session}}/{{.Repo}}";
     sessionsDir = config.sysinit.paths.resolved.seshySessions;
@@ -62,7 +68,8 @@ let
   };
 in
 {
-  xdg.configFile."seshy/config.yaml".source =
-    (pkgs.formats.yaml { }).generate "seshy-config.yaml"
-      settings;
+  xdg.configFile = {
+    "seshy/config.yaml".source = (pkgs.formats.yaml { }).generate "seshy-config.yaml" settings;
+    "fish/completions/sy.fish".source = syFishCompletion;
+  };
 }

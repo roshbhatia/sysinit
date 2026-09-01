@@ -47,23 +47,32 @@
 
   users.users.${config.sysinit.user.username}.home = "/Users/${config.sysinit.user.username}";
 
-  environment.shells = [
-    pkgs.bashInteractive
-    pkgs.nushell
-    pkgs.zsh
-  ];
+  environment = {
+    shells = [
+      pkgs.bashInteractive
+      pkgs.nushell
+      pkgs.zsh
+    ];
 
-  environment.variables.PATH = lib.mkForce (
-    lib.concatStringsSep ":" [
-      "/run/current-system/sw/bin"
-      "/nix/var/nix/profiles/default/bin"
-      "/usr/local/bin"
-      "/usr/bin"
-      "/bin"
-      "/usr/sbin"
-      "/sbin"
-    ]
-  );
+    # Nushell and the Fish fallback discover package-owned completions through
+    # XDG_DATA_DIRS. Darwin only links Zsh's tree unless these paths are named.
+    pathsToLink = [
+      "/share/fish"
+      "/share/nushell"
+    ];
+
+    variables.PATH = lib.mkForce (
+      lib.concatStringsSep ":" [
+        "/run/current-system/sw/bin"
+        "/nix/var/nix/profiles/default/bin"
+        "/usr/local/bin"
+        "/usr/bin"
+        "/bin"
+        "/usr/sbin"
+        "/sbin"
+      ]
+    );
+  };
 
   documentation.enable = false;
   system.tools."darwin-uninstaller".enable = false;
