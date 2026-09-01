@@ -447,18 +447,6 @@ function M.setup(config, wm, ctx)
   end
 
   local tree_state = { pending_filter = nil, pending_action = nil, current_filter = "all", key_table_active = false }
-  local function tree_close_key(key)
-    return {
-      key = key,
-      mods = "NONE",
-      action = wezterm.action_callback(function(win, pane)
-        tree_state.pending_filter = nil
-        tree_state.key_table_active = false
-        win:perform_action(wezterm.action.PopKeyTable, pane)
-        win:perform_action(wezterm.action.SendKey({ key = key }), pane)
-      end),
-    }
-  end
   -- [ and ] step to the previous or next session and leave the tree. They live
   -- here and not on a SUPER chord because cmd+[ and cmd+] are back and forward
   -- in most macOS apps, and the tree is where a session step is already the
@@ -477,13 +465,11 @@ function M.setup(config, wm, ctx)
   end
   config.key_tables = config.key_tables or {}
   config.key_tables.session_tree_actions = {
-    tree_close_key("Enter"),
-    tree_close_key("Escape"),
     tree_step_key("[", -1),
     tree_step_key("]", 1),
     {
-      key = "d",
-      mods = "CTRL",
+      key = "/",
+      mods = "NONE",
       action = wezterm.action_callback(function(win, pane)
         tree_state.pending_filter = tree_state.current_filter == "dormant" and "all" or "dormant"
         tree_state.key_table_active = false
@@ -493,7 +479,7 @@ function M.setup(config, wm, ctx)
     },
     {
       key = "x",
-      mods = "CTRL",
+      mods = "NONE",
       action = wezterm.action_callback(function(win, pane)
         tree_state.pending_action = "delete"
         tree_state.key_table_active = false
@@ -609,23 +595,21 @@ function M.setup(config, wm, ctx)
     end
     local title
     if filter == "dormant" then
-      title = "Sessions  [dormant · ^d all · [ ] step · ^x close]"
+      title = "Sessions  [dormant · / all · [ ] step · x close]"
     else
-      title = "Sessions  [^d dormant · [ ] step · ^x close]"
+      title = "Sessions  [/ dormant · [ ] step · x close]"
     end
     if notice then
       title = title .. "  · " .. notice
     end
     tree_state.pending_filter = nil
     tree_state.key_table_active = true
-    win:perform_action(wezterm.action.ActivateKeyTable({ name = "session_tree_actions", one_shot = false }), pane)
     win:perform_action(
       wezterm.action.InputSelector({
         title = title,
         choices = choices,
         fuzzy = false,
-        description = "  j/k nav  1-9 jump  [ ] step  / filter  ^d dormant  ^x close  Esc quit",
-        fuzzy_description = "  filter (Esc to leave):  ",
+        description = "  j/k nav  1-9 jump  [ ] step  / dormant  x close  Esc quit",
         action = wezterm.action_callback(function(inner_win, inner_pane, id, _label)
           if tree_state.key_table_active then
             tree_state.key_table_active = false
@@ -660,6 +644,8 @@ function M.setup(config, wm, ctx)
       }),
       pane
     )
+    -- The selector owns its own key table, so session actions must sit above it.
+    win:perform_action(wezterm.action.ActivateKeyTable({ name = "session_tree_actions", one_shot = false }), pane)
   end
 
   wm.session_enabled = true
