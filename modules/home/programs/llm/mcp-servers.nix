@@ -53,7 +53,7 @@ let
 
 in
 {
-  home.packages = [ pkgs.sysinit-orc ];
+  home.packages = [ pkgs.orc ];
 
   sysinit.llm.mcp.additionalServers = {
     ast-grep = {
@@ -96,7 +96,7 @@ in
     };
 
     orc = {
-      command = "${lib.getExe pkgs.sysinit-orc}";
+      command = "${lib.getExe pkgs.orc}";
       args = [ "mcp" ];
       description = "Optional local agent orchestration, with tools only inside an active Orc workspace";
     };

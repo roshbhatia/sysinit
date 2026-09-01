@@ -59,6 +59,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    orc = {
+      url = "github:roshbhatia/orc/v0.2.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     meat = {
       url = "github:boldsoftware/meat";
       flake = false;
@@ -201,7 +206,7 @@
             "traces"
             "ask"
             "sysinit-utils"
-            "sysinit-orc"
+            "orc"
             "ioskeleyMono"
             "wumpusMono"
             "bookerly"

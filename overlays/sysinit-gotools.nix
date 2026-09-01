@@ -8,7 +8,7 @@ let
 
     src = ../pkgs;
 
-    vendorHash = "sha256-WZASIPTyPzxOminR9A4VosOq2SMFWwlL6ydB8jq0YJQ=";
+    vendorHash = "sha256-5HFRHQ+NkA3+bnd277kxM6TJGKVcF5941W3xhQrPXms=";
 
     nativeCheckInputs = [ final.git ];
 
@@ -156,37 +156,6 @@ in
           done
         ''
       );
-
-  sysinit-orc =
-    let
-      runtimePackages = [
-        final.ask
-        final.git
-        final.nix
-        final.openspec
-        final.pi-coding-agent
-        final.seshy
-        final.sysinit-utils
-        final.traces
-      ]
-      ++ final.lib.optionals final.stdenv.hostPlatform.isLinux [ final.bubblewrap ];
-      runtimePath = final.lib.makeBinPath runtimePackages;
-    in
-    final.runCommand "orc-${sysinit-gotools.version}"
-      {
-        nativeBuildInputs = [ final.makeBinaryWrapper ];
-        meta = {
-          description = "Optional local agent orchestration through a Unix socket";
-          mainProgram = "orc";
-          platforms = final.lib.platforms.unix;
-        };
-      }
-      ''
-        mkdir -p "$out/bin"
-        makeWrapper "${sysinit-gotools}/bin/colchis" "$out/bin/orc" \
-          --set ORC_EXECUTABLE "$out/bin/orc" \
-          --prefix PATH : "${runtimePath}"
-      '';
 
   sysinit-utils =
     let

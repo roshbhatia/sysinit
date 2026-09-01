@@ -31,7 +31,7 @@ local TRACE_NAV = (function()
     both[#both + 1] = name
   end
   both[#both + 1] = "traces"
-  both[#both + 1] = "colchis"
+  both[#both + 1] = "orc"
   return both
 end)()
 
