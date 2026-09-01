@@ -53,8 +53,6 @@ let
 
 in
 {
-  home.packages = [ pkgs.orc-cli ];
-
   sysinit.llm.mcp.additionalServers = {
     ast-grep = {
       command = "uvx";

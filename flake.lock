@@ -989,11 +989,11 @@
         "systems": "systems_5"
       },
       "locked": {
-        "lastModified": 1788238653,
-        "narHash": "sha256-xfmrFUL08v982NeHkwJHcI6FsgJhKFPK+ZVO4qmiFtM=",
+        "lastModified": 1788241081,
+        "narHash": "sha256-L1fIZrKhI6EAhT6OZHRNanHzcJRN8iP5iAcUyzh11cw=",
         "owner": "roshbhatia",
         "repo": "orc",
-        "rev": "fe445a2c413a45b5f2a0dc7761b6bdb58ad1b743",
+        "rev": "142dc0e54da573102dcdd3b44c54efc43ee28835",
         "type": "github"
       },
       "original": {
@@ -1464,11 +1464,11 @@
         "systems": "systems_11"
       },
       "locked": {
-        "lastModified": 1788226897,
-        "narHash": "sha256-q7laMIDfsbNR+8HNzgoITJKZsz0204FuxyAWIK4ykXg=",
+        "lastModified": 1788241094,
+        "narHash": "sha256-StM0Jnqp4WIQWL4u4WPAbtff8qUp+FOxGnqySfHH5jE=",
         "owner": "roshbhatia",
         "repo": "traces",
-        "rev": "191a961e16fad53716f7937cb9e1f7ebded8b5f6",
+        "rev": "9b31c37f1f05798c61dc08f519b1a957ff058400",
         "type": "github"
       },
       "original": {

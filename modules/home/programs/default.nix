@@ -46,6 +46,7 @@ in
         ./nushell
         ./otel-collector.nix
         ./otel-tui.nix
+        ./orc
         ./seshy
         ./traces.nix
         ./yazi
