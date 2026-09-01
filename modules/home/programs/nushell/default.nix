@@ -85,6 +85,9 @@ in
 
   programs.nushell = {
     enable = true;
+    # Nushell still opens env.nu when config.nu owns every environment value.
+    # A nonempty value makes Home Manager install the required file.
+    extraEnv = "# Environment values are generated in config.nu.\n";
     # Home Manager renders shell aliases after extraConfig. Force the shared
     # `ll` alias out so it cannot replace the structured command sourced below.
     shellAliases = lib.mkForce (builtins.removeAttrs shell.commonAliases [ "ll" ]);
