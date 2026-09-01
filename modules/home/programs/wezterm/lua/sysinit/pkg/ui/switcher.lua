@@ -468,7 +468,7 @@ function M.setup(config, wm, ctx)
     tree_step_key("[", -1),
     tree_step_key("]", 1),
     {
-      key = "/",
+      key = ".",
       mods = "NONE",
       action = wezterm.action_callback(function(win, pane)
         tree_state.pending_filter = tree_state.current_filter == "dormant" and "all" or "dormant"
@@ -595,9 +595,9 @@ function M.setup(config, wm, ctx)
     end
     local title
     if filter == "dormant" then
-      title = "Sessions  [dormant · / all · [ ] step · x close]"
+      title = "Sessions  [dormant · . all · / filter · [ ] step · x close]"
     else
-      title = "Sessions  [/ dormant · [ ] step · x close]"
+      title = "Sessions  [. dormant · / filter · [ ] step · x close]"
     end
     if notice then
       title = title .. "  · " .. notice
@@ -609,7 +609,7 @@ function M.setup(config, wm, ctx)
         title = title,
         choices = choices,
         fuzzy = false,
-        description = "  j/k nav  1-9 jump  [ ] step  / dormant  x close  Esc quit",
+        description = "  j/k nav  1-9 jump  [ ] step  . dormant  / filter  x close  Esc quit",
         action = wezterm.action_callback(function(inner_win, inner_pane, id, _label)
           if tree_state.key_table_active then
             tree_state.key_table_active = false

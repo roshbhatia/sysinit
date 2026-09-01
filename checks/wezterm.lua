@@ -10,7 +10,8 @@ assert(cli_calls == guarded_calls, "a switcher wezterm cli call can start a head
 local selector_action = assert(switcher_source:find("wezterm.action.InputSelector", 1, true))
 local session_table = assert(switcher_source:find("wezterm.action.ActivateKeyTable", selector_action, true))
 assert(selector_action < session_table, "the session key table does not sit above the selector")
-assert(switcher_source:find('key = "/",%s*mods = "NONE"'), "slash does not toggle dormant sessions")
+assert(switcher_source:find('key = "%.",%s*mods = "NONE"'), "dot does not toggle dormant sessions")
+assert(not switcher_source:find('key = "/",%s*mods = "NONE"'), "slash cannot reach the selector filter")
 assert(switcher_source:find('key = "x",%s*mods = "NONE"'), "x does not close a session target")
 assert(not switcher_source:find('key = "d",%s*mods = "CTRL"'), "CTRL-d remains bound in the session tree")
 
