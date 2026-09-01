@@ -457,8 +457,15 @@ function M.setup(config, wm, ctx)
     tree_action[spec.name] = spec.id
   end
 
-  local function tree_selector_controls(filter)
+  local function tree_selector_controls(filter, target_choices)
     local choices, keys, help = {}, {}, { "j/k nav" }
+    for _, choice in ipairs(target_choices) do
+      choices[#choices + 1] = choice
+    end
+
+    local target_alphabet = "1234567890abcdefghilmnopqrstuvwyzABCDEFGHILMNOPQRSTUVWYZ"
+    local target_keys = target_alphabet:sub(1, #target_choices)
+    local remaining_keys = target_alphabet:sub(#target_choices + 1)
     for _, spec in ipairs(tree_action_specs) do
       local label = spec.label
       if spec.name == "toggle_dormant" and filter == "dormant" then
@@ -470,7 +477,7 @@ function M.setup(config, wm, ctx)
     end
     help[#help + 1] = "/ filter"
     help[#help + 1] = "Esc quit"
-    return choices, table.concat(keys) .. "1234567890abcdefghilmnopqrstuvwyz", "  " .. table.concat(help, "  ")
+    return choices, target_keys .. table.concat(keys) .. remaining_keys, "  " .. table.concat(help, "  ")
   end
 
   local function close_session_target(win, pane, id, by_id)
@@ -576,10 +583,7 @@ function M.setup(config, wm, ctx)
         return
       end
     end
-    local choices, tree_alphabet, tree_description = tree_selector_controls(filter)
-    for _, choice in ipairs(target_choices) do
-      choices[#choices + 1] = choice
-    end
+    local choices, tree_alphabet, tree_description = tree_selector_controls(filter, target_choices)
     local title
     if filter == "dormant" then
       title = "Sessions  [dormant · . all · / filter]"

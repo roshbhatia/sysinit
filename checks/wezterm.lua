@@ -8,8 +8,12 @@ local cli_calls = select(2, switcher_source:gsub('wezterm_bin,%s*"cli"', ""))
 local guarded_calls = select(2, switcher_source:gsub('wezterm_bin,%s*"cli",%s*"%-%-no%-auto%-start"', ""))
 assert(cli_calls == guarded_calls, "a switcher wezterm cli call can start a headless mux")
 assert(
-  switcher_source:find('return choices, table.concat(keys) .. "1234567890abcdefghilmnopqrstuvwyz"', 1, true),
-  "the selector alphabet does not expose session actions"
+  switcher_source:find("return choices, target_keys .. table.concat(keys) .. remaining_keys", 1, true),
+  "the selector alphabet does not place session actions after session rows"
+)
+assert(
+  switcher_source:find("local function tree_selector_controls(filter, target_choices)", 1, true),
+  "session actions still prepend the session tree"
 )
 assert(
   switcher_source:find('name = "toggle_dormant", key = "%.", id = "action:toggle%-dormant"'),
