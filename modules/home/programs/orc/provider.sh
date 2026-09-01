@@ -1,65 +1,82 @@
 set -euo pipefail
 
-request="${ORC_PROVIDER_REQUEST:?ORC_PROVIDER_REQUEST is required}"
-action="${1:?provider action is required}"
+provider_kind=${ORC_PROVIDER_KIND:?ORC_PROVIDER_KIND is required}
+request=$(cat)
 version=$(jq -er '.version' <<< "$request")
-requested_action=$(jq -er '.action' <<< "$request")
+capability=$(jq -er '.capability' <<< "$request")
 scope=$(jq -er '.scope' <<< "$request")
 
 if [ "$version" != "orc.provider/v1" ]; then
-  printf 'orc-sysinit: unsupported request version: %s\n' "$version" >&2
+  printf 'orc-provider-%s: unsupported request version: %s\n' "$provider_kind" "$version" >&2
   exit 2
 fi
 
-if [ "$action" != "$requested_action" ]; then
-  printf 'orc-sysinit: action mismatch: %s != %s\n' "$action" "$requested_action" >&2
-  exit 2
-fi
-
-split() {
-  local direction
-  direction=$(jq -er '.direction' <<< "$request")
-  case "$direction" in
-    right | left | top | bottom) ;;
-    *)
-      printf 'orc-sysinit: unsupported split direction: %s\n' "$direction" >&2
-      exit 2
-      ;;
-  esac
-
-  local args=("--$direction" --cwd "$scope")
-  if [ -n "${WEZTERM_PANE:-}" ]; then
-    args+=(--pane-id "$WEZTERM_PANE")
+emit_plan() {
+  local cwd environment command_json
+  cwd=$1
+  environment=$2
+  shift 2
+  if [ "$#" -eq 0 ]; then
+    printf 'orc-provider-%s: command plan is empty\n' "$provider_kind" >&2
+    exit 2
   fi
-  exec wezterm cli --no-auto-start split-pane "${args[@]}" -- "$@"
+  command_json=$(printf '%s\0' "$@" | jq -Rs 'split("\u0000")[:-1]')
+  jq -n \
+    --arg cwd "$cwd" \
+    --argjson command "$command_json" \
+    --argjson environment "$environment" \
+    '{version: "orc.provider/v1", command: $command, cwd: $cwd, environment: $environment}'
 }
 
-case "$action" in
-  attach)
-    provider_ref=$(jq -er '.session.providerRef' <<< "$request")
-    split zmx attach "$provider_ref"
+read_command() {
+  command=()
+  while IFS= read -r -d '' value; do
+    command+=("$value")
+  done < <(jq -j "$1 | .[] | @text, \"\\u0000\"" <<< "$request")
+  if [ "${#command[@]}" -eq 0 ]; then
+    printf 'orc-provider-%s: input command is empty\n' "$provider_kind" >&2
+    exit 2
+  fi
+}
+
+case "$provider_kind:$capability" in
+  changes:changes.inspect)
+    emit_plan "$scope" '{}' "$(command -v changes)" -r -root "$scope" -color always
     ;;
-  inspect)
-    trace_id=$(jq -er '.session.traceId // .session.nativeId' <<< "$request")
-    split traces --session "$trace_id"
+  traces:session.inspect)
+    trace_id=$(jq -er '.session.traceId // .session.nativeId | select(type == "string" and length > 0)' <<< "$request")
+    emit_plan "$scope" '{}' "$(command -v traces)" --session "$trace_id"
     ;;
-  changes)
-    exec changes -r -root "$scope" -color always
-    ;;
-  launch)
-    managed_id=$(jq -er '.managedId' <<< "$request")
-    command=()
-    while IFS= read -r -d '' value; do
-      command+=("$value")
-    done < <(jq -j '.command[] | @text, "\u0000"' <<< "$request")
-    if [ "${#command[@]}" -eq 0 ]; then
-      printf 'orc-sysinit: launch command is empty\n' >&2
-      exit 2
+  wezterm:terminal.open)
+    direction=$(jq -er '.direction' <<< "$request")
+    case "$direction" in
+      right | left | top | bottom) ;;
+      *)
+        printf 'orc-provider-wezterm: unsupported split direction: %s\n' "$direction" >&2
+        exit 2
+        ;;
+    esac
+    prior_cwd=$(jq -er '.plan.cwd // .scope' <<< "$request")
+    prior_environment=$(jq -ce '.plan.environment // {} | objects' <<< "$request")
+    read_command '.plan.command'
+    split_command=("$(command -v wezterm)" cli --no-auto-start split-pane "--$direction" --cwd "$prior_cwd")
+    if [ -n "${WEZTERM_PANE:-}" ]; then
+      split_command+=(--pane-id "$WEZTERM_PANE")
     fi
-    exec zmx attach "$managed_id" "${command[@]}"
+    split_command+=(-- "${command[@]}")
+    emit_plan "$scope" "$prior_environment" "${split_command[@]}"
+    ;;
+  zmx:session.attach)
+    provider_ref=$(jq -er '.session.providerRef | select(type == "string" and length > 0)' <<< "$request")
+    emit_plan "$scope" '{}' "$(command -v zmx)" attach "$provider_ref"
+    ;;
+  zmx:session.launch)
+    managed_id=$(jq -er '.managedId | select(type == "string" and length > 0)' <<< "$request")
+    read_command '.command'
+    emit_plan "$scope" '{}' "$(command -v zmx)" attach "$managed_id" "${command[@]}"
     ;;
   *)
-    printf 'orc-sysinit: unsupported action: %s\n' "$action" >&2
+    printf 'orc-provider-%s: unsupported capability: %s\n' "$provider_kind" "$capability" >&2
     exit 2
     ;;
 esac
