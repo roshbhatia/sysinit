@@ -85,7 +85,9 @@ in
 
   programs.nushell = {
     enable = true;
-    shellAliases = lib.mkDefault (builtins.removeAttrs shell.commonAliases [ "ll" ]);
+    # Home Manager renders shell aliases after extraConfig. Force the shared
+    # `ll` alias out so it cannot replace the structured command sourced below.
+    shellAliases = lib.mkForce (builtins.removeAttrs shell.commonAliases [ "ll" ]);
 
     environmentVariables.LS_COLORS = lib.mkForce (
       lib.hm.nushell.mkNushellInline "(open --raw ${lsColorsFile} | str trim)"
@@ -182,10 +184,10 @@ in
 
         # Kubectl may query the current cluster for dynamic results. Keep a
         # failed cluster lookup below the delay a key press can expose.
-        let completion_timeout = if $kubectl_alias { 250ms } else { 3sec }
+        let completion_timeout = if $kubectl_alias { "0.25s" } else { "3s" }
 
         let result = (
-          do { timeout $completion_timeout ${carapaceBin} $spans.0 nushell ...$spans }
+          do { ${pkgs.coreutils}/bin/timeout $completion_timeout ${carapaceBin} $spans.0 nushell ...$spans }
           | complete
         )
 
