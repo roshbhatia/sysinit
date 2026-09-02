@@ -150,19 +150,21 @@ local pane = {
 
 key_binding("h", "CTRL").action(window, pane)
 assert(performed[1].SendKey.key == "h", "CTRL-h did not pass through to Neovim")
+key_binding("v", "CTRL").action(window, pane)
+assert(performed[2].SplitHorizontal.domain == "CurrentPaneDomain", "CTRL-v did not split from Neovim")
 pane_vars = {}
 current_process = "zsh"
 key_binding("h", "CTRL").action(window, pane)
-assert(performed[2].ActivatePaneDirection == "Left", "CTRL-h did not move from a shell pane")
+assert(performed[3].ActivatePaneDirection == "Left", "CTRL-h did not move from a shell pane")
 -- nu is the pane shell now, so a shell list that forgot it would send every
 -- readline chord to wezterm instead of to the prompt.
 current_process = "nu"
 key_binding("u", "CTRL").action(window, pane)
-assert(performed[3].SendKey.key == "u", "CTRL-u did not pass through to a nushell pane")
-performed[3] = nil
+assert(performed[4].SendKey.key == "u", "CTRL-u did not pass through to a nushell pane")
+performed[4] = nil
 keybindings.locked_mode = true
 key_binding("h", "CTRL").action(window, pane)
-assert(performed[3].SendKey.mods == "CTRL", "locked mode consumed CTRL-h")
+assert(performed[4].SendKey.mods == "CTRL", "locked mode consumed CTRL-h")
 keybindings.locked_mode = false
 
 local event_config = {}

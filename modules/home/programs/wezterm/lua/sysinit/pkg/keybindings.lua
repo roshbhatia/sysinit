@@ -81,15 +81,11 @@ end
 local function get_pane_keys()
   local DIRECTION_KEYS = { h = "Left", j = "Down", k = "Up", l = "Right" }
   local keys = {
-    -- CTRL-s is XOFF and CTRL-v is blockwise visual; CTRL-n is next-completion.
-    -- Editors get them back. A shell keeps the split, because a shell pane is
-    -- where you split from.
+    -- CTRL-v always splits; Neovim keeps blockwise Visual mode on CTRL-q.
     create_smart_keybind("s", "CTRL", act.SplitVertical({ domain = "CurrentPaneDomain" }), {
       passthrough = EDITORS,
     }),
-    create_smart_keybind("v", "CTRL", act.SplitHorizontal({ domain = "CurrentPaneDomain" }), {
-      passthrough = EDITORS,
-    }),
+    create_smart_keybind("v", "CTRL", act.SplitHorizontal({ domain = "CurrentPaneDomain" })),
 
     create_smart_keybind("s", "CTRL|SHIFT", act.SplitPane({ direction = "Down", top_level = true }), {
       passthrough = EDITORS,
