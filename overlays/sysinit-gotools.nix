@@ -120,8 +120,8 @@ in
         mkdir -p "$out/bin"
         makeWrapper "${final.changes-cli}/bin/changes" "$out/bin/changes" \
           --prefix PATH : "${runtimePath}" \
-          --set-default CHANGES_DIFF_ENGINE delta \
-          --set-default CHANGES_DIFF_LAYOUT side-by-side
+          --set-default CHANGES_DIFF_ENGINE internal \
+          --set-default CHANGES_DIFF_LAYOUT unified
         mkdir -p "$out/share"
         cp -rs "${final.changes-cli}/share/." "$out/share/"
       '';
