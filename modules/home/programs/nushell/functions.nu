@@ -168,18 +168,21 @@ $env.config.hooks.env_change.PWD = (
   }
 )
 
-# Snapshots the pane for `ask --last`, because `wezterm cli` does not expose the
-# OSC 133 zones that mark where one command's output starts. Costs 25ms per
-# command; set ASK_CAPTURE=0 to turn it off. pre_execution, not pre_prompt, so a
-# bare enter does not rotate the snapshots away.
-$env.config.hooks.pre_execution = (
-  $env.config.hooks.pre_execution?
+# `pre_execution` leaves terminal events for interactive readers, so history-gated capture runs after commands.
+$env.config.hooks.pre_prompt = (
+  $env.config.hooks.pre_prompt?
   | default []
   | append {||
     if ($env.ASK_CAPTURE? | default "1") == "1" and ($env.WEZTERM_PANE? | is-not-empty) {
-      if (which ask | is-not-empty) {
+      let history_length = if $nu.history-enabled { history | length } else { 0 }
+      let previous_length = $env.ASK_CAPTURE_HISTORY_LENGTH?
+      let command_finished = $previous_length == null or not $nu.history-enabled or $history_length > $previous_length
+
+      if $command_finished and (which ask | is-not-empty) {
         do --ignore-errors { ^ask --capture }
       }
+
+      $env.ASK_CAPTURE_HISTORY_LENGTH = $history_length
     }
   }
 )
