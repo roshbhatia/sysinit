@@ -14,7 +14,6 @@ final: _prev: {
   traces-cli = inputs.traces.packages.${final.stdenv.hostPlatform.system}.default;
   nuvim = inputs.nuvim.packages.${final.stdenv.hostPlatform.system}.default;
   nu-plugin-nuvim = inputs.nuvim.packages.${final.stdenv.hostPlatform.system}.nu-plugin;
-  nvim-nu = inputs.nuvim.packages.${final.stdenv.hostPlatform.system}.nvim-plugin;
   nur = {
     repos = {
       rycee = {
