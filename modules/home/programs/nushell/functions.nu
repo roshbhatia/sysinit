@@ -192,21 +192,32 @@ $env.config.hooks.env_change.PWD = (
   }
 )
 
-# `pre_execution` leaves terminal events for interactive readers, so history-gated capture runs after commands.
+# `pre_execution` only marks work, so interactive readers never race a terminal capture.
+$env.config.hooks.pre_execution = (
+  $env.config.hooks.pre_execution?
+  | default []
+  | append {||
+    if ($env.ASK_CAPTURE? | default "1") == "1" and ($env.WEZTERM_PANE? | is-not-empty) {
+      $env.ASK_CAPTURE_PENDING = "1"
+    }
+  }
+)
+
 $env.config.hooks.pre_prompt = (
   $env.config.hooks.pre_prompt?
   | default []
   | append {||
     if ($env.ASK_CAPTURE? | default "1") == "1" and ($env.WEZTERM_PANE? | is-not-empty) {
-      let history_length = if $nu.history-enabled { history | length } else { 0 }
-      let previous_length = $env.ASK_CAPTURE_HISTORY_LENGTH?
-      let command_finished = $previous_length == null or not $nu.history-enabled or $history_length > $previous_length
+      let initialized = ($env.ASK_CAPTURE_INITIALIZED? | default "0") == "1"
+      let command_finished = ($env.ASK_CAPTURE_PENDING? | default "0") == "1"
 
-      if $command_finished and (which ask | is-not-empty) {
+      if (not $initialized or $command_finished) and (which ask | is-not-empty) {
         do --ignore-errors { ^ask --capture }
       }
 
-      $env.ASK_CAPTURE_HISTORY_LENGTH = $history_length
+      $env.ASK_CAPTURE_INITIALIZED = "1"
     }
+
+    hide-env --ignore-errors ASK_CAPTURE_PENDING
   }
 )
