@@ -4,61 +4,56 @@
   ...
 }:
 let
-  mkProvider =
-    name: runtimeInputs:
-    pkgs.writeShellApplication {
-      name = "orc-provider-${name}";
-      runtimeInputs = [ pkgs.jq ] ++ runtimeInputs;
-      text = ''
-        export ORC_PROVIDER_KIND=${lib.escapeShellArg name}
-        ${builtins.readFile ./provider.sh}
-      '';
-    };
-
+  yamlFormat = pkgs.formats.yaml { };
   providers = {
     changes = {
-      capabilities = [ "changes.inspect" ];
+      actions."changes.inspect" = "Show repository changes for the workspace";
+      description = "Render structured workspace changes";
       kind = "changes";
-      package = mkProvider "changes" [ pkgs.changes ];
+      package = pkgs.orc-provider-changes;
       priority = 100;
     };
     harness = {
-      capabilities = [
-        "session.attach"
-        "session.bind"
-      ];
+      actions = {
+        "session.attach" = "Build the native harness resume command";
+        "session.bind" = "Detect whether the harness session is active";
+      };
+      description = "Resume sessions through the registered agent harness";
       kind = "harness";
-      package = mkProvider "harness" [ ];
+      package = pkgs.orc-provider-harness;
       priority = 100;
     };
     traces = {
-      capabilities = [
-        "session.bind"
-        "session.describe"
-        "session.inspect"
-      ];
+      actions = {
+        "session.bind" = "Link a session to its trace identity";
+        "session.describe" = "Read the session title and goal";
+        "session.inspect" = "Show session activity";
+      };
+      description = "Read agent titles, goals, messages, and tool activity";
       kind = "activity";
-      package = mkProvider "traces" [ pkgs.traces ];
+      package = pkgs.orc-provider-traces;
       priority = 100;
     };
     wezterm = {
-      capabilities = [
-        "session.bind"
-        "terminal.open"
-      ];
+      actions = {
+        "session.bind" = "Detect the current WezTerm pane";
+        "terminal.open" = "Open a command in a split pane";
+      };
+      description = "Open provider command plans in a WezTerm pane";
       kind = "display";
-      package = mkProvider "wezterm" [ pkgs.wezterm ];
+      package = pkgs.orc-provider-wezterm;
       priority = 100;
     };
     zmx = {
-      capabilities = [
-        "session.bind"
-        "session.launch"
-        "session.persist"
-      ];
+      actions = {
+        "session.bind" = "Detect the current persistent process";
+        "session.launch" = "Launch a managed harness in a persistent session";
+        "session.persist" = "Wrap a harness command in a persistent session";
+      };
+      description = "Keep harness processes available when displays close";
       kind = "persistence";
-      package = mkProvider "zmx" [ pkgs.zmx ];
-      priority = 200;
+      package = pkgs.orc-provider-zmx;
+      priority = 100;
     };
   };
 in
@@ -68,10 +63,15 @@ in
 
     xdg.configFile = lib.mapAttrs' (
       name: provider:
-      lib.nameValuePair "orc/providers/${name}.json" {
-        text = builtins.toJSON {
+      lib.nameValuePair "orc/providers/${name}.yaml" {
+        source = yamlFormat.generate "orc-provider-${name}.yaml" {
           inherit name;
-          inherit (provider) capabilities kind priority;
+          inherit (provider)
+            actions
+            description
+            kind
+            priority
+            ;
           command = lib.getExe provider.package;
           version = "orc.provider/v1";
         };

@@ -35,6 +35,16 @@ local TRACE_NAV = (function()
   return both
 end)()
 
+local TUI_SCROLL = (function()
+  local both = {}
+  for _, name in ipairs(READLINE) do
+    both[#both + 1] = name
+  end
+  both[#both + 1] = "traces"
+  both[#both + 1] = "orc"
+  return both
+end)()
+
 local COMMON_MODS = { "CTRL", "SUPER" }
 
 local function create_smart_keybind(key, mods, wezterm_action, opts)
@@ -429,8 +439,8 @@ local function get_scroll_keys()
     -- CTRL-u is kill-line and CTRL-d is EOF, and a shell prompt needs both far
     -- more than it needs a half-page scroll. SUPER-u and SUPER-d keep the scroll
     -- reachable from the prompt, so the passthrough costs nothing.
-    create_smart_keybind("u", "CTRL", { ScrollByLine = -40 }, { passthrough = READLINE }),
-    create_smart_keybind("d", "CTRL", { ScrollByLine = 40 }, { passthrough = READLINE }),
+    create_smart_keybind("u", "CTRL", { ScrollByLine = -40 }, { passthrough = TUI_SCROLL }),
+    create_smart_keybind("d", "CTRL", { ScrollByLine = 40 }, { passthrough = TUI_SCROLL }),
     create_smart_keybind("u", "SUPER", { ScrollByLine = -40 }),
     create_smart_keybind("d", "SUPER", { ScrollByLine = 40 }),
     create_smart_keybind("u", "CTRL|SHIFT", act.ScrollToTop, { passthrough = EDITORS }),

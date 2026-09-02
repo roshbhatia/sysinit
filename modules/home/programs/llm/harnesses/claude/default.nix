@@ -339,6 +339,10 @@ in
                 command = "${profileBin}/agent-state claude exit";
                 async = true;
               }
+              {
+                type = "command";
+                command = "${profileBin}/orc session archive --hook-input --quiet";
+              }
             ];
           }
         ];

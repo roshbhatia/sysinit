@@ -1,16 +1,48 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 let
   inherit (lib) mkOption types;
 
   cfg = config.sysinit.traces;
+  yamlFormat = pkgs.formats.yaml { };
 
   declared = lib.filterAttrs (_harness: sources: sources != null) cfg.providers;
-
-  file = ".config/sysinit/traces.json";
+  defaultSources = {
+    claude-code = [ "claude" ];
+    codex = [ "codex" ];
+    codex_cli_rs = [ "codex" ];
+    opencode = [ "opencode" ];
+  };
+  sources = defaultSources // declared;
+  providerNames = lib.unique (lib.concatLists (lib.attrValues sources));
+  publicProviders = {
+    claude = {
+      command = [ (lib.getExe pkgs.traces-provider-claude) ];
+      description = "Read Claude Code transcript activity";
+    };
+    codex = {
+      command = [ (lib.getExe pkgs.traces-provider-codex) ];
+      description = "Read Codex rollout activity";
+    };
+    opencode = {
+      command = [ (lib.getExe pkgs.traces-provider-opencode) ];
+      description = "Read OpenCode session activity";
+    };
+  };
+  providerFor =
+    name:
+    (publicProviders.${name} or {
+      command = [ "traces-${name}" ];
+      description = "Read ${name} activity";
+    }
+    )
+    // {
+      capabilities = [ "activity" ];
+    };
 in
 {
   options.sysinit.traces.providers = mkOption {
@@ -38,10 +70,26 @@ in
     '';
   };
 
-  # traces reads the file at runtime rather than an environment variable, so a
-  # new declaration reaches a shell that was already open. A sessionVariable
-  # needs a fresh login before the process sees it.
-  config = lib.mkIf (declared != { }) {
-    home.file.${file}.text = builtins.toJSON { providers = declared; };
+  config = {
+    home.packages = [
+      pkgs.traces-provider-claude
+      pkgs.traces-provider-codex
+      pkgs.traces-provider-opencode
+    ];
+
+    # Traces reads the file at runtime, so provider changes reach a shell that
+    # was already open. Private providers remain ordinary commands on PATH.
+    xdg.configFile."traces/config.yaml".source = yamlFormat.generate "traces-config.yaml" {
+      color = "auto";
+      diff.command = [
+        (lib.getExe pkgs.changes)
+        "difftool"
+        "$LOCAL"
+        "$REMOTE"
+        "$MERGED"
+      ];
+      providers = lib.genAttrs providerNames providerFor;
+      inherit sources;
+    };
   };
 }
