@@ -283,7 +283,9 @@ in
 
     # Fish stays available as Nushell's completion database. It is not the login
     # shell. Carapace is configured above so its generated shell init cannot
-    # replace the timeout and fallback policy.
+    # replace the timeout and fallback policy. Fish otherwise enables man caches
+    # by default, but current Darwin profiles have no man package to build them.
+    man.generateCaches = false;
     fish.enable = true;
     carapace = {
       enable = true;
