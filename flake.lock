@@ -977,11 +977,11 @@
         "systems": "systems_4"
       },
       "locked": {
-        "lastModified": 1788329516,
-        "narHash": "sha256-6CnjmHr1Zkl0xbfz5JYWPDo4P0YwkFpI7mXurx6EflA=",
+        "lastModified": 1788331349,
+        "narHash": "sha256-am1qrX+26Gtlbg0RL0xiSy7ZL3Eu8sXY1VYiySD6m8g=",
         "owner": "roshbhatia",
         "repo": "nu_plugin_nvim",
-        "rev": "5a0e8987f90ae15cdc649f00cb92829ed9a2ba66",
+        "rev": "b88b0781b5f27790f41aeb097059f17bc46bd96e",
         "type": "github"
       },
       "original": {
