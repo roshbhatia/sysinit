@@ -84,6 +84,8 @@ in
     }
   ];
 
+  home.packages = [ pkgs.nuvim ];
+
   programs = {
     nushell = {
       enable = true;
