@@ -156,6 +156,30 @@ def "env.print" [pattern?: string] {
   | ^bat --style=numbers,grid --language=txt
 }
 
+alias nuvim-plugin-context = nuvim context
+alias nuvim-plugin-servers = nuvim servers
+
+def --env nuvim [] {
+  if ($env.NVIM? | default "" | is-not-empty) {
+    return (nuvim-plugin-context)
+  }
+
+  let servers = (nuvim-plugin-servers)
+  if ($servers | is-empty) {
+    error make {msg: "nuvim: no running Neovim sessions found"}
+  }
+
+  let selected = if ($servers | length) == 1 {
+    $servers | first
+  } else {
+    $servers
+    | input list --display {|server| $"($server.label)  ($server.cwd)  pid ($server.pid)"} "Choose a Neovim session:"
+  }
+
+  $env.NVIM = $selected.server
+  nuvim-plugin-context
+}
+
 $env.config.hooks.env_change.PWD = (
   $env.config.hooks.env_change.PWD
   | append {||
