@@ -1,0 +1,135 @@
+diff --git a/ansi-escape/Cargo.toml b/ansi-escape/Cargo.toml
+index edb5b6e..43535ed 100644
+--- a/ansi-escape/Cargo.toml
++++ b/ansi-escape/Cargo.toml
+@@ -10 +10 @@ path = "src/lib.rs"
+-test = false
++test = true
+diff --git a/ansi-escape/src/lib.rs b/ansi-escape/src/lib.rs
+index b47cf14..60b2dec 100644
+--- a/ansi-escape/src/lib.rs
++++ b/ansi-escape/src/lib.rs
+@@ -5,0 +6,81 @@ use ratatui::text::Text;
++fn escape_sequence_end(bytes: &[u8], start: usize) -> usize {
++    let Some(introducer) = bytes.get(start + 1).copied() else {
++        return bytes.len();
++    };
++
++    match introducer {
++        b'[' => bytes[start + 2..]
++            .iter()
++            .position(|byte| (0x40..=0x7e).contains(byte))
++            .map_or(bytes.len(), |offset| start + 3 + offset),
++        b']' | b'P' | b'X' | b'^' | b'_' => {
++            let mut cursor = start + 2;
++            while cursor < bytes.len() {
++                if introducer == b']' && bytes[cursor] == b'\x07' {
++                    return cursor + 1;
++                }
++                if bytes[cursor..].starts_with(b"\x1b\\") {
++                    return cursor + 2;
++                }
++                cursor += 1;
++            }
++            bytes.len()
++        }
++        _ => {
++            let mut cursor = start + 1;
++            while cursor < bytes.len() && (0x20..=0x2f).contains(&bytes[cursor]) {
++                cursor += 1;
++            }
++            (cursor + usize::from(cursor < bytes.len())).min(bytes.len())
++        }
++    }
++}
++
++fn is_sgr(bytes: &[u8], start: usize, end: usize) -> bool {
++    end >= start + 3
++        && bytes.get(start + 1) == Some(&b'[')
++        && bytes.get(end - 1) == Some(&b'm')
++        && bytes[start + 2..end - 1]
++            .iter()
++            .all(|byte| (0x30..=0x3f).contains(byte))
++}
++
++/// Removes terminal commands from untrusted display text while preserving SGR styling.
++fn sanitize_terminal_output(text: &str) -> std::borrow::Cow<'_, str> {
++    let bytes = text.as_bytes();
++    if !bytes.iter().any(|byte| {
++        *byte == b'\x1b' || (*byte < 0x20 && !matches!(*byte, b'\n' | b'\t')) || *byte == 0x7f
++    }) {
++        return std::borrow::Cow::Borrowed(text);
++    }
++
++    let mut sanitized = String::with_capacity(text.len());
++    let mut retained_start = 0;
++    let mut cursor = 0;
++    while cursor < bytes.len() {
++        if bytes[cursor] == b'\x1b' {
++            sanitized.push_str(&text[retained_start..cursor]);
++            let end = escape_sequence_end(bytes, cursor);
++            if is_sgr(bytes, cursor, end) {
++                sanitized.push_str(&text[cursor..end]);
++            }
++            cursor = end;
++            retained_start = cursor;
++            continue;
++        }
++
++        if (bytes[cursor] < 0x20 && !matches!(bytes[cursor], b'\n' | b'\t'))
++            || bytes[cursor] == 0x7f
++        {
++            sanitized.push_str(&text[retained_start..cursor]);
++            cursor += 1;
++            retained_start = cursor;
++            continue;
++        }
++
++        cursor += 1;
++    }
++    sanitized.push_str(&text[retained_start..]);
++    std::borrow::Cow::Owned(sanitized)
++}
++
+@@ -43 +124,2 @@ pub fn ansi_escape(s: &str) -> Text<'static> {
+-    match s.into_text() {
++    let sanitized = sanitize_terminal_output(s);
++    match sanitized.as_ref().into_text() {
+@@ -58,0 +141,37 @@ pub fn ansi_escape(s: &str) -> Text<'static> {
++
++#[cfg(test)]
++mod tests {
++    use super::ansi_escape;
++
++    fn rendered_text(input: &str) -> String {
++        ansi_escape(input)
++            .lines
++            .iter()
++            .flat_map(|line| line.spans.iter())
++            .map(|span| span.content.as_ref())
++            .collect()
++    }
++
++    #[test]
++    fn terminal_queries_are_inert() {
++        let input = concat!(
++            "before",
++            "\x1b[>0q",
++            "\x1bP+q4d73\x1b\\",
++            "\x1b_Gi=31337,s=1,v=1,a=q,t=d,f=24;AAAA\x1b\\",
++            "\x1b]11;?\x1b\\",
++            "after"
++        );
++        assert_eq!(rendered_text(input), "beforeafter");
++    }
++
++    #[test]
++    fn sgr_styles_remain_available() {
++        let text = ansi_escape("plain \x1b[31mred\x1b[0m plain");
++        assert_eq!(
++            rendered_text("plain \x1b[31mred\x1b[0m plain"),
++            "plain red plain"
++        );
++        assert_eq!(text.lines[0].spans[1].content, "red");
++    }
++}

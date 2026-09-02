@@ -41,6 +41,7 @@
   (import ./ioskeleyMono.nix)
   (import ./wumpusMono.nix)
   (import ./bookerly.nix)
+  (import ./codex.nix)
   (import ./acp-amp.nix)
   (import ./codex-acp.nix)
   (import ./localias.nix)

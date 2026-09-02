@@ -218,6 +218,7 @@
             "pi-coding-agent"
             "crush"
             "contextive"
+            "codex"
             "codex-acp"
             "claude-code"
             "go-enum"
