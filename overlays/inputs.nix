@@ -9,6 +9,7 @@ final: _prev: {
   orc-cli = inputs.orc.packages.${final.stdenv.hostPlatform.system}.default;
   orc-provider-changes = inputs.orc.packages.${final.stdenv.hostPlatform.system}.provider-changes;
   orc-provider-harness = inputs.orc.packages.${final.stdenv.hostPlatform.system}.provider-harness;
+  orc-provider-local = inputs.orc.packages.${final.stdenv.hostPlatform.system}.provider-local;
   orc-provider-traces = inputs.orc.packages.${final.stdenv.hostPlatform.system}.provider-traces;
   orc-provider-wezterm = inputs.orc.packages.${final.stdenv.hostPlatform.system}.provider-wezterm;
   orc-provider-zmx = inputs.orc.packages.${final.stdenv.hostPlatform.system}.provider-zmx;
