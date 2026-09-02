@@ -7,15 +7,8 @@
 }:
 
 let
-  systemPath = [
-    "/run/current-system/sw/bin"
-    "/nix/var/nix/profiles/default/bin"
-    "/usr/local/bin"
-    "/usr/bin"
-    "/bin"
-    "/usr/sbin"
-    "/sbin"
-  ];
+  commandPath = import ../shared/command-path.nix { inherit lib; };
+  systemPath = commandPath.systemEntries;
 in
 {
   nix = {
@@ -75,10 +68,7 @@ in
     variables.PATH = lib.mkForce (lib.concatStringsSep ":" systemPath);
   };
 
-  launchd.user.envVariables.PATH = [
-    "/etc/profiles/per-user/${config.sysinit.user.username}/bin"
-  ]
-  ++ systemPath;
+  launchd.user.envVariables.PATH = commandPath.entries "/etc/profiles/per-user/${config.sysinit.user.username}/bin";
 
   documentation.enable = false;
   system.tools."darwin-uninstaller".enable = false;

@@ -147,6 +147,11 @@ in
   xdg.dataFile = openspecSchemaFiles;
 
   home = {
+    # All harnesses inherit the same command search path. Codex and Claude also
+    # receive the rendered value in their settings because they can sanitize
+    # the environment before a hook starts.
+    sessionPath = llmLibForCoverage.commandPath.entries "${config.home.profileDirectory}/bin";
+
     file =
       skillFiles
       // skillScriptFiles

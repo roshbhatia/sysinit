@@ -9,6 +9,7 @@ let
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
   profileBin = "${config.home.profileDirectory}/bin";
+  commandPath = llmLib.commandPath.render profileBin;
 
   defaultInstructions = kit.mkInstructions {
     harness = "claude";
@@ -94,6 +95,7 @@ in
 
     settings = {
       env = {
+        PATH = commandPath;
         CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1";
         DISABLE_AUTOUPDATER = "1";
 
