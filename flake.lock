@@ -979,16 +979,16 @@
       "locked": {
         "lastModified": 1788308388,
         "narHash": "sha256-Phhk+2iYJQf6+BSzUFuvFE5ZuEnnzgzqLyTIQxn1WB0=",
-        "ref": "main",
+        "owner": "roshbhatia",
+        "repo": "nu_plugin_nvim",
         "rev": "c61131af4ddffde004730fdebd91c17f155ce27a",
-        "revCount": 3,
-        "type": "git",
-        "url": "https://github.com/roshbhatia/nu_plugin_nvim.git"
+        "type": "github"
       },
       "original": {
+        "owner": "roshbhatia",
         "ref": "main",
-        "type": "git",
-        "url": "https://github.com/roshbhatia/nu_plugin_nvim.git"
+        "repo": "nu_plugin_nvim",
+        "type": "github"
       }
     },
     "onepassword-shell-plugins": {

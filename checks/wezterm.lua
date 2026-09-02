@@ -70,6 +70,24 @@ local wezterm = {
 }
 package.loaded.wezterm = wezterm
 
+local real_utils = require("sysinit.pkg.utils")
+real_utils.get_home_dir = function()
+  return "/home/test"
+end
+real_utils.get_nix_binary = function(name)
+  return "/profile/bin/" .. name
+end
+local nu_args = real_utils.get_nushell_args()
+assert(table.concat(nu_args, "\n") == table.concat({
+  "/profile/bin/nu",
+  "--config",
+  "/home/test/.config/nushell/config.nu",
+  "--env-config",
+  "/home/test/.config/nushell/env.nu",
+  "--plugin-config",
+  "/home/test/.config/nushell/plugin.msgpackz",
+}, "\n"), "WezTerm did not pass every managed Nushell path")
+
 package.loaded["sysinit.pkg.utils"] = {
   get_config_path = function(path)
     return path

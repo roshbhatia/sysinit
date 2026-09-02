@@ -90,7 +90,7 @@
     };
 
     nuvim = {
-      url = "git+https://github.com/roshbhatia/nu_plugin_nvim.git?ref=main";
+      url = "github:roshbhatia/nu_plugin_nvim/main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

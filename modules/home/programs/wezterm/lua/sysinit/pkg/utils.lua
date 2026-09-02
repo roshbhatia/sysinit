@@ -37,10 +37,15 @@ end
 
 function M.get_nushell_args()
   local root = os.getenv("XDG_CONFIG_HOME") or (M.get_home_dir() .. "/.config")
+  local nushell_root = root .. "/nushell"
   return {
     M.get_nix_binary("nu"),
     "--config",
-    root .. "/nushell/config.nu",
+    nushell_root .. "/config.nu",
+    "--env-config",
+    nushell_root .. "/env.nu",
+    "--plugin-config",
+    nushell_root .. "/plugin.msgpackz",
   }
 end
 
