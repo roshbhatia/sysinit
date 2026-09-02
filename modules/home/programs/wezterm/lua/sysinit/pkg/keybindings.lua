@@ -25,6 +25,24 @@ local READLINE = (function()
   return both
 end)()
 
+local APP_KEYS = (function()
+  local both = {}
+  for _, name in ipairs(EDITORS) do
+    both[#both + 1] = name
+  end
+  both[#both + 1] = "slk"
+  return both
+end)()
+
+local READLINE_AND_SLK = (function()
+  local both = {}
+  for _, name in ipairs(READLINE) do
+    both[#both + 1] = name
+  end
+  both[#both + 1] = "slk"
+  return both
+end)()
+
 local TRACE_NAV = (function()
   local both = {}
   for _, name in ipairs(EDITORS) do
@@ -42,6 +60,7 @@ local TUI_SCROLL = (function()
   end
   both[#both + 1] = "traces"
   both[#both + 1] = "orc"
+  both[#both + 1] = "slk"
   return both
 end)()
 
@@ -58,7 +77,7 @@ local function create_smart_keybind(key, mods, wezterm_action, opts)
       end
 
       if opts and opts.passthrough then
-        if pane:get_user_vars().IS_NVIM == "true" then
+        if opts.passthrough_nvim ~= false and pane:get_user_vars().IS_NVIM == "true" then
           win:perform_action({ SendKey = { key = key, mods = mods } }, pane)
           return
         end
@@ -91,11 +110,14 @@ end
 local function get_pane_keys()
   local DIRECTION_KEYS = { h = "Left", j = "Down", k = "Up", l = "Right" }
   local keys = {
-    -- CTRL-v always splits; Neovim keeps blockwise Visual mode on CTRL-q.
+    -- slk owns CTRL-s/v, so top-level splits remain on CTRL-SHIFT-s/v.
     create_smart_keybind("s", "CTRL", act.SplitVertical({ domain = "CurrentPaneDomain" }), {
-      passthrough = EDITORS,
+      passthrough = APP_KEYS,
     }),
-    create_smart_keybind("v", "CTRL", act.SplitHorizontal({ domain = "CurrentPaneDomain" })),
+    create_smart_keybind("v", "CTRL", act.SplitHorizontal({ domain = "CurrentPaneDomain" }), {
+      passthrough = { "slk" },
+      passthrough_nvim = false,
+    }),
 
     create_smart_keybind("s", "CTRL|SHIFT", act.SplitPane({ direction = "Down", top_level = true }), {
       passthrough = EDITORS,
@@ -359,7 +381,10 @@ local function get_tab_keys()
 
   -- CTRL-t is fzf's file widget and readline's transpose. SUPER-t spawns the
   -- tab, so the chord loses nothing by passing through.
-  table.insert(keys, create_smart_keybind("t", "CTRL", act.SpawnTab("CurrentPaneDomain"), { passthrough = READLINE }))
+  table.insert(
+    keys,
+    create_smart_keybind("t", "CTRL", act.SpawnTab("CurrentPaneDomain"), { passthrough = READLINE_AND_SLK })
+  )
 
   table.insert(keys, create_smart_keybind("t", "SUPER", act.SpawnTab("CurrentPaneDomain")))
 
@@ -429,7 +454,7 @@ local function get_search_keys()
     create_smart_keybind("/", "CTRL", act.Search("CurrentSelectionOrEmptyString"), {
       passthrough = EDITORS,
     }),
-    create_smart_keybind("f", "CTRL", act.QuickSelect, { passthrough = EDITORS }),
+    create_smart_keybind("f", "CTRL", act.QuickSelect, { passthrough = APP_KEYS }),
     create_smart_keybind("f", "CTRL|SHIFT", act.PaneSelect),
   }
 end

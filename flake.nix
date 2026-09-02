@@ -89,6 +89,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    slk = {
+      url = "github:gammons/slk/v0.16.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nuvim = {
       url = "github:roshbhatia/nu_plugin_nvim/main";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -239,6 +244,7 @@
             "sysinit-utils"
             "orc-cli"
             "nuvim"
+            "slk"
             "ioskeleyMono"
             "wumpusMono"
             "bookerly"

@@ -55,6 +55,7 @@ in
 
       workstation = [
         ./fastfetch.nix
+        ./slk.nix
         ./wezterm
       ];
     }

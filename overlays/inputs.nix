@@ -25,6 +25,13 @@ final: _prev: {
   traces-provider-codex = inputs.traces.packages.${final.stdenv.hostPlatform.system}.provider-codex;
   traces-provider-opencode =
     inputs.traces.packages.${final.stdenv.hostPlatform.system}.provider-opencode;
+  slk = inputs.slk.packages.${final.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
+    ldflags = (old.ldflags or [ ]) ++ [
+      "-X=main.version=0.16.0"
+      "-X=main.commit=${inputs.slk.rev or "none"}"
+      "-X=main.date=${inputs.slk.lastModifiedDate or "unknown"}"
+    ];
+  });
   nuvim = inputs.nuvim.packages.${final.stdenv.hostPlatform.system}.default;
   nu-plugin-nuvim = inputs.nuvim.packages.${final.stdenv.hostPlatform.system}.nu-plugin;
   nur = {
