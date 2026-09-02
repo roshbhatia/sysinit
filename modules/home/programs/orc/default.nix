@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   pkgs,
   ...
@@ -17,11 +18,19 @@ let
       actions = {
         "session.attach" = "Build the native harness resume command";
         "session.bind" = "Detect whether the harness session is active";
+        "session.launch" = "Build the native harness launch command";
       };
       description = "Resume sessions through the registered agent harness";
       kind = "harness";
       package = pkgs.orc-provider-harness;
       priority = 100;
+    };
+    local = {
+      actions."execution.run" = "Execute a command plan as a local process";
+      description = "Execute command plans on the current machine";
+      kind = "execution";
+      package = pkgs.orc-provider-local;
+      priority = 0;
     };
     traces = {
       actions = {
@@ -47,7 +56,6 @@ let
     zmx = {
       actions = {
         "session.bind" = "Detect the current persistent process";
-        "session.launch" = "Launch a managed harness in a persistent session";
         "session.persist" = "Wrap a harness command in a persistent session";
       };
       description = "Keep harness processes available when displays close";
@@ -61,21 +69,40 @@ in
   config = {
     home.packages = [ pkgs.orc-cli ] ++ lib.mapAttrsToList (_: provider: provider.package) providers;
 
-    xdg.configFile = lib.mapAttrs' (
-      name: provider:
-      lib.nameValuePair "orc/providers/${name}.yaml" {
-        source = yamlFormat.generate "orc-provider-${name}.yaml" {
-          inherit name;
-          inherit (provider)
-            actions
-            description
-            kind
-            priority
-            ;
-          command = lib.getExe provider.package;
-          version = "orc.provider/v1";
+    xdg.configFile =
+      lib.mapAttrs' (
+        name: provider:
+        lib.nameValuePair "orc/providers/${name}.yaml" {
+          source = yamlFormat.generate "orc-provider-${name}.yaml" {
+            inherit name;
+            inherit (provider)
+              actions
+              description
+              kind
+              priority
+              ;
+            command = lib.getExe provider.package;
+            version = "orc.provider/v1";
+          };
+        }
+      ) providers
+      // {
+        "orc/config.yaml".source = yamlFormat.generate "orc-config.yaml" {
+          cache.providerTtlMs = 5000;
+          providers = {
+            directory = "${config.xdg.configHome}/orc/providers";
+            timeoutMs = 5000;
+          };
+          workflows = {
+            repository = "${config.xdg.dataHome}/orc/workflows";
+            autoCommit = true;
+            maxDepth = 10;
+          };
+          ui = {
+            refreshMs = 750;
+            inspectorPercent = 38;
+          };
         };
-      }
-    ) providers;
+      };
   };
 }
