@@ -978,11 +978,11 @@
         "systems": "systems_6"
       },
       "locked": {
-        "lastModified": 1788380645,
-        "narHash": "sha256-D49euJF90OQVLgYcj7gSDnRXWNX2264Kw2qmMt2P8Vc=",
+        "lastModified": 1788390484,
+        "narHash": "sha256-jTuga6wn5GvMqnuN/wr+etr074bvxBkKsLeUKFx7G0Y=",
         "owner": "roshbhatia",
         "repo": "orc",
-        "rev": "3eee19f1d51a82eb791de3c89808600618201acd",
+        "rev": "c96f50059fb901c009f4090a71dcd4b1dded0e83",
         "type": "github"
       },
       "original": {

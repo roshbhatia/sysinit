@@ -13,6 +13,7 @@ let
       kind = "changes";
       package = pkgs.orc-provider-changes;
       priority = 100;
+      requires.commands = [ "changes" ];
     };
     harness = {
       actions = {
@@ -42,6 +43,7 @@ let
       kind = "activity";
       package = pkgs.orc-provider-traces;
       priority = 100;
+      requires.commands = [ "traces" ];
     };
     wezterm = {
       actions = {
@@ -52,16 +54,19 @@ let
       kind = "display";
       package = pkgs.orc-provider-wezterm;
       priority = 100;
+      requires.commands = [ "wezterm" ];
     };
     zmx = {
       actions = {
         "session.bind" = "Detect the current persistent process";
         "session.persist" = "Wrap a harness command in a persistent session";
+        "session.stop" = "Stop a persistent agent process";
       };
       description = "Keep harness processes available when displays close";
       kind = "persistence";
       package = pkgs.orc-provider-zmx;
       priority = 100;
+      requires.commands = [ "zmx" ];
     };
   };
 in
@@ -82,16 +87,17 @@ in
               priority
               ;
             command = lib.getExe provider.package;
+            requires = provider.requires or { };
             version = "orc.provider/v1";
           };
         }
       ) providers
       // {
         "orc/config.yaml".source = yamlFormat.generate "orc-config.yaml" {
-          cache.providerTtlMs = 5000;
+          cache.providerTtlMs = 30000;
           providers = {
             directory = "${config.xdg.configHome}/orc/providers";
-            timeoutMs = 5000;
+            timeoutMs = 15000;
           };
           workflows = {
             repository = "${config.xdg.dataHome}/orc/workflows";
@@ -99,7 +105,8 @@ in
             maxDepth = 10;
           };
           ui = {
-            refreshMs = 750;
+            refreshMs = 5000;
+            activityRefreshMs = 10000;
             inspectorPercent = 38;
           };
         };
