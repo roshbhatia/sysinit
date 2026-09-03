@@ -164,8 +164,11 @@ in
       (
         ''
           mkdir -p "$out/bin"
-          for name in ask ${final.lib.escapeShellArgs wrappers}; do
-            ln -s "${final.ask-cli}/bin/ask" "$out/bin/$name"
+          cp -rs "${final.ask-cli}/bin/." "$out/bin/"
+          mkdir -p "$out/share"
+          cp -rs "${final.ask-cli}/share/." "$out/share/"
+          for name in ${final.lib.escapeShellArgs wrappers}; do
+            ln -s "$out/bin/ask" "$out/bin/$name"
           done
         ''
         + final.lib.optionalString (final.stdenv.buildPlatform.canExecute final.stdenv.hostPlatform) ''

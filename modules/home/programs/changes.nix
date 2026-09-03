@@ -1,5 +1,5 @@
 {
-  lib,
+  config,
   pkgs,
   ...
 }:
@@ -12,28 +12,20 @@ in
     pkgs.changes-provider-calldiff
   ];
 
-  xdg.configFile."changes/config.yaml".source = yamlFormat.generate "changes-config.yaml" {
-    color = "auto";
-    diff = {
-      command = [ ];
-      engine = "internal";
-      layout = "unified";
+  xdg.configFile = {
+    "changes/config.yaml".source = yamlFormat.generate "changes-config.yaml" {
+      color = "auto";
+      diff = {
+        command = [ ];
+        engine = "internal";
+        layout = "unified";
+      };
+      providers.directory = "${config.xdg.configHome}/changes/providers";
     };
-    providers = [
-      {
-        capabilities = [ "symbols" ];
-        command = [ (lib.getExe pkgs.changes-provider-ast-grep) ];
-        description = "Map changed lines to source symbols with ast-grep";
-        name = "symbols";
-        requires = [ (lib.getExe pkgs.ast-grep) ];
-      }
-      {
-        capabilities = [ "calls" ];
-        command = [ (lib.getExe pkgs.changes-provider-calldiff) ];
-        description = "Find call edges changed by the patch with calldiff";
-        name = "calls";
-        requires = [ (lib.getExe pkgs.calldiff) ];
-      }
-    ];
+
+    "changes/providers/ast-grep/provider.yaml".source =
+      "${pkgs.changes-provider-ast-grep}/share/changes/providers/ast-grep/provider.yaml";
+    "changes/providers/calldiff/provider.yaml".source =
+      "${pkgs.changes-provider-calldiff}/share/changes/providers/calldiff/provider.yaml";
   };
 }

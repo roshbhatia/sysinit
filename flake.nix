@@ -243,6 +243,7 @@
             "ask"
             "sysinit-utils"
             "orc-cli"
+            "orc-providers"
             "nuvim"
             "slk"
             "ioskeleyMono"

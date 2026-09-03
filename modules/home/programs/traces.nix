@@ -18,31 +18,27 @@ let
     opencode = [ "opencode" ];
   };
   sources = defaultSources // declared;
-  providerNames = lib.unique (lib.concatLists (lib.attrValues sources));
-  publicProviders = {
-    claude = {
-      command = [ (lib.getExe pkgs.traces-provider-claude) ];
-      description = "Read Claude Code transcript activity";
+  changesProvider = yamlFormat.generate "traces-provider-changes.yaml" {
+    version = "provider/v1";
+    name = "changes";
+    description = "Render repository diffs with Changes";
+    command = [ (lib.getExe pkgs.changes) ];
+    actions."diff.render" = {
+      description = "Render a Git-compatible two-file diff";
+      argv = [
+        "difftool"
+        "-color"
+        "always"
+        "-width"
+        "{{ .Width }}"
+        "{{ .Local }}"
+        "{{ .Remote }}"
+        "{{ .Merged }}"
+      ];
     };
-    codex = {
-      command = [ (lib.getExe pkgs.traces-provider-codex) ];
-      description = "Read Codex rollout activity";
-    };
-    opencode = {
-      command = [ (lib.getExe pkgs.traces-provider-opencode) ];
-      description = "Read OpenCode session activity";
-    };
+    requires.commands = [ "changes" ];
+    defaults.timeout = "10s";
   };
-  providerFor =
-    name:
-    (publicProviders.${name} or {
-      command = [ "traces-${name}" ];
-      description = "Read ${name} activity";
-    }
-    )
-    // {
-      capabilities = [ "activity" ];
-    };
 in
 {
   options.sysinit.traces.providers = mkOption {
@@ -59,9 +55,9 @@ in
       `service.name`. A harness named here replaces its built-in default rather
       than adding to it, and an empty list takes its source away.
 
-      A source is either a name traces implements itself (`claude`, `codex`,
-      `opencode`) or a name it resolves to `traces-<name>` on PATH, which is how
-      a downstream flake adds one without changing traces.
+      Each source names a provider manifest. Public harness providers ship with
+      Traces. A downstream flake can add another manifest and executable without
+      changing Traces.
 
       Leave this empty on a machine where every harness exports to the local
       collector. The defaults already read each harness that keeps its own
@@ -79,17 +75,21 @@ in
 
     # Traces reads the file at runtime, so provider changes reach a shell that
     # was already open. Private providers remain ordinary commands on PATH.
-    xdg.configFile."traces/config.yaml".source = yamlFormat.generate "traces-config.yaml" {
-      color = "auto";
-      diff.command = [
-        (lib.getExe pkgs.changes)
-        "difftool"
-        "$LOCAL"
-        "$REMOTE"
-        "$MERGED"
-      ];
-      providers = lib.genAttrs providerNames providerFor;
-      inherit sources;
+    xdg.configFile = {
+      "traces/config.yaml".source = yamlFormat.generate "traces-config.yaml" {
+        color = "auto";
+        diff.provider = "changes";
+        providers.directory = "${config.xdg.configHome}/traces/providers";
+        inherit sources;
+      };
+
+      "traces/providers/changes/provider.yaml".source = changesProvider;
+      "traces/providers/claude/provider.yaml".source =
+        "${pkgs.traces-provider-claude}/share/traces/providers/claude/provider.yaml";
+      "traces/providers/codex/provider.yaml".source =
+        "${pkgs.traces-provider-codex}/share/traces/providers/codex/provider.yaml";
+      "traces/providers/opencode/provider.yaml".source =
+        "${pkgs.traces-provider-opencode}/share/traces/providers/opencode/provider.yaml";
     };
   };
 }
