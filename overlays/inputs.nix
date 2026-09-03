@@ -3,12 +3,25 @@
   ...
 }:
 
+let
+  # A check phase that runs a hack/ script hits its /usr/bin/env shebang, which
+  # the Darwin sandbox resolves and the Linux one does not. Drop each call once
+  # the input patches its own shebangs.
+  patchHackShebangs =
+    pkg:
+    pkg.overrideAttrs (old: {
+      postPatch = (old.postPatch or "") + ''
+        patchShebangs hack
+      '';
+    });
+in
+
 final: _prev: {
   firefox-addons = inputs.firefox-addons.packages.${final.stdenv.hostPlatform.system};
   claude-code = inputs.nix-claude-code.packages.${final.stdenv.hostPlatform.system}.default;
   orc-cli = inputs.orc.packages.${final.stdenv.hostPlatform.system}.default;
   orc-providers = inputs.orc.packages.${final.stdenv.hostPlatform.system}.extras;
-  ask-cli = inputs.ask.packages.${final.stdenv.hostPlatform.system}.default;
+  ask-cli = patchHackShebangs inputs.ask.packages.${final.stdenv.hostPlatform.system}.default;
   changes-cli = inputs.changes.packages.${final.stdenv.hostPlatform.system}.default;
   changes-provider-ast-grep =
     inputs.changes.packages.${final.stdenv.hostPlatform.system}.provider-ast-grep;
@@ -28,8 +41,18 @@ final: _prev: {
       "-X=main.date=${inputs.slk.lastModifiedDate or "unknown"}"
     ];
   });
-  nuvim = inputs.nuvim.packages.${final.stdenv.hostPlatform.system}.default;
-  nu-plugin-nuvim = inputs.nuvim.packages.${final.stdenv.hostPlatform.system}.nu-plugin;
+  nuvim = patchHackShebangs inputs.nuvim.packages.${final.stdenv.hostPlatform.system}.default;
+  # Upstream nu-plugin symlinks the unpatched nuvim, so overriding it reaches
+  # nothing. The symlink is rebuilt here against the patched package.
+  nu-plugin-nuvim =
+    final.runCommand "nu-plugin-nuvim-0.1.0"
+      {
+        meta.mainProgram = "nu_plugin_nuvim";
+      }
+      ''
+        mkdir -p "$out/bin"
+        ln -s ${final.nuvim}/bin/nu_plugin_nuvim "$out/bin/nu_plugin_nuvim"
+      '';
   nur = {
     repos = {
       rycee = {
