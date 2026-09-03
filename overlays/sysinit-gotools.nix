@@ -172,7 +172,7 @@ in
           done
         ''
         + final.lib.optionalString (final.stdenv.buildPlatform.canExecute final.stdenv.hostPlatform) ''
-          for name in ask ${final.lib.escapeShellArgs wrappers}; do
+          for name in ${final.lib.escapeShellArgs wrappers}; do
             bash_completion="$TMPDIR/$name.bash"
             fish_completion="$TMPDIR/$name.fish"
             nu_completion="$TMPDIR/$name.nu"
