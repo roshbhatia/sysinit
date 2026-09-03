@@ -22,6 +22,7 @@ final: _prev: {
   orc-cli = inputs.orc.packages.${final.stdenv.hostPlatform.system}.default;
   orc-providers = inputs.orc.packages.${final.stdenv.hostPlatform.system}.extras;
   ask-cli = patchHackShebangs inputs.ask.packages.${final.stdenv.hostPlatform.system}.default;
+  ask-providers = inputs.ask.packages.${final.stdenv.hostPlatform.system}.extras;
   changes-cli = inputs.changes.packages.${final.stdenv.hostPlatform.system}.default;
   changes-providers = inputs.changes.packages.${final.stdenv.hostPlatform.system}.extras;
   seshy-cli = inputs.seshy.packages.${final.stdenv.hostPlatform.system}.default;
