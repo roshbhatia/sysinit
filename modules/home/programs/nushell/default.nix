@@ -28,7 +28,37 @@ let
     _name: builtins.replaceStrings [ "$HOME" "\${HOME}" ] (lib.replicate 2 config.home.homeDirectory)
   ) sessionVarsRaw;
 
-  sessionVarsCarried = builtins.removeAttrs sessionVarsExpanded [ "TERMINFO_DIRS" ];
+  # A colon-list variable appends to itself through a POSIX conditional, in two
+  # shapes: home-manager writes TERMINFO_DIRS as "<before>:$VAR${VAR:+:}<after>",
+  # and stylix writes XDG_CONFIG_DIRS as "<before>${VAR:+:$VAR}". Nushell performs
+  # neither, so each is split on its self-reference and rebuilt below in order.
+  selfAppendPatterns = name: [
+    "\$${name}\${${name}:+:}"
+    "\${${name}:+:\$${name}}"
+  ];
+
+  splitSelfAppend =
+    name: value:
+    let
+      matched = lib.filter (pattern: lib.hasInfix pattern value) (selfAppendPatterns name);
+    in
+    if matched == [ ] then
+      null
+    else
+      let
+        sides = lib.splitString (lib.head matched) value;
+        side = index: lib.filter (dir: dir != "") (lib.splitString ":" (lib.elemAt sides index));
+      in
+      {
+        before = side 0;
+        after = lib.optionals (lib.length sides > 1) (side 1);
+      };
+
+  selfAppendVars = lib.filterAttrs (_name: sides: sides != null) (
+    builtins.mapAttrs splitSelfAppend sessionVarsExpanded
+  );
+
+  sessionVarsCarried = builtins.removeAttrs sessionVarsExpanded (lib.attrNames selfAppendVars);
 
   sessionVarsUnexpanded = lib.filterAttrs (
     _name: value: builtins.match ".*[$].*" value != null
@@ -36,17 +66,20 @@ let
 
   sessionVarsJson = builtins.toJSON sessionVarsCarried;
 
-  # home-manager writes TERMINFO_DIRS as "<before>:$TERMINFO_DIRS${TERMINFO_DIRS:+:}<after>",
-  # a self-append guarded by a POSIX conditional. Both sides are read back here so
-  # the nushell line keeps the same order without parsing the conditional.
-  terminfoSides = lib.splitString "$TERMINFO_DIRS\${TERMINFO_DIRS:+:}" (
-    sessionVarsRaw.TERMINFO_DIRS or ""
-  );
-  terminfoSide =
-    index: lib.filter (dir: dir != "") (lib.splitString ":" (lib.elemAt terminfoSides index));
-  terminfoBefore = terminfoSide 0;
-  terminfoAfter = lib.optionals (lib.length terminfoSides > 1) (terminfoSide 1);
   nuList = dirs: lib.concatMapStringsSep " " (dir: "\"${dir}\"") dirs;
+
+  selfAppendLines = lib.concatStringsSep "\n" (
+    lib.mapAttrsToList (name: sides: ''
+      $env.${name} = (
+        [${nuList sides.before}]
+        | append ($env.${name}? | default "" | split row ":")
+        | append [${nuList sides.after}]
+        | where {|dir| $dir | is-not-empty }
+        | uniq
+        | str join ":"
+      )
+    '') selfAppendVars
+  );
 
   # vivid costs 10ms per startup for a string that only changes when the theme
   # does. The theme file is already a store path, so the answer is too.
@@ -166,14 +199,7 @@ in
 
         load-env (r###'${sessionVarsJson}'### | from json)
 
-        $env.TERMINFO_DIRS = (
-          [${nuList terminfoBefore}]
-          | append ($env.TERMINFO_DIRS? | default "" | split row ":")
-          | append [${nuList terminfoAfter}]
-          | where {|dir| $dir | is-not-empty }
-          | uniq
-          | str join ":"
-        )
+        ${selfAppendLines}
 
         ${lib.concatMapStringsSep "\n" (path: "path add \"${path}\"") pathsList}
 
