@@ -8,24 +8,22 @@ let
 in
 {
   home.packages = [
-    pkgs.changes-provider-ast-grep
-    pkgs.changes-provider-calldiff
+    pkgs.changes-providers
   ];
 
   xdg.configFile = {
     "changes/config.yaml".source = yamlFormat.generate "changes-config.yaml" {
       color = "auto";
       diff = {
-        command = [ ];
-        engine = "internal";
+        engine = "builtin";
         layout = "unified";
       };
       providers.directory = "${config.xdg.configHome}/changes/providers";
     };
 
     "changes/providers/ast-grep/provider.yaml".source =
-      "${pkgs.changes-provider-ast-grep}/share/changes/providers/ast-grep/provider.yaml";
+      "${pkgs.changes-providers}/share/changes/providers/ast-grep/provider.yaml";
     "changes/providers/calldiff/provider.yaml".source =
-      "${pkgs.changes-provider-calldiff}/share/changes/providers/calldiff/provider.yaml";
+      "${pkgs.changes-providers}/share/changes/providers/calldiff/provider.yaml";
   };
 }

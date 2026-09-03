@@ -42,16 +42,21 @@ let
 
   classify = builtins.readFile ./agent-classify.sh;
 
-  icons = pkgs.runCommand "agent-notify-icons" { nativeBuildInputs = [ pkgs.librsvg ]; } (
-    "mkdir -p $out\n"
-    + lib.concatStringsSep "\n" (
-      lib.mapAttrsToList (
-        name: src:
-        "rsvg-convert --width 256 --height 256 --keep-aspect-ratio --background-color '#FFFFFF' '${src}' --output \"$out/${name}.png\""
-      ) svgs
-    )
-    + "\nrsvg-convert --width 256 --height 256 --keep-aspect-ratio --background-color '#FFFFFF' '${genericSvg}' --output \"$out/agent.png\"\n"
+  joinFragments = lib.concatStringsSep "\n";
+
+  iconCommands = lib.concatStringsSep "\n" (
+    lib.mapAttrsToList (
+      name: src:
+      "rsvg-convert --width 256 --height 256 --keep-aspect-ratio --background-color '#FFFFFF' '${src}' --output \"$out/${name}.png\""
+    ) svgs
   );
+
+  icons = pkgs.runCommand "agent-notify-icons" { nativeBuildInputs = [ pkgs.librsvg ]; } ''
+    mkdir -p "$out"
+    ${iconCommands}
+    rsvg-convert --width 256 --height 256 --keep-aspect-ratio \
+      --background-color '#FFFFFF' '${genericSvg}' --output "$out/agent.png"
+  '';
 
   script = pkgs.writeShellApplication {
     name = "agent-notify";
@@ -63,20 +68,15 @@ let
     ]
     ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ pkgs.alerter ];
     bashOptions = [ ];
-    text =
+    text = joinFragments [
       paths
-      + "\n"
-      + group
-      + "\n"
-      + reviewSuffix
-      + "\n"
-      + identity
-      + "\n"
-      + labels
-      + "\n"
-      + classify
-      + "\n"
-      + builtins.readFile ./agent-notify.sh;
+      group
+      reviewSuffix
+      identity
+      labels
+      classify
+      (builtins.readFile ./agent-notify.sh)
+    ];
   };
 
   promptScript = pkgs.writeShellApplication {
@@ -89,21 +89,17 @@ let
     ]
     ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ pkgs.alerter ];
     bashOptions = [ ];
-    text = ''
-      NOTIFY_EXE=${lib.getExe script}
-    ''
-    + "\n"
-    + paths
-    + "\n"
-    + group
-    + "\n"
-    + identity
-    + "\n"
-    + labels
-    + "\n"
-    + classify
-    + "\n"
-    + builtins.readFile ./agent-prompt.sh;
+    text = joinFragments [
+      ''
+        NOTIFY_EXE=${lib.getExe script}
+      ''
+      paths
+      group
+      identity
+      labels
+      classify
+      (builtins.readFile ./agent-prompt.sh)
+    ];
   };
 
   sessionsScript = pkgs.writeShellApplication {
@@ -116,7 +112,10 @@ let
       pkgs.seshy
     ];
     bashOptions = [ ];
-    text = paths + "\n" + builtins.readFile ./agent-sessions.sh;
+    text = joinFragments [
+      paths
+      (builtins.readFile ./agent-sessions.sh)
+    ];
   };
 
   reviewScript = pkgs.writeShellApplication {
@@ -128,7 +127,11 @@ let
       pkgs.gnugrep
       pkgs.wezterm
     ];
-    text = paths + "\n" + busyPanes + "\n" + builtins.readFile ./agent-review.sh;
+    text = joinFragments [
+      paths
+      busyPanes
+      (builtins.readFile ./agent-review.sh)
+    ];
   };
 
   specPreflight = pkgs.writeShellApplication {
@@ -153,7 +156,10 @@ let
       pkgs.findutils
       pkgs.gnugrep
     ];
-    text = paths + "\n" + builtins.readFile ./agent-refine.sh;
+    text = joinFragments [
+      paths
+      (builtins.readFile ./agent-refine.sh)
+    ];
   };
 
   syGate = pkgs.writeShellApplication {
@@ -162,13 +168,13 @@ let
       pkgs.coreutils
       pkgs.fzf
     ];
-    text = ''
-      SY_REAL=${lib.getExe' pkgs.seshy "sy"}
-    ''
-    + "\n"
-    + paths
-    + "\n"
-    + builtins.readFile ./sy-gate.sh;
+    text = joinFragments [
+      ''
+        SY_REAL=${lib.getExe' pkgs.seshy "sy"}
+      ''
+      paths
+      (builtins.readFile ./sy-gate.sh)
+    ];
   };
 
   focusScript = pkgs.writeShellApplication {
@@ -179,7 +185,10 @@ let
     ]
     ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ pkgs.alerter ];
     bashOptions = [ ];
-    text = group + "\n" + builtins.readFile ./agent-focus.sh;
+    text = joinFragments [
+      group
+      (builtins.readFile ./agent-focus.sh)
+    ];
   };
 in
 {

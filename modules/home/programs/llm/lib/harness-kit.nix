@@ -22,18 +22,26 @@
       inherit llmLib skillsLib mcpServers;
 
       mkInstructions =
-        { harness, skillsRoot }:
+        {
+          harness,
+          skillsRoot,
+          extraSections ? [ ],
+        }:
         llmLib.instructions.makeInstructions {
           inherit (skillsLib) localSkillDescriptions;
-          inherit (config.sysinit.llm.instructions) extraSections;
+          extraSections = config.sysinit.llm.instructions.extraSections ++ extraSections;
           inherit harness skillsRoot;
         };
 
       mkInstructionsWithStyle =
-        { harness, skillsRoot }:
+        {
+          harness,
+          skillsRoot,
+          extraSections ? [ ],
+        }:
         llmLib.instructions.makeInstructionsWithStyle {
           inherit (skillsLib) localSkillDescriptions;
-          inherit (config.sysinit.llm.instructions) extraSections;
+          extraSections = config.sysinit.llm.instructions.extraSections ++ extraSections;
           inherit harness skillsRoot;
         };
     };

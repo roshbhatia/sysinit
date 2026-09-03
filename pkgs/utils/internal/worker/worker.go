@@ -1,7 +1,9 @@
 package worker
 
 import (
+	"bytes"
 	"context"
+	_ "embed"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+	"text/template"
 	"time"
 
 	"github.com/roshbhatia/go-utils/paths"
@@ -361,58 +364,41 @@ func (w *workspace) discard(name string) {
 	}
 }
 
-func (w *workspace) writeBody(path, name, dir, command string) error {
-	body := fmt.Sprintf(`#!/usr/bin/env zsh
-# Record an exit code however this run ends, including on a signal.
-#
-# The order in here is load-bearing, and it is the reverse of the obvious one. The
-# exit code is published LAST, because publishing it is what tells every other
-# process that this name is free: claimExact's refusal names the rc file to wait
-# for, and so does the wait timeout. Writing the code first and then deleting the
-# body left a window, measured at up to 19.7ms and hit in 20 of 20 rounds, in which
-# a successor reusing the name had already written ITS body to the same path and
-# this trap deleted it. The pane was then told to run a file that no longer existed,
-# so nothing ran, no trap fired, no exit code was ever written, and the caller
-# printed a start line and exited 0.
-finish() {
-  local code=$?
-  # The body is dead once the run is over, and nothing else would ever remove it:
-  # 13 of the 41 entries in the live superseded record are dead bodies. Measured
-  # safe, twice: zsh runs a 300-line script to completion after the script is
-  # deleted mid-run, and a trap can remove the file it is running from. It is named
-  # literally rather than as $0, because zsh sets FUNCTION_ARGZERO and $0 inside a
-  # function is the function's name.
-  rm -f %[7]s
-  # Removed only while it still names THIS run. One marker path serves the whole
-  # workspace, so a pane that handed over the worker role and kept running would
-  # otherwise delete the marker belonging to the pane that replaced it, leaving
-  # --status reporting idle for a pane that is running something.
-  [[ "$(cat %[2]s 2>/dev/null)" == %[3]s ]] && rm -f %[2]s
-%[8]s
-  print -r -- $code > %[1]s.new && mv %[1]s.new %[1]s
-}
-trap finish EXIT
-trap 'exit 130' INT
-trap 'exit 143' TERM
-trap 'exit 129' HUP
+//go:embed worker-body.zsh.tmpl
+var workerBodySource string
 
-print -r -- %[3]s > %[2]s
-dir=%[4]s
-# Quoted, so the run does not depend on the owner's zsh options: SH_WORD_SPLIT in
-# a sourced ~/.zshenv would split a directory name containing a space.
-cd -- "$dir" || { print -u2 -r -- "worker: $dir is gone"; exit %[5]d; }
-%[6]s
-`,
-		shellQuote(w.rcFile(name)),
-		shellQuote(w.runningFile()),
-		shellQuote(name),
-		shellQuote(dir),
-		directoryGone,
-		command,
-		shellQuote(path),
-		clearBlocked(),
-	)
-	return os.WriteFile(path, []byte(body), 0o700)
+var workerBodyTemplate = template.Must(template.New("worker-body").Parse(workerBodySource))
+
+type workerBodyData struct {
+	BodyPath      string
+	Command       string
+	Directory     string
+	DirectoryGone int
+	Name          string
+	RCNewPath     string
+	RCPath        string
+	RunningPath   string
+	StateReset    string
+}
+
+func (w *workspace) writeBody(path, name, dir, command string) error {
+	rcPath := w.rcFile(name)
+	data := workerBodyData{
+		BodyPath:      shellQuote(path),
+		Command:       command,
+		Directory:     shellQuote(dir),
+		DirectoryGone: directoryGone,
+		Name:          shellQuote(name),
+		RCNewPath:     shellQuote(rcPath + ".new"),
+		RCPath:        shellQuote(rcPath),
+		RunningPath:   shellQuote(w.runningFile()),
+		StateReset:    clearBlocked(),
+	}
+	var body bytes.Buffer
+	if err := workerBodyTemplate.Execute(&body, data); err != nil {
+		return fmt.Errorf("render worker body: %w", err)
+	}
+	return os.WriteFile(path, body.Bytes(), 0o700)
 }
 
 func clearBlocked() string {

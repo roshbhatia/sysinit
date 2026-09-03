@@ -80,8 +80,16 @@ var links = map[string]link{
 	"ws":               {command: "workspace"},
 }
 
+const usageHeader = `utils: the commands that used to be shell scripts
+
+Usage:
+  utils <command> [args...]
+
+Commands:
+`
+
 func usage(w *os.File) {
-	_, _ = fmt.Fprintf(w, "utils: the commands that used to be shell scripts\n\nUsage:\n  utils <command> [args...]\n\nCommands:\n")
+	_, _ = fmt.Fprint(w, usageHeader)
 	names := make([]string, 0, len(commands))
 	for name := range commands {
 		names = append(names, name)

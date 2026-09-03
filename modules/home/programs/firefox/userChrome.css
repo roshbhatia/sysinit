@@ -1,0 +1,285 @@
+/* ========== BASE16 THEME VARIABLES (from Stylix) ========== */
+:root {
+  --bg: #@base00@;
+  --bg-alt: #@base01@;
+  --bg-sel: #@base02@;
+  --fg-muted: #@base03@;
+  --fg-dim: #@base04@;
+  --fg: #@base05@;
+  --fg-bright: #@base06@;
+  --accent: #@base0D@;
+  --accent-alt: #@base0E@;
+  --error: #@base08@;
+  --warning: #@base0A@;
+  --success: #@base0B@;
+  --info: #@base0D@;
+
+  --opacity: @opacity@;
+  --blur-amount: @blur@px;
+  --tab-border-radius: 6px !important;
+}
+
+/* ========== TYPOGRAPHY ========== */
+/* font-variant-ligatures: none — WumpusMono packs programming ligatures
+   into the standard `liga` feature, so URLs/tab titles render `=>`, `!=`,
+   `fi` etc. as ligatures unless we opt out at the chrome level. */
+* {
+  font-family: "@monospace-font@", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-variant-ligatures: none !important;
+}
+
+/* ========== TOOLBAR ========== */
+#navigator-toolbox {
+  background-color: var(--bg) !important;
+  border: 0px !important;
+}
+
+#navigator-toolbox::after {
+  display: none !important;
+}
+
+:root {
+  --toolbox-border-bottom-color: transparent !important;
+}
+
+toolbar .toolbarbutton-1 {
+  -moz-appearance: none !important;
+  appearance: none !important;
+  margin: -1px;
+  padding: 4px var(--toolbarbutton-outer-padding) 0 !important;
+  -moz-box-pack: center;
+}
+
+#nav-bar .toolbarbutton-1 {
+  padding-top: 6px !important;
+}
+
+toolbar .toolbarbutton-1,
+toolbar .toolbarbutton-text {
+  color: var(--fg) !important;
+}
+
+toolbar .toolbarbutton-1:hover {
+  background-color: var(--bg-sel) !important;
+  color: var(--fg) !important;
+}
+
+toolbar .toolbarbutton-1[open],
+toolbar .toolbarbutton-1[checked],
+toolbar .toolbarbutton-1:active {
+  background-color: var(--accent) !important;
+  color: var(--bg) !important;
+}
+
+toolbar .toolbarbutton-1:focus-visible {
+  outline: 2px solid var(--accent) !important;
+  outline-offset: 1px !important;
+}
+
+/* ========== WINDOW CONTROLS ========== */
+.titlebar-buttonbox-container { display: none !important; }
+.titlebar-placeholder[type="pre-tabs"] { display: none !important; }
+.titlebar-spacer { display: none; }
+
+/* ========== TABS ========== */
+.tabbrowser-tab::before,
+.tabbrowser-tab::after {
+  border-left: none !important;
+}
+
+.tab-background:not([selected=true]),
+.tab-background[selected="true"],
+#titlebar-buttonbox,
+#TabsToolbar,
+#nav-bar {
+  background: var(--bg) !important;
+}
+
+.tab-label {
+  -moz-box-flex: 1 !important;
+  text-align: center !important;
+  font-size: 10px !important;
+  color: var(--fg-dim) !important;
+  transition: color 150ms ease !important;
+}
+
+.tabbrowser-tab:not([selected]) .tab-label {
+  color: var(--fg-dim) !important;
+}
+
+.tabbrowser-tab:not([selected]):hover .tab-label {
+  color: var(--fg) !important;
+}
+
+#TabsToolbar .tabbrowser-tab[selected] .tab-label {
+  color: var(--fg) !important;
+  font-weight: bold !important;
+  font-size: 10px !important;
+}
+
+.tabbrowser-tab[selected] {
+  background-color: var(--bg-alt) !important;
+  border-bottom: 2px solid var(--accent) !important;
+}
+
+.tabbrowser-tab:not([pinned]):not(:hover) .tab-close-button {
+  visibility: collapse !important;
+}
+
+.tabbrowser-tab:not([pinned]):hover .tab-close-button {
+  visibility: visible !important;
+  display: block !important;
+}
+
+/* ========== SCROLLBAR ========== */
+scrollbar {
+  -moz-appearance: none !important;
+  background: transparent !important;
+  width: 0px !important;
+}
+
+* {
+  scrollbar-width: thin !important;
+  scrollbar-color: var(--fg-dim) transparent !important;
+}
+
+/* ========== URL BAR ========== */
+#urlbar-container {
+  min-width: 600px !important;
+  flex: 1 !important;
+  padding-top: 6px !important;
+  margin-top: 2px !important;
+}
+
+#urlbar {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+#urlbar-background {
+  background: var(--bg-alt) !important;
+  border: 1px solid var(--bg-sel) !important;
+  border-radius: 4px !important;
+  transition: border-color 150ms ease !important;
+}
+
+#urlbar:focus-within > #urlbar-background {
+  border-color: var(--accent) !important;
+}
+
+#page-action-buttons { display: none !important; }
+
+#urlbar .urlbar-input,
+#urlbar .urlbar-input-box input {
+  color: var(--fg) !important;
+  caret-color: var(--accent) !important;
+}
+
+#urlbar .urlbar-input::selection {
+  background-color: var(--accent) !important;
+  color: var(--bg) !important;
+}
+
+.urlbar-input-box > .urlbar-input::placeholder { opacity: 0 !important; }
+
+#urlbar-results { background-color: var(--bg-alt) !important; }
+
+.urlbarView-row {
+  background-color: var(--bg-alt) !important;
+  color: var(--fg) !important;
+}
+
+.urlbarView-row:hover,
+.urlbarView-row[selected] {
+  background-color: var(--bg-sel) !important;
+  color: var(--fg) !important;
+}
+
+.urlbarView-title,
+.urlbarView-action { color: var(--fg) !important; }
+.urlbarView-url { color: var(--fg-dim) !important; }
+
+/* ========== HIDE CLUTTER ========== */
+#identity-box.extensionPage #identity-icon-labels,
+#identity-box.extensionPage #identity-icon-label {
+  visibility: collapse !important;
+}
+#tracking-protection-icon-container { visibility: collapse !important; }
+#identity-icon { visibility: visible !important; }
+#home-button, #reload-button { display: none !important; }
+#alltabs-button { display: none !important; }
+#identity-permission-box,
+#star-button-box,
+#identity-icon-box,
+#picture-in-picture-button,
+#reader-mode-button,
+#translations-button { display: none !important; }
+#urlbar .search-one-offs { display: none !important; }
+
+.bookmark-item > .toolbarbutton-icon { display: none !important; }
+
+/* ========== FIND BAR ========== */
+#findbar {
+  background-color: var(--bg-alt) !important;
+  color: var(--fg) !important;
+  border-color: var(--bg-sel) !important;
+}
+
+#findbar-textbox, #findbar input {
+  background-color: var(--bg) !important;
+  color: var(--fg) !important;
+  border-color: var(--bg-sel) !important;
+}
+
+#findbar button:hover { background-color: var(--bg-sel) !important; }
+#findbar .found { background-color: var(--success) !important; color: var(--bg) !important; }
+#findbar .notfound { background-color: var(--error) !important; color: var(--bg) !important; }
+
+/* ========== CONTEXT MENUS ========== */
+menupopup,
+#main-menubar > menu > menupopup,
+#context-navigation {
+  color: var(--fg) !important;
+  padding: 2px !important;
+  background-color: var(--bg-alt) !important;
+  border-color: var(--fg-dim) !important;
+  border-radius: 4px !important;
+}
+
+menulist, menuitem, menu {
+  min-height: 1.8em !important;
+  color: var(--fg) !important;
+  -moz-appearance: none !important;
+}
+
+menu:hover, menu[_moz-menuactive], menuitem:hover, menuitem[_moz-menuactive] {
+  background-color: var(--bg-sel) !important;
+  color: var(--fg) !important;
+}
+
+menu[disabled="true"], menuitem[disabled="true"] {
+  color: var(--fg-dim) !important;
+  opacity: 0.6 !important;
+}
+
+/* ========== NOTIFICATIONS ========== */
+.notification, .infobar {
+  background-color: var(--bg-alt) !important;
+  color: var(--fg) !important;
+}
+
+/* ========== TOOLTIPS ========== */
+tooltip {
+  -moz-appearance: none !important;
+  color: var(--fg) !important;
+  background-color: var(--bg-alt) !important;
+  padding: 6px !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+}
+
+/* ========== CONTENT AREA ========== */
+.browserContainer { background-color: var(--bg) !important; }
+
+#nav-bar toolbarspring { display: none !important; }

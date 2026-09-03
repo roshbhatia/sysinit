@@ -104,21 +104,21 @@ in
   programs.codex = {
     enable = true;
     enableMcpIntegration = true;
-    context =
-      kit.mkInstructions {
-        harness = "codex";
-        skillsRoot = "~/.claude/skills";
-      }
-      + ''
-
-
-        Codex's MCP client does not support Slack's dynamic auth flow. If you
-        need Slack context or need to send a Slack message, ask Claude Code to do
-        it with `claude -p '<your Slack task>'` because Claude has Slack MCP
-        access configured.
-      ''
-      + "\n## Output Style\n\n"
-      + kit.llmLib.instructions.outputStyleRules;
+    context = kit.mkInstructionsWithStyle {
+      harness = "codex";
+      skillsRoot = "~/.claude/skills";
+      extraSections = [
+        {
+          title = "Slack";
+          body = ''
+            Codex's MCP client does not support Slack's dynamic auth flow. If you
+            need Slack context or need to send a Slack message, ask Claude Code to do
+            it with `claude -p '<your Slack task>'` because Claude has Slack MCP
+            access configured.
+          '';
+        }
+      ];
+    };
     plugins = [ ];
 
     profiles = codexProfiles;

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+@agentSessions@ 2>/dev/null |
+  @jq@ --compact-output --from-file @filter@ 2>/dev/null ||
+  printf '%s\n' '{"text":""}'

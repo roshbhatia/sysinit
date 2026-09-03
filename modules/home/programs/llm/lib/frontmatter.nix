@@ -1,4 +1,33 @@
 { lib }:
+let
+  renderValue =
+    indent: value:
+    if builtins.isAttrs value then
+      "\n"
+      + lib.concatStringsSep "\n" (
+        lib.mapAttrsToList (
+          name: nested:
+          let
+            separator = if builtins.isAttrs nested then "" else " ";
+          in
+          "${indent}  ${name}:${separator}${renderValue "${indent}  " nested}"
+        ) value
+      )
+    else
+      builtins.toJSON value;
+
+  renderFields =
+    fields:
+    lib.concatStringsSep "\n" (
+      lib.mapAttrsToList (
+        name: value:
+        let
+          separator = if builtins.isAttrs value then "" else " ";
+        in
+        "${name}:${separator}${renderValue "" value}"
+      ) (lib.filterAttrs (_name: value: value != null) fields)
+    );
+in
 rec {
   expandIncludes =
     { name, sharedDir }:
@@ -56,11 +85,11 @@ rec {
 
       closeIdx =
         let
-          found = lib.lists.findFirstIndex (l: l == "---") null rest;
+          found = lib.lists.findFirstIndex (line: line == "---") null rest;
         in
         if found == null then throw "skill '${name}': frontmatter fence is never closed" else found;
 
-      fmLines = lib.filter (l: l != "") (lib.take closeIdx rest);
+      fmLines = lib.filter (line: line != "") (lib.take closeIdx rest);
       afterFence = lib.drop (closeIdx + 1) rest;
       bodyLines =
         if afterFence != [ ] && builtins.head afterFence == "" then
@@ -71,15 +100,21 @@ rec {
       toPair =
         line:
         let
-          m = builtins.match "([^:]+): (.*)" line;
+          match = builtins.match "([^:]+): (.*)" line;
         in
-        if m == null then
+        if match == null then
           throw "skill '${name}': frontmatter line is not a flat `key: value` pair: ${line}"
         else
-          lib.nameValuePair (builtins.elemAt m 0) (builtins.elemAt m 1);
+          lib.nameValuePair (builtins.elemAt match 0) (builtins.elemAt match 1);
     in
     {
       attrs = builtins.listToAttrs (map toPair fmLines);
       body = lib.concatStringsSep "\n" bodyLines;
     };
+
+  render = fields: ''
+    ---
+    ${renderFields fields}
+    ---
+  '';
 }

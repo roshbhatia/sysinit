@@ -8,6 +8,7 @@ local ui_session_tree = require("sysinit.pkg.ui.session_tree")
 local ui_sessions = require("sysinit.pkg.ui.sessions")
 local ui_statusbar = require("sysinit.pkg.ui.statusbar")
 local ui_tabtitle = require("sysinit.pkg.ui.tabtitle")
+local ui_windowtitle = require("sysinit.pkg.ui.windowtitle")
 local ui_switcher = require("sysinit.pkg.ui.switcher")
 local ui_rollup = require("sysinit.pkg.ui.rollup")
 
@@ -445,6 +446,15 @@ function M.setup(config)
       ribbon_ok = ribbon_ok,
       ribbon = ribbon,
     })
+  end)
+
+  wezterm.on("format-window-title", function(tab, pane)
+    local workspace = ""
+    pcall(function()
+      local window = wezterm.mux.get_window(tab.window_id)
+      workspace = window and window:get_workspace() or ""
+    end)
+    return ui_windowtitle.format(tab, pane, workspace)
   end)
 
   local hyperlink_rules = wezterm.default_hyperlink_rules()

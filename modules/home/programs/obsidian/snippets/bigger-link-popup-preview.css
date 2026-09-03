@@ -1,0 +1,10 @@
+.popover.hover-popover {
+  transform: scale(0.8);
+  max-height: 800px;
+  min-height: 100px;
+  width: 500px;
+}
+
+.popover.hover-popover .markdown-embed {
+  height: 800px;
+}

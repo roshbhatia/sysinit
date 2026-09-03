@@ -1,0 +1,18 @@
+#!/usr/bin/env zsh
+finish() {
+  local code=$?
+  rm -f {{.BodyPath}}
+  [[ "$(cat {{.RunningPath}} 2>/dev/null)" == {{.Name}} ]] && rm -f {{.RunningPath}}
+{{.StateReset}}
+  # Publish the exit code last so a successor cannot reuse the name too early.
+  print -r -- $code > {{.RCNewPath}} && mv {{.RCNewPath}} {{.RCPath}}
+}
+trap finish EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+trap 'exit 129' HUP
+
+print -r -- {{.Name}} > {{.RunningPath}}
+dir={{.Directory}}
+cd -- "$dir" || { print -u2 -r -- "worker: $dir is gone"; exit {{.DirectoryGone}}; }
+{{.Command}}

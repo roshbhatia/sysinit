@@ -106,6 +106,20 @@ let
       builtins.readFile ./functions.nu
     )
   );
+
+  completersConfig =
+    builtins.replaceStrings
+      [
+        "@timeout@"
+        "@fish@"
+        "@carapace@"
+      ]
+      [
+        "${pkgs.coreutils}/bin/timeout"
+        fishBin
+        carapaceBin
+      ]
+      (builtins.readFile ./completers.nu.tmpl);
 in
 {
   assertions = [
@@ -203,97 +217,9 @@ in
 
         ${lib.concatMapStringsSep "\n" (path: "path add \"${path}\"") pathsList}
 
-        $env.CARAPACE_LENIENT = "1"
-        $env.CARAPACE_BRIDGES = "zsh,fish,bash,inshellisense"
         use std/dirs shells-aliases *
 
-        let fish_completer = {|spans: list<string>|
-          let command = ($spans | str replace --all "'" "\\'" | str join " ")
-          let result = (
-            do {
-              ${pkgs.coreutils}/bin/timeout 2s ${fishBin} --command $"complete '--do-complete=($command)'"
-            }
-            | complete
-          )
-
-          if $result.exit_code != 0 or ($result.stdout | str trim | is-empty) {
-            return null
-          }
-
-          try {
-            $result.stdout
-            | from tsv --flexible --noheaders --no-infer
-            | rename value description
-            | update value {|row|
-              let value = $row.value
-              let needs_quote = ["\\" " " "[" "]" "(" ")" "\t" "'" '"' "`"] | any {$in in $value}
-              if $needs_quote and ($value | path exists) {
-                let expanded = if ($value | str starts-with "~") {
-                  $value | path expand --no-symlink
-                } else {
-                  $value
-                }
-                $'"($expanded | str replace --all '"' '\\"')"'
-              } else {
-                $value
-              }
-            }
-          } catch {
-            null
-          }
-        }
-
-        let carapace_completer = {|spans: list<string>|
-          let kubectl_alias = $spans.0 in ["k", "kubecolor"]
-          let spans = if $kubectl_alias {
-            $spans | skip 1 | prepend "kubectl"
-          } else {
-            $spans
-          }
-
-          # Kubectl may query the current cluster for dynamic results. Keep a
-          # failed cluster lookup below the delay a key press can expose.
-          let completion_timeout = if $kubectl_alias { "0.25s" } else { "3s" }
-
-          let result = (
-            do { ${pkgs.coreutils}/bin/timeout $completion_timeout ${carapaceBin} $spans.0 nushell ...$spans }
-            | complete
-          )
-
-          if $result.exit_code != 0 { return null }
-
-          try { $result.stdout | from json } catch { null }
-        }
-
-        let external_completer = {|spans: list<string>|
-          let expanded_alias = (
-            scope aliases
-            | where name == $spans.0
-            | get -o 0.expansion
-          )
-          let spans = if $expanded_alias != null {
-            $spans
-            | skip 1
-            | prepend ($expanded_alias | split row " " | take 1)
-          } else {
-            $spans
-          }
-
-          let primary = match $spans.0 {
-            nu | git => (do $fish_completer $spans)
-            _ => (do $carapace_completer $spans)
-          }
-
-          if $primary == null or ($primary | is-empty) {
-            do $fish_completer $spans
-          } else {
-            $primary
-          }
-        }
-
-        $env.config.completions.external.enable = true
-        $env.config.completions.external.max_results = 100
-        $env.config.completions.external.completer = $external_completer
+        ${completersConfig}
 
         source ${ompInitFile}
         # The baked script pins the id it was built with, so every pane would

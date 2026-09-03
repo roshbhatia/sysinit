@@ -1,0 +1,13 @@
+.markdown-preview-view img {
+  display: block;
+  margin-top: 20pt;
+  margin-bottom: 20pt;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+  transition: transform 0.25s ease;
+}
+
+.markdown-preview-view img:hover {
+  transform: scale(2);
+}

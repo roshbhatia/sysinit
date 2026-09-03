@@ -306,6 +306,7 @@
               pkgs.taplo
               pkgs.typescript
               pkgs.eslint
+              pkgs.prettier
               pkgs.yamllint
               pkgs.vale
             ];

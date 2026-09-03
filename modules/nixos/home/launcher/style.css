@@ -1,0 +1,104 @@
+@define-color window_bg_color #@background@;
+@define-color accent_bg_color #@accent@;
+@define-color theme_fg_color #@foreground@;
+@define-color error_bg_color #@error@;
+@define-color error_fg_color #@background@;
+
+* {
+  all: unset;
+  font-family: "@font@", "Symbols Nerd Font Mono";
+  font-size: 13px;
+}
+
+scrollbar {
+  opacity: 0;
+}
+
+.box-wrapper {
+  background: alpha(@window_bg_color, 0.96);
+  border: 1px solid #@background-selection@;
+  border-radius: 0;
+  padding: 16px;
+}
+
+.input {
+  caret-color: @theme_fg_color;
+  color: @theme_fg_color;
+  background: #@background-alt@;
+  padding: 10px;
+}
+
+.input placeholder {
+  color: #@foreground-muted@;
+}
+
+.input selection {
+  background: #@background-selection@;
+}
+
+.list {
+  color: @theme_fg_color;
+}
+
+.item-box {
+  border-radius: 0;
+  padding: 8px 10px;
+}
+
+child:selected .item-box,
+row:selected .item-box {
+  background: #@background-selection@;
+  border-left: 2px solid @accent_bg_color;
+}
+
+.item-subtext {
+  font-size: 12px;
+  color: #@foreground-dim@;
+}
+
+.item-image-text {
+  font-size: 24px;
+}
+
+.symbols .item-image {
+  font-size: 24px;
+}
+
+.calc .item-text {
+  font-size: 20px;
+  color: #@warning@;
+}
+
+.placeholder,
+.elephant-hint {
+  color: #@foreground-muted@;
+}
+
+.preview {
+  border: 1px solid #@background-selection@;
+  border-radius: 0;
+  color: @theme_fg_color;
+}
+
+.keybinds {
+  padding-top: 10px;
+  border-top: 1px solid #@background-selection@;
+  font-size: 12px;
+  color: #@foreground-dim@;
+}
+
+.keybind-bind {
+  text-transform: lowercase;
+  color: #@foreground-muted@;
+}
+
+.keybind-label {
+  padding: 2px 4px;
+  border: 1px solid #@foreground-muted@;
+}
+
+.error {
+  padding: 10px;
+  background: @error_bg_color;
+  color: @error_fg_color;
+}

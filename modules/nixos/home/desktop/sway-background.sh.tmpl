@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+background_file="$1"
+fallback="$2"
+
+if [[ -f "${background_file}" ]]; then
+  wallpaper="${background_file}"
+else
+  wallpaper="${fallback}"
+fi
+
+@swaymsg@ output '*' bg "${wallpaper}" fill

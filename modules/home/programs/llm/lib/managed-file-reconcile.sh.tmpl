@@ -1,0 +1,197 @@
+@EMPTY_MANAGED_COMMENT@@RECONCILE_HELPER_DIRECTIVE@to_json() {
+  local raw
+  raw="$(
+    case "$2" in
+      json) jq '.' "$1" ;;
+      yaml) yq -p yaml -o json '.' "$1" ;;
+      toml) yq -p toml -o json '.' "$1" ;;
+    esac
+  )" || return 1
+  if [ "$(printf '%s' "$raw" | jq -s 'length')" != "1" ]; then
+    return 1
+  fi
+  if [ "$(printf '%s' "$raw" | jq -r 'type')" != "object" ]; then
+    return 1
+  fi
+  printf '%s\n' "$raw"
+}
+
+@RECONCILE_HELPER_DIRECTIVE@from_json() {
+  case "$1" in
+    json) jq '.' ;;
+    yaml) yq -p json -o yaml '... style=""' ;;
+    toml) yq -p json -o toml '.' ;;
+  esac
+}
+
+@FORGET_DIRECTIVE@forget_base() {
+  local target="$HOME/$1"
+  local base_name
+  local sidecar
+  base_name="$(basename "$target")"
+  case "$base_name" in
+    .*) sidecar="$(dirname "$target")/$base_name.nix-base" ;;
+    *) sidecar="$(dirname "$target")/.$base_name.nix-base" ;;
+  esac
+  if [ -e "$sidecar" ]; then
+    rm -f "$sidecar"
+    echo "managed-file: dropped the base for $1 (no longer managed)"
+  fi
+}
+
+@RECONCILE_HELPER_DIRECTIVE@reconcile() {
+  local name="$1"
+  local relative_path="$2"
+  local format="$3"
+  local declared_file="$4"
+  local declared_format="$5"
+  local schema="$6"
+  local enforced_paths="$7"
+  local retired_paths="$8"
+  local create="$9"
+  local target="$HOME/$relative_path"
+  local sidecar
+  local base_name
+  base_name="$(basename "$target")"
+  case "$base_name" in
+    .*) sidecar="$(dirname "$target")/$base_name.nix-base" ;;
+    *) sidecar="$(dirname "$target")/.$base_name.nix-base" ;;
+  esac
+  mkdir -p "$(dirname "$target")"
+
+  local staged_file
+  local result_json
+  if ! staged_file="$(mktemp "$target.tmp.XXXXXX")" || [ -z "$staged_file" ]; then
+    echo "managed-file: $name could not create a temp file beside $relative_path" >&2
+    return 1
+  fi
+  if ! result_json="$(mktemp)" || [ -z "$result_json" ]; then
+    rm -f "$staged_file"
+    echo "managed-file: $name could not create a temp file" >&2
+    return 1
+  fi
+  # shellcheck disable=SC2064
+  trap "rm -f '$staged_file' '$staged_file.disk' '$staged_file.disk.s' '$staged_file.base' '$staged_file.base.s' '$staged_file.base.new' '$staged_file.new' '$staged_file.new.s' '$staged_file.merged' '$result_json'" RETURN
+
+  local declared_json="$staged_file.new"
+  if ! to_json "$declared_file" "$declared_format" > "$declared_json"; then
+    echo "managed-file: $name cannot parse its own declared content as $declared_format" >&2
+    return 1
+  fi
+
+  local is_store_link=0
+  if [ -L "$target" ]; then
+    case "$(readlink "$target")" in
+      /nix/store/*) is_store_link=1 ;;
+      *)
+        echo "managed-file: $name refuses $relative_path: it is a symlink to $(readlink "$target"), which this module does not own." >&2
+        echo "managed-file: replace it with a regular file if Nix should manage it." >&2
+        return 1
+        ;;
+    esac
+  fi
+
+  if [ "$create" = "create" ] && [ -f "$target" ] && [ ! -s "$target" ]; then
+    rm -f "$target"
+  fi
+
+  if [ "$is_store_link" = 1 ] || [ ! -e "$target" ]; then
+    if [ "$create" != "create" ]; then
+      if [ "$is_store_link" = 1 ]; then
+        echo "managed-file: $name leaves $relative_path alone: it is a store symlink and createIfMissing is false." >&2
+      fi
+      return 0
+    fi
+    if ! cp "$declared_json" "$result_json"; then
+      echo "managed-file: $name could not stage content for $relative_path" >&2
+      return 1
+    fi
+    echo "managed-file: $name seeded $relative_path"
+  elif [ ! -f "$target" ]; then
+    echo "managed-file: $name refuses $relative_path: it exists but is not a regular file." >&2
+    return 1
+  elif [ ! -e "$sidecar" ]; then
+    if ! to_json "$target" "$format" > "$staged_file.disk"; then
+      echo "managed-file: $name cannot parse $relative_path as $format" >&2
+      return 1
+    fi
+    if ! jq -S -s --argjson retired_paths "$retired_paths" -f @ADOPT_FILE@ \
+      "$staged_file.disk" "$declared_json" > "$result_json"; then
+      echo "managed-file: $name could not adopt $relative_path" >&2
+      return 1
+    fi
+    echo "managed-file: $name adopted $relative_path (no base yet)"
+  else
+    if ! to_json "$sidecar" "$format" > "$staged_file.base"; then
+      echo "managed-file: $name has an unreadable base at $sidecar" >&2
+      echo "managed-file: $relative_path left untouched. Delete the base to re-adopt." >&2
+      return 1
+    fi
+    if ! to_json "$target" "$format" > "$staged_file.disk"; then
+      echo "managed-file: $name cannot parse $relative_path as $format" >&2
+      return 1
+    fi
+    if ! jq --argjson retired_paths "$retired_paths" 'delpaths($retired_paths)' \
+      "$staged_file.disk" > "$staged_file.disk.r"; then
+      echo "managed-file: $name could not drop the retired keys for $relative_path" >&2
+      return 1
+    fi
+    mv "$staged_file.disk.r" "$staged_file.disk"
+
+    if ! jq --argjson enforced_paths "$enforced_paths" 'delpaths($enforced_paths)' \
+      "$staged_file.base" > "$staged_file.base.s" ||
+      ! jq --argjson enforced_paths "$enforced_paths" 'delpaths($enforced_paths)' \
+        "$staged_file.disk" > "$staged_file.disk.s" ||
+      ! jq --argjson enforced_paths "$enforced_paths" 'delpaths($enforced_paths)' \
+        "$declared_json" > "$staged_file.new.s"; then
+      echo "managed-file: $name could not separate the enforced blocks for $relative_path" >&2
+      return 1
+    fi
+    if ! jq -s -f @MERGE_FILE@ "$staged_file.base.s" "$staged_file.disk.s" "$staged_file.new.s" > "$staged_file.merged"; then
+      echo "managed-file: $name could not reconcile $relative_path; it is left untouched" >&2
+      return 1
+    fi
+    if ! jq -S -s --argjson enforced_paths "$enforced_paths" -f @APPLY_ENFORCED_FILE@ \
+      "$staged_file.merged" "$declared_json" "$staged_file.disk" > "$result_json"; then
+      echo "managed-file: $name could not apply the enforced blocks for $relative_path" >&2
+      return 1
+    fi
+  fi
+
+  if [ "$schema" != "-" ]; then
+    if ! check-jsonschema --schemafile "$schema" "$result_json" > /dev/null 2>&1; then
+      echo "managed-file: $name failed schema validation against $schema" >&2
+      check-jsonschema --schemafile "$schema" "$result_json" >&2 || true
+      return 1
+    fi
+  fi
+
+  if ! from_json "$format" < "$result_json" > "$staged_file" || [ ! -s "$staged_file" ]; then
+    echo "managed-file: $name could not render $relative_path as $format" >&2
+    return 1
+  fi
+
+  if ! from_json "$format" < "$declared_json" > "$staged_file.base.new" || [ ! -s "$staged_file.base.new" ]; then
+    echo "managed-file: $name could not render the base for $relative_path" >&2
+    return 1
+  fi
+
+  if [ -L "$target" ]; then
+    rm -f "$target"
+  fi
+  if ! mv "$staged_file" "$target"; then
+    echo "managed-file: $name could not install $relative_path" >&2
+    return 1
+  fi
+  chmod u+w "$target" || true
+  if ! mv "$staged_file.base.new" "$sidecar"; then
+    echo "managed-file: $name installed $relative_path but could not write the base at $sidecar" >&2
+    echo "managed-file: the next activation re-applies from the older base; no data is lost" >&2
+    return 1
+  fi
+}
+
+result=0
+@FORGET_CALLS@
+@RECONCILE_CALLS@
+exit "$result"

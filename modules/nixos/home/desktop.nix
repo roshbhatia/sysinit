@@ -15,8 +15,79 @@ let
     url = "https://wallpapercave.com/wp/wp12329549.png";
     sha256 = "sha256-9R3cDgd1VslCF6mG6jBO64MEdRjCGzWE4m/dAjEixzk=";
   };
+
+  renderTemplate =
+    path: variables:
+    let
+      names = builtins.attrNames variables;
+    in
+    builtins.replaceStrings (map (name: "@${name}@") names) (map (
+      name: toString variables.${name}
+    ) names) (builtins.readFile path);
+
+  renderCssTemplate =
+    path: variables:
+    let
+      names = builtins.attrNames variables;
+    in
+    builtins.replaceStrings (map (name: "__${name}__") names) (map (
+      name: toString variables.${name}
+    ) names) (builtins.readFile path);
+
+  swayBackgroundName = "sysinit-sway-background";
+  swayBackground = pkgs.writeTextFile {
+    name = swayBackgroundName;
+    destination = "/bin/${swayBackgroundName}";
+    executable = true;
+    text = renderTemplate ./desktop/sway-background.sh.tmpl {
+      swaymsg = "${pkgs.sway}/bin/swaymsg";
+    };
+  };
+  swayBackgroundCommand = lib.escapeShellArgs [
+    "${swayBackground}/bin/${swayBackgroundName}"
+    "${config.home.homeDirectory}/.background-image"
+    (toString wallpaper)
+  ];
+
+  waybarAgentSessionsFilter = pkgs.writeText "waybar-agent-sessions.jq" (
+    builtins.readFile ./desktop/waybar-agent-sessions.jq
+  );
+  waybarAgentSessionsName = "sysinit-waybar-agent-sessions";
+  waybarAgentSessions = pkgs.writeTextFile {
+    name = waybarAgentSessionsName;
+    destination = "/bin/${waybarAgentSessionsName}";
+    executable = true;
+    text = renderTemplate ./desktop/waybar-agent-sessions.sh.tmpl {
+      agentSessions = "${pkgs.sysinit-utils}/bin/agent-sessions";
+      filter = waybarAgentSessionsFilter;
+      jq = "${pkgs.jq}/bin/jq";
+    };
+  };
+
+  waybarStyle = renderCssTemplate ./desktop/waybar.css.tmpl {
+    inherit (c)
+      base00
+      base01
+      base02
+      base03
+      base04
+      base05
+      base08
+      base0A
+      base0B
+      base0D
+      ;
+    font = config.sysinit.theme.font.monospace;
+  };
 in
 {
+  assertions = [
+    {
+      assertion = !(lib.hasInfix "__base" waybarStyle || lib.hasInfix "__font__" waybarStyle);
+      message = "the rendered Waybar stylesheet contains an unresolved template token";
+    }
+  ];
+
   wayland = {
     windowManager.sway = {
       enable = true;
@@ -83,7 +154,7 @@ in
           { command = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"; }
           { command = "nm-applet --indicator"; }
           {
-            command = "sh -c 'if [ -f ${config.home.homeDirectory}/.background-image ]; then swaymsg output \\* bg ${config.home.homeDirectory}/.background-image fill; else swaymsg output \\* bg ${wallpaper} fill; fi'";
+            command = swayBackgroundCommand;
           }
         ];
 
@@ -246,21 +317,7 @@ in
         export MOZ_ENABLE_WAYLAND=1
       '';
 
-      extraConfig = ''
-          animation_duration_ms 150
-
-          blur enable
-          blur_passes 2
-          blur_radius 5
-          corner_radius 0
-        smart_corner_radius off
-          shadows enable
-          shadow_blur_radius 20
-          shadow_color #0000007F
-          default_dim_inactive 0.1
-
-          layer_effects "waybar" blur enable; shadows enable
-      '';
+      extraConfig = builtins.readFile ./desktop/swayfx.conf;
     };
   };
 
@@ -297,20 +354,7 @@ in
           "custom/agent-sessions" = {
             interval = 2;
             return-type = "json";
-            exec = ''
-              \
-                            agent-sessions 2>/dev/null | ${pkgs.jq}/bin/jq -c '
-                              if .selection_state == "absent" or (.selected // "") == "" then
-                                { text: "" }
-                              else
-                                (.selected) as $sel
-                                | ( [ .sessions[] | select((.blocked // 0) > 0 and .name != $sel) ] | length ) as $n
-                                | { text: ("󰆍 " + $sel + (if $n > 0 then "  +" + ($n | tostring) else "" end)),
-                                    tooltip: ([ .sessions[] | select((.blocked // 0) > 0) | .name + ": " + (.status // "idle") ] | join("\n")),
-                                    class: .selection_state }
-                              end
-                            ' 2>/dev/null || echo '{"text":""}'
-            '';
+            exec = "${waybarAgentSessions}/bin/${waybarAgentSessionsName}";
           };
 
           "sway/mode" = {
@@ -375,90 +419,7 @@ in
         }
       ];
 
-      style = ''
-        * {
-          font-family: "${config.sysinit.theme.font.monospace}", "Symbols Nerd Font Mono";
-          font-size: 13px;
-          font-weight: 500;
-          min-height: 0;
-          border: none;
-          border-radius: 0;
-          padding: 0;
-          margin: 0;
-        }
-
-        window#waybar {
-          background-color: alpha(#${c.base00}, 0.85);
-          color: #${c.base05};
-        }
-
-        /* A stale selection is dimmed, not hidden: the heartbeat says WezTerm quit
-           while leaving its last workspace behind, and hiding it would be
-           indistinguishable from having no sessions at all. Mirrors the
-           foreground_muted the sketchybar widget uses for the same state. */
-        #custom-agent-sessions.stale {
-          color: #${c.base03};
-        }
-
-        tooltip {
-          background-color: #${c.base01};
-          color: #${c.base05};
-          border: 1px solid #${c.base02};
-          border-radius: 0;
-        }
-
-        #custom-logo {
-          padding: 0 12px;
-          color: #${c.base0D};
-          font-size: 15px;
-        }
-
-        #mode {
-          padding: 0 10px;
-          color: #${c.base00};
-          background-color: #${c.base0A};
-          font-weight: bold;
-        }
-
-        #window {
-          padding: 0 10px;
-          color: #${c.base04};
-          font-style: italic;
-        }
-
-        #workspaces button {
-          padding: 0 8px;
-          color: #${c.base03};
-          background: transparent;
-        }
-
-        #workspaces button.focused {
-          color: #${c.base05};
-          font-weight: bold;
-          border-bottom: 2px solid #${c.base0D};
-        }
-
-        #workspaces button.urgent {
-          color: #${c.base00};
-          background-color: #${c.base08};
-        }
-
-        #workspaces button:hover {
-          color: #${c.base05};
-          background: alpha(#${c.base02}, 0.5);
-        }
-
-        #clock, #battery, #pulseaudio {
-          padding: 0 10px;
-          color: #${c.base05};
-          border-left: 1px solid alpha(#${c.base02}, 0.5);
-        }
-
-        #battery.warning { color: #${c.base0A}; }
-        #battery.critical { color: #${c.base08}; }
-        #battery.charging { color: #${c.base0B}; }
-        #pulseaudio.muted { color: #${c.base03}; }
-      '';
+      style = waybarStyle;
     };
   };
 
@@ -474,14 +435,8 @@ in
       size = 16;
       gtk.enable = true;
     };
-    file.".local/share/nemo/actions/open-terminal.nemo_action".text = ''
-      [Nemo Action]
-      Active=true
-      Name=Open Terminal Here
-      Exec=wezterm start -e zsh -c "cd %f && zsh"
-      Selection=Any
-      Extensions=any;
-    '';
+    file.".local/share/nemo/actions/open-terminal.nemo_action".source =
+      ./desktop/open-terminal.nemo_action;
   };
 
   dconf.settings = {

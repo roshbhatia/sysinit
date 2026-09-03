@@ -17,33 +17,14 @@ let
   # Hammerspoon launcher reaches it.
   sy = "/etc/profiles/per-user/${config.home.username}/bin/sy";
 
-  # Every dynamic menu reads one tab-separated line per row. `jsonDecode` is a
-  # Lua global elephant sets, but the provider's own README names it
-  # `jsonDecodes`, and neither is covered by a test. A `@tsv` line and a
-  # string split have no such ambiguity, and jq is already a dependency here.
-  splitter = ''
-    local function fields(line)
-      local out = {}
-      for part in string.gmatch(line .. "\t", "([^\t]*)\t") do
-        out[#out + 1] = part
-      end
-      return out
-    end
+  # TSV avoids elephant's inconsistently named JSON decoder global.
+  menuPrelude = builtins.readFile ./launcher/menu-prelude.lua;
 
-    local function lines(cmd)
-      local handle = io.popen(cmd .. " 2>/dev/null")
-      if handle == nil then
-        return {}
-      end
-      local out = handle:read("*all")
-      handle:close()
-      local rows = {}
-      for line in string.gmatch(out or "", "[^\n]+") do
-        rows[#rows + 1] = fields(line)
-      end
-      return rows
-    end
-  '';
+  render =
+    path: replacements:
+    lib.replaceStrings (lib.attrNames replacements) (map (name: replacements.${name}) (
+      lib.attrNames replacements
+    )) (builtins.readFile path);
 
 in
 {
@@ -79,83 +60,24 @@ in
       history = true
     '';
 
-    "elephant/menus/panes.lua".text = ''
-      Name = "panes"
-      NamePretty = "WezTerm Panes"
-      Icon = "utilities-terminal"
-      Action = "${wezterm} cli activate-pane --pane-id %VALUE%"
-      SearchName = true
-      History = true
+    "elephant/menus/panes.lua".text = render ./launcher/panes.lua {
+      "@jq@" = jq;
+      "-- @menu-prelude@" = menuPrelude;
+      "@wezterm@" = wezterm;
+    };
 
-      ${splitter}
+    "elephant/menus/sessions.lua".text = render ./launcher/sessions.lua {
+      "@jq@" = jq;
+      "-- @menu-prelude@" = menuPrelude;
+      "@sy@" = sy;
+      "@wezterm@" = wezterm;
+    };
 
-      function GetEntries()
-        local entries = {}
-        local cmd = "${wezterm} cli list --format json | ${jq} -r '.[] | [.pane_id, (.workspace // \"default\"), (.title // .tab_title // \"pane\"), (.cwd // \"\")] | @tsv'"
-        for _, row in ipairs(lines(cmd)) do
-          if row[1] ~= nil and row[1] ~= "" then
-            entries[#entries + 1] = {
-              Text = row[2] .. ": " .. (row[3] or ""),
-              Subtext = row[4] or "",
-              Value = row[1],
-            }
-          end
-        end
-        return entries
-      end
-    '';
-
-    "elephant/menus/sessions.lua".text = ''
-      Name = "sessions"
-      NamePretty = "Sessions"
-      Icon = "utilities-terminal"
-      Action = "${wezterm} cli spawn --new-window --workspace %VALUE%"
-      SearchName = true
-      History = true
-
-      ${splitter}
-
-      function GetEntries()
-        local entries = {}
-        local cmd = "${sy} list --json | ${jq} -r '.[] | [.name, (.repoCount // 0), (.path // \"\")] | @tsv'"
-        for _, row in ipairs(lines(cmd)) do
-          if row[1] ~= nil and row[1] ~= "" then
-            entries[#entries + 1] = {
-              Text = row[1],
-              Subtext = (row[2] or "0") .. " repos",
-              Value = row[1],
-            }
-          end
-        end
-        return entries
-      end
-    '';
-
-    "elephant/menus/tabs.lua".text = ''
-      Name = "tabs"
-      NamePretty = "Firefox Tabs"
-      Icon = "firefox"
-      Action = "xdg-open %VALUE%"
-      SearchName = true
-      History = true
-
-      ${splitter}
-
-      function GetEntries()
-        local entries = {}
-        local cmd = "${fftabs} | ${jq} -r '.[] | [(.title // .url), (.url // \"\")] | @tsv'"
-        for _, row in ipairs(lines(cmd)) do
-          if row[2] ~= nil and row[2] ~= "" then
-            entries[#entries + 1] = {
-              Text = row[1],
-              Subtext = row[2],
-              Value = row[2],
-            }
-          end
-        end
-        return entries
-      end
-    '';
+    "elephant/menus/tabs.lua".text = render ./launcher/tabs.lua {
+      "@firefox-tabs@" = fftabs;
+      "@jq@" = jq;
+      "-- @menu-prelude@" = menuPrelude;
+    };
 
     # elephant ships a `windows` provider, but its only implementation is niri,
     # and on sway it returns an empty list rather than an error. This menu is
@@ -167,58 +89,13 @@ in
     # measured on arrakis, `systemctl --user show-environment` has SWAYSOCK and
     # the running elephant process does not, so every window query came back
     # empty.
-    "elephant/menus/windows.lua".text = ''
-      Name = "windows"
-      NamePretty = "Windows"
-      Icon = "preferences-system-windows"
-      Action = "lua:Focus"
-      SearchName = true
-      History = true
-
-      ${splitter}
-
-      local function socket()
-        local held = os.getenv("SWAYSOCK")
-        if held ~= nil and held ~= "" then
-          return held
-        end
-        local runtime = os.getenv("XDG_RUNTIME_DIR") or ("/run/user/" .. (os.getenv("UID") or "1000"))
-        local handle = io.popen("${pkgs.coreutils}/bin/ls -t " .. runtime .. "/sway-ipc.*.sock 2>/dev/null | ${pkgs.coreutils}/bin/head -1")
-        if handle == nil then
-          return nil
-        end
-        local found = handle:read("*line")
-        handle:close()
-        return found
-      end
-
-      function GetEntries()
-        local entries = {}
-        local sock = socket()
-        if sock == nil or sock == "" then
-          return entries
-        end
-        local cmd = "${swaymsg} --socket " .. sock .. " -t get_tree | ${jq} -r '[recurse(.nodes[]?, .floating_nodes[]?) | select(.type == \"con\" or .type == \"floating_con\") | select(.name != null)] | .[] | [.id, .name, (.app_id // .window_properties.class // \"\")] | @tsv'"
-        for _, row in ipairs(lines(cmd)) do
-          if row[1] ~= nil and row[1] ~= "" then
-            entries[#entries + 1] = {
-              Text = row[2] or "",
-              Subtext = row[3] or "",
-              Value = row[1],
-            }
-          end
-        end
-        return entries
-      end
-
-      function Focus(value)
-        local sock = socket()
-        if sock == nil or sock == "" then
-          return
-        end
-        os.execute("${swaymsg} --socket " .. sock .. " '[con_id=" .. value .. "] focus'")
-      end
-    '';
+    "elephant/menus/windows.lua".text = render ./launcher/windows.lua {
+      "@head@" = "${pkgs.coreutils}/bin/head";
+      "@jq@" = jq;
+      "@ls@" = "${pkgs.coreutils}/bin/ls";
+      "-- @menu-prelude@" = menuPrelude;
+      "@swaymsg@" = swaymsg;
+    };
 
     # `:` is the emoji prefix and `!` runs a command, both to match what the
     # Hammerspoon launcher already does on the other host. That costs the two
@@ -286,111 +163,17 @@ in
     # Only style.css is written. walker reads a theme directory file by file and
     # falls back to the compiled-in default for anything absent, so the layout
     # and every item template stay upstream's.
-    "walker/themes/sysinit/style.css".text = ''
-      @define-color window_bg_color #${c.base00};
-      @define-color accent_bg_color #${c.base0D};
-      @define-color theme_fg_color #${c.base05};
-      @define-color error_bg_color #${c.base08};
-      @define-color error_fg_color #${c.base00};
-
-      * {
-        all: unset;
-        font-family: "${config.sysinit.theme.font.monospace}", "Symbols Nerd Font Mono";
-        font-size: 13px;
-      }
-
-      scrollbar {
-        opacity: 0;
-      }
-
-      .box-wrapper {
-        background: alpha(@window_bg_color, 0.96);
-        border: 1px solid #${c.base02};
-        border-radius: 0;
-        padding: 16px;
-      }
-
-      .input {
-        caret-color: @theme_fg_color;
-        color: @theme_fg_color;
-        background: #${c.base01};
-        padding: 10px;
-      }
-
-      .input placeholder {
-        color: #${c.base03};
-      }
-
-      .input selection {
-        background: #${c.base02};
-      }
-
-      .list {
-        color: @theme_fg_color;
-      }
-
-      .item-box {
-        border-radius: 0;
-        padding: 8px 10px;
-      }
-
-      child:selected .item-box,
-      row:selected .item-box {
-        background: #${c.base02};
-        border-left: 2px solid @accent_bg_color;
-      }
-
-      .item-subtext {
-        font-size: 12px;
-        color: #${c.base04};
-      }
-
-      .item-image-text {
-        font-size: 24px;
-      }
-
-      .symbols .item-image {
-        font-size: 24px;
-      }
-
-      .calc .item-text {
-        font-size: 20px;
-        color: #${c.base0A};
-      }
-
-      .placeholder,
-      .elephant-hint {
-        color: #${c.base03};
-      }
-
-      .preview {
-        border: 1px solid #${c.base02};
-        border-radius: 0;
-        color: @theme_fg_color;
-      }
-
-      .keybinds {
-        padding-top: 10px;
-        border-top: 1px solid #${c.base02};
-        font-size: 12px;
-        color: #${c.base04};
-      }
-
-      .keybind-bind {
-        text-transform: lowercase;
-        color: #${c.base03};
-      }
-
-      .keybind-label {
-        padding: 2px 4px;
-        border: 1px solid #${c.base03};
-      }
-
-      .error {
-        padding: 10px;
-        background: @error_bg_color;
-        color: @error_fg_color;
-      }
-    '';
+    "walker/themes/sysinit/style.css".text = render ./launcher/style.css {
+      "@accent@" = c.base0D;
+      "@background-alt@" = c.base01;
+      "@background-selection@" = c.base02;
+      "@background@" = c.base00;
+      "@error@" = c.base08;
+      "@font@" = config.sysinit.theme.font.monospace;
+      "@foreground-dim@" = c.base04;
+      "@foreground-muted@" = c.base03;
+      "@foreground@" = c.base05;
+      "@warning@" = c.base0A;
+    };
   };
 }

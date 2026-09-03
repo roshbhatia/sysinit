@@ -1,0 +1,19 @@
+:root {
+  --bg: #@base00@;
+  --bg-alt: #@base01@;
+  --fg: #@base05@;
+  --fg-dim: #@base04@;
+  --accent: #@base0D@;
+  --border: #@base02@;
+}
+
+
+@-moz-document url-prefix("moz-extension://") {
+  body { background-color: var(--bg) !important; color: var(--fg) !important; }
+  input, select, button {
+    background-color: var(--bg-alt) !important;
+    color: var(--fg) !important;
+    border: 1px solid var(--border) !important;
+  }
+  button:hover { background-color: var(--border) !important; }
+}

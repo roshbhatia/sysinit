@@ -9,6 +9,22 @@ local ui_sessions = require("sysinit.pkg.ui.sessions")
 
 local M = {}
 
+local SESSION_SELECTOR_ALPHABET = "1234567890abcdefghilmnopqrstuvwyzABCDEFGHILMNOPQRSTUVWYZ"
+
+---@param choices table
+---@param verb string
+---@return table
+function M.session_selector_options(choices, verb)
+  -- InputSelector assigns every custom key to a visible choice. It cannot
+  -- register hidden actions, so each selector contains session targets only.
+  return {
+    choices = choices,
+    alphabet = SESSION_SELECTOR_ALPHABET,
+    fuzzy = false,
+    description = "  j/k nav  Enter " .. verb .. "  / filter  Esc quit",
+  }
+end
+
 ---@param opts table
 ---@return table
 function M.close_plan(opts)
@@ -446,40 +462,6 @@ function M.setup(config, wm, ctx)
     end
   end
 
-  local tree_action_specs = {
-    { name = "toggle_dormant", key = ".", id = "action:toggle-dormant", label = "show dormant sessions" },
-    { name = "previous_session", key = "[", id = "action:previous-session", label = "previous session" },
-    { name = "next_session", key = "]", id = "action:next-session", label = "next session" },
-    { name = "close_target", key = "x", id = "action:close-target", label = "close a session target" },
-  }
-  local tree_action = {}
-  for _, spec in ipairs(tree_action_specs) do
-    tree_action[spec.name] = spec.id
-  end
-
-  local function tree_selector_controls(filter, target_choices)
-    local choices, keys, help = {}, {}, { "j/k nav" }
-    for _, choice in ipairs(target_choices) do
-      choices[#choices + 1] = choice
-    end
-
-    local target_alphabet = "1234567890abcdefghilmnopqrstuvwyzABCDEFGHILMNOPQRSTUVWYZ"
-    local target_keys = target_alphabet:sub(1, #target_choices)
-    local remaining_keys = target_alphabet:sub(#target_choices + 1)
-    for _, spec in ipairs(tree_action_specs) do
-      local label = spec.label
-      if spec.name == "toggle_dormant" and filter == "dormant" then
-        label = "show all sessions"
-      end
-      choices[#choices + 1] = { id = spec.id, label = label }
-      keys[#keys + 1] = spec.key
-      help[#help + 1] = spec.key .. " " .. (spec.name == "toggle_dormant" and "dormant" or spec.label)
-    end
-    help[#help + 1] = "/ filter"
-    help[#help + 1] = "Esc quit"
-    return choices, target_keys .. table.concat(keys) .. remaining_keys, "  " .. table.concat(help, "  ")
-  end
-
   local function close_session_target(win, pane, id, by_id)
     local rec = by_id[id]
     if type(rec) ~= "table" then
@@ -567,7 +549,43 @@ function M.setup(config, wm, ctx)
     return string.format("%s %d of %d panes in %s", plan.verb, killed, #plan.targets, plan.label), plan.reopen
   end
 
-  local function open_session_tree(win, pane, filter, notice)
+  local open_session_tree
+
+  local function open_close_selector(win, pane, notice)
+    ui_sessions.refresh_remote()
+    local tree = ctx.tree()
+    local colors = ctx.colors(win)
+    local by_id = {}
+    local choices = session_tree_choices(tree, by_id, "all", colors)
+    local close_choices = {}
+    for _, choice in ipairs(choices) do
+      if not choice.id:match("^host:") then
+        close_choices[#close_choices + 1] = choice
+      end
+    end
+    if #close_choices == 0 then
+      return
+    end
+    local options = M.session_selector_options(close_choices, "close")
+    options.title = "Close session target"
+    if notice then
+      options.title = options.title .. "  · " .. notice
+    end
+    options.action = wezterm.action_callback(function(close_win, close_pane, close_id, _close_label)
+      if not close_id then
+        return
+      end
+      local close_notice, reopen = close_session_target(close_win, close_pane, close_id, by_id)
+      if reopen then
+        wezterm.time.call_after(0.15, function()
+          open_close_selector(close_win, close_pane, close_notice)
+        end)
+      end
+    end)
+    win:perform_action(wezterm.action.InputSelector(options), pane)
+  end
+
+  open_session_tree = function(win, pane, filter, notice)
     filter = filter or "all"
     ui_sessions.refresh_remote()
     local tree = ctx.tree()
@@ -583,71 +601,16 @@ function M.setup(config, wm, ctx)
         return
       end
     end
-    local choices, tree_alphabet, tree_description = tree_selector_controls(filter, target_choices)
-    local title
-    if filter == "dormant" then
-      title = "Sessions  [dormant · . all · / filter]"
-    else
-      title = "Sessions  [. dormant · / filter]"
-    end
+    local options = M.session_selector_options(target_choices, "open")
+    local title = filter == "dormant" and "Dormant sessions" or "Sessions"
     if notice then
       title = title .. "  · " .. notice
     end
-    win:perform_action(
-      wezterm.action.InputSelector({
-        title = title,
-        choices = choices,
-        alphabet = tree_alphabet,
-        fuzzy = false,
-        description = tree_description,
-        action = wezterm.action_callback(function(inner_win, inner_pane, id, _label)
-          if id == tree_action.previous_session then
-            ui_actions.step_session(inner_win, inner_pane, -1)
-            return
-          end
-          if id == tree_action.next_session then
-            ui_actions.step_session(inner_win, inner_pane, 1)
-            return
-          end
-          if id == tree_action.toggle_dormant then
-            local next_filter = filter == "dormant" and "all" or "dormant"
-            wezterm.time.call_after(0.05, function()
-              open_session_tree(inner_win, inner_pane, next_filter)
-            end)
-            return
-          end
-          if id == tree_action.close_target then
-            local close_choices = {}
-            for _, choice in ipairs(target_choices) do
-              if not choice.id:match("^host:") then
-                close_choices[#close_choices + 1] = choice
-              end
-            end
-            inner_win:perform_action(
-              wezterm.action.InputSelector({
-                title = "Close session target",
-                choices = close_choices,
-                fuzzy = false,
-                description = "  j/k nav  Enter close  / filter  Esc back",
-                action = wezterm.action_callback(function(close_win, close_pane, close_id, _close_label)
-                  local close_notice
-                  if close_id then
-                    close_notice = select(1, close_session_target(close_win, close_pane, close_id, by_id))
-                  end
-                  wezterm.time.call_after(0.15, function()
-                    open_session_tree(close_win, close_pane, filter, close_notice)
-                  end)
-                end),
-              }),
-              inner_pane
-            )
-            return
-          end
-          session_tree_dispatch(inner_win, inner_pane, id, by_id)
-        end),
-      }),
-      pane
-    )
+    options.title = title
+    options.action = wezterm.action_callback(function(inner_win, inner_pane, id, _label)
+      session_tree_dispatch(inner_win, inner_pane, id, by_id)
+    end)
+    win:perform_action(wezterm.action.InputSelector(options), pane)
   end
 
   wm.session_enabled = true
@@ -698,6 +661,18 @@ function M.setup(config, wm, ctx)
         brief = "Session tree",
         action = wezterm.action_callback(function(win, pane)
           open_session_tree(win, pane)
+        end),
+      },
+      {
+        brief = "Session tree: dormant",
+        action = wezterm.action_callback(function(win, pane)
+          open_session_tree(win, pane, "dormant")
+        end),
+      },
+      {
+        brief = "Session: close target",
+        action = wezterm.action_callback(function(win, pane)
+          open_close_selector(win, pane)
         end),
       },
       -- The tree is the one session picker; wezterm workspaces are a different

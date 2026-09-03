@@ -7,6 +7,7 @@
 let
   registry = import ./. { inherit pkgs lib; };
   vocab = import ../lib/vocab.nix { inherit lib; };
+  frontmatter = import ../lib/frontmatter.nix { inherit lib; };
 
   # Name and description are the one level of a skill that is always in the system
   # prompt, so this budget is spent on every session that never loads the skill.
@@ -21,25 +22,20 @@ let
   renderSkill =
     harness: name: skill:
     let
-      frontmatterLines = [
-        "---"
-        "name: ${name}"
-        "description: ${builtins.toJSON skill.description}"
-      ]
-      ++ lib.optional (skill ? "allowed-tools") "allowed-tools: ${skill."allowed-tools"}"
-      ++ lib.optional (skill ? whenToUse) "when_to_use: ${skill.whenToUse}"
-      ++ lib.optional (skill ? model && harness == "claude") "model: ${skill.model}"
-      ++ lib.optional (skill ? effort && harness == "claude") "effort: ${skill.effort}"
-      ++ lib.optional (skill ? "disable-model-invocation") "disable-model-invocation: true"
-      ++ [
-        "---"
-        ""
-      ];
-
-      frontmatter = builtins.concatStringsSep "\n" frontmatterLines + "\n";
-
+      metadata = {
+        inherit name;
+        inherit (skill) description;
+        allowed-tools = skill."allowed-tools" or null;
+        when_to_use = skill.whenToUse or null;
+        model = if skill ? model && harness == "claude" then skill.model else null;
+        effort = if skill ? effort && harness == "claude" then skill.effort else null;
+        disable-model-invocation = if skill ? "disable-model-invocation" then true else null;
+      };
     in
-    vocab.applyVocab harness (frontmatter + normativePreamble + skill.content);
+    vocab.applyVocab harness ''
+      ${frontmatter.render metadata}
+      ${normativePreamble}${skill.content}
+    '';
 
   renderSkillsFor =
     harness:

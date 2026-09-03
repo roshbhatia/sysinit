@@ -1,0 +1,48 @@
+:root .TridactylOwnNamespace {
+  --tridactyl-font-family: "@monospace-font@", monospace;
+  --tridactyl-font-family-mono: "@monospace-font@", monospace;
+  --tridactyl-font-size: 12px;
+  --tridactyl-small-font-size: 10px;
+
+  /* Command line */
+  --tridactyl-cmdl-bg: #@base01@;
+  --tridactyl-cmdl-fg: #@base05@;
+
+  /* General */
+  --tridactyl-bg: #@base00@;
+  --tridactyl-fg: #@base05@;
+  --tridactyl-url-bg: transparent;
+  --tridactyl-url-fg: #@base0D@;
+  --tridactyl-highlight-box-bg: #@base01@;
+  --tridactyl-highlight-box-fg: #@base05@;
+  --tridactyl-of-fg: #@base04@;
+
+  /* Completions */
+  --tridactyl-cmplt-bg: #@base00@;
+  --tridactyl-cmplt-fg: #@base05@;
+  --tridactyl-cmplt-border-top: 1px solid #@base02@;
+  --tridactyl-header-first-bg: #@base02@;
+  --tridactyl-header-bg: #@base02@;
+  --tridactyl-header-fg: #@base05@;
+  --tridactyl-header-border-bottom: 1px solid #@base01@;
+  --tridactyl-option-focused-bg: #@base0D@;
+  --tridactyl-option-focused-fg: #@base00@;
+
+  /* Hints */
+  --tridactyl-hintspan-font-family: "@monospace-font@", monospace;
+  --tridactyl-hintspan-font-size: 11px;
+  --tridactyl-hintspan-font-weight: bold;
+  --tridactyl-hintspan-fg: #@base00@;
+  --tridactyl-hintspan-bg: #@base0A@;
+  --tridactyl-hintspan-border: 1px solid #@base03@;
+}
+
+/* Ligatures off for tridactyl overlays — hint labels and command-line text
+   must render letter-by-letter; WumpusMono ships programming ligatures
+   under `liga` (no separate calt/dlig). */
+.TridactylOwnNamespace,
+.TridactylOwnNamespace *,
+.TridactylHintHost,
+.TridactylHintHost * {
+  font-variant-ligatures: none !important;
+}

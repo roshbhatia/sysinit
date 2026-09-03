@@ -1,0 +1,103 @@
+names=(
+@NAMES@
+)
+
+usage() {
+  echo "usage: sysinit-llm-capture [--all] <harness>" >&2
+  echo "  --all  also list values that exist only in the live file" >&2
+  echo "harnesses with a managed file:" >&2
+  for name in "${names[@]}"; do
+    echo "  $name" >&2
+  done
+}
+
+@CAPTURE_DIRECTIVE@to_json() {
+  case "$2" in
+    json) jq '.' "$1" ;;
+    yaml) yq -p yaml -o json '.' "$1" ;;
+    toml) yq -p toml -o json '.' "$1" ;;
+  esac
+}
+
+@CAPTURE_DIRECTIVE@capture() {
+  local name="$1"
+  local relative_path="$2"
+  local format="$3"
+  local target="$HOME/$relative_path"
+  local base_name
+  local sidecar
+  base_name="$(basename "$target")"
+  case "$base_name" in
+    .*) sidecar="$(dirname "$target")/$base_name.nix-base" ;;
+    *) sidecar="$(dirname "$target")/.$base_name.nix-base" ;;
+  esac
+
+  if [ ! -f "$target" ]; then
+    echo "sysinit-llm-capture: $relative_path does not exist yet." >&2
+    return 1
+  fi
+  if [ ! -f "$sidecar" ]; then
+    echo "sysinit-llm-capture: $relative_path has no recorded base at $sidecar." >&2
+    echo "sysinit-llm-capture: run a switch first; without a base there is nothing to compare against." >&2
+    return 1
+  fi
+
+  local base_json
+  local live_json
+  base_json="$(mktemp)"
+  live_json="$(mktemp)"
+  # shellcheck disable=SC2064
+  trap "rm -f '$base_json' '$live_json'" RETURN
+  to_json "$sidecar" "$format" > "$base_json" || return 1
+  to_json "$target" "$format" > "$live_json" || return 1
+
+  local changed
+  local added
+  local added_count
+  changed="$(jq -s -r --arg mode changed -f @CAPTURE_FILE@ "$base_json" "$live_json")"
+  added="$(jq -s -r --arg mode added -f @CAPTURE_FILE@ "$base_json" "$live_json")"
+
+  if [ -z "$changed" ] && [ -z "$added" ]; then
+    echo "# $name: $relative_path matches what Nix applied. Nothing to backport."
+    return 0
+  fi
+
+  echo "# $name: $relative_path"
+  if [ -n "$changed" ]; then
+    echo "# Changed from what Nix declares. Paste into the harness config to adopt:"
+    printf '%s\n' "$changed"
+  fi
+  if [ -n "$added" ]; then
+    if [ "$show_added" = 1 ]; then
+      echo "# Present only in the live file. Usually the harness's own state;"
+      echo "# declare a key here only if Nix should own it from now on:"
+      printf '%s\n' "$added" | sed 's/^/# /'
+    else
+      added_count="$(printf '%s\n' "$added" | grep -c ' = ' || true)"
+      echo "# ($added_count value(s) exist only in the live file. Almost always the"
+      echo "#  harness's own runtime state. Pass --all to see them.)"
+    fi
+  fi
+}
+
+show_added=0
+if [ "${1:-}" = "--all" ]; then
+  show_added=1
+  shift
+fi
+if [ "$#" -ne 1 ]; then
+  usage
+  exit 2
+fi
+case "$1" in
+  -h | --help)
+    usage
+    exit 0
+    ;;
+@CASES@
+  *)
+    echo "sysinit-llm-capture: no managed file named '$1'." >&2
+    usage
+    exit 1
+    ;;
+esac

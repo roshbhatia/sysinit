@@ -1,0 +1,95 @@
+* {
+  font-family: "__font__", "Symbols Nerd Font Mono";
+  font-size: 13px;
+  font-weight: 500;
+  min-height: 0;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+}
+
+window#waybar {
+  background-color: alpha(#__base00__, 0.85);
+  color: #__base05__;
+}
+
+/* A stale selection is dimmed, not hidden: the heartbeat says WezTerm quit
+   while leaving its last workspace behind, and hiding it would be
+   indistinguishable from having no sessions at all. Mirrors the
+   foreground_muted the sketchybar widget uses for the same state. */
+#custom-agent-sessions.stale {
+  color: #__base03__;
+}
+
+tooltip {
+  background-color: #__base01__;
+  color: #__base05__;
+  border: 1px solid #__base02__;
+  border-radius: 0;
+}
+
+#custom-logo {
+  padding: 0 12px;
+  color: #__base0D__;
+  font-size: 15px;
+}
+
+#mode {
+  padding: 0 10px;
+  color: #__base00__;
+  background-color: #__base0A__;
+  font-weight: bold;
+}
+
+#window {
+  padding: 0 10px;
+  color: #__base04__;
+  font-style: italic;
+}
+
+#workspaces button {
+  padding: 0 8px;
+  color: #__base03__;
+  background: transparent;
+}
+
+#workspaces button.focused {
+  color: #__base05__;
+  font-weight: bold;
+  border-bottom: 2px solid #__base0D__;
+}
+
+#workspaces button.urgent {
+  color: #__base00__;
+  background-color: #__base08__;
+}
+
+#workspaces button:hover {
+  color: #__base05__;
+  background: alpha(#__base02__, 0.5);
+}
+
+#clock,
+#battery,
+#pulseaudio {
+  padding: 0 10px;
+  color: #__base05__;
+  border-left: 1px solid alpha(#__base02__, 0.5);
+}
+
+#battery.warning {
+  color: #__base0A__;
+}
+
+#battery.critical {
+  color: #__base08__;
+}
+
+#battery.charging {
+  color: #__base0B__;
+}
+
+#pulseaudio.muted {
+  color: #__base03__;
+}

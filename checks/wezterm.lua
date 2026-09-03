@@ -7,23 +7,12 @@ switcher_file:close()
 local cli_calls = select(2, switcher_source:gsub('wezterm_bin,%s*"cli"', ""))
 local guarded_calls = select(2, switcher_source:gsub('wezterm_bin,%s*"cli",%s*"%-%-no%-auto%-start"', ""))
 assert(cli_calls == guarded_calls, "a switcher wezterm cli call can start a headless mux")
+assert(not switcher_source:find('id = "action:', 1, true), "a picker action is still rendered as a selectable row")
+assert(switcher_source:find('brief = "Session tree: dormant"', 1, true), "dormant sessions have no separate picker")
 assert(
-  switcher_source:find("return choices, target_keys .. table.concat(keys) .. remaining_keys", 1, true),
-  "the selector alphabet does not place session actions after session rows"
+  switcher_source:find('brief = "Session: close target"', 1, true),
+  "session targets have no separate close picker"
 )
-assert(
-  switcher_source:find("local function tree_selector_controls(filter, target_choices)", 1, true),
-  "session actions still prepend the session tree"
-)
-assert(
-  switcher_source:find('name = "toggle_dormant", key = "%.", id = "action:toggle%-dormant"'),
-  "dot does not toggle dormant sessions"
-)
-assert(
-  switcher_source:find('name = "close_target", key = "x", id = "action:close%-target"'),
-  "x does not open the close picker"
-)
-assert(not switcher_source:find("session_tree_actions", 1, true), "the selector still depends on an ignored key table")
 
 package.path = table.concat({
   lua_root .. "/?.lua",
@@ -109,6 +98,9 @@ package.loaded["sysinit.pkg.utils"] = {
       },
     }
   end,
+  state_path = function(_, fallback)
+    return "/state/" .. fallback
+  end,
 }
 
 local keybindings = require("sysinit.pkg.keybindings")
@@ -180,6 +172,44 @@ key_binding("h", "CTRL").action(window, pane)
 assert(performed[10].SendKey.mods == "CTRL", "locked mode consumed CTRL-h")
 keybindings.locked_mode = false
 
+local selector = require("sysinit.pkg.ui.switcher").session_selector_options({
+  { id = "ws:newest", label = "newest" },
+  { id = "ws:older", label = "older" },
+}, "open")
+assert(#selector.choices == 2, "the session picker injected a non-session row")
+assert(selector.choices[1].id == "ws:newest", "the session picker changed recency order")
+assert(not selector.alphabet:find("j", 1, true), "j selects a row instead of moving down")
+assert(not selector.alphabet:find("k", 1, true), "k selects a row instead of moving up")
+assert(not selector.alphabet:find("x", 1, true), "x selects a row after the close action moved out of the picker")
+assert(not selector.alphabet:find("/", 1, true), "/ cannot enter the built-in filter")
+
+local windowtitle = require("sysinit.pkg.ui.windowtitle")
+local test_home = os.getenv("HOME") or "/home/test"
+local title = windowtitle.format({
+  active_pane = {
+    foreground_process_name = "/profile/bin/codex",
+    current_working_dir = { file_path = test_home .. "/github/personal/roshbhatia/sysinit" },
+    title = "reviewing provider changes",
+    user_vars = {},
+  },
+}, nil, "sysinit")
+assert(
+  title == "codex · sysinit · {gh}/sysinit · reviewing provider changes",
+  "the hidden window title lost process, session, cwd, or OSC metadata: " .. title
+)
+local explicit_title = windowtitle.format({
+  active_pane = {
+    foreground_process_name = "/profile/bin/nu",
+    current_working_dir = { file_path = test_home },
+    title = "nu",
+    user_vars = { SYSINIT_WINDOW_METADATA = "agent: verifier\nready" },
+  },
+}, nil, "default")
+assert(
+  explicit_title == "nu · default · {home} · agent: verifier ready",
+  "the hidden window title did not prefer explicit process metadata: " .. explicit_title
+)
+
 local event_config = {}
 require("sysinit.pkg.events").setup(event_config)
 assert(event_config.enable_scroll_bar, "event setup did not enable the scroll bar")
@@ -220,6 +250,18 @@ assert(overrides.preserved and overrides.enable_scroll_bar, "scrollback did not 
 alt_screen = true
 handlers["update-status"](event_window, event_pane)
 assert(not overrides.enable_scroll_bar, "the alternate screen kept the scroll bar")
+local later_status_ran = false
+local stale_pane = {
+  get_dimensions = function()
+    error("pane id not found in mux")
+  end,
+}
+local stale_ok = pcall(function()
+  handlers["update-status"](event_window, stale_pane)
+  later_status_ran = true
+end)
+assert(stale_ok, "a stale pane aborted the update-status event")
+assert(later_status_ran, "a stale pane stopped later status handlers")
 
 local duplicate_config = {
   keys = {

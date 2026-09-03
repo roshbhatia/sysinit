@@ -50,6 +50,19 @@ let
     varre = ./fastfetch/art/varre.txt;
   };
 
+  probeScript =
+    name:
+    let
+      executable = "fastfetch-${name}";
+      package = pkgs.writeTextFile {
+        name = executable;
+        destination = "/bin/${executable}";
+        executable = true;
+        text = builtins.readFile ./fastfetch/probes/${name}.sh;
+      };
+    in
+    "${package}/bin/${executable}";
+
   hardwareModules = [
     {
       type = "custom";
@@ -123,14 +136,6 @@ let
     }
   ];
 
-  darwinPackagesText = "printf '%s (brew), %s (brew-cask), %s (mas)' \"$(ls -1 /opt/homebrew/Cellar 2>/dev/null | wc -l | tr -d ' ')\" \"$(ls -1 /opt/homebrew/Caskroom 2>/dev/null | wc -l | tr -d ' ')\" \"$(mas list 2>/dev/null | wc -l | tr -d ' ')\"";
-
-  linuxPackagesText = "printf '%s (nix-store)' \"$(nix-store -q --requisites /run/current-system 2>/dev/null | wc -l | tr -d ' ')\"";
-
-  darwinWmText = "pgrep -xq AeroSpace && echo \"AeroSpace $(aerospace --version 2>/dev/null | head -1 | awk '{print $5}')\" || echo 'Quartz Compositor'";
-
-  linuxWmText = "echo \"\${XDG_CURRENT_DESKTOP:-\${DESKTOP_SESSION:-unknown}}\"";
-
   softwareModules = [
     {
       type = "custom";
@@ -142,7 +147,7 @@ let
       type = "command";
       key = "├ Packages";
       keyColor = cSoftware;
-      text = darwinPackagesText;
+      text = probeScript "darwin-packages";
     }
   ]
   ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
@@ -150,7 +155,7 @@ let
       type = "command";
       key = "├ Packages";
       keyColor = cSoftware;
-      text = linuxPackagesText;
+      text = probeScript "linux-packages";
     }
   ]
   ++ [
@@ -170,7 +175,7 @@ let
       type = "command";
       key = "└ WM      ";
       keyColor = cSoftware;
-      text = darwinWmText;
+      text = probeScript "darwin-wm";
     }
   ]
   ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
@@ -178,7 +183,7 @@ let
       type = "command";
       key = "└ WM      ";
       keyColor = cSoftware;
-      text = linuxWmText;
+      text = probeScript "linux-wm";
     }
   ];
 
@@ -193,7 +198,7 @@ let
       type = "command";
       key = "├ OS     ";
       keyColor = cTheme;
-      text = "defaults read -g AppleInterfaceStyle &>/dev/null && echo 'dark' || echo 'light'";
+      text = probeScript "darwin-theme";
     }
   ]
   ++ [

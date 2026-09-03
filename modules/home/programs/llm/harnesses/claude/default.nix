@@ -23,52 +23,21 @@ let
 
   slackGuardScript =
     let
-      mkChanPat = channels: lib.concatStringsSep "|" (map (c: "\"${c}\"") channels);
       sendNowTools = lib.filter (
         t: !(lib.hasSuffix "schedule_message" t)
       ) llmLib.allowlist.slackSendTools;
       scheduleTools = lib.filter (lib.hasSuffix "schedule_message") llmLib.allowlist.slackSendTools;
-      allowedChanBlock =
-        if slackAllowedChannels != [ ] then
-          ''
-            case "$_channel" in
-              ${mkChanPat slackAllowedChannels})
-                exit 0
-                ;;
-            esac
-          ''
-        else
-          "";
     in
     pkgs.writeShellApplication {
       name = "claude-slack-guard";
       runtimeInputs = [ pkgs.jq ];
       bashOptions = [ ];
       text = ''
-        input="$(cat)"
-        tool="$(printf '%s' "$input" | jq -r '.tool_name // empty' 2>/dev/null)"
-        case "$tool" in
-          ${lib.concatStringsSep " | " (map (t: "\"${t}\"") sendNowTools)})
-            _channel="$(printf '%s' "$input" | jq -r '.tool_input.channel_id // empty' 2>/dev/null)"
-            ${allowedChanBlock}jq -n '{
-              hookSpecificOutput: {
-                hookEventName: "PreToolUse",
-                permissionDecision: "deny",
-                permissionDecisionReason: "Slack sends are gated to skill-approved channels. This destination is not in the allow-list."
-              }
-            }'
-            ;;
-          ${lib.concatStringsSep " | " (map (t: "\"${t}\"") scheduleTools)})
-            jq -n '{
-              hookSpecificOutput: {
-                hookEventName: "PreToolUse",
-                permissionDecision: "deny",
-                permissionDecisionReason: "Scheduled Slack sends are always blocked."
-              }
-            }'
-            ;;
-        esac
-        exit 0
+        send_now_tools=${lib.escapeShellArg (builtins.toJSON sendNowTools)}
+        schedule_tools=${lib.escapeShellArg (builtins.toJSON scheduleTools)}
+        allowed_channels=${lib.escapeShellArg (builtins.toJSON slackAllowedChannels)}
+
+        ${builtins.readFile ./slack-guard.sh}
       '';
     };
 

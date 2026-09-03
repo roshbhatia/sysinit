@@ -25,10 +25,17 @@ function M.setup(config)
 
   config.enable_scroll_bar = true
   wezterm.on("update-status", function(window, pane)
+    local ok, scrollable = pcall(function()
+      local dimensions = pane:get_dimensions()
+      return dimensions.scrollback_rows > dimensions.viewport_rows and not pane:is_alt_screen_active()
+    end)
+    if not ok then
+      -- A closed pane can remain in a queued update-status event. Returning
+      -- lets later status handlers refresh the active workspace and tab line.
+      return
+    end
     local overrides = window:get_config_overrides() or {}
-    local dimensions = pane:get_dimensions()
-    overrides.enable_scroll_bar = dimensions.scrollback_rows > dimensions.viewport_rows
-      and not pane:is_alt_screen_active()
+    overrides.enable_scroll_bar = scrollable
     window:set_config_overrides(overrides)
   end)
 end

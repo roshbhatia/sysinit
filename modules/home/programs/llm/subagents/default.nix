@@ -1,6 +1,7 @@
 { lib }:
 let
   vocab = import ../lib/vocab.nix { inherit lib; };
+  frontmatter = import ../lib/frontmatter.nix { inherit lib; };
 in
 {
   code-reviewer = import ./code-reviewer.nix;
@@ -59,75 +60,50 @@ in
         builtins.filter (t: claudeToolNames ? ${t}) enabledTools
       );
 
-      toolsLines =
+      tools =
         if enabledTools == [ ] then
-          [ ]
+          null
         else if harness == "claude" then
-          if claudeTools == [ ] then [ ] else [ "tools: ${builtins.concatStringsSep ", " claudeTools}" ]
+          if claudeTools == [ ] then null else builtins.concatStringsSep ", " claudeTools
         else
-          [ "tools:" ] ++ map (t: "  ${t}: true") enabledTools ++ map (t: "  ${t}: false") disabledTools;
+          lib.genAttrs enabledTools (_name: true) // lib.genAttrs disabledTools (_name: false);
 
-      frontmatterLines = builtins.filter (s: s != "") (
-        [
-          "name: ${name}"
-          "description: ${config.description or ""}"
-        ]
-        ++ toolsLines
-        ++ (if config ? model then [ "model: ${resolveModel config.model}" ] else [ ])
-        ++ (
-          if config ? temperature && harness == "opencode" then
-            [ "temperature: ${toString config.temperature}" ]
-          else
-            [ ]
-        )
-        ++ (if config ? thinking then [ "thinking: ${config.thinking}" ] else [ ])
-        ++ (if config ? extensions then [ "extensions: ${config.extensions}" ] else [ ])
-        ++ (if config ? skill then [ "skill: ${config.skill}" ] else [ ])
-        ++ (if config ? output then [ "output: ${config.output}" ] else [ ])
-        ++ (if config ? defaultReads then [ "defaultReads: ${config.defaultReads}" ] else [ ])
-        ++ (
-          if config ? defaultProgress then
-            [ "defaultProgress: ${if config.defaultProgress then "true" else "false"}" ]
-          else
-            [ ]
-        )
-      );
-      frontmatter = builtins.concatStringsSep "\n" frontmatterLines;
+      metadata = {
+        inherit name tools;
+        description = config.description or "";
+        model = if config ? model then resolveModel config.model else null;
+        temperature = if config ? temperature && harness == "opencode" then config.temperature else null;
+        thinking = config.thinking or null;
+        extensions = config.extensions or null;
+        skill = config.skill or null;
+        output = config.output or null;
+        defaultReads = config.defaultReads or null;
+        defaultProgress = config.defaultProgress or null;
+      };
 
-      descriptionSection = [ (config.description or "") ];
-      useWhenSection =
-        if config ? useWhen && config.useWhen != null then
-          [
-            "\n## Use When:"
-            (builtins.concatStringsSep "\n" (map (item: "- ${item}") config.useWhen))
-          ]
-        else
-          [ ];
-      avoidWhenSection =
-        if config ? avoidWhen && config.avoidWhen != null then
-          [
-            "\n## Avoid When:"
-            (builtins.concatStringsSep "\n" (map (item: "- ${item}") config.avoidWhen))
-          ]
-        else
-          [ ];
-      bodySection = if config ? body && config.body != null then [ ("\n" + config.body) ] else [ ];
-      dependencySetupSection = [
-        "\n## Dependency Setup:"
-        "- When dependencies are required, prefer a project-provided nix shell first (`nix-shell` or `nix develop`)."
-        "- Use ad-hoc or global installers only when no project nix shell/dev shell exists."
+      renderListSection =
+        title: items:
+        lib.optionalString (items != null && items != [ ]) ''
+          ## ${title}
+
+          ${lib.concatMapStringsSep "\n" (item: "- ${item}") items}
+        '';
+
+      sections = builtins.filter (section: section != "") [
+        (config.description or "")
+        (renderListSection "Use When" (config.useWhen or null))
+        (renderListSection "Avoid When" (config.avoidWhen or null))
+        (config.body or "")
+        ''
+          ## Dependency Setup
+
+          - When dependencies are required, prefer a project-provided nix shell first (`nix-shell` or `nix develop`).
+          - Use ad-hoc or global installers only when no project nix shell/dev shell exists.
+        ''
       ];
-      prompt = builtins.concatStringsSep "\n" (
-        builtins.filter (s: s != "") (
-          descriptionSection ++ useWhenSection ++ avoidWhenSection ++ bodySection ++ dependencySetupSection
-        )
-      );
     in
     vocab.applyVocab harness ''
-      ---
-      ${frontmatter}
-      ---
-
-      ${prompt}
+      ${frontmatter.render metadata}
+      ${builtins.concatStringsSep "\n\n" sections}
     '';
 }

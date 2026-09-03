@@ -23,10 +23,7 @@ final: _prev: {
   orc-providers = inputs.orc.packages.${final.stdenv.hostPlatform.system}.extras;
   ask-cli = patchHackShebangs inputs.ask.packages.${final.stdenv.hostPlatform.system}.default;
   changes-cli = inputs.changes.packages.${final.stdenv.hostPlatform.system}.default;
-  changes-provider-ast-grep =
-    inputs.changes.packages.${final.stdenv.hostPlatform.system}.provider-ast-grep;
-  changes-provider-calldiff =
-    inputs.changes.packages.${final.stdenv.hostPlatform.system}.provider-calldiff;
+  changes-providers = inputs.changes.packages.${final.stdenv.hostPlatform.system}.extras;
   seshy-cli = inputs.seshy.packages.${final.stdenv.hostPlatform.system}.default;
   specutil-cli = inputs.specutil.packages.${final.stdenv.hostPlatform.system}.default;
   traces-cli = inputs.traces.packages.${final.stdenv.hostPlatform.system}.default;

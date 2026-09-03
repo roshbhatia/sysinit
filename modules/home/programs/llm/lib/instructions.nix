@@ -97,6 +97,8 @@ let
       '';
       extraText = section: ''
 
+        ## ${section.title}
+
         ${section.body}
       '';
       extras = builtins.concatStringsSep "\n" (map extraText extraSections);
@@ -126,7 +128,12 @@ let
       {
         rule = "Use the smallest structure that makes the answer clear.";
         reason = "Extra headings, repeated summaries, filler, and marketing words add noise.";
-        bad = "## Result\n\n- Status: successful\n- Outcome: all three tests passed";
+        bad = ''
+          ## Result
+
+          - Status: successful
+          - Outcome: all three tests passed
+        '';
         good = "All 3 tests passed.";
       }
       {
@@ -144,8 +151,12 @@ let
     ]}
   '';
 
-  makeInstructionsWithStyle =
-    args: makeInstructions args + "\n## Output Style\n\n" + outputStyleRules;
+  makeInstructionsWithStyle = args: ''
+    ${makeInstructions args}
+    ## Output Style
+
+    ${outputStyleRules}
+  '';
 in
 {
   inherit makeInstructions makeInstructionsWithStyle outputStyleRules;

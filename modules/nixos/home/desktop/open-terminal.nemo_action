@@ -1,0 +1,6 @@
+[Nemo Action]
+Active=true
+Name=Open Terminal Here
+Exec=wezterm start -e zsh -c "cd %f && zsh"
+Selection=Any
+Extensions=any;

@@ -256,6 +256,9 @@ done < <(files_for '\.tsx?$' '^tsconfig\.json$')
 if [ "${#ts_files[@]}" -gt 0 ] && command -v tsc > /dev/null 2>&1; then
   run "TypeScript syntax" tsc --project tsconfig.json
 fi
+if [ "${#ts_files[@]}" -gt 0 ] && command -v prettier > /dev/null 2>&1; then
+  run "TypeScript formatting" prettier --check "${ts_files[@]}"
+fi
 
 js_files=()
 while IFS= read -r file; do

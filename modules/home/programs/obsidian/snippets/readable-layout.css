@@ -1,0 +1,12 @@
+.markdown-source-view.mod-cm6 .cm-contentContainer,
+.markdown-reading-view .markdown-preview-section {
+  max-width: 720px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+.markdown-reading-view h1,
+.markdown-reading-view h2,
+.markdown-reading-view h3 {
+  letter-spacing: -0.02em;
+}
