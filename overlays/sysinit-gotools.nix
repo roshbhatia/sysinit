@@ -166,7 +166,7 @@ in
           mkdir -p "$out/bin"
           cp -rs "${final.ask-cli}/bin/." "$out/bin/"
           mkdir -p "$out/share"
-          cp -rs "${final.ask-cli}/share/." "$out/share/"
+          cp -r "${final.ask-cli}/share/." "$out/share/"
           for name in ${final.lib.escapeShellArgs wrappers}; do
             ln -s "$out/bin/ask" "$out/bin/$name"
           done
