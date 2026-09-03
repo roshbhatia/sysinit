@@ -1507,11 +1507,11 @@
         "systems": "systems_13"
       },
       "locked": {
-        "lastModified": 1788399812,
-        "narHash": "sha256-0m2fYMrURt8YkF61CQ0ae8ui/LzRtyv2ToFdPX6OLcE=",
+        "lastModified": 1788404172,
+        "narHash": "sha256-DOHHKqc+XT/+pC+mvqqUsKNBwFA1joEIrGUGn61SHaE=",
         "owner": "roshbhatia",
         "repo": "traces",
-        "rev": "4d70fe66bef38512af5991a358c81a280044edbb",
+        "rev": "92a91c853ca27fdf00cd5e575ce0332fe10a7432",
         "type": "github"
       },
       "original": {
