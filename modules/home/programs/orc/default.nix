@@ -48,6 +48,7 @@ let
     wezterm = {
       actions = {
         "session.bind" = "Detect the current WezTerm pane";
+        "terminal.focus" = "Focus an existing WezTerm pane";
         "terminal.open" = "Open a command in a split pane";
       };
       description = "Open provider command plans in a WezTerm pane";
