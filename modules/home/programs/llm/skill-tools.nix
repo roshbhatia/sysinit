@@ -1,4 +1,7 @@
 { pkgs, ... }:
+let
+  askProviderNames = builtins.attrNames pkgs.ask-providers.providers;
+in
 {
   home.packages = [
     pkgs.sysinit-utils
@@ -14,4 +17,11 @@
     # The environment keeps bare `_` deterministic.
     ASK_PROVIDER = "claude";
   };
+
+  xdg.configFile = builtins.listToAttrs (
+    map (name: {
+      name = "ask/providers/${name}/provider.yaml";
+      value.source = "${pkgs.ask-providers}/share/ask/providers/${name}/provider.yaml";
+    }) askProviderNames
+  );
 }
