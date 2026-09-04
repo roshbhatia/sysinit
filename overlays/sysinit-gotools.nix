@@ -26,7 +26,7 @@ let
       completionPaths ? [ ],
       meta,
     }:
-    final.runCommand "${pname}-${sysinit-gotools.version}"
+    final.runCommand "${pname}-${final.lib.getVersion package}"
       {
         inherit meta;
         nativeBuildInputs = final.lib.optional (completionNames != [ ]) final.installShellFiles;
@@ -91,7 +91,12 @@ in
     package = final.specutil-cli;
     binary = "specutil";
     names = [ "specutil" ];
-    completionNames = [ "specutil" ];
+    completionPaths = [
+      "bash-completion/completions/specutil.bash"
+      "fish/vendor_completions.d/specutil.fish"
+      "nushell/vendor/autoload/specutil.nu"
+      "zsh/site-functions/_specutil"
+    ];
     meta = {
       description = "Project spec-framework change artifacts into other artifacts and visualizations";
       mainProgram = "specutil";

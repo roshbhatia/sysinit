@@ -33,7 +33,7 @@ in
   changes-cli = inputs.changes.packages.${final.stdenv.hostPlatform.system}.default;
   changes-providers = inputs.changes.packages.${final.stdenv.hostPlatform.system}.extras;
   seshy-cli = inputs.seshy.packages.${final.stdenv.hostPlatform.system}.default;
-  specutil-cli = inputs.specutil.packages.${final.stdenv.hostPlatform.system}.default;
+  specutil-cli = inputs.specutil.packages.${final.stdenv.hostPlatform.system}.full;
   traces-cli = tracesPackages.default;
   traces-providers = tracesPackages.extras // {
     providers = tracesProviderPackages;
