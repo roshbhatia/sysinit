@@ -23,6 +23,7 @@ let
       binary,
       names,
       completionNames ? [ ],
+      completionPaths ? [ ],
       meta,
     }:
     final.runCommand "${pname}-${sysinit-gotools.version}"
@@ -41,6 +42,9 @@ let
             mkdir -p "$out/share"
             cp -rs "${package}/share/." "$out/share/"
           fi
+          ${final.lib.concatMapStringsSep "\n" (path: ''
+            test -s "$out/share/${path}"
+          '') completionPaths}
         ''
         +
           final.lib.optionalString
@@ -69,7 +73,12 @@ in
       "sy"
       "seshy"
     ];
-    completionNames = [ "sy" ];
+    completionPaths = [
+      "bash-completion/completions/sy.bash"
+      "fish/vendor_completions.d/sy.fish"
+      "nushell/vendor/autoload/sy.nu"
+      "zsh/site-functions/_sy"
+    ];
     meta = {
       description = "Minimal session manager for multi-repo, worktree-based work";
       mainProgram = "sy";
@@ -90,60 +99,9 @@ in
     };
   };
 
-  changes =
-    let
-      # Each of the three is one layer of the view. Without ast-grep the hunks
-      # stop grouping under their symbol, and without calldiff the symbol rows
-      # lose their call counts, both silently. The wrapper is what keeps a
-      # caller's PATH from deciding how much of the view renders.
-      runtimePath = final.lib.makeBinPath [
-        final.git
-        final.ast-grep
-        final.calldiff
-        final.delta
-        final.diff-so-fancy
-        final.difftastic
-        final.ripgrep
-        final.tree-sitter
-      ];
-    in
-    final.runCommand "changes-${final.changes-cli.version}"
-      {
-        nativeBuildInputs = [ final.makeBinaryWrapper ];
-        meta = {
-          description = "A diff read as a symbol tree, with the call edges the edit moved";
-          mainProgram = "changes";
-          platforms = final.lib.platforms.unix;
-        };
-      }
-      ''
-        mkdir -p "$out/bin"
-        makeWrapper "${final.changes-cli}/bin/changes" "$out/bin/changes" \
-          --prefix PATH : "${runtimePath}" \
-          --set-default CHANGES_DIFF_ENGINE internal \
-          --set-default CHANGES_DIFF_LAYOUT unified
-        mkdir -p "$out/share"
-        cp -rs "${final.changes-cli}/share/." "$out/share/"
-      '';
+  changes = final.changes-cli;
 
-  traces =
-    final.runCommand "traces-${final.traces-cli.version}"
-      {
-        nativeBuildInputs = [ final.makeBinaryWrapper ];
-        meta = {
-          description = "Agent trace view over the local OTLP collector's spans";
-          mainProgram = "traces";
-          platforms = final.lib.platforms.unix;
-        };
-      }
-      ''
-          mkdir -p "$out/bin"
-          makeWrapper "${final.traces-cli}/bin/traces" "$out/bin/traces" \
-            --prefix PATH : "${final.lib.makeBinPath [ final.changes ]}" \
-            --set-default TRACES_DIFF_PROVIDER changes
-        mkdir -p "$out/share"
-        cp -rs "${final.traces-cli}/share/." "$out/share/"
-      '';
+  traces = final.traces-cli;
 
   ask =
     let

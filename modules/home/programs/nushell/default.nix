@@ -81,11 +81,24 @@ let
     '') selfAppendVars
   );
 
+  vividThemeSource =
+    if config.programs.vivid.activeTheme == null then
+      null
+    else
+      lib.attrByPath [
+        "vivid/themes/${config.programs.vivid.activeTheme}.yml"
+        "source"
+      ] null config.xdg.configFile;
+
   # vivid costs 10ms per startup for a string that only changes when the theme
   # does. The theme file is already a store path, so the answer is too.
-  lsColorsFile = pkgs.runCommand "sysinit-ls-colors" { } ''
-    ${pkgs.vivid}/bin/vivid generate ${config.xdg.configFile."vivid/themes/stylix.yml".source} > $out
-  '';
+  lsColorsFile =
+    if vividThemeSource == null then
+      null
+    else
+      pkgs.runCommand "sysinit-ls-colors" { } ''
+        ${pkgs.vivid}/bin/vivid generate ${vividThemeSource} > $out
+      '';
 
   ompConfigFile = pkgs.runCommand "sysinit-oh-my-posh-config.json" { } ''
     ln -s ${config.xdg.configFile."oh-my-posh/config.json".source} $out
@@ -102,9 +115,16 @@ let
   '';
 
   functionsFile = pkgs.writeText "sysinit-functions.nu" (
-    builtins.replaceStrings [ "@seshySessions@" ] [ config.sysinit.paths.resolved.seshySessions ] (
-      builtins.readFile ./functions.nu
-    )
+    builtins.replaceStrings
+      [
+        "@seshySessions@"
+        "@timeout@"
+      ]
+      [
+        config.sysinit.paths.resolved.seshySessions
+        "${pkgs.coreutils}/bin/timeout"
+      ]
+      (builtins.readFile ./functions.nu)
   );
 
   completersConfig =
@@ -144,9 +164,9 @@ in
       # `ll` alias out so it cannot replace the structured command sourced below.
       shellAliases = lib.mkForce (builtins.removeAttrs shell.commonAliases [ "ll" ]);
 
-      environmentVariables.LS_COLORS = lib.mkForce (
-        lib.hm.nushell.mkNushellInline "(open --raw ${lsColorsFile} | str trim)"
-      );
+      environmentVariables = lib.optionalAttrs (lsColorsFile != null) {
+        LS_COLORS = lib.mkForce (lib.hm.nushell.mkNushellInline "(open --raw ${lsColorsFile} | str trim)");
+      };
 
       settings = {
         show_banner = false;

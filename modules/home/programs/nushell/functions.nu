@@ -181,7 +181,8 @@ def --env nuvim [] {
 }
 
 $env.config.hooks.env_change.PWD = (
-  $env.config.hooks.env_change.PWD
+  $env.config.hooks.env_change.PWD?
+  | default []
   | append {||
     let session = (sysinit-seshy-session $env.PWD)
     if ($session | is-empty) {
@@ -198,6 +199,7 @@ $env.config.hooks.pre_execution = (
   | default []
   | append {||
     if ($env.ASK_CAPTURE? | default "1") == "1" and ($env.WEZTERM_PANE? | is-not-empty) {
+      $env.ASK_CAPTURE_ID = ($env.WEZTERM_PANE | into string)
       $env.ASK_CAPTURE_PENDING = "1"
     }
   }
@@ -208,11 +210,24 @@ $env.config.hooks.pre_prompt = (
   | default []
   | append {||
     if ($env.ASK_CAPTURE? | default "1") == "1" and ($env.WEZTERM_PANE? | is-not-empty) {
+      $env.ASK_CAPTURE_ID = ($env.WEZTERM_PANE | into string)
       let initialized = ($env.ASK_CAPTURE_INITIALIZED? | default "0") == "1"
       let command_finished = ($env.ASK_CAPTURE_PENDING? | default "0") == "1"
 
-      if (not $initialized or $command_finished) and (which ask | is-not-empty) {
-        do --ignore-errors { ^ask --capture }
+      if (
+        (not $initialized or $command_finished)
+        and (which ask | is-not-empty)
+        and (which wezterm | is-not-empty)
+      ) {
+        do --ignore-errors {
+          let snapshot = (
+            ^@timeout@ 0.25 wezterm cli --no-auto-start get-text --pane-id $env.WEZTERM_PANE
+            | complete
+          )
+          if $snapshot.exit_code == 0 {
+            $snapshot.stdout | ^ask --capture
+          }
+        }
       }
 
       $env.ASK_CAPTURE_INITIALIZED = "1"

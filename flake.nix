@@ -4,6 +4,8 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
+    systems.url = "github:nix-systems/default";
+
     darwin = {
       url = "github:nix-darwin/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -61,7 +63,21 @@
 
     orc = {
       url = "github:roshbhatia/orc/main";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        systems.follows = "systems";
+      };
+    };
+
+    orc-extras = {
+      url = "github:roshbhatia/orc/main?dir=extras";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        systems.follows = "systems";
+        orc.follows = "orc";
+        changes.follows = "changes";
+        traces.follows = "traces";
+      };
     };
 
     ask = {
@@ -69,9 +85,20 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    ask-extras = {
+      url = "github:roshbhatia/ask/main?dir=extras";
+      inputs = {
+        ask.follows = "ask";
+        nixpkgs.follows = "nixpkgs";
+      };
+    };
+
     changes = {
       url = "github:roshbhatia/changes/main";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        systems.follows = "systems";
+      };
     };
 
     seshy = {
@@ -86,7 +113,10 @@
 
     traces = {
       url = "github:roshbhatia/traces/main";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        systems.follows = "systems";
+      };
     };
 
     slk = {
@@ -239,8 +269,11 @@
             "seshy"
             "specutil"
             "changes"
+            "changes-providers"
             "traces"
+            "traces-providers"
             "ask"
+            "ask-providers"
             "sysinit-utils"
             "orc-cli"
             "orc-providers"

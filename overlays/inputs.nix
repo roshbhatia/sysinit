@@ -16,22 +16,28 @@ let
     });
 in
 
-final: _prev: {
+final: _prev:
+let
+  tracesPackages = inputs.traces.packages.${final.stdenv.hostPlatform.system};
+  tracesProviderPackages = final.lib.mapAttrs' (
+    name: package: final.lib.nameValuePair (final.lib.removePrefix "provider-" name) package
+  ) (final.lib.filterAttrs (name: _package: final.lib.hasPrefix "provider-" name) tracesPackages);
+in
+{
   firefox-addons = inputs.firefox-addons.packages.${final.stdenv.hostPlatform.system};
   claude-code = inputs.nix-claude-code.packages.${final.stdenv.hostPlatform.system}.default;
-  orc-cli = inputs.orc.packages.${final.stdenv.hostPlatform.system}.default;
-  orc-providers = inputs.orc.packages.${final.stdenv.hostPlatform.system}.extras;
+  orc-cli = inputs.orc-extras.packages.${final.stdenv.hostPlatform.system}.full;
+  orc-providers = inputs.orc-extras.packages.${final.stdenv.hostPlatform.system}.all;
   ask-cli = patchHackShebangs inputs.ask.packages.${final.stdenv.hostPlatform.system}.default;
-  ask-providers = inputs.ask.packages.${final.stdenv.hostPlatform.system}.extras;
+  ask-providers = inputs.ask-extras.packages.${final.stdenv.hostPlatform.system}.extras;
   changes-cli = inputs.changes.packages.${final.stdenv.hostPlatform.system}.default;
   changes-providers = inputs.changes.packages.${final.stdenv.hostPlatform.system}.extras;
   seshy-cli = inputs.seshy.packages.${final.stdenv.hostPlatform.system}.default;
   specutil-cli = inputs.specutil.packages.${final.stdenv.hostPlatform.system}.default;
-  traces-cli = inputs.traces.packages.${final.stdenv.hostPlatform.system}.default;
-  traces-provider-claude = inputs.traces.packages.${final.stdenv.hostPlatform.system}.provider-claude;
-  traces-provider-codex = inputs.traces.packages.${final.stdenv.hostPlatform.system}.provider-codex;
-  traces-provider-opencode =
-    inputs.traces.packages.${final.stdenv.hostPlatform.system}.provider-opencode;
+  traces-cli = tracesPackages.default;
+  traces-providers = tracesPackages.extras // {
+    providers = tracesProviderPackages;
+  };
   slk = inputs.slk.packages.${final.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
     ldflags = (old.ldflags or [ ]) ++ [
       "-X=main.version=0.16.0"

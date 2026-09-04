@@ -23,7 +23,9 @@ let
   integrationsCompletions = shellUtils.stripHeaders ./integrations/completions.zsh;
   integrationsExtras = shellUtils.stripHeaders ./integrations/extras.zsh;
   seshyWezterm = shellUtils.stripHeaders ./integrations/seshy-wezterm.zsh;
-  askCapture = shellUtils.stripHeaders ./integrations/ask.zsh;
+  askCapture = builtins.replaceStrings [ "@timeout@" ] [ "${pkgs.coreutils}/bin/timeout" ] (
+    shellUtils.stripHeaders ./integrations/ask.zsh
+  );
   libCache = shellUtils.stripHeaders ./lib/cache.zsh;
 in
 {

@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   ...
 }:
@@ -8,7 +9,7 @@ let
 in
 {
   home.packages = [
-    pkgs.changes-providers
+    (lib.lowPrio pkgs.changes-providers)
   ];
 
   xdg.configFile = {

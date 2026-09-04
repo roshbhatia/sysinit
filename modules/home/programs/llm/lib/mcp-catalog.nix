@@ -2,6 +2,7 @@
   lib,
   additionalServers ? { },
   suppressedServers ? [ ],
+  harnessSuppressedServers ? { },
   harnessOverrides ? { },
 }:
 let
@@ -100,9 +101,13 @@ let
   serversFor =
     harness:
     let
-      patches = harnessOverrides.${harness} or { };
+      suppressedForHarness = harnessSuppressedServers.${harness} or [ ];
+      availableServers = lib.filterAttrs (name: _: !(builtins.elem name suppressedForHarness)) allServers;
+      patches = lib.filterAttrs (name: _: !(builtins.elem name suppressedForHarness)) (
+        harnessOverrides.${harness} or { }
+      );
     in
-    allServers // lib.mapAttrs (name: patch: allServers.${name} // patch) patches;
+    availableServers // lib.mapAttrs (name: patch: availableServers.${name} // patch) patches;
 in
 {
   servers = allServers;

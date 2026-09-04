@@ -9,6 +9,7 @@ let
 
   cfg = config.sysinit.traces;
   yamlFormat = pkgs.formats.yaml { };
+  providerNames = builtins.attrNames pkgs.traces-providers.providers;
 
   declared = lib.filterAttrs (_harness: sources: sources != null) cfg.providers;
   defaultSources = {
@@ -18,27 +19,6 @@ let
     opencode = [ "opencode" ];
   };
   sources = defaultSources // declared;
-  changesProvider = yamlFormat.generate "traces-provider-changes.yaml" {
-    version = "provider/v1";
-    name = "changes";
-    description = "Render repository diffs with Changes";
-    command = [ (lib.getExe pkgs.changes) ];
-    actions."diff.render" = {
-      description = "Render a Git-compatible two-file diff";
-      argv = [
-        "difftool"
-        "-color"
-        "always"
-        "-width"
-        "{{ .Width }}"
-        "{{ .Local }}"
-        "{{ .Remote }}"
-        "{{ .Merged }}"
-      ];
-    };
-    requires.commands = [ "changes" ];
-    defaults.timeout = "10s";
-  };
 in
 {
   options.sysinit.traces.providers = mkOption {
@@ -68,28 +48,27 @@ in
 
   config = {
     home.packages = [
-      pkgs.traces-provider-claude
-      pkgs.traces-provider-codex
-      pkgs.traces-provider-opencode
+      (lib.lowPrio pkgs.traces-providers)
     ];
 
     # Traces reads the file at runtime, so provider changes reach a shell that
     # was already open. Private providers remain ordinary commands on PATH.
-    xdg.configFile = {
-      "traces/config.yaml".source = yamlFormat.generate "traces-config.yaml" {
-        color = "auto";
-        diff.provider = "changes";
-        providers.directory = "${config.xdg.configHome}/traces/providers";
-        inherit sources;
+    xdg.configFile =
+      builtins.listToAttrs (
+        map (name: {
+          name = "traces/providers/${name}/provider.yaml";
+          value.source = "${pkgs.traces-providers}/share/traces/providers/${name}/provider.yaml";
+        }) providerNames
+      )
+      // {
+        "traces/config.yaml".source = yamlFormat.generate "traces-config.yaml" {
+          color = "auto";
+          diff.provider = "git";
+          clipboard.provider = "desktop";
+          editor.provider = "desktop";
+          providers.directory = "${config.xdg.configHome}/traces/providers";
+          inherit sources;
+        };
       };
-
-      "traces/providers/changes/provider.yaml".source = changesProvider;
-      "traces/providers/claude/provider.yaml".source =
-        "${pkgs.traces-provider-claude}/share/traces/providers/claude/provider.yaml";
-      "traces/providers/codex/provider.yaml".source =
-        "${pkgs.traces-provider-codex}/share/traces/providers/codex/provider.yaml";
-      "traces/providers/opencode/provider.yaml".source =
-        "${pkgs.traces-provider-opencode}/share/traces/providers/opencode/provider.yaml";
-    };
   };
 }

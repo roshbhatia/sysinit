@@ -210,6 +210,33 @@ in
         '';
       };
 
+      harnessAllowedTools = mkOption {
+        type = types.attrsOf (types.listOf types.str);
+        default = { };
+        example = {
+          claude = [ "mcp__read-only-server__get_record" ];
+        };
+        description = ''
+          Exact MCP tools a host permits a harness to call without approval.
+          Keep write operations out of this list. A host-owned gateway must
+          enumerate its read-only surface here instead of approving a server
+          wildcard whose targets can change independently.
+        '';
+      };
+
+      harnessSuppressedServers = mkOption {
+        type = types.attrsOf (types.listOf types.str);
+        default = { };
+        example = {
+          crush = [ "work-services" ];
+        };
+        description = ''
+          Server names to omit from one harness after the host server catalog
+          is assembled. This keeps constrained harnesses from inheriting
+          servers that cannot fit their context or authentication model.
+        '';
+      };
+
       harnessOverrides = mkOption {
         type = types.attrsOf (types.attrsOf types.attrs);
         default = { };

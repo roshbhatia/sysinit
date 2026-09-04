@@ -9,7 +9,7 @@ let
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
   profileBin = "${config.home.profileDirectory}/bin";
-  commandPath = llmLib.commandPath.render profileBin;
+  commandPath = llmLib.commandPath.renderFor pkgs.stdenv.hostPlatform.isDarwin profileBin;
 
   bashGuardScript = llmLib.guards.mkBashGuard {
     inherit pkgs;
@@ -147,7 +147,10 @@ in
 
       shell_environment_policy = {
         experimental_use_profile = true;
-        set.PATH = commandPath;
+        set = {
+          PATH = commandPath;
+          ORC_AGENT_REGISTRY = "${config.xdg.configHome}/sysinit/agents.json";
+        };
       };
 
       tools = {

@@ -9,7 +9,7 @@ let
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
   profileBin = "${config.home.profileDirectory}/bin";
-  commandPath = llmLib.commandPath.render profileBin;
+  commandPath = llmLib.commandPath.renderFor pkgs.stdenv.hostPlatform.isDarwin profileBin;
 
   defaultInstructions = kit.mkInstructions {
     harness = "claude";
@@ -65,6 +65,7 @@ in
     settings = {
       env = {
         PATH = commandPath;
+        ORC_AGENT_REGISTRY = "${config.xdg.configHome}/sysinit/agents.json";
         CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1";
         DISABLE_AUTOUPDATER = "1";
 
@@ -96,7 +97,8 @@ in
         allow =
           llmLib.allowlist.formatForClaude llmLib.allowlist.tierA
           ++ llmLib.allowlist.formatForClaude llmLib.allowlist.tierB
-          ++ llmLib.allowlist.tierMcp;
+          ++ llmLib.allowlist.tierMcp
+          ++ (config.sysinit.llm.mcp.harnessAllowedTools.claude or [ ]);
       };
 
       fileCheckpointingEnabled = true;

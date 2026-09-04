@@ -1,4 +1,9 @@
-{ lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   basicMemoryMcp = pkgs.writeShellScript "basic-memory-mcp" ''
     set -euo pipefail
@@ -96,6 +101,7 @@ in
     orc = {
       command = "${lib.getExe pkgs.orc-cli}";
       args = [ "mcp" ];
+      env.ORC_AGENT_REGISTRY = "${config.xdg.configHome}/sysinit/agents.json";
       description = "Optional local agent orchestration, with tools only inside an active Orc workspace";
     };
   };

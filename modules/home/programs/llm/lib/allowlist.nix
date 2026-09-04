@@ -345,8 +345,6 @@ let
     "mcp__plugin_claude-code-home-manager_basic-memory__*"
     "mcp__plugin_claude-code-home-manager_cua__*"
     "mcp__plugin_claude-code-home-manager_playwright__*"
-
-    "mcp__plugin_claude-code-home-manager_agentgateway__*"
   ];
 in
 {
