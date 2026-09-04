@@ -43,7 +43,7 @@ function M.list_names(sy_bin)
   end
   local names = {}
   local ok, out = pcall(function()
-    local success, stdout = wezterm.run_child_process({ sy_bin, "list" })
+    local success, stdout = wezterm.run_child_process({ sy_bin, "list", "--names" })
     if not success then
       error("sy list failed")
     end
@@ -52,15 +52,10 @@ function M.list_names(sy_bin)
   if not ok or not out then
     return {}, false
   end
-  local first = true
   for _, line in ipairs(wezterm.split_by_newlines(out)) do
-    if first then
-      first = false
-    elseif line ~= "" then
-      local name = line:match("^(%S+)")
-      if name then
-        names[#names + 1] = name
-      end
+    local name = line:match("^%s*(.-)%s*$")
+    if name ~= "" then
+      names[#names + 1] = name
     end
   end
   return names, true

@@ -10,6 +10,38 @@ local ui_sessions = require("sysinit.pkg.ui.sessions")
 local M = {}
 
 local SESSION_SELECTOR_ALPHABET = "1234567890abcdefghilmnopqrstuvwyzABCDEFGHILMNOPQRSTUVWYZ"
+local SESSION_TREE_ACTIONS = {
+  { id = "toggle-dormant", key = ".", hint = "dormant" },
+  { id = "close-target", key = "x", hint = "close" },
+}
+local SESSION_SELECTOR_HELP = {
+  { key = "j/k", hint = "nav" },
+  {
+    key = "Enter",
+    hint = function(verb)
+      return verb
+    end,
+  },
+  { key = "/", hint = "filter" },
+  { key = "Esc", hint = "quit" },
+}
+
+local function session_help(verb, actions)
+  local bindings = { SESSION_SELECTOR_HELP[1], SESSION_SELECTOR_HELP[2] }
+  for _, action in ipairs(actions or {}) do
+    bindings[#bindings + 1] = action
+  end
+  for index = 3, #SESSION_SELECTOR_HELP do
+    bindings[#bindings + 1] = SESSION_SELECTOR_HELP[index]
+  end
+
+  local parts = {}
+  for _, binding in ipairs(bindings) do
+    local hint = type(binding.hint) == "function" and binding.hint(verb) or binding.hint
+    parts[#parts + 1] = binding.key .. " " .. hint
+  end
+  return "  " .. table.concat(parts, "  ")
+end
 
 ---@param choices table
 ---@param verb string
@@ -21,8 +53,12 @@ function M.session_selector_options(choices, verb)
     choices = choices,
     alphabet = SESSION_SELECTOR_ALPHABET,
     fuzzy = false,
-    description = "  j/k nav  Enter " .. verb .. "  / filter  Esc quit",
+    description = session_help(verb),
   }
+end
+
+function M.session_tree_description()
+  return session_help("open", SESSION_TREE_ACTIONS)
 end
 
 ---@param opts table
@@ -550,6 +586,54 @@ function M.setup(config, wm, ctx)
   end
 
   local open_session_tree
+  local tree_pending_actions = {}
+
+  local function tree_window_id(win)
+    local ok, id = pcall(function()
+      return win:window_id()
+    end)
+    return ok and tostring(id) or tostring(win)
+  end
+
+  local function finish_session_tree_action(win, pane, action, key)
+    tree_pending_actions[tree_window_id(win)] = action or false
+    win:perform_action(wezterm.action.PopKeyTable, pane)
+    win:perform_action(wezterm.action.SendKey({ key = key or "Enter" }), pane)
+  end
+
+  config.key_tables = config.key_tables or {}
+  config.key_tables.sysinit_session_tree = {
+    {
+      key = "Enter",
+      mods = "NONE",
+      action = wezterm.action_callback(function(win, pane)
+        finish_session_tree_action(win, pane, nil)
+      end),
+    },
+    {
+      key = "Escape",
+      mods = "NONE",
+      action = wezterm.action_callback(function(win, pane)
+        finish_session_tree_action(win, pane, nil, "Escape")
+      end),
+    },
+    {
+      key = "/",
+      mods = "NONE",
+      action = wezterm.action_callback(function(win, pane)
+        finish_session_tree_action(win, pane, nil, "/")
+      end),
+    },
+  }
+  for _, spec in ipairs(SESSION_TREE_ACTIONS) do
+    config.key_tables.sysinit_session_tree[#config.key_tables.sysinit_session_tree + 1] = {
+      key = spec.key,
+      mods = "NONE",
+      action = wezterm.action_callback(function(win, pane)
+        finish_session_tree_action(win, pane, spec.id)
+      end),
+    }
+  end
 
   local function open_close_selector(win, pane, notice)
     ui_sessions.refresh_remote()
@@ -602,14 +686,43 @@ function M.setup(config, wm, ctx)
       end
     end
     local options = M.session_selector_options(target_choices, "open")
+    options.description = M.session_tree_description()
     local title = filter == "dormant" and "Dormant sessions" or "Sessions"
     if notice then
       title = title .. "  · " .. notice
     end
     options.title = title
     options.action = wezterm.action_callback(function(inner_win, inner_pane, id, _label)
+      local window_id = tree_window_id(inner_win)
+      local pending = tree_pending_actions[window_id]
+      tree_pending_actions[window_id] = nil
+      pcall(function()
+        if inner_win:active_key_table() == "sysinit_session_tree" then
+          inner_win:perform_action(wezterm.action.PopKeyTable, inner_pane)
+        end
+      end)
+      if pending == "toggle-dormant" then
+        wezterm.time.call_after(0.05, function()
+          open_session_tree(inner_win, inner_pane, filter == "dormant" and "all" or "dormant")
+        end)
+        return
+      end
+      if pending == "close-target" then
+        if not id then
+          return
+        end
+        local close_notice, reopen = close_session_target(inner_win, inner_pane, id, by_id)
+        if reopen then
+          wezterm.time.call_after(0.15, function()
+            open_session_tree(inner_win, inner_pane, filter, close_notice)
+          end)
+        end
+        return
+      end
       session_tree_dispatch(inner_win, inner_pane, id, by_id)
     end)
+    tree_pending_actions[tree_window_id(win)] = nil
+    win:perform_action(wezterm.action.ActivateKeyTable({ name = "sysinit_session_tree", one_shot = false }), pane)
     win:perform_action(wezterm.action.InputSelector(options), pane)
   end
 

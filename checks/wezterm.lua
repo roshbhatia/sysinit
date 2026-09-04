@@ -51,11 +51,25 @@ local wezterm = {
   on = function(name, callback)
     handlers[name] = callback
   end,
+  time = {
+    call_after = function(_, callback)
+      callback()
+    end,
+  },
   plugin = {
     list = function()
       return {}
     end,
   },
+  split_by_newlines = function(value)
+    local lines = {}
+    for line in value:gmatch("([^\n]*)\n?") do
+      if line ~= "" then
+        lines[#lines + 1] = line
+      end
+    end
+    return lines
+  end,
 }
 package.loaded.wezterm = wezterm
 
@@ -67,14 +81,15 @@ real_utils.get_nix_binary = function(name)
   return "/profile/bin/" .. name
 end
 local nu_args = real_utils.get_nushell_args()
+local expected_config_root = os.getenv("XDG_CONFIG_HOME") or "/home/test/.config"
 assert(table.concat(nu_args, "\n") == table.concat({
   "/profile/bin/nu",
   "--config",
-  "/home/test/.config/nushell/config.nu",
+  expected_config_root .. "/nushell/config.nu",
   "--env-config",
-  "/home/test/.config/nushell/env.nu",
+  expected_config_root .. "/nushell/env.nu",
   "--plugin-config",
-  "/home/test/.config/nushell/plugin.msgpackz",
+  expected_config_root .. "/nushell/plugin.msgpackz",
 }, "\n"), "WezTerm did not pass every managed Nushell path")
 
 package.loaded["sysinit.pkg.utils"] = {
@@ -144,6 +159,10 @@ key_binding("h", "CTRL").action(window, pane)
 assert(performed[1].SendKey.key == "h", "CTRL-h did not pass through to Neovim")
 key_binding("v", "CTRL").action(window, pane)
 assert(performed[2].SplitHorizontal.domain == "CurrentPaneDomain", "CTRL-v did not split from Neovim")
+key_binding("s", "CTRL|SHIFT").action(window, pane)
+assert(performed[3].SplitPane.direction == "Down", "CTRL-SHIFT-s did not create a top-level down split")
+key_binding("v", "CTRL|SHIFT").action(window, pane)
+assert(performed[4].SplitPane.direction == "Right", "CTRL-SHIFT-v did not create a top-level right split")
 pane_vars = {}
 current_process = "slk"
 for _, chord in ipairs({
@@ -160,17 +179,38 @@ for _, chord in ipairs({
 end
 current_process = "zsh"
 key_binding("h", "CTRL").action(window, pane)
-assert(performed[9].ActivatePaneDirection == "Left", "CTRL-h did not move from a shell pane")
+assert(performed[11].ActivatePaneDirection == "Left", "CTRL-h did not move from a shell pane")
 -- nu is the pane shell now, so a shell list that forgot it would send every
 -- readline chord to wezterm instead of to the prompt.
 current_process = "nu"
 key_binding("u", "CTRL").action(window, pane)
-assert(performed[10].SendKey.key == "u", "CTRL-u did not pass through to a nushell pane")
-performed[10] = nil
+assert(performed[12].SendKey.key == "u", "CTRL-u did not pass through to a nushell pane")
+performed[12] = nil
 keybindings.locked_mode = true
 key_binding("h", "CTRL").action(window, pane)
-assert(performed[10].SendKey.mods == "CTRL", "locked mode consumed CTRL-h")
+assert(performed[12].SendKey.mods == "CTRL", "locked mode consumed CTRL-h")
 keybindings.locked_mode = false
+
+current_process = "traces"
+key_binding("f", "CTRL").action(window, pane)
+assert(performed[13].SendKey.key == "f", "CTRL-f did not reach Traces")
+key_binding("w", "CTRL").action(window, pane)
+assert(performed[14].SendKey.key == "w", "CTRL-w did not reach Traces")
+current_process = "orc"
+key_binding("f", "CTRL").action(window, pane)
+assert(performed[15].SendKey.key == "f", "CTRL-f did not reach Orc")
+key_binding("w", "CTRL").action(window, pane)
+assert(performed[16].SendKey.key == "w", "CTRL-w did not reach Orc")
+current_process = "slk"
+for _, key in ipairs({ "n", "w" }) do
+  local before = #performed
+  key_binding(key, "CTRL").action(window, pane)
+  assert(performed[before + 1].SendKey.key == key, "CTRL-" .. key .. " did not reach slk")
+end
+current_process = "traces"
+local before = #performed
+key_binding("n", "CTRL").action(window, pane)
+assert(performed[before + 1].SendKey.key == "n", "CTRL-n did not reach the Traces command picker")
 
 local selector = require("sysinit.pkg.ui.switcher").session_selector_options({
   { id = "ws:newest", label = "newest" },
@@ -182,6 +222,76 @@ assert(not selector.alphabet:find("j", 1, true), "j selects a row instead of mov
 assert(not selector.alphabet:find("k", 1, true), "k selects a row instead of moving up")
 assert(not selector.alphabet:find("x", 1, true), "x selects a row after the close action moved out of the picker")
 assert(not selector.alphabet:find("/", 1, true), "/ cannot enter the built-in filter")
+assert(
+  require("sysinit.pkg.ui.switcher").session_tree_description()
+    == "  j/k nav  Enter open  . dormant  x close  / filter  Esc quit",
+  "session tree help diverged from its action metadata"
+)
+
+local session_config = {}
+local switcher = require("sysinit.pkg.ui.switcher")
+switcher.setup(session_config, { apply_to_config = function() end }, {
+  sessions = function()
+    return {}, {}
+  end,
+  tree = function()
+    return { workspaces = {}, attention = {}, unreachable = {} }
+  end,
+  colors = function()
+    return {}
+  end,
+  icons = {},
+  home = "/home/test",
+})
+local session_keys = {}
+for _, binding in ipairs(session_config.key_tables.sysinit_session_tree) do
+  session_keys[binding.key] = binding
+end
+assert(session_keys["."] and session_keys.x, "session actions are absent from the hidden key table")
+assert(session_keys["/"], "slash cannot leave the action layer and enter filtering")
+local tree_actions = {}
+local tree_window = {
+  window_id = function()
+    return 7
+  end,
+  perform_action = function(_, value)
+    tree_actions[#tree_actions + 1] = value
+  end,
+}
+session_keys["."].action(tree_window, pane)
+assert(#tree_actions == 2, "dot did not leave the session action table before accepting the row")
+assert(tree_actions[2].SendKey.key == "Enter", "dot did not accept the selected session row")
+tree_actions = {}
+session_keys["/"].action(tree_window, pane)
+assert(#tree_actions == 2, "slash did not leave the session action table")
+assert(tree_actions[2].SendKey.key == "/", "slash did not enter the native filter")
+
+local listed_args
+wezterm.run_child_process = function(args)
+  listed_args = args
+  return true, "newest\nolder\n"
+end
+local listed = require("sysinit.pkg.ui.sessions").list_names("/profile/bin/sy")
+assert(listed_args[3] == "--names", "dormant discovery parses the human session table")
+assert(table.concat(listed, ",") == "newest,older", "dormant discovery lost on-disk sessions")
+
+local refreshed
+local switch_action
+local session_actions = require("sysinit.pkg.ui.actions")
+session_actions.set_refresh_handler(function(target)
+  refreshed = target
+end)
+local switch_window = {
+  active_workspace = function()
+    return "older"
+  end,
+  perform_action = function(_, value)
+    switch_action = value
+  end,
+}
+session_actions.switch_to_workspace(switch_window, pane, "newest")
+assert(switch_action.SwitchToWorkspace.name == "newest", "session switch did not target the selected workspace")
+assert(refreshed == switch_window, "session switch did not refresh the active session indicator")
 
 local windowtitle = require("sysinit.pkg.ui.windowtitle")
 local test_home = os.getenv("HOME") or "/home/test"

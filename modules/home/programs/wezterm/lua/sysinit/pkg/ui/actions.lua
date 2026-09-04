@@ -3,6 +3,20 @@ local ui_sessions = require("sysinit.pkg.ui.sessions")
 local utils = require("sysinit.pkg.utils")
 
 local M = {}
+local refresh_handler
+
+function M.set_refresh_handler(handler)
+  refresh_handler = handler
+end
+
+local function refresh(window)
+  if not refresh_handler then
+    return
+  end
+  wezterm.time.call_after(0.05, function()
+    pcall(refresh_handler, window)
+  end)
+end
 
 -- A remote host has its own nix profile, so its shell is never at the local path.
 -- `nu -e` runs the jump and then stays interactive, so no exec is needed. The
@@ -61,6 +75,7 @@ function M.switch_to_workspace(win, pane, name, opts)
     pcall(function()
       gui:focus()
     end)
+    refresh(gui)
     return
   end
   if type(opts) == "string" then
@@ -80,6 +95,7 @@ function M.switch_to_workspace(win, pane, name, opts)
     act = wezterm.action.SwitchToWorkspace({ name = name })
   end
   win:perform_action(act, pane)
+  refresh(win)
 end
 
 -- The slot is what the session chips are numbered with, so a slot jump and a

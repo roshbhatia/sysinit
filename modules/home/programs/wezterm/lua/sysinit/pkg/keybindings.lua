@@ -34,6 +34,27 @@ local APP_KEYS = (function()
   return both
 end)()
 
+local TRACE_KEYS = (function()
+  local both = {}
+  for _, name in ipairs(APP_KEYS) do
+    both[#both + 1] = name
+  end
+  both[#both + 1] = "traces"
+  both[#both + 1] = "orc"
+  return both
+end)()
+
+local WINDOW_PREFIX = (function()
+  local both = {}
+  for _, name in ipairs(READLINE) do
+    both[#both + 1] = name
+  end
+  both[#both + 1] = "slk"
+  both[#both + 1] = "traces"
+  both[#both + 1] = "orc"
+  return both
+end)()
+
 local READLINE_AND_SLK = (function()
   local both = {}
   for _, name in ipairs(READLINE) do
@@ -119,16 +140,12 @@ local function get_pane_keys()
       passthrough_nvim = false,
     }),
 
-    create_smart_keybind("s", "CTRL|SHIFT", act.SplitPane({ direction = "Down", top_level = true }), {
-      passthrough = EDITORS,
-    }),
-    create_smart_keybind("v", "CTRL|SHIFT", act.SplitPane({ direction = "Right", top_level = true }), {
-      passthrough = EDITORS,
-    }),
+    create_smart_keybind("s", "CTRL|SHIFT", act.SplitPane({ direction = "Down", top_level = true })),
+    create_smart_keybind("v", "CTRL|SHIFT", act.SplitPane({ direction = "Right", top_level = true })),
     -- CTRL-m is a carriage return, but nothing types it instead of Enter, and a
     -- passthrough would cost pane zoom inside an editor. Left bound on purpose.
     create_smart_keybind("m", "CTRL", act.TogglePaneZoomState),
-    create_smart_keybind("n", "CTRL", act.RotatePanes("Clockwise"), { passthrough = EDITORS }),
+    create_smart_keybind("n", "CTRL", act.RotatePanes("Clockwise"), { passthrough = TRACE_KEYS }),
   }
 
   for _, key in ipairs({ "h", "j", "k", "l" }) do
@@ -141,11 +158,11 @@ local function get_pane_keys()
   end
 
   for _, binding in
-    -- CTRL-w is the editor window prefix and readline's kill-word. SUPER-w
-    -- closes the pane, so the chord loses nothing by passing through.
+    -- CTRL-w is the window prefix in editors, Traces, and Orc, and readline's
+    -- kill-word. SUPER-w keeps pane close reachable in every context.
     ipairs(create_multi_mod_bindings("w", function()
       return act.CloseCurrentPane({ confirm = true })
-    end, nil, { passthrough = READLINE }))
+    end, nil, { passthrough = WINDOW_PREFIX }))
   do
     table.insert(keys, binding)
   end
@@ -454,7 +471,7 @@ local function get_search_keys()
     create_smart_keybind("/", "CTRL", act.Search("CurrentSelectionOrEmptyString"), {
       passthrough = EDITORS,
     }),
-    create_smart_keybind("f", "CTRL", act.QuickSelect, { passthrough = APP_KEYS }),
+    create_smart_keybind("f", "CTRL", act.QuickSelect, { passthrough = TRACE_KEYS }),
     create_smart_keybind("f", "CTRL|SHIFT", act.PaneSelect),
   }
 end

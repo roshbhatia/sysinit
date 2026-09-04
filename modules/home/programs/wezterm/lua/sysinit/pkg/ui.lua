@@ -319,6 +319,9 @@ function M.setup(config)
       extensions = {},
     })
     tabline.apply_to_config(config)
+    ui_actions.set_refresh_handler(function(window)
+      tabline.refresh(window, nil)
+    end)
   end
 
   if not tabline_ok then
