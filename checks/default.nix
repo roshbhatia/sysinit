@@ -16,6 +16,7 @@ assert !(builtins.elem "/opt/homebrew/bin" linuxPath);
     touch $out
   '';
   editor-config = import ./editor-config.nix { inherit pkgs; };
+  closed-lid-ssh = import ./closed-lid-ssh.nix { inherit pkgs; };
   go-tests = pkgs.sysinit-gotools;
   orc-no-startup-units = pkgs.runCommand "orc-no-startup-units" { } ''
     test ! -e ${pkgs.orc-cli}/etc/systemd

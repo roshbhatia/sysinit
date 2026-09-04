@@ -8,6 +8,7 @@
     ../home/programs/git/options.nix
 
     ./aerospace.nix
+    ./closed-lid-ssh.nix
     ./clamshell.nix
     ./borders.nix
     ./codesign.nix
