@@ -50,6 +50,22 @@ let
     };
   };
 
+  codexMcpServers = lib.mapAttrs (
+    name: server:
+    lib.hm.mcp.transformMcpServer {
+      inherit server;
+      exclude = [
+        "headers"
+        "type"
+      ];
+      extraTransforms = [
+        (s: s // lib.optionalAttrs (s.headers or { } != { }) { http_headers = s.headers; })
+        lib.hm.mcp.addType
+        (lib.hm.mcp.wrapEnvFilesCommand { inherit pkgs name; })
+      ];
+    }
+  ) (kit.mcpServers.serversFor "codex");
+
   codexManagedFiles = [ "config.toml" ] ++ map (n: "${n}.config.toml") (lib.attrNames codexProfiles);
 
   retireLegacyHooks = pkgs.writeShellScript "codex-retire-legacy-hooks" ''
@@ -103,7 +119,7 @@ in
 
   programs.codex = {
     enable = true;
-    enableMcpIntegration = true;
+    enableMcpIntegration = false;
     context = kit.mkInstructionsWithStyle {
       harness = "codex";
       skillsRoot = "~/.claude/skills";
@@ -126,6 +142,7 @@ in
     settings = {
       check_for_update_on_startup = false;
       compact_prompt = compactPrompt;
+      mcp_servers = codexMcpServers;
 
       approval_policy = "never";
 

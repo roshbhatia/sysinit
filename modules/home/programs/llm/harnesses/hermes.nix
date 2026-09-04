@@ -9,7 +9,7 @@ let
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
   hermesSettings = {
-    mcp_servers = llmLib.mcp.formatForHermes kit.mcpServers.servers;
+    mcp_servers = llmLib.mcp.formatForHermes (kit.mcpServers.serversFor "hermes");
 
     skills = {
       external_dirs = [ "${config.home.homeDirectory}/.claude/skills" ];

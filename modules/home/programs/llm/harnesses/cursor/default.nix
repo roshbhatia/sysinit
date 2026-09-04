@@ -23,7 +23,7 @@ let
   };
 
   cursorMcpConfig = builtins.toJSON {
-    mcpServers = llmLib.mcp.formatForCursor kit.mcpServers.servers;
+    mcpServers = llmLib.mcp.formatForCursor (kit.mcpServers.serversFor "cursor");
   };
 
   alwaysMdc = pkgs.writeText "cursor-always.mdc" ''

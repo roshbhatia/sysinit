@@ -31,7 +31,7 @@ let
   render = import ./render.nix { inherit pkgs lib; };
 
   opencodeConfig = render.main // {
-    mcp = llmLib.mcp.formatForOpencode disabledMcpServers kit.mcpServers.servers;
+    mcp = llmLib.mcp.formatForOpencode disabledMcpServers (kit.mcpServers.serversFor "opencode");
 
   };
 

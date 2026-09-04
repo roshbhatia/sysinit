@@ -17,7 +17,7 @@ let
   };
 
   copilotMcpConfig = builtins.toJSON {
-    mcpServers = llmLib.mcp.formatForCopilot kit.mcpServers.servers;
+    mcpServers = llmLib.mcp.formatForCopilot (kit.mcpServers.serversFor "copilot");
   };
 
   exitCodeGuardScript = llmLib.guards.mkExitCodeGuard {

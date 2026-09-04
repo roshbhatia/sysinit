@@ -90,6 +90,8 @@ let
     tom = true;
   };
 
+  gooseMcpServers = kit.mcpServers.serversFor "goose";
+
   # Dropped from the file rather than left disabled. `work-graph` pointed at a
   # store path the collector had already taken, and the rest were clicked in
   # through the Goose UI for a tool this host no longer reaches.
@@ -144,7 +146,7 @@ let
     GOOSE_TELEMETRY_ENABLED = true;
 
     extensions =
-      llmLib.mcp.formatForGoose kit.mcpServers.servers
+      llmLib.mcp.formatForGoose gooseMcpServers
       // lib.mapAttrs mkBundledExtension bundledExtensions
       // lib.mapAttrs mkLocalExtension localExtensions
       // lib.mapAttrs mkPlatformExtension platformExtensions;
@@ -229,12 +231,19 @@ in
         "extensions"
         name
         "enabled"
-      ]) (builtins.attrNames kit.mcpServers.servers ++ builtins.attrNames platformExtensions);
+      ]) (builtins.attrNames gooseMcpServers ++ builtins.attrNames platformExtensions);
       retire =
-        map (name: [
-          "extensions"
-          name
-        ]) config.sysinit.llm.mcp.suppressedServers
+        map
+          (name: [
+            "extensions"
+            name
+          ])
+          (
+            lib.unique (
+              config.sysinit.llm.mcp.suppressedServers
+              ++ (config.sysinit.llm.mcp.harnessSuppressedServers.goose or [ ])
+            )
+          )
         ++ map (name: [
           "extensions"
           name

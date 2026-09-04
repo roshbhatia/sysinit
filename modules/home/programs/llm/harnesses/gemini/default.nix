@@ -33,7 +33,7 @@ let
   };
 
   mcpConfigJson = builtins.toJSON {
-    mcpServers = llmLib.mcp.formatForAntigravity kit.mcpServers.servers;
+    mcpServers = llmLib.mcp.formatForAntigravity (kit.mcpServers.serversFor "gemini");
   };
 
   openspecPluginManifest = builtins.toJSON {

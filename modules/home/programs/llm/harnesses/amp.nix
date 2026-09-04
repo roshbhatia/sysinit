@@ -17,7 +17,7 @@ let
 
   ampSettings = {
     "amp.git.commit.ampThread.enabled" = false;
-    "amp.mcpServers" = llmLib.mcp.formatForAmp kit.mcpServers.servers;
+    "amp.mcpServers" = llmLib.mcp.formatForAmp (kit.mcpServers.serversFor "amp");
     "amp.permissions" =
       builtins.map (tool: {
         inherit tool;

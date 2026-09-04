@@ -62,7 +62,7 @@ in
     path = ".config/devin/mcp_config.json";
     format = "json";
     content = {
-      mcpServers = llmLib.mcp.formatForCursor kit.mcpServers.servers;
+      mcpServers = llmLib.mcp.formatForCursor (kit.mcpServers.serversFor "devin");
     };
     enforce = [ "mcpServers" ];
   };

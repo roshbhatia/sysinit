@@ -56,11 +56,24 @@ let
 
   disabledBuiltinServers = config.sysinit.llm.mcp.disabledBuiltinServers;
   slackAllowedChannels = config.sysinit.llm.mcp.slackAllowedSendChannels;
+
+  claudeMcpServers = lib.mapAttrs (
+    name: server:
+    lib.hm.mcp.transformMcpServer {
+      server = removeAttrs server [ "type" ];
+      exclude = [ "enabled" ];
+      extraTransforms = [
+        lib.hm.mcp.addType
+        (lib.hm.mcp.wrapEnvFilesCommand { inherit pkgs name; })
+      ];
+    }
+  ) (kit.mcpServers.serversFor "claude");
 in
 {
   programs.claude-code = {
     enable = true;
-    enableMcpIntegration = true;
+    enableMcpIntegration = false;
+    mcpServers = claudeMcpServers;
 
     settings = {
       env = {
