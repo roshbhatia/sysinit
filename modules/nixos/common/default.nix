@@ -95,7 +95,10 @@
         PasswordAuthentication = false;
         PermitRootLogin = "no";
         X11Forwarding = false;
-        SetEnv = "SHELL=/run/current-system/sw/bin/zsh";
+        # Nushell does not source the POSIX profile that normally prepends the
+        # NixOS setuid wrappers. Supply the complete SSH command environment so
+        # remote tools resolve the privileged sudo wrapper, not the store copy.
+        SetEnv = "SHELL=/run/current-system/sw/bin/zsh PATH=/run/wrappers/bin:/etc/profiles/per-user/${values.user.username}/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin";
       };
     };
 
