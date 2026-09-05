@@ -246,7 +246,7 @@ in
         # otherwise report one shared prompt session to oh-my-posh.
         $env.POSH_SESSION_ID = (random uuid)
 
-        source ${functionsFile}
+        use ${functionsFile} *
 
         ${lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
           alias nu-open = open

@@ -14,7 +14,7 @@ def sysinit-ls-icon [kind: string] {
   }
 }
 
-def ls [
+export def ls [
   --all (-a)
   --long (-l)
   --short-names (-s)
@@ -41,7 +41,7 @@ def ls [
   | move icon --before name
 }
 
-alias ll = ls --all --long
+export alias ll = ls --all --long
 
 def sysinit-seshy-session [dir: string] {
   if ($dir | str starts-with $"($SESHY_ROOT)/") {
@@ -67,7 +67,7 @@ def sysinit-seshy-names [] {
   | where {|name| $name | is-not-empty }
 }
 
-def --env s [name?: string] {
+export def --env s [name?: string] {
   if ($name | is-empty) {
     print -e "seshy: usage: s <session>"
     return
@@ -84,7 +84,7 @@ def --env s [name?: string] {
 # zmx holds terminal state in libghostty-vt and hands the client a grid snapshot,
 # so OSC never crosses it. A wrapped pane loses OSC 7 and OSC 1337 SetUserVar,
 # which is every wezterm surface this config drives. Attaching stays deliberate.
-def sz [] {
+export def sz [] {
   if (which zmx | is-empty) {
     print -e "seshy: zmx not found on PATH"
     return
@@ -101,11 +101,11 @@ def sz [] {
   ^zmx attach $session
 }
 
-def sl [] {
+export def sl [] {
   sysinit-seshy-names
 }
 
-def --env si [] {
+export def --env si [] {
   let names = (sysinit-seshy-names)
   if ($names | is-empty) {
     return
@@ -126,26 +126,26 @@ def sysinit-set-user-var [name: string, value: string] {
   print -n $"(ansi -o $'($name)=($value | encode base64)')(char bel)"
 }
 
-def wezcopy [...args: string] {
+export def wezcopy [...args: string] {
   let data = if ($args | is-empty) { $in | into string } else { $args | str join " " }
   sysinit-set-user-var "1337;SetUserVar=wez_copy" $data
 }
 
-def weznot [message: string] {
+export def weznot [message: string] {
   sysinit-set-user-var "1337;SetUserVar=wez_not" $message
 }
 
 # wezmon needs `eval`, which nushell does not have, so it stays a zsh function
 # and this is the shim. argv rides in as positional words, so quoting survives.
-def --wrapped wezmon [...args: string] {
+export def --wrapped wezmon [...args: string] {
   ^zsh -ic 'wezmon "$@"' wezmon ...$args
 }
 
-def "path.print" [] {
+export def "path.print" [] {
   $env.PATH | to text | ^bat --style=numbers,grid --language=txt
 }
 
-def "env.print" [pattern?: string] {
+export def "env.print" [pattern?: string] {
   let prefix = ($pattern | default "")
   $env
   | transpose name value
@@ -156,10 +156,10 @@ def "env.print" [pattern?: string] {
   | ^bat --style=numbers,grid --language=txt
 }
 
-alias nuvim-plugin-context = nuvim context
-alias nuvim-plugin-servers = nuvim servers
+export alias nuvim-plugin-context = nuvim context
+export alias nuvim-plugin-servers = nuvim servers
 
-def --env nuvim [] {
+export def --env nuvim [] {
   if ($env.NVIM? | default "" | is-not-empty) {
     return (nuvim-plugin-context)
   }
@@ -180,6 +180,7 @@ def --env nuvim [] {
   nuvim-plugin-context
 }
 
+export-env {
 $env.config.hooks.env_change.PWD = (
   $env.config.hooks.env_change.PWD?
   | default []
@@ -236,3 +237,4 @@ $env.config.hooks.pre_prompt = (
     hide-env --ignore-errors ASK_CAPTURE_PENDING
   }
 )
+}

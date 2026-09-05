@@ -23,6 +23,18 @@ let
   };
   mcp = import ../modules/home/programs/llm/lib/mcp.nix { inherit (pkgs) lib; };
   ampMcpServers = mcp.formatForAmp (mcpCatalog.serversFor "amp");
+  nuFunctions = pkgs.writeText "sysinit-functions.nu" (
+    builtins.replaceStrings
+      [
+        "@seshySessions@"
+        "@timeout@"
+      ]
+      [
+        "/tmp/seshy-sessions"
+        "${pkgs.coreutils}/bin/timeout"
+      ]
+      (builtins.readFile ../modules/home/programs/nushell/functions.nu)
+  );
 in
 assert builtins.elemAt darwinPath 3 == "/opt/homebrew/bin";
 assert builtins.elemAt darwinPath 4 == "/opt/homebrew/sbin";
@@ -44,4 +56,13 @@ assert !(ampMcpServers ? suppressed);
     test ! -e ${pkgs.orc-cli}/Library/LaunchDaemons
     touch $out
   '';
+  nushell-command-surface =
+    pkgs.runCommand "nushell-command-surface" { nativeBuildInputs = [ pkgs.jq ]; }
+      ''
+        export HOME="$TMPDIR"
+        ${pkgs.nushell}/bin/nu --no-config-file -c \
+          'use ${nuFunctions} *; ls | columns | to json -r' \
+          | jq -e 'index("icon") != null' > /dev/null
+        touch $out
+      '';
 }
