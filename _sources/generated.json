@@ -8,11 +8,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-cFs6w3oeq7/FUMUmB0yiv/4vhiQvKCxkIyGU5uk46ek=",
+            "sha256": "sha256-+aRc4sVQmvG507gRxTiU5HHWaWssnjgo3qD08fxsXm8=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1788177654-gb73383/amp-darwin-arm64.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1788595248-g1c7a80/amp-darwin-arm64.gz"
         },
-        "version": "0.0.1788177654-gb73383"
+        "version": "0.0.1788595248-g1c7a80"
     },
     "amp-cli-aarch64-linux": {
         "cargoLock": null,
@@ -23,11 +23,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-L8RFp2YHmoRRAKQm/rlkTNXCcTA41wEk6XMyz5ovWiA=",
+            "sha256": "sha256-jbp1aMh6VlqIGIFIH4stMVZc/tgRrHFPe8ShEldcXFc=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1788177654-gb73383/amp-linux-arm64.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1788595248-g1c7a80/amp-linux-arm64.gz"
         },
-        "version": "0.0.1788177654-gb73383"
+        "version": "0.0.1788595248-g1c7a80"
     },
     "amp-cli-x86_64-linux": {
         "cargoLock": null,
@@ -38,11 +38,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-GAhjw2uMirAO3wPKH1XwXpQAU9UVPtG77BUn2O6vj54=",
+            "sha256": "sha256-8tLLVft9iMjVMKQs1sdgbAPUxgr2Q97PciMVcZHUnl4=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1788177654-gb73383/amp-linux-x64-baseline.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1788595248-g1c7a80/amp-linux-x64-baseline.gz"
         },
-        "version": "0.0.1788177654-gb73383"
+        "version": "0.0.1788595248-g1c7a80"
     },
     "atomic-coding-agent": {
         "cargoLock": null,
@@ -113,11 +113,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-xlXAcJEwC5XkMalq9fVo40M0J69T1gZJiu65n4cHNtA=",
+            "sha256": "sha256-KwUqkngBqeqRaY3kgiisPm4RcUmMVWF+H515VA8Zs6w=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.91.2/crush_0.91.2_Darwin_arm64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.92.0/crush_0.92.0_Darwin_arm64.tar.gz"
         },
-        "version": "0.91.2"
+        "version": "0.92.0"
     },
     "crush-aarch64-linux": {
         "cargoLock": null,
@@ -128,11 +128,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-ueuBebuKm4Kg/IfP8EcMghr9N4n1cKki5hzdvjttZKI=",
+            "sha256": "sha256-G28DhCl6HnfQHfQdsfVvwIcvHpydmWNMSywgi3u12TU=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.91.2/crush_0.91.2_Linux_arm64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.92.0/crush_0.92.0_Linux_arm64.tar.gz"
         },
-        "version": "0.91.2"
+        "version": "0.92.0"
     },
     "crush-x86_64-darwin": {
         "cargoLock": null,
@@ -143,11 +143,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-Qjq2fDbV8UgzPrVie3z+z4xg0nB6aQJfcSKcJTwfWsw=",
+            "sha256": "sha256-lmuPiQcjkuiHdqZnRm+g4f7133MMXArsF3ShMjx+ZJ0=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.91.2/crush_0.91.2_Darwin_x86_64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.92.0/crush_0.92.0_Darwin_x86_64.tar.gz"
         },
-        "version": "0.91.2"
+        "version": "0.92.0"
     },
     "crush-x86_64-linux": {
         "cargoLock": null,
@@ -158,11 +158,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-Il6zmt/2VBkPsdGvtMKKaKOeg5fkR3mJYDXo+7Xx3hY=",
+            "sha256": "sha256-fZrKmreAjugooLsP3gHZb8SAzgpmpf9heqJ6wJ4jy9U=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.91.2/crush_0.91.2_Linux_x86_64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.92.0/crush_0.92.0_Linux_x86_64.tar.gz"
         },
-        "version": "0.91.2"
+        "version": "0.92.0"
     },
     "fx": {
         "cargoLock": null,
@@ -275,11 +275,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-1QKUX8p42OWMj1aTKXP0VK1X0HVLJy9dRPaWpHItpJo=",
+            "sha256": "sha256-AlSb+IT5ACQRpyDDZIdTYzOCoBS3IZmmG9vB/6IfrVc=",
             "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.48.0/goose-aarch64-apple-darwin.tar.gz"
+            "url": "https://github.com/block/goose/releases/download/v1.49.0/goose-aarch64-apple-darwin.tar.gz"
         },
-        "version": "1.48.0"
+        "version": "1.49.0"
     },
     "goose-cli-bin-aarch64-linux": {
         "cargoLock": null,
@@ -290,11 +290,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-tlBuc+wVY3rHzY08Cd+X9e7/VACUap6PDUyPWQXlPzs=",
+            "sha256": "sha256-gzvkqG7Ufjnhn5bj/OAe5hcFmcbhIgJIxOOBh9JF08w=",
             "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.48.0/goose-aarch64-unknown-linux-gnu.tar.gz"
+            "url": "https://github.com/block/goose/releases/download/v1.49.0/goose-aarch64-unknown-linux-gnu.tar.gz"
         },
-        "version": "1.48.0"
+        "version": "1.49.0"
     },
     "goose-cli-bin-x86_64-darwin": {
         "cargoLock": null,
@@ -305,11 +305,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-F0BclL8HzLjC9UFOuwRdxAmi1U+huRJ8gTeirdYXITs=",
+            "sha256": "sha256-iPqVsveXpFEzWfJvgvxIo7EyCFe+Jqr4qW1uUY6EWlo=",
             "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.48.0/goose-x86_64-apple-darwin.tar.gz"
+            "url": "https://github.com/block/goose/releases/download/v1.49.0/goose-x86_64-apple-darwin.tar.gz"
         },
-        "version": "1.48.0"
+        "version": "1.49.0"
     },
     "goose-cli-bin-x86_64-linux": {
         "cargoLock": null,
@@ -320,11 +320,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-PDjHkHI/3kUyNX81NGtxkL1w0ZjmvlWfn/6sTPfJgVI=",
+            "sha256": "sha256-ONUDXkp4b2tiq+DNDyvvfmrIBB4+AG4gAFYd2N9q6tM=",
             "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.48.0/goose-x86_64-unknown-linux-gnu.tar.gz"
+            "url": "https://github.com/block/goose/releases/download/v1.49.0/goose-x86_64-unknown-linux-gnu.tar.gz"
         },
-        "version": "1.48.0"
+        "version": "1.49.0"
     },
     "hererocks": {
         "cargoLock": null,
@@ -473,11 +473,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-xo46xNBbTigqqrLmx28WHT6eaPGaIuOJE8v6rbbIAPA=",
+            "sha256": "sha256-sKGjq5cIBH4xt2onkR6LRFs+Sjji9GoItmNd9180mcA=",
             "type": "url",
-            "url": "https://github.com/earendil-works/pi/releases/download/v0.84.4/pi-darwin-arm64.tar.gz"
+            "url": "https://github.com/earendil-works/pi/releases/download/v0.85.0/pi-darwin-arm64.tar.gz"
         },
-        "version": "0.84.4"
+        "version": "0.85.0"
     },
     "pi-coding-agent-aarch64-linux": {
         "cargoLock": null,
@@ -488,11 +488,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-E1WA9rlCFRZG5nuLhm2YfSjOPP9aSXAwd13dKWWflD0=",
+            "sha256": "sha256-ghdQ4Kxr9uEMNbk92riKRPLQ74QRr56k6P/mIPYhMN8=",
             "type": "url",
-            "url": "https://github.com/earendil-works/pi/releases/download/v0.84.4/pi-linux-arm64.tar.gz"
+            "url": "https://github.com/earendil-works/pi/releases/download/v0.85.0/pi-linux-arm64.tar.gz"
         },
-        "version": "0.84.4"
+        "version": "0.85.0"
     },
     "pi-coding-agent-x86_64-darwin": {
         "cargoLock": null,
@@ -503,11 +503,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-egQtZBMGVCE4cAGkmGGQoaAxhslaaV9N7gvcduYN6Pc=",
+            "sha256": "sha256-YRKQ4DKkfxVGvTDhLBSlmmAKJGYtUjnAwVnvPHoMo7A=",
             "type": "url",
-            "url": "https://github.com/earendil-works/pi/releases/download/v0.84.4/pi-darwin-x64.tar.gz"
+            "url": "https://github.com/earendil-works/pi/releases/download/v0.85.0/pi-darwin-x64.tar.gz"
         },
-        "version": "0.84.4"
+        "version": "0.85.0"
     },
     "pi-coding-agent-x86_64-linux": {
         "cargoLock": null,
@@ -518,11 +518,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-wvPD5qGFC9h2VMw8qIEQEycjl8PQQqTipkxD7htCOXI=",
+            "sha256": "sha256-p+fGXx3FKNLhfn2UatK2HfDisPmVL67neAfCSEtGTW4=",
             "type": "url",
-            "url": "https://github.com/earendil-works/pi/releases/download/v0.84.4/pi-linux-x64.tar.gz"
+            "url": "https://github.com/earendil-works/pi/releases/download/v0.85.0/pi-linux-x64.tar.gz"
         },
-        "version": "0.84.4"
+        "version": "0.85.0"
     },
     "prime-agent": {
         "cargoLock": null,
@@ -533,10 +533,10 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-RsJNsXgt0xrcNdXGy8x1Vk+rps7TvyzPA9g27ncTRHU=",
+            "sha256": "sha256-VzvODNAE/GIFLpqSQImUG385Jmq3HmapTIWh+dNYNbo=",
             "type": "url",
-            "url": "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.8.1/prime-agent-0.8.1.tgz"
+            "url": "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.9.1/prime-agent-0.9.1.tgz"
         },
-        "version": "0.8.1"
+        "version": "0.9.1"
     }
 }
