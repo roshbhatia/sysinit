@@ -8,26 +8,26 @@
 {
   amp-cli = {
     pname = "amp-cli";
-    version = "0.0.1788609637-g09e066";
+    version = "0.0.1788624043-gf294bf";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1788609637-g09e066/amp-darwin-arm64.gz";
-      sha256 = "sha256-lhKD73z63Ej1fycVpL/T9divgma0zRklg0CT5hGBTx0=";
+      url = "https://static.ampcode.com/cli/0.0.1788624043-gf294bf/amp-darwin-arm64.gz";
+      sha256 = "sha256-jxXfMkIPExuvsKQosCCA45pYUKTtnlnKQBRWQRpMK2o=";
     };
   };
   amp-cli-aarch64-linux = {
     pname = "amp-cli-aarch64-linux";
-    version = "0.0.1788609637-g09e066";
+    version = "0.0.1788624043-gf294bf";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1788609637-g09e066/amp-linux-arm64.gz";
-      sha256 = "sha256-K8mVZRnAWTdbvFqN5D9QSDyyJ84lPxLwosjx3bxOgt8=";
+      url = "https://static.ampcode.com/cli/0.0.1788624043-gf294bf/amp-linux-arm64.gz";
+      sha256 = "sha256-vv4VRfnUWnlPNX0kw78rNGSMDp+J1qDx+7IPH0eH42g=";
     };
   };
   amp-cli-x86_64-linux = {
     pname = "amp-cli-x86_64-linux";
-    version = "0.0.1788609637-g09e066";
+    version = "0.0.1788624043-gf294bf";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1788609637-g09e066/amp-linux-x64-baseline.gz";
-      sha256 = "sha256-YOGmr7H1GbSA3lDqGa7ClOXEXFwe/CkPa8OYpnkT6I8=";
+      url = "https://static.ampcode.com/cli/0.0.1788624043-gf294bf/amp-linux-x64-baseline.gz";
+      sha256 = "sha256-e/hLG+/kASexvWTGe+X846d+Xk6Leb/mWHN/a0OxZnc=";
     };
   };
   atomic-coding-agent = {
@@ -287,10 +287,10 @@
   };
   prime-agent = {
     pname = "prime-agent";
-    version = "0.9.1";
+    version = "0.9.2";
     src = fetchurl {
-      url = "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.9.1/prime-agent-0.9.1.tgz";
-      sha256 = "sha256-VzvODNAE/GIFLpqSQImUG385Jmq3HmapTIWh+dNYNbo=";
+      url = "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.9.2/prime-agent-0.9.2.tgz";
+      sha256 = "sha256-1km58CWMd959AqujPXhpJc5Bo2tgHo4k7vDwC9wvH0k=";
     };
   };
 }
