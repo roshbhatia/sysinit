@@ -840,6 +840,38 @@
         "type": "github"
       }
     },
+    "nixpkgs-x86_64-darwin": {
+      "locked": {
+        "lastModified": 1788334797,
+        "narHash": "sha256-nskSa8kDimM7F0VFSP8IdoSNo4G0vKzOtxwvOFpoGDI=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "c19db427a1fdfc7591c0b0baeb4665dcef2c61da",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-26.05-darwin",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs-x86_64-darwin_2": {
+      "locked": {
+        "lastModified": 1788334797,
+        "narHash": "sha256-nskSa8kDimM7F0VFSP8IdoSNo4G0vKzOtxwvOFpoGDI=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "c19db427a1fdfc7591c0b0baeb4665dcef2c61da",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-26.05-darwin",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "nixpkgs_2": {
       "locked": {
         "lastModified": 1787962033,
@@ -1051,16 +1083,17 @@
         "nixpkgs": [
           "nixpkgs"
         ],
+        "nixpkgs-x86_64-darwin": "nixpkgs-x86_64-darwin",
         "systems": [
           "systems"
         ]
       },
       "locked": {
-        "lastModified": 1788557887,
-        "narHash": "sha256-i1WMUntSzA3oIjoKzzeBg+ABfJAjbEtlvUbdZ4HijZM=",
+        "lastModified": 1788629292,
+        "narHash": "sha256-NO0W9ANvPykTsArc913i5q60WrmJ+MBhAx/lthLUGjo=",
         "owner": "roshbhatia",
         "repo": "orc",
-        "rev": "553f8bd28912eabb7424a4ed761bbcbb8a9247ff",
+        "rev": "d0d4109fe4b755a854c7eb966975337e98bfba87",
         "type": "github"
       },
       "original": {
@@ -1078,6 +1111,7 @@
         "nixpkgs": [
           "nixpkgs"
         ],
+        "nixpkgs-x86_64-darwin": "nixpkgs-x86_64-darwin_2",
         "orc": [
           "orc"
         ],
@@ -1090,11 +1124,11 @@
       },
       "locked": {
         "dir": "extras",
-        "lastModified": 1788557887,
-        "narHash": "sha256-i1WMUntSzA3oIjoKzzeBg+ABfJAjbEtlvUbdZ4HijZM=",
+        "lastModified": 1788629292,
+        "narHash": "sha256-NO0W9ANvPykTsArc913i5q60WrmJ+MBhAx/lthLUGjo=",
         "owner": "roshbhatia",
         "repo": "orc",
-        "rev": "553f8bd28912eabb7424a4ed761bbcbb8a9247ff",
+        "rev": "d0d4109fe4b755a854c7eb966975337e98bfba87",
         "type": "github"
       },
       "original": {
