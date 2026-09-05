@@ -50,8 +50,8 @@
 
   nix.gc = {
     automatic = true;
-    dates = "weekly";
-    options = "--delete-older-than 7d";
+    dates = "daily";
+    options = "--delete-old";
   };
 
   users.users.${values.user.username} = {

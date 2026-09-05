@@ -50,6 +50,23 @@ in
     connect-timeout = 10;
   };
 
+  determinateNix.determinateNixd.garbageCollector.strategy = "automatic";
+
+  launchd.daemons.nix-generation-gc.serviceConfig = {
+    ProgramArguments = [
+      "/nix/var/nix/profiles/default/bin/nix-collect-garbage"
+      "--delete-old"
+    ];
+    RunAtLoad = false;
+    StartCalendarInterval = [
+      {
+        Hour = 3;
+        Minute = 15;
+      }
+    ];
+    ProcessType = "Background";
+  };
+
   networking.hostName = lib.mkDefault hostname;
 
   users.users.${config.sysinit.user.username}.home = "/Users/${config.sysinit.user.username}";
