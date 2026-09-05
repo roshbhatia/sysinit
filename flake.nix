@@ -90,6 +90,7 @@
       inputs = {
         ask.follows = "ask";
         nixpkgs.follows = "nixpkgs";
+        runtime.follows = "hermes-agent";
       };
     };
 
