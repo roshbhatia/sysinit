@@ -1006,11 +1006,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788629292,
-        "narHash": "sha256-NO0W9ANvPykTsArc913i5q60WrmJ+MBhAx/lthLUGjo=",
+        "lastModified": 1788633788,
+        "narHash": "sha256-Rfvb+8Ll4WDAn8/CRuVseXEv7QE7S04GLBCl7c1H/tM=",
         "owner": "roshbhatia",
         "repo": "orc",
-        "rev": "d0d4109fe4b755a854c7eb966975337e98bfba87",
+        "rev": "ceb68ffb41b4f7e08e95f300fc2892311f847117",
         "type": "github"
       },
       "original": {
@@ -1041,11 +1041,11 @@
       },
       "locked": {
         "dir": "extras",
-        "lastModified": 1788629292,
-        "narHash": "sha256-NO0W9ANvPykTsArc913i5q60WrmJ+MBhAx/lthLUGjo=",
+        "lastModified": 1788633788,
+        "narHash": "sha256-Rfvb+8Ll4WDAn8/CRuVseXEv7QE7S04GLBCl7c1H/tM=",
         "owner": "roshbhatia",
         "repo": "orc",
-        "rev": "d0d4109fe4b755a854c7eb966975337e98bfba87",
+        "rev": "ceb68ffb41b4f7e08e95f300fc2892311f847117",
         "type": "github"
       },
       "original": {
