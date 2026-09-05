@@ -11,7 +11,6 @@ let
   systemPath = commandPath.systemEntriesFor true;
   user = config.sysinit.user.username;
   agentRegistry = "/Users/${user}/.config/sysinit/agents.json";
-  userPath = commandPath.renderFor true "/etc/profiles/per-user/${user}/bin";
 in
 {
   nix = {
@@ -97,15 +96,6 @@ in
   system.tools."darwin-uninstaller".enable = false;
 
   system = {
-    # launchd user variables do not survive logout or reboot. Persist the
-    # default and update the current GUI session during activation.
-    activationScripts.postActivation.text = ''
-      user_id="$(/usr/bin/id -u -- ${lib.escapeShellArg user})"
-      /bin/launchctl config user path ${lib.escapeShellArg userPath}
-      /bin/launchctl asuser "$user_id" /bin/launchctl setenv PATH ${lib.escapeShellArg userPath}
-      /bin/launchctl asuser "$user_id" /bin/launchctl setenv ORC_AGENT_REGISTRY ${lib.escapeShellArg agentRegistry}
-    '';
-
     defaults.LaunchServices.LSQuarantine = false;
     primaryUser = config.sysinit.user.username;
     stateVersion = 6;
