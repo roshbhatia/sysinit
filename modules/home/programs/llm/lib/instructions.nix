@@ -80,6 +80,20 @@ let
     }
   ];
 
+  orcReporting = ''
+    ## Orc Session Reporting
+
+    When `ORC_SESSION_ID` and `ORC_SCOPE` are both set, call
+    `orc_current_session` before reporting. Continue only when it confirms the
+    active Orc session identified by those values. If its role is
+    `orchestrator`, call `orc_session_report` after each material milestone and
+    before the final response.
+
+    Set `output` to a compact object with `status`, `summary`, `verification`,
+    `artifacts`, and `remaining_work`. Do not copy messages or tool events into
+    this object. Orc Activity owns those records.
+  '';
+
   makeInstructions =
     {
       harness,
@@ -105,6 +119,7 @@ let
       base = ''
         ${contextRules}
         ${loaderNote}
+        ${orcReporting}
       '';
     in
     vocab.applyVocab harness (base + lib.optionalString (extraSections != [ ]) "\n${extras}");

@@ -47,6 +47,10 @@ assert !(ampMcpServers ? suppressed);
     touch $out
   '';
   editor-config = import ./editor-config.nix { inherit pkgs; };
+  harness-instructions = import ./harness-instructions.nix {
+    inherit pkgs;
+    inherit (pkgs) lib;
+  };
   closed-lid-ssh = import ./closed-lid-ssh.nix { inherit pkgs; };
   go-tests = pkgs.sysinit-gotools;
   orc-no-startup-units = pkgs.runCommand "orc-no-startup-units" { } ''
