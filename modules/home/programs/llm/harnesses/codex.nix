@@ -198,7 +198,7 @@ in
             hooks = [
               {
                 type = "command";
-                command = "${profileBin}/orc session register --hook-input --source hook --harness codex --quiet";
+                command = "${profileBin}/orc session register --hook-input --bind-current --source hook --harness codex --quiet";
               }
             ];
           }
