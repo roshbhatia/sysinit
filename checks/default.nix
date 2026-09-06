@@ -1,5 +1,6 @@
 {
   pkgs,
+  homeManagerLib,
   ...
 }:
 let
@@ -49,6 +50,10 @@ assert !(ampMcpServers ? suppressed);
   editor-config = import ./editor-config.nix { inherit pkgs; };
   harness-instructions = import ./harness-instructions.nix {
     inherit pkgs;
+    inherit (pkgs) lib;
+  };
+  codex-legacy-hooks = import ./codex-legacy-hooks.nix {
+    inherit pkgs homeManagerLib;
     inherit (pkgs) lib;
   };
   closed-lid-ssh = import ./closed-lid-ssh.nix { inherit pkgs; };

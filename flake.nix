@@ -302,6 +302,7 @@
         system:
         import ./checks {
           inherit system;
+          homeManagerLib = inputs.home-manager.lib;
           pkgs = pkgsFor system;
         }
       );

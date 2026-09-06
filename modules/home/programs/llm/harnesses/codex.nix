@@ -67,29 +67,12 @@ let
   ) (kit.mcpServers.serversFor "codex");
 
   codexManagedFiles = [ "config.toml" ] ++ map (n: "${n}.config.toml") (lib.attrNames codexProfiles);
-
-  retireLegacyHooks = pkgs.writeShellScript "codex-retire-legacy-hooks" ''
-    set -euo pipefail
-    legacy_hooks="$HOME/.codex/hooks.json"
-    if [ -e "$legacy_hooks" ] || [ -L "$legacy_hooks" ]; then
-      backup="$HOME/.codex/hooks.json.disabled"
-      if [ -e "$backup" ] || [ -L "$backup" ]; then
-        n=1
-        while [ -e "$backup.$n" ] || [ -L "$backup.$n" ]; do
-          n=$((n + 1))
-        done
-        backup="$backup.$n"
-      fi
-      mv "$legacy_hooks" "$backup"
-    fi
-  '';
+  legacyHooks = import ./codex-retire-legacy-hooks.nix { inherit lib pkgs; };
 in
 {
   home = {
     packages = [ bashGuardScript ];
-    activation.codexRetireLegacyHooks = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      $DRY_RUN_CMD ${retireLegacyHooks}
-    '';
+    activation.codexRetireLegacyHooks = legacyHooks.activation;
     file = lib.genAttrs (map (f: ".codex/${f}") codexManagedFiles) (_: {
       enable = lib.mkForce false;
     });
@@ -112,6 +95,10 @@ in
         enforce = lib.optionals (f == "config.toml") [
           "approval_policy"
           "sandbox_mode"
+          [
+            "desktop"
+            "external-agent-import-sync-enabled"
+          ]
         ];
       }
     ) codexManagedFiles
@@ -147,6 +134,8 @@ in
       approval_policy = "never";
 
       sandbox_mode = "danger-full-access";
+
+      desktop."external-agent-import-sync-enabled" = false;
 
       # `exporter` is a serde externally-tagged enum, so the variant name is the
       # table key. Codex keeps a separate key per signal and does not fall back
