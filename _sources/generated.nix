@@ -8,58 +8,58 @@
 {
   amp-cli = {
     pname = "amp-cli";
-    version = "0.0.1788624043-gf294bf";
+    version = "0.0.1788652884-gab1719";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1788624043-gf294bf/amp-darwin-arm64.gz";
-      sha256 = "sha256-jxXfMkIPExuvsKQosCCA45pYUKTtnlnKQBRWQRpMK2o=";
+      url = "https://static.ampcode.com/cli/0.0.1788652884-gab1719/amp-darwin-arm64.gz";
+      sha256 = "sha256-GS2WuWjKfI8o+n+Zj9KRbBhBR1wNRHcvdbCUglOyDLY=";
     };
   };
   amp-cli-aarch64-linux = {
     pname = "amp-cli-aarch64-linux";
-    version = "0.0.1788624043-gf294bf";
+    version = "0.0.1788652884-gab1719";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1788624043-gf294bf/amp-linux-arm64.gz";
-      sha256 = "sha256-vv4VRfnUWnlPNX0kw78rNGSMDp+J1qDx+7IPH0eH42g=";
+      url = "https://static.ampcode.com/cli/0.0.1788652884-gab1719/amp-linux-arm64.gz";
+      sha256 = "sha256-3BDZIP8DNIQieFpw2nD/2/zb6SYlRLIdJ6miBs8/eeI=";
     };
   };
   amp-cli-x86_64-linux = {
     pname = "amp-cli-x86_64-linux";
-    version = "0.0.1788624043-gf294bf";
+    version = "0.0.1788652884-gab1719";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1788624043-gf294bf/amp-linux-x64-baseline.gz";
-      sha256 = "sha256-e/hLG+/kASexvWTGe+X846d+Xk6Leb/mWHN/a0OxZnc=";
+      url = "https://static.ampcode.com/cli/0.0.1788652884-gab1719/amp-linux-x64-baseline.gz";
+      sha256 = "sha256-qt82jH1TEKbuqpHizl7CBLTkGksdd0/6l4NEH1t8QH4=";
     };
   };
   atomic-coding-agent = {
     pname = "atomic-coding-agent";
-    version = "0.9.17";
+    version = "0.9.18";
     src = fetchurl {
-      url = "https://github.com/bastani-inc/atomic/releases/download/0.9.17/atomic-darwin-arm64.tar.gz";
-      sha256 = "sha256-lNmDtJaFMyxZkD055K/RJErv7zi8PbSt4XFOPM+LZUc=";
+      url = "https://github.com/bastani-inc/atomic/releases/download/0.9.18/atomic-darwin-arm64.tar.gz";
+      sha256 = "sha256-qe85/dfr98Vd5GlMV3RD6USKA9tnj0HdNnbX3RXIr88=";
     };
   };
   atomic-coding-agent-aarch64-linux = {
     pname = "atomic-coding-agent-aarch64-linux";
-    version = "0.9.17";
+    version = "0.9.18";
     src = fetchurl {
-      url = "https://github.com/bastani-inc/atomic/releases/download/0.9.17/atomic-linux-arm64.tar.gz";
-      sha256 = "sha256-betV5BqXlIpETZC4UcK+SwG6xqeyClBTLjxeblChywA=";
+      url = "https://github.com/bastani-inc/atomic/releases/download/0.9.18/atomic-linux-arm64.tar.gz";
+      sha256 = "sha256-1w4ocT553vttD3hcy6sOjSUvhBbl0wKGIvBQGNGc/Zo=";
     };
   };
   atomic-coding-agent-x86_64-darwin = {
     pname = "atomic-coding-agent-x86_64-darwin";
-    version = "0.9.17";
+    version = "0.9.18";
     src = fetchurl {
-      url = "https://github.com/bastani-inc/atomic/releases/download/0.9.17/atomic-darwin-x64.tar.gz";
-      sha256 = "sha256-CsI15CSYrOMj4KBUGk+ZGFshHXRcWjbC9qszHaKTHZU=";
+      url = "https://github.com/bastani-inc/atomic/releases/download/0.9.18/atomic-darwin-x64.tar.gz";
+      sha256 = "sha256-finGY0zl+D+4nWp5vvJnMhfcYAkK1sn5tCaUrsUmrDs=";
     };
   };
   atomic-coding-agent-x86_64-linux = {
     pname = "atomic-coding-agent-x86_64-linux";
-    version = "0.9.17";
+    version = "0.9.18";
     src = fetchurl {
-      url = "https://github.com/bastani-inc/atomic/releases/download/0.9.17/atomic-linux-x64.tar.gz";
-      sha256 = "sha256-Yps1slitJTl6o9n5UQzrikAKFys5wVAZOnhQETP/rLg=";
+      url = "https://github.com/bastani-inc/atomic/releases/download/0.9.18/atomic-linux-x64.tar.gz";
+      sha256 = "sha256-Uconis2j/bZ05+LSgo3giR3D5w7vjny9sE9FlR/Pv6Y=";
     };
   };
   crush = {
