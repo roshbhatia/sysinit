@@ -8,26 +8,26 @@
 {
   amp-cli = {
     pname = "amp-cli";
-    version = "0.0.1788681645-g07d369";
+    version = "0.0.1788696031-g14d695";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1788681645-g07d369/amp-darwin-arm64.gz";
-      sha256 = "sha256-M5n9UjAD7vClNZv8w06DpZ3E9WIynZRk1dbXlbfTPnw=";
+      url = "https://static.ampcode.com/cli/0.0.1788696031-g14d695/amp-darwin-arm64.gz";
+      sha256 = "sha256-9PvbH9UbN7UbFZfgYYPKS+reYTy/DZXwNQbCV9R4DZY=";
     };
   };
   amp-cli-aarch64-linux = {
     pname = "amp-cli-aarch64-linux";
-    version = "0.0.1788681645-g07d369";
+    version = "0.0.1788696031-g14d695";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1788681645-g07d369/amp-linux-arm64.gz";
-      sha256 = "sha256-q/fob86y3+b6Mexc8vIZ2UDsuqfc4Y9xon8ibd3JmHc=";
+      url = "https://static.ampcode.com/cli/0.0.1788696031-g14d695/amp-linux-arm64.gz";
+      sha256 = "sha256-Dw5bO4jU4k7nUkig40voCyBD4Mks9jRVbYk5wXtz2hA=";
     };
   };
   amp-cli-x86_64-linux = {
     pname = "amp-cli-x86_64-linux";
-    version = "0.0.1788681645-g07d369";
+    version = "0.0.1788696031-g14d695";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1788681645-g07d369/amp-linux-x64-baseline.gz";
-      sha256 = "sha256-DOhA2aBx8iN922LLBA7cMEK8uE6pgqVd2teac1vUR1w=";
+      url = "https://static.ampcode.com/cli/0.0.1788696031-g14d695/amp-linux-x64-baseline.gz";
+      sha256 = "sha256-icy7J9f54NbjWp3A32oEk6cR2OB5UQzgjdSukc8vc0Y=";
     };
   };
   atomic-coding-agent = {
@@ -287,10 +287,10 @@
   };
   prime-agent = {
     pname = "prime-agent";
-    version = "0.9.2";
+    version = "0.9.3";
     src = fetchurl {
-      url = "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.9.2/prime-agent-0.9.2.tgz";
-      sha256 = "sha256-1km58CWMd959AqujPXhpJc5Bo2tgHo4k7vDwC9wvH0k=";
+      url = "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.9.3/prime-agent-0.9.3.tgz";
+      sha256 = "sha256-znEEk4mHd3CqMbm+ZMRzaFqGFZrbvSRmvUPkqREyQvE=";
     };
   };
 }
