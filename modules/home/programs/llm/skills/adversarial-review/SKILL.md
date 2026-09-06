@@ -1,14 +1,15 @@
 ---
-description: 'Runs an adversarial review loop: independent critics try to break an artifact and the author revises against surviving objections. Use at the spec-driven review gate, before marking a tasks.md phase done, or when asked to red-team a plan, spec, or design.'
+description: 'Runs an adversarial review loop: independent critics try to break an artifact, a mediator adjudicates their claims, and the author revises accepted defects. Use at the spec-driven review gate, before marking a tasks.md phase done, or when asked to red-team a plan, spec, or design.'
 allowed-tools: Agent Read Grep Glob Bash(printenv:*) Bash(env:*) Bash(openspec:*)
 ---
 
 Run an adversarial review: independent critics try to BREAK an artifact
-(plan, spec, design, or code). The author revises against surviving
-objections, and the loop repeats until nothing survives. This is the
-refutation loop, not a politeness pass. The full methodology and its
-citations live in `references/adversarial-review-methodology.md`, read it
-before running the loop the first time.
+(plan, spec, design, or code). An independent `review-mediator` adjudicates
+their objections before the author revises against accepted or reframed
+defects. The loop repeats until nothing survives. This is the refutation loop,
+not a politeness pass. The full methodology and its citations live in
+`references/adversarial-review-methodology.md`, read it before running the loop
+the first time.
 
 ## When to run
 
@@ -22,9 +23,11 @@ before running the loop the first time.
 
 ## Decide whether model critique adds value
 
-FIRST, the recursion guard takes precedence: if your own instructions contain
-the literal sentinel `ADVERSARIAL-CRITIC-ROLE`, you are already a critic. SKIP
-this entire selection step and go straight to "Pick the execution path" path 1
+FIRST, the recursion guard takes precedence. If your own instructions contain
+the literal sentinel `ADVERSARIAL-MEDIATOR-ROLE`, perform only the requested
+mediator operation: review selection or objection adjudication. Then return
+without running critics. If they contain
+`ADVERSARIAL-CRITIC-ROLE`, go straight to "Pick the execution path" path 1
 (produce your objection and return). A critic never elicits and never runs the
 gate.
 
@@ -42,11 +45,15 @@ because a harness provides it.
 
 1. Run `specutil check <change-dir>` first regardless (it is cheap and pure).
    Fix every violation before offering the loop.
-2. Run the loop when the user requests it or when a concrete risk needs an
-   independent model critique.
-3. Otherwise, skip it and record `Adversarial review: not run; deterministic
+2. If the user or repository policy requires the loop, run it. In an interactive
+   optional review, ask the read-only `review-mediator` whether a concrete risk
+   makes independent model critique proportionate. It MUST cite current-tree
+   evidence for `RUN` or `NOT_RUN`; harness availability alone is not evidence.
+3. Run the loop when the user requests it, policy requires it, or the mediator
+   returns `RUN`.
+4. Otherwise, skip it and record `Adversarial review: not run; deterministic
    lint passed` in the phase checkbox.
-4. In unattended runs, do not add model work unless the task or repository
+5. In unattended runs, do not add model work unless the task or repository
    policy requests it.
 
 `specutil check` must still pass. Human-verification gates for impactful
@@ -68,6 +75,13 @@ is the point of the exercise, so the capability question is only a fallback.
    reason in the round record. If the work is on disk, this path is wrong.
 4. No {{agent}} capability, run N sequential critique passes, each in a
    fresh reasoning context with authorship hidden.
+
+The mediator MUST also be a separate, read-only `review-mediator` instance. It
+MUST NOT be the author or one of the critics whose objection it adjudicates.
+When the harness cannot select a named subagent, use a fresh read-only context
+with the mediator contract from this skill. The caller MUST supply the reviewed
+revision's diff or snapshot when it is not the current tree; the mediator has no
+shell or write tools.
 
 Prefer path 2 over path 3 for correctness, not cost. A critic that shares the
 author's context inherits the author's reasoning. A critic that has read the
@@ -120,7 +134,7 @@ own description is the objection to raise.
 </example>
 <example>
 <bad>Round 3 found nothing, so the change is approved.</bad>
-<good>Round 3 returned NO SURVIVING OBJECTION from all 3 critics. Terminal state CLEAN. This is model evidence, not owner approval.</good>
+<good>Round 3 mediation left no ACCEPT, REFRAME, or DEFER verdict. Terminal state CLEAN. This is model evidence, not owner approval.</good>
 </example>
 </examples>
 
@@ -161,9 +175,10 @@ Before spawning critics, run the deterministic half: `specutil check
 Run `specutil check --list-rules` to see the resolved rubric. This part is a
 pure function of the artifacts and is reproducible. The LLM refutation below is
 stabilized but NOT bit-deterministic: two runs converge without being identical.
-It pins the artifact snapshot, the rubric, N, and the lens set. It runs at
-temperature 0 with a structured verdict and a majority vote. Do not claim more
-than that. Fix every violation before the critic loop.
+It pins the artifact snapshot, the rubric, N, and the lens set. Critics run at
+temperature 0, then an independent mediator gives each objection a structured
+verdict. Do not claim more than that. Fix every violation before the critic
+loop.
 
 ## The loop (summary: reference has the sourced detail)
 
@@ -183,11 +198,18 @@ than that. Fix every violation before the critic loop.
    Each critic contract: "Produce a concrete scenario in which this artifact
    fails. Name the violated rubric item. If you cannot, reply `NO SURVIVING
    OBJECTION`."
-3. Keep only objections with a concrete failing scenario, reproducible
-   conditions or an isolated verification question. Reject prose-only comments.
-4. Revise the artifact against surviving objections only. The author
-   revises. A critic never both blesses and rewrites unaided.
-5. Repeat.
+3. Send every objection to an independent read-only `review-mediator`. It reads
+   the named revision and current files, then returns one verdict:
+   - `ACCEPT` requires a concrete failing scenario and current-tree evidence.
+   - `REJECT` covers nits, duplicates, already-fixed claims, unsupported claims,
+     and scope expansion. Record the reason.
+   - `REFRAME` keeps a valid risk but reduces it to the smallest in-scope defect,
+     with a concrete failing scenario and current-tree evidence.
+   - `DEFER` names an owner decision or unavailable fact that evidence cannot
+     settle. Surface it to the owner; it is not a revision instruction.
+4. Revise the artifact against `ACCEPT` and `REFRAME` verdicts only. The author
+   revises. Neither a critic nor the mediator edits or blesses the artifact.
+5. Repeat after the owner resolves any `DEFER` verdicts.
 
 ## The loop is a state machine; run it as one
 
@@ -201,16 +223,19 @@ which state you are in at each step, and name the terminal state you reached.
                 └────┬─────┘
               fail ← │ → pass
                 ┌────┴─────┐
-      REVISE ←──┤  SELECT  │  run only when requested or risk-justified
+      REVISE ←──┤  SELECT  │  required, requested, or mediator says RUN
                 └────┬─────┘
             not run ←│→ run
                      │        └──────────────→ [NOT_RUN]
                 ┌────▼─────┐
            ┌───▶│  ROUND   │  spawn N critics, one lens each
            │    └────┬─────┘
-           │         │ count surviving objections
+           │    ┌────▼─────┐
+           │    │ MEDIATE  │  adjudicate every critic objection
+           │    └────┬─────┘
+           │         │ count ACCEPT + REFRAME; surface DEFER
            │    ┌────┴──────────────────────────────┐
-           │    │ count == 0            → [CLEAN]   │
+           │    │ no actionable or DEFER→ [CLEAN]   │
            │    │ owner says stop       → [HALTED]  │
            │    │ round == K            → [CAPPED]  │
            │    │ no decline in 2 rounds→ [STALLED] │
@@ -218,7 +243,7 @@ which state you are in at each step, and name the terminal state you reached.
            │    │ otherwise             → REVISE    │
            │    └────┬──────────────────────────────┘
            │    ┌────▼─────┐
-           └────┤  REVISE  │  author fixes surviving objections only
+           └────┤  REVISE  │  author fixes ACCEPT and REFRAME only
                 └──────────┘
 ```
 
@@ -227,6 +252,10 @@ Terminal states: `CLEAN` means no critic objection survived. It is not approval.
 owner decision made during a loop.
 `CAPPED`, `STALLED`, and `CHURNING` all hand back with open objections and
 MUST be reported as such, never as a pass.
+
+A `DEFER` verdict is not a new terminal state. Pause at `MEDIATE`, surface its
+exact question, and let the owner resolve it or choose `HALTED`. Do not count a
+deferred preference as a defect and do not enter `REVISE` for it.
 
 ### Elicit at every round boundary, do not wait to be stopped
 
@@ -239,8 +268,9 @@ The question MUST carry the decision inputs, because "continue?" with no data
 is not a question the owner can answer:
 
 - the round just finished and the cap for this blast radius
-- the surviving-objection count for every round so far, as a trend
+- the `ACCEPT` plus `REFRAME` count for every round so far, as a trend
 - a one-line summary of each objection fixed this round
+- every `DEFER` question still awaiting the owner
 - whether anything remains open
 
 Offer three options, with the recommendation first:
@@ -289,10 +319,10 @@ still announce the state each round.
 
 ## Stop
 
-- STOP on success when a full round returns `NO SURVIVING OBJECTION` from all
-  N critics. This is the only clean terminal state.
-- An objection "survives" a round if a majority of critics uphold it on
-  re-examination.
+- STOP on success when a full round leaves no `ACCEPT`, `REFRAME`, or `DEFER`
+  verdict after independent mediation. This is the only clean terminal state.
+- An objection "survives" a round only when the mediator returns `ACCEPT` or
+  `REFRAME`. A `DEFER` remains open for the owner but is not actionable.
 
 ### Round cap, scaled to blast radius
 
@@ -323,10 +353,12 @@ owner decide whether to continue, re-scope, or accept the open objections.
 Report, in order:
 
 1. The rubric bound.
-2. The surviving-objection count per round.
-3. Each round's surviving objections with their failing scenarios.
-4. The revisions applied.
-5. The terminal state.
+2. The review-selection decision and its evidence.
+3. Each round's `ACCEPT`, `REJECT`, `REFRAME`, and `DEFER` counts.
+4. Every actionable objection with its failing scenario and current-tree evidence.
+5. Every rejected objection with its reason and every deferred owner question.
+6. The revisions applied for `ACCEPT` and `REFRAME` only.
+7. The terminal state.
 
 The terminal state is one of:
 

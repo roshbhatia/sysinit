@@ -8,9 +8,16 @@ operating procedure; read this file for the WHY and the exact loop.
 
 A generator proposes an artifact. Independent adversaries try to break it, and
 the generator revises against surviving objections. Repeat until the loop
-reaches a terminal state. That state is one of four. No objection survives. The
-owner halts it. The scaled round cap is hit. It stops early on non-convergence
-or churn. Each step below names its source.
+reaches one of six terminal states. No objection survives. Optional review is
+not run. The owner halts it. The scaled round cap is hit. It stops early on
+non-convergence or churn. Each step below names its source.
+
+Model critique is optional unless the user or repository policy requires it.
+After deterministic lint passes, a read-only mediator SHOULD recommend `RUN`
+only when a concrete current-tree risk needs independent critique. It SHOULD
+recommend `NOT_RUN` when deterministic evidence settles the risk or review
+would add only preferences. This proportionality gate is an engineering cost
+control, not a claim from the cited papers.
 
 1. Propose. The generator produces the artifact (plan, spec, design, code).
    Source: Self-Refine (Madaan et al., 2023, arXiv:2303.17651).
@@ -29,20 +36,28 @@ or churn. Each step below names its source.
    never prose vibes. Source: Chain-of-Verification (Dhuliawala et al., 2023,
    arXiv:2309.11495); LLM Critics Help Catch LLM Bugs / "CriticGPT" (McAleese et
    al., 2024, arXiv:2407.00215).
-5. Revise against surviving objections only. The generator rewrites to remove
-   upheld defects. The same instance MUST NOT both bless and rewrite an artifact
-   unaided. Source: Constitutional AI critique→revise (arXiv:2212.08073). Also
-   the external-signal requirement of "LLMs Cannot Self-Correct Reasoning Yet"
-   (Huang et al., 2023, arXiv:2310.01798).
-6. Rotate lenses each round. Assign one lens per critic per round, e.g.
+5. Mediate independently. A fresh read-only mediator verifies each objection
+   against the named revision and current files. It returns `ACCEPT`, `REJECT`,
+   `REFRAME`, or `DEFER`. It rejects nits, duplicates, fixed claims, unsupported
+   claims, and scope expansion. It reframes a valid broad risk as the smallest
+   in-scope defect. `DEFER` carries an evidence-resistant owner question, not a
+   revision instruction. This is an engineering control for the documented
+   sycophancy, self-preference, position, and verbosity biases below.
+6. Revise against `ACCEPT` and `REFRAME` only. The generator rewrites to remove
+   adjudicated defects. Neither a critic nor the mediator edits, blesses, or
+   claims owner approval. Source: Constitutional AI critique→revise
+   (arXiv:2212.08073). Also the external-signal requirement of "LLMs Cannot
+   Self-Correct Reasoning Yet" (Huang et al., 2023, arXiv:2310.01798).
+7. Rotate lenses each round. Assign one lens per critic per round, e.g.
    correctness, security, ops/rollback, cost, data-migration. Source:
    Constitutional AI principle sampling (arXiv:2212.08073).
-7. Repeat.
+8. Repeat.
 
 ## Stop criterion (hybrid)
 
-- STOP when a full round yields `NO SURVIVING OBJECTION` from all N critics.
-  Generalizes Self-Refine's stop indicator (arXiv:2303.17651) to N critics.
+- STOP when independent mediation leaves no `ACCEPT`, `REFRAME`, or `DEFER`
+  verdict. This generalizes Self-Refine's stop indicator (arXiv:2303.17651) to
+  an independently adjudicated critic round.
 - ROUND CAP scaled to blast radius. K=2 for one file or one phase. K=4 for a
   single-capability change. K=6 for a cross-capability change, or one that
   mutates the live system.
@@ -67,10 +82,10 @@ or churn. Each step below names its source.
   churn rather than progress. These are hand-back conditions: report the trend
   and let the owner decide. No paper backs these thresholds; they are engineering
   choices motivated by the observation above.
-- Objection survival tie-break. Inside a round, an objection "survives" if a
-  majority of critics uphold it on re-examination. Majority voting is a common
-  extension of Multiagent Debate, NOT Du et al.'s stated organic-convergence
-  mechanism. Treat it as an engineering choice, not a paper result.
+- Objection survival. Inside a round, an objection survives only when the
+  mediator returns `ACCEPT` or `REFRAME`. A `DEFER` verdict remains open for the
+  owner but does not authorize revision. Independent mediation is an engineering
+  choice, not a result claimed by the cited papers.
 - ELICIT AT EVERY ROUND BOUNDARY. Ask whether to continue before spawning the
   next round. Carry the decision inputs into the question: the round reached,
   the cap, the per-round objection trend, and what remains open. The
@@ -111,9 +126,9 @@ mandatory for this skill.
    require survival across the panel.
 
 Consolidated: (a) separate, independent critic. (b) Hide authorship. (c) Prompt
-for refutation plus a concrete failing scenario. (d) Rotate lenses. (e) Run N
-critics and require survival. (f) Bound with a blast-radius-scaled K, early
-stops on churn, and an owner halt.
+for refutation plus a concrete failing scenario. (d) Rotate lenses. (e) Have a
+separate read-only mediator adjudicate current evidence before revision. (f)
+Bound with a blast-radius-scaled K, early stops on churn, and an owner halt.
 
 ## Mapping to spec-driven OpenSpec artifacts
 

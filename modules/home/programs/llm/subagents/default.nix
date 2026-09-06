@@ -2,12 +2,20 @@
 let
   vocab = import ../lib/vocab.nix { inherit lib; };
   frontmatter = import ../lib/frontmatter.nix { inherit lib; };
+  reviewMediator = import ./review-mediator.nix;
 in
+assert lib.all (tool: !reviewMediator.tools.${tool}) [
+  "bash"
+  "edit"
+  "patch"
+  "write"
+];
 {
   code-reviewer = import ./code-reviewer.nix;
   implementor = import ./implementor.nix;
   librarian = import ./librarian.nix;
   oracle = import ./oracle.nix;
+  review-mediator = reviewMediator;
 
   formatSubagentAsMarkdown =
     {
