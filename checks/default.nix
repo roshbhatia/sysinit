@@ -56,6 +56,11 @@ assert !(ampMcpServers ? suppressed);
     test ! -e ${pkgs.orc-cli}/Library/LaunchDaemons
     touch $out
   '';
+  nushell-managed-tools = import ./nushell-managed-tools.nix {
+    inherit pkgs;
+    inherit (pkgs) lib;
+  };
+  system-generation-prune = import ./system-generation-prune.nix { inherit pkgs; };
   nushell-command-surface =
     pkgs.runCommand "nushell-command-surface" { nativeBuildInputs = [ pkgs.jq ]; }
       ''

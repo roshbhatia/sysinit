@@ -162,7 +162,7 @@ let
     ];
   };
 
-  syGate = pkgs.writeShellApplication {
+  syGateScript = pkgs.writeShellApplication {
     name = "sy";
     runtimeInputs = [
       pkgs.coreutils
@@ -176,6 +176,12 @@ let
       (builtins.readFile ./sy-gate.sh)
     ];
   };
+
+  syGate = pkgs.runCommand "sy-guard-${lib.getVersion pkgs.seshy}" { } ''
+    mkdir -p "$out/bin" "$out/share"
+    ln -s ${syGateScript}/bin/sy "$out/bin/sy"
+    cp -rs ${pkgs.seshy}/share/. "$out/share/"
+  '';
 
   focusScript = pkgs.writeShellApplication {
     name = "agent-focus";

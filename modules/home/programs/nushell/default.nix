@@ -7,6 +7,7 @@
 let
   shell = import ../../../lib/shell.nix { inherit lib; };
   paths_lib = import ../../../lib/paths.nix { inherit config lib; };
+  nushellLib = import ./lib.nix { inherit lib; };
 
   pathsList = paths_lib.getAllPaths config.home.username config.home.homeDirectory;
   carapaceBin = "${pkgs.carapace}/bin/carapace";
@@ -66,7 +67,7 @@ let
 
   sessionVarsJson = builtins.toJSON sessionVarsCarried;
 
-  nuList = dirs: lib.concatMapStringsSep " " (dir: "\"${dir}\"") dirs;
+  nuList = nushellLib.arguments;
 
   selfAppendLines = lib.concatStringsSep "\n" (
     lib.mapAttrsToList (name: sides: ''
@@ -235,7 +236,9 @@ in
 
         ${selfAppendLines}
 
-        ${lib.concatMapStringsSep "\n" (path: "path add \"${path}\"") pathsList}
+        ${nushellLib.pathAdd pathsList}
+
+        ${nushellLib.sourceProfileCompletion config.home.profileDirectory "sy"}
 
         use std/dirs shells-aliases *
 

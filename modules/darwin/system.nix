@@ -11,6 +11,9 @@ let
   systemPath = commandPath.systemEntriesFor true;
   user = config.sysinit.user.username;
   agentRegistry = "/Users/${user}/.config/sysinit/agents.json";
+  systemGenerationPruner = pkgs.writeShellScript "sysinit-prune-system-generations" (
+    builtins.readFile ./prune-system-generations.sh
+  );
 in
 {
   nix = {
@@ -51,19 +54,24 @@ in
 
   determinateNix.determinateNixd.garbageCollector.strategy = "automatic";
 
-  launchd.daemons.nix-generation-gc.serviceConfig = {
+  launchd.daemons.system-generation-prune.serviceConfig = {
     ProgramArguments = [
-      "/nix/var/nix/profiles/default/bin/nix-collect-garbage"
-      "--delete-old"
-    ];
-    RunAtLoad = false;
-    StartCalendarInterval = [
-      {
-        Hour = 3;
-        Minute = 15;
-      }
+      "${systemGenerationPruner}"
+      "/nix/var/nix/profiles/system"
+      "/run/current-system"
+      "/nix/var/nix/profiles/default/bin/nix-env"
+      "/usr/bin/readlink"
+      "/bin/sleep"
+      "60"
+      "1"
     ];
     ProcessType = "Background";
+    RunAtLoad = true;
+    StartInterval = 300;
+    WatchPaths = [
+      "/nix/var/nix/profiles/system"
+      "/run/current-system"
+    ];
   };
 
   networking.hostName = lib.mkDefault hostname;
