@@ -144,11 +144,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788659973,
-        "narHash": "sha256-VQIbIy5DDPfE1AvgEsxvVHPy+5ieCHibgPbpvWR/Cd0=",
+        "lastModified": 1788720509,
+        "narHash": "sha256-MEd2Vfu8cj7trWmJGwLPIcqDLqE4m3dbKUyWuEiIq3c=",
         "owner": "roshbhatia",
         "repo": "changes",
-        "rev": "7948ff709ea614fb6e6a88d2c1894007280d481f",
+        "rev": "58a7461f5960a09bc3a4a1e66c714c943919d762",
         "type": "github"
       },
       "original": {
@@ -284,11 +284,11 @@
       },
       "locked": {
         "dir": "repos/rycee/pkgs/firefox-addons",
-        "lastModified": 1788706171,
-        "narHash": "sha256-IM+dsSGIchUc4ycXgFBzi/PTF2D/7xz7Vkvdx6yPyfM=",
+        "lastModified": 1788723768,
+        "narHash": "sha256-Ih3bkRxJUc0yDKfZmIHrDkUkDoe8qa3m4yFyqVYETkQ=",
         "owner": "nix-community",
         "repo": "nur-combined",
-        "rev": "0ba157fd52a593c516bec5abc13d0df90a62f61d",
+        "rev": "3b2433d640e8023d388bcd0b042eed6cc00aa223",
         "type": "github"
       },
       "original": {
@@ -598,11 +598,11 @@
         "uv2nix": "uv2nix"
       },
       "locked": {
-        "lastModified": 1788704424,
-        "narHash": "sha256-RilXjABnOnXrljPIM9cy0vNvjyYDtKhGUcUgFE4Gd1Q=",
+        "lastModified": 1788723868,
+        "narHash": "sha256-F5Lw/6LvmmK6JRzreMmJQp5mFyQk8PM5YdOg6dGom+w=",
         "owner": "NousResearch",
         "repo": "hermes-agent",
-        "rev": "5106e939e0b32d3cd70a6acf33943fd2d9ab58d7",
+        "rev": "6b2d4faf36f107c364048e2fe17eaa02154e9ea9",
         "type": "github"
       },
       "original": {
@@ -883,11 +883,11 @@
         "nixpkgs": "nixpkgs_5"
       },
       "locked": {
-        "lastModified": 1788706403,
-        "narHash": "sha256-T7XSuyCqpdsc5NSxHTdL6mWV0ADWq5gH55ubtIqjA1Y=",
+        "lastModified": 1788723624,
+        "narHash": "sha256-OnEh8fVJPfqtiIslWpUROvbQKHN+Z53/dB7BPWk6MMs=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "186f5e31a89ee082ccf092c5662980ad26f6a4a9",
+        "rev": "2a65aed7ed4bfac9c387b8a88c32d883df791edc",
         "type": "github"
       },
       "original": {
@@ -928,11 +928,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788549656,
-        "narHash": "sha256-x4b4rX49ZODFy2/ec5+6WzpumC0lCNYeK4WWIhEBluU=",
+        "lastModified": 1788724341,
+        "narHash": "sha256-s67izl5vt1sJXEcFdHNAVnBAlJ5dYcR/XPA6DweCimc=",
         "owner": "roshbhatia",
         "repo": "nu_plugin_nvim",
-        "rev": "84644b87aaddffdd803f9b00a932cd163e7c8dd4",
+        "rev": "048b8210155892a5974a89f293c100a9e9131a54",
         "type": "github"
       },
       "original": {
@@ -1450,11 +1450,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788554658,
-        "narHash": "sha256-nGo2wjP+WV7UE0e4Y9CMQ0RXLlF7w7dJrELtWJFX6eA=",
+        "lastModified": 1788722255,
+        "narHash": "sha256-0QbAsmn/BjKaf3+YhMGAWH88b4aOrCd7yn8/qPSr61c=",
         "owner": "roshbhatia",
         "repo": "traces",
-        "rev": "0ef2663ef0c6a5966bfc7754ee905969152ba503",
+        "rev": "4b5d56813186cbc3e4b38ba4696b7e9ee60eaf70",
         "type": "github"
       },
       "original": {
