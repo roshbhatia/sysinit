@@ -81,7 +81,7 @@ let
   ];
 
   orcReporting = ''
-    ## Orc Session Reporting
+    ## Orc Session Checkpoints
 
     When `ORC_SESSION_ID` and `ORC_SCOPE` are both set, call
     `orc_current_session` before reporting. Continue only when it confirms the
@@ -89,9 +89,11 @@ let
     `orchestrator`, call `orc_session_report` after each material milestone and
     before the final response.
 
-    Set `output` to a compact object with `status`, `summary`, `verification`,
-    `artifacts`, and `remaining_work`. Do not copy messages or tool events into
-    this object. Orc Activity owns those records.
+    Treat `output` as a compact, machine-readable Checkpoint with `status`,
+    `summary`, `verification`, `artifacts`, and `remaining_work`.
+    Transcript providers supply visible assistant prose to Orc Output.
+    Orc Activity owns reasoning, tool, and event records.
+    Do not copy either stream into the Checkpoint.
   '';
 
   makeInstructions =

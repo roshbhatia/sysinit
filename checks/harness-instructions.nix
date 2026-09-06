@@ -17,11 +17,15 @@ let
     "orc_session_report"
     "active Orc session"
     "`orchestrator`"
-    "Set `output`"
+    "machine-readable Checkpoint"
     "`verification`"
     "`artifacts`"
     "`remaining_work`"
+    "Transcript providers"
+    "visible assistant prose"
+    "Orc Output"
     "Orc Activity"
+    "Do not copy either stream"
   ];
   hasOneReportInstruction =
     text:
