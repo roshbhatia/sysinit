@@ -54,31 +54,32 @@ in
           };
         };
 
-      "ask/templates/prompts/bulk-read.yaml".source = yamlFormat.generate "ask-prompt-bulk-read.yaml" {
-        version = "ask.prompt/v2";
-        name = "bulk-read";
-        description = "Read a file on stdin for a coding agent that will not read it";
-        schema = "bulk-read-result";
-        variables = [
-          {
-            name = "question";
-            type = "string";
-            default = "";
-            description = "What the caller needs from the file. Empty means its shape.";
-          }
-        ];
-        prompt = ''
-          The text on stdin is a file a coding agent will not read itself. Extract, do
-          not interpret. Answer with bullets only. Each bullet leads with a line
-          number or a symbol name so the agent can Read that range. No greeting, no
-          preamble, no advice, no summary paragraph.
-          {{if .question}}
-          The agent needs: {{.question}}
-          {{else}}
-          The agent needs the shape of the file: what it declares, in order, with the
-          line each declaration starts on.
-          {{end}}
-        '';
-      };
+      "ask/templates/prompts/bulk-read.yaml".source =
+        yamlFormat.generate "ask-prompt-bulk-read.yaml" {
+          version = "ask.prompt/v2";
+          name = "bulk-read";
+          description = "Read a file on stdin for a coding agent that will not read it";
+          schema = "bulk-read-result";
+          variables = [
+            {
+              name = "question";
+              type = "string";
+              default = "";
+              description = "What the caller needs from the file. Empty means its shape.";
+            }
+          ];
+          prompt = ''
+            The text on stdin is a file a coding agent will not read itself. Extract, do
+            not interpret. Answer with bullets only. Each bullet leads with a line
+            number or a symbol name so the agent can Read that range. No greeting, no
+            preamble, no advice, no summary paragraph.
+            {{if .question}}
+            The agent needs: {{.question}}
+            {{else}}
+            The agent needs the shape of the file: what it declares, in order, with the
+            line each declaration starts on.
+            {{end}}
+          '';
+        };
     };
 }
