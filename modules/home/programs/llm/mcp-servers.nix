@@ -56,6 +56,12 @@ let
       python -m computer_server "$@"
   '';
 
+  cuaComputerServerCommand =
+    if pkgs.stdenv.hostPlatform.isLinux then
+      lib.getExe pkgs.cua-computer-server
+    else
+      "${cuaComputerServer}";
+
 in
 {
   sysinit.llm.mcp.additionalServers = {
@@ -112,7 +118,7 @@ in
   launchd.agents.cua-computer-server = {
     enable = true;
     config = {
-      ProgramArguments = [ "${cuaComputerServer}" ];
+      ProgramArguments = [ cuaComputerServerCommand ];
       RunAtLoad = true;
       KeepAlive = true;
       StandardOutPath = "/tmp/cua-computer-server.log";
@@ -121,11 +127,15 @@ in
   };
 
   systemd.user.services.cua-computer-server = {
-    Unit.Description = "Cua computer server, the host side of computer use";
+    Unit = {
+      Description = "Cua computer server, the host side of computer use";
+      StartLimitBurst = 3;
+      StartLimitIntervalSec = 300;
+    };
     Service = {
-      ExecStart = "${cuaComputerServer}";
-      Restart = "always";
-      RestartSec = 2;
+      ExecStart = cuaComputerServerCommand;
+      Restart = "on-failure";
+      RestartSec = 10;
     };
     Install.WantedBy = [ "default.target" ];
   };

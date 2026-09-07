@@ -67,6 +67,16 @@ assert !(ampMcpServers ? suppressed);
       ;
   };
   changes-integration = import ./changes-integration.nix { inherit pkgs; };
+  cua-computer-server =
+    if pkgs.stdenv.hostPlatform.isLinux then
+      import ./cua-computer-server.nix {
+        inherit pkgs;
+        inherit (pkgs) lib;
+      }
+    else
+      pkgs.runCommand "cua-computer-server-not-applicable" { } ''
+        touch $out
+      '';
   go-tests = pkgs.sysinit-gotools;
   orc-no-startup-units = pkgs.runCommand "orc-no-startup-units" { } ''
     test ! -e ${pkgs.orc-cli}/etc/systemd

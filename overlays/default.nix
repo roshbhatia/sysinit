@@ -45,6 +45,7 @@
   (import ./acp-amp.nix)
   (import ./codex-acp.nix)
   (import ./localias.nix)
+  (import ./cua-computer-server.nix)
   (import ./alerter.nix)
   (import ./sheets.nix)
   (import ./zoetrope.nix)

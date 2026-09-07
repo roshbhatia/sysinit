@@ -256,6 +256,7 @@
             "pi-coding-agent"
             "crush"
             "contextive"
+            "cua-computer-server"
             "codex"
             "codex-acp"
             "claude-code"
