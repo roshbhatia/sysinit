@@ -7,11 +7,12 @@ pkgs.runCommand "changes-integration-check"
       pkgs.changes-provider-git-notes
       pkgs.git
       pkgs.gnugrep
+      pkgs.jq
       pkgs.neovim
     ];
   }
   ''
-    test "$(changes --version)" = "0.9.1"
+    test "$(changes --version)" = "0.10.0"
 
     export HOME="$TMPDIR/home"
     export XDG_CACHE_HOME="$TMPDIR/cache"
@@ -50,6 +51,20 @@ pkgs.runCommand "changes-integration-check"
     test "$(git config --get-all remote.origin.fetch)" = "$fetch_before"
     test "$(git config --get-all remote.origin.push)" = "$push_before"
 
+    printf '%s\n' 'package main' 'func main() {' '}' > main.go
+    changes workspace --refresh --no-symbols --quiet > workspace.json
+    jq -e --arg root "$PWD" '
+      .version == "changes.workspace/v1"
+      and .repository.root == $root
+      and .freshness.state == "fresh"
+      and (.files | any(.path == "main.go"))
+      and (.notes == null or (.notes | type == "array"))
+      and (.history | type == "array")
+      and (.rendered | type == "string")
+    ' workspace.json > /dev/null
+    test "$(git config --get-all remote.origin.fetch)" = "$fetch_before"
+    test "$(git config --get-all remote.origin.push)" = "$push_before"
+
     cd ..
     mkdir -p "$TMPDIR/nvim-site/pack/hm/start"
     ln -s ${pkgs.changes-neovim-plugin} "$TMPDIR/nvim-site/pack/hm/start/changes.nvim"
@@ -57,7 +72,8 @@ pkgs.runCommand "changes-integration-check"
       --cmd 'set packpath^=$TMPDIR/nvim-site' \
       --cmd 'set noloadplugins' \
       -c 'luafile ${../modules/home/programs/neovim/config/after/plugin/changes.lua}' \
-      -c 'lua assert(vim.fn.exists(":ChangesNote") == 2); assert(type(require("changes.notes").setup) == "function")' \
+      -c 'lua assert(vim.fn.exists(":ChangesNote") == 2); assert(vim.fn.exists(":ChangesWorkspace") == 2); assert(vim.fn.exists(":ChangesWorkspaceDecorate") == 2)' \
+      -c 'lua assert(type(require("changes.notes").setup) == "function"); local workspace = require("changes.workspace"); assert(type(workspace.setup) == "function"); assert(type(workspace.read) == "function"); assert(type(workspace.open) == "function"); assert(type(workspace.decorate) == "function")' \
       -c 'qa!'
 
     touch "$out"
