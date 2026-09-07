@@ -9,6 +9,14 @@ local ui_source = ui_file:read("*a")
 ui_file:close()
 assert(not ui_source:find("config.animation_fps", 1, true), "WezTerm overrides the default animation frame rate")
 assert(not ui_source:find("config.max_fps", 1, true), "WezTerm overrides the default maximum frame rate")
+local interval_assignments = select(2, ui_source:gsub("config%.status_update_interval%s*=", ""))
+local final_plugin = assert(ui_source:find("ui_switcher.setup", 1, true), "the final UI plugin setup is missing")
+local final_interval = assert(
+  ui_source:find("config.status_update_interval = 1000", 1, true),
+  "the effective status interval is not one second"
+)
+assert(interval_assignments == 1, "a plugin can still inherit an earlier status interval")
+assert(final_interval > final_plugin, "the status interval is set before plugin application")
 local cli_calls = select(2, switcher_source:gsub('wezterm_bin,%s*"cli"', ""))
 local guarded_calls = select(2, switcher_source:gsub('wezterm_bin,%s*"cli",%s*"%-%-no%-auto%-start"', ""))
 assert(cli_calls == guarded_calls, "a switcher wezterm cli call can start a headless mux")

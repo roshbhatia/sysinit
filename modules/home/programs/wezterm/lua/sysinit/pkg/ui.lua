@@ -38,7 +38,6 @@ function M.setup(config)
     brightness = 0.65,
   }
 
-  config.status_update_interval = 150
   config.cursor_blink_rate = 320
   config.cursor_thickness = 1
   config.scrollback_lines = 200000
@@ -496,6 +495,9 @@ function M.setup(config)
       ribbon = ribbon,
     })
   end
+
+  -- Set this last because plugin setup can replace the shared handler cadence.
+  config.status_update_interval = 1000
 end
 
 return M
