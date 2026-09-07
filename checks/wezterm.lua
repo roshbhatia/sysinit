@@ -4,6 +4,11 @@ local plugin_fixture = assert(arg[2], "plugin fixture path is required")
 local switcher_file = assert(io.open(lua_root .. "/sysinit/pkg/ui/switcher.lua", "r"))
 local switcher_source = switcher_file:read("*a")
 switcher_file:close()
+local ui_file = assert(io.open(lua_root .. "/sysinit/pkg/ui.lua", "r"))
+local ui_source = ui_file:read("*a")
+ui_file:close()
+assert(not ui_source:find("config.animation_fps", 1, true), "WezTerm overrides the default animation frame rate")
+assert(not ui_source:find("config.max_fps", 1, true), "WezTerm overrides the default maximum frame rate")
 local cli_calls = select(2, switcher_source:gsub('wezterm_bin,%s*"cli"', ""))
 local guarded_calls = select(2, switcher_source:gsub('wezterm_bin,%s*"cli",%s*"%-%-no%-auto%-start"', ""))
 assert(cli_calls == guarded_calls, "a switcher wezterm cli call can start a headless mux")
@@ -371,9 +376,14 @@ require("sysinit.pkg.events").setup(event_config)
 assert(event_config.enable_scroll_bar, "event setup did not enable the scroll bar")
 
 local clipboard
-local overrides
+local overrides = { preserved = true }
+local get_override_calls = 0
+local set_override_calls = 0
 local event_action
 local event_window = {
+  window_id = function()
+    return 1
+  end,
   copy_to_clipboard = function(_, value, target)
     clipboard = { value = value, target = target }
   end,
@@ -381,9 +391,11 @@ local event_window = {
     event_action = value
   end,
   get_config_overrides = function()
-    return { preserved = true }
+    get_override_calls = get_override_calls + 1
+    return overrides
   end,
   set_config_overrides = function(_, value)
+    set_override_calls = set_override_calls + 1
     overrides = value
   end,
 }
@@ -402,10 +414,66 @@ assert(clipboard.value == "copied text" and clipboard.target == "Clipboard", "we
 handlers["user-var-changed"](event_window, event_pane, "SYSINIT_NAV", "left:editor")
 assert(event_action.ActivatePaneDirection == "Left", "SYSINIT_NAV did not activate the left pane")
 handlers["update-status"](event_window, event_pane)
-assert(overrides.preserved and overrides.enable_scroll_bar, "scrollback did not show the scroll bar")
+assert(overrides.preserved and overrides.enable_scroll_bar == nil, "the default scroll bar gained an override")
+assert(get_override_calls == 1 and set_override_calls == 0, "the initial default scroll bar state was reapplied")
+handlers["update-status"](event_window, event_pane)
+assert(get_override_calls == 1 and set_override_calls == 0, "an unchanged scroll bar state read or wrote overrides")
 alt_screen = true
 handlers["update-status"](event_window, event_pane)
 assert(not overrides.enable_scroll_bar, "the alternate screen kept the scroll bar")
+assert(overrides.preserved, "a scroll bar transition discarded an existing override")
+assert(get_override_calls == 2 and set_override_calls == 1, "the hidden scroll bar transition was not applied once")
+handlers["update-status"](event_window, event_pane)
+assert(get_override_calls == 2 and set_override_calls == 1, "a stable hidden scroll bar reapplied overrides")
+alt_screen = false
+handlers["update-status"](event_window, event_pane)
+assert(overrides.enable_scroll_bar == nil, "the visible scroll bar did not return to its configured default")
+assert(overrides.preserved, "restoring the scroll bar discarded an existing override")
+assert(get_override_calls == 3 and set_override_calls == 2, "the visible scroll bar transition was not applied once")
+
+local second_overrides = { second_window = true }
+local second_get_calls = 0
+local second_set_calls = 0
+local second_window = {
+  window_id = function()
+    return 2
+  end,
+  get_config_overrides = function()
+    second_get_calls = second_get_calls + 1
+    return second_overrides
+  end,
+  set_config_overrides = function(_, value)
+    second_set_calls = second_set_calls + 1
+    second_overrides = value
+  end,
+}
+alt_screen = true
+handlers["update-status"](second_window, event_pane)
+assert(second_overrides.second_window, "one window's scroll bar discarded another window's override")
+assert(second_overrides.enable_scroll_bar == false, "the second window did not hide its scroll bar")
+assert(second_get_calls == 1 and second_set_calls == 1, "the second window did not reconcile independently")
+handlers["update-status"](second_window, event_pane)
+assert(second_get_calls == 1 and second_set_calls == 1, "the second window reapplied a stable override")
+
+local inherited_overrides = { enable_scroll_bar = false, external = "kept" }
+local inherited_sets = 0
+local inherited_window = {
+  window_id = function()
+    return 3
+  end,
+  get_config_overrides = function()
+    return inherited_overrides
+  end,
+  set_config_overrides = function(_, value)
+    inherited_sets = inherited_sets + 1
+    inherited_overrides = value
+  end,
+}
+alt_screen = false
+handlers["update-status"](inherited_window, event_pane)
+assert(inherited_sets == 1, "a stale scroll bar override was not reconciled")
+assert(inherited_overrides.enable_scroll_bar == nil, "a stale scroll bar override was not removed")
+assert(inherited_overrides.external == "kept", "scroll bar reconciliation discarded an external override")
 local later_status_ran = false
 local stale_pane = {
   get_dimensions = function()

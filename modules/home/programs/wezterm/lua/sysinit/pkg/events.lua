@@ -24,6 +24,7 @@ function M.setup(config)
   end)
 
   config.enable_scroll_bar = true
+  local scrollbar_state = {}
   wezterm.on("update-status", function(window, pane)
     local ok, scrollable = pcall(function()
       local dimensions = pane:get_dimensions()
@@ -34,9 +35,29 @@ function M.setup(config)
       -- lets later status handlers refresh the active workspace and tab line.
       return
     end
+
+    local window_id = window:window_id()
+    if scrollbar_state[window_id] == scrollable then
+      return
+    end
+
     local overrides = window:get_config_overrides() or {}
-    overrides.enable_scroll_bar = scrollable
+    local configured = overrides.enable_scroll_bar
+    if configured == nil then
+      configured = config.enable_scroll_bar
+    end
+    if configured == scrollable then
+      scrollbar_state[window_id] = scrollable
+      return
+    end
+
+    if scrollable == config.enable_scroll_bar then
+      overrides.enable_scroll_bar = nil
+    else
+      overrides.enable_scroll_bar = scrollable
+    end
     window:set_config_overrides(overrides)
+    scrollbar_state[window_id] = scrollable
   end)
 end
 

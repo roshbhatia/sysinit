@@ -39,8 +39,6 @@ function M.setup(config)
   }
 
   config.status_update_interval = 150
-  config.animation_fps = 240
-  config.max_fps = 240
   config.cursor_blink_rate = 320
   config.cursor_thickness = 1
   config.scrollback_lines = 200000
