@@ -319,6 +319,52 @@ assert(
   explicit_title == "nu · default · {home} · agent: verifier ready",
   "the hidden window title did not prefer explicit process metadata: " .. explicit_title
 )
+local invalid = string.char(0xff, 0xc3, 0x28)
+local escaped = string.char(0x1b) .. "[31mred" .. string.char(0x1b) .. "[0m"
+local hostile_title = windowtitle.format({
+  active_pane = {
+    foreground_process_name = "/profile/bin/co" .. invalid .. "dex",
+    current_working_dir = { file_path = test_home .. "/github/personal/roshbhatia/sy" .. invalid .. "init" },
+    title = "ignored",
+    user_vars = { SYSINIT_WINDOW_METADATA = escaped .. invalid .. "\nprovider" },
+  },
+}, nil, "sys" .. string.char(0) .. "init")
+assert(utf8.len(hostile_title), "the hidden window title returned invalid UTF-8")
+assert(not hostile_title:find("[%c]"), "the hidden window title retained a control byte")
+assert(not hostile_title:find("[31m", 1, true), "the hidden window title retained a terminal control sequence")
+assert(hostile_title:find("provider", 1, true), "the hidden window title lost sanitized provider metadata")
+local pane_title = windowtitle.format({
+  active_pane = {
+    foreground_process_name = "/profile/bin/codex",
+    current_working_dir = { file_path = test_home },
+    title = "review " .. invalid .. " ready 🚀",
+    user_vars = {},
+  },
+}, nil, "default")
+assert(utf8.len(pane_title), "a malformed pane title produced invalid UTF-8")
+assert(pane_title:find("ready 🚀", 1, true), "pane title repair lost later valid Unicode")
+local bounded_title = windowtitle.format({
+  active_pane = {
+    foreground_process_name = string.rep("p", 5000),
+    current_working_dir = { file_path = string.rep("d", 5000) },
+    title = string.rep("t", 5000),
+    user_vars = {},
+  },
+}, nil, string.rep("s", 5000))
+assert(#bounded_title <= 1024, "the hidden window title exceeded its byte bound")
+assert(utf8.len(bounded_title), "the bounded window title ended inside a UTF-8 sequence")
+assert(not bounded_title:find("……", 1, true), "the window title added duplicate truncation markers")
+local boundary_title = windowtitle.format({
+  active_pane = {
+    foreground_process_name = string.rep("p", 256),
+    current_working_dir = { file_path = string.rep("d", 256) },
+    title = string.rep("m", 240) .. "🚀x",
+    user_vars = {},
+  },
+}, nil, string.rep("s", 256))
+assert(#boundary_title <= 1024, "the Unicode boundary title exceeded its byte bound")
+assert(utf8.len(boundary_title), "the window title cutoff split a UTF-8 sequence")
+assert(boundary_title:sub(-3) == "…", "the window title cutoff lost its truncation marker")
 
 local event_config = {}
 require("sysinit.pkg.events").setup(event_config)
