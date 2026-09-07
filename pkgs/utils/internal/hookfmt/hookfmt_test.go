@@ -76,3 +76,45 @@ func TestExitCodeAndJSONFormats(t *testing.T) {
 		t.Fatalf("JSON output = %+v", decoded)
 	}
 }
+
+func TestContextReachesTheModelOnEveryChannel(t *testing.T) {
+	allow := Outcome{
+		Kind:         Allow,
+		Event:        "PreToolUse",
+		Message:      "for the user",
+		Context:      "output capped",
+		UpdatedInput: map[string]any{"command": "bounded"},
+	}
+	stdout, _, code := emit(t, Claude, allow)
+	if code != 0 || !strings.Contains(stdout, `"additionalContext":"output capped"`) ||
+		!strings.Contains(stdout, `"permissionDecision":"allow"`) {
+		t.Fatalf("claude allow with context = %q", stdout)
+	}
+
+	deny := Outcome{Kind: Deny, Event: "PreToolUse", Message: "blocked", Context: "use ask"}
+	stdout, _, _ = emit(t, Claude, deny)
+	if !strings.Contains(stdout, `"permissionDecisionReason":"blocked"`) ||
+		!strings.Contains(stdout, `"additionalContext":"use ask"`) {
+		t.Fatalf("claude deny with context = %q", stdout)
+	}
+
+	block := Outcome{Kind: Block, Event: "PostToolUse", Message: "fix", Context: "note"}
+	stdout, _, _ = emit(t, Claude, block)
+	if !strings.Contains(stdout, `"decision":"block"`) || !strings.Contains(stdout, `"additionalContext":"note"`) {
+		t.Fatalf("claude block with context = %q", stdout)
+	}
+
+	stdout, stderr, code := emit(t, ExitCode, allow)
+	if stdout != "" || strings.TrimSpace(stderr) != "output capped" || code != 0 {
+		t.Fatalf("exit-code allow with context wrote stdout=%q stderr=%q code %d", stdout, stderr, code)
+	}
+
+	stdout, _, _ = emit(t, JSON, allow)
+	var decoded envelope
+	if err := json.Unmarshal([]byte(stdout), &decoded); err != nil {
+		t.Fatal(err)
+	}
+	if decoded.Context != "output capped" || decoded.UpdatedInput["command"] != "bounded" {
+		t.Fatalf("json allow with context = %+v", decoded)
+	}
+}

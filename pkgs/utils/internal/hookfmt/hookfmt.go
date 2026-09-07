@@ -44,6 +44,12 @@ type Outcome struct {
 	// rewrites passes silently there rather than claiming a rewrite that did
 	// not happen.
 	UpdatedInput map[string]any
+	// Context is a note the model reads, riding beside any decision. Message
+	// is not that: on an allow, Claude Code shows permissionDecisionReason to
+	// the user and not to Claude, so a gate that rewrote the input and said so
+	// only in Message was silent where it mattered. Put what the model must
+	// know here.
+	Context string
 }
 
 func PassOutcome() Outcome { return Outcome{Kind: Pass} }
@@ -84,8 +90,9 @@ type claudeOutput struct {
 }
 
 type claudeBlock struct {
-	Decision string `json:"decision"`
-	Reason   string `json:"reason"`
+	Decision           string      `json:"decision"`
+	Reason             string      `json:"reason"`
+	HookSpecificOutput *claudeHook `json:"hookSpecificOutput,omitempty"`
 }
 
 // envelope is the JSON format: the Outcome itself, with no harness vocabulary.
@@ -93,6 +100,7 @@ type envelope struct {
 	Decision     Kind           `json:"decision"`
 	Event        string         `json:"event,omitempty"`
 	Message      string         `json:"message,omitempty"`
+	Context      string         `json:"context,omitempty"`
 	UpdatedInput map[string]any `json:"updatedInput,omitempty"`
 }
 
@@ -113,6 +121,7 @@ func EmitTo(stdout, stderr io.Writer, format Format, out Outcome) int {
 			Decision:     out.Kind,
 			Event:        out.Event,
 			Message:      out.Message,
+			Context:      out.Context,
 			UpdatedInput: out.UpdatedInput,
 		})
 	default:
@@ -120,6 +129,9 @@ func EmitTo(stdout, stderr io.Writer, format Format, out Outcome) int {
 	}
 }
 
+// emitExitCode has one channel, stderr, and it reaches the user rather than the
+// model. A deny carries its message there with exit 2. Anything else prints the
+// note it has, so a rewrite or a cap is at least visible to the person watching.
 func emitExitCode(stderr io.Writer, out Outcome) int {
 	switch out.Kind {
 	case Deny, Block:
@@ -135,6 +147,11 @@ func emitExitCode(stderr io.Writer, out Outcome) int {
 		}
 		return 0
 	default:
+		if out.Context != "" {
+			if _, err := fmt.Fprintln(stderr, out.Context); err != nil {
+				return 1
+			}
+		}
 		return 0
 	}
 }
@@ -142,17 +159,27 @@ func emitExitCode(stderr io.Writer, out Outcome) int {
 func emitClaude(stdout, stderr io.Writer, out Outcome) int {
 	switch out.Kind {
 	case Block:
-		return write(stdout, stderr, claudeBlock{Decision: "block", Reason: out.Message})
+		block := claudeBlock{Decision: "block", Reason: out.Message}
+		if out.Context != "" {
+			block.HookSpecificOutput = &claudeHook{
+				HookEventName:     out.Event,
+				AdditionalContext: out.Context,
+			}
+		}
+		return write(stdout, stderr, block)
 	case Context:
 		return write(stdout, stderr, claudeOutput{claudeHook{
 			HookEventName:     out.Event,
 			AdditionalContext: out.Message,
 		}})
 	default:
+		// additionalContext is honored beside permissionDecision on PreToolUse,
+		// and it is the only field of the two that Claude reads on an allow.
 		return write(stdout, stderr, claudeOutput{claudeHook{
 			HookEventName:            out.Event,
 			PermissionDecision:       string(out.Kind),
 			PermissionDecisionReason: out.Message,
+			AdditionalContext:        out.Context,
 			UpdatedInput:             out.UpdatedInput,
 		}})
 	}
