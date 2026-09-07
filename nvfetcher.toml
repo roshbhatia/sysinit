@@ -12,7 +12,7 @@ src.github_tag = "abenz1267/gomvp"
 fetch.github = "abenz1267/gomvp"
 
 [mermaid-ascii]
-src.github_tag = "AlexanderGrooff/mermaid-ascii"
+src.manual = "1.5.0"
 fetch.github = "AlexanderGrooff/mermaid-ascii"
 
 [kubernetes-zeitgeist]

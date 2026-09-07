@@ -244,13 +244,13 @@
   };
   mermaid-ascii = {
     pname = "mermaid-ascii";
-    version = "1.6.0";
+    version = "1.5.0";
     src = fetchFromGitHub {
       owner = "AlexanderGrooff";
       repo = "mermaid-ascii";
-      rev = "1.6.0";
+      rev = "1.5.0";
       fetchSubmodules = false;
-      sha256 = "sha256-O25YlMI9tIbru0KfLsUPc2NOBmcEyJS+vShnM3/pbXA=";
+      sha256 = "sha256-D+ZU/J45pBqOkHWfMhWhXLZzU/Ufq/1zfz3sxqdiAGk=";
     };
   };
   pi-coding-agent = {
