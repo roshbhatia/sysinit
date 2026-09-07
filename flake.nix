@@ -62,7 +62,7 @@
     };
 
     orc = {
-      url = "github:roshbhatia/orc/v0.12.1";
+      url = "github:roshbhatia/orc/v0.9.4";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         systems.follows = "systems";
