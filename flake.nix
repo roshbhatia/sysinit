@@ -174,19 +174,6 @@
         inherit (builders) mkPkgs mkOverlays;
       };
 
-      cacheSystems = [
-        "aarch64-darwin"
-        "x86_64-linux"
-        "aarch64-linux"
-      ];
-      pkgsFor =
-        system:
-        builders.mkPkgs {
-          inherit system;
-          overlays = builders.mkOverlays;
-        };
-    in
-    {
       darwinConfigurations = outputBuilders.mkConfigurations {
         configs = darwinConfigs;
         inherit buildConfig;
@@ -202,6 +189,21 @@
         configs = nixosConfigs;
         inherit buildConfig;
       };
+
+      cacheSystems = [
+        "aarch64-darwin"
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
+      pkgsFor =
+        system:
+        builders.mkPkgs {
+          inherit system;
+          overlays = builders.mkOverlays;
+        };
+    in
+    {
+      inherit darwinConfigurations nixosConfigurations;
 
       homeModules = {
         default = ./modules/home;
@@ -303,7 +305,11 @@
       checks = lib.genAttrs cacheSystems (
         system:
         import ./checks {
-          inherit system;
+          inherit
+            system
+            darwinConfigurations
+            nixosConfigurations
+            ;
           homeManagerLib = inputs.home-manager.lib;
           pkgs = pkgsFor system;
         }

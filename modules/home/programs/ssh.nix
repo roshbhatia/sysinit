@@ -8,7 +8,7 @@ let
   sshCfg = config.sysinit.git.ssh;
 
   use1Password = sshCfg.use1PasswordAgent;
-  inherit (sshCfg) agentSocket;
+  inherit (sshCfg) agentSocket identityFile;
 in
 {
   programs.ssh = {
@@ -25,6 +25,9 @@ in
       }
       // lib.optionalAttrs (!use1Password) {
         IdentitiesOnly = true;
+      }
+      // lib.optionalAttrs (identityFile != null) {
+        IdentityFile = identityFile;
       };
     }
     // (

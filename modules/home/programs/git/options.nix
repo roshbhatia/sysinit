@@ -33,6 +33,13 @@
             "~/.1password/agent.sock";
         description = "Path to 1Password SSH agent socket";
       };
+
+      identityFile = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        example = "~/.ssh/id_ed25519_personal";
+        description = "Private key file used when the 1Password SSH agent is disabled";
+      };
     };
   };
 }

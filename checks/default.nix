@@ -1,6 +1,8 @@
 {
   pkgs,
   homeManagerLib,
+  darwinConfigurations,
+  nixosConfigurations,
   ...
 }:
 let
@@ -57,6 +59,13 @@ assert !(ampMcpServers ? suppressed);
     inherit (pkgs) lib;
   };
   closed-lid-ssh = import ./closed-lid-ssh.nix { inherit pkgs; };
+  host-access-security = import ./host-access-security.nix {
+    inherit
+      pkgs
+      darwinConfigurations
+      nixosConfigurations
+      ;
+  };
   changes-integration = import ./changes-integration.nix { inherit pkgs; };
   go-tests = pkgs.sysinit-gotools;
   orc-no-startup-units = pkgs.runCommand "orc-no-startup-units" { } ''

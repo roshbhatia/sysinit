@@ -14,11 +14,12 @@ let
     };
   };
 
-  # The only key the 1Password agent holds, `homelab.ssh.key`. The same string
-  # authorizes arrakis in modules/nixos/common/default.nix, so one key reaches
-  # every host on the tailnet.
+  # The 1Password agent key authorizes every host. Arrakis also carries its own
+  # on-disk key so unattended connections keep working when its desktop agent
+  # is not running.
   personalSshKeys = [
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIWYK84u+ZlSasw3Z7LwsA2eT9S7xDXKVj61xOqAubKe rshnbhatia@lv426"
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBPaCcHii525hx5Roh8kYyisdIjXVG3t4tkKwhcwUwXS rshnbhatia@arrakis"
   ];
 
   # Rosé Pine, corrected. base16-schemes ships `rose-pine`, but that port maps
@@ -131,6 +132,12 @@ in
     hardware = ../modules/nixos/hardware/arrakis.nix;
     inherit (personal) username;
     values = personal.values // {
+      git = personal.values.git // {
+        ssh = personal.values.git.ssh // {
+          use1PasswordAgent = false;
+          identityFile = "~/.ssh/id_ed25519_personal";
+        };
+      };
       theme = {
         base16Scheme = roseprime;
         font.monospace = "WumpusMono Nerd Font Mono";
