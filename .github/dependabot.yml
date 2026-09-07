@@ -11,6 +11,14 @@ updates:
     labels:
       - "dependencies"
       - "automated"
+    # Dependabot's Nix updater compares these release tags incorrectly. It
+    # proposed v0.9.4 after v0.12.1 and v0.6.0 after v0.7.0. Keep the explicit
+    # release pins owner-managed instead of accepting semantic downgrades.
+    ignore:
+      - dependency-name: "orc"
+      - dependency-name: "orc-extras"
+      - dependency-name: "changes"
+      - dependency-name: "traces"
     commit-message:
       prefix: "chore(deps)"
 
