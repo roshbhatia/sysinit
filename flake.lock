@@ -973,16 +973,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1788799885,
-        "narHash": "sha256-QKofm3Yr/4/yxhuzjK4/eL8Rt+/cbOPKo8wVIvXX1ng=",
+        "lastModified": 1788809415,
+        "narHash": "sha256-PwwDskjXxktrGUMWNcSk6pLrCzBO75Gx+Sf+Eqb1+Ao=",
         "owner": "roshbhatia",
         "repo": "orc",
-        "rev": "0341e8ffb5d4f5542dee8f98512fdabca58ab1d6",
+        "rev": "d97db14da721c28055f583e42e3fad4cb321449c",
         "type": "github"
       },
       "original": {
         "owner": "roshbhatia",
-        "ref": "v0.12.0",
+        "ref": "v0.12.1",
         "repo": "orc",
         "type": "github"
       }
@@ -1007,17 +1007,17 @@
       },
       "locked": {
         "dir": "extras",
-        "lastModified": 1788799885,
-        "narHash": "sha256-QKofm3Yr/4/yxhuzjK4/eL8Rt+/cbOPKo8wVIvXX1ng=",
+        "lastModified": 1788809415,
+        "narHash": "sha256-PwwDskjXxktrGUMWNcSk6pLrCzBO75Gx+Sf+Eqb1+Ao=",
         "owner": "roshbhatia",
         "repo": "orc",
-        "rev": "0341e8ffb5d4f5542dee8f98512fdabca58ab1d6",
+        "rev": "d97db14da721c28055f583e42e3fad4cb321449c",
         "type": "github"
       },
       "original": {
         "dir": "extras",
         "owner": "roshbhatia",
-        "ref": "v0.12.0",
+        "ref": "v0.12.1",
         "repo": "orc",
         "type": "github"
       }
