@@ -12,7 +12,7 @@ pkgs.runCommand "changes-integration-check"
     ];
   }
   ''
-    test "$(changes --version)" = "0.10.0"
+    test "$(changes --version)" = "0.10.1"
 
     export HOME="$TMPDIR/home"
     export XDG_CACHE_HOME="$TMPDIR/cache"
