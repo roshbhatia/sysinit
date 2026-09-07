@@ -52,9 +52,9 @@ in
       type = types.bool;
       default = false;
       description = ''
-        Whether to keep this Mac awake on AC power so SSH remains reachable
-        while the lid is closed. This changes the system sleep policy and can
-        increase heat. The policy resets immediately on battery power.
+        Whether to keep this Mac awake so SSH remains reachable while the lid
+        is closed. This changes the system sleep policy and can increase heat
+        and battery use.
       '';
     };
 
