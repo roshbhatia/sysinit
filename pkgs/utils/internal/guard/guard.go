@@ -13,10 +13,10 @@ import (
 )
 
 const (
-	BashSummary     = "deny destructive Bash commands, and bound one that prints without a limit"
+	BashSummary     = "deny destructive Bash commands, bound one that prints without a limit, and route a whole-file read of a large file to the cheap reader"
 	ExitCodeSummary = "deny destructive commands via a non-zero exit code"
 	NixSummary      = "deny an edit that resolves into the Nix store"
-	ReadSummary     = "clip an unbounded Read of a large file to a byte budget"
+	ReadSummary     = "deny an unbounded Read of a large file and name the cheap reader"
 )
 
 const fallbackReason = "blocked by sysinit destructive-command guard"
@@ -219,17 +219,62 @@ func boundCommand(command string) (string, bool) {
 }
 
 type bashEvent struct {
+	Cwd       string         `json:"cwd"`
 	ToolInput map[string]any `json:"tool_input"`
 }
 
-// DecideBash is the whole bash-guard decision, with no harness in it.
-func DecideBash(input map[string]any, rules []compiled) hookfmt.Outcome {
+// Commands whose whole purpose is to print a file. `head` and `tail` are not
+// here: with -n they are the targeted read the redirect asks for.
+var wholeFileReaders = map[string]bool{
+	"cat": true, "less": true, "more": true, "bat": true,
+}
+
+// largeFileRead reports whether the command prints one large file whole. It
+// matches the same shape as boundCommand, one plain invocation and no shell
+// operators, and resolves a relative path against cwd because the hook runs
+// where the harness does, which is not always where the command will.
+func largeFileRead(command, cwd string) (string, int64, bool) {
+	trimmed := strings.TrimSpace(command)
+	if trimmed == "" || strings.ContainsAny(trimmed, shellOperators) {
+		return "", 0, false
+	}
+	fields := strings.Fields(trimmed)
+	if !wholeFileReaders[filepath.Base(fields[0])] {
+		return "", 0, false
+	}
+	var paths []string
+	for _, arg := range fields[1:] {
+		if strings.HasPrefix(arg, "-") {
+			continue
+		}
+		paths = append(paths, arg)
+	}
+	if len(paths) != 1 {
+		return "", 0, false
+	}
+	path := paths[0]
+	if !filepath.IsAbs(path) && cwd != "" {
+		path = filepath.Join(cwd, path)
+	}
+	info, err := os.Stat(path)
+	if err != nil || !info.Mode().IsRegular() || info.Size() <= readTrigger {
+		return "", 0, false
+	}
+	return path, info.Size(), true
+}
+
+// DecideBash is the whole bash-guard decision, with no harness in it. cwd is
+// the harness's working directory from the hook event.
+func DecideBash(input map[string]any, cwd string, rules []compiled) hookfmt.Outcome {
 	command, _ := input["command"].(string)
 	if command == "" {
 		return hookfmt.PassOutcome()
 	}
 	if reason, denied := Decide(command, rules); denied {
 		return hookfmt.Outcome{Kind: hookfmt.Deny, Event: "PreToolUse", Message: reason}
+	}
+	if path, size, whole := largeFileRead(command, cwd); whole {
+		return redirect(path, size)
 	}
 
 	// A backgrounded command writes to a log file, not into the window, so the
@@ -250,13 +295,19 @@ func DecideBash(input map[string]any, rules []compiled) hookfmt.Outcome {
 	}
 	updated["command"] = bounded
 
+	// The note goes in Context, not Message: on an allow the harness shows
+	// Message to the user and nothing to the model, and a model that reads a
+	// cut diff without knowing it was cut reports what is missing from the
+	// cut as missing from the tree.
+	note := fmt.Sprintf(
+		"bash-guard: this command can print without a limit, so its output is capped at %d KiB. If the end is missing, narrow it with a filter, a path, or a flag such as -n or --max-count.",
+		bashBudget/1024,
+	)
 	return hookfmt.Outcome{
-		Kind:  hookfmt.Allow,
-		Event: "PreToolUse",
-		Message: fmt.Sprintf(
-			"This command can print without a limit, so its output was capped at %d KiB. Narrow it with a filter, a path, or a flag such as -n or --max-count if you need the part that was cut.",
-			bashBudget/1024,
-		),
+		Kind:         hookfmt.Allow,
+		Event:        "PreToolUse",
+		Message:      note,
+		Context:      note,
 		UpdatedInput: updated,
 	}
 }
@@ -280,7 +331,7 @@ func RunBash(args []string) int {
 	if json.Unmarshal(raw, &ev) != nil {
 		return 0
 	}
-	return hookfmt.Emit(format, DecideBash(ev.ToolInput, rules))
+	return hookfmt.Emit(format, DecideBash(ev.ToolInput, ev.Cwd, rules))
 }
 
 const storePrefix = "/nix/store/"
@@ -349,12 +400,15 @@ func RunNix(args []string) int {
 }
 
 // 23 of this repository's 647 tracked files are over 16 KiB, so the trigger
-// fires on 4% of reads and leaves the rest alone.
-const (
-	readTrigger  = 16 * 1024
-	readBudget   = 12 * 1024
-	readMinLines = 80
-)
+// fires on 4% of reads and leaves the rest alone. Spotify measured the
+// break-even for handing a read to a cheap model at about 350 lines, which is
+// what 16 KiB of source is; below it the round trip costs more than it saves.
+const readTrigger = 16 * 1024
+
+// bulkReadCommand is the cheap reader the redirect names. It is spelled out in
+// full until ask carries a per-provider light model, at which point the
+// template alone selects it.
+const bulkReadCommand = "ask -p claude -m haiku -t bulk-read"
 
 // Read handles these by page or by pixel, so a line limit means nothing on them.
 var opaqueToLineLimits = map[string]bool{
@@ -370,25 +424,45 @@ type readEvent struct {
 	} `json:"tool_input"`
 }
 
-// clipLines is the number of leading lines that fit in the budget. It counts
-// bytes rather than lines because a 538-line Nix module and a 184-line Markdown
-// file can both weigh 17 KB: line count does not predict what a read costs.
-func clipLines(data []byte) int {
-	spent, count := 0, 0
-	for _, line := range strings.SplitAfter(string(data), "\n") {
-		if spent+len(line) > readBudget {
-			break
-		}
-		spent += len(line)
-		count++
+// sampleBytes bounds what estimateLines reads. The guard used to read the whole
+// file to count it, which paid the cost it exists to prevent.
+const sampleBytes = 64 * 1024
+
+// estimateLines scales the newline density of the first sample over the size.
+func estimateLines(path string, size int64) int {
+	f, err := os.Open(path)
+	if err != nil {
+		return 0
 	}
-	if count < readMinLines {
-		return readMinLines
+	defer f.Close()
+	buf := make([]byte, sampleBytes)
+	n, _ := io.ReadFull(f, buf)
+	if n == 0 {
+		return 0
 	}
-	return count
+	newlines := strings.Count(string(buf[:n]), "\n")
+	if newlines == 0 {
+		return 1
+	}
+	return int(float64(newlines) * float64(size) / float64(n))
 }
 
-// DecideRead clips an unbounded Read of a large file to the byte budget.
+// redirect is the deny a whole-file read of a large file gets. A deny is the
+// one PreToolUse decision whose reason the model reads, so the alternatives
+// live in it: the ranged read for an edit, the cheap reader for an answer.
+func redirect(path string, size int64) hookfmt.Outcome {
+	return hookfmt.Outcome{
+		Kind:  hookfmt.Deny,
+		Event: "PreToolUse",
+		Message: fmt.Sprintf(`%s is %d KiB (about %d lines). A whole-file read is blocked.
+  - Need a range: Grep for it, then Read with offset and limit.
+  - Need the shape or an answer: %s --var question='<what you need>' < %s
+    It returns bullets only, each leading with a name or a line; the file never enters your context.`,
+			filepath.Base(path), size/1024, estimateLines(path, size), bulkReadCommand, path),
+	}
+}
+
+// DecideRead denies an unbounded Read of a large file and names the alternatives.
 func DecideRead(ev readEvent) hookfmt.Outcome {
 	// An explicit range is the caller having already decided what it needs.
 	if ev.ToolInput.FilePath == "" || ev.ToolInput.Offset != nil || ev.ToolInput.Limit != nil {
@@ -401,21 +475,7 @@ func DecideRead(ev readEvent) hookfmt.Outcome {
 	if err != nil || info.IsDir() || info.Size() <= readTrigger {
 		return hookfmt.PassOutcome()
 	}
-	data, err := os.ReadFile(ev.ToolInput.FilePath)
-	if err != nil {
-		return hookfmt.PassOutcome()
-	}
-	limit := clipLines(data)
-
-	return hookfmt.Outcome{
-		Kind:  hookfmt.Allow,
-		Event: "PreToolUse",
-		Message: fmt.Sprintf(
-			"%s is %d KiB. This read was clipped to its first %d lines to hold the context window. Read the rest with offset and limit, or use Grep to find the lines you need.",
-			filepath.Base(ev.ToolInput.FilePath), info.Size()/1024, limit,
-		),
-		UpdatedInput: map[string]any{"file_path": ev.ToolInput.FilePath, "limit": limit},
-	}
+	return redirect(ev.ToolInput.FilePath, info.Size())
 }
 
 func RunRead(args []string) int {
