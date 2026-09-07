@@ -9,6 +9,7 @@
     vimAlias = true;
     viAlias = true;
     sideloadInitLua = true;
+    plugins = [ pkgs.changes-neovim-plugin ];
   };
 
   home.packages = [

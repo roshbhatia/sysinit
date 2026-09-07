@@ -10,6 +10,7 @@ in
 {
   home.packages = [
     (lib.lowPrio pkgs.changes-providers)
+    (lib.lowPrio pkgs.changes-provider-git-notes)
   ];
 
   xdg.configFile = {
@@ -26,5 +27,7 @@ in
       "${pkgs.changes-providers}/share/changes/providers/ast-grep/provider.yaml";
     "changes/providers/calldiff/provider.yaml".source =
       "${pkgs.changes-providers}/share/changes/providers/calldiff/provider.yaml";
+    "changes/providers/git-notes/provider.yaml".source =
+      "${pkgs.changes-provider-git-notes}/share/changes/providers/git-notes/provider.yaml";
   };
 }

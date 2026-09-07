@@ -32,6 +32,9 @@ in
   ask-providers = inputs.ask-extras.packages.${final.stdenv.hostPlatform.system}.extras;
   changes-cli = inputs.changes.packages.${final.stdenv.hostPlatform.system}.default;
   changes-providers = inputs.changes.packages.${final.stdenv.hostPlatform.system}.extras;
+  changes-provider-git-notes =
+    inputs.changes.packages.${final.stdenv.hostPlatform.system}.provider-git-notes;
+  changes-neovim-plugin = inputs.changes.packages.${final.stdenv.hostPlatform.system}.neovim-plugin;
   seshy-cli = inputs.seshy.packages.${final.stdenv.hostPlatform.system}.default;
   specutil-cli = inputs.specutil.packages.${final.stdenv.hostPlatform.system}.full;
   traces-cli = tracesPackages.default;

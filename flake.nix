@@ -95,7 +95,7 @@
     };
 
     changes = {
-      url = "github:roshbhatia/changes/main";
+      url = "github:roshbhatia/changes/v0.9.1";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         systems.follows = "systems";
@@ -271,6 +271,8 @@
             "specutil"
             "changes"
             "changes-providers"
+            "changes-provider-git-notes"
+            "changes-neovim-plugin"
             "traces"
             "traces-providers"
             "ask"
