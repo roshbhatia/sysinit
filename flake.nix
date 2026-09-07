@@ -95,7 +95,7 @@
     };
 
     changes = {
-      url = "github:roshbhatia/changes/v0.10.0";
+      url = "github:roshbhatia/changes/v0.7.0";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         systems.follows = "systems";
