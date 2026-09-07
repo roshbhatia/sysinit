@@ -51,9 +51,11 @@ pkgs.runCommand "changes-integration-check"
     test "$(git config --get-all remote.origin.push)" = "$push_before"
 
     cd ..
+    mkdir -p "$TMPDIR/nvim-site/pack/hm/start"
+    ln -s ${pkgs.changes-neovim-plugin} "$TMPDIR/nvim-site/pack/hm/start/changes.nvim"
     nvim --headless --clean -u NONE \
-      --cmd 'set runtimepath^=${pkgs.changes-neovim-plugin}' \
-      -c 'runtime plugin/changes.lua' \
+      --cmd 'set packpath^=$TMPDIR/nvim-site' \
+      --cmd 'set noloadplugins' \
       -c 'luafile ${../modules/home/programs/neovim/config/after/plugin/changes.lua}' \
       -c 'lua assert(vim.fn.exists(":ChangesNote") == 2); assert(type(require("changes.notes").setup) == "function")' \
       -c 'qa!'
