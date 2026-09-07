@@ -273,6 +273,18 @@ in
               }
             ];
           }
+          {
+            # A note to the caller, not a block on the teammate. SubagentStop
+            # used to bounce a report over the budget, and every critic whose
+            # evidence ran long spent a turn shortening it.
+            matcher = "Agent";
+            hooks = [
+              {
+                type = "command";
+                command = "${profileBin}/prose-gate report";
+              }
+            ];
+          }
         ];
         SessionStart = [
           {
@@ -294,17 +306,6 @@ in
               {
                 type = "command";
                 command = "${profileBin}/prose-gate session";
-              }
-            ];
-          }
-        ];
-        SubagentStop = [
-          {
-            matcher = "";
-            hooks = [
-              {
-                type = "command";
-                command = "${profileBin}/prose-gate subagent";
               }
             ];
           }
@@ -351,6 +352,8 @@ in
                 command = "${profileBin}/loop-gate check";
               }
               {
+                # Records the tells; the next `prose-gate remind` carries them.
+                # It no longer blocks: a Stop hook has no passive channel.
                 type = "command";
                 command = "${profileBin}/prose-gate check";
               }

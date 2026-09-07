@@ -15,28 +15,31 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/hookfmt"
 )
 
-const Summary = "hold a Stop hook until the reply is short and in ASD-STE100"
+const Summary = "note a reply that breaks ASD-STE100 shape, and a teammate report that returns the material"
 
 const usage = `prose-gate: send a reply back when it reads like agent prose
 
 Usage:
-  prose-gate check     Stop hook. Reads the event on stdin, blocks a reply that
-                       carries the tells. The block carries the corrected lines,
-                       so only a fault with no mechanical rewrite costs thought.
+  prose-gate check     Stop hook. Reads the event on stdin and records the tells
+                       a reply carries, with the corrected lines. It never sends
+                       the reply back: a Stop hook has no passive channel, so a
+                       note there is a forced extra turn.
   prose-gate remind    UserPromptSubmit hook. Prints the shape on the first
-                       prompt of a session, and again after the gate has blocked
-                       a reply. Silent otherwise. A prompt ending in "noterse"
-                       skips the reminder and the next check.
+                       prompt of a session, and again, with the recorded tells,
+                       on the prompt after check found some. Silent otherwise.
+                       A prompt ending in "noterse" skips the reminder and the
+                       next check.
   prose-gate session   SessionStart hook. Prints the context rules, which a fresh
                        or compacted session has just lost.
-  prose-gate subagent  SubagentStop hook. Blocks a teammate report that returns
-                       the material instead of the conclusion.
+  prose-gate report    PostToolUse hook on the Agent tool. Notes a teammate
+                       report that returned the material instead of the
+                       conclusion, to the caller, without sending it back.
   prose-gate lint      Reads text on stdin, prints the findings, exits 1 on any.
   prose-gate fix       Rewrites the .md files under the given paths in place,
                        applying every rule that carries an action. --dry-run
                        counts without writing.
 
-check, remind, session, and subagent take --format claude|exit-code|json. It
+check, remind, session, and report take --format claude|exit-code|json. It
 defaults to claude, which is the shape Claude Code's hook runner reads.
 
 Vale reads the reply as markdown and carries the rule set, so fenced code is
@@ -62,6 +65,19 @@ type stopEvent struct {
 	Prompt               string `json:"prompt"`
 }
 
+// agentEvent is the PostToolUse payload for the Agent tool. The teammate's
+// final text arrives as content blocks in the response.
+type agentEvent struct {
+	ToolName     string `json:"tool_name"`
+	ToolResponse struct {
+		Status  string `json:"status"`
+		Content []struct {
+			Type string `json:"type"`
+			Text string `json:"text"`
+		} `json:"content"`
+	} `json:"tool_response"`
+}
+
 func inject(event, text string) hookfmt.Outcome {
 	return hookfmt.Outcome{Kind: hookfmt.Context, Event: event, Message: text}
 }
@@ -72,7 +88,7 @@ func inject(event, text string) hookfmt.Outcome {
 // than a rule stated once, because the model spends tokens reconciling the two
 // (OpenAI, GPT-5 prompting guide). So the reminder is armed rather than
 // constant: it goes in on the first prompt of a session, and again only after
-// the gate has actually blocked a reply.
+// the gate has recorded tells on a reply.
 func armDir() string {
 	if dir := os.Getenv("SYSINIT_PROSE_GATE_DIR"); dir != "" {
 		return dir
@@ -88,7 +104,7 @@ func armPath(session string) string {
 	return filepath.Join(dir, session)
 }
 
-// arm records that this session's last reply was blocked, so the next prompt
+// arm records that this session's last reply carried tells, so the next prompt
 // carries the reminder again.
 func arm(session string) {
 	path := armPath(session)
@@ -101,10 +117,45 @@ func arm(session string) {
 	_ = os.WriteFile(path, []byte("armed\n"), 0o644)
 }
 
+// findingsPath holds what check found, for remind to carry on the next prompt.
+func findingsPath(session string) string {
+	path := armPath(session)
+	if path == "" {
+		return ""
+	}
+	return path + ".findings"
+}
+
+// record keeps the tells of the reply just sent. check writes, remind reads.
+func record(session, text string) {
+	path := findingsPath(session)
+	if path == "" {
+		return
+	}
+	if os.MkdirAll(filepath.Dir(path), 0o755) != nil {
+		return
+	}
+	_ = os.WriteFile(path, []byte(text), 0o644)
+}
+
+// recorded returns the tells check kept, and spends them.
+func recorded(session string) string {
+	path := findingsPath(session)
+	if path == "" {
+		return ""
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return ""
+	}
+	_ = os.Remove(path)
+	return strings.TrimSpace(string(data))
+}
+
 // The escape word comes from bigskysoftware/be-terse, which drops its injection
 // when a prompt ends in "noterse". Here the injection is only half the gate, so
 // the word has to reach the Stop hook as well: a reminder the user opted out of,
-// followed by a block for the style they opted out of, is worse than neither.
+// followed by a note about the style they opted out of, is worse than neither.
 // remind writes the marker and check clears it, so the escape lasts one turn.
 func escapePath(session string) string {
 	path := armPath(session)
@@ -149,7 +200,7 @@ func release(session string) bool {
 
 // disarm reports whether the reminder is due, and clears the arming if it is.
 // An unknown session is always due: injecting 210 bytes costs less than a
-// blocked reply.
+// reply in the wrong shape.
 func disarm(session string) bool {
 	path := armPath(session)
 	if path == "" {
@@ -293,10 +344,10 @@ func blocks(found []valeAlert) bool {
 // it is listed second and the shape rules come last.
 func reason(fixes []correction, manual []valeAlert) string {
 	var b strings.Builder
-	b.WriteString("That reply reads like agent prose.\n")
+	b.WriteString("Your last reply read like agent prose. It was sent as written.\n")
 
 	if len(fixes) > 0 {
-		b.WriteString("\nThese lines are already rewritten. Send them exactly as they are:\n\n")
+		b.WriteString("\nThese lines had a mechanical fix. Write the next reply the second way:\n\n")
 		for i, f := range fixes {
 			if i == maxCorrections {
 				fmt.Fprintf(&b, "  ... and %d more line(s), same rules\n", len(fixes)-maxCorrections)
@@ -354,12 +405,15 @@ func Check(stdin io.Reader) hookfmt.Outcome {
 		return hookfmt.PassOutcome()
 	}
 
-	// The gate cannot rewrite the reply, so it rewrites what it can and hands
-	// the result back. Every mechanical fault comes back already corrected, and
-	// only the ones needing a decision cost the model any thought.
+	// The gate used to block here and hand the corrections back, which cost a
+	// rewrite turn per slip. A Stop hook has no passive channel: additionalContext
+	// on Stop continues the turn just as a block does. So the findings are
+	// recorded, and remind carries them into the next prompt, where a note is
+	// a note. The reply the user already read stays as it was.
 	fixes, manual := corrections(stylePath(), ev.LastAssistantMessage)
+	record(ev.SessionID, reason(fixes, manual))
 	arm(ev.SessionID)
-	return hookfmt.Outcome{Kind: hookfmt.Block, Event: "Stop", Message: reason(fixes, manual)}
+	return hookfmt.PassOutcome()
 }
 
 // Claude Code re-states a built-in output style on every turn, from that style's
@@ -380,11 +434,15 @@ func remind(stdin io.Reader) hookfmt.Outcome {
 		escape(ev.SessionID)
 		return hookfmt.PassOutcome()
 	}
-	if !disarm(ev.SessionID) {
+	held := recorded(ev.SessionID)
+	if !disarm(ev.SessionID) && held == "" {
 		return hookfmt.PassOutcome()
 	}
-	return inject("UserPromptSubmit",
-		"The sysinit-ste output style is active. Follow it. Answer shape: what changed, why, next action. One sentence under 25 words per instruction. No em-dash, no preamble, no plan announcement, no closing summary. Keep an error, a failing test, or a destructive-action confirmation whole.")
+	text := "The sysinit-ste output style is active. Follow it. Answer shape: what changed, why, next action. One sentence under 25 words per instruction. No em-dash, no preamble, no plan announcement, no closing summary. Keep an error, a failing test, or a destructive-action confirmation whole."
+	if held != "" {
+		text = held + "\n\n" + text
+	}
+	return inject("UserPromptSubmit", text)
 }
 
 // The output style is already loaded at this point and sits in the same position
@@ -412,7 +470,12 @@ func session() hookfmt.Outcome {
 // A teammate's report is the entire cost of delegating: the caller pays for it
 // in the window the delegation was meant to protect. Size is the only thing
 // worth gating here, because a report is data and the style rules are not.
-func subagent(stdin io.Reader) hookfmt.Outcome {
+//
+// This used to block SubagentStop and make the teammate rewrite. A critic whose
+// evidence ran long then spent a turn shortening it, and the loop that spawned
+// it ran longer. The report now lands as written and the caller gets the note,
+// which is where the next delegation is shaped.
+func report(stdin io.Reader) hookfmt.Outcome {
 	if os.Getenv("SYSINIT_PROSE_GATE") == "off" {
 		return hookfmt.PassOutcome()
 	}
@@ -420,29 +483,20 @@ func subagent(stdin io.Reader) hookfmt.Outcome {
 	if err != nil {
 		return hookfmt.PassOutcome()
 	}
-	var ev stopEvent
-	if json.Unmarshal(data, &ev) != nil {
+	var ev agentEvent
+	if json.Unmarshal(data, &ev) != nil || ev.ToolResponse.Status == "async_launched" {
 		return hookfmt.PassOutcome()
 	}
-	if ev.StopHookActive || len(ev.LastAssistantMessage) <= maxReportBytes {
+	size := 0
+	for _, block := range ev.ToolResponse.Content {
+		size += len(block.Text)
+	}
+	if size <= maxReportBytes {
 		return hookfmt.PassOutcome()
 	}
 
-	return hookfmt.Outcome{
-		Kind:  hookfmt.Block,
-		Event: "SubagentStop",
-		Message: fmt.Sprintf(`That report is %d KiB and the budget is %d KiB. It lands whole in the caller's
-context window, so it has to carry the conclusion, not the material.
-
-Send it again with:
-
-  1. The answer, in one or two sentences.
-  2. The evidence as file:line pointers. The caller can read what it needs.
-  3. What you could not determine, and where you stopped.
-
-Quote a file only where the exact text is the finding.`,
-			len(ev.LastAssistantMessage)/1024, maxReportBytes/1024),
-	}
+	return inject("PostToolUse", fmt.Sprintf(`prose-gate: that teammate report is %d KiB and the budget is %d KiB. It landed whole in your context. Next time ask the teammate for the answer in one or two sentences, the evidence as file:line pointers, and what it could not determine.`,
+		size/1024, maxReportBytes/1024))
 }
 
 func lint(stdin io.Reader) int {
@@ -455,20 +509,20 @@ func lint(stdin io.Reader) int {
 		fmt.Fprintln(os.Stderr, "prose-gate: SYSINIT_PROSE_STYLE is unset, so nothing was checked")
 		return 2
 	}
-	// lint reports every alert. A block costs the user a turn, so check stays
-	// quiet until there is more than one, and the two counts differ on purpose.
-	// The same dedupe `findings` applies, so `lint` reports the number that
-	// actually decides the block. Without it the operator-facing command and
+	// lint reports every alert. A recorded note costs the next prompt bytes, so
+	// check stays quiet until there is more than one, and the two counts differ
+	// on purpose. The same dedupe `findings` applies, so `lint` reports the
+	// number that actually decides it. Without it the operator-facing command and
 	// the gate disagreed: a heading em-dash read as 2 in lint and 1 in check.
 	all := oneAlertPerSpan(alerts(string(data)))
 	for _, a := range all {
 		fmt.Printf("  - %s: %q (line %d) [%s]\n", a.Message, a.Match, a.Line, a.Check)
 	}
 	if !blocks(all) {
-		fmt.Printf("%d alerts; check blocks above %d, so this passes\n", len(all), maxTells)
+		fmt.Printf("%d alerts; check records above %d, so this passes\n", len(all), maxTells)
 		return 0
 	}
-	fmt.Printf("%d alerts; check sends this back\n", len(all))
+	fmt.Printf("%d alerts; check records this for the next prompt\n", len(all))
 	return 1
 }
 
@@ -504,8 +558,8 @@ func Run(args []string) int {
 		return hookfmt.Emit(format, remind(os.Stdin))
 	case "session":
 		return hookfmt.Emit(format, session())
-	case "subagent":
-		return hookfmt.Emit(format, subagent(os.Stdin))
+	case "report":
+		return hookfmt.Emit(format, report(os.Stdin))
 	default:
 		fmt.Fprint(os.Stderr, usage)
 		return 2
