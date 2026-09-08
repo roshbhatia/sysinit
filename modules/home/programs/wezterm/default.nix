@@ -195,10 +195,13 @@ in
         seshy_remote_list = "${seshyRemoteList}/bin/wezterm-seshy-remote-list";
       };
       # Per-host remote-attach transport for the session tree. A host absent
-      # here uses the WezTerm ssh mux (ssh-domain, today's behavior). arrakis
-      # runs kernel Tailscale with tailscale0 trusted, so inbound Mosh UDP
-      # works: its sessions attach by running a local mosh client against the
-      # far-side zmx, never by extending the WezTerm mux over Mosh.
+      # here uses "ssh-domain": the WezTerm ssh domain with multiplexing =
+      # "WezTerm" (keybindings.lua), which is the native-mux tier. It keeps
+      # native panes, OSC, and scrollback, and loses roaming and local echo.
+      # "mosh" is the roaming tier below it. arrakis runs kernel Tailscale with
+      # tailscale0 trusted, so inbound Mosh UDP works: its sessions attach by
+      # running a local mosh client against the far-side zmx, never by
+      # extending the WezTerm mux over Mosh.
       hosts = {
         arrakis.transport = "mosh";
       };
