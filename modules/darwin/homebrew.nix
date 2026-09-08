@@ -47,7 +47,7 @@ in
     onActivation = {
       autoUpdate = true;
       upgrade = true;
-      cleanup = "none";
+      cleanup = "uninstall";
     };
     global = {
       brewfile = true;
