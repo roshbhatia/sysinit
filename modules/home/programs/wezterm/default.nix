@@ -24,6 +24,8 @@ let
     text = builtins.readFile ./scripts/seshy-remote-list.sh;
   };
 
+  remoteHosts = import ./remote-hosts.nix { inherit lib; };
+
   sshCfg = config.sysinit.git.ssh;
   sshAgentSocket =
     if lib.hasPrefix "~/" sshCfg.agentSocket then
@@ -194,17 +196,10 @@ in
       scripts = {
         seshy_remote_list = "${seshyRemoteList}/bin/wezterm-seshy-remote-list";
       };
-      # Per-host remote-attach transport for the session tree. A host absent
-      # here uses "ssh-domain": the WezTerm ssh domain with multiplexing =
-      # "WezTerm" (keybindings.lua), which is the native-mux tier. It keeps
-      # native panes, OSC, and scrollback, and loses roaming and local echo.
-      # "mosh" is the roaming tier below it. arrakis runs kernel Tailscale with
-      # tailscale0 trusted, so inbound Mosh UDP works: its sessions attach by
-      # running a local mosh client against the far-side zmx, never by
-      # extending the WezTerm mux over Mosh.
-      hosts = {
-        arrakis.transport = "mosh";
-      };
+      # The hosts the session tree probes and attaches through tether. The
+      # attach tier is not declared here: `tether plan` picks it at attach time
+      # from remote-hosts.nix policy and what the probe found on both ends.
+      inherit (remoteHosts) hosts;
       plugins = {
         tabline = "${weztermPlugins.tabline}";
         agent-deck = "${weztermPlugins.agent-deck}";
@@ -217,6 +212,9 @@ in
         workspace-manager = "${weztermPlugins.workspace-manager}";
       };
     };
+    # tether reads this; remote-hosts.nix is the source, so the session tree
+    # and the negotiator can never disagree on which hosts exist.
+    "tether/config.json".text = builtins.toJSON remoteHosts.tetherConfig;
     "wezterm/env.json".text = builtins.toJSON {
       PATH = paths.getPathString config.home.username config.home.homeDirectory;
       TERMINFO_DIRS = "${pkgs.wezterm.terminfo}/share/terminfo";
