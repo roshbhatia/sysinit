@@ -83,7 +83,9 @@ func Run(args []string) int {
 		changes = applyPatchChanges(dig(payload, patchTextKeys...))
 	}
 	if len(changes) == 0 {
-		if found := dig(payload, "tool_input.file_path", "tool_input.notebook_path"); found != "" {
+		// cursor's afterFileEdit names the file at the top level, where claude
+		// and codex nest it under tool_input.
+		if found := dig(payload, "tool_input.file_path", "tool_input.notebook_path", "file_path"); found != "" {
 			changes = []change{{file: found}}
 		}
 	}
