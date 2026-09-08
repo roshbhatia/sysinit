@@ -14,27 +14,21 @@ import (
 	"time"
 
 	"github.com/roshbhatia/go-utils/paths"
-	"github.com/roshbhatia/sysinit/pkgs/utils/internal/transcript"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/worker"
 )
 
-const Summary = "render and tail a worker log, the agent-state bus, or a transcript"
+const Summary = "render and tail a worker log or the agent-state bus"
 
-const usageText = `One viewer for the three things an agent leaves behind.
+const usageText = `One viewer for the two things an agent leaves behind.
 
 Usage:
   watch worker [<directory>] [--log <name>]
   watch bus [<directory>]
-  watch transcript <harness>            resolve by directory
-  watch transcript <harness>/<session>
-  watch transcript <harness> <session>
 
 Each source is named by what identifies it, and they differ:
   worker      by directory, the same key the worker itself uses. Defaults to
               the working directory, and honours $SYSINIT_WORKER_SESSION.
   bus         by directory. Defaults to the working directory.
-  transcript  by harness session id, or by directory through the sidecar
-              published next to it.
 
 Flags:
   --log <name>   which worker log, default "last"
@@ -87,13 +81,11 @@ func Run(args []string) int {
 		source, err = newWorker(rest[1:], *logName)
 	case "bus":
 		source, err = newBus(rest[1:])
-	case "transcript":
-		source, err = newTranscript(rest[1:])
 	case "help", "-h", "--help":
 		_, _ = fmt.Fprint(os.Stdout, usageText)
 		return 0
 	default:
-		err = fmt.Errorf("unknown source %q, want worker, bus, or transcript", rest[0])
+		err = fmt.Errorf("unknown source %q, want worker or bus", rest[0])
 	}
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "watch: %v\n", err)
@@ -241,39 +233,6 @@ func newWorker(args []string, logName string) (renderer, error) {
 
 	path := filepath.Join(record, logName+".log")
 	return &fileTail{path: path, title: fmt.Sprintf("worker %s/%s", filepath.Base(root), logName)}, nil
-}
-
-func newTranscript(args []string) (renderer, error) {
-	var harness, session string
-	switch len(args) {
-	case 1:
-		harness, session, _ = strings.Cut(args[0], "/")
-		if session == "" {
-			here, err := os.Getwd()
-			if err != nil {
-				return nil, err
-			}
-			found, ok := transcript.FindByWorktree(harness, here)
-			if !ok {
-				return nil, fmt.Errorf("no %s transcript published for %s", harness, here)
-			}
-			session = found
-		}
-	case 2:
-		harness, session = args[0], args[1]
-	default:
-		return nil, fmt.Errorf("transcript takes <harness>[/<session>] or <harness> <session>")
-	}
-	if harness == "" || session == "" {
-		return nil, fmt.Errorf("transcript needs a harness, and a session id or a published one here")
-	}
-	if strings.Contains(harness, "/") || strings.Contains(session, "/") {
-		return nil, fmt.Errorf("harness and session must not contain a path separator")
-	}
-
-	session = strings.TrimSuffix(session, ".jsonl")
-	path := filepath.Join(paths.AgentTranscripts(), harness, session+".jsonl")
-	return &fileTail{path: path, title: fmt.Sprintf("transcript %s/%s", harness, session)}, nil
 }
 
 type busRecord struct {

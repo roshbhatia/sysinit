@@ -1,8 +1,23 @@
 { pkgs }:
+let
+  inherit (pkgs) lib;
+  remoteHosts = import ../modules/home/programs/wezterm/remote-hosts.nix { inherit lib; };
+  tetherConfig = pkgs.writeText "tether-config.json" (builtins.toJSON remoteHosts.tetherConfig);
+  # `tether plan --host arrakis --session sysinit --native ssh:arrakis -- zmx
+  # attach sysinit` as it answered on 2026-09-08, rendered as a lua table so the
+  # headless test needs no JSON parser.
+  tetherPlan = pkgs.writeText "tether-plan-arrakis.lua" (
+    "return "
+    + lib.generators.toLua { } (
+      builtins.fromJSON (builtins.readFile ./fixtures/tether/plan-arrakis.json)
+    )
+  );
+in
 pkgs.runCommand "editor-config-check"
   {
     nativeBuildInputs = [
       pkgs.git
+      pkgs.jq
       pkgs.lua5_4
       pkgs.neovim
       pkgs.nodejs_22
@@ -23,7 +38,25 @@ pkgs.runCommand "editor-config-check"
       -c "PlenaryBustedDirectory ${./neovim} { minimal_init = '${./neovim.lua}', sequential = true }"
     lua ${./wezterm.lua} \
       ${../modules/home/programs/wezterm/lua} \
-      ${./fixtures/wezterm-plugin}
+      ${./fixtures/wezterm-plugin} \
+      ${tetherPlan}
+    # The tier is tether's decision now. A static transport, or the mosh spawn
+    # it drove, would be a second decider the plan never sees. Spelled as an
+    # if: under set -e a failing `! grep` is ignored, so that form cannot fail.
+    if grep -rF -e 'transport = "mosh"' -e mosh_spawn_args ${../modules/home/programs/wezterm/lua}; then
+      echo "a static mosh transport survives in the wezterm lua tree" >&2
+      exit 1
+    fi
+    # The rendered tether config is tether.config/v1: mode and flaky present,
+    # one entry per host in the map, and only the keys the schema allows.
+    jq -e --argjson hosts '${builtins.toJSON (builtins.attrNames remoteHosts.hosts)}' '
+      (.mode | IN("auto", "native", "roam", "persist"))
+      and (.flaky.rtt_ms | type == "number")
+      and (.flaky.loss | type == "number")
+      and ((.hosts | keys) == $hosts)
+      and ([.hosts[] | keys[]] - ["pin", "mode"] == [])
+      and ([.hosts[] | .pin // "native-mux"] | all(IN("native-mux", "mosh-mux", "ssh-raw", "ssh")))
+    ' ${tetherConfig} > /dev/null
     lua ${./hammerspoon.lua} \
       ${../modules/darwin/home/hammerspoon}
     node ${./launcher-actions.mjs} \

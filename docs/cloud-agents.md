@@ -11,6 +11,11 @@ the cachix substituter, builds
 `github:roshbhatia/sysinit#packages.x86_64-linux.cloudTools`, and links its
 `bin/*` into `/usr/local/bin`.
 
+`hack/cloud-setup.sh`, `.cursor/environment.json`, and `.devin/blueprint.yaml`
+are generated from `modules/shared/cloud.nix`. Edit the facts there, run
+`hack/generate-cloud.sh`, and commit the result; `checks.cloud-files` fails on a
+hand edit.
+
 ## Claude Code cloud
 
 Claude Code cloud takes its setup script from a UI field, not from a file in the

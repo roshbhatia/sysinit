@@ -1,5 +1,6 @@
 local wezterm = require("wezterm")
 local ui_sessions = require("sysinit.pkg.ui.sessions")
+local ui_tether = require("sysinit.pkg.ui.tether")
 local utils = require("sysinit.pkg.utils")
 
 local M = {}
@@ -18,29 +19,49 @@ local function refresh(window)
   end)
 end
 
--- A remote host has its own nix profile, so its shell is never at the local path.
 -- `nu -e` runs the jump and then stays interactive, so no exec is needed. The
 -- name is double-quoted because a nushell single-quoted string has no escape at
 -- all, while a double-quoted one takes \" and \\.
-local function seshy_spawn_args(name, shell)
-  local args
-  if shell and shell ~= "" then
-    args = { shell }
-  else
-    args = utils.get_nushell_args()
-  end
+local function seshy_spawn_args(name)
+  local args = utils.get_nushell_args()
   local quoted = '"' .. name:gsub("\\", "\\\\"):gsub('"', '\\"') .. '"'
   args[#args + 1] = "-e"
   args[#args + 1] = string.format("s %s", quoted)
   return args
 end
 
--- Mosh streams screen state over UDP, not a byte-clean stream, so no WezTerm
--- remote domain can ride it. The mosh CLIENT runs in a LOCAL pane; the far-side
--- pane comes from the host's own zmx, which mosh attaches over the hop. The
--- host alias is resolved through ~/.ssh/config by mosh itself.
-local function mosh_spawn_args(host, session)
-  return { utils.get_nix_binary("mosh"), host, "--", "zmx", "attach", session }
+-- The far side of every remote attach. zmx is the host's own multiplexer, so
+-- the same argv runs at the WezTerm ssh domain or behind a mosh or ssh hop.
+-- tether wraps it; it never composes it.
+local function remote_inner_args(session)
+  return { "zmx", "attach", session }
+end
+
+-- Asks tether which hop carries the attach. This is the one synchronous child
+-- allowed on the GUI thread: `tether plan` reads its own host record and the
+-- local tool table and never opens the network, so it answers in milliseconds.
+-- A plan that cannot be used is logged with tether's reasons and the attach
+-- falls back to the ssh domain, never to a silent no-op.
+local function tether_spawn(opts, session)
+  local inner = remote_inner_args(session)
+  local args = ui_tether.plan_args(utils.get_nix_binary("tether"), opts.host, session, opts.domain, inner)
+  local ran, success, stdout, stderr = pcall(wezterm.run_child_process, args)
+  if not ran then
+    success, stdout, stderr = false, "", tostring(success)
+  end
+  local parsed, plan = pcall(wezterm.json_parse, stdout or "")
+  local spawn, err = ui_tether.spawn_for(parsed and plan or nil, opts.cwd)
+  if spawn then
+    return spawn
+  end
+  local detail = ""
+  if not success and type(stderr) == "string" and stderr:match("%S") then
+    detail = " (" .. stderr:gsub("%s+$", "") .. ")"
+  end
+  wezterm.log_error(
+    string.format("tether plan --host %s: %s%s; attaching over %s", opts.host, err, detail, opts.domain)
+  )
+  return { domain = { DomainName = opts.domain }, cwd = opts.cwd, args = inner }
 end
 
 function M.gui_window_for_workspace(workspace)
@@ -67,7 +88,7 @@ function M.gui_window_for_workspace(workspace)
   return nil
 end
 
----@param opts table|string|nil A spawn cwd, or { cwd, domain, shell, session, transport, host }
+---@param opts table|string|nil A spawn cwd, or { cwd, domain, session, host }
 function M.switch_to_workspace(win, pane, name, opts)
   if not name or name == "" then
     return
@@ -90,13 +111,13 @@ function M.switch_to_workspace(win, pane, name, opts)
     opts = { cwd = opts }
   end
   local act
-  if type(opts) == "table" and opts.transport == "mosh" and opts.host then
-    local spawn = { args = mosh_spawn_args(opts.host, opts.session or name) }
+  if type(opts) == "table" and opts.host and opts.domain then
+    local spawn = tether_spawn(opts, opts.session or name)
     act = wezterm.action.SwitchToWorkspace({ name = name, spawn = spawn })
   elseif type(opts) == "table" and (opts.cwd or opts.domain) then
     local spawn = {
       cwd = opts.cwd,
-      args = seshy_spawn_args(opts.session or name, opts.shell),
+      args = seshy_spawn_args(opts.session or name),
     }
     if opts.domain and opts.domain ~= "" then
       spawn.domain = { DomainName = opts.domain }

@@ -10,6 +10,7 @@ let
   themeColors = themeLib.colorsOf config;
   c = themeColors;
   mod = "Mod1";
+  agentRuntime = import ../../home/programs/llm/runtime { inherit pkgs lib; };
 
   wallpaper = pkgs.fetchurl {
     url = "https://wallpapercave.com/wp/wp12329549.png";
@@ -58,7 +59,7 @@ let
     destination = "/bin/${waybarAgentSessionsName}";
     executable = true;
     text = renderTemplate ./desktop/waybar-agent-sessions.sh.tmpl {
-      agentSessions = "${pkgs.sysinit-utils}/bin/agent-sessions";
+      agentSessions = "${agentRuntime.sessionsScript}/bin/agent-sessions";
       filter = waybarAgentSessionsFilter;
       jq = "${pkgs.jq}/bin/jq";
     };

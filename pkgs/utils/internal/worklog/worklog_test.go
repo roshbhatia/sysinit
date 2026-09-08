@@ -81,9 +81,9 @@ func transcriptIn(t *testing.T, session string) string {
 func TestARepoSessionRecordsTheBranchesWorkAndTheIntent(t *testing.T) {
 	isolate(t)
 	work := repoIn(t, t.TempDir())
-	transcriptIn(t, "s1")
+	transcript := transcriptIn(t, "s1")
 
-	record, ok := build(event{SessionID: "s1", CWD: work, Reason: "clear"}, stamp)
+	record, ok := build(event{SessionID: "s1", CWD: work, Reason: "clear", TranscriptPath: transcript}, stamp)
 	if !ok {
 		t.Fatal("nothing was recorded for a repo session")
 	}
@@ -182,8 +182,8 @@ func TestNothingWorthALineIsNotRecorded(t *testing.T) {
 
 func TestADirectorySessionWithAPromptIsRecorded(t *testing.T) {
 	isolate(t)
-	transcriptIn(t, "s5")
-	record, ok := build(event{SessionID: "s5", CWD: t.TempDir()}, stamp)
+	transcript := transcriptIn(t, "s5")
+	record, ok := build(event{SessionID: "s5", CWD: t.TempDir(), TranscriptPath: transcript}, stamp)
 	if !ok {
 		t.Fatal("a prompt with no repository was dropped")
 	}
@@ -216,8 +216,8 @@ func TestAPromptIsCutByCharacter(t *testing.T) {
 
 func TestTheWrittenLineCarriesEveryFieldTheReaderExpects(t *testing.T) {
 	log := isolate(t)
-	transcriptIn(t, "s6")
-	record, ok := build(event{SessionID: "s6", CWD: t.TempDir(), Reason: "other"}, stamp)
+	transcript := transcriptIn(t, "s6")
+	record, ok := build(event{SessionID: "s6", CWD: t.TempDir(), Reason: "other", TranscriptPath: transcript}, stamp)
 	if !ok {
 		t.Fatal("nothing to write")
 	}

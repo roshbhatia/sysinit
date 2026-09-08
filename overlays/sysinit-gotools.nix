@@ -166,7 +166,6 @@ in
         "citelock"
         "firefox-tabs"
         "note"
-        "transcript-link"
         "wezspawn"
         "worker"
         "worklog"

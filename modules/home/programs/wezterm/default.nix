@@ -24,6 +24,19 @@ let
     text = builtins.readFile ./scripts/seshy-remote-list.sh;
   };
 
+  remoteHosts = import ./remote-hosts.nix { inherit lib; };
+
+  # tether shells out to ssh, tailscale, and ping. tailscale and ping come from
+  # the PATH core.lua hands the GUI; tether and ssh are baked in like above.
+  tetherRefresh = pkgs.writeShellApplication {
+    name = "wezterm-tether-refresh";
+    runtimeInputs = [
+      pkgs.openssh
+      pkgs.tether
+    ];
+    text = builtins.readFile ./scripts/tether-refresh.sh;
+  };
+
   sshCfg = config.sysinit.git.ssh;
   sshAgentSocket =
     if lib.hasPrefix "~/" sshCfg.agentSocket then
@@ -193,15 +206,12 @@ in
       };
       scripts = {
         seshy_remote_list = "${seshyRemoteList}/bin/wezterm-seshy-remote-list";
+        tether_refresh = "${tetherRefresh}/bin/wezterm-tether-refresh";
       };
-      # Per-host remote-attach transport for the session tree. A host absent
-      # here uses the WezTerm ssh mux (ssh-domain, today's behavior). arrakis
-      # runs kernel Tailscale with tailscale0 trusted, so inbound Mosh UDP
-      # works: its sessions attach by running a local mosh client against the
-      # far-side zmx, never by extending the WezTerm mux over Mosh.
-      hosts = {
-        arrakis.transport = "mosh";
-      };
+      # The hosts the session tree probes and attaches through tether. The
+      # attach tier is not declared here: `tether plan` picks it at attach time
+      # from remote-hosts.nix policy and what the probe found on both ends.
+      inherit (remoteHosts) hosts;
       plugins = {
         tabline = "${weztermPlugins.tabline}";
         agent-deck = "${weztermPlugins.agent-deck}";
@@ -214,6 +224,9 @@ in
         workspace-manager = "${weztermPlugins.workspace-manager}";
       };
     };
+    # tether reads this; remote-hosts.nix is the source, so the session tree
+    # and the negotiator can never disagree on which hosts exist.
+    "tether/config.json".text = builtins.toJSON remoteHosts.tetherConfig;
     "wezterm/env.json".text = builtins.toJSON {
       PATH = paths.getPathString config.home.username config.home.homeDirectory;
       TERMINFO_DIRS = "${pkgs.wezterm.terminfo}/share/terminfo";
