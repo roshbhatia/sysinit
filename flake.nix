@@ -85,6 +85,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    gate = {
+      url = "github:roshbhatia/gate/main";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     ask-extras = {
       url = "github:roshbhatia/ask/main?dir=extras";
       inputs = {
@@ -280,6 +285,8 @@
             "traces-providers"
             "ask"
             "ask-providers"
+            "gate-cli"
+            "gate-providers"
             "sysinit-utils"
             "orc-cli"
             "orc-providers"

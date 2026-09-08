@@ -89,6 +89,8 @@ in
       "**/CRUSH.md"
       "**/GEMINI.md"
       ".sysinit/"
+      # gate's per-repository state: an armed loop, an open review.
+      ".gate/"
       ".direnv/"
       ".env"
       ".env.*.local"

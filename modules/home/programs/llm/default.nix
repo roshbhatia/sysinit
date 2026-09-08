@@ -138,6 +138,7 @@ in
 {
   imports = [
     ./skill-tools.nix
+    ./gate.nix
     ./acp.nix
     ./harnesses/publish.nix
     ./mcp-servers.nix

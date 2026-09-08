@@ -30,6 +30,11 @@ in
   orc-providers = inputs.orc-extras.packages.${final.stdenv.hostPlatform.system}.all;
   ask-cli = patchHackShebangs inputs.ask.packages.${final.stdenv.hostPlatform.system}.default;
   ask-providers = inputs.ask-extras.packages.${final.stdenv.hostPlatform.system}.extras;
+  gate-cli = inputs.gate.packages.${final.stdenv.hostPlatform.system}.gate;
+  # Every provider in gate's extras plus the `review` ledger CLI. The manifests
+  # under share/gate/providers are what modules/home/programs/llm/gate.nix links
+  # into ~/.config/gate/providers.
+  gate-providers = inputs.gate.packages.${final.stdenv.hostPlatform.system}.extras;
   changes-cli = inputs.changes.packages.${final.stdenv.hostPlatform.system}.default;
   changes-providers = inputs.changes.packages.${final.stdenv.hostPlatform.system}.extras;
   changes-provider-git-notes =
