@@ -48,15 +48,16 @@ in
       GIT_DISCOVERY_ACROSS_FILESYSTEM = "1";
       BUILDX_EXPERIMENTAL = "1";
 
-      # prose-gate gets this from its own wrapper. It is here so the audit
+      # The hook gets this file as args.style (gate-defaults.nix). This is for
+      # the CLI, `prose-gate lint` and `prose-gate fix`, and so the audit
       # config next to it is reachable as
-      # "$(dirname "$SYSINIT_PROSE_STYLE")/vale-audit.ini".
+      # "$(dirname "$PROSE_GATE_STYLE")/vale-audit.ini".
       #
       # It does NOT make a bare `vale` find the rule set, which an earlier
       # comment here claimed: vale reads ~/.vale.ini and never this variable.
       # That gap is why another session wrote its own Sysinit style by hand.
       # `home.file.".vale.ini"` below closes it.
-      SYSINIT_PROSE_STYLE = "${pkgs.vale-styles}/vale.ini";
+      PROSE_GATE_STYLE = "${pkgs.vale-styles}/vale.ini";
     }
     // (values.environment or { });
 

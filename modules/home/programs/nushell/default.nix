@@ -15,7 +15,7 @@ let
 
   # home.sessionVariables reaches bash, zsh and fish through hm-session-vars.sh,
   # which nushell cannot source. Without this a nushell pane had no EDITOR, no
-  # XDG_*, no LANG and no SYSINIT_PROSE_STYLE, which is why zsh had to stay the
+  # XDG_*, no LANG and no PROSE_GATE_STYLE, which is why zsh had to stay the
   # pane shell. Carried as JSON so a value needing an escape cannot break the
   # file, and read back with a three-hash raw string so no value can close it.
   #
