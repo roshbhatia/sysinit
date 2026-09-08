@@ -18,7 +18,12 @@ let
 
   # One dispatcher call per hook event. The chain behind each is declared in
   # llm/gate.nix, so this file names events and nothing else.
-  gateHook = event: llmLib.guards.mkGateHook { inherit pkgs event; harness = "claude"; };
+  gateHook =
+    event:
+    llmLib.guards.mkGateHook {
+      inherit pkgs event;
+      harness = "claude";
+    };
 
   slackGuardScript =
     let
