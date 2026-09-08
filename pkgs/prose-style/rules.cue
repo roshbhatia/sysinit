@@ -339,8 +339,8 @@ rules: {
 	// and a long procedure sentence is left to the reader.
 
 	// Tier 1B. These carried `replace` actions and the actions were wrong.
-	// `prose-gate fix` returns the parameter verbatim (utils/internal/prosegate
-	// /fix.go), so it has no inflection and no case. Measured: "The hook
+	// `prose-gate fix` returns the parameter verbatim (gate's
+	// extras/prose-gate/fix.go), so it has no inflection and no case. Measured: "The hook
 	// utilizes vale. The overlay utilized cue." became "The hook use vale. The
 	// overlay use cue.", and a sentence-initial "Utilize" became "use". The
 	// `check` path is worse, because it hands those lines back to the model as
@@ -718,7 +718,7 @@ ini: """
 
 // The audit config adds the borrowed styles and drops the floor to suggestion.
 // Nothing blocks on it. Point vale at it by hand to read docs and skills:
-//   vale --config=$(dirname "$SYSINIT_PROSE_STYLE")/vale-audit.ini <path>
+//   vale --config=$(dirname "$PROSE_GATE_STYLE")/vale-audit.ini <path>
 // which is where a slow, chatty, advisory pass belongs.
 auditIni: """
 	StylesPath = \(stylesPlaceholder)

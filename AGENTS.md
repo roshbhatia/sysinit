@@ -164,8 +164,9 @@ subcommands: `feature-based-session-manager`, `openspec-workflow`, `specutil`.
   bullets and keeps the file out of the context. A Read that already carries
   `offset` or `limit` passes.
 - Every hook decision goes through `gate hook`. The chain per event is
-  `modules/home/programs/llm/gate.nix`; the providers come from the `gate`
-  flake input plus this repository's `prose-gate`. `gate log tail` shows what
+  `modules/home/programs/llm/gate.nix`; every provider comes from the `gate`
+  flake input, and `gate-defaults.nix` holds prose-gate's rule set and every
+  text it injects as step arguments. `gate log tail` shows what
   each provider decided on the last calls, and `checks/gate-config.nix` fails
   the build when a chain names a provider with no manifest.
 - An adversarial review is one judged pass recorded by `review`, in `.gate/`

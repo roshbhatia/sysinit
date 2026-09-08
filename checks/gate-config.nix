@@ -6,6 +6,7 @@ let
   llmLib = import ../modules/home/programs/llm/lib { inherit lib; };
   defaults = import ../modules/home/programs/llm/gate-defaults.nix {
     rulesFile = "${llmLib.guards.rulesFile pkgs}";
+    styleFile = "${pkgs.vale-styles}/vale.ini";
   };
   yamlFormat = pkgs.formats.yaml { };
   renderStep =
@@ -17,7 +18,9 @@ let
     // lib.optionalAttrs (step ? args) { inherit (step) args; };
   configFile = yamlFormat.generate "gate-config.yaml" {
     version = "gate.config/v1";
-    log = "/tmp/gate-decisions.jsonl";
+    # The sandbox cannot write /tmp, and gate drops a provider's stderr into
+    # this log, so an unwritable path hides why a decision went wrong.
+    log = "@log@";
     providers.directory = "@providers@";
     defaults = {
       timeout = "2s";
@@ -26,17 +29,6 @@ let
     chains = lib.mapAttrs (_event: steps: map renderStep steps) defaults.chains;
   };
   reviewFile = yamlFormat.generate "gate-review.yaml" defaults.review;
-  proseGate = yamlFormat.generate "prose-gate.yaml" {
-    version = "provider/v1";
-    name = "prose-gate";
-    description = "sysinit's prose gate";
-    command = [ "${pkgs.sysinit-utils}/bin/prose-gate" ];
-    actions."gate.decide" = {
-      description = "check";
-      argv = [ "serve" ];
-    };
-    defaults.timeout = "5s";
-  };
   gitAiGate = yamlFormat.generate "git-ai-gate.yaml" {
     version = "provider/v1";
     name = "git-ai-gate";
@@ -54,7 +46,6 @@ pkgs.runCommand "gate-config"
     nativeBuildInputs = [
       pkgs.gate-cli
       pkgs.gate-providers
-      pkgs.sysinit-utils
       pkgs.git-ai-gate
     ];
   }
@@ -64,9 +55,9 @@ pkgs.runCommand "gate-config"
     export XDG_STATE_HOME="$TMPDIR/state"
     mkdir -p "$HOME" "$XDG_CONFIG_HOME/gate/providers" "$XDG_STATE_HOME"
     cp ${pkgs.gate-providers}/share/gate/providers/*.yaml "$XDG_CONFIG_HOME/gate/providers/"
-    cp ${proseGate} "$XDG_CONFIG_HOME/gate/providers/prose-gate.yaml"
     cp ${gitAiGate} "$XDG_CONFIG_HOME/gate/providers/git-ai-gate.yaml"
-    sed "s|@providers@|$XDG_CONFIG_HOME/gate/providers|" ${configFile} > "$XDG_CONFIG_HOME/gate/config.yaml"
+    sed -e "s|@providers@|$XDG_CONFIG_HOME/gate/providers|" -e "s|@log@|$TMPDIR/gate-decisions.jsonl|" \
+      ${configFile} > "$XDG_CONFIG_HOME/gate/config.yaml"
     cp ${reviewFile} "$XDG_CONFIG_HOME/gate/review.yaml"
     gate config validate
     GATE_REVIEW_CONFIG="$XDG_CONFIG_HOME/gate/review.yaml" review policy > /dev/null
@@ -75,5 +66,19 @@ pkgs.runCommand "gate-config"
     printf '%s' '{"hook_event_name":"PreToolUse","tool_name":"Bash","tool_input":{"command":"git push --force"},"cwd":"/"}' \
       | gate hook --harness claude --event PreToolUse --format json > decision
     grep -q '"decision":"deny"' decision
+    # prose-gate's rules are arguments, so the chain is what proves them: a
+    # reply in agent prose is recorded on Stop, silently, and the next prompt
+    # carries the findings with this repository's reminder.
+    export PROSE_GATE_STATE_DIR="$TMPDIR/prose"
+    printf '%s' '{"hook_event_name":"Stop","session_id":"s1","stop_hook_active":false,"last_assistant_message":"Basically, this seamlessly leverages a pivotal unlock. In summary, we delivered a robust solution."}' \
+      | gate hook --harness claude --event Stop --format json > stop
+    test ! -s stop
+    printf '%s' '{"hook_event_name":"UserPromptSubmit","session_id":"s1","prompt":"go"}' \
+      | gate hook --harness claude --event UserPromptSubmit --format json > prompt
+    if ! grep -q 'read like agent prose' prompt || ! grep -q 'sysinit-ste output style is active' prompt; then
+      echo "prose-gate did not carry the findings into the prompt:" >&2
+      cat prompt "$TMPDIR/gate-decisions.jsonl" >&2
+      exit 1
+    fi
     touch "$out"
   ''

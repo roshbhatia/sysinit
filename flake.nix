@@ -86,7 +86,7 @@
     };
 
     gate = {
-      url = "github:roshbhatia/gate/v0.2.5";
+      url = "github:roshbhatia/gate/v0.3.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -397,9 +397,6 @@
               pkgs.yamllint
               pkgs.vale
             ];
-            # prose-gate's tests read the rule set through this, the same way
-            # the installed wrapper does. Without it they skip.
-            SYSINIT_PROSE_STYLE = "${pkgs.vale-styles}/vale.ini";
           };
         }
       );
