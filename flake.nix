@@ -125,6 +125,11 @@
       };
     };
 
+    tether = {
+      url = "github:roshbhatia/tether/v0.1.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     slk = {
       url = "github:gammons/slk/v0.17.0";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -287,6 +292,7 @@
             "ask-providers"
             "gate-cli"
             "gate-providers"
+            "tether"
             "sysinit-utils"
             "orc-cli"
             "orc-providers"
