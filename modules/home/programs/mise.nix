@@ -10,6 +10,16 @@
     enableMutableConfig = true;
     globalConfig = {
       plugins.nix = "${pkgs.mise-nix}";
+      # Opt-in per tool. A project mise.toml keeps its own pin; the nix backend
+      # resolves that exact version through search.devbox.sh. `yq` in mise is
+      # mikefarah's, which nixpkgs names `yq-go`; plain `yq` there is the
+      # Python wrapper at 3.x.
+      tool_alias = {
+        bun = "nix:bun";
+        shellcheck = "nix:shellcheck";
+        tflint = "nix:tflint";
+        yq = "nix:yq-go";
+      };
     };
   };
 
