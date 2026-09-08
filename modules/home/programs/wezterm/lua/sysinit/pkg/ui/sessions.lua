@@ -16,10 +16,22 @@ M.seshy_dir = utils.state_path("seshySessions", "seshy/sessions")
 M.remote_dir = utils.state_path("weztermRemoteSessions", "wezterm/remote_sessions")
 
 M.remote_lister = ""
+-- Per-host attach transport, keyed on the lowercase ssh host. A host absent
+-- here defaults to "ssh-domain". "mosh" hosts attach over a local mosh client.
+M.host_transport = {}
 do
   local ok, cfg = pcall(utils.load_json_file, utils.get_config_path("config.json"))
-  if ok and type(cfg) == "table" and type(cfg.scripts) == "table" then
-    M.remote_lister = cfg.scripts.seshy_remote_list or ""
+  if ok and type(cfg) == "table" then
+    if type(cfg.scripts) == "table" then
+      M.remote_lister = cfg.scripts.seshy_remote_list or ""
+    end
+    if type(cfg.hosts) == "table" then
+      for host, spec in pairs(cfg.hosts) do
+        if type(spec) == "table" and type(spec.transport) == "string" then
+          M.host_transport[host:lower()] = spec.transport
+        end
+      end
+    end
   end
 end
 
@@ -119,6 +131,7 @@ function M.remote_cached()
     out[#out + 1] = {
       host = entry.host,
       domain = entry.domain,
+      transport = M.host_transport[entry.host] or "ssh-domain",
       ok = cached ~= nil and cached.ok == true,
       reason = cached and cached.reason or (cached == nil and "not probed yet" or nil),
       shell = cached and cached.shell or nil,
@@ -183,10 +196,23 @@ function M.remote_spawn(workspace)
           -- `cwd`, not `path`: this table is read by switch_to_workspace, whose
           -- spawn takes a cwd. Named `path` it type-checked and silently landed
           -- every remote session in the login home instead of the session dir.
-          return { domain = entry.domain, cwd = session.path, shell = entry.shell, session = name }
+          return {
+            domain = entry.domain,
+            cwd = session.path,
+            shell = entry.shell,
+            session = name,
+            transport = entry.transport,
+            host = entry.host,
+          }
         end
       end
-      return { domain = entry.domain, shell = entry.shell, session = name }
+      return {
+        domain = entry.domain,
+        shell = entry.shell,
+        session = name,
+        transport = entry.transport,
+        host = entry.host,
+      }
     end
   end
   return nil

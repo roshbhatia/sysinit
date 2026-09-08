@@ -148,3 +148,8 @@ nix = "libgit2"
 # Session persistence, added by phase 10.
 [[tool]]
 nix = "zmx"
+
+# Mosh client for the wezterm remote-attach mosh transport, and mosh-server on
+# hosts that accept a mosh attach (arrakis).
+[[tool]]
+nix = "mosh"
