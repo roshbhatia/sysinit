@@ -166,7 +166,6 @@ in
         "citelock"
         "firefox-tabs"
         "note"
-        "prose-gate"
         "transcript-link"
         "wezspawn"
         "worker"
@@ -177,12 +176,7 @@ in
       runtimePath = final.lib.makeBinPath [
         final.git
         final.curl
-        # prose-gate shells out to vale for the whole rule set. Without it on
-        # PATH the gate passes every reply.
-        final.vale
       ];
-
-      proseStyle = "${final.vale-styles}/vale.ini";
     in
     final.runCommand "utils-${sysinit-gotools.version}"
       {
@@ -196,13 +190,11 @@ in
       ''
         mkdir -p "$out/bin"
         makeWrapper "${sysinit-gotools}/bin/utils" "$out/bin/utils" \
-          --prefix PATH : "${runtimePath}" \
-          --set-default SYSINIT_PROSE_STYLE "${proseStyle}"
+          --prefix PATH : "${runtimePath}"
         ${final.lib.concatMapStringsSep "\n" (name: ''
           makeWrapper "${sysinit-gotools}/bin/utils" "$out/bin/${name}" \
             --argv0 "${name}" \
-            --prefix PATH : "${runtimePath}" \
-            --set-default SYSINIT_PROSE_STYLE "${proseStyle}"
+            --prefix PATH : "${runtimePath}"
         '') links}
       '';
 }
