@@ -195,10 +195,6 @@ in
               }
               {
                 type = "command";
-                command = "${profileBin}/agent-note-open";
-              }
-              {
-                type = "command";
                 command = gateHook "UserPromptSubmit";
               }
               {

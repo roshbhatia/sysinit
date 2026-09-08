@@ -11,6 +11,7 @@ in
 {
   chains = {
     UserPromptSubmit = [
+      { provider = "notes"; }
       {
         provider = "prose-gate";
         args.mode = "remind";
@@ -118,6 +119,7 @@ in
     "lint-gate"
     "loop-gate"
     "nix-guard"
+    "notes"
     "read-router"
     "review-gate"
   ];
