@@ -118,3 +118,29 @@ func TestContextReachesTheModelOnEveryChannel(t *testing.T) {
 		t.Fatalf("json allow with context = %+v", decoded)
 	}
 }
+
+func TestProviderFramesRoundTrip(t *testing.T) {
+	frame := `{"version":"provider/v1","kind":"request","requestId":"r1","capability":"gate.decide",` +
+		`"input":{"event":{"event":"Stop","raw":{"last_assistant_message":"hi","session_id":"s"}},"args":{"mode":"check"}}}`
+	request, err := ReadProviderRequest(strings.NewReader(frame))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if request.Input.Event.Event != "Stop" || request.Input.Args["mode"] != "check" || !strings.Contains(string(request.Input.Event.Raw), "hi") {
+		t.Fatalf("request = %+v", request)
+	}
+	var stdout, stderr bytes.Buffer
+	if code := EmitProviderTo(&stdout, &stderr, "r1", Outcome{Kind: Context, Message: "note"}); code != 0 || stderr.Len() != 0 {
+		t.Fatalf("emit code %d stderr %q", code, stderr.String())
+	}
+	var result providerResult
+	if err := json.Unmarshal(stdout.Bytes(), &result); err != nil {
+		t.Fatal(err)
+	}
+	if result.Kind != "result" || result.RequestID != "r1" || result.Output.Decision != Context || result.Output.Message != "note" {
+		t.Fatalf("result = %+v", result)
+	}
+	if _, err := ReadProviderRequest(strings.NewReader(`{"version":"provider/v1","kind":"request","capability":"inference.generate"}`)); err == nil {
+		t.Fatal("a foreign capability was accepted")
+	}
+}

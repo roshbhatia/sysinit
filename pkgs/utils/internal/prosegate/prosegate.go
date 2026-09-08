@@ -1,6 +1,7 @@
 package prosegate
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -38,6 +39,11 @@ Usage:
   prose-gate fix       Rewrites the .md files under the given paths in place,
                        applying every rule that carries an action. --dry-run
                        counts without writing.
+
+  prose-gate serve     gate provider. Reads a gate.decide request frame on stdin
+                       and routes on args.mode, or on the event when no mode is
+                       given: Stop is check, UserPromptSubmit is remind,
+                       SessionStart is session, PostToolUse is report.
 
 check, remind, session, and report take --format claude|exit-code|json. It
 defaults to claude, which is the shape Claude Code's hook runner reads.
@@ -533,6 +539,8 @@ func Run(args []string) int {
 	}
 	// lint and fix write for a person, not for a hook, so they take no --format.
 	switch args[0] {
+	case "serve":
+		return serve(os.Stdin)
 	case "lint":
 		return lint(os.Stdin)
 	case "fix":
@@ -665,4 +673,36 @@ func groupByRule(in []valeAlert) []string {
 		out = append(out, line+": "+strings.Join(hits, ", "))
 	}
 	return out
+}
+
+// serve is the gate provider entry: one request frame in, one result frame
+// out. The raw harness payload inside the request is what the mode functions
+// have always parsed, so they run unchanged.
+func serve(stdin io.Reader) int {
+	request, err := hookfmt.ReadProviderRequest(stdin)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "prose-gate: %v\n", err)
+		return 2
+	}
+	mode, _ := request.Input.Args["mode"].(string)
+	if mode == "" {
+		mode = map[string]string{
+			"Stop": "check", "UserPromptSubmit": "remind", "SessionStart": "session", "PostToolUse": "report",
+		}[request.Input.Event.Event]
+	}
+	raw := bytes.NewReader(request.Input.Event.Raw)
+	var outcome hookfmt.Outcome
+	switch mode {
+	case "check":
+		outcome = Check(raw)
+	case "remind":
+		outcome = remind(raw)
+	case "session":
+		outcome = session()
+	case "report":
+		outcome = report(raw)
+	default:
+		outcome = hookfmt.PassOutcome()
+	}
+	return hookfmt.EmitProvider(request.RequestID, outcome)
 }

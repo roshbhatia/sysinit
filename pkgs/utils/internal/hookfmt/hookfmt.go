@@ -21,6 +21,10 @@ const (
 	ExitCode Format = "exit-code"
 	// JSON is the harness-agnostic envelope an adapter can read.
 	JSON Format = "json"
+	// Provider is the gate dispatcher's provider/v1 frames: a request on stdin
+	// carrying the harness payload as `input.event.raw`, a result frame on
+	// stdout carrying the outcome. A gate that speaks this is a chain step.
+	Provider Format = "provider"
 )
 
 type Kind string
@@ -70,10 +74,10 @@ func ParseFormat(args []string, fallback Format) (Format, []string, error) {
 		i++
 	}
 	switch format {
-	case Claude, ExitCode, JSON:
+	case Claude, ExitCode, JSON, Provider:
 		return format, rest, nil
 	default:
-		return "", nil, fmt.Errorf("unknown --format: %s; expected claude, exit-code, or json", format)
+		return "", nil, fmt.Errorf("unknown --format: %s; expected claude, exit-code, json, or provider", format)
 	}
 }
 
@@ -195,4 +199,65 @@ func write(stdout, stderr io.Writer, v any) int {
 		return 1
 	}
 	return 0
+}
+
+// ProviderRequest is what the gate dispatcher writes to a provider's stdin: one
+// provider/v1 request frame whose input is the event and the chain step's
+// arguments. Only the fields a gate here reads are named; the raw harness
+// payload rides along so the existing decision functions parse what they
+// always parsed.
+type ProviderRequest struct {
+	Version    string `json:"version"`
+	Kind       string `json:"kind"`
+	RequestID  string `json:"requestId"`
+	Capability string `json:"capability"`
+	Input      struct {
+		Event struct {
+			Event string          `json:"event"`
+			Tool  string          `json:"tool"`
+			Raw   json.RawMessage `json:"raw"`
+		} `json:"event"`
+		Args map[string]any `json:"args"`
+	} `json:"input"`
+}
+
+// ReadProviderRequest decodes the request frame and checks it is a gate.decide.
+func ReadProviderRequest(stdin io.Reader) (ProviderRequest, error) {
+	var request ProviderRequest
+	if err := json.NewDecoder(stdin).Decode(&request); err != nil {
+		return request, fmt.Errorf("decode provider request: %w", err)
+	}
+	if request.Version != "provider/v1" || request.Kind != "request" {
+		return request, fmt.Errorf("unsupported provider frame %s/%s", request.Version, request.Kind)
+	}
+	if request.Capability != "gate.decide" {
+		return request, fmt.Errorf("unsupported capability %q", request.Capability)
+	}
+	return request, nil
+}
+
+type providerResult struct {
+	Version   string   `json:"version"`
+	Kind      string   `json:"kind"`
+	RequestID string   `json:"requestId"`
+	Status    string   `json:"status"`
+	Output    envelope `json:"output"`
+}
+
+// EmitProvider writes the result frame for one decision. A pass is a frame
+// too: the dispatcher needs an answer from every step it ran.
+func EmitProvider(requestID string, out Outcome) int {
+	return EmitProviderTo(os.Stdout, os.Stderr, requestID, out)
+}
+
+// EmitProviderTo is EmitProvider over explicit streams.
+func EmitProviderTo(stdout, stderr io.Writer, requestID string, out Outcome) int {
+	kind := out.Kind
+	if kind == "" {
+		kind = Pass
+	}
+	return write(stdout, stderr, providerResult{
+		Version: "provider/v1", Kind: "result", RequestID: requestID, Status: "ok",
+		Output: envelope{Decision: kind, Message: out.Message, Context: out.Context, UpdatedInput: out.UpdatedInput},
+	})
 }
