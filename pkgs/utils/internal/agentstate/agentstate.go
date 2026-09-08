@@ -132,11 +132,6 @@ func Run(args []string) int {
 	pane := os.Getenv("WEZTERM_PANE")
 	input := readStdin()
 	if pane == "" {
-		reason := reasonSrc
-		if reason == "" {
-			reason = status
-		}
-		registerOrcSession(agent, status, reason, input, pane)
 		return 0
 	}
 
@@ -144,7 +139,6 @@ func Run(args []string) int {
 	stateFile := filepath.Join(stateDir, pane+".json")
 
 	if status == "exit" {
-		registerOrcSession(agent, "disconnected", "session ended", input, pane)
 		_ = os.Remove(stateFile)
 		_ = os.Remove(filepath.Join(stateDir, pane+".start"))
 		return 0
@@ -158,7 +152,6 @@ func Run(args []string) int {
 		reason = status
 	}
 	reason = truncate(reason, reasonLimit)
-	registerOrcSession(agent, status, reason, input, pane)
 
 	record := state{
 		Version: SchemaVersion,
@@ -188,30 +181,6 @@ func Run(args []string) int {
 
 	publish(stateFile, record)
 	return 0
-}
-
-func registerOrcSession(agent string, status string, reason string, input map[string]any, pane string) {
-	executable, err := exec.LookPath("orc")
-	if err != nil {
-		return
-	}
-	args := []string{
-		"session", "register", "--harness", agent, "--pane", pane, "--pid", strconv.Itoa(os.Getppid()),
-		"--status", status, "--reason", reason, "--source", "hook",
-	}
-	if mux := MuxID(); mux > 0 {
-		args = append(args, "--mux", strconv.Itoa(mux))
-	}
-	if native := dig(input,
-		"session_id", "sessionId", "session.id", "thread_id", "threadId", "conversation_id",
-	); native != "" {
-		args = append(args, "--native-id", native, "--trace-id", native)
-	}
-	command := exec.Command(executable, args...)
-	command.Stdin = nil
-	command.Stdout = io.Discard
-	command.Stderr = io.Discard
-	_ = command.Run()
 }
 
 func PaneRecord(pane string) (record, start string) {

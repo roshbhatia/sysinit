@@ -121,31 +121,11 @@ func TestTheWorkerSourceHonoursTheSessionOverride(t *testing.T) {
 	}
 }
 
-func TestTheLogNameAndTranscriptRejectPathSeparators(t *testing.T) {
+func TestTheLogNameRejectsPathSeparators(t *testing.T) {
 	workerState(t)
 
 	if _, err := newWorker([]string{t.TempDir()}, "../etc/passwd"); err == nil {
 		t.Error("a log name with a separator was accepted")
-	}
-	if _, err := newTranscript([]string{"../etc/x"}); err == nil {
-		t.Error("a transcript harness with a separator was accepted")
-	}
-	if _, err := newTranscript([]string{"claude"}); err == nil {
-		t.Error("a transcript with no session was accepted")
-	}
-}
-
-func TestTranscriptAcceptsBothSpellings(t *testing.T) {
-	one, err := newTranscript([]string{"claude/abc"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	two, err := newTranscript([]string{"claude", "abc.jsonl"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if one.Title() != two.Title() {
-		t.Errorf("the two spellings resolved differently: %q and %q", one.Title(), two.Title())
 	}
 }
 

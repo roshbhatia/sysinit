@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/roshbhatia/go-utils/paths"
-	"github.com/roshbhatia/sysinit/pkgs/utils/internal/transcript"
 )
 
 const Summary = "append one SessionEnd record to the worklog"
@@ -406,9 +405,11 @@ func build(ev event, now time.Time) (Record, bool) {
 
 	ts := now.UTC().Format("2006-01-02T15:04:05Z")
 	found := intent{}
-	// No harness in the payload, so the search stays on the default root. The
-	// hook that writes this log always names the transcript anyway.
-	path := transcript.Resolve("", ev.TranscriptPath, ev.SessionID)
+	// The SessionEnd payload names the transcript; there is no lookup.
+	path := ev.TranscriptPath
+	if info, err := os.Stat(path); err != nil || !info.Mode().IsRegular() {
+		path = ""
+	}
 	if path != "" {
 		found = readContext(path)
 	}
