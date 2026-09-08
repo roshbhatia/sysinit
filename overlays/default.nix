@@ -44,6 +44,7 @@
   (import ./codex.nix)
   (import ./acp-amp.nix)
   (import ./localias.nix)
+  (import ./git-ai.nix)
   (import ./cua-computer-server.nix)
   (import ./alerter.nix)
   (import ./sheets.nix)

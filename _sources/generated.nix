@@ -126,6 +126,38 @@
       sha256 = "sha256-WipeGIOBx/Y9TZtwW8WWjp1cuU4frWltyumIR04A0SQ=";
     };
   };
+  git-ai = {
+    pname = "git-ai";
+    version = "1.7.4";
+    src = fetchurl {
+      url = "https://github.com/git-ai-project/git-ai/releases/download/v1.7.4/git-ai-macos-arm64";
+      sha256 = "sha256-fWvMRRxl851zCeTCRlZL2PDhjFrDAUlmGkn5KG+lucI=";
+    };
+  };
+  git-ai-x86_64-darwin = {
+    pname = "git-ai-x86_64-darwin";
+    version = "1.7.4";
+    src = fetchurl {
+      url = "https://github.com/git-ai-project/git-ai/releases/download/v1.7.4/git-ai-macos-x64";
+      sha256 = "sha256-W7lqXclw4lDQqCRYT7a81mU32O/GNE+zf0IKVHsTi6s=";
+    };
+  };
+  git-ai-aarch64-linux = {
+    pname = "git-ai-aarch64-linux";
+    version = "1.7.4";
+    src = fetchurl {
+      url = "https://github.com/git-ai-project/git-ai/releases/download/v1.7.4/git-ai-linux-arm64";
+      sha256 = "sha256-1pctEd2gOKxbokWskeD2ocvL5e7BNvBXjJG4HskIoKw=";
+    };
+  };
+  git-ai-x86_64-linux = {
+    pname = "git-ai-x86_64-linux";
+    version = "1.7.4";
+    src = fetchurl {
+      url = "https://github.com/git-ai-project/git-ai/releases/download/v1.7.4/git-ai-linux-x64";
+      sha256 = "sha256-H4DEr/pE2aIWZ+kwt6pqyU98L0a/IW12ZLq4THqLYsI=";
+    };
+  };
   go-enum = {
     pname = "go-enum";
     version = "v0.9.4";
