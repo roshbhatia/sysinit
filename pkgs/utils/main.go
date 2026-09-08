@@ -13,7 +13,6 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/note"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/prosegate"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/statusline"
-	"github.com/roshbhatia/sysinit/pkgs/utils/internal/transcript"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/watch"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/wezspawn"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/worker"
@@ -28,19 +27,18 @@ type command struct {
 }
 
 var commands = map[string]command{
-	"agent-state":     {name: "agent-state", summary: agentstate.Summary, run: agentstate.Run},
-	"citelock":        {name: "citelock", summary: citelock.Summary, run: citelock.Run},
-	"edit-event":      {name: "edit-event", summary: editevent.Summary, run: editevent.Run},
-	"firefox-tabs":    {name: "firefox-tabs", summary: fftabs.Summary, run: fftabs.Run},
-	"note":            {name: "note", summary: note.Summary, run: note.Run},
-	"prose-gate":      {name: "prose-gate", summary: prosegate.Summary, run: prosegate.Run},
-	"statusline":      {name: "statusline", summary: statusline.Summary, run: statusline.Run},
-	"transcript-link": {name: "transcript-link", summary: transcript.Summary, run: transcript.Run},
-	"watch":           {name: "watch", summary: watch.Summary, run: watch.Run},
-	"wezspawn":        {name: "wezspawn", summary: wezspawn.Summary, run: wezspawn.Run},
-	"worker":          {name: "worker", summary: worker.Summary, run: worker.Run},
-	"worklog":         {name: "worklog", summary: worklog.Summary, run: worklog.Run},
-	"workspace":       {name: "workspace", summary: workspace.Summary, run: workspace.Run},
+	"agent-state":  {name: "agent-state", summary: agentstate.Summary, run: agentstate.Run},
+	"citelock":     {name: "citelock", summary: citelock.Summary, run: citelock.Run},
+	"edit-event":   {name: "edit-event", summary: editevent.Summary, run: editevent.Run},
+	"firefox-tabs": {name: "firefox-tabs", summary: fftabs.Summary, run: fftabs.Run},
+	"note":         {name: "note", summary: note.Summary, run: note.Run},
+	"prose-gate":   {name: "prose-gate", summary: prosegate.Summary, run: prosegate.Run},
+	"statusline":   {name: "statusline", summary: statusline.Summary, run: statusline.Run},
+	"watch":        {name: "watch", summary: watch.Summary, run: watch.Run},
+	"wezspawn":     {name: "wezspawn", summary: wezspawn.Summary, run: wezspawn.Run},
+	"worker":       {name: "worker", summary: worker.Summary, run: worker.Run},
+	"worklog":      {name: "worklog", summary: worklog.Summary, run: worklog.Run},
+	"workspace":    {name: "workspace", summary: workspace.Summary, run: workspace.Run},
 }
 
 type link struct {
@@ -58,7 +56,6 @@ var links = map[string]link{
 	"firefox-tabs":     {command: "firefox-tabs"},
 	"note":             {command: "note"},
 	"prose-gate":       {command: "prose-gate"},
-	"transcript-link":  {command: "transcript-link"},
 	"wezspawn":         {command: "wezspawn"},
 	"worker":           {command: "worker"},
 	"worklog":          {command: "worklog"},

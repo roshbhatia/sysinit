@@ -167,7 +167,6 @@ in
         "firefox-tabs"
         "note"
         "prose-gate"
-        "transcript-link"
         "wezspawn"
         "worker"
         "worklog"
