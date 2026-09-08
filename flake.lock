@@ -284,11 +284,11 @@
       },
       "locked": {
         "dir": "repos/rycee/pkgs/firefox-addons",
-        "lastModified": 1788812225,
-        "narHash": "sha256-jsA6IGkCzGr2KT2EGHGVpEke9xNjlLxHRFp/Q1VVtJM=",
+        "lastModified": 1788833950,
+        "narHash": "sha256-qv5jmb8A27Jn2U0QsReJGUr6/x2i7d9Ef/dbreVqphM=",
         "owner": "nix-community",
         "repo": "nur-combined",
-        "rev": "5070f09eb5872a445ab82e34b99c2d08ce9d107f",
+        "rev": "fe8a04bbca87d96ba6b294da95f5aa245cbda88c",
         "type": "github"
       },
       "original": {
@@ -598,11 +598,11 @@
         "uv2nix": "uv2nix"
       },
       "locked": {
-        "lastModified": 1788814834,
-        "narHash": "sha256-cv691OOQQxl1ktYtIm/0mWrcqKH/6H03ezgnoxrHM3g=",
+        "lastModified": 1788833074,
+        "narHash": "sha256-GcuHliNIxvVBNa8OBF1UgN/4Fhm6dm4s9QfoVi0twQE=",
         "owner": "NousResearch",
         "repo": "hermes-agent",
-        "rev": "25761bb2214fb80d1cc1196e4d72ab3d8bc80440",
+        "rev": "6e2b8e070d28b1a3381a3fb290b6b8d6cce13cef",
         "type": "github"
       },
       "original": {
@@ -883,11 +883,11 @@
         "nixpkgs": "nixpkgs_5"
       },
       "locked": {
-        "lastModified": 1788812074,
-        "narHash": "sha256-Hrh44ZfYC67Ov17PWZ9iFm2FrX08Yzxh1jiTgergY10=",
+        "lastModified": 1788836056,
+        "narHash": "sha256-R2lszbkpJnDUlDPuPxf5v6VEKGTpNnHsxeemYUlL48Q=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "dead7c437e2ba62b396544b6ec19a6cca1c8a7cb",
+        "rev": "1d12ec0878821dfb256f9ab6d1d4fe587e9d8185",
         "type": "github"
       },
       "original": {
@@ -928,11 +928,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788738338,
-        "narHash": "sha256-MmhcarOUu+tWjvKJn+A5L1PuFEl2JWhj/GvLiOzv7Uw=",
+        "lastModified": 1788834324,
+        "narHash": "sha256-ELiYZ6aiDhJ3FAY3tR+MYjWH6W2/MiLm6MVA33peYaM=",
         "owner": "roshbhatia",
         "repo": "nu_plugin_nvim",
-        "rev": "58a542185055872b1a6cc0b081f22736bd7280c7",
+        "rev": "51c33a18c2d58caad60bf5cf10ea35e7fcbd4f0d",
         "type": "github"
       },
       "original": {
@@ -1257,11 +1257,11 @@
         "systems": "systems_6"
       },
       "locked": {
-        "lastModified": 1786462919,
-        "narHash": "sha256-/MFfn/BNu+epnbAy0yEtcE96tUXQcWtLPrT2Jn2SCNA=",
+        "lastModified": 1788819441,
+        "narHash": "sha256-BYeQAEh47T02mBAModeIL4XNQKftfphN3I9segEb4CM=",
         "owner": "WillPower3309",
         "repo": "swayfx",
-        "rev": "877547783a5e8cb00d24704b6e56cc0974ae5568",
+        "rev": "663cf66f92c2d4c99b9c2c4c79ce3538d37470ac",
         "type": "github"
       },
       "original": {
