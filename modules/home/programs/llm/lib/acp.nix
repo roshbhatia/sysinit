@@ -33,6 +33,13 @@
       args = [ "--acp" ];
     };
 
+    # `acp` is hidden from `cursor-agent --help`, but it is a registered
+    # subcommand and answers `initialize` at protocol version 1.
+    cursor = {
+      command = "cursor-agent";
+      args = [ "acp" ];
+    };
+
     devin = {
       command = "devin";
       args = [ "acp" ];

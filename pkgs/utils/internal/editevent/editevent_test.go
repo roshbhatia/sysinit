@@ -432,6 +432,27 @@ func TestStdinSuppliesTheFileWhenNoFlagDoes(t *testing.T) {
 	}
 }
 
+func TestTopLevelFilePathSuppliesTheFile(t *testing.T) {
+	work := isolate(t)
+
+	payload, err := json.Marshal(map[string]any{
+		"cwd":       work,
+		"file_path": filepath.Join(work, "from-cursor.go"),
+	})
+	if err != nil {
+		t.Fatalf("marshal payload: %v", err)
+	}
+
+	withStdin(t, payload, func() {
+		Run([]string{"cursor"})
+	})
+
+	events := readEvents(t, logFor(t, work))
+	if len(events) != 1 || !strings.HasSuffix(events[0].File, "from-cursor.go") {
+		t.Fatalf("events = %+v, want the path read from the top level of the payload", events)
+	}
+}
+
 func withStdin(t *testing.T, body []byte, run func()) {
 	t.Helper()
 	reader, writer, err := os.Pipe()
