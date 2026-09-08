@@ -26,43 +26,36 @@ is the one reader of the paths manifest nix generates from
 `modules/shared/options/paths-layout.json`. Do not read `XDG_STATE_HOME`
 directly; that is what produced four copies of the same fallback.
 
-## utils is the hook layer
+## utils and the hook layer
 
-`utils/main.go` dispatches on `argv[0]`, so one binary answers to twenty names.
-The names that a harness calls from a hook are the gates:
+The hook layer is [gate](https://github.com/roshbhatia/gate): `gate hook` runs
+the chain `modules/home/programs/llm/gate.nix` declares, and the generic
+providers (`bash-guard`, `nix-guard`, `read-router`, `lint-gate`, `loop-gate`,
+`review-gate`, the `review` ledger) live in that repository's `extras/`. They
+used to be packages here; `internal/guard`, `internal/lintgate`, and
+`internal/loopgate` were moved out in 2026-09.
 
-| Name | Event | Decision |
-| --- | --- | --- |
-| `bash-guard` | PreToolUse Bash | deny a destructive command; deny `cat`/`less`/`more`/`bat` of one file over 16 KiB and name the cheap reader; bound any other unbounded printer with `head -c 16K` and say so |
-| `read-guard` | PreToolUse Read | deny an unbounded Read of a file over 16 KiB and name the alternatives: a ranged Read, or `ask -t bulk-read` |
-| `nix-guard` | PreToolUse Edit/Write | deny a write that resolves into `/nix/store` |
-| `lint-gate` | PostToolUse Edit/Write | run the file's linter, hand failures back as context |
-| `loop-gate` | Stop | hold the turn until an armed command passes; CLEAN, CAPPED, STALLED |
-| `prose-gate check` | Stop | record the style tells of the reply; never blocks |
-| `prose-gate remind` | UserPromptSubmit | the style reminder, with the recorded tells when there are some |
-| `prose-gate report` | PostToolUse Agent | note to the caller when a teammate report is over 6 KiB |
+`utils/main.go` dispatches on `argv[0]`, so one binary answers to its names.
+The one gate provider still here is `prose-gate`, because its vale rules are
+`pkgs/prose-style`. `prose-gate serve` reads a `gate.decide` request frame and
+routes on the event or on `args.mode`: `check` on Stop records the reply's
+style tells and never blocks, `remind` on UserPromptSubmit carries them,
+`session` injects the context rules, `report` on an Agent return notes an
+oversized teammate report to the caller.
 
-Every gate returns a `hookfmt.Outcome` and `hookfmt.Emit` renders it for the
-harness: `--format claude` (hook JSON), `exit-code` (gemini and any harness that
-reads only the status), or `json` (the envelope an adapter reads). The decision
-and the wire shape are separate on purpose, so a gate is written once.
+Every gate function returns a `hookfmt.Outcome` and `hookfmt.Emit` renders it
+for the caller: `--format claude` (hook JSON), `exit-code`, `json`, or the
+`provider` frames the gate dispatcher speaks. The decision and the wire shape
+are separate on purpose.
 
 ### What the model can and cannot see
 
 Claude Code shows a PreToolUse `permissionDecisionReason` to the model only on
-a `deny`. On an `allow` it goes to the user. So:
-
-- A gate that rewrites the input (`updatedInput`) and wants the model to know
-  puts the note in `Outcome.Context`, which renders as `additionalContext`.
-  `bash-guard`'s output bound does this. Before `Context` existed the bound was
-  silent to the model, and a critic reading a cut `git diff` reported the cut
-  part as missing from the tree.
-- A gate that wants the model to choose an alternative denies and says so in
-  `Message`. `read-guard` does this rather than clipping.
-- A Stop hook has no passive channel: `additionalContext` on Stop continues the
-  turn exactly as `decision: block` does. A note about the reply just sent
-  therefore waits for the next `UserPromptSubmit`. `prose-gate` records on Stop
-  and speaks on remind.
+a `deny`. On an `allow` it goes to the user. A gate that rewrites the input and
+wants the model to know puts the note in `Outcome.Context`, which renders as
+`additionalContext`. A Stop hook has no passive channel: `additionalContext` on
+Stop continues the turn exactly as `decision: block` does, so `prose-gate`
+records on Stop and speaks on the next prompt.
 
 ## Build
 

@@ -157,11 +157,20 @@ subcommands: `feature-based-session-manager`, `openspec-workflow`, `specutil`.
   silently, with no error. Nothing warns about that; the names are identical.
 - Editing a generated dotfile fails: a PreToolUse hook denies writes that
   resolve into `/nix/store`. Edit the Nix source instead.
-- A whole-file Read, or a `cat` of one file, over 16 KiB is denied by a
-  PreToolUse hook. The deny names the two alternatives: Grep then Read with
-  `offset` and `limit`, or `ask -p claude -m haiku -t bulk-read` with the file
-  on stdin, which returns bullets and keeps the file out of the context. A
-  Read that already carries `offset` or `limit` passes.
+- A whole-file Read, or a `cat` of one file, over 16 KiB is denied by the
+  gate's `read-router` and `bash-guard` providers. The deny names the two
+  alternatives: Grep then Read with `offset` and `limit`, or
+  `ask -p claude -m haiku -t bulk-read` with the file on stdin, which returns
+  bullets and keeps the file out of the context. A Read that already carries
+  `offset` or `limit` passes.
+- Every hook decision goes through `gate hook`. The chain per event is
+  `modules/home/programs/llm/gate.nix`; the providers come from the `gate`
+  flake input plus this repository's `prose-gate`. `gate log tail` shows what
+  each provider decided on the last calls, and `checks/gate-config.nix` fails
+  the build when a chain names a provider with no manifest.
+- An adversarial review is one judged pass recorded by `review`, in `.gate/`
+  next to the work. `review-gate` denies a critic spawned outside an open
+  pass, past the tier's count, or as an agent type that can write.
 - `modules/darwin/keybindings.nix` must hold the complete AppleSymbolicHotKeys
   dict, because `defaults write` replaces the whole dict. Read the machine with
   `defaults read com.apple.symbolichotkeys` before you edit that set. A
