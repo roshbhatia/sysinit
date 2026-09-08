@@ -217,18 +217,14 @@ function M.remote_spawn(workspace)
           return {
             domain = entry.domain,
             cwd = session.path,
-            shell = entry.shell,
             session = name,
-            transport = entry.transport,
             host = entry.host,
           }
         end
       end
       return {
         domain = entry.domain,
-        shell = entry.shell,
         session = name,
-        transport = entry.transport,
         host = entry.host,
       }
     end
