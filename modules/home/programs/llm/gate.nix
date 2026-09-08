@@ -84,6 +84,21 @@ let
     defaults.timeout = "5s";
   };
 
+  # git-ai-gate checkpoints an edit's lines to refs/notes/ai as a side effect,
+  # then answers pass. The timeout covers git-ai spawning its background service
+  # on the first checkpoint of a session.
+  gitAiGateManifest = {
+    version = "provider/v1";
+    name = "git-ai-gate";
+    description = "Checkpoint a PostToolUse edit into git-ai's refs/notes/ai authorship notes";
+    command = [ "${pkgs.git-ai-gate}/bin/git-ai-gate" ];
+    actions."gate.decide" = {
+      description = "PostToolUse on Edit, Write, MultiEdit";
+      argv = [ "serve" ];
+    };
+    defaults.timeout = "10s";
+  };
+
   providerFiles = lib.listToAttrs (
     map (name: {
       name = "gate/providers/${name}.yaml";
@@ -119,6 +134,8 @@ in
       "gate/review.yaml".source = yamlFormat.generate "gate-review.yaml" cfg.review;
       "gate/providers/prose-gate.yaml".source =
         yamlFormat.generate "gate-provider-prose-gate.yaml" proseGateManifest;
+      "gate/providers/git-ai-gate.yaml".source =
+        yamlFormat.generate "gate-provider-git-ai-gate.yaml" gitAiGateManifest;
     };
   };
 }

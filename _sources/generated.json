@@ -1,542 +1,602 @@
 {
-    "amp-cli": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "amp-cli",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-inFASty2AmS4PIlmn+hmpeabo4392/uU5yPFSJEbvDw=",
-            "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1788897629-geba12b/amp-darwin-arm64.gz"
-        },
-        "version": "0.0.1788897629-geba12b"
+  "amp-cli": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "amp-cli",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-inFASty2AmS4PIlmn+hmpeabo4392/uU5yPFSJEbvDw=",
+      "type": "url",
+      "url": "https://static.ampcode.com/cli/0.0.1788897629-geba12b/amp-darwin-arm64.gz"
     },
-    "amp-cli-aarch64-linux": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "amp-cli-aarch64-linux",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-ojcOwGB/KFsp/jF1WPKZMTm1rko4wFfL5R72Mt2MVOg=",
-            "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1788897629-geba12b/amp-linux-arm64.gz"
-        },
-        "version": "0.0.1788897629-geba12b"
+    "version": "0.0.1788897629-geba12b"
+  },
+  "amp-cli-aarch64-linux": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "amp-cli-aarch64-linux",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-ojcOwGB/KFsp/jF1WPKZMTm1rko4wFfL5R72Mt2MVOg=",
+      "type": "url",
+      "url": "https://static.ampcode.com/cli/0.0.1788897629-geba12b/amp-linux-arm64.gz"
     },
-    "amp-cli-x86_64-linux": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "amp-cli-x86_64-linux",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-ck8osBPFFlSzadK1E2xbJVkMyclcUsWqDdQBmAn33XU=",
-            "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1788897629-geba12b/amp-linux-x64-baseline.gz"
-        },
-        "version": "0.0.1788897629-geba12b"
+    "version": "0.0.1788897629-geba12b"
+  },
+  "amp-cli-x86_64-linux": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "amp-cli-x86_64-linux",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-ck8osBPFFlSzadK1E2xbJVkMyclcUsWqDdQBmAn33XU=",
+      "type": "url",
+      "url": "https://static.ampcode.com/cli/0.0.1788897629-geba12b/amp-linux-x64-baseline.gz"
     },
-    "atomic-coding-agent": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "atomic-coding-agent",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-qe85/dfr98Vd5GlMV3RD6USKA9tnj0HdNnbX3RXIr88=",
-            "type": "url",
-            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.18/atomic-darwin-arm64.tar.gz"
-        },
-        "version": "0.9.18"
+    "version": "0.0.1788897629-geba12b"
+  },
+  "atomic-coding-agent": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "atomic-coding-agent",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-qe85/dfr98Vd5GlMV3RD6USKA9tnj0HdNnbX3RXIr88=",
+      "type": "url",
+      "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.18/atomic-darwin-arm64.tar.gz"
     },
-    "atomic-coding-agent-aarch64-linux": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "atomic-coding-agent-aarch64-linux",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-1w4ocT553vttD3hcy6sOjSUvhBbl0wKGIvBQGNGc/Zo=",
-            "type": "url",
-            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.18/atomic-linux-arm64.tar.gz"
-        },
-        "version": "0.9.18"
+    "version": "0.9.18"
+  },
+  "atomic-coding-agent-aarch64-linux": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "atomic-coding-agent-aarch64-linux",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-1w4ocT553vttD3hcy6sOjSUvhBbl0wKGIvBQGNGc/Zo=",
+      "type": "url",
+      "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.18/atomic-linux-arm64.tar.gz"
     },
-    "atomic-coding-agent-x86_64-darwin": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "atomic-coding-agent-x86_64-darwin",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-finGY0zl+D+4nWp5vvJnMhfcYAkK1sn5tCaUrsUmrDs=",
-            "type": "url",
-            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.18/atomic-darwin-x64.tar.gz"
-        },
-        "version": "0.9.18"
+    "version": "0.9.18"
+  },
+  "atomic-coding-agent-x86_64-darwin": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "atomic-coding-agent-x86_64-darwin",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-finGY0zl+D+4nWp5vvJnMhfcYAkK1sn5tCaUrsUmrDs=",
+      "type": "url",
+      "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.18/atomic-darwin-x64.tar.gz"
     },
-    "atomic-coding-agent-x86_64-linux": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "atomic-coding-agent-x86_64-linux",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-Uconis2j/bZ05+LSgo3giR3D5w7vjny9sE9FlR/Pv6Y=",
-            "type": "url",
-            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.18/atomic-linux-x64.tar.gz"
-        },
-        "version": "0.9.18"
+    "version": "0.9.18"
+  },
+  "atomic-coding-agent-x86_64-linux": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "atomic-coding-agent-x86_64-linux",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-Uconis2j/bZ05+LSgo3giR3D5w7vjny9sE9FlR/Pv6Y=",
+      "type": "url",
+      "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.18/atomic-linux-x64.tar.gz"
     },
-    "crush": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "crush",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-KwUqkngBqeqRaY3kgiisPm4RcUmMVWF+H515VA8Zs6w=",
-            "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.92.0/crush_0.92.0_Darwin_arm64.tar.gz"
-        },
-        "version": "0.92.0"
+    "version": "0.9.18"
+  },
+  "crush": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "crush",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-KwUqkngBqeqRaY3kgiisPm4RcUmMVWF+H515VA8Zs6w=",
+      "type": "url",
+      "url": "https://github.com/charmbracelet/crush/releases/download/v0.92.0/crush_0.92.0_Darwin_arm64.tar.gz"
     },
-    "crush-aarch64-linux": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "crush-aarch64-linux",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-G28DhCl6HnfQHfQdsfVvwIcvHpydmWNMSywgi3u12TU=",
-            "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.92.0/crush_0.92.0_Linux_arm64.tar.gz"
-        },
-        "version": "0.92.0"
+    "version": "0.92.0"
+  },
+  "crush-aarch64-linux": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "crush-aarch64-linux",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-G28DhCl6HnfQHfQdsfVvwIcvHpydmWNMSywgi3u12TU=",
+      "type": "url",
+      "url": "https://github.com/charmbracelet/crush/releases/download/v0.92.0/crush_0.92.0_Linux_arm64.tar.gz"
     },
-    "crush-x86_64-darwin": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "crush-x86_64-darwin",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-lmuPiQcjkuiHdqZnRm+g4f7133MMXArsF3ShMjx+ZJ0=",
-            "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.92.0/crush_0.92.0_Darwin_x86_64.tar.gz"
-        },
-        "version": "0.92.0"
+    "version": "0.92.0"
+  },
+  "crush-x86_64-darwin": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "crush-x86_64-darwin",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-lmuPiQcjkuiHdqZnRm+g4f7133MMXArsF3ShMjx+ZJ0=",
+      "type": "url",
+      "url": "https://github.com/charmbracelet/crush/releases/download/v0.92.0/crush_0.92.0_Darwin_x86_64.tar.gz"
     },
-    "crush-x86_64-linux": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "crush-x86_64-linux",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-fZrKmreAjugooLsP3gHZb8SAzgpmpf9heqJ6wJ4jy9U=",
-            "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.92.0/crush_0.92.0_Linux_x86_64.tar.gz"
-        },
-        "version": "0.92.0"
+    "version": "0.92.0"
+  },
+  "crush-x86_64-linux": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "crush-x86_64-linux",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-fZrKmreAjugooLsP3gHZb8SAzgpmpf9heqJ6wJ4jy9U=",
+      "type": "url",
+      "url": "https://github.com/charmbracelet/crush/releases/download/v0.92.0/crush_0.92.0_Linux_x86_64.tar.gz"
     },
-    "fx": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "fx",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-Mq/DGAxQYbexn8inIQfisPrDgbLt8KXez3Z7JiVi/gc=",
-            "type": "url",
-            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.8/fx-macos-aarch64.tar.gz"
-        },
-        "version": "0.0.8"
+    "version": "0.92.0"
+  },
+  "fx": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "fx",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-Mq/DGAxQYbexn8inIQfisPrDgbLt8KXez3Z7JiVi/gc=",
+      "type": "url",
+      "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.8/fx-macos-aarch64.tar.gz"
     },
-    "fx-aarch64-linux": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "fx-aarch64-linux",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-iy7jD9qtT2xxau9RTWKcuhoMz/NS5ViRvTHnq4cNFco=",
-            "type": "url",
-            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.8/fx-linux-aarch64.tar.gz"
-        },
-        "version": "0.0.8"
+    "version": "0.0.8"
+  },
+  "fx-aarch64-linux": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "fx-aarch64-linux",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-iy7jD9qtT2xxau9RTWKcuhoMz/NS5ViRvTHnq4cNFco=",
+      "type": "url",
+      "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.8/fx-linux-aarch64.tar.gz"
     },
-    "fx-x86_64-darwin": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "fx-x86_64-darwin",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-HQVGE9ZgXLbiXGYnzIXn44D17unnyMUufXB7OH2IMKE=",
-            "type": "url",
-            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.8/fx-macos-x86_64.tar.gz"
-        },
-        "version": "0.0.8"
+    "version": "0.0.8"
+  },
+  "fx-x86_64-darwin": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "fx-x86_64-darwin",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-HQVGE9ZgXLbiXGYnzIXn44D17unnyMUufXB7OH2IMKE=",
+      "type": "url",
+      "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.8/fx-macos-x86_64.tar.gz"
     },
-    "fx-x86_64-linux": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "fx-x86_64-linux",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-WipeGIOBx/Y9TZtwW8WWjp1cuU4frWltyumIR04A0SQ=",
-            "type": "url",
-            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.8/fx-linux-x86_64.tar.gz"
-        },
-        "version": "0.0.8"
+    "version": "0.0.8"
+  },
+  "fx-x86_64-linux": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "fx-x86_64-linux",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-WipeGIOBx/Y9TZtwW8WWjp1cuU4frWltyumIR04A0SQ=",
+      "type": "url",
+      "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.8/fx-linux-x86_64.tar.gz"
     },
-    "go-enum": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "go-enum",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "deepClone": false,
-            "fetchSubmodules": false,
-            "leaveDotGit": false,
-            "name": null,
-            "owner": "abice",
-            "repo": "go-enum",
-            "rev": "v0.9.4",
-            "sha256": "sha256-fFMTnbQ6RUGxvANHveB1YrXlppgUVTJIRB4v1sV3GH8=",
-            "sparseCheckout": [],
-            "type": "github"
-        },
-        "version": "v0.9.4"
+    "version": "0.0.8"
+  },
+  "git-ai": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "git-ai",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-fWvMRRxl851zCeTCRlZL2PDhjFrDAUlmGkn5KG+lucI=",
+      "type": "url",
+      "url": "https://github.com/git-ai-project/git-ai/releases/download/v1.7.4/git-ai-macos-arm64"
     },
-    "gomvp": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "gomvp",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "deepClone": false,
-            "fetchSubmodules": false,
-            "leaveDotGit": false,
-            "name": null,
-            "owner": "abenz1267",
-            "repo": "gomvp",
-            "rev": "v0.0.4",
-            "sha256": "sha256-dXjI+nItJCAGKxyC9tX11hxWHCP+NgXtTYtm5+6dqDU=",
-            "sparseCheckout": [],
-            "type": "github"
-        },
-        "version": "v0.0.4"
+    "version": "1.7.4"
+  },
+  "git-ai-aarch64-linux": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "git-ai-aarch64-linux",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-1pctEd2gOKxbokWskeD2ocvL5e7BNvBXjJG4HskIoKw=",
+      "type": "url",
+      "url": "https://github.com/git-ai-project/git-ai/releases/download/v1.7.4/git-ai-linux-arm64"
     },
-    "goose-cli-bin": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "goose-cli-bin",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-bx8ftWhomWryZS6LUzTSn5cOVoNuIAxP9X6S3iSW/Ms=",
-            "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.50.0/goose-aarch64-apple-darwin.tar.gz"
-        },
-        "version": "1.50.0"
+    "version": "1.7.4"
+  },
+  "git-ai-x86_64-darwin": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "git-ai-x86_64-darwin",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-W7lqXclw4lDQqCRYT7a81mU32O/GNE+zf0IKVHsTi6s=",
+      "type": "url",
+      "url": "https://github.com/git-ai-project/git-ai/releases/download/v1.7.4/git-ai-macos-x64"
     },
-    "goose-cli-bin-aarch64-linux": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "goose-cli-bin-aarch64-linux",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-/r1xpqJcOv99vPVm940oZOh9iGwzxO8f7i9n/t0zQGM=",
-            "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.50.0/goose-aarch64-unknown-linux-gnu.tar.gz"
-        },
-        "version": "1.50.0"
+    "version": "1.7.4"
+  },
+  "git-ai-x86_64-linux": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "git-ai-x86_64-linux",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-H4DEr/pE2aIWZ+kwt6pqyU98L0a/IW12ZLq4THqLYsI=",
+      "type": "url",
+      "url": "https://github.com/git-ai-project/git-ai/releases/download/v1.7.4/git-ai-linux-x64"
     },
-    "goose-cli-bin-x86_64-darwin": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "goose-cli-bin-x86_64-darwin",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-S/sCONjsVDQ/aD7yhQbWCeWImGHw/S9qPJH7iwKqfdc=",
-            "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.50.0/goose-x86_64-apple-darwin.tar.gz"
-        },
-        "version": "1.50.0"
+    "version": "1.7.4"
+  },
+  "go-enum": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "go-enum",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "deepClone": false,
+      "fetchSubmodules": false,
+      "leaveDotGit": false,
+      "name": null,
+      "owner": "abice",
+      "repo": "go-enum",
+      "rev": "v0.9.4",
+      "sha256": "sha256-fFMTnbQ6RUGxvANHveB1YrXlppgUVTJIRB4v1sV3GH8=",
+      "sparseCheckout": [],
+      "type": "github"
     },
-    "goose-cli-bin-x86_64-linux": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "goose-cli-bin-x86_64-linux",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-Y4nupEQBeN4Ab6FI1GasQRAhMV/39ysQFL6uLURYUeI=",
-            "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.50.0/goose-x86_64-unknown-linux-gnu.tar.gz"
-        },
-        "version": "1.50.0"
+    "version": "v0.9.4"
+  },
+  "gomvp": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "gomvp",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "deepClone": false,
+      "fetchSubmodules": false,
+      "leaveDotGit": false,
+      "name": null,
+      "owner": "abenz1267",
+      "repo": "gomvp",
+      "rev": "v0.0.4",
+      "sha256": "sha256-dXjI+nItJCAGKxyC9tX11hxWHCP+NgXtTYtm5+6dqDU=",
+      "sparseCheckout": [],
+      "type": "github"
     },
-    "hererocks": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "hererocks",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "deepClone": false,
-            "fetchSubmodules": false,
-            "leaveDotGit": false,
-            "name": null,
-            "owner": "luarocks",
-            "repo": "hererocks",
-            "rev": "0.25.1",
-            "sha256": "sha256-y28MTFncy5oD57jpY6AN+X/58OzY3ae3rSL236rfuL0=",
-            "sparseCheckout": [],
-            "type": "github"
-        },
-        "version": "0.25.1"
+    "version": "v0.0.4"
+  },
+  "goose-cli-bin": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "goose-cli-bin",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-bx8ftWhomWryZS6LUzTSn5cOVoNuIAxP9X6S3iSW/Ms=",
+      "type": "url",
+      "url": "https://github.com/block/goose/releases/download/v1.50.0/goose-aarch64-apple-darwin.tar.gz"
     },
-    "ioskeleyMono": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "ioskeleyMono",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-641PVxt0MVXQentV5oWObBpu2P0e3qtfpWmbdOuNUtI=",
-            "type": "url",
-            "url": "https://github.com/ahatem/IoskeleyMono/releases/download/2026.03.19-7/IoskeleyMono-TTF-Hinted.zip"
-        },
-        "version": "2026.03.19-7"
+    "version": "1.50.0"
+  },
+  "goose-cli-bin-aarch64-linux": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "goose-cli-bin-aarch64-linux",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-/r1xpqJcOv99vPVm940oZOh9iGwzxO8f7i9n/t0zQGM=",
+      "type": "url",
+      "url": "https://github.com/block/goose/releases/download/v1.50.0/goose-aarch64-unknown-linux-gnu.tar.gz"
     },
-    "kubernetes-zeitgeist": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "kubernetes-zeitgeist",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "deepClone": false,
-            "fetchSubmodules": false,
-            "leaveDotGit": false,
-            "name": null,
-            "owner": "kubernetes-sigs",
-            "repo": "zeitgeist",
-            "rev": "v0.8.0",
-            "sha256": "sha256-CVixCnG7pHrxHi67l1/BrAZv1qg0cMW7RtmbN16zUw0=",
-            "sparseCheckout": [],
-            "type": "github"
-        },
-        "version": "v0.8.0"
+    "version": "1.50.0"
+  },
+  "goose-cli-bin-x86_64-darwin": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "goose-cli-bin-x86_64-darwin",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-S/sCONjsVDQ/aD7yhQbWCeWImGHw/S9qPJH7iwKqfdc=",
+      "type": "url",
+      "url": "https://github.com/block/goose/releases/download/v1.50.0/goose-x86_64-apple-darwin.tar.gz"
     },
-    "localias": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "localias",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-LuWuaLhkobY5om7AQrVZB2Su7zU26yaBI2lG6089JhQ=",
-            "type": "url",
-            "url": "https://github.com/peterldowns/localias/releases/download/v3.0.0+commit.43c3619/localias-darwin-arm64"
-        },
-        "version": "3.0.0+commit.43c3619"
+    "version": "1.50.0"
+  },
+  "goose-cli-bin-x86_64-linux": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "goose-cli-bin-x86_64-linux",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-Y4nupEQBeN4Ab6FI1GasQRAhMV/39ysQFL6uLURYUeI=",
+      "type": "url",
+      "url": "https://github.com/block/goose/releases/download/v1.50.0/goose-x86_64-unknown-linux-gnu.tar.gz"
     },
-    "localias-aarch64-linux": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "localias-aarch64-linux",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-Rkxc+Vue2Psr/Tuu2LVVVNIZHSDj/ZrFySPHSC9HXQg=",
-            "type": "url",
-            "url": "https://github.com/peterldowns/localias/releases/download/v3.0.0+commit.43c3619/localias-linux-arm64"
-        },
-        "version": "3.0.0+commit.43c3619"
+    "version": "1.50.0"
+  },
+  "hererocks": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "hererocks",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "deepClone": false,
+      "fetchSubmodules": false,
+      "leaveDotGit": false,
+      "name": null,
+      "owner": "luarocks",
+      "repo": "hererocks",
+      "rev": "0.25.1",
+      "sha256": "sha256-y28MTFncy5oD57jpY6AN+X/58OzY3ae3rSL236rfuL0=",
+      "sparseCheckout": [],
+      "type": "github"
     },
-    "localias-x86_64-darwin": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "localias-x86_64-darwin",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-2hXMpHlEfVRmVpuRpnnp/izbl7K+WjwJyRLr51zg3hc=",
-            "type": "url",
-            "url": "https://github.com/peterldowns/localias/releases/download/v3.0.0+commit.43c3619/localias-darwin-amd64"
-        },
-        "version": "3.0.0+commit.43c3619"
+    "version": "0.25.1"
+  },
+  "ioskeleyMono": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "ioskeleyMono",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-641PVxt0MVXQentV5oWObBpu2P0e3qtfpWmbdOuNUtI=",
+      "type": "url",
+      "url": "https://github.com/ahatem/IoskeleyMono/releases/download/2026.03.19-7/IoskeleyMono-TTF-Hinted.zip"
     },
-    "localias-x86_64-linux": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "localias-x86_64-linux",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-5+iuOmzysde2N7bYcephW2ZQkJbzXtj0zCw3CoEhk6o=",
-            "type": "url",
-            "url": "https://github.com/peterldowns/localias/releases/download/v3.0.0+commit.43c3619/localias-linux-amd64"
-        },
-        "version": "3.0.0+commit.43c3619"
+    "version": "2026.03.19-7"
+  },
+  "kubernetes-zeitgeist": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "kubernetes-zeitgeist",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "deepClone": false,
+      "fetchSubmodules": false,
+      "leaveDotGit": false,
+      "name": null,
+      "owner": "kubernetes-sigs",
+      "repo": "zeitgeist",
+      "rev": "v0.8.0",
+      "sha256": "sha256-CVixCnG7pHrxHi67l1/BrAZv1qg0cMW7RtmbN16zUw0=",
+      "sparseCheckout": [],
+      "type": "github"
     },
-    "mermaid-ascii": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "mermaid-ascii",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "deepClone": false,
-            "fetchSubmodules": false,
-            "leaveDotGit": false,
-            "name": null,
-            "owner": "AlexanderGrooff",
-            "repo": "mermaid-ascii",
-            "rev": "1.5.0",
-            "sha256": "sha256-D+ZU/J45pBqOkHWfMhWhXLZzU/Ufq/1zfz3sxqdiAGk=",
-            "sparseCheckout": [],
-            "type": "github"
-        },
-        "version": "1.5.0"
+    "version": "v0.8.0"
+  },
+  "localias": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "localias",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-LuWuaLhkobY5om7AQrVZB2Su7zU26yaBI2lG6089JhQ=",
+      "type": "url",
+      "url": "https://github.com/peterldowns/localias/releases/download/v3.0.0+commit.43c3619/localias-darwin-arm64"
     },
-    "pi-coding-agent": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "pi-coding-agent",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-1fcOPAz3OY6sI5/QJh7gdNmLe6f2tD/jYX8FLtW3nQY=",
-            "type": "url",
-            "url": "https://github.com/earendil-works/pi/releases/download/v0.85.1/pi-darwin-arm64.tar.gz"
-        },
-        "version": "0.85.1"
+    "version": "3.0.0+commit.43c3619"
+  },
+  "localias-aarch64-linux": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "localias-aarch64-linux",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-Rkxc+Vue2Psr/Tuu2LVVVNIZHSDj/ZrFySPHSC9HXQg=",
+      "type": "url",
+      "url": "https://github.com/peterldowns/localias/releases/download/v3.0.0+commit.43c3619/localias-linux-arm64"
     },
-    "pi-coding-agent-aarch64-linux": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "pi-coding-agent-aarch64-linux",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-BC0grohe5POxAoFfMoC5YsN3sun7RN5AN5CMxTDq5NQ=",
-            "type": "url",
-            "url": "https://github.com/earendil-works/pi/releases/download/v0.85.1/pi-linux-arm64.tar.gz"
-        },
-        "version": "0.85.1"
+    "version": "3.0.0+commit.43c3619"
+  },
+  "localias-x86_64-darwin": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "localias-x86_64-darwin",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-2hXMpHlEfVRmVpuRpnnp/izbl7K+WjwJyRLr51zg3hc=",
+      "type": "url",
+      "url": "https://github.com/peterldowns/localias/releases/download/v3.0.0+commit.43c3619/localias-darwin-amd64"
     },
-    "pi-coding-agent-x86_64-darwin": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "pi-coding-agent-x86_64-darwin",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-rbkYuEViXxhNi+pAjVXqyvIaqHI4eTwPW087lze85is=",
-            "type": "url",
-            "url": "https://github.com/earendil-works/pi/releases/download/v0.85.1/pi-darwin-x64.tar.gz"
-        },
-        "version": "0.85.1"
+    "version": "3.0.0+commit.43c3619"
+  },
+  "localias-x86_64-linux": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "localias-x86_64-linux",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-5+iuOmzysde2N7bYcephW2ZQkJbzXtj0zCw3CoEhk6o=",
+      "type": "url",
+      "url": "https://github.com/peterldowns/localias/releases/download/v3.0.0+commit.43c3619/localias-linux-amd64"
     },
-    "pi-coding-agent-x86_64-linux": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "pi-coding-agent-x86_64-linux",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-SU5Jj0fXTSH0CzOG9qXpIaPUlTGhacq1W72soOof4lo=",
-            "type": "url",
-            "url": "https://github.com/earendil-works/pi/releases/download/v0.85.1/pi-linux-x64.tar.gz"
-        },
-        "version": "0.85.1"
+    "version": "3.0.0+commit.43c3619"
+  },
+  "mermaid-ascii": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "mermaid-ascii",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "deepClone": false,
+      "fetchSubmodules": false,
+      "leaveDotGit": false,
+      "name": null,
+      "owner": "AlexanderGrooff",
+      "repo": "mermaid-ascii",
+      "rev": "1.5.0",
+      "sha256": "sha256-D+ZU/J45pBqOkHWfMhWhXLZzU/Ufq/1zfz3sxqdiAGk=",
+      "sparseCheckout": [],
+      "type": "github"
     },
-    "prime-agent": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "prime-agent",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-znEEk4mHd3CqMbm+ZMRzaFqGFZrbvSRmvUPkqREyQvE=",
-            "type": "url",
-            "url": "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.9.3/prime-agent-0.9.3.tgz"
-        },
-        "version": "0.9.3"
-    }
+    "version": "1.5.0"
+  },
+  "pi-coding-agent": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "pi-coding-agent",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-1fcOPAz3OY6sI5/QJh7gdNmLe6f2tD/jYX8FLtW3nQY=",
+      "type": "url",
+      "url": "https://github.com/earendil-works/pi/releases/download/v0.85.1/pi-darwin-arm64.tar.gz"
+    },
+    "version": "0.85.1"
+  },
+  "pi-coding-agent-aarch64-linux": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "pi-coding-agent-aarch64-linux",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-BC0grohe5POxAoFfMoC5YsN3sun7RN5AN5CMxTDq5NQ=",
+      "type": "url",
+      "url": "https://github.com/earendil-works/pi/releases/download/v0.85.1/pi-linux-arm64.tar.gz"
+    },
+    "version": "0.85.1"
+  },
+  "pi-coding-agent-x86_64-darwin": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "pi-coding-agent-x86_64-darwin",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-rbkYuEViXxhNi+pAjVXqyvIaqHI4eTwPW087lze85is=",
+      "type": "url",
+      "url": "https://github.com/earendil-works/pi/releases/download/v0.85.1/pi-darwin-x64.tar.gz"
+    },
+    "version": "0.85.1"
+  },
+  "pi-coding-agent-x86_64-linux": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "pi-coding-agent-x86_64-linux",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-SU5Jj0fXTSH0CzOG9qXpIaPUlTGhacq1W72soOof4lo=",
+      "type": "url",
+      "url": "https://github.com/earendil-works/pi/releases/download/v0.85.1/pi-linux-x64.tar.gz"
+    },
+    "version": "0.85.1"
+  },
+  "prime-agent": {
+    "cargoLock": null,
+    "date": null,
+    "extract": null,
+    "name": "prime-agent",
+    "passthru": null,
+    "pinned": false,
+    "src": {
+      "name": null,
+      "sha256": "sha256-znEEk4mHd3CqMbm+ZMRzaFqGFZrbvSRmvUPkqREyQvE=",
+      "type": "url",
+      "url": "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.9.3/prime-agent-0.9.3.tgz"
+    },
+    "version": "0.9.3"
+  }
 }

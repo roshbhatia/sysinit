@@ -203,3 +203,26 @@ fetch.url = "https://github.com/vercel-labs/fx/releases/download/v$ver/fx-linux-
 src.github = "vercel-labs/fx"
 src.prefix = "v"
 fetch.url = "https://github.com/vercel-labs/fx/releases/download/v$ver/fx-linux-x86_64.tar.gz"
+
+# Binary release packages - git-ai (git-ai-project/git-ai). Tags are v1.7.4,
+# strip prefix so $ver = 1.7.4. Assets are single static binaries per platform,
+# so each installs like localias, and the linux one needs no autopatchelf.
+[git-ai]
+src.github = "git-ai-project/git-ai"
+src.prefix = "v"
+fetch.url = "https://github.com/git-ai-project/git-ai/releases/download/v$ver/git-ai-macos-arm64"
+
+[git-ai-x86_64-darwin]
+src.github = "git-ai-project/git-ai"
+src.prefix = "v"
+fetch.url = "https://github.com/git-ai-project/git-ai/releases/download/v$ver/git-ai-macos-x64"
+
+[git-ai-aarch64-linux]
+src.github = "git-ai-project/git-ai"
+src.prefix = "v"
+fetch.url = "https://github.com/git-ai-project/git-ai/releases/download/v$ver/git-ai-linux-arm64"
+
+[git-ai-x86_64-linux]
+src.github = "git-ai-project/git-ai"
+src.prefix = "v"
+fetch.url = "https://github.com/git-ai-project/git-ai/releases/download/v$ver/git-ai-linux-x64"

@@ -37,6 +37,17 @@ let
     };
     defaults.timeout = "5s";
   };
+  gitAiGate = yamlFormat.generate "git-ai-gate.yaml" {
+    version = "provider/v1";
+    name = "git-ai-gate";
+    description = "sysinit's git-ai checkpoint gate";
+    command = [ "${pkgs.git-ai-gate}/bin/git-ai-gate" ];
+    actions."gate.decide" = {
+      description = "checkpoint";
+      argv = [ "serve" ];
+    };
+    defaults.timeout = "10s";
+  };
 in
 pkgs.runCommand "gate-config"
   {
@@ -44,6 +55,7 @@ pkgs.runCommand "gate-config"
       pkgs.gate-cli
       pkgs.gate-providers
       pkgs.sysinit-utils
+      pkgs.git-ai-gate
     ];
   }
   ''
@@ -53,6 +65,7 @@ pkgs.runCommand "gate-config"
     mkdir -p "$HOME" "$XDG_CONFIG_HOME/gate/providers" "$XDG_STATE_HOME"
     cp ${pkgs.gate-providers}/share/gate/providers/*.yaml "$XDG_CONFIG_HOME/gate/providers/"
     cp ${proseGate} "$XDG_CONFIG_HOME/gate/providers/prose-gate.yaml"
+    cp ${gitAiGate} "$XDG_CONFIG_HOME/gate/providers/git-ai-gate.yaml"
     sed "s|@providers@|$XDG_CONFIG_HOME/gate/providers|" ${configFile} > "$XDG_CONFIG_HOME/gate/config.yaml"
     cp ${reviewFile} "$XDG_CONFIG_HOME/gate/review.yaml"
     gate config validate

@@ -112,6 +112,7 @@ in
 
         acp-amp
         changes
+        git-ai
         claude-agent-acp
         codex-acp
         copilot-language-server

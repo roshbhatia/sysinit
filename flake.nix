@@ -256,6 +256,7 @@
             "openspec"
             "calldiff"
             "localias"
+            "git-ai"
             "mermaid-ascii"
             "pretty-mermaid"
             "pi-coding-agent"
