@@ -36,6 +36,10 @@ local height = 0
 local pushed = nil
 local prepared = nil
 local warming = false
+-- Held at module scope for the reason `screens` gives above. A timer nothing
+-- references is stopped by the first collection, and the warm-up would then
+-- leave the panel on screen with `warming` never cleared.
+local warmed = nil
 local status = nil
 
 -- The window is on screen during the warm-up below without anything being drawn
@@ -515,7 +519,7 @@ function M.prewarm()
   ready(function()
     warming = true
     view:show()
-    hs.timer.doAfter(0.4, function()
+    warmed = hs.timer.doAfter(0.4, function()
       if not warming then
         return
       end
@@ -527,14 +531,15 @@ end
 
 -- The emoji dataset, sent once. It is about a megabyte and never changes while
 -- Hammerspoon is running, so it does not ride along with every open the way the
--- pick counts do.
----@param rows table[]
-function M.emoji(rows)
-  if #rows == 0 then
+-- pick counts do. It arrives as the JSON text it is on disk and goes straight
+-- into the page, so nothing decodes and re-encodes a megabyte to send it.
+---@param json string
+function M.emoji(json)
+  if not json:match("^%s*%[") then
     return
   end
   ready(function()
-    view:evaluateJavaScript("setEmoji(" .. hs.json.encode(rows) .. ")")
+    view:evaluateJavaScript("setEmoji(" .. json .. ")")
   end)
 end
 
