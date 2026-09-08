@@ -199,14 +199,14 @@ let
     "specutil --help"
     "specutil --version"
 
-    "utils note list *"
-    "utils note list"
-    "utils note path"
+    "note list *"
+    "note list"
+    "note path"
   ];
 
   tierB = [
-    "utils note add *"
-    "utils note answer *"
+    "note add *"
+    "note answer *"
 
     "git add"
     "git add *"
