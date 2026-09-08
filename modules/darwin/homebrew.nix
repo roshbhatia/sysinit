@@ -45,13 +45,13 @@ in
   homebrew = {
     enable = true;
     onActivation = {
-      autoUpdate = true;
-      upgrade = true;
-      cleanup = "none";
+      autoUpdate = false;
+      upgrade = false;
+      cleanup = "uninstall";
     };
     global = {
       brewfile = true;
-      autoUpdate = true;
+      autoUpdate = false;
     };
     taps = baseTaps ++ additionalTaps;
     brews = baseBrews ++ additionalBrews;

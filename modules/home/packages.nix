@@ -35,6 +35,7 @@ in
         bash-language-server
         shellcheck
         shfmt
+        actionlint
         gum
         grc
 
