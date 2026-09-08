@@ -1,6 +1,7 @@
 local wezterm = require("wezterm")
 local utils = require("sysinit.pkg.utils")
 local ui_format = require("sysinit.pkg.ui.format")
+local ui_tether = require("sysinit.pkg.ui.tether")
 
 local M = {}
 
@@ -16,23 +17,22 @@ M.seshy_dir = utils.state_path("seshySessions", "seshy/sessions")
 M.remote_dir = utils.state_path("weztermRemoteSessions", "wezterm/remote_sessions")
 
 M.remote_lister = ""
--- Per-host attach transport, keyed on the lowercase ssh host. A host absent
--- here defaults to "ssh-domain", the native-mux tier: the WezTerm ssh domain
--- with multiplexing = "WezTerm", so the far side is a native pane. "mosh" hosts
--- attach over a local mosh client and trade native panes for roaming.
-M.host_transport = {}
+M.tether_refresher = ""
+-- The hosts tether probes on the refresh timer: the same map that renders
+-- ~/.config/tether/config.json, so attach policy lives there and not here.
+M.tether_hosts = {}
 do
   local ok, cfg = pcall(utils.load_json_file, utils.get_config_path("config.json"))
   if ok and type(cfg) == "table" then
     if type(cfg.scripts) == "table" then
       M.remote_lister = cfg.scripts.seshy_remote_list or ""
+      M.tether_refresher = cfg.scripts.tether_refresh or ""
     end
     if type(cfg.hosts) == "table" then
-      for host, spec in pairs(cfg.hosts) do
-        if type(spec) == "table" and type(spec.transport) == "string" then
-          M.host_transport[host:lower()] = spec.transport
-        end
+      for host in pairs(cfg.hosts) do
+        M.tether_hosts[#M.tether_hosts + 1] = host:lower()
       end
+      table.sort(M.tether_hosts)
     end
   end
 end
@@ -130,10 +130,11 @@ function M.remote_cached()
   for _, entry in ipairs(M.remote_hosts()) do
     local ok, data = pcall(utils.load_json_file, M.remote_dir .. "/" .. entry.host .. ".json")
     local cached = (ok and type(data) == "table") and data or nil
+    local plan_ok, plan = pcall(utils.load_json_file, M.remote_dir .. "/" .. entry.host .. ".tether.json")
     out[#out + 1] = {
       host = entry.host,
       domain = entry.domain,
-      transport = M.host_transport[entry.host] or "ssh-domain",
+      tether = ui_tether.summary(plan_ok and plan or nil),
       ok = cached ~= nil and cached.ok == true,
       reason = cached and cached.reason or (cached == nil and "not probed yet" or nil),
       shell = cached and cached.shell or nil,
@@ -148,11 +149,26 @@ local remote_refresh_at = -1
 
 function M.refresh_remote()
   local now = os.time()
-  if now - remote_refresh_at < M.REMOTE_REFRESH_SECS or M.remote_lister == "" then
+  if now - remote_refresh_at < M.REMOTE_REFRESH_SECS then
+    return
+  end
+  remote_refresh_at = now
+  -- Only an attached host is listed (remote_hosts), but every configured host
+  -- is probed: tether skips a host its registry says is offline and backs off
+  -- an unreachable one itself, so there is no connect stall to guard here.
+  if M.tether_refresher ~= "" and #M.tether_hosts > 0 then
+    local args = { M.tether_refresher, M.remote_dir }
+    for _, host in ipairs(M.tether_hosts) do
+      args[#args + 1] = host
+    end
+    pcall(function()
+      wezterm.background_child_process(args)
+    end)
+  end
+  if M.remote_lister == "" then
     return
   end
   local hosts = M.remote_hosts()
-  remote_refresh_at = now
   if #hosts == 0 then
     return
   end

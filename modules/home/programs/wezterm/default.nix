@@ -26,6 +26,17 @@ let
 
   remoteHosts = import ./remote-hosts.nix { inherit lib; };
 
+  # tether shells out to ssh, tailscale, and ping. tailscale and ping come from
+  # the PATH core.lua hands the GUI; tether and ssh are baked in like above.
+  tetherRefresh = pkgs.writeShellApplication {
+    name = "wezterm-tether-refresh";
+    runtimeInputs = [
+      pkgs.openssh
+      pkgs.tether
+    ];
+    text = builtins.readFile ./scripts/tether-refresh.sh;
+  };
+
   sshCfg = config.sysinit.git.ssh;
   sshAgentSocket =
     if lib.hasPrefix "~/" sshCfg.agentSocket then
@@ -195,6 +206,7 @@ in
       };
       scripts = {
         seshy_remote_list = "${seshyRemoteList}/bin/wezterm-seshy-remote-list";
+        tether_refresh = "${tetherRefresh}/bin/wezterm-tether-refresh";
       };
       # The hosts the session tree probes and attaches through tether. The
       # attach tier is not declared here: `tether plan` picks it at attach time
