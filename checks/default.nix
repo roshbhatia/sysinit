@@ -79,6 +79,10 @@ assert !(ampMcpServers ? suppressed);
       ;
   };
   changes-integration = import ./changes-integration.nix { inherit pkgs; };
+  cloud-files = import ./cloud-files.nix {
+    inherit pkgs;
+    inherit (pkgs) lib;
+  };
   cua-computer-server =
     if pkgs.stdenv.hostPlatform.isLinux then
       import ./cua-computer-server.nix {

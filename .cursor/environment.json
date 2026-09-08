@@ -1,12 +1,12 @@
 {
-  "name": "sysinit-cloud-tools",
-  "install": "bash hack/cloud-setup.sh",
-  "egressMode": "default_with_network_settings",
   "egressAllowlist": [
     "install.determinate.systems",
     "roshbhatia.cachix.org",
     "cache.nixos.org",
     "channels.nixos.org",
     "releases.nixos.org"
-  ]
+  ],
+  "egressMode": "default_with_network_settings",
+  "install": "bash hack/cloud-setup.sh",
+  "name": "sysinit-cloud-tools"
 }

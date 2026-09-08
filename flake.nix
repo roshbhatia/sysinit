@@ -329,6 +329,14 @@
                 "sysinit-utils"
               ];
             };
+            # The committed .cursor, .devin, and hack/cloud-setup.sh files,
+            # rendered from modules/shared/cloud.nix. hack/generate-cloud.sh
+            # copies them in; checks.cloud-files fails on drift.
+            cloud-files =
+              (import ./flake/cloud-files.nix {
+                inherit pkgs;
+                inherit (pkgs) lib;
+              }).all;
           }
         );
 
