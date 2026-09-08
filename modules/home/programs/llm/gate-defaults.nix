@@ -5,6 +5,9 @@
 # names its shell tool `Bash`; codex mirrors those names. `Task` is the older
 # name of the `Agent` tool and stays matched for a harness that still sends it.
 { rulesFile }:
+let
+  bulkRead = import ./bulk-read.nix;
+in
 {
   chains = {
     UserPromptSubmit = [
@@ -28,8 +31,7 @@
         provider = "read-router";
         match = "^Read$";
         args.trigger_kib = 16;
-        # Spelled out until ask carries a per-provider light model.
-        args.reader = "ask -p claude -m haiku -t bulk-read";
+        args.reader = bulkRead.reader;
       }
       {
         provider = "review-gate";
