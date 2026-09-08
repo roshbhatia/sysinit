@@ -10,28 +10,16 @@ let
 
   profileBin = "${config.home.profileDirectory}/bin";
 
-  # cursor sends beforeShellExecution as {command, cwd}, where the claude wire
-  # gate reads is {tool_name, tool_input.command}. The rename is the whole
-  # adapter: bash-guard matches `^Bash$`, so an unrenamed payload matches
-  # nothing and every destructive command reads as a pass.
-  #
-  # The reply travels as an exit status. cursor does translate claude's
-  # hookSpecificOutput, but only on its own `preToolUse` step, so a claude-shaped
-  # deny on this step is read as no decision and the command goes to cursor's
-  # own approval prompt instead.
+  # gate v0.2.5 speaks cursor natively: `--harness cursor` maps
+  # beforeShellExecution onto PreToolUse with tool Bash and Input {command}, and
+  # `--format cursor` answers in cursor's own permission vocabulary at exit 0.
+  # No --event: the normalizer keys on the payload's hook_event_name, and a
+  # passed event would arrive before that mapping runs.
   shellGuardScript = pkgs.writeShellApplication {
     name = "cursor-gate-shell-guard";
-    runtimeInputs = [ pkgs.jq ];
     text = ''
       ${llmLib.guards.gateStateDir}
-      payload=$(jq -c '. + { tool_name: "Bash", tool_input: { command: (.command // "") } }')
-      status=0
-      ${lib.getExe pkgs.gate-cli} hook --harness claude --event PreToolUse --format exit-code \
-        <<< "$payload" || status=$?
-      # A pass prints nothing, which cursor reads as invalid JSON and, under
-      # failClosed, as a block. A deny is exit 2 and never reaches this line.
-      [ "$status" -ne 0 ] || printf '{}\n'
-      exit "$status"
+      exec ${lib.getExe pkgs.gate-cli} hook --harness cursor --format cursor
     '';
   };
 
