@@ -9,6 +9,16 @@ let
   commandPath = import ../modules/shared/command-path.nix { inherit (pkgs) lib; };
   darwinPath = commandPath.entriesFor true "/profile/bin";
   linuxPath = commandPath.entriesFor false "/profile/bin";
+  shellPaths = import ../modules/lib/paths.nix { inherit (pkgs) lib; };
+  darwinShellPath = shellPaths.getAllPaths "roshan" "/Users/roshan";
+  linuxShellPath = shellPaths.getAllPaths "roshan" "/home/roshan";
+  standardSystemPath = [
+    "/usr/local/bin"
+    "/usr/bin"
+    "/bin"
+    "/usr/sbin"
+    "/sbin"
+  ];
 
   mcpCatalog = import ../modules/home/programs/llm/lib/mcp-catalog.nix {
     inherit (pkgs) lib;
@@ -43,6 +53,8 @@ assert builtins.elemAt darwinPath 3 == "/opt/homebrew/bin";
 assert builtins.elemAt darwinPath 4 == "/opt/homebrew/sbin";
 assert builtins.elemAt darwinPath 5 == "/usr/local/bin";
 assert !(builtins.elem "/opt/homebrew/bin" linuxPath);
+assert builtins.all (path: builtins.elem path darwinShellPath) standardSystemPath;
+assert builtins.all (path: builtins.elem path linuxShellPath) standardSystemPath;
 assert ampMcpServers.kept.command == "kept";
 assert !(ampMcpServers ? suppressed);
 {

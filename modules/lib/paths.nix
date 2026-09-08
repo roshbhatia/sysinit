@@ -20,9 +20,16 @@ let
         "/opt/homebrew/opt/libgit2@1.8/bin"
         "/opt/homebrew/sbin"
       ]
-      ++ [ "/usr/bin" ]
+      ++ [
+        "/usr/local/bin"
+        "/usr/bin"
+        "/bin"
+      ]
       ++ lib.optionals (isDarwin home) [ "/usr/local/opt/cython/bin" ]
-      ++ [ "/usr/sbin" ];
+      ++ [
+        "/usr/sbin"
+        "/sbin"
+      ];
     user = [
       "${home}/.cargo/bin"
       "${home}/.krew/bin"
