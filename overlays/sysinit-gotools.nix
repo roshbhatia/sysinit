@@ -159,13 +159,11 @@ in
     let
       links = [
         "agent-edit-event"
-        "agent-note-open"
         "agent-state"
         "agent-statusline"
         "agent-watch"
         "citelock"
         "firefox-tabs"
-        "note"
         "prose-gate"
         "transcript-link"
         "wezspawn"
