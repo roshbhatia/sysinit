@@ -150,19 +150,21 @@
     context = "~/.cursor/rules/always.mdc";
     skillLoader = true;
     ownIcon = true;
-    notify = "scrape";
-    editBus = false;
+    notify = "hook";
+    editBus = true;
     bridge = null;
     package = "cursor-cli";
     glyph = "";
     command = "cursor-agent";
-    acp = false;
+    launch.modelFlag = "--model";
+    launch.resumeArgs = [ "--resume" ];
+    acp = true;
     openspecTool = [ "cursor" ];
-    guard = "globs";
-    gate = "none";
+    guard = "both";
+    gate = "exit-code";
     projectDir = ".cursor/";
-    transcriptRoot = null;
-    exitHook = false;
+    transcriptRoot = "~/.cursor/projects";
+    exitHook = true;
   };
 
   devin = {
