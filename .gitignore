@@ -28,3 +28,8 @@ nix.secrets.conf
 # untracked file is absent from the flake source.
 !sgconfig.yml
 !modules/home/programs/ast-grep/
+
+# `**/.cursor/` is gitignored globally, but this repo ships the Cursor cloud
+# environment config, and an untracked file is absent from the flake source.
+!.cursor/
+!.cursor/environment.json

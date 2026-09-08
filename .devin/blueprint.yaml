@@ -1,0 +1,11 @@
+initialize:
+  - name: Install sysinit cloud tools
+    run: bash hack/cloud-setup.sh
+
+knowledge:
+  - name: tools
+    contents: |
+      hack/cloud-setup.sh installs this user's own CLIs into /usr/local/bin
+      from roshbhatia.cachix.org: ask, gate, changes, traces, orc, seshy,
+      specutil, calldiff, and the sysinit-utils helpers. The closure
+      substitutes wholesale, so no source build runs.
