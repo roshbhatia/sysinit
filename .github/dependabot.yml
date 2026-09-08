@@ -21,6 +21,7 @@ updates:
       - dependency-name: "ask-extras"
       - dependency-name: "changes"
       - dependency-name: "gate"
+      - dependency-name: "tether"
       - dependency-name: "traces"
     commit-message:
       prefix: "chore(deps)"

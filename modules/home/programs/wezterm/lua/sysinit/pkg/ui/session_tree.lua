@@ -135,6 +135,7 @@ function M.build(deck_states)
             display_name = session.name,
             dormant = true,
             domain = entry.domain,
+            tether = entry.tether,
             rank = 0,
             since = nil,
             status = nil,
@@ -148,6 +149,7 @@ function M.build(deck_states)
       unreachable[#unreachable + 1] = {
         host = entry.host,
         domain = entry.domain,
+        tether = entry.tether,
         reason = entry.reason or "unavailable",
       }
     end

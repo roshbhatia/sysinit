@@ -1,5 +1,6 @@
 local lua_root = assert(arg[1], "WezTerm Lua path is required")
 local plugin_fixture = assert(arg[2], "plugin fixture path is required")
+local tether_plan_fixture = assert(arg[3], "tether plan fixture path is required")
 
 local switcher_file = assert(io.open(lua_root .. "/sysinit/pkg/ui/switcher.lua", "r"))
 local switcher_source = switcher_file:read("*a")
@@ -35,6 +36,11 @@ package.path = table.concat({
 
 local handlers = {}
 local current_process = "zsh"
+-- Each test swaps these; the wezterm stub itself is assigned once.
+local child_process = function(_args)
+  return false, "", "no child process stub"
+end
+local logged = {}
 local action = setmetatable({}, {
   __index = function(_, name)
     return function(value)
@@ -59,8 +65,13 @@ local wezterm = {
       return {}
     end,
   },
-  log_error = function() end,
+  log_error = function(message)
+    logged[#logged + 1] = message
+  end,
   log_warn = function() end,
+  run_child_process = function(args)
+    return child_process(args)
+  end,
   on = function(name, callback)
     handlers[name] = callback
   end,
@@ -120,10 +131,12 @@ package.loaded["sysinit.pkg.utils"] = {
   end,
   load_json_file = function()
     return {
+      hosts = { arrakis = { tether = {} } },
       plugins = {
         fixture = plugin_fixture,
         missing = plugin_fixture .. "/missing",
       },
+      scripts = { tether_refresh = "wezterm-tether-refresh" },
     }
   end,
   state_path = function(_, fallback)
@@ -280,7 +293,7 @@ assert(#tree_actions == 2, "slash did not leave the session action table")
 assert(tree_actions[2].SendKey.key == "/", "slash did not enter the native filter")
 
 local listed_args
-wezterm.run_child_process = function(args)
+child_process = function(args)
   listed_args = args
   return true, "newest\nolder\n"
 end
@@ -305,6 +318,126 @@ local switch_window = {
 session_actions.switch_to_workspace(switch_window, pane, "newest")
 assert(switch_action.SwitchToWorkspace.name == "newest", "session switch did not target the selected workspace")
 assert(refreshed == switch_window, "session switch did not refresh the active session indicator")
+
+-- tether decides the hop; the tree only has to read its document faithfully.
+-- The fixture is a real plan against arrakis, where native-mux won and the
+-- mosh-mux tier was filtered because both ends lacked mosh.
+local ui_tether = require("sysinit.pkg.ui.tether")
+local arrakis_plan = dofile(tether_plan_fixture)
+assert(arrakis_plan.version == "tether.plan/v1", "the tether fixture is not a tether.plan/v1 document")
+local plan_args =
+  ui_tether.plan_args("/profile/bin/tether", "arrakis", "sysinit", "ssh:arrakis", { "zmx", "attach", "sysinit" })
+assert(
+  table.concat(plan_args, " ")
+    == "/profile/bin/tether plan --host arrakis --session sysinit --native ssh:arrakis -- zmx attach sysinit",
+  "tether plan argv changed: " .. table.concat(plan_args, " ")
+)
+local native_spawn, native_err = ui_tether.spawn_for(arrakis_plan, "/home/rshnbhatia/sysinit")
+assert(native_spawn, "the native-mux plan produced no spawn: " .. tostring(native_err))
+assert(native_spawn.domain.DomainName == "ssh:arrakis", "a native hop did not spawn at the ssh domain")
+assert(table.concat(native_spawn.args, " ") == "zmx attach sysinit", "a native hop changed the inner argv")
+assert(native_spawn.cwd == "/home/rshnbhatia/sysinit", "a native hop lost the session directory")
+local native_summary = ui_tether.summary(arrakis_plan)
+assert(native_summary.tier == "native-mux" and not native_summary.stale, "the fixture summary misread chosen or probe")
+assert(ui_tether.loses_suffix(native_summary) == "", "native-mux keeps OSC and panes but drew a suffix")
+
+local ssh_alternative = arrakis_plan.alternatives[1]
+assert(ssh_alternative.tier == "ssh" and ssh_alternative.hop.kind == "local", "the fixture lost its ssh alternative")
+local local_plan = {
+  version = "tether.plan/v1",
+  status = "ok",
+  chosen = { tier = ssh_alternative.tier },
+  plan = ssh_alternative.plan,
+  hop = ssh_alternative.hop,
+  loses = ssh_alternative.loses,
+  probe = { stale = true },
+}
+local local_spawn = ui_tether.spawn_for(local_plan, "/home/rshnbhatia/sysinit")
+assert(local_spawn.domain == nil and local_spawn.cwd == nil, "a local hop carried a remote domain or cwd")
+assert(
+  local_spawn.args[1] == "ssh" and local_spawn.args[#local_spawn.args] == "sysinit",
+  "a local hop lost the hop tool argv"
+)
+local local_summary = ui_tether.summary(local_plan)
+assert(local_summary.stale, "a stale probe was not surfaced")
+assert(
+  ui_tether.loses_suffix(local_summary) == "no panes",
+  "the ssh tier did not flag lost panes: " .. ui_tether.loses_suffix(local_summary)
+)
+
+local pinned_error = {
+  version = "tether.plan/v1",
+  status = "error",
+  error = "pinned tier mosh-mux unavailable: local mosh absent, remote mosh-server absent",
+  reasons = { "mosh-mux filtered: local mosh absent, remote mosh-server absent" },
+  probe = { stale = false },
+}
+local error_spawn, error_reason = ui_tether.spawn_for(pinned_error, nil)
+assert(error_spawn == nil, "an error plan produced a spawn")
+assert(
+  error_reason:find("pinned tier mosh-mux unavailable", 1, true),
+  "an error plan lost tether's error: " .. error_reason
+)
+assert(error_reason:find("mosh-mux filtered", 1, true), "an error plan lost tether's reasons")
+assert(
+  ui_tether.loses_suffix(ui_tether.summary(pinned_error)):find("pinned tier", 1, true),
+  "an error plan drew no row text"
+)
+assert(ui_tether.spawn_for(nil) == nil, "a missing plan produced a spawn")
+assert(ui_tether.summary({ version = "other/v1" }) == nil, "another document version read as a plan")
+
+-- The attach branch end to end: run_child_process is the one synchronous call,
+-- its stdout is parsed, and the hop decides the spawn. On an error plan the
+-- attach logs and still spawns at the ssh domain.
+local tether_stdout
+local tether_argv
+child_process = function(args)
+  tether_argv = args
+  return true, tether_stdout, ""
+end
+local parsed_docs = { native = arrakis_plan, pinned = pinned_error }
+wezterm.json_parse = function(text)
+  return assert(parsed_docs[text], "unexpected json_parse input: " .. tostring(text))
+end
+logged = {}
+local remote_opts = { host = "arrakis", domain = "ssh:arrakis", session = "sysinit", cwd = "/home/rshnbhatia/sysinit" }
+tether_stdout = "native"
+session_actions.switch_to_workspace(switch_window, pane, "arrakis:sysinit", remote_opts)
+assert(tether_argv[1] == "tether" and tether_argv[2] == "plan", "a remote attach did not ask tether for a plan")
+assert(
+  tether_argv[#tether_argv] == "sysinit" and tether_argv[#tether_argv - 2] == "zmx",
+  "the attach inner argv is not zmx attach"
+)
+local remote_spawn = switch_action.SwitchToWorkspace.spawn
+assert(remote_spawn.domain.DomainName == "ssh:arrakis", "a native plan did not attach over the ssh domain")
+assert(table.concat(remote_spawn.args, " ") == "zmx attach sysinit", "a native plan changed the spawned argv")
+assert(#logged == 0, "a usable plan logged an error")
+tether_stdout = "pinned"
+session_actions.switch_to_workspace(switch_window, pane, "arrakis:sysinit", remote_opts)
+assert(
+  #logged == 1 and logged[1]:find("pinned tier mosh-mux unavailable", 1, true),
+  "an error plan was not logged with tether's reasons"
+)
+local fallback_spawn = switch_action.SwitchToWorkspace.spawn
+assert(fallback_spawn.domain.DomainName == "ssh:arrakis", "an error plan did not fall back to the ssh domain")
+assert(table.concat(fallback_spawn.args, " ") == "zmx attach sysinit", "the fallback lost the inner argv")
+
+-- The refresh probes every configured host in the background even when no
+-- remote domain is attached, because tether guards its own stalls.
+local background_argv
+wezterm.background_child_process = function(args)
+  background_argv = args
+end
+require("sysinit.pkg.ui.sessions").refresh_remote()
+assert(background_argv, "the refresh spawned no tether probe")
+assert(
+  background_argv[1] == "wezterm-tether-refresh" and background_argv[3] == "arrakis",
+  "the tether refresh did not name the configured host"
+)
+assert(
+  background_argv[2] == "/state/wezterm/remote_sessions",
+  "the tether refresh wrote outside the remote session cache"
+)
 
 local windowtitle = require("sysinit.pkg.ui.windowtitle")
 local test_home = os.getenv("HOME") or "/home/test"
