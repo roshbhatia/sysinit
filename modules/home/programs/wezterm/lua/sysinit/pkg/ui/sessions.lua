@@ -17,7 +17,9 @@ M.remote_dir = utils.state_path("weztermRemoteSessions", "wezterm/remote_session
 
 M.remote_lister = ""
 -- Per-host attach transport, keyed on the lowercase ssh host. A host absent
--- here defaults to "ssh-domain". "mosh" hosts attach over a local mosh client.
+-- here defaults to "ssh-domain", the native-mux tier: the WezTerm ssh domain
+-- with multiplexing = "WezTerm", so the far side is a native pane. "mosh" hosts
+-- attach over a local mosh client and trade native panes for roaming.
 M.host_transport = {}
 do
   local ok, cfg = pcall(utils.load_json_file, utils.get_config_path("config.json"))

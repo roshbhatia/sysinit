@@ -36,9 +36,11 @@ local function seshy_spawn_args(name, shell)
 end
 
 -- Mosh streams screen state over UDP, not a byte-clean stream, so no WezTerm
--- remote domain can ride it. The mosh CLIENT runs in a LOCAL pane; the far-side
--- pane comes from the host's own zmx, which mosh attaches over the hop. The
--- host alias is resolved through ~/.ssh/config by mosh itself.
+-- remote domain can ride it. This is the tier below "ssh-domain" (the native
+-- WezTerm mux): it gains roaming and local echo, and loses native panes, OSC,
+-- and scrollback. The mosh CLIENT runs in a LOCAL pane; the far-side pane
+-- comes from the host's own zmx, which mosh attaches over the hop. The host
+-- alias is resolved through ~/.ssh/config by mosh itself.
 local function mosh_spawn_args(host, session)
   return { utils.get_nix_binary("mosh"), host, "--", "zmx", "attach", session }
 end
