@@ -118,11 +118,16 @@
     };
 
     traces = {
-      url = "github:roshbhatia/traces/v0.9.0";
+      url = "github:roshbhatia/traces/v0.10.0";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         systems.follows = "systems";
       };
+    };
+
+    tether = {
+      url = "github:roshbhatia/tether/v0.1.0";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     slk = {
@@ -287,6 +292,7 @@
             "ask-providers"
             "gate-cli"
             "gate-providers"
+            "tether"
             "sysinit-utils"
             "orc-cli"
             "orc-providers"
@@ -329,6 +335,14 @@
                 "sysinit-utils"
               ];
             };
+            # The committed .cursor, .devin, and hack/cloud-setup.sh files,
+            # rendered from modules/shared/cloud.nix. hack/generate-cloud.sh
+            # copies them in; checks.cloud-files fails on drift.
+            cloud-files =
+              (import ./flake/cloud-files.nix {
+                inherit pkgs;
+                inherit (pkgs) lib;
+              }).all;
           }
         );
 
@@ -383,9 +397,6 @@
               pkgs.yamllint
               pkgs.vale
             ];
-            # prose-gate's tests read the rule set through this, the same way
-            # the installed wrapper does. Without it they skip.
-            SYSINIT_PROSE_STYLE = "${pkgs.vale-styles}/vale.ini";
           };
         }
       );

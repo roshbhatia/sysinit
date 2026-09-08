@@ -2,9 +2,9 @@
 #
 # Each harness declares one `gate hook` per event (lib/guards.nix). The chain
 # that runs behind it is this file's concern: which providers, in what order,
-# with what arguments. The generic providers come from the gate repository; the
-# one provider this repository owns, prose-gate, is a manifest here pointing at
-# pkgs.sysinit-utils.
+# with what arguments. Every provider comes from the gate repository; what this
+# repository owns is the arguments, including prose-gate's whole rule set and
+# every text it injects (gate-defaults.nix).
 {
   lib,
   pkgs,
@@ -15,7 +15,10 @@ let
   inherit (lib) mkOption types;
   cfg = config.sysinit.llm.gate;
   llmLib = import ./lib { inherit lib; };
-  defaults = import ./gate-defaults.nix { rulesFile = "${llmLib.guards.rulesFile pkgs}"; };
+  defaults = import ./gate-defaults.nix {
+    rulesFile = "${llmLib.guards.rulesFile pkgs}";
+    styleFile = "${pkgs.vale-styles}/vale.ini";
+  };
   yamlFormat = pkgs.formats.yaml { };
 
   stepType = types.submodule {
@@ -69,21 +72,6 @@ let
     chains = lib.mapAttrs (_event: steps: map renderStep steps) cfg.chains;
   };
 
-  # prose-gate speaks provider/v1 through `utils prose-gate serve`, which
-  # routes on the event and on args.mode. vale and the style come from the
-  # sysinit-utils wrapper, so the manifest names the wrapper.
-  proseGateManifest = {
-    version = "provider/v1";
-    name = "prose-gate";
-    description = "Record the style tells of a reply, remind on the next prompt, and note an oversized teammate report";
-    command = [ "${pkgs.sysinit-utils}/bin/prose-gate" ];
-    actions."gate.decide" = {
-      description = "UserPromptSubmit, SessionStart, Stop, PostToolUse on Agent";
-      argv = [ "serve" ];
-    };
-    defaults.timeout = "5s";
-  };
-
   # git-ai-gate checkpoints an edit's lines to refs/notes/ai as a side effect,
   # then answers pass. The timeout covers git-ai spawning its background service
   # on the first checkpoint of a session.
@@ -132,8 +120,6 @@ in
     xdg.configFile = providerFiles // {
       "gate/config.yaml".source = yamlFormat.generate "gate-config.yaml" gateConfig;
       "gate/review.yaml".source = yamlFormat.generate "gate-review.yaml" cfg.review;
-      "gate/providers/prose-gate.yaml".source =
-        yamlFormat.generate "gate-provider-prose-gate.yaml" proseGateManifest;
       "gate/providers/git-ai-gate.yaml".source =
         yamlFormat.generate "gate-provider-git-ai-gate.yaml" gitAiGateManifest;
     };

@@ -153,3 +153,8 @@ nix = "zmx"
 # hosts that accept a mosh attach (arrakis).
 [[tool]]
 nix = "mosh"
+
+# Picks the hop (native mux, mosh, ssh) for a wezterm remote attach from what
+# both ends have installed. The session tree calls `tether plan` on attach.
+[[tool]]
+nix = "tether"

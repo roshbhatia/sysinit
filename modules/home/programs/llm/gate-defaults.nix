@@ -4,9 +4,49 @@
 # Matchers are regular expressions over the harness's tool name. Claude Code
 # names its shell tool `Bash`; codex mirrors those names. `Task` is the older
 # name of the `Agent` tool and stays matched for a harness that still sends it.
-{ rulesFile }:
+{ rulesFile, styleFile }:
 let
   bulkRead = import ./bulk-read.nix;
+
+  # prose-gate is gate's mechanism and this is its content: which vale style,
+  # which rule records on one hit, and every text it injects. The provider
+  # holds none of it, so a wording change here is a switch and not a rebuild.
+  prose = {
+    style = styleFile;
+    # A leaked tool fingerprint is one fault on the first hit; a second
+    # occurrence adds no evidence.
+    block_on = [ "Sysinit.CitationMarkup" ];
+    # Closes the recorded findings: what to send instead.
+    shape = ''
+      Send the whole reply again in ASD-STE100, in this shape and nothing else:
+
+        1. What changed, in one sentence per change.
+        2. Why, only where the change is not self-explaining.
+        3. The next concrete action.
+
+      One instruction per sentence, active voice, one term per concept. Numbers, not
+      adjectives. Keep a sentence under 25 words. Use a list or a table when it
+      carries the answer better than a sentence.
+    '';
+    # Claude Code re-states a built-in output style on every turn from its
+    # `turnReminder` and a custom style never, so `sysinit-ste` is stated once
+    # at session start. This is that missing per-turn line, which is why it
+    # names the style rather than only its rules.
+    reminder = "The sysinit-ste output style is active. Follow it. Answer shape: what changed, why, next action. One sentence under 25 words per instruction. No em-dash, no preamble, no plan announcement, no closing summary. Keep an error, a failing test, or a destructive-action confirmation whole.";
+    # The output style is already loaded at SessionStart, so restating it buys
+    # nothing. These three rules are stated nowhere else, and a fresh or
+    # compacted session has no other way to learn them. A fourth, bounding a
+    # command that prints without limit, is bash-guard's rewrite now: a hook
+    # that cannot be skipped beats a rule the model may skip.
+    session = ''
+      IMPORTANT: context is the budget that runs out first. YOU MUST spend it on purpose.
+
+        - Grep or Glob to find the lines. Read the range, not the file.
+        - Delegate a search that spans many files to a subagent, which reads in its own
+          window and reports back the conclusion.
+        - Never re-read a file to confirm an edit that Edit or Write already reported.
+    '';
+  };
 in
 {
   chains = {
@@ -14,7 +54,10 @@ in
       { provider = "notes"; }
       {
         provider = "prose-gate";
-        args.mode = "remind";
+        args = {
+          mode = "remind";
+          inherit (prose) reminder;
+        };
       }
       { provider = "review-gate"; }
     ];
@@ -66,7 +109,10 @@ in
     SessionStart = [
       {
         provider = "prose-gate";
-        args.mode = "session";
+        args = {
+          mode = "session";
+          inherit (prose) session;
+        };
       }
     ];
     SubagentStart = [ { provider = "review-gate"; } ];
@@ -74,7 +120,14 @@ in
       { provider = "loop-gate"; }
       {
         provider = "prose-gate";
-        args.mode = "check";
+        args = {
+          mode = "check";
+          inherit (prose)
+            style
+            block_on
+            shape
+            ;
+        };
       }
     ];
   };
@@ -120,6 +173,7 @@ in
     "loop-gate"
     "nix-guard"
     "notes"
+    "prose-gate"
     "read-router"
     "review-gate"
   ];

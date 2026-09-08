@@ -11,12 +11,12 @@ set -euo pipefail
 # Generated from modules/shared/cloud.nix by flake/cloud-files.nix. Do not
 # edit by hand; run hack/generate-cloud.sh.
 
-CACHIX_URL="https://roshbhatia.cachix.org"
-CACHIX_KEY="roshbhatia.cachix.org-1:K7Kq2esJYhrV/aCH8Xl7h54y8NULg/k+7WkObNT9VDk="
-NIXOS_CACHE="https://cache.nixos.org"
-INSTALLER_URL="https://install.determinate.systems/nix"
-FLAKE_REF="github:roshbhatia/sysinit#packages.x86_64-linux.cloudTools"
-BIN_DIR="/usr/local/bin"
+CACHIX_URL="@cachixUrl@"
+CACHIX_KEY="@cachixKey@"
+NIXOS_CACHE="@nixosCacheUrl@"
+INSTALLER_URL="@installerUrl@"
+FLAKE_REF="@flakeRef@"
+BIN_DIR="@binDir@"
 
 # ln/mkdir under /usr/local need root; the box runs privileged, so sudo is a
 # no-op fallback for the rare non-root shell.
@@ -36,7 +36,7 @@ install_nix() {
   echo "installing Determinate Nix"
   # Bake the substituters so the daemon trusts the key.
   curl --proto '=https' --tlsv1.2 -sSf -L "${INSTALLER_URL}" |
-    sh -s -- install linux --init none --no-confirm --extra-conf 'sandbox = false' \
+    sh -s -- install linux @installerFlags@ \
       --extra-conf "extra-substituters = ${CACHIX_URL} ${NIXOS_CACHE}" \
       --extra-conf "extra-trusted-public-keys = ${CACHIX_KEY}"
 }

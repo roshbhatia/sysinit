@@ -197,11 +197,6 @@ in
                 type = "command";
                 command = gateHook "UserPromptSubmit";
               }
-              {
-                type = "command";
-                command = "${profileBin}/utils transcript-link claude";
-                async = true;
-              }
             ];
           }
         ];

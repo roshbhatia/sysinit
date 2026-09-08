@@ -1,3 +1,5 @@
+# Generated from modules/shared/cloud.nix by flake/cloud-files.nix.
+# Do not edit by hand; run hack/generate-cloud.sh.
 initialize:
   - name: Install sysinit cloud tools
     run: bash hack/cloud-setup.sh

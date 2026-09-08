@@ -36,12 +36,10 @@ used to be packages here; `internal/guard`, `internal/lintgate`, and
 `internal/loopgate` were moved out in 2026-09.
 
 `utils/main.go` dispatches on `argv[0]`, so one binary answers to its names.
-The one gate provider still here is `prose-gate`, because its vale rules are
-`pkgs/prose-style`. `prose-gate serve` reads a `gate.decide` request frame and
-routes on the event or on `args.mode`: `check` on Stop records the reply's
-style tells and never blocks, `remind` on UserPromptSubmit carries them,
-`session` injects the context rules, `report` on an Agent return notes an
-oversized teammate report to the caller.
+No gate provider lives here. `prose-gate` moved to gate's `extras/` in
+2026-09; its vale rules stay in `pkgs/prose-style` and reach it as the
+`style` argument of its chain steps, beside every text it injects
+(`modules/home/programs/llm/gate-defaults.nix`).
 
 Every gate function returns a `hookfmt.Outcome` and `hookfmt.Emit` renders it
 for the caller: `--format claude` (hook JSON), `exit-code`, `json`, or the
@@ -54,14 +52,14 @@ Claude Code shows a PreToolUse `permissionDecisionReason` to the model only on
 a `deny`. On an `allow` it goes to the user. A gate that rewrites the input and
 wants the model to know puts the note in `Outcome.Context`, which renders as
 `additionalContext`. A Stop hook has no passive channel: `additionalContext` on
-Stop continues the turn exactly as `decision: block` does, so `prose-gate`
-records on Stop and speaks on the next prompt.
+Stop continues the turn exactly as `decision: block` does, so gate's
+`prose-gate` records on Stop and speaks on the next prompt.
 
 ## Build
 
 `overlays/sysinit-gotools.nix` builds the module once as `sysinit-gotools`,
 then publishes `utils` under every name in its `links` list, each a wrapper
-that pins `git`, `curl`, and `vale` on PATH and sets `SYSINIT_PROSE_STYLE`.
+that pins `git` and `curl` on PATH.
 Adding a command means a `commands` entry and a `links` entry in `main.go`,
 and the same name in the overlay's `links`. `main_test.go` fails when the two
 disagree.
