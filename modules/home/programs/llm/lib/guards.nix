@@ -48,7 +48,12 @@ rec {
       format ? "claude",
     }:
     lib.getExe (mkGateHookScript {
-      inherit pkgs harness event format;
+      inherit
+        pkgs
+        harness
+        event
+        format
+        ;
       name = "gate-hook-${harness}-${lib.toLower event}";
     });
 }
