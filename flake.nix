@@ -307,6 +307,27 @@
               name = "sysinit-cache-bundle-${system}";
               paths = builtins.filter (p: p != null) (map (name: pkgs.${name} or null) cacheAttrs);
             };
+            # Trimmed profile of this user's own CLIs for cloud agent boxes.
+            # Every component is in cacheAttrs, so only the join builds; the
+            # closure substitutes from roshbhatia.cachix.org with no source build.
+            cloudTools = pkgs.symlinkJoin {
+              name = "sysinit-cloud-tools-${system}";
+              paths = map (name: pkgs.${name}) [
+                "ask"
+                "gate-cli"
+                "gate-providers"
+                "changes"
+                "changes-providers"
+                "traces"
+                "traces-providers"
+                "orc-cli"
+                "orc-providers"
+                "seshy"
+                "specutil"
+                "calldiff"
+                "sysinit-utils"
+              ];
+            };
           }
         );
 
