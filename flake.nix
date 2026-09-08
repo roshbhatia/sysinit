@@ -81,7 +81,7 @@
     };
 
     ask = {
-      url = "github:roshbhatia/ask/main";
+      url = "github:roshbhatia/ask/v0.5.3";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -91,7 +91,7 @@
     };
 
     ask-extras = {
-      url = "github:roshbhatia/ask/main?dir=extras";
+      url = "github:roshbhatia/ask/v0.5.3?dir=extras";
       inputs = {
         ask.follows = "ask";
         nixpkgs.follows = "nixpkgs";
@@ -100,7 +100,7 @@
     };
 
     changes = {
-      url = "github:roshbhatia/changes/v0.10.0";
+      url = "github:roshbhatia/changes/v0.11.0";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         systems.follows = "systems";
@@ -118,7 +118,7 @@
     };
 
     traces = {
-      url = "github:roshbhatia/traces/v0.7.0";
+      url = "github:roshbhatia/traces/v0.7.2";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         systems.follows = "systems";

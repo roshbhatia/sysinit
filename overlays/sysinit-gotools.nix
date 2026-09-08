@@ -9,7 +9,7 @@ let
 
     src = ../pkgs;
 
-    vendorHash = "sha256-dnGhWezb1M8h1hRA8EUMMe838vo6nLOKndYRgVIPjwo=";
+    vendorHash = "sha256-Q8FCnX4ktd7aNV2eZRnH+Y05nefniBA0/DI4ELTk/YE=";
 
     nativeCheckInputs = [ final.git ];
 
