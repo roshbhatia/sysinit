@@ -35,6 +35,14 @@ local function seshy_spawn_args(name, shell)
   return args
 end
 
+-- Mosh streams screen state over UDP, not a byte-clean stream, so no WezTerm
+-- remote domain can ride it. The mosh CLIENT runs in a LOCAL pane; the far-side
+-- pane comes from the host's own zmx, which mosh attaches over the hop. The
+-- host alias is resolved through ~/.ssh/config by mosh itself.
+local function mosh_spawn_args(host, session)
+  return { utils.get_nix_binary("mosh"), host, "--", "zmx", "attach", session }
+end
+
 function M.gui_window_for_workspace(workspace)
   if not workspace or workspace == "" then
     return nil
@@ -59,7 +67,7 @@ function M.gui_window_for_workspace(workspace)
   return nil
 end
 
----@param opts table|string|nil A spawn cwd, or { cwd, domain, shell, session }
+---@param opts table|string|nil A spawn cwd, or { cwd, domain, shell, session, transport, host }
 function M.switch_to_workspace(win, pane, name, opts)
   if not name or name == "" then
     return
@@ -82,7 +90,10 @@ function M.switch_to_workspace(win, pane, name, opts)
     opts = { cwd = opts }
   end
   local act
-  if type(opts) == "table" and (opts.cwd or opts.domain) then
+  if type(opts) == "table" and opts.transport == "mosh" and opts.host then
+    local spawn = { args = mosh_spawn_args(opts.host, opts.session or name) }
+    act = wezterm.action.SwitchToWorkspace({ name = name, spawn = spawn })
+  elseif type(opts) == "table" and (opts.cwd or opts.domain) then
     local spawn = {
       cwd = opts.cwd,
       args = seshy_spawn_args(opts.session or name, opts.shell),

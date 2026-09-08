@@ -194,6 +194,14 @@ in
       scripts = {
         seshy_remote_list = "${seshyRemoteList}/bin/wezterm-seshy-remote-list";
       };
+      # Per-host remote-attach transport for the session tree. A host absent
+      # here uses the WezTerm ssh mux (ssh-domain, today's behavior). arrakis
+      # runs kernel Tailscale with tailscale0 trusted, so inbound Mosh UDP
+      # works: its sessions attach by running a local mosh client against the
+      # far-side zmx, never by extending the WezTerm mux over Mosh.
+      hosts = {
+        arrakis.transport = "mosh";
+      };
       plugins = {
         tabline = "${weztermPlugins.tabline}";
         agent-deck = "${weztermPlugins.agent-deck}";
