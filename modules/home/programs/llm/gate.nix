@@ -54,6 +54,13 @@ let
   gateConfig = {
     version = "gate.config/v1";
     log = "${config.xdg.stateHome}/gate/decisions.jsonl";
+    # gate does not know what these mean. Naming them here is what lets a
+    # decision line join an orc checkpoint without either tool importing the
+    # other.
+    log_fields = {
+      orc_session = "ORC_SESSION_ID";
+      orc_scope = "ORC_SCOPE";
+    };
     providers.directory = "${config.xdg.configHome}/gate/providers";
     defaults = {
       timeout = "2s";
