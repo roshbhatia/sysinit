@@ -85,10 +85,17 @@ pkgs.runCommand "llm-composition"
     jq -e '.log_fields.orc_session == "ORC_SESSION_ID"
       and .log_fields.orc_scope == "ORC_SCOPE"' config.json > /dev/null
 
-    # The deny message read-router prints must resolve to a template ask has.
-    reader=$(jq -r '.chains.PreToolUse[]
-      | select(.provider == "read-router") | .args.reader' config.json)
-    test -n "$reader"
+    # Every provider that denies a whole-file read prints the same sentence, so
+    # they must name one reader. read-router and bash-guard both do; a third
+    # that forgets the arg falls back to gate's default and disagrees silently.
+    readers=$(jq -r '[.chains.PreToolUse[] | select(.args.reader) | .args.reader]
+      | unique | .[]' config.json)
+    test "$(printf '%s\n' "$readers" | wc -l)" -eq 1
+    carriers=$(jq -r '[.chains.PreToolUse[] | select(.args.reader) | .provider]
+      | sort | join(" ")' config.json)
+    test "$carriers" = "bash-guard read-router"
+
+    reader="$readers"
     template="''${reader##*-t }"
     prompt="${askTemplates}/ask/templates/prompts/$template.yaml"
     test -f "$prompt"

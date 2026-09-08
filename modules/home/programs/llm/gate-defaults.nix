@@ -22,6 +22,9 @@ in
         provider = "bash-guard";
         match = "^Bash$";
         args.rules = rulesFile;
+        # bash-guard denies `cat` on a large file with the same sentence
+        # read-router uses, so it needs the same reader or the two disagree.
+        args.reader = bulkRead.reader;
       }
       {
         provider = "nix-guard";
