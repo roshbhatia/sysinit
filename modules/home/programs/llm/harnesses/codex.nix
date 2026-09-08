@@ -11,9 +11,12 @@ let
   profileBin = "${config.home.profileDirectory}/bin";
   commandPath = llmLib.commandPath.renderFor pkgs.stdenv.hostPlatform.isDarwin profileBin;
 
-  bashGuardScript = llmLib.guards.mkBashGuard {
+  # codex reads Claude-shaped hook JSON, so it runs the same gate chain.
+  gateHookScript = llmLib.guards.mkGateHookScript {
     inherit pkgs;
-    name = "codex-bash-guard";
+    name = "codex-gate-hook";
+    harness = "codex";
+    event = "PreToolUse";
   };
 
   # codex sends to the endpoint verbatim and appends no signal path, unlike
@@ -71,7 +74,7 @@ let
 in
 {
   home = {
-    packages = [ bashGuardScript ];
+    packages = [ gateHookScript ];
     activation.codexRetireLegacyHooks = legacyHooks.activation;
     file = lib.genAttrs (map (f: ".codex/${f}") codexManagedFiles) (_: {
       enable = lib.mkForce false;
@@ -197,7 +200,7 @@ in
             hooks = [
               {
                 type = "command";
-                command = "${profileBin}/codex-bash-guard";
+                command = "${lib.getExe gateHookScript}";
               }
             ];
           }

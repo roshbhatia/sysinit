@@ -7,16 +7,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1788831291,
-        "narHash": "sha256-d5irYhwlJttiKu0CUWPssXXtWLombwKjr5Rvs9NhHYA=",
+        "lastModified": 1788884167,
+        "narHash": "sha256-WUxQWUGRFsiEzhiZQx6GlPVbsbEv6jsVFZ/TVE8JAOs=",
         "owner": "roshbhatia",
         "repo": "ask",
-        "rev": "bd082b6cf4b0efbcfd3a0dce603fc0a7231d566c",
+        "rev": "7eaf20ea9dd246eb1dd5742279d4ef931f0e23ce",
         "type": "github"
       },
       "original": {
         "owner": "roshbhatia",
-        "ref": "v0.5.3",
+        "ref": "v0.6.0",
         "repo": "ask",
         "type": "github"
       }
@@ -35,17 +35,17 @@
       },
       "locked": {
         "dir": "extras",
-        "lastModified": 1788831291,
-        "narHash": "sha256-d5irYhwlJttiKu0CUWPssXXtWLombwKjr5Rvs9NhHYA=",
+        "lastModified": 1788884167,
+        "narHash": "sha256-WUxQWUGRFsiEzhiZQx6GlPVbsbEv6jsVFZ/TVE8JAOs=",
         "owner": "roshbhatia",
         "repo": "ask",
-        "rev": "bd082b6cf4b0efbcfd3a0dce603fc0a7231d566c",
+        "rev": "7eaf20ea9dd246eb1dd5742279d4ef931f0e23ce",
         "type": "github"
       },
       "original": {
         "dir": "extras",
         "owner": "roshbhatia",
-        "ref": "v0.5.3",
+        "ref": "v0.6.0",
         "repo": "ask",
         "type": "github"
       }
@@ -518,6 +518,27 @@
       "original": {
         "owner": "SenchoPens",
         "repo": "fromYaml",
+        "type": "github"
+      }
+    },
+    "gate": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788883320,
+        "narHash": "sha256-MaTxFOFBhZI+ctNgBsX+UDWYCpGRdS6kncjJzZioLT0=",
+        "owner": "roshbhatia",
+        "repo": "gate",
+        "rev": "d405b42771a88aebcee38ae3f32474c715262913",
+        "type": "github"
+      },
+      "original": {
+        "owner": "roshbhatia",
+        "ref": "v0.2.1",
+        "repo": "gate",
         "type": "github"
       }
     },
@@ -1082,6 +1103,7 @@
         "darwin": "darwin",
         "determinate": "determinate",
         "firefox-addons": "firefox-addons",
+        "gate": "gate",
         "hermes-agent": "hermes-agent",
         "home-manager": "home-manager_2",
         "meat": "meat",

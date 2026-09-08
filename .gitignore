@@ -20,6 +20,8 @@ nix.secrets.conf
 .serena
 !AGENTS.md
 .pi/
+# gate providers keep per-repository state here: the review ledger, an armed loop.
+.gate/
 
 # `**/sgconfig.yml` and `ast-grep/` are gitignored globally, but here they are the
 # rule library this repo ships and the project root `nix flake check` gates, and an

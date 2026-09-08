@@ -87,7 +87,9 @@ let
     `orc_current_session` before reporting. Continue only when it confirms the
     active Orc session identified by those values. If its role is
     `orchestrator`, call `orc_session_report` after each material milestone and
-    before the final response.
+    before the final response. A hook that blocks the Stop event continues the
+    turn, so that turn has not reached its final response and owes no
+    checkpoint yet.
 
     Treat `output` as a compact, machine-readable Checkpoint with `status`,
     `summary`, `verification`, `artifacts`, and `remaining_work`.

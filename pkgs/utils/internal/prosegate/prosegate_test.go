@@ -114,3 +114,48 @@ func TestBlocksCitationMarkupOnFirstAlert(t *testing.T) {
 		t.Fatal("two ordinary style alerts did not block")
 	}
 }
+
+func TestRemindCarriesRecordedFindingsOnce(t *testing.T) {
+	t.Setenv("SYSINIT_PROSE_GATE_DIR", t.TempDir())
+	const session = "session-3"
+	if outcome := reminder(t, session, ""); outcome.Kind != hookfmt.Context {
+		t.Fatalf("first reminder = %+v", outcome)
+	}
+	record(session, "Your last reply read like agent prose.")
+	arm(session)
+	outcome := reminder(t, session, "")
+	if outcome.Kind != hookfmt.Context || !strings.Contains(outcome.Message, "Your last reply read like agent prose.") {
+		t.Fatalf("reminder after findings = %+v", outcome)
+	}
+	if outcome := reminder(t, session, ""); outcome.Kind != hookfmt.Pass {
+		t.Fatalf("findings were carried twice: %+v", outcome)
+	}
+}
+
+func agentReport(t *testing.T, status string, size int) hookfmt.Outcome {
+	t.Helper()
+	payload, err := json.Marshal(map[string]any{
+		"tool_name": "Agent",
+		"tool_response": map[string]any{
+			"status":  status,
+			"content": []map[string]string{{"type": "text", "text": strings.Repeat("x", size)}},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return report(bytes.NewReader(payload))
+}
+
+func TestReportNotesOnlyOversizedCompletedReports(t *testing.T) {
+	if outcome := agentReport(t, "completed", maxReportBytes+1); outcome.Kind != hookfmt.Context ||
+		outcome.Event != "PostToolUse" || !strings.Contains(outcome.Message, "file:line") {
+		t.Fatalf("oversized report = %+v", outcome)
+	}
+	if outcome := agentReport(t, "completed", maxReportBytes); outcome.Kind != hookfmt.Pass {
+		t.Fatalf("report at the budget = %+v", outcome)
+	}
+	if outcome := agentReport(t, "async_launched", maxReportBytes+1); outcome.Kind != hookfmt.Pass {
+		t.Fatalf("background launch = %+v", outcome)
+	}
+}

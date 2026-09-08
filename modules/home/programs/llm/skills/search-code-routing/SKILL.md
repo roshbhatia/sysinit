@@ -1,6 +1,6 @@
 ---
-description: 'Routes a code search to the right tool: `ast-grep outline` to map structure, `ast-grep`/`sg` for code shapes and for every find-and-replace that spans more than one site, `rg`/Glob for literal text, `gh search` for repos not cloned here. Use when starting a search, and whenever renaming or replacing a construct across files.'
-allowed-tools: Bash(rg:*) Bash(grep:*) Bash(ast-grep:*) Bash(sg:*) Bash(gh:*) Read Glob
+description: 'Routes a code search to the right tool: `ast-grep outline` to map structure, `ast-grep` for code shapes and for every find-and-replace that spans more than one site, `rg`/Glob for literal text, `gh search` for repos not cloned here. Use when starting a search, and whenever renaming or replacing a construct across files.'
+allowed-tools: Bash(rg:*) Bash(grep:*) Bash(ast-grep:*) Bash(gh:*) Read Glob
 model: haiku
 effort: low
 ---
@@ -32,7 +32,7 @@ Orienting in unfamiliar code, or about to read a file "to see what's in it"?
     -> ast-grep outline   (load the `ast-grep-outline` skill)
        but see the language note below — it is silent on Nix and Lua
 A code SHAPE — call pattern, signature, construct, refactor-grade?
-    -> ast-grep (sg) or the ast-grep MCP   (load the `ast-grep` skill for rules)
+    -> ast-grep or the ast-grep MCP   (load the `ast-grep` skill for rules)
 Literal string, exact identifier, file path, or "every occurrence"?
     -> builtin: rg / grep / Glob / Read
 Across repos — org-wide, not cloned locally, prior art on GitHub?
@@ -77,7 +77,7 @@ rg -n "func ResolveTrust"
 rg "foo\(.*,.*\)"        # misses wrapped args, false-hits on strings and comments
 ```
 
-## 2. ast-grep (`sg`): structural / AST search
+## 2. ast-grep: structural / AST search
 
 Parses to an AST and matches by tree shape, so it is immune to whitespace, line
 breaks, and incidental formatting that defeat regex. Language-aware via
@@ -87,16 +87,17 @@ metavariable capture (`$VAR`, `$$$ARGS`).
 
 ```bash
 # good — match a call shape regardless of how args wrap
-sg run -p 'foo($A, $$$REST)' -l ts
-sg scan                       # run the configured rule set
+ast-grep run -p 'foo($A, $$$REST)' -l ts
+ast-grep scan                 # run the configured rule set
 
 # bad — ast-grep for literal text in comments/configs/markdown
-sg run -p 'TODO' -l ts        # slower and clumsier than `rg TODO` — that is grep's job
+ast-grep run -p 'TODO' -l ts  # slower and clumsier than `rg TODO` — that is grep's job
 ```
 
-Two surfaces, one engine. The CLI is `sg run` and `sg scan`, where `sg`
-aliases `ast-grep`, and it gives ad-hoc text output. The ast-grep MCP
-server gives structured tool output instead of CLI text to parse.
+Two surfaces, one engine. The CLI is `ast-grep run` and `ast-grep scan`, and it
+gives ad-hoc text output. Upstream also ships an `sg` alias; nixpkgs omits it
+because it collides with util-linux's `sg`, so it is not on PATH here. The
+ast-grep MCP server gives structured tool output instead of CLI text to parse.
 
 ## 2a. Find and replace: ast-grep drives it, not Edit
 

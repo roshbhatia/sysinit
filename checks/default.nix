@@ -90,6 +90,14 @@ assert !(ampMcpServers ? suppressed);
         touch $out
       '';
   go-tests = pkgs.sysinit-gotools;
+  gate-config = import ./gate-config.nix {
+    inherit pkgs;
+    inherit (pkgs) lib;
+  };
+  llm-composition = import ./llm-composition.nix {
+    inherit pkgs;
+    inherit (pkgs) lib;
+  };
   orc-no-startup-units = pkgs.runCommand "orc-no-startup-units" { } ''
     test ! -e ${pkgs.orc-cli}/etc/systemd
     test ! -e ${pkgs.orc-cli}/lib/systemd

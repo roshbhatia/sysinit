@@ -42,6 +42,13 @@ let
     # server on port 8000, which the service below keeps running.
     export CUA_USE_HOST_COMPUTER_SERVER=true
 
+    # cua-mcp-server pulls in litellm, which logs at DEBUG to STDOUT. stdout is
+    # the JSON-RPC channel, so every frame was buried in lines like
+    # `LiteLLM:DEBUG: http_handler.py:1076 - Using AiohttpTransport...` and no
+    # client ever parsed the initialize result. The tools still listed, from the
+    # plugin catalog cache, so the server looked present and hung on every call.
+    export LITELLM_LOG=ERROR
+
     exec ${pkgs.uv}/bin/uvx "cua-mcp-server==${cuaMcpVersion}" "$@"
   '';
 

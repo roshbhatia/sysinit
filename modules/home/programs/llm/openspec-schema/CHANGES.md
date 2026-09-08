@@ -15,6 +15,16 @@ upstream drift.
 
 ## Active divergences
 
+### schema.yaml: `artifacts[id=review]`, `templates/review.md` (2026-09)
+- The review is one judged pass bounded by the `review` ledger from the gate
+  repository, not a round loop with a prose cap. `## Owner decision` became
+  `## Tier`, which `review open` computes from the diff; `## Rounds` became
+  `## Passes`, at most two. State vocabulary is the ledger's: OPEN, REVISE,
+  CLEAN, HANDBACK, CAPPED, HALTED, NOT_RUN. The `review-gate` hook enforces the
+  same file, so the bound holds whether or not the instruction is read.
+- The `two bounds` task rule cites `loop-gate`'s CAPPED and STALLED rather than
+  the review skill's former cap table.
+
 ### schema.yaml: `name`, `description`
 - Upstream: `name: spec-driven`, `description: Default OpenSpec workflow ...`
 - Fork: `name: spec-driven`, opinionated description.

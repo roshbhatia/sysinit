@@ -81,12 +81,17 @@
     };
 
     ask = {
-      url = "github:roshbhatia/ask/v0.5.3";
+      url = "github:roshbhatia/ask/v0.6.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    gate = {
+      url = "github:roshbhatia/gate/v0.2.1";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     ask-extras = {
-      url = "github:roshbhatia/ask/v0.5.3?dir=extras";
+      url = "github:roshbhatia/ask/v0.6.0?dir=extras";
       inputs = {
         ask.follows = "ask";
         nixpkgs.follows = "nixpkgs";
@@ -280,6 +285,8 @@
             "traces-providers"
             "ask"
             "ask-providers"
+            "gate-cli"
+            "gate-providers"
             "sysinit-utils"
             "orc-cli"
             "orc-providers"
