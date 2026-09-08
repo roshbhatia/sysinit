@@ -17,6 +17,7 @@ updates:
     ignore:
       - dependency-name: "orc"
       - dependency-name: "orc-extras"
+      - dependency-name: "ask"
       - dependency-name: "changes"
       - dependency-name: "gate"
       - dependency-name: "traces"
