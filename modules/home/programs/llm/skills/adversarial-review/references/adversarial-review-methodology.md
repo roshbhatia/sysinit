@@ -53,53 +53,34 @@ control, not a claim from the cited papers.
    Constitutional AI principle sampling (arXiv:2212.08073).
 8. Repeat.
 
-## Stop criterion (hybrid)
+## Stop criterion (the ledger)
 
-- STOP when independent mediation leaves no `ACCEPT`, `REFRAME`, or `DEFER`
-  verdict. This generalizes Self-Refine's stop indicator (arXiv:2303.17651) to
-  an independently adjudicated critic round.
-- ROUND CAP scaled to blast radius. K=2 for one file or one phase. K=4 for a
-  single-capability change. K=6 for a cross-capability change, or one that
-  mutates the live system.
+Earlier versions of this skill ran rounds until a mediated round left no
+objection, under a blast-radius-scaled cap K with early stops on stall and
+churn, all stated as prose the running model had to honor. Observed in this
+repository, 2026-07: counts of 6, 16, 6, 8 across four rounds, round 3 made of
+defects round 2 introduced. The answer was not a better sentence.
 
-  Earlier versions of this skill used a flat K=4 and cited Self-Refine's
-  max-4-iterations (arXiv:2303.17651) as the source. That citation was an
-  over-extension and is withdrawn. Self-Refine measures a *single-model*
-  generate→feedback→refine loop on bounded tasks such as sentiment reversal and
-  code optimization. This skill runs *N independent adversaries* against a
-  multi-file design artifact. The two regimes have no reason to share an
-  iteration budget, and the paper does not claim one. Treat the scaled cap as an
-  engineering choice, not a paper result.
+What the orgs that publish do instead (Spotify Honk, Cloudflare's AI review,
+Anthropic's Claude Code guidance, Dropbox Nova, DoorDash): the thing that loops
+is a deterministic check; a model review is one pass per revision; a second
+model tries to disprove each finding before it posts; a finding with no anchor
+in the change is dropped, not argued about; a new revision is what earns
+another pass. The `review` ledger encodes exactly that:
 
-  Observed counter-evidence, sysinit, 2026-07: a three-change review produced
-  surviving-objection counts of 6, 16, 6, and 8 across four rounds. The count
-  never declined monotonically, and round 3 consisted entirely of defects
-  introduced by round 2's fixes. A flat K=4 stopped that loop mid-flight with no
-  clean round, which is the failure this scaling exists to make visible.
-- STOP EARLY on non-convergence. Stop before K when the surviving-objection
-  count fails to decline across two consecutive rounds. Stop too when the
-  previous round's fixes caused every surviving objection. Both indicate
-  churn rather than progress. These are hand-back conditions: report the trend
-  and let the owner decide. No paper backs these thresholds; they are engineering
-  choices motivated by the observation above.
-- Objection survival. Inside a round, an objection survives only when the
-  mediator returns `ACCEPT` or `REFRAME`. A `DEFER` verdict remains open for the
-  owner but does not authorize revision. Independent mediation is an engineering
-  choice, not a result claimed by the cited papers.
-- ELICIT AT EVERY ROUND BOUNDARY. Ask whether to continue before spawning the
-  next round. Carry the decision inputs into the question: the round reached,
-  the cap, the per-round objection trend, and what remains open. The
-  owner should not have to interrupt to end a loop. Recommend halting when the
-  count is flat or rising, or when a round produced only fix-induced
-  regressions. Do not spend the round and report it afterward.
-- OWNER HALT. The owner may stop the loop at any transition and go straight
-  to the gate. Honor it at the next transition, apply nothing further, and
-  report the open objections rather than dropping them. A halt is a decision
-  made with the objection list visible. A waiver is made before the loop ran,
-  and a cap hit is chosen by nobody.
-- A cap hit is not a pass. An artifact that never reached a clean round
-  carries known-unreviewed state. The report MUST name the terminal state
-  explicitly rather than presenting a cap hit as completion.
+- `review open` measures the diff and picks the tier, so how much review runs
+  is a policy decided once, not a judgment made per change.
+- One pass: the tier's critics, then the mediator's disproof attempt, then
+  `review judge`, which drops any ACCEPT or REFRAME without a scenario, a
+  disproof attempt, and a `file:line` inside the change.
+- `CLEAN` when nothing actionable survives. `HANDBACK` on a DEFER or a blocking
+  finding. `REVISE` otherwise, and `review reopen` allows one more pass only when
+  the tree changed. `CAPPED` when the last pass still has findings.
+- The `review-gate` hook denies a critic spawned outside an open pass, past the
+  count, or as a writing agent type, so the bound is not a request.
+
+None of this is a result the cited papers claim. It is an engineering control
+for the failure modes below, with the round loop removed rather than tuned.
 
 ## Failure modes and required mitigations
 
@@ -128,7 +109,8 @@ mandatory for this skill.
 Consolidated: (a) separate, independent critic. (b) Hide authorship. (c) Prompt
 for refutation plus a concrete failing scenario. (d) Rotate lenses. (e) Have a
 separate read-only mediator adjudicate current evidence before revision. (f)
-Bound with a blast-radius-scaled K, early stops on churn, and an owner halt.
+Bound with a ledger: a tier from the diff, one judged pass, one re-pass on a
+changed tree, and an owner halt.
 
 ## Mapping to spec-driven OpenSpec artifacts
 

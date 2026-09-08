@@ -224,10 +224,10 @@ artifacts:
         - Prefer ONE confirmation per impactful action. A run of consecutive `Confirm:` tasks after a single action is a sign the author is enumerating observations rather than naming a decision.
         - A gate is a boundary between runs, not a pause inside one. If a phase needs owner sign-off partway through, split it into two phases so the boundary is visible and the first half can be re-run on its own.
       - **spec-driven rule — reuse first**: For each task that introduces a new module/file, the description SHOULD reference the existing pattern it follows (cite a file path) or explicitly note this is a new pattern (with justification carried from design.md).
-      - **spec-driven rule — review evidence per phase**: Each phase MUST end with an adversarial-review checkbox before its impactful-action or rollout tasks. The checkbox runs the mandatory deterministic `specutil check` lint and appends a round block to `review.md`. Do not restate findings in `tasks.md`: the review artifact holds them, and two copies drift. Model critique itself is gated on the owner's recorded decision in `review.md`, so a phase whose review is still `pending` is not done. `CLEAN` means only that no critic objection survived; it is not owner or peer approval. Human-verification gates for impactful actions still apply.
+      - **spec-driven rule — review evidence per phase**: Each phase MUST end with an adversarial-review checkbox before its impactful-action or rollout tasks. The checkbox runs the mandatory deterministic `specutil check` lint, then `review open` and one judged pass per the `adversarial-review` skill, and pastes `review status --md` into `review.md`. Do not restate findings in `tasks.md`: the ledger holds them, and two copies drift. The tier is computed from the diff by the owner's gate policy, so there is no per-change owner signature for skipping; a `trivial` tier records `NOT_RUN`. `CLEAN` means only that no actionable finding survived the judge; it is not owner or peer approval. Human-verification gates for impactful actions still apply.
       - **spec-driven rule — a loop must be able to run twice**: `SHAPE loop` is a claim about control flow, not a label for "several steps". Declare `loop` only when the phase has a real back-edge: the same tasks re-run on the next iteration against changed state. A phase of N distinct one-shot steps is a `graph` with a dependency chain, not a loop. Test before writing `loop`: name the task iteration 2 starts from. If there isn't one, it is not a loop.
       - **spec-driven rule — STOP is a command, not a wish**: A `- **STOP**` value MUST be decidable by running something. Write the command, or write a predicate over a command's output. `- **STOP** \`nix flake check\` exits 0 and every new check fails on an injected defect` is a stop condition. `- **STOP** the settings are coherent` is not, because nothing can evaluate it and the loop terminates when the model decides it is bored. The verifier MUST also be outside the blast radius of the work: a loop that may edit its own tests has no stop condition at all. To make the condition actually run rather than be asserted, arm the Stop hook: `loop-gate arm --until '<command>' --max <n> --stall <n>`. It evaluates the command when the turn tries to end, blocks the end while it fails, and reports CLEAN, CAPPED, or STALLED. `/goal` is NOT a substitute: its own docs state it "doesn't run commands or read files independently", so it terminates on a transcript that claims success.
-      - **spec-driven rule — two bounds, not one**: Every `loop` MUST declare both a progress bound and an iteration bound, because they fail differently. `- **STOP**` is the success exit. `- **MAX-ITERS** <n>` is the iteration cap and is the marker `specutil check` currently enforces. `- **TERMINAL**` names how the loop ends WITHOUT success, using the terminal-state vocabulary the `adversarial-review` skill already defines: `CAPPED` (MAX-ITERS reached), `STALLED` (N consecutive iterations with no change in the STOP metric), `CHURNING` (each fix induces the next defect). MAX-ITERS alone is insufficient: a loop that stalls burns the whole cap before anyone notices. A cap hit is reported as open work, never as a pass. Cite the skill rather than restating its cap-scaling rule.
+      - **spec-driven rule — two bounds, not one**: Every `loop` MUST declare both a progress bound and an iteration bound, because they fail differently. `- **STOP**` is the success exit. `- **MAX-ITERS** <n>` is the iteration cap and is the marker `specutil check` currently enforces. `- **TERMINAL**` names how the loop ends WITHOUT success, using `loop-gate`'s vocabulary: `CAPPED` (MAX-ITERS reached) and `STALLED` (N consecutive iterations with identical output). MAX-ITERS alone is insufficient: a loop that stalls burns the whole cap before anyone notices. A cap hit is reported as open work, never as a pass.
       - **spec-driven rule — phase shape**: Each non-Rollout phase MUST declare `- **SHAPE** loop` or `- **SHAPE** graph`; no other value is valid, and a `## <n>. Rollout` phase is exempt. A `loop` MUST also declare `- **STOP**`, `- **MAX-ITERS**`, and `- **TERMINAL**` per the two rules above. A `graph` models orchestrator-worker fan-out; each subtask MAY carry a trailing `` `deps:` <ids|none> ``, and every referenced id MUST name another subtask in the SAME phase, because a cross-phase edge means the phase boundary is drawn in the wrong place. A `graph` phase MUST also declare `- **MERGE** <task id>`, naming the one subtask that reads every sibling's output and owns the merged result; without it the merge is read out of file order, which is what the declared graph exists to stop being load-bearing. The merge node is a coordination point, not a verifier: the phase's review subtask is the verifier. Each `graph` subtask SHOULD carry a trailing `` `writes:` <paths|none> `` naming the paths it may modify. That set is what the fan-out rule in the apply instruction compares, and it is what an orchestrator pastes into each worker's prompt. When you PRESENT a shaped phase to the owner, render it as an inline ASCII diagram via the `diagram-mermaid-render` skill. That rendering is for human understanding and is not checked.
       - **spec-driven rule — do not collide with the extractor**: A task's prose MUST NOT repeat a marker label, and MUST NOT open with a kind verb. The field pass takes the first match on the line, so a task whose text contains a second `` `writes:` `` or `` `deps:` `` captures the prose as the marker value and truncates the rendered task there. The kind pass strips a leading kind word, so a task opening with `Apply` loses that word in every projection. Neither failure produces a lint error; both are visible in `specutil render <change> --as tickets`, which the merge subtask runs.
       - **spec-driven rule — pilot before fan-out**: A `graph` phase that fans out to more than five sibling subtasks MUST name a pilot subtask that runs the same work over a strictly smaller input and must complete before the rest. A fan-out that fails at scale costs the whole batch; a pilot costs one item.
@@ -258,55 +258,47 @@ artifacts:
 
   - id: review
     generates: review.md
-    description: Adversarial review record - rubric, findings, verdicts, terminal state
+    description: Adversarial review record - rubric, tier, passes, state, open findings
     template: review.md
     instruction: |
       Record the adversarial review of the plan as data, not as prose. This is
       the artifact the owner reads to answer "what was challenged, what
       survived, and what is still open".
 
-      Adversarial review used to be a paragraph in `design.md` that told a
-      subagent what to do. That is backwards: the instruction was durable and
-      the findings were not. Here the findings are the artifact and the
-      methodology is cited from the `adversarial-review` skill.
+      The review is one pass bounded by a ledger, not a loop bounded by prose.
+      `review` (the gate ledger) computes the tier from the diff, counts the
+      critics, judges the mediator's verdicts, and allows one more pass only
+      when the tree changed. The `review-gate` hook enforces the same file, so
+      the bounds hold whether or not this instruction is read.
 
       **Steps.**
 
       1. Fill in `## Rubric` by naming its sources. Do not restate them. An
          objection that cites no rubric item is out of scope and is discarded.
       2. Run the deterministic lint FIRST and record it: `specutil check` and
-         `citelock verify`. It is mandatory, it is cheap, and it runs whatever
-         the owner decides below. It is evidence, never approval.
-      3. Write `## Recommendation` BEFORE running any critic. Say whether model
-         critique should run for this change and name the concrete risk it would
-         catch, or say plainly that there is none. Both answers are fine. An
-         absent recommendation is not: the owner must be deciding against an
-         argument rather than a blank.
-      4. STOP and elicit the owner's decision. You MUST NOT write
-         `## Owner decision` yourself, and you MUST NOT read silence as consent.
-         Skipping adversarial review is the owner's call, not the author's, so
-         `NOT-RUN` is not self-certifiable.
-      5. If the owner approves running it, execute the bounded loop from the
-         `adversarial-review` skill and record every round in the table: lens,
-         finding, the concrete failing scenario, and the verdict. A finding with
-         no reproducible scenario does not belong in the table; the loop already
-         discards it.
-      6. Record the terminal state and the surviving-objection trend. `CLEAN`
-         means no objection survived. It is not owner approval and it is not
-         peer approval. `CAPPED`, `STALLED`, and `CHURNING` all hand back with
-         open work, and each MUST list its open objections.
+         `citelock verify`. It is mandatory, cheap, and runs whatever the tier
+         says. It is evidence, never approval.
+      3. `review open --change <dir>`. Paste its status line under `## Tier`.
+         The thresholds and the sensitive paths are the owner's policy, decided
+         once in the gate configuration, so no per-change signature exists. A
+         `trivial` tier is `NOT_RUN`; stop here.
+      4. Run the pass from the `adversarial-review` skill: the critics the tier
+         earned, the mediator's disproof attempt, `review judge`. Paste
+         `review status --md` under `## Passes`. If the state is `REVISE`, fix
+         the findings; `review reopen` allows pass 2 once, when the tree changed.
+      5. Record the terminal state and the open list. `CLEAN` means no
+         actionable finding survived. It is not owner approval and it is not
+         peer approval. `HANDBACK` and `CAPPED` hand back with open work, and
+         each MUST list its findings.
 
       **Execution path.** Critics are fresh-context {{agents}} spawned with a
       read-only tool set, never in-process teammates. Context starvation is the
       mechanism that makes the review adversarial: a critic that has read the
       author's argument for why the plan is right is measurably worse at finding
-      how it is wrong. Use a teammate only when a critic must observe live
-      session state that is not on disk, and name that reason in the round
-      record. See the skill's execution-path section; do not re-derive it.
+      how it is wrong. The hook denies a critic that can write.
 
       **This artifact is revised, not regenerated.** A later phase that runs its
-      own review appends a round block. Rewriting the file loses the trend,
-      which is the one thing that distinguishes converging from churning.
+      own review appends its passes. Rewriting the file loses the trend.
     requires:
       - tasks
 
