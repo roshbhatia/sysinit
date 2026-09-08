@@ -1,0 +1,51 @@
+diff --git a/lib/nixhub.lua b/lib/nixhub.lua
+index 1e0393c..3c27083 100644
+--- a/lib/nixhub.lua
++++ b/lib/nixhub.lua
+@@ -9,6 +9,17 @@ function M.get_base_url()
+   return os.getenv("MISE_NIX_NIXHUB_BASE_URL") or "https://search.devbox.sh"
+ end
+ 
++-- Raise on anything but a clean answer or a 404. Without this API the nix
++-- backend has no versions, so a 5xx or a bad body must stop the install with
++-- the API named, not read as "package not found". A transport failure already
++-- raises from http.get itself with the URL in the message; pcall cannot wrap
++-- it, because mise's http module yields across a C boundary.
++local function lookup_failed(tool, url, detail)
++  error(string.format(
++    "nixhub lookup failed for %s: %s (%s). mise-nix resolves versions through this API and cannot install without it.",
++    tool, url, detail))
++end
++
+ -- Fetch tool metadata from nixhub.io
+ function M.fetch_metadata(tool)
+   local url = M.get_base_url() .. "/v2/pkg?name=" .. tool
+@@ -22,18 +33,25 @@ function M.fetch_metadata(tool)
+   })
+ 
+   if err ~= nil then
+-    return false, nil, "HTTP request failed: " .. err
++    lookup_failed(tool, url, "HTTP request failed: " .. tostring(err))
++  end
++
++  if resp.status_code == 404 then
++    return false, nil, "HTTP error: 404"
+   end
+ 
+   if resp.status_code ~= 200 then
+-    return false, nil, "HTTP error: " .. resp.status_code
++    lookup_failed(tool, url, "HTTP error: " .. resp.status_code)
+   end
+ 
+   if not resp.body or resp.body == "" then
+-    return false, nil, "Empty response from nixhub.io"
++    lookup_failed(tool, url, "empty response")
+   end
+ 
+   local success, data = pcall(json.decode, resp.body)
++  if not success then
++    lookup_failed(tool, url, "response is not JSON")
++  end
+   return success, data, resp.body
+ end
+ 

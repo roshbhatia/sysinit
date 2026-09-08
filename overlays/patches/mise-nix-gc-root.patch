@@ -1,0 +1,49 @@
+diff --git a/lib/install.lua b/lib/install.lua
+index e31fbe5..45770f5 100644
+--- a/lib/install.lua
++++ b/lib/install.lua
+@@ -50,6 +50,28 @@ function M.multi_output_tool(outputs, install_path, label)
+   require("output_join").link_outputs(outputs, install_path)
+ end
+ 
++-- Register every output as an indirect Nix GC root. `nix build --no-link`
++-- leaves the store path unrooted, so `nix-collect-garbage` deletes it while
++-- mise still reports the tool installed. The root is the install path itself
++-- when it is the symlink, or hidden links inside it when it is a joined
++-- directory, so `mise uninstall` removes the root with the tool.
++function M.register_gc_roots(outputs, install_path)
++  if M.get_install_mode() == "copy" then
++    return
++  end
++
++  for i, output in ipairs(outputs) do
++    local root = install_path
++    if #outputs > 1 then
++      root = string.format("%s/.nix-gcroot-%d", install_path, i)
++    end
++    local ok, err = shell.try_exec('nix-store --add-root "%s" --indirect --realise "%s" >/dev/null', root, output)
++    if not ok then
++      error("Failed to register GC root " .. root .. " for " .. output .. ": " .. tostring(err))
++    end
++  end
++end
++
+ -- Flake installation with hash workaround for direct references (PVC-optimized)
+ function M.flake_with_hash_workaround(nix_store_path, install_path)
+   -- WORKAROUND: mise expects a directory named after the nix store hash for direct flake references
+@@ -101,6 +123,7 @@ function M.from_nixhub(tool, requested_version, install_path)
+     else
+       M.standard_tool(nix_store_path, install_path, tool)
+     end
++    M.register_gc_roots(build_result.outputs, install_path)
+ 
+     -- Cache nix print-dev-env at install time for fast exec
+     if build_result.flake_ref then
+@@ -145,6 +168,7 @@ function M.from_flake(flake_ref, version_hint, install_path)
+     else
+       M.standard_tool(nix_store_path, install_path, flake_ref)
+     end
++    M.register_gc_roots(build_result.outputs, install_path)
+     M.flake_with_hash_workaround(nix_store_path, install_path)
+ 
+     -- Cache nix print-dev-env at install time for fast exec
