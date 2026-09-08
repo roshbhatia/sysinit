@@ -24,7 +24,7 @@ in
         provider.default = "claude";
       };
 
-      # The cheap reader that read-guard and bash-guard name when they deny a
+      # The cheap reader that read-router and bash-guard name when they deny a
       # whole-file read over 16 KiB. It is Spotify's bulk-read mode as an ask
       # template: the file goes to a light model, bullets come back, and the
       # file never enters the caller's context. The invocation the deny prints

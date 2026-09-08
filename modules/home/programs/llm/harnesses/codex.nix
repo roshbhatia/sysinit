@@ -74,7 +74,7 @@ let
 in
 {
   home = {
-    packages = [ bashGuardScript ];
+    packages = [ gateHookScript ];
     activation.codexRetireLegacyHooks = legacyHooks.activation;
     file = lib.genAttrs (map (f: ".codex/${f}") codexManagedFiles) (_: {
       enable = lib.mkForce false;
