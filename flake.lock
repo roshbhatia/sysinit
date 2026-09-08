@@ -521,6 +521,27 @@
         "type": "github"
       }
     },
+    "gate": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788826348,
+        "narHash": "sha256-Lts73rdGuCGYLv0uMF3SY+2ykk29LQ0Lgr3UzUHBr0Y=",
+        "owner": "roshbhatia",
+        "repo": "gate",
+        "rev": "3442d8a8cdbd58a5a88711cba1771c92eb1720ed",
+        "type": "github"
+      },
+      "original": {
+        "owner": "roshbhatia",
+        "ref": "main",
+        "repo": "gate",
+        "type": "github"
+      }
+    },
     "git-hooks": {
       "inputs": {
         "flake-compat": [
@@ -1082,6 +1103,7 @@
         "darwin": "darwin",
         "determinate": "determinate",
         "firefox-addons": "firefox-addons",
+        "gate": "gate",
         "hermes-agent": "hermes-agent",
         "home-manager": "home-manager_2",
         "meat": "meat",
