@@ -3,6 +3,7 @@ let
   wires = [
     "claude-json"
     "exit-code"
+    "cursor"
     "none"
   ];
   names = builtins.attrNames registry;

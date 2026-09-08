@@ -161,7 +161,7 @@
     acp = true;
     openspecTool = [ "cursor" ];
     guard = "both";
-    gate = "exit-code";
+    gate = "cursor";
     projectDir = ".cursor/";
     transcriptRoot = "~/.cursor/projects";
     exitHook = true;
