@@ -45,6 +45,10 @@ local config = nil
 -- Held at module scope: a path watcher only Lua-local is garbage collected and
 -- silently stops firing, which is why a newly dragged app never appeared.
 local watchers = {}
+-- Held for the same reason. A timer the callback cannot see itself is reachable
+-- from nothing once setup returns, and the first collection stops it with no
+-- error: that is how the file index went three days without a rebuild.
+local timers = {}
 local pending = nil
 local tabs_pending = nil
 -- Drawing an app's icon and encoding it costs a millisecond or two, and a
@@ -848,6 +852,12 @@ end
 
 local settled_at = 0
 
+---@param secs number
+---@param work fun()
+local function every(secs, work)
+  timers[#timers + 1] = hs.timer.doEvery(secs, work)
+end
+
 function M.toggle()
   local now = hs.timer.secondsSinceEpoch()
   if now - settled_at < settle_secs then
@@ -875,7 +885,7 @@ function M.setup()
   fzf.ensure()
 
   panel.prewarm()
-  panel.emoji(emoji.rows(settings().emoji))
+  panel.emoji(emoji.dataset(settings().emoji))
   local shell = settings().shell
   if shell then
     run({ shell, "-fc", "print -rl -- ${(ok)commands}" }, function(out)
@@ -903,20 +913,20 @@ function M.setup()
   -- Reading the panes costs about 700ms, because it parses a plist and an index
   -- of search terms per pane, so it runs after the list the hotkey already has.
   -- The panes change only with an OS update, so it runs once.
-  hs.timer.doAfter(0, function()
+  timers[#timers + 1] = hs.timer.doAfter(0, function()
     held.prefs = settings_panes.rows()
     compose()
   end)
 
   refresh_live()
   refresh_tabs()
-  hs.timer.doEvery(live_secs, function()
+  every(live_secs, function()
     if panel.visible() then
       return
     end
     refresh_live()
   end)
-  hs.timer.doEvery(tabs_secs, function()
+  every(tabs_secs, function()
     if panel.visible() then
       return
     end
@@ -927,7 +937,7 @@ function M.setup()
     held.entries = entry_rows()
     compose()
   end)
-  hs.timer.doEvery(files_secs, function()
+  every(files_secs, function()
     -- Never under an open panel: the page holds each row's position in the
     -- index, and a rebuild renumbers it.
     if panel.visible() then
@@ -953,7 +963,7 @@ function M.setup()
     end
   end
 
-  hs.timer.doEvery(apps_secs, function()
+  every(apps_secs, function()
     if panel.visible() then
       return
     end

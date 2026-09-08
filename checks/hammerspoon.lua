@@ -158,20 +158,26 @@ _G.hs = {
 
 local panel = require("sysinit.plugins.ui.launcher.panel")
 panel.prewarm()
-panel.emoji({ { cp = "x", code = "x" } })
+-- The dataset goes into the page as the text it is on disk, so anything that is
+-- not a JSON array is dropped rather than pasted in as script.
+panel.emoji("")
+panel.emoji("<!doctype html>")
+panel.emoji('[{"cp":"x","code":"x"}]')
 panel.shell_commands({ "git" })
 
 assert(callback ~= nil, "launcher callback was not registered")
 callback({ body = { action = "loaded" } })
 
-local saw_emoji = false
+local emoji_sent = 0
 local saw_commands = false
 for _, script in ipairs(scripts) do
-  saw_emoji = saw_emoji or script:match("^setEmoji%(") ~= nil
+  if script:match("^setEmoji%(") then
+    emoji_sent = emoji_sent + 1
+  end
   saw_commands = saw_commands or script:match("^setCommands%(") ~= nil
 end
 
-assert(saw_emoji, "emoji initialization was dropped before page load")
+assert(emoji_sent == 1, "emoji initialization was dropped, or a non-JSON dataset reached the page")
 assert(saw_commands, "shell command initialization was dropped before page load")
 
 local screenshots = require("sysinit.plugins.ui.screenshots")
