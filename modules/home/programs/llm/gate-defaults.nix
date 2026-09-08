@@ -43,6 +43,12 @@ in
     ];
     PostToolUse = [
       {
+        # First, so a later block never skips attribution: the edit is already
+        # on disk, and git-ai-gate checkpoints its lines to refs/notes/ai.
+        provider = "git-ai-gate";
+        match = "^(Edit|Write|MultiEdit)$";
+      }
+      {
         provider = "lint-gate";
         match = "^(Edit|Write|MultiEdit)$";
       }
