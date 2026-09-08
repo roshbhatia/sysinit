@@ -6,6 +6,7 @@ local ui_badges = require("sysinit.pkg.ui.badges")
 local ui_format = require("sysinit.pkg.ui.format")
 local ui_panes = require("sysinit.pkg.ui.panes")
 local ui_sessions = require("sysinit.pkg.ui.sessions")
+local ui_tether = require("sysinit.pkg.ui.tether")
 
 local M = {}
 
@@ -202,13 +203,26 @@ function M.setup(config, wm, ctx)
     return choices
   end
 
-  local function append_host(r, colors, domain)
+  -- A stale tether inventory greys the host tag the way "not probed yet" greys
+  -- an unlisted one: the row is still selectable, but the tier it would attach
+  -- through is a guess until the next probe lands.
+  local function append_host(r, colors, domain, tether)
     if domain == false then
       return
     end
     local tag, is_local = ui_format.host_tag(domain)
-    r:append(nil, is_local and colors.chrome or colors.dir_ic, tag)
+    local stale = type(tether) == "table" and tether.stale
+    r:append(nil, (is_local or stale) and colors.chrome or colors.dir_ic, tag)
     r:append(nil, colors.chrome, " ")
+  end
+
+  -- What the chosen hop costs, after the row's name. Empty for native-mux, so
+  -- a host that keeps its panes and OSC draws the row it always drew.
+  local function append_loses(r, colors, tether)
+    local suffix = ui_tether.loses_suffix(tether)
+    if suffix ~= "" then
+      r:append(nil, colors.reason, "  " .. suffix)
+    end
   end
 
   local function attn_row(rec, now, colors)
@@ -315,8 +329,9 @@ function M.setup(config, wm, ctx)
         if ws.dormant then
           local r = ctx.ribbon.new("dormant")
           r:append(nil, colors.ws_dorm, ctx.icons.dormant .. " ")
-          append_host(r, colors, ws.domain)
+          append_host(r, colors, ws.domain, ws.tether)
           r:append(nil, colors.ws_dorm, ws.display_name or ws.name)
+          append_loses(r, colors, ws.tether)
           add("ws:" .. ws.name, r:format(), { workspace = ws.name, dormant = true })
         end
       end
@@ -325,8 +340,9 @@ function M.setup(config, wm, ctx)
       for _, entry in ipairs(tree.unreachable or {}) do
         local r = ctx.ribbon.new("dormant")
         r:append(nil, colors.chrome, ctx.icons.dormant .. " ")
-        append_host(r, colors, entry.domain)
+        append_host(r, colors, entry.domain, entry.tether)
         r:append(nil, colors.reason, entry.reason)
+        append_loses(r, colors, entry.tether)
         add("host:" .. entry.host, r:format(), nil)
       end
       return choices
