@@ -263,7 +263,6 @@
             "contextive"
             "cua-computer-server"
             "codex"
-            "codex-acp"
             "claude-code"
             "go-enum"
             "gomvp"
