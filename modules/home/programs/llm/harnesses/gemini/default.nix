@@ -8,9 +8,12 @@ let
   llmLib = import ../../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
-  exitCodeGuardScript = llmLib.guards.mkExitCodeGuard {
+  exitCodeGuardScript = llmLib.guards.mkGateHookScript {
     inherit pkgs;
-    name = "gemini-exit-code-guard";
+    name = "gemini-gate-hook";
+    harness = "gemini";
+    event = "PreToolUse";
+    format = "exit-code";
   };
 
   # agy keys hooks.json by hook NAME, then by event: it unmarshals the file into

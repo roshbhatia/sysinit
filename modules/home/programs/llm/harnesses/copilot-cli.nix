@@ -20,9 +20,12 @@ let
     mcpServers = llmLib.mcp.formatForCopilot (kit.mcpServers.serversFor "copilot");
   };
 
-  exitCodeGuardScript = llmLib.guards.mkExitCodeGuard {
+  exitCodeGuardScript = llmLib.guards.mkGateHookScript {
     inherit pkgs;
-    name = "copilot-exit-code-guard";
+    name = "copilot-gate-hook";
+    harness = "copilot";
+    event = "PreToolUse";
+    format = "exit-code";
   };
 
   # The store path is substituted rather than resolved from PATH, so a shadowed

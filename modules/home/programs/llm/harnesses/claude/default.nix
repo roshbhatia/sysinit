@@ -16,10 +16,9 @@ let
     skillsRoot = "~/.claude/skills";
   };
 
-  bashGuardScript = llmLib.guards.mkBashGuard {
-    inherit pkgs;
-    name = "claude-bash-guard";
-  };
+  # One dispatcher call per hook event. The chain behind each is declared in
+  # llm/gate.nix, so this file names events and nothing else.
+  gateHook = event: llmLib.guards.mkGateHook { inherit pkgs event; harness = "claude"; };
 
   slackGuardScript =
     let
@@ -195,7 +194,7 @@ in
               }
               {
                 type = "command";
-                command = "${profileBin}/prose-gate remind";
+                command = gateHook "UserPromptSubmit";
               }
               {
                 type = "command";
@@ -207,29 +206,13 @@ in
         ];
         PreToolUse = [
           {
-            matcher = "Bash";
+            # bash-guard, nix-guard, read-router, review-gate: the chain's own
+            # matchers pick the tool, so the harness matcher stays empty.
+            matcher = "";
             hooks = [
               {
                 type = "command";
-                command = "${lib.getExe bashGuardScript}";
-              }
-            ];
-          }
-          {
-            matcher = "Edit|Write|NotebookEdit";
-            hooks = [
-              {
-                type = "command";
-                command = "${pkgs.sysinit-utils}/bin/nix-guard";
-              }
-            ];
-          }
-          {
-            matcher = "Read";
-            hooks = [
-              {
-                type = "command";
-                command = "${pkgs.sysinit-utils}/bin/read-guard";
+                command = gateHook "PreToolUse";
               }
             ];
           }
@@ -265,23 +248,25 @@ in
             ];
           }
           {
-            matcher = "Edit|Write|MultiEdit";
+            # lint-gate on an edit; prose-gate's report note and review-gate on
+            # an Agent return. A note to the caller, not a block on the teammate.
+            matcher = "";
             hooks = [
               {
                 type = "command";
-                command = "${profileBin}/lint-gate";
+                command = gateHook "PostToolUse";
               }
             ];
           }
+        ];
+        SubagentStart = [
           {
-            # A note to the caller, not a block on the teammate. SubagentStop
-            # used to bounce a report over the budget, and every critic whose
-            # evidence ran long spent a turn shortening it.
-            matcher = "Agent";
+            # review-gate tells a critic which revision is under review.
+            matcher = "";
             hooks = [
               {
                 type = "command";
-                command = "${profileBin}/prose-gate report";
+                command = gateHook "SubagentStart";
               }
             ];
           }
@@ -305,7 +290,7 @@ in
             hooks = [
               {
                 type = "command";
-                command = "${profileBin}/prose-gate session";
+                command = gateHook "SessionStart";
               }
             ];
           }
@@ -348,14 +333,10 @@ in
             matcher = "";
             hooks = [
               {
+                # loop-gate holds the turn while an armed command fails;
+                # prose-gate records the tells for the next prompt's reminder.
                 type = "command";
-                command = "${profileBin}/loop-gate check";
-              }
-              {
-                # Records the tells; the next `prose-gate remind` carries them.
-                # It no longer blocks: a Stop hook has no passive channel.
-                type = "command";
-                command = "${profileBin}/prose-gate check";
+                command = gateHook "Stop";
               }
               {
                 type = "command";

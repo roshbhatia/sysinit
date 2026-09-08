@@ -8,9 +8,12 @@ let
   llmLib = import ../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
-  devinGuardScript = llmLib.guards.mkExitCodeGuard {
+  devinGuardScript = llmLib.guards.mkGateHookScript {
     inherit pkgs;
     name = "devin-guard";
+    harness = "devin";
+    event = "PreToolUse";
+    format = "exit-code";
   };
 
   devinHooks = builtins.toJSON {
