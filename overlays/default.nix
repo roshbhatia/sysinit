@@ -48,6 +48,7 @@
   (import ./alerter.nix)
   (import ./sheets.nix)
   (import ./zoetrope.nix)
+  (import ./mise-nix.nix)
   (
     final: prev:
     let

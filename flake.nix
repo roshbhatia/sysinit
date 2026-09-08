@@ -294,6 +294,7 @@
             "ioskeleyMono"
             "wumpusMono"
             "bookerly"
+            "mise-nix"
           ];
         in
         lib.genAttrs cacheSystems (
