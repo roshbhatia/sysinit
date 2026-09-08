@@ -7,10 +7,14 @@ set -euo pipefail
 # (.cursor/environment.json install), and Devin cloud (drs blueprint).
 # The cloudTools closure substitutes wholesale from roshbhatia.cachix.org, so
 # the box performs no source build.
+#
+# Generated from modules/shared/cloud.nix by flake/cloud-files.nix. Do not
+# edit by hand; run hack/generate-cloud.sh.
 
 CACHIX_URL="https://roshbhatia.cachix.org"
 CACHIX_KEY="roshbhatia.cachix.org-1:K7Kq2esJYhrV/aCH8Xl7h54y8NULg/k+7WkObNT9VDk="
 NIXOS_CACHE="https://cache.nixos.org"
+INSTALLER_URL="https://install.determinate.systems/nix"
 FLAKE_REF="github:roshbhatia/sysinit#packages.x86_64-linux.cloudTools"
 BIN_DIR="/usr/local/bin"
 
@@ -30,13 +34,9 @@ install_nix() {
     return
   fi
   echo "installing Determinate Nix"
-  # --init none: do not manage an init system; sandbox off for unprivileged
-  # build daemons; bake the substituters so the daemon trusts the key.
-  curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix |
-    sh -s -- install linux \
-      --init none \
-      --no-confirm \
-      --extra-conf "sandbox = false" \
+  # Bake the substituters so the daemon trusts the key.
+  curl --proto '=https' --tlsv1.2 -sSf -L "${INSTALLER_URL}" |
+    sh -s -- install linux --init none --no-confirm --extra-conf 'sandbox = false' \
       --extra-conf "extra-substituters = ${CACHIX_URL} ${NIXOS_CACHE}" \
       --extra-conf "extra-trusted-public-keys = ${CACHIX_KEY}"
 }
