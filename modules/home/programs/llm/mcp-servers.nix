@@ -21,12 +21,6 @@ let
     exec ${pkgs.uv}/bin/uvx basic-memory mcp "$@"
   '';
 
-  # cua is not in nixpkgs and both halves need Python 3.12 or 3.13, so uv owns
-  # the environment. Both versions are pinned: uvx keys its cache on the
-  # requirement string, and cua-mcp-server resolves to 136 packages including
-  # torch and transformers, so an unpinned string re-downloads gigabytes on any
-  # upstream release.
-  cuaMcpVersion = "0.1.16";
   cuaComputerServerVersion = "0.3.42";
 
   uvEnv = ''
@@ -35,29 +29,10 @@ let
     export UV_PYTHON_DOWNLOADS=never
   '';
 
-  cuaMcp = pkgs.writeShellScript "cua-mcp-server" ''
-    set -euo pipefail
-    ${uvEnv}
-    # The agent drives this machine, not a Lume VM. That needs the host computer
-    # server on port 8000, which the service below keeps running.
-    export CUA_USE_HOST_COMPUTER_SERVER=true
-
-    # cua-mcp-server pulls in litellm, which logs at DEBUG to STDOUT. stdout is
-    # the JSON-RPC channel, so every frame was buried in lines like
-    # `LiteLLM:DEBUG: http_handler.py:1076 - Using AiohttpTransport...` and no
-    # client ever parsed the initialize result. The tools still listed, from the
-    # plugin catalog cache, so the server looked present and hung on every call.
-    export LITELLM_LOG=ERROR
-
-    exec ${pkgs.uv}/bin/uvx "cua-mcp-server==${cuaMcpVersion}" "$@"
-  '';
-
   cuaComputerServer = pkgs.writeShellScript "cua-computer-server" ''
     set -euo pipefail
     ${uvEnv}
 
-    # No [mcp] extra: 0.3.42 does not publish one, and cua-mcp-server reaches
-    # this server over its HTTP and WebSocket API rather than over MCP.
     exec ${pkgs.uv}/bin/uv run --no-project \
       --with "cua-computer-server==${cuaComputerServerVersion}" \
       python -m computer_server "$@"
@@ -107,8 +82,9 @@ in
     };
 
     cua = {
-      command = "${cuaMcp}";
-      description = "Computer use on this machine: screenshot the screen and run a task against the desktop";
+      type = "http";
+      url = "http://localhost:8000/mcp";
+      description = "Native computer controls on this machine: screenshots, keyboard, mouse, and windows";
     };
 
     orc = {
