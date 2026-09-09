@@ -223,6 +223,7 @@ in
         seshy_remote_list = "${seshyRemoteList}/bin/wezterm-seshy-remote-list";
         tether_refresh = "${tetherRefresh}/bin/wezterm-tether-refresh";
         roster_refresh = "${rosterSources.refresh}/bin/wezterm-roster-refresh";
+        roster_open = "${rosterSources.open}/bin/wezterm-roster-open";
       };
       # Where roster writes its catalogs and which sources to read, in the
       # order roster's own config lists them. The lua reads one file per name

@@ -6,7 +6,6 @@ local ui_badges = require("sysinit.pkg.ui.badges")
 local ui_format = require("sysinit.pkg.ui.format")
 local ui_panes = require("sysinit.pkg.ui.panes")
 local ui_sessions = require("sysinit.pkg.ui.sessions")
-local ui_tether = require("sysinit.pkg.ui.tether")
 
 local M = {}
 
@@ -216,15 +215,6 @@ function M.setup(config, wm, ctx)
     r:append(nil, colors.chrome, " ")
   end
 
-  -- What the chosen hop costs, after the row's name. Empty for native-mux, so
-  -- a host that keeps its panes and OSC draws the row it always drew.
-  local function append_loses(r, colors, tether)
-    local suffix = ui_tether.loses_suffix(tether)
-    if suffix ~= "" then
-      r:append(nil, colors.reason, "  " .. suffix)
-    end
-  end
-
   local function attn_row(rec, now, colors)
     local sc = ui_format.status_color(rec.status, colors) or colors.idle
     local icon = ui_format.state_icons[rec.status] or "●"
@@ -331,8 +321,7 @@ function M.setup(config, wm, ctx)
           r:append(nil, colors.ws_dorm, ctx.icons.dormant .. " ")
           append_host(r, colors, ws.domain, ws.tether)
           r:append(nil, colors.ws_dorm, ws.display_name or ws.name)
-          append_loses(r, colors, ws.tether)
-          add("ws:" .. ws.name, r:format(), { workspace = ws.name, dormant = true })
+          add("ws:" .. ws.name, r:format(), { workspace = ws.name, dormant = true, row = ws.row })
         end
       end
       -- An attached host that cannot be listed gets a row saying why, because a
@@ -342,7 +331,6 @@ function M.setup(config, wm, ctx)
         r:append(nil, colors.chrome, ctx.icons.dormant .. " ")
         append_host(r, colors, entry.domain, entry.tether)
         r:append(nil, colors.reason, entry.reason)
-        append_loses(r, colors, entry.tether)
         add("host:" .. entry.host, r:format(), nil)
       end
       return choices
@@ -505,8 +493,7 @@ function M.setup(config, wm, ctx)
     end
     local kind = id:match("^([^:]+):")
     if kind == "ws" and rec.dormant then
-      local spawn = ui_sessions.remote_spawn(rec.workspace) or { cwd = ui_sessions.seshy_dir .. "/" .. rec.workspace }
-      ui_actions.switch_to_workspace(win, pane, rec.workspace, spawn)
+      ui_actions.open_row(win, pane, rec.row)
     elseif kind == "ws" then
       ui_actions.switch_to_workspace(win, pane, rec.workspace)
     else

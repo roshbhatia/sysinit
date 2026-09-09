@@ -132,6 +132,17 @@ let
       exec roster refresh --if-stale "$@"
     '';
   };
+
+  # What the session tree runs for a row whose spawn is deferred: the row as
+  # JSON, plan resolved by the owning source. Same pinning as the refresh.
+  open = pkgs.writeShellApplication {
+    name = "wezterm-roster-open";
+    runtimeInputs = [ pkgs.roster ];
+    text = ''
+      export ROSTER_CATALOG_DIR=${lib.escapeShellArg catalogDir}
+      exec roster open --json "$@"
+    '';
+  };
 in
 {
   inherit
@@ -145,6 +156,7 @@ in
     remoteSeshyConfig
     remoteSeshyProviderWith
     refresh
+    open
     ;
   packages = {
     seshy = seshyProvider;
