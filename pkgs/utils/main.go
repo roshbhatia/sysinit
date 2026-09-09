@@ -14,7 +14,6 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/watch"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/wezspawn"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/worker"
-	"github.com/roshbhatia/sysinit/pkgs/utils/internal/worklog"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/workspace"
 )
 
@@ -33,7 +32,6 @@ var commands = map[string]command{
 	"watch":        {name: "watch", summary: watch.Summary, run: watch.Run},
 	"wezspawn":     {name: "wezspawn", summary: wezspawn.Summary, run: wezspawn.Run},
 	"worker":       {name: "worker", summary: worker.Summary, run: worker.Run},
-	"worklog":      {name: "worklog", summary: worklog.Summary, run: worklog.Run},
 	"workspace":    {name: "workspace", summary: workspace.Summary, run: workspace.Run},
 }
 
@@ -51,7 +49,6 @@ var links = map[string]link{
 	"firefox-tabs":     {command: "firefox-tabs"},
 	"wezspawn":         {command: "wezspawn"},
 	"worker":           {command: "worker"},
-	"worklog":          {command: "worklog"},
 	"ws":               {command: "workspace"},
 }
 
