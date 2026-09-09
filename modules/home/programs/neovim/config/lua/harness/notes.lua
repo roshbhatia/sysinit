@@ -1,6 +1,6 @@
 local M = {}
 
-M.tool = "utils"
+M.tool = "note"
 
 local ns = vim.api.nvim_create_namespace("harness_agent_notes")
 local augroup = "harness_agent_notes"
@@ -242,7 +242,7 @@ function M.refresh(done)
     end
     return
   end
-  vim.system({ M.tool, "note", "list", "--json" }, { text = true }, function(result)
+  vim.system({ M.tool, "list", "--json" }, { text = true }, function(result)
     local found, count = {}, 0
     if result.code == 0 and result.stdout and result.stdout ~= "" then
       local ok, doc = pcall(vim.json.decode, result.stdout)
@@ -343,7 +343,7 @@ local function write(jobs, said_done)
       end
       return
     end
-    local args = vim.list_extend({ M.tool, "note" }, jobs[at])
+    local args = vim.list_extend({ M.tool }, jobs[at])
     vim.system(args, { text = true }, function(result)
       vim.schedule(function()
         if result.code ~= 0 then

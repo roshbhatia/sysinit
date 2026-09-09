@@ -257,8 +257,10 @@ busted.describe("Diffview integration", function()
 
     local path = vim.fs.normalize(temporary .. "/tracked.txt")
     local notes = require("harness.notes")
+    assert.are.equal("note", notes.tool)
     notes.tool = "git"
-    rawset(vim, "system", function(_, _, callback)
+    rawset(vim, "system", function(argv, _, callback)
+      assert.are.same({ "git", "list", "--json" }, argv)
       callback({
         code = 0,
         stdout = vim.json.encode({
