@@ -7,6 +7,7 @@ in
 {
   home.packages = [
     pkgs.sysinit-utils
+    pkgs.citelock
     pkgs.ask
     (lib.lowPrio pkgs.ask-providers)
     pkgs.calldiff
