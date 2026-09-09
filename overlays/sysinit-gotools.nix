@@ -162,7 +162,6 @@ in
         "agent-statusline"
         "agent-watch"
         "firefox-tabs"
-        "wezspawn"
         "worker"
         "ws"
       ];
@@ -184,7 +183,9 @@ in
       ''
         mkdir -p "$out/bin"
         makeWrapper "${sysinit-gotools}/bin/utils" "$out/bin/utils" \
+          --set SYSINIT_WEZSPAWN "${final.wezspawn}/bin/wezspawn" \
           --prefix PATH : "${runtimePath}"
+        ln -s "${final.wezspawn}/bin/wezspawn" "$out/bin/wezspawn"
         ${final.lib.concatMapStringsSep "\n" (name: ''
           makeWrapper "${sysinit-gotools}/bin/utils" "$out/bin/${name}" \
             --argv0 "${name}" \

@@ -41,6 +41,7 @@ in
   # into ~/.config/gate/providers.
   gate-providers = inputs.gate.packages.${final.stdenv.hostPlatform.system}.extras;
   sysinit-wezterm-source = inputs.sysinit-wezterm.outPath;
+  wezspawn = inputs.sysinit-wezterm.packages.${final.stdenv.hostPlatform.system}.wezspawn;
   sysinit-nvim-source = inputs.sysinit-nvim.outPath;
   agent-notes = inputs.agent-notes.packages.${final.stdenv.hostPlatform.system}.default;
   agent-notes-nvim = inputs.agent-notes.packages.${final.stdenv.hostPlatform.system}.neovim-plugin;
