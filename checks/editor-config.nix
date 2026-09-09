@@ -3,15 +3,32 @@ let
   inherit (pkgs) lib;
   remoteHosts = import ../modules/home/programs/wezterm/remote-hosts.nix { inherit lib; };
   tetherConfig = pkgs.writeText "tether-config.json" (builtins.toJSON remoteHosts.tetherConfig);
-  # `tether plan --host arrakis --session sysinit --native ssh:arrakis -- zmx
-  # attach sysinit` as it answered on 2026-09-08, rendered as a lua table so the
-  # headless test needs no JSON parser.
-  tetherPlan = pkgs.writeText "tether-plan-arrakis.lua" (
-    "return "
-    + lib.generators.toLua { } (
-      builtins.fromJSON (builtins.readFile ./fixtures/tether/plan-arrakis.json)
-    )
-  );
+  # The roster.catalog/v1 files `roster refresh` wrote on 2026-09-08: the
+  # seshy catalog from the real adapter over this Mac's sessions, trimmed to
+  # two rows with $HOME replaced, and the remote-seshy catalog from the adapter
+  # with ssh and tether stubbed as roster-sources.nix stubs them. Rendered as
+  # lua tables so the headless test needs no JSON parser.
+  rosterCatalogs = pkgs.runCommand "roster-catalog-fixtures" { } ''
+    mkdir -p "$out"
+    ${lib.concatMapStringsSep "\n"
+      (
+        source:
+        "cp ${
+          pkgs.writeText "roster-${source}.lua" (
+            "return "
+            + lib.generators.toLua { } (
+              builtins.fromJSON (builtins.readFile (./fixtures/roster + "/${source}.json"))
+            )
+          )
+        } \"$out/${source}.lua\""
+      )
+      [
+        "seshy"
+        "remote-seshy"
+      ]
+    }
+  '';
+  weztermLua = ../modules/home/programs/wezterm/lua;
 in
 pkgs.runCommand "editor-config-check"
   {
@@ -37,14 +54,23 @@ pkgs.runCommand "editor-config-check"
       -c 'runtime plugin/plenary.vim' \
       -c "PlenaryBustedDirectory ${./neovim} { minimal_init = '${./neovim.lua}', sequential = true }"
     lua ${./wezterm.lua} \
-      ${../modules/home/programs/wezterm/lua} \
+      ${weztermLua} \
       ${./fixtures/wezterm-plugin} \
-      ${tetherPlan}
-    # The tier is tether's decision now. A static transport, or the mosh spawn
-    # it drove, would be a second decider the plan never sees. Spelled as an
-    # if: under set -e a failing `! grep` is ignored, so that form cannot fail.
-    if grep -rF -e 'transport = "mosh"' -e mosh_spawn_args ${../modules/home/programs/wezterm/lua}; then
-      echo "a static mosh transport survives in the wezterm lua tree" >&2
+      ${rosterCatalogs}
+    # The session tree names one tool, roster, and reads its catalogs. A session
+    # manager, a hop negotiator, a multiplexer, or one of the deleted cachers
+    # named in the lua is a second decider the catalog never sees. Spelled as
+    # an if: under set -e a failing `! grep` is ignored, so that form cannot
+    # fail.
+    if grep -rEn \
+      -e '\<sy\>' \
+      -e tether \
+      -e zmx \
+      -e mosh \
+      -e seshy-remote-list \
+      -e tether-refresh \
+      ${weztermLua}; then
+      echo "the wezterm lua tree names a tool other than roster" >&2
       exit 1
     fi
     # The rendered tether config is tether.config/v1: mode and flaky present,
@@ -66,7 +92,7 @@ pkgs.runCommand "editor-config-check"
     mkdir -p "$XDG_CONFIG_HOME/wezterm"
     cp ${./fixtures/wezterm/config.json} "$XDG_CONFIG_HOME/wezterm/config.json"
     cp ${./fixtures/wezterm/env.json} "$XDG_CONFIG_HOME/wezterm/env.json"
-    SYSINIT_WEZTERM_LUA=${../modules/home/programs/wezterm/lua} \
+    SYSINIT_WEZTERM_LUA=${weztermLua} \
       wezterm --config-file ${./wezterm-entry.lua} show-keys --lua \
       > "$TMPDIR/wezterm-keys.lua"
     grep -Fq "{ key = 'h', mods = 'CTRL'" "$TMPDIR/wezterm-keys.lua"

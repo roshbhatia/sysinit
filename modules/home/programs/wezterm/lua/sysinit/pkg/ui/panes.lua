@@ -76,8 +76,9 @@ function M.read_pane_record(pane_id)
 end
 
 -- The OSC user var and the pane record carry the same four fields over two
--- channels. Only the record survives a VT that does not forward OSC (zmx, and
--- any ssh mux), so the fresher of the two wins rather than the user var always.
+-- channels. Only the record survives a VT that does not forward OSC (a remote
+-- multiplexer, or any ssh mux), so the fresher of the two wins rather than the
+-- user var always.
 ---@return string|nil status
 ---@return string reason
 ---@return number|nil since

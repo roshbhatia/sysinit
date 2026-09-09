@@ -210,6 +210,13 @@ in
       # Directories the tree abbreviates, `{sy}/name` for a seshy session. The
       # lua used to derive the seshy path itself; now it knows no tool's layout.
       cwd_aliases.sy = config.sysinit.paths.resolved.seshySessions;
+      # Processes that only wrap another one; a pane running one is titled by
+      # the process inside it. zmx is the remote multiplexer every attach
+      # enters, so the lua would otherwise title every remote pane "zmx".
+      passthrough_procs = [
+        "zmx"
+        "caffeinate"
+      ];
       plugins = {
         tabline = "${weztermPlugins.tabline}";
         agent-deck = "${weztermPlugins.agent-deck}";
