@@ -18,6 +18,9 @@ M.remote_dir = utils.state_path("weztermRemoteSessions", "wezterm/remote_session
 
 M.remote_lister = ""
 M.tether_refresher = ""
+-- `roster refresh --if-stale`, run beside the two cachers above. Nothing reads
+-- its catalog yet; the cutover to it is the next step.
+M.roster_refresher = ""
 -- The hosts tether probes on the refresh timer: the same map that renders
 -- ~/.config/tether/config.json, so attach policy lives there and not here.
 M.tether_hosts = {}
@@ -27,6 +30,7 @@ do
     if type(cfg.scripts) == "table" then
       M.remote_lister = cfg.scripts.seshy_remote_list or ""
       M.tether_refresher = cfg.scripts.tether_refresh or ""
+      M.roster_refresher = cfg.scripts.roster_refresh or ""
     end
     if type(cfg.hosts) == "table" then
       for host in pairs(cfg.hosts) do
@@ -153,6 +157,11 @@ function M.refresh_remote()
     return
   end
   remote_refresh_at = now
+  if M.roster_refresher ~= "" then
+    pcall(function()
+      wezterm.background_child_process({ M.roster_refresher })
+    end)
+  end
   -- Only an attached host is listed (remote_hosts), but every configured host
   -- is probed: tether skips a host its registry says is offline and backs off
   -- an unreachable one itself, so there is no connect stall to guard here.
