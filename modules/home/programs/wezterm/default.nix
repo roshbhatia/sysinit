@@ -28,11 +28,16 @@ let
 
   # tether shells out to ssh, tailscale, and ping. tailscale and ping come from
   # the PATH core.lua hands the GUI; tether and ssh are baked in like above.
+  # The probe records what is on ITS path as the local capability set, so the
+  # hop tools the GUI cannot see must be baked in or every row degrades to ssh.
   tetherRefresh = pkgs.writeShellApplication {
     name = "wezterm-tether-refresh";
     runtimeInputs = [
       pkgs.openssh
       pkgs.tether
+      pkgs.mosh
+      pkgs.tailscale
+      pkgs.wezterm
     ];
     text = builtins.readFile ./scripts/tether-refresh.sh;
   };

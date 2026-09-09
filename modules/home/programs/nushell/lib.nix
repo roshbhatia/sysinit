@@ -5,7 +5,10 @@ in
 {
   inherit arguments;
   pathAdd = paths: "path add ${arguments paths}";
-  sourceProfileCompletion = profile: name: ''
-    source ${builtins.toJSON "${profile}/share/nushell/vendor/autoload/${name}.nu"}
+  # The file is read from the package's own store path. The per-user profile
+  # links only environment.pathsToLink, and NixOS does not list /share/nushell,
+  # so a profile path resolved on Darwin and failed the parser on arrakis.
+  sourceCompletion = package: name: ''
+    source ${builtins.toJSON "${package}/share/nushell/vendor/autoload/${name}.nu"}
   '';
 }

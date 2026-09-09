@@ -27,10 +27,11 @@ let
   '';
 
   completionConfig = pkgs.writeText "nushell-managed-tool-completions.nu" (
-    nushellLib.sourceProfileCompletion managedProfile "sy"
+    nushellLib.sourceCompletion pkgs.seshy "sy"
   );
 in
 pkgs.runCommand "nushell-managed-tools" { nativeBuildInputs = [ pkgs.nushell ]; } ''
+  test -s ${pkgs.seshy}/share/nushell/vendor/autoload/sy.nu
   test -s ${managedProfile}/share/nushell/vendor/autoload/sy.nu
   test -s ${managedProfile}/share/nushell/vendor/autoload/specutil.nu
 
