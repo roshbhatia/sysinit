@@ -23,6 +23,24 @@ function spawnQuiet(exe: string, args: string[], input?: string): void {
   } catch {}
 }
 
+// One record per agent write, through the same dispatcher every hook uses.
+// `--harness json` takes a gate envelope as is, so the tool name is the one
+// the chains match on: Edit or Write.
+function editEvent(harness: string, tool: string, file: string): void {
+  spawnQuiet(
+    "gate",
+    ["hook", "--harness", "json", "--event", "PostToolUse", "--format", "json"],
+    JSON.stringify({
+      version: "gate.event/v1",
+      harness,
+      event: "PostToolUse",
+      tool,
+      input: { file_path: file },
+      cwd: process.cwd(),
+    }),
+  );
+}
+
 function state(status: string, reason?: string): void {
   spawnQuiet(
     "agent-state",
@@ -60,15 +78,7 @@ export default function (atomic: ExtensionAPI) {
         ? resolved
         : event?.input?.path;
     if (typeof path !== "string" || path === "") return;
-    spawnQuiet("agent-edit-event", [
-      "atomic",
-      "--file",
-      path,
-      "--kind",
-      name,
-      "--cwd",
-      process.cwd(),
-    ]);
+    editEvent("atomic", name === "write" ? "Write" : "Edit", path);
   });
 
   atomic.on("agent_settled", () => {

@@ -86,7 +86,7 @@
     };
 
     gate = {
-      url = "github:roshbhatia/gate/v0.3.0";
+      url = "github:roshbhatia/gate/v0.4.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

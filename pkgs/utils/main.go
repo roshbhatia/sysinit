@@ -7,7 +7,6 @@ import (
 	"sort"
 
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/agentstate"
-	"github.com/roshbhatia/sysinit/pkgs/utils/internal/editevent"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/fftabs"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/statusline"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/watch"
@@ -24,7 +23,6 @@ type command struct {
 
 var commands = map[string]command{
 	"agent-state":  {name: "agent-state", summary: agentstate.Summary, run: agentstate.Run},
-	"edit-event":   {name: "edit-event", summary: editevent.Summary, run: editevent.Run},
 	"firefox-tabs": {name: "firefox-tabs", summary: fftabs.Summary, run: fftabs.Run},
 	"statusline":   {name: "statusline", summary: statusline.Summary, run: statusline.Run},
 	"watch":        {name: "watch", summary: watch.Summary, run: watch.Run},
@@ -39,7 +37,6 @@ type link struct {
 }
 
 var links = map[string]link{
-	"agent-edit-event": {command: "edit-event"},
 	"agent-state":      {command: "agent-state"},
 	"agent-statusline": {command: "statusline"},
 	"agent-watch":      {command: "watch"},

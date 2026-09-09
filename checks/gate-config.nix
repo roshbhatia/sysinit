@@ -46,6 +46,7 @@ pkgs.runCommand "gate-config"
     nativeBuildInputs = [
       pkgs.gate-cli
       pkgs.gate-providers
+      pkgs.git
       pkgs.git-ai-gate
     ];
   }
@@ -86,6 +87,35 @@ pkgs.runCommand "gate-config"
     if ! grep -q 'read like agent prose' prompt || ! grep -q 'sysinit-ste output style is active' prompt; then
       echo "prose-gate did not carry the findings into the prompt:" >&2
       cat prompt "$TMPDIR/gate-decisions.jsonl" >&2
+      exit 1
+    fi
+    # edit-event's record is a side effect of a pass, so only the chain proves
+    # it: the prompt lands on UserPromptSubmit and the next Edit is one JSONL
+    # line plus one shadow commit whose subject is that prompt. The paths are
+    # the contract neovim's harness.edit_store derives, not asked of a binary:
+    # <agentEdits>/<base>-<sha256(root):16>.{jsonl,delta}.
+    work="$TMPDIR/work"
+    mkdir -p "$work"
+    git -C "$work" init --quiet --initial-branch=main
+    printf 'old\n' > "$work/a.txt"
+    git -C "$work" -c user.name=t -c user.email=t@example.invalid -c commit.gpgsign=false add a.txt
+    git -C "$work" -c user.name=t -c user.email=t@example.invalid -c commit.gpgsign=false commit --quiet -m base
+    root=$(cd "$work" && pwd -P)
+    printf '%s' "{\"hook_event_name\":\"UserPromptSubmit\",\"session_id\":\"s2\",\"cwd\":\"$root\",\"prompt\":\"Make a.txt say new\"}" \
+      | gate hook --harness claude --event UserPromptSubmit --format json > /dev/null
+    printf 'new\n' > "$work/a.txt"
+    printf '%s' "{\"hook_event_name\":\"PostToolUse\",\"session_id\":\"s2\",\"cwd\":\"$root\",\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$root/a.txt\",\"old_string\":\"old\",\"new_string\":\"new\"}}" \
+      | gate hook --harness claude --event PostToolUse --format json > edit
+    stem="$XDG_STATE_HOME/agents/edits/work-$(printf %s "$root" | sha256sum | cut -c1-16)"
+    if ! grep -q "\"harness\":\"claude\",\"kind\":\"edit\",\"file\":\"$root/a.txt\"" "$stem.jsonl"; then
+      echo "edit-event did not record the edit at $stem.jsonl:" >&2
+      cat edit "$TMPDIR/gate-decisions.jsonl" >&2
+      exit 1
+    fi
+    if [ "$(git --git-dir "$stem.delta" log -1 --format=%s)" != "Make a.txt say new" ]; then
+      echo "the shadow commit subject is not the prompt:" >&2
+      git --git-dir "$stem.delta" log --format=%s >&2
+      cat "$TMPDIR/gate-decisions.jsonl" >&2
       exit 1
     fi
     touch "$out"

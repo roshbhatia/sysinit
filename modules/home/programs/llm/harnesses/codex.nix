@@ -18,6 +18,12 @@ let
     harness = "codex";
     event = "PreToolUse";
   };
+  gateHook =
+    event:
+    llmLib.guards.mkGateHook {
+      inherit pkgs event;
+      harness = "codex";
+    };
 
   # codex sends to the endpoint verbatim and appends no signal path, unlike
   # every other OTLP client here. A bare 4318 makes it POST to `/`, which the
@@ -207,10 +213,12 @@ in
         ];
         PostToolUse = [
           {
+            # edit-event reads codex's apply_patch envelope for the files it
+            # wrote; the chain's own matcher picks the tool.
             hooks = [
               {
                 type = "command";
-                command = "${profileBin}/agent-edit-event codex --apply-patch";
+                command = gateHook "PostToolUse";
               }
             ];
           }
@@ -224,7 +232,7 @@ in
               }
               {
                 type = "command";
-                command = "${profileBin}/agent-edit-event codex --prompt";
+                command = gateHook "UserPromptSubmit";
               }
             ];
           }

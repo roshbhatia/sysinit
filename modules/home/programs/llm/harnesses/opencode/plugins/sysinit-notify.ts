@@ -21,6 +21,24 @@ function spawnQuiet(exe: string, args: string[], input?: string): void {
   } catch {}
 }
 
+// One record per agent write, through the same dispatcher every hook uses.
+// `--harness json` takes a gate envelope as is, so the tool name is the one
+// the chains match on: Edit or Write.
+function editEvent(harness: string, tool: string, file: string): void {
+  spawnQuiet(
+    "gate",
+    ["hook", "--harness", "json", "--event", "PostToolUse", "--format", "json"],
+    JSON.stringify({
+      version: "gate.event/v1",
+      harness,
+      event: "PostToolUse",
+      tool,
+      input: { file_path: file },
+      cwd: process.cwd(),
+    }),
+  );
+}
+
 let rootSession: string | undefined;
 
 export const SysinitNotify = () => ({
@@ -42,7 +60,7 @@ export const SysinitNotify = () => ({
       if (event?.type === "file.edited") {
         const file = event?.properties?.file;
         if (file) {
-          spawnQuiet("agent-edit-event", ["opencode", "--file", file]);
+          editEvent("opencode", "Edit", file);
         }
         return;
       }

@@ -16,15 +16,10 @@ local touched_seen = {}
 
 ---@return string|nil
 local function resolve_log()
-  if vim.fn.executable("agent-edit-event") ~= 1 then
-    return nil
-  end
-  local out = vim.fn.system({ "agent-edit-event", "--print-log" })
-  if vim.v.shell_error ~= 0 then
-    return nil
-  end
-  local path = vim.trim(out)
-  if path == "" then
+  local ok, path = pcall(function()
+    return require("harness.edit_store").log_file()
+  end)
+  if not ok or type(path) ~= "string" or path == "" then
     return nil
   end
   return path
