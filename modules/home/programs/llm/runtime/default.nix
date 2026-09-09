@@ -137,6 +137,7 @@ let
   specPreflight = pkgs.writeShellApplication {
     name = "spec-preflight";
     runtimeInputs = [
+      pkgs.citelock
       pkgs.coreutils
       pkgs.git
       pkgs.gnugrep
