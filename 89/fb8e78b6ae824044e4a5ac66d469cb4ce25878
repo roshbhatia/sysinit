@@ -1,0 +1,23 @@
+modules/home/programs/wezterm/default.nix
+  s_3424e215dff181::t_1eb192250fe1b6 235-237
+modules/home/programs/wezterm/lua/sysinit/pkg/ui/format.lua
+  s_3424e215dff181::t_ebedb284539728 100-120,126-132
+modules/home/programs/wezterm/lua/sysinit/pkg/ui/switcher.lua
+  s_3424e215dff181::t_60ddbe0e923311 153-175,177-183,186-192,214-224,228-254,270,357,359-399,423,454,481,499,714,860
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "89fb8e78b6ae824044e4a5ac66d469cb4ce25878",
+  "prompts": {},
+  "sessions": {
+    "s_3424e215dff181": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-awezterm-cutover-841fa38a91b3b960",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
