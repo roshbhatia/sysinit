@@ -1152,6 +1152,23 @@
         "type": "github"
       }
     },
+    "provider-spec_6": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788907976,
+        "narHash": "sha256-o0eerxlZdatjXkv1DB5WtXD15u0e00I3R9gtxIjnj5M=",
+        "owner": "roshbhatia",
+        "repo": "provider-spec",
+        "rev": "7a141d5bce35a4f65cdc08b10e575932b45d2707",
+        "type": "github"
+      },
+      "original": {
+        "owner": "roshbhatia",
+        "ref": "v1.0.0",
+        "repo": "provider-spec",
+        "type": "github"
+      }
+    },
     "pyproject-build-systems": {
       "inputs": {
         "nixpkgs": [
@@ -1259,6 +1276,23 @@
         "type": "github"
       }
     },
+    "roster_2": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788920822,
+        "narHash": "sha256-GuIQgubHM3egIasZghrAozERHBgo9dzVYYrYgJKxAF0=",
+        "owner": "roshbhatia",
+        "repo": "roster",
+        "rev": "b5fc3a55de3867d0cb1148a58616f30cbf883acc",
+        "type": "github"
+      },
+      "original": {
+        "owner": "roshbhatia",
+        "ref": "v0.1.0",
+        "repo": "roster",
+        "type": "github"
+      }
+    },
     "rust-overlay": {
       "inputs": {
         "nixpkgs": [
@@ -1309,14 +1343,16 @@
       "inputs": {
         "nixpkgs": [
           "nixpkgs"
-        ]
+        ],
+        "provider-spec": "provider-spec_5",
+        "roster": "roster_2"
       },
       "locked": {
-        "lastModified": 1788922753,
-        "narHash": "sha256-oHJh6vOijn40VP/du265yuANb0XYLkBat7IZIEijvBA=",
+        "lastModified": 1788925941,
+        "narHash": "sha256-YKMv76h/5wzCRQ++eXZDLn3rVPERlOxf6KYSq566xZw=",
         "owner": "roshbhatia",
         "repo": "seshy",
-        "rev": "b7378a7dc7ffa8bf388e799fb155d9a8624f2a10",
+        "rev": "05d24d7a10bf542fb52c3cdaf16e6ff635662d7f",
         "type": "github"
       },
       "original": {
@@ -1622,7 +1658,7 @@
         "nixpkgs": [
           "nixpkgs"
         ],
-        "provider-spec": "provider-spec_5",
+        "provider-spec": "provider-spec_6",
         "systems": [
           "systems"
         ]
