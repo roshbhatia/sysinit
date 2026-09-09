@@ -2,9 +2,8 @@
 set -euo pipefail
 
 # A provider/v1 source for roster that lists the seshy sessions on every remote
-# host tether knows, one group per host. It is the adapter that replaces
-# seshy-remote-list.sh and tether-refresh.sh once the wezterm lua reads roster's
-# catalog; until then all three run side by side.
+# host tether knows, one group per host. It is an interim adapter, like the
+# seshy one: it goes away when tether ships its own source.
 #
 # usage: roster-provider-remote-seshy <sources.json>
 # The file is rendered by sources.nix: {hosts: [...], attach: [...]}. `attach`

@@ -122,7 +122,7 @@ let
   ) manifests;
   manifestFiles = lib.mapAttrs (_path: source: { inherit source; }) manifestSources;
 
-  # What the wezterm refresh timer spawns. The GUI's environment has neither the
+  # What the wezterm status tick spawns. The GUI's environment has neither the
   # profile bin nor the state layout, so both are pinned here.
   refresh = pkgs.writeShellApplication {
     name = "wezterm-roster-refresh";

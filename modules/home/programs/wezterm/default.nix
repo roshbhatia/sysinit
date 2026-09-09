@@ -12,41 +12,15 @@ let
   themeConfig = config.sysinit.theme;
   c = themeColors;
 
-  # WezTerm's lua runs on the GUI thread, so it spawns this in the background
-  # rather than making the ssh call itself. jq and ssh are baked in because the
-  # GUI's own PATH is whatever launchd handed the .app.
-  seshyRemoteList = pkgs.writeShellApplication {
-    name = "wezterm-seshy-remote-list";
-    runtimeInputs = [
-      pkgs.jq
-      pkgs.openssh
-    ];
-    text = builtins.readFile ./scripts/seshy-remote-list.sh;
-  };
-
   remoteHosts = import ./remote-hosts.nix { inherit lib; };
 
   # roster's session sources: the config, one manifest per source, the two
-  # interim adapters, and the wrapper the refresh timer spawns.
+  # interim adapters, and the two wrappers the session tree runs. The tree
+  # reads roster's catalogs and nothing else; remote-hosts.nix reaches it only
+  # through the remote-seshy adapter and tether's own config.
   rosterSources = import ./sources.nix {
     inherit lib pkgs;
     catalogDir = config.sysinit.paths.resolved.rosterCatalog;
-  };
-
-  # tether shells out to ssh, tailscale, and ping. tailscale and ping come from
-  # the PATH core.lua hands the GUI; tether and ssh are baked in like above.
-  # The probe records what is on ITS path as the local capability set, so the
-  # hop tools the GUI cannot see must be baked in or every row degrades to ssh.
-  tetherRefresh = pkgs.writeShellApplication {
-    name = "wezterm-tether-refresh";
-    runtimeInputs = [
-      pkgs.openssh
-      pkgs.tether
-      pkgs.mosh
-      pkgs.tailscale
-      pkgs.wezterm
-    ];
-    text = builtins.readFile ./scripts/tether-refresh.sh;
   };
 
   sshCfg = config.sysinit.git.ssh;
@@ -219,9 +193,10 @@ in
           };
         };
       };
+      # The two roster commands the session tree runs, pinned to the catalog
+      # directory because the GUI's environment has neither the profile bin nor
+      # the state layout. They are the only tool the lua names.
       scripts = {
-        seshy_remote_list = "${seshyRemoteList}/bin/wezterm-seshy-remote-list";
-        tether_refresh = "${tetherRefresh}/bin/wezterm-tether-refresh";
         roster_refresh = "${rosterSources.refresh}/bin/wezterm-roster-refresh";
         roster_open = "${rosterSources.open}/bin/wezterm-roster-open";
       };
@@ -235,10 +210,6 @@ in
       # Directories the tree abbreviates, `{sy}/name` for a seshy session. The
       # lua used to derive the seshy path itself; now it knows no tool's layout.
       cwd_aliases.sy = config.sysinit.paths.resolved.seshySessions;
-      # The hosts the session tree probes and attaches through tether. The
-      # attach tier is not declared here: `tether plan` picks it at attach time
-      # from remote-hosts.nix policy and what the probe found on both ends.
-      inherit (remoteHosts) hosts;
       plugins = {
         tabline = "${weztermPlugins.tabline}";
         agent-deck = "${weztermPlugins.agent-deck}";

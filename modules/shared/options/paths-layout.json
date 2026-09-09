@@ -16,7 +16,6 @@
     "seshySessions": "$HOME/.local/state/seshy/sessions",
     "zmxSessions": "$HOME/.local/state/zmx",
     "weztermWorkspaceState": "$HOME/.local/state/wezterm/workspace_state",
-    "weztermRemoteSessions": "$HOME/.local/state/wezterm/remote_sessions",
     "rosterCatalog": "$HOME/.local/state/roster/catalog",
     "llmSkills": "$HOME/.local/state/sysinit/llm/skills",
     "otelTelemetry": "$HOME/.local/state/sysinit/otel/telemetry.jsonl",
