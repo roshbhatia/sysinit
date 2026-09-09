@@ -232,6 +232,9 @@ in
         catalog_dir = config.sysinit.paths.resolved.rosterCatalog;
         sources = map (source: source.name) rosterSources.config.sources;
       };
+      # Directories the tree abbreviates, `{sy}/name` for a seshy session. The
+      # lua used to derive the seshy path itself; now it knows no tool's layout.
+      cwd_aliases.sy = config.sysinit.paths.resolved.seshySessions;
       # The hosts the session tree probes and attaches through tether. The
       # attach tier is not declared here: `tether plan` picks it at attach time
       # from remote-hosts.nix policy and what the probe found on both ends.
