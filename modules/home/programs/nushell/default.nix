@@ -239,6 +239,8 @@ in
         ${nushellLib.pathAdd pathsList}
 
         ${nushellLib.sourceCompletion pkgs.seshy "sy"}
+        ${nushellLib.sourceCompletion pkgs.tether "tether"}
+        ${nushellLib.sourceCompletion pkgs.tether "tsh"}
 
         use std/dirs shells-aliases *
 
