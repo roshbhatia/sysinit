@@ -26,6 +26,13 @@ let
 
   remoteHosts = import ./remote-hosts.nix { inherit lib; };
 
+  # roster's session sources: the config, one manifest per source, the two
+  # interim adapters, and the wrapper the refresh timer spawns.
+  rosterSources = import ./sources.nix {
+    inherit lib pkgs;
+    catalogDir = config.sysinit.paths.resolved.rosterCatalog;
+  };
+
   # tether shells out to ssh, tailscale, and ping. tailscale and ping come from
   # the PATH core.lua hands the GUI; tether and ssh are baked in like above.
   # The probe records what is on ITS path as the local capability set, so the
@@ -133,7 +140,10 @@ in
     '';
   };
 
-  xdg.configFile = {
+  # Shells and the refresh wrapper agree on where the catalog lives.
+  home.sessionVariables.ROSTER_CATALOG_DIR = config.sysinit.paths.resolved.rosterCatalog;
+
+  xdg.configFile = rosterSources.manifestFiles // {
     "wezterm/lua".source = ./lua;
     "wezterm/config.json".text = builtins.toJSON {
       # Generated from the harness registry, so the deck cannot fall behind it.
@@ -212,6 +222,7 @@ in
       scripts = {
         seshy_remote_list = "${seshyRemoteList}/bin/wezterm-seshy-remote-list";
         tether_refresh = "${tetherRefresh}/bin/wezterm-tether-refresh";
+        roster_refresh = "${rosterSources.refresh}/bin/wezterm-roster-refresh";
       };
       # The hosts the session tree probes and attaches through tether. The
       # attach tier is not declared here: `tether plan` picks it at attach time
@@ -232,6 +243,9 @@ in
     # tether reads this; remote-hosts.nix is the source, so the session tree
     # and the negotiator can never disagree on which hosts exist.
     "tether/config.json".text = builtins.toJSON remoteHosts.tetherConfig;
+    # roster reads these; sources.nix is the one list of sources, so the
+    # manifests and the config that orders them cannot disagree.
+    "roster/config.json".text = builtins.toJSON rosterSources.config;
     "wezterm/env.json".text = builtins.toJSON {
       PATH = paths.getPathString config.home.username config.home.homeDirectory;
       TERMINFO_DIRS = "${pkgs.wezterm.terminfo}/share/terminfo";
