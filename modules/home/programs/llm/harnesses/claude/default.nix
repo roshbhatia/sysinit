@@ -145,6 +145,11 @@ in
 
       disabledMcpServers = disabledBuiltinServers;
 
+      # The only kill switch for claude.ai connectors is all-or-nothing; the
+      # per-name list above never stopped the fetch. Linear, incident.io, and
+      # Granola stay reachable through the agentgateway targets.
+      disableClaudeAiConnectors = true;
+
       extraKnownMarketplaces = {
         openai-codex = {
           source = {
