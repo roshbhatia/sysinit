@@ -1,25 +1,11 @@
-{ pkgs, ... }:
-
+{ config, inputs, ... }:
 {
-  imports = [ ./sysinit-nvim.nix ];
-
-  programs.neovim = {
-    enable = true;
-    defaultEditor = true;
-    vimAlias = true;
-    viAlias = true;
-    sideloadInitLua = true;
-    plugins = [ pkgs.changes-neovim-plugin ];
-  };
-
-  home.packages = [
-    (pkgs.writeShellApplication {
-      name = "rnvim";
-      runtimeInputs = [
-        pkgs.coreutils
-        pkgs.openssh
-      ];
-      text = builtins.readFile ./scripts/rnvim.sh;
-    })
+  imports = [
+    inputs.sysinit-nvim.homeManagerModules.default
+    ./options.nix
   ];
+  programs.sysinit-neovim = {
+    enable = true;
+    configPath = config.sysinit.neovim.configPath;
+  };
 }

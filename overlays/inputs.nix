@@ -40,6 +40,13 @@ in
   # under share/gate/providers are what modules/home/programs/llm/gate.nix links
   # into ~/.config/gate/providers.
   gate-providers = inputs.gate.packages.${final.stdenv.hostPlatform.system}.extras;
+  sysinit-wezterm-source = inputs.sysinit-wezterm.outPath;
+  sysinit-nvim-source = inputs.sysinit-nvim.outPath;
+  agent-notes = inputs.agent-notes.packages.${final.stdenv.hostPlatform.system}.default;
+  agent-notes-nvim = inputs.agent-notes.packages.${final.stdenv.hostPlatform.system}.neovim-plugin;
+  seshy-picker = inputs.seshy.packages.${final.stdenv.hostPlatform.system}.provider-wezterm;
+  tether-picker = inputs.tether.packages.${final.stdenv.hostPlatform.system}.provider-wezterm;
+  zoxide-picker = inputs.sysinit-wezterm.packages.${final.stdenv.hostPlatform.system}.provider-zoxide;
   vale-styles = inputs.prose-style.packages.${final.stdenv.hostPlatform.system}.default;
   tether = inputs.tether.packages.${final.stdenv.hostPlatform.system}.default;
   citelock = inputs.citelock.packages.${final.stdenv.hostPlatform.system}.default;

@@ -74,7 +74,7 @@ pkgs.runCommand "changes-integration-check"
     nvim --headless --clean -u NONE \
       --cmd 'set packpath^=$TMPDIR/nvim-site' \
       --cmd 'set noloadplugins' \
-      -c 'luafile ${../modules/home/programs/neovim/config/after/plugin/changes.lua}' \
+      -c 'luafile ${pkgs.sysinit-nvim-source + "/after/plugin/changes.lua"}' \
       -c 'lua assert(vim.fn.exists(":ChangesNote") == 2); assert(vim.fn.exists(":ChangesWorkspace") == 2); assert(vim.fn.exists(":ChangesWorkspaceDecorate") == 2)' \
       -c 'lua assert(type(require("changes.notes").setup) == "function"); local workspace = require("changes.workspace"); assert(type(workspace.setup) == "function"); assert(type(workspace.read) == "function"); assert(type(workspace.open) == "function"); assert(type(workspace.decorate) == "function")' \
       -c 'qa!'

@@ -9,6 +9,9 @@ permissions:
   contents: write
   pull-requests: write
 
+env:
+  GH_TOKEN: ${{ github.token }}
+
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -33,7 +36,8 @@ jobs:
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: |
-          nix flake update
+          python3 -m unittest discover -s hack -p "test_update_flakes.py"
+          python3 "$GITHUB_WORKSPACE/hack/update-flakes.py"
 
       - name: Update Go vendorHash values
         env:
@@ -59,7 +63,7 @@ jobs:
           body: |
             Automated update:
             - Regenerated `_sources/generated.nix` via nvfetcher
-            - Updated `flake.lock` via `nix flake update`
+            - Updated `flake.lock` via `python3 "$GITHUB_WORKSPACE/hack/update-flakes.py"`
             - Auto-updated Go `vendorHash` values
           labels: automated,dependencies
 
