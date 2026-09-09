@@ -130,6 +130,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    roster = {
+      url = "github:roshbhatia/roster/v0.1.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     citelock = {
       url = "github:roshbhatia/citelock/v0.1.0";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -298,6 +303,7 @@
             "gate-cli"
             "gate-providers"
             "tether"
+            "roster"
             "citelock"
             "sysinit-utils"
             "orc-cli"

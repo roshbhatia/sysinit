@@ -158,3 +158,9 @@ nix = "mosh"
 # both ends have installed. The session tree calls `tether plan` on attach.
 [[tool]]
 nix = "tether"
+
+# Session-source catalog. `roster refresh` asks each provider/v1 source under
+# ~/.config/roster/providers for its rows and writes one catalog file per
+# source; the wezterm session tree will read those files.
+[[tool]]
+nix = "roster"

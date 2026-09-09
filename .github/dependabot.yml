@@ -23,6 +23,7 @@ updates:
       - dependency-name: "gate"
       - dependency-name: "citelock"
       - dependency-name: "tether"
+      - dependency-name: "roster"
       - dependency-name: "traces"
     commit-message:
       prefix: "chore(deps)"

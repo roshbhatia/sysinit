@@ -1135,6 +1135,23 @@
         "type": "github"
       }
     },
+    "provider-spec_5": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788907976,
+        "narHash": "sha256-o0eerxlZdatjXkv1DB5WtXD15u0e00I3R9gtxIjnj5M=",
+        "owner": "roshbhatia",
+        "repo": "provider-spec",
+        "rev": "7a141d5bce35a4f65cdc08b10e575932b45d2707",
+        "type": "github"
+      },
+      "original": {
+        "owner": "roshbhatia",
+        "ref": "v1.0.0",
+        "repo": "provider-spec",
+        "type": "github"
+      }
+    },
     "pyproject-build-systems": {
       "inputs": {
         "nixpkgs": [
@@ -1208,6 +1225,7 @@
         "onepassword-shell-plugins": "onepassword-shell-plugins",
         "orc": "orc",
         "orc-extras": "orc-extras",
+        "roster": "roster",
         "rust-overlay": "rust-overlay",
         "seshy": "seshy",
         "slk": "slk",
@@ -1217,6 +1235,28 @@
         "systems": "systems_7",
         "tether": "tether",
         "traces": "traces"
+      }
+    },
+    "roster": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "provider-spec": "provider-spec_4"
+      },
+      "locked": {
+        "lastModified": 1788920822,
+        "narHash": "sha256-GuIQgubHM3egIasZghrAozERHBgo9dzVYYrYgJKxAF0=",
+        "owner": "roshbhatia",
+        "repo": "roster",
+        "rev": "b5fc3a55de3867d0cb1148a58616f30cbf883acc",
+        "type": "github"
+      },
+      "original": {
+        "owner": "roshbhatia",
+        "ref": "v0.1.0",
+        "repo": "roster",
+        "type": "github"
       }
     },
     "rust-overlay": {
@@ -1582,7 +1622,7 @@
         "nixpkgs": [
           "nixpkgs"
         ],
-        "provider-spec": "provider-spec_4",
+        "provider-spec": "provider-spec_5",
         "systems": [
           "systems"
         ]
