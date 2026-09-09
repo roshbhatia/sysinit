@@ -238,7 +238,7 @@ in
 
         ${nushellLib.pathAdd pathsList}
 
-        ${nushellLib.sourceProfileCompletion config.home.profileDirectory "sy"}
+        ${nushellLib.sourceCompletion pkgs.seshy "sy"}
 
         use std/dirs shells-aliases *
 
