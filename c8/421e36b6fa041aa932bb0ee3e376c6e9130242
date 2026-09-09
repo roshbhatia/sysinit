@@ -1,0 +1,43 @@
+checks/editor-config.nix
+  s_d9b398cc38b8f6::t_97c6a876eab820 6-31,57,59-67
+  s_d9b398cc38b8f6::t_0035eb301cc846 68-70
+  s_3424e215dff181::t_d6e3d28370a039 71-73,95
+checks/fixtures/roster/remote-seshy.json
+  s_3424e215dff181::t_c429eb44090111 1-68
+checks/fixtures/roster/seshy.json
+  s_3424e215dff181::t_fbc9be8ff60d69 1-70
+checks/fixtures/wezterm/config.json
+  s_3424e215dff181::t_7aa6d9332ed789 6-8,13,15-18,20-21
+modules/home/programs/wezterm/default.nix
+  s_3424e215dff181::t_7cdf87abed3e7d 213-219
+modules/home/programs/wezterm/lua/sysinit/pkg/ui/format.lua
+  s_3424e215dff181::t_250f7a729f6fae 100-102,104-107,110-115,117-122,124-128,130
+modules/home/programs/wezterm/lua/sysinit/pkg/ui/panes.lua
+  s_3424e215dff181::t_e467f159344daf 79-81
+checks/wezterm.lua
+  s_3424e215dff181::t_7f6233b32f874c 3,43-45,47-49,59,79-88,92-94,139-146,160-168,174-177,302,334-337,347,351-352,355-359,361-362,364,366-382,384-385,387-388,390-391,393-399,401-420,422-423,426-427,429-459,461-504,506-507,509-511,513-515,517-518,520-546,548-577,579,581,586-703,705-706,708-709,711-713,715
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "c8421e36b6fa041aa932bb0ee3e376c6e9130242",
+  "prompts": {},
+  "sessions": {
+    "s_3424e215dff181": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-awezterm-cutover-841fa38a91b3b960",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_d9b398cc38b8f6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7c221cfd-6a57-49f0-beeb-2761f999fde3",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
