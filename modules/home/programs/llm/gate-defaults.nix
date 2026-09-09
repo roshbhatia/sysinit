@@ -51,6 +51,9 @@ in
 {
   chains = {
     UserPromptSubmit = [
+      # edit-event saves the prompt, so the next write can name what asked
+      # for it. First, because it answers pass and nothing may skip it.
+      { provider = "edit-event"; }
       { provider = "notes"; }
       {
         provider = "prose-gate";
@@ -86,9 +89,15 @@ in
       }
     ];
     PostToolUse = [
+      # The two recorders run first, so a later block never skips attribution:
+      # the edit is already on disk. edit-event appends the edit log and commits
+      # the file into the workspace's shadow repository under the saved prompt;
+      # git-ai-gate checkpoints its lines to refs/notes/ai.
       {
-        # First, so a later block never skips attribution: the edit is already
-        # on disk, and git-ai-gate checkpoints its lines to refs/notes/ai.
+        provider = "edit-event";
+        match = "^(Edit|Write|MultiEdit|NotebookEdit|apply_patch)$";
+      }
+      {
         provider = "git-ai-gate";
         match = "^(Edit|Write|MultiEdit)$";
       }
@@ -169,6 +178,7 @@ in
   # gate's own providers, whose manifests ship in pkgs.gate-providers.
   providerNames = [
     "bash-guard"
+    "edit-event"
     "lint-gate"
     "loop-gate"
     "nix-guard"

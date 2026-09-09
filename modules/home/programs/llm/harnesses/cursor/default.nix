@@ -24,6 +24,18 @@ let
     '';
   };
 
+  # The same dispatcher for the hooks that only record: gate's cursor
+  # normalizer maps afterFileEdit onto PostToolUse with tool Edit and
+  # beforeSubmitPrompt onto UserPromptSubmit, and takes the workspace from the
+  # payload, so neither needs the cd below.
+  gateHookScript = pkgs.writeShellApplication {
+    name = "cursor-gate-hook";
+    text = ''
+      ${llmLib.guards.gateStateDir}
+      exec ${lib.getExe pkgs.gate-cli} hook --harness cursor --format cursor
+    '';
+  };
+
   # A user hook runs from ~/.cursor, not from the workspace, so anything that
   # resolves a repository from its working directory needs the workspace cursor
   # puts in the environment.
@@ -42,10 +54,10 @@ let
       ];
       beforeSubmitPrompt = [
         { command = inWorkspace "${profileBin}/agent-state cursor working submit"; }
-        { command = inWorkspace "${profileBin}/agent-edit-event cursor --prompt"; }
+        { command = lib.getExe gateHookScript; }
       ];
       afterFileEdit = [
-        { command = inWorkspace "${profileBin}/agent-edit-event cursor"; }
+        { command = lib.getExe gateHookScript; }
       ];
       stop = [
         {

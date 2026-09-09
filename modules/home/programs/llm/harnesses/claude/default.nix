@@ -191,11 +191,6 @@ in
               }
               {
                 type = "command";
-                command = "${profileBin}/agent-edit-event claude --prompt";
-                async = true;
-              }
-              {
-                type = "command";
                 command = gateHook "UserPromptSubmit";
               }
             ];
@@ -235,18 +230,9 @@ in
         ];
         PostToolUse = [
           {
-            matcher = "Edit|Write|NotebookEdit";
-            hooks = [
-              {
-                type = "command";
-                command = "${profileBin}/agent-edit-event claude";
-                async = true;
-              }
-            ];
-          }
-          {
-            # lint-gate on an edit; prose-gate's report note and review-gate on
-            # an Agent return. A note to the caller, not a block on the teammate.
+            # edit-event and git-ai-gate record an edit, then lint-gate checks
+            # it; prose-gate's report note and review-gate on an Agent return.
+            # A note to the caller, not a block on the teammate.
             matcher = "";
             hooks = [
               {

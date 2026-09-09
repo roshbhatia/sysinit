@@ -14,22 +14,6 @@ import (
 
 func RootAt(dir string) (string, error) { return git.Root(dir) }
 
-func EditLogFile(root string) string {
-	return keyed(paths.AgentEdits(), root) + ".jsonl"
-}
-
-func DeltaDir(root string) string {
-	return keyed(paths.AgentEdits(), root) + ".delta"
-}
-
-func PromptFile(root string) string {
-	return keyed(paths.AgentEdits(), root) + ".prompt"
-}
-
-func CleanEnv() []string { return git.CleanEnv() }
-
-func GitEnv(gitDir, workTree string) []string { return git.ShadowEnv(gitDir, workTree) }
-
 func WorkerDir(root string) string {
 	return keyed(paths.AgentWorker(), root)
 }
