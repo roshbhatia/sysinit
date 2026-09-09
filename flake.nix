@@ -108,7 +108,7 @@
     };
 
     seshy = {
-      url = "github:roshbhatia/seshy/v5.0.0";
+      url = "github:roshbhatia/seshy/v5.0.1";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -147,7 +147,7 @@
     };
 
     tether = {
-      url = "github:roshbhatia/tether/v0.3.0";
+      url = "github:roshbhatia/tether/v0.3.1";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
