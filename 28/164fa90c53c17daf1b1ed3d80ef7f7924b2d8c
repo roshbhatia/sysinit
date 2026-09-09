@@ -1,0 +1,35 @@
+modules/home/programs/wezterm/lua/sysinit/pkg/ui/spawn.lua
+  s_d9b398cc38b8f6::t_33057c415bdf06 1-107
+modules/home/programs/wezterm/lua/sysinit/pkg/ui/actions.lua
+  s_d9b398cc38b8f6::t_1dd65051fe0870 3,45-50,69-73,96-98,100,158-172
+modules/home/programs/wezterm/default.nix
+  s_3424e215dff181::t_1aebe87b7d5ac5 226
+modules/home/programs/wezterm/lua/sysinit/pkg/ui/switcher.lua
+  s_3424e215dff181::t_3d4064417df76f 324,496
+modules/home/programs/wezterm/sources.nix
+  s_3424e215dff181::t_2c61e61d4b5fb4 135-145,159
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "28164fa90c53c17daf1b1ed3d80ef7f7924b2d8c",
+  "prompts": {},
+  "sessions": {
+    "s_3424e215dff181": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-awezterm-cutover-841fa38a91b3b960",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_d9b398cc38b8f6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7c221cfd-6a57-49f0-beeb-2761f999fde3",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
