@@ -1312,11 +1312,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788553901,
-        "narHash": "sha256-e04CSl8CYJTfzx3UL2fC8jpOiJXcM2tlp9oGpI1H0rg=",
+        "lastModified": 1788922753,
+        "narHash": "sha256-oHJh6vOijn40VP/du265yuANb0XYLkBat7IZIEijvBA=",
         "owner": "roshbhatia",
         "repo": "seshy",
-        "rev": "d4657dc9f9c5949293bef698b921f0b69308a962",
+        "rev": "b7378a7dc7ffa8bf388e799fb155d9a8624f2a10",
         "type": "github"
       },
       "original": {
