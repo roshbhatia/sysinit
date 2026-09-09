@@ -41,6 +41,7 @@ in
   # into ~/.config/gate/providers.
   gate-providers = inputs.gate.packages.${final.stdenv.hostPlatform.system}.extras;
   tether = inputs.tether.packages.${final.stdenv.hostPlatform.system}.default;
+  citelock = inputs.citelock.packages.${final.stdenv.hostPlatform.system}.default;
   changes-cli = inputs.changes.packages.${final.stdenv.hostPlatform.system}.default;
   changes-providers = inputs.changes.packages.${final.stdenv.hostPlatform.system}.extras;
   changes-provider-git-notes =

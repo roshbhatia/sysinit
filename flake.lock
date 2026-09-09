@@ -158,6 +158,27 @@
         "type": "github"
       }
     },
+    "citelock": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788913308,
+        "narHash": "sha256-5oGN3h48IW4rQr5ME67LtUgWPWSHJyoZNuSoSKZ72QQ=",
+        "owner": "roshbhatia",
+        "repo": "citelock",
+        "rev": "e26b7c40472858e705a49adfa843919173afbf09",
+        "type": "github"
+      },
+      "original": {
+        "owner": "roshbhatia",
+        "ref": "v0.1.0",
+        "repo": "citelock",
+        "type": "github"
+      }
+    },
     "crane": {
       "locked": {
         "lastModified": 1762189950,
@@ -1099,6 +1120,7 @@
         "ask-extras": "ask-extras",
         "ast-grep-skills": "ast-grep-skills",
         "changes": "changes",
+        "citelock": "citelock",
         "cupcake": "cupcake",
         "darwin": "darwin",
         "determinate": "determinate",
