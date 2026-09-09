@@ -158,7 +158,6 @@ in
   sysinit-utils =
     let
       links = [
-        "agent-edit-event"
         "agent-note-open"
         "agent-state"
         "agent-statusline"

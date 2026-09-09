@@ -8,7 +8,6 @@ import (
 
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/agentstate"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/citelock"
-	"github.com/roshbhatia/sysinit/pkgs/utils/internal/editevent"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/fftabs"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/note"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/statusline"
@@ -28,7 +27,6 @@ type command struct {
 var commands = map[string]command{
 	"agent-state":  {name: "agent-state", summary: agentstate.Summary, run: agentstate.Run},
 	"citelock":     {name: "citelock", summary: citelock.Summary, run: citelock.Run},
-	"edit-event":   {name: "edit-event", summary: editevent.Summary, run: editevent.Run},
 	"firefox-tabs": {name: "firefox-tabs", summary: fftabs.Summary, run: fftabs.Run},
 	"note":         {name: "note", summary: note.Summary, run: note.Run},
 	"statusline":   {name: "statusline", summary: statusline.Summary, run: statusline.Run},
@@ -45,7 +43,6 @@ type link struct {
 }
 
 var links = map[string]link{
-	"agent-edit-event": {command: "edit-event"},
 	"agent-note-open":  {command: "note", args: []string{"list", "--open", "--hook"}},
 	"agent-state":      {command: "agent-state"},
 	"agent-statusline": {command: "statusline"},
