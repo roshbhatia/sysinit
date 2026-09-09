@@ -161,7 +161,6 @@ in
         "agent-state"
         "agent-statusline"
         "agent-watch"
-        "citelock"
         "firefox-tabs"
         "wezspawn"
         "worker"
