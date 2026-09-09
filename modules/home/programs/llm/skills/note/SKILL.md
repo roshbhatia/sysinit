@@ -1,11 +1,11 @@
 ---
-description: 'Leaves review notes on a working-tree diff with `utils note`, so a non-obvious change carries its reason to whoever reads the diff later. The owner reads the notes back in Neovim, drawn on the line each one annotates. Use when making a change a reader would question: a hidden constraint, a workaround for a specific bug, a rejected alternative, or an edit whose reason is not visible in the diff. Do NOT use for routine edits, which the diff already explains.'
-allowed-tools: Bash(utils:*)
+description: 'Leaves review notes on a working-tree diff with `note`, so a non-obvious change carries its reason to whoever reads the diff later. The owner reads the notes back in Neovim, drawn on the line each one annotates. Use when making a change a reader would question: a hidden constraint, a workaround for a specific bug, a rejected alternative, or an edit whose reason is not visible in the diff. Do NOT use for routine edits, which the diff already explains.'
+allowed-tools: Bash(note:*)
 ---
 
 > Normative keywords follow [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119); "never" is MUST NOT, "always" is MUST.
 
-`utils note` writes one JSON record. A note is addressed by the absolute path
+`note` writes one JSON record. A note is addressed by the absolute path
 of the file it annotates. So work spanning several repositories reads back as
 one list. A note can be written from anywhere, including a folder that is not a
 repository. It is a pure writer: it never opens, launches, or nudges anything.
@@ -28,23 +28,23 @@ costs the reader attention on every later review.
 
 ```bash
 # good — names a constraint the changed lines do not show
-utils note add --file overlays/lima.nix --line 12 \
+note add --file overlays/lima.nix --line 12 \
   --summary 'Pinned to the old nixpkgs rev because cctools ld is broken on darwin' \
   --rationale 'Building against current nixpkgs fails at link time; drop the pin once upstream fixes it.'
 
 # bad — restates the diff
-utils note add --file overlays/lima.nix --line 12 \
+note add --file overlays/lima.nix --line 12 \
   --summary 'Changed the nixpkgs revision'
 ```
 
 ## Writing
 
 ```bash
-utils note add --file <path> --line <n> --summary <text> [--rationale <text>] [--author <name>] [--origin agent|user] [--replace]
-utils note answer --id <id> --summary <text> [--rationale <text>] [--author <name>]
-utils note list [--file <path>] [--open] [--json]
-utils note clear [--id <id>] [--file <path>] [--line <n>] [--yes]
-utils note path
+note add --file <path> --line <n> --summary <text> [--rationale <text>] [--author <name>] [--origin agent|user] [--replace]
+note answer --id <id> --summary <text> [--rationale <text>] [--author <name>]
+note list [--file <path>] [--open] [--json]
+note clear [--id <id>] [--file <path>] [--line <n>] [--yes]
+note path
 ```
 
 Rules:
@@ -84,13 +84,13 @@ writing to you: a question about a change, or an inline suggestion. It stays
 you at the start of every turn.
 
 ```bash
-utils note list --open --json
+note list --open --json
 ```
 
 Read the code the note names before you reply to it. Then answer by id:
 
 ```bash
-utils note answer --id 3fb3cee3 --author claude \
+note answer --id 3fb3cee3 --author claude \
   --summary 'It pins the old rev because cctools ld fails at link time' \
   --rationale 'Dropping the pin fails the darwin build; the upstream issue is #1841.'
 ```
@@ -121,8 +121,8 @@ editor. Say in the chat what you noted; opening the surface is theirs.
 To read the record yourself, list it:
 
 ```bash
-utils note list --file <path>
-utils note list --json
+note list --file <path>
+note list --json
 ```
 
 ## Anchoring

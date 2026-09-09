@@ -18,9 +18,8 @@ const VIEWER_COMMAND = ["review"];
 
 const ANNOTATE_PROMPT = [
   "A `review` of the working tree is now open beside this session.",
-  "Annotate it with `utils note`: read the diff, then leave the notes in one",
-  "`utils note apply --stdin` batch, whose payload is",
-  '`{"notes":[{"file":"<repo-relative path>","line":<n>,"summary":"...","rationale":"...","author":"pi"}]}`',
+  "Annotate it with `note`: read the diff, then leave each note with",
+  "`note add --file <path> --line <n> --summary <text> --rationale <text> --author pi`,",
   "where `line` is 1-based on the MODIFIED side of the diff, never the original side.",
   "Comment on intent, risk, and anything I would not spot myself.",
   "Do not annotate every hunk, and do not edit any file.",

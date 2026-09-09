@@ -54,6 +54,7 @@ in
       # edit-event saves the prompt, so the next write can name what asked
       # for it. First, because it answers pass and nothing may skip it.
       { provider = "edit-event"; }
+      { provider = "notes"; }
       {
         provider = "prose-gate";
         args = {
@@ -181,6 +182,7 @@ in
     "lint-gate"
     "loop-gate"
     "nix-guard"
+    "notes"
     "prose-gate"
     "read-router"
     "review-gate"

@@ -9,7 +9,6 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/agentstate"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/citelock"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/fftabs"
-	"github.com/roshbhatia/sysinit/pkgs/utils/internal/note"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/statusline"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/watch"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/wezspawn"
@@ -28,7 +27,6 @@ var commands = map[string]command{
 	"agent-state":  {name: "agent-state", summary: agentstate.Summary, run: agentstate.Run},
 	"citelock":     {name: "citelock", summary: citelock.Summary, run: citelock.Run},
 	"firefox-tabs": {name: "firefox-tabs", summary: fftabs.Summary, run: fftabs.Run},
-	"note":         {name: "note", summary: note.Summary, run: note.Run},
 	"statusline":   {name: "statusline", summary: statusline.Summary, run: statusline.Run},
 	"watch":        {name: "watch", summary: watch.Summary, run: watch.Run},
 	"wezspawn":     {name: "wezspawn", summary: wezspawn.Summary, run: wezspawn.Run},
@@ -43,13 +41,11 @@ type link struct {
 }
 
 var links = map[string]link{
-	"agent-note-open":  {command: "note", args: []string{"list", "--open", "--hook"}},
 	"agent-state":      {command: "agent-state"},
 	"agent-statusline": {command: "statusline"},
 	"agent-watch":      {command: "watch"},
 	"citelock":         {command: "citelock"},
 	"firefox-tabs":     {command: "firefox-tabs"},
-	"note":             {command: "note"},
 	"wezspawn":         {command: "wezspawn"},
 	"worker":           {command: "worker"},
 	"worklog":          {command: "worklog"},

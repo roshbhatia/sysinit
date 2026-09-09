@@ -158,13 +158,11 @@ in
   sysinit-utils =
     let
       links = [
-        "agent-note-open"
         "agent-state"
         "agent-statusline"
         "agent-watch"
         "citelock"
         "firefox-tabs"
-        "note"
         "wezspawn"
         "worker"
         "worklog"
