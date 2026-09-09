@@ -1100,7 +1100,7 @@
         "type": "github"
       }
     },
-    "provider-spec": {
+    "provider-spec_3": {
       "flake": false,
       "locked": {
         "lastModified": 1788907976,
@@ -1564,7 +1564,7 @@
         "nixpkgs": [
           "nixpkgs"
         ],
-        "provider-spec": "provider-spec",
+        "provider-spec": "provider-spec_3",
         "systems": [
           "systems"
         ]
