@@ -1100,6 +1100,23 @@
         "type": "github"
       }
     },
+    "provider-spec": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788907976,
+        "narHash": "sha256-o0eerxlZdatjXkv1DB5WtXD15u0e00I3R9gtxIjnj5M=",
+        "owner": "roshbhatia",
+        "repo": "provider-spec",
+        "rev": "7a141d5bce35a4f65cdc08b10e575932b45d2707",
+        "type": "github"
+      },
+      "original": {
+        "owner": "roshbhatia",
+        "ref": "v1.0.0",
+        "repo": "provider-spec",
+        "type": "github"
+      }
+    },
     "pyproject-build-systems": {
       "inputs": {
         "nixpkgs": [
@@ -1547,21 +1564,22 @@
         "nixpkgs": [
           "nixpkgs"
         ],
+        "provider-spec": "provider-spec",
         "systems": [
           "systems"
         ]
       },
       "locked": {
-        "lastModified": 1788907683,
-        "narHash": "sha256-FagGOiCAK3GjIWj3JvfcQE1if8AQTiBZowPLBELKyio=",
+        "lastModified": 1788915132,
+        "narHash": "sha256-s/WDaEcFs1JUB/abXTm//BufLyaAYOyCls7VJxYxN4Y=",
         "owner": "roshbhatia",
         "repo": "traces",
-        "rev": "217adf6108e90d1813896f9dbea3e1269a8d5287",
+        "rev": "95c7335581cfe39d572dd896a4c5053e681c3195",
         "type": "github"
       },
       "original": {
         "owner": "roshbhatia",
-        "ref": "v0.10.0",
+        "ref": "v0.11.0",
         "repo": "traces",
         "type": "github"
       }

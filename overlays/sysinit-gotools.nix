@@ -165,7 +165,6 @@ in
         "firefox-tabs"
         "wezspawn"
         "worker"
-        "worklog"
         "ws"
       ];
 

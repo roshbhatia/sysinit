@@ -9,6 +9,7 @@ let
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
   profileBin = "${config.home.profileDirectory}/bin";
+  worklogHook = llmLib.worklog.mkHook { inherit pkgs config; };
 
   # gate v0.2.5 speaks cursor natively: `--harness cursor` maps
   # beforeShellExecution onto PreToolUse with tool Bash and Input {command}, and
@@ -54,7 +55,7 @@ let
       ];
       sessionEnd = [
         { command = inWorkspace "${profileBin}/agent-state cursor exit"; }
-        { command = inWorkspace "${profileBin}/worklog"; }
+        { command = inWorkspace worklogHook; }
       ];
     };
   };

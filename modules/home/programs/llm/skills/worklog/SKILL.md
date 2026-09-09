@@ -22,10 +22,11 @@ Window empty?                         -> say so plainly and stop; do not invent 
 ## Data source
 
 A `SessionEnd` hook appends one JSON line per session to
-`~/.local/state/agents/worklog.jsonl`. The hook is a PEP-723 Python script,
-`harnesses/claude/worklog-hook.py`, run via uv. `$CLAUDE_WORKLOG_FILE`
-overrides the path. The hook is dumb, it records pointers and cheap facts,
-never a summary. It skips `resume` and bare directories with no prompt, so every
+`~/.local/state/agents/worklog.jsonl`. The hook is `traces-worklog`, the
+worklog tool from the `traces` flake input; `lib/worklog.nix` renders its
+command with the paths from `sysinit.paths`. `$CLAUDE_WORKLOG_FILE` overrides
+the path the query script reads. The hook is dumb, it records pointers and
+cheap facts, never a summary. It skips `resume` and bare directories with no prompt, so every
 line carries real work. A schema v2 line:
 
 ```json

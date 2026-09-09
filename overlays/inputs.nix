@@ -22,6 +22,11 @@ let
   tracesProviderPackages = final.lib.mapAttrs' (
     name: package: final.lib.nameValuePair (final.lib.removePrefix "provider-" name) package
   ) (final.lib.filterAttrs (name: _package: final.lib.hasPrefix "provider-" name) tracesPackages);
+  # A tool is an extra with no manifest, such as the worklog reducer a
+  # session-end hook runs. It answers no traces action, so it is not a provider.
+  tracesToolPackages = final.lib.mapAttrs' (
+    name: package: final.lib.nameValuePair (final.lib.removePrefix "tool-" name) package
+  ) (final.lib.filterAttrs (name: _package: final.lib.hasPrefix "tool-" name) tracesPackages);
 in
 {
   firefox-addons = inputs.firefox-addons.packages.${final.stdenv.hostPlatform.system};
@@ -48,6 +53,7 @@ in
   traces-providers = tracesPackages.extras // {
     providers = tracesProviderPackages;
   };
+  traces-tools = tracesToolPackages;
   slk = inputs.slk.packages.${final.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
     ldflags = (old.ldflags or [ ]) ++ [
       "-X=main.version=0.16.0"
