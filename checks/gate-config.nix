@@ -66,6 +66,14 @@ pkgs.runCommand "gate-config"
     printf '%s' '{"hook_event_name":"PreToolUse","tool_name":"Bash","tool_input":{"command":"git push --force"},"cwd":"/"}' \
       | gate hook --harness claude --event PreToolUse --format json > decision
     grep -q '"decision":"deny"' decision
+    # An open note the owner left reaches the model on the next prompt through
+    # the whole UserPromptSubmit chain, as context rather than as a raw hook.
+    printf 'one\n' > annotated.txt
+    note add --file annotated.txt --line 1 --summary 'why is this here' --origin user
+    printf '%s' '{"hook_event_name":"UserPromptSubmit","prompt":"hi","cwd":"/"}' \
+      | gate hook --harness claude --event UserPromptSubmit --format json > prompt
+    grep -q '"decision":"context"' prompt
+    grep -q 'why is this here' prompt
     # prose-gate's rules are arguments, so the chain is what proves them: a
     # reply in agent prose is recorded on Stop, silently, and the next prompt
     # carries the findings with this repository's reminder.
