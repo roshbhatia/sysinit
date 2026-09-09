@@ -46,6 +46,7 @@ pkgs.runCommand "gate-config"
     nativeBuildInputs = [
       pkgs.gate-cli
       pkgs.gate-providers
+      pkgs.agent-notes
       pkgs.git
       pkgs.git-ai-gate
     ];

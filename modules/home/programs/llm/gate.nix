@@ -115,6 +115,7 @@ in
     home.packages = [
       pkgs.gate-cli
       pkgs.gate-providers
+      pkgs.agent-notes
     ];
 
     xdg.configFile = providerFiles // {

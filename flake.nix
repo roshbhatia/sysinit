@@ -62,7 +62,7 @@
     };
 
     orc = {
-      url = "github:roshbhatia/orc/v0.12.1";
+      url = "github:roshbhatia/orc/v0.12.2";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         systems.follows = "systems";
@@ -70,7 +70,7 @@
     };
 
     orc-extras = {
-      url = "github:roshbhatia/orc/v0.12.1?dir=extras";
+      url = "github:roshbhatia/orc/v0.12.2?dir=extras";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         systems.follows = "systems";
@@ -81,17 +81,17 @@
     };
 
     ask = {
-      url = "github:roshbhatia/ask/v0.7.0";
+      url = "github:roshbhatia/ask/v0.7.1";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     gate = {
-      url = "github:roshbhatia/gate/v0.4.1";
+      url = "github:roshbhatia/gate/v0.5.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     ask-extras = {
-      url = "github:roshbhatia/ask/v0.7.0?dir=extras";
+      url = "github:roshbhatia/ask/v0.7.1?dir=extras";
       inputs = {
         ask.follows = "ask";
         nixpkgs.follows = "nixpkgs";
@@ -100,7 +100,7 @@
     };
 
     changes = {
-      url = "github:roshbhatia/changes/v0.12.0";
+      url = "github:roshbhatia/changes/v0.12.2";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         systems.follows = "systems";
@@ -118,7 +118,7 @@
     };
 
     traces = {
-      url = "github:roshbhatia/traces/v0.11.0";
+      url = "github:roshbhatia/traces/v0.11.1";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         systems.follows = "systems";
@@ -142,7 +142,7 @@
       };
     };
     prose-style = {
-      url = "github:roshbhatia/prose-style/cd1ae44c090229e4af7abc11550ebb5434704c85";
+      url = "github:roshbhatia/prose-style/b23b75eeedfce9025e297f18c48b18d7c34d69a6";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
