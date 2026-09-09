@@ -8,7 +8,6 @@ let
     lt = "eza --tree";
     org = "nvim ~/org/notes";
     sg = "ast-grep";
-    tc = "tether connect";
     tf = "tofu";
     tree = "eza --tree --icons=never";
     v = "nvim";
