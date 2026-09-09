@@ -8,26 +8,26 @@
 {
   amp-cli = {
     pname = "amp-cli";
-    version = "0.0.1788897629-geba12b";
+    version = "0.0.1788912097-g82ca44";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1788897629-geba12b/amp-darwin-arm64.gz";
-      sha256 = "sha256-inFASty2AmS4PIlmn+hmpeabo4392/uU5yPFSJEbvDw=";
+      url = "https://static.ampcode.com/cli/0.0.1788912097-g82ca44/amp-darwin-arm64.gz";
+      sha256 = "sha256-6bieN46/5PFZT3eZiIewEbWm9fVPiU33Bp6jW6ZuPYk=";
     };
   };
   amp-cli-aarch64-linux = {
     pname = "amp-cli-aarch64-linux";
-    version = "0.0.1788897629-geba12b";
+    version = "0.0.1788912097-g82ca44";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1788897629-geba12b/amp-linux-arm64.gz";
-      sha256 = "sha256-ojcOwGB/KFsp/jF1WPKZMTm1rko4wFfL5R72Mt2MVOg=";
+      url = "https://static.ampcode.com/cli/0.0.1788912097-g82ca44/amp-linux-arm64.gz";
+      sha256 = "sha256-cJ7+pi+JlP3y5xFbEybkxDyUrgCdPtMUAVDaGZLzsUI=";
     };
   };
   amp-cli-x86_64-linux = {
     pname = "amp-cli-x86_64-linux";
-    version = "0.0.1788897629-geba12b";
+    version = "0.0.1788912097-g82ca44";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1788897629-geba12b/amp-linux-x64-baseline.gz";
-      sha256 = "sha256-ck8osBPFFlSzadK1E2xbJVkMyclcUsWqDdQBmAn33XU=";
+      url = "https://static.ampcode.com/cli/0.0.1788912097-g82ca44/amp-linux-x64-baseline.gz";
+      sha256 = "sha256-EAQvgqvqzs5XTLRmblAMOkMO76HfEC2YI+C7hzH113c=";
     };
   };
   atomic-coding-agent = {
@@ -134,20 +134,20 @@
       sha256 = "sha256-fWvMRRxl851zCeTCRlZL2PDhjFrDAUlmGkn5KG+lucI=";
     };
   };
-  git-ai-x86_64-darwin = {
-    pname = "git-ai-x86_64-darwin";
-    version = "1.7.4";
-    src = fetchurl {
-      url = "https://github.com/git-ai-project/git-ai/releases/download/v1.7.4/git-ai-macos-x64";
-      sha256 = "sha256-W7lqXclw4lDQqCRYT7a81mU32O/GNE+zf0IKVHsTi6s=";
-    };
-  };
   git-ai-aarch64-linux = {
     pname = "git-ai-aarch64-linux";
     version = "1.7.4";
     src = fetchurl {
       url = "https://github.com/git-ai-project/git-ai/releases/download/v1.7.4/git-ai-linux-arm64";
       sha256 = "sha256-1pctEd2gOKxbokWskeD2ocvL5e7BNvBXjJG4HskIoKw=";
+    };
+  };
+  git-ai-x86_64-darwin = {
+    pname = "git-ai-x86_64-darwin";
+    version = "1.7.4";
+    src = fetchurl {
+      url = "https://github.com/git-ai-project/git-ai/releases/download/v1.7.4/git-ai-macos-x64";
+      sha256 = "sha256-W7lqXclw4lDQqCRYT7a81mU32O/GNE+zf0IKVHsTi6s=";
     };
   };
   git-ai-x86_64-linux = {
@@ -319,10 +319,10 @@
   };
   prime-agent = {
     pname = "prime-agent";
-    version = "0.9.3";
+    version = "0.9.4";
     src = fetchurl {
-      url = "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.9.3/prime-agent-0.9.3.tgz";
-      sha256 = "sha256-znEEk4mHd3CqMbm+ZMRzaFqGFZrbvSRmvUPkqREyQvE=";
+      url = "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.9.4/prime-agent-0.9.4.tgz";
+      sha256 = "sha256-uNdSpT0RqMmnWA4ftfwk9850zK2XnH5uaqiID8OtkLA=";
     };
   };
 }
