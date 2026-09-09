@@ -2,33 +2,21 @@ local M = {}
 
 -- Every agent write lands as one commit in a shadow git repository, whose subject is
 -- the prompt that asked for it. Reading it back is plain git, so this module only
--- shells out; nothing here owns the history.
+-- shells out; nothing here owns the history. The repository's path is derived, not
+-- asked for: harness.edit_store spells the same rule gate's edit-event provider uses.
 
 ---@type table
 local store = { asked = false, dir = nil, tree = nil }
-
----@param flag string
----@return string|nil
-local function ask(flag)
-  local out = vim.fn.system({ "agent-edit-event", flag })
-  if vim.v.shell_error ~= 0 then
-    return nil
-  end
-  local value = vim.trim(out)
-  if value == "" then
-    return nil
-  end
-  return value
-end
 
 ---@return string|nil dir
 ---@return string|nil tree
 local function resolve()
   if not store.asked then
     store.asked = true
-    if vim.fn.executable("agent-edit-event") == 1 then
-      store.dir = ask("--print-delta")
-      store.tree = ask("--print-workspace")
+    local ok, edit_store = pcall(require, "harness.edit_store")
+    if ok then
+      store.tree = edit_store.workspace()
+      store.dir = edit_store.delta_dir(store.tree)
     end
   end
   if store.dir and store.tree and vim.uv.fs_stat(store.dir .. "/HEAD") then

@@ -139,7 +139,7 @@ function M.findings()
     if watch.log then
       add("ok", "edit-event log: " .. watch.log .. string.format(" (read to byte %d)", watch.offset))
     else
-      add("warn", "edit-event log: not resolved. `utils edit-event --print-log` did not answer, so no event can arrive")
+      add("warn", "edit-event log: not resolved. harness.edit_store named no path, so no event can arrive")
     end
     add("ok", string.format("agent edits recorded this session: %d", watch.touched))
   end
@@ -152,7 +152,7 @@ function M.findings()
     if delta.dir then
       add("ok", string.format("delta store: %s (%d deltas)", delta.dir, delta.deltas))
     else
-      add("warn", "delta store: absent. No agent has written here yet, or `utils edit-event` did not answer")
+      add("warn", "delta store: absent. No agent has written here yet, or harness.edit_store named no path")
     end
   end
 
