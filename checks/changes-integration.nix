@@ -12,7 +12,10 @@ pkgs.runCommand "changes-integration-check"
     ];
   }
   ''
-    test "$(changes --version)" = "0.11.0"
+    # The pinned package sets the version; the second line is the provider/v1
+    # spec the binary was built against, the cross-tool agreement surface.
+    test "$(changes --version | head -1)" = "${pkgs.changes.version}"
+    changes --version | grep -qx 'provider/v1 spec [0-9.]*'
 
     export HOME="$TMPDIR/home"
     export XDG_CACHE_HOME="$TMPDIR/cache"
