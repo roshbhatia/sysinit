@@ -1,0 +1,31 @@
+checks/roster-sources.nix
+  s_d9b398cc38b8f6::t_06764dc357004c 1-150
+  s_d9b398cc38b8f6::t_6f97ac70dd967e 151-153
+  s_13647505584f5d::t_477358878e6490 154-187
+checks/default.nix
+  s_13647505584f5d::t_508f30b7a1cec6 105-108
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "4ea2f6f0eff97c463f1b9c349f4beb4b9124fc37",
+  "prompts": {},
+  "sessions": {
+    "s_13647505584f5d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-aroster-wire-287a6ac61fc12aa8",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_d9b398cc38b8f6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7c221cfd-6a57-49f0-beeb-2761f999fde3",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
