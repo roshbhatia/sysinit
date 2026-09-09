@@ -10,6 +10,7 @@ let
 
   profileBin = "${config.home.profileDirectory}/bin";
   commandPath = llmLib.commandPath.renderFor pkgs.stdenv.hostPlatform.isDarwin profileBin;
+  worklogHook = llmLib.worklog.mkHook { inherit pkgs config; };
 
   defaultInstructions = kit.mkInstructions {
     harness = "claude";
@@ -297,7 +298,7 @@ in
             hooks = [
               {
                 type = "command";
-                command = "${profileBin}/worklog";
+                command = worklogHook;
                 async = true;
               }
               {
