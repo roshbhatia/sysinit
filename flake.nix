@@ -118,7 +118,7 @@
     };
 
     traces = {
-      url = "github:roshbhatia/traces/v0.10.0";
+      url = "github:roshbhatia/traces/v0.11.0";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         systems.follows = "systems";
