@@ -239,6 +239,7 @@ in
         ${nushellLib.pathAdd pathsList}
 
         ${nushellLib.sourceProfileCompletion config.home.profileDirectory "sy"}
+        ${nushellLib.sourceProfileCompletion config.home.profileDirectory "tether"}
 
         use std/dirs shells-aliases *
 

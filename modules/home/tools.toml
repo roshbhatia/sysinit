@@ -154,7 +154,8 @@ nix = "zmx"
 [[tool]]
 nix = "mosh"
 
-# Picks the hop (native mux, mosh, ssh) for a wezterm remote attach from what
-# both ends have installed. The session tree calls `tether plan` on attach.
+# Picks the hop (native mux, mosh, ssh) for a remote attach from what both ends
+# have installed. The session tree calls `tether plan` on attach; the `tc`
+# alias is `tether connect`, which probes, plans, and execs the hop.
 [[tool]]
 nix = "tether"
