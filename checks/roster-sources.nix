@@ -56,7 +56,7 @@ pkgs.runCommand "roster-sources"
       pkgs.roster
       pkgs.jq
       pkgs.check-jsonschema
-      sources.packages.seshy
+      pkgs.seshy
       stubbedRemote
     ];
   }
@@ -82,10 +82,10 @@ pkgs.runCommand "roster-sources"
       and ([.sources[].order] == [10, 20])
     ' "$XDG_CONFIG_HOME/roster/config.json" > /dev/null
 
-    # The seshy adapter against a sessions directory holding one session.
+    # seshy's own source against a sessions directory holding one session.
     mkdir -p "$TMPDIR/sessions/demo"
     printf 'sessionsDir: %s\n' "$TMPDIR/sessions" > "$XDG_CONFIG_HOME/seshy/config.yaml"
-    printf '%s\n' '${listFrame}' | roster-provider-seshy > "$TMPDIR/seshy.frame"
+    printf '%s\n' '${listFrame}' | sy provider > "$TMPDIR/seshy.frame"
     jq -e --arg cwd "$TMPDIR/sessions/demo" '
       .version == "provider/v1" and .kind == "result" and .requestId == "check-1" and .status == "ok"
       and (.output.version == "roster.catalog/v1")
@@ -96,6 +96,7 @@ pkgs.runCommand "roster-sources"
       and (.output.rows[0].cwd == $cwd)
       and (.output.rows[0].spawn.plan.command == [])
       and (.output.rows[0].spawn.plan.cwd == $cwd)
+      and (.output.rows[0].spawn.plan.environment.SESHY_SESSION == "demo")
       and (.output.rows[0].spawn.hop.kind == "local")
       and (.output.rows[0].meta.repoCount == 0)
     ' "$TMPDIR/seshy.frame" > /dev/null

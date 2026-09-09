@@ -1,6 +1,6 @@
 # The one list of roster session sources. It renders ~/.config/roster/config.json
 # and one provider/v1 manifest per source, and it builds the two interim
-# adapters that answer `source.list` until seshy and tether ship their own.
+# sources: seshy's own manifest, and an adapter for remote hosts.
 #
 # A plain function, not a module, so checks/roster-sources.nix can render the
 # same manifests and drive the same adapters with the hop tools stubbed.
@@ -43,15 +43,6 @@ let
     }
   );
 
-  seshyProvider = pkgs.writeShellApplication {
-    name = "roster-provider-seshy";
-    runtimeInputs = [
-      pkgs.jq
-      pkgs.seshy
-    ];
-    text = builtins.readFile ./scripts/roster-provider-seshy.sh;
-  };
-
   # `tools` is the hop tool set, a parameter so a check can swap in a fake ssh
   # and a fake tether without changing the script.
   remoteSeshyProviderWith =
@@ -82,11 +73,13 @@ let
 
   sources = {
     seshy = {
-      description = "Local seshy sessions, until seshy ships its own source";
-      listDescription = "List `sy list --json` as a roster catalog";
-      package = seshyProvider;
-      commandArgs = [ ];
-      timeout = "5s";
+      # seshy ships its own provider/v1 manifest; only the command is pinned to
+      # the store path, since the GUI timer's PATH has no profile bin.
+      shipped = "${pkgs.seshy}/share/seshy/providers/seshy.yaml";
+      command = [
+        "${pkgs.seshy}/bin/sy"
+        "provider"
+      ];
       order = 10;
       ttl = "10s";
     };
@@ -101,7 +94,17 @@ let
     };
   };
 
-  manifests = lib.mapAttrs (name: source: manifestFor name source source.package) sources;
+  # A source either ships its manifest (seshy) or is an adapter rendered here.
+  # A shipped manifest keeps every field the tool wrote; only `command` moves
+  # to the pinned store path.
+  pinShipped =
+    name: source:
+    pkgs.runCommand "roster-provider-${name}.yaml" { nativeBuildInputs = [ pkgs.yq-go ]; } ''
+      yq '.command = ${builtins.toJSON source.command}' ${source.shipped} > $out
+    '';
+  manifests = lib.mapAttrs (
+    name: source: if source ? shipped then null else manifestFor name source source.package
+  ) sources;
 
   config = {
     ttl = "30s";
@@ -115,11 +118,14 @@ let
   # Keyed by the xdg.configFile path. `manifestSources` is the rendered YAML,
   # for a check that copies it; `manifestFiles` is the xdg.configFile entry.
   manifestSources = lib.mapAttrs' (
-    name: manifest:
+    name: source:
     lib.nameValuePair "roster/providers/${name}.yaml" (
-      yamlFormat.generate "roster-provider-${name}.yaml" manifest
+      if source ? shipped then
+        pinShipped name source
+      else
+        yamlFormat.generate "roster-provider-${name}.yaml" manifests.${name}
     )
-  ) manifests;
+  ) sources;
   manifestFiles = lib.mapAttrs (_path: source: { inherit source; }) manifestSources;
 
   # What the wezterm status tick spawns. The GUI's environment has neither the
@@ -159,7 +165,6 @@ in
     open
     ;
   packages = {
-    seshy = seshyProvider;
     remote-seshy = remoteSeshyProvider;
   };
   configFile = pkgs.writeText "roster-config.json" (builtins.toJSON config);
