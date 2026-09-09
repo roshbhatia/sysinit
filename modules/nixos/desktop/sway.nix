@@ -15,7 +15,9 @@ let
   swayWrapped = pkgs.writeShellScriptBin "sway-wrapped" ''
     set -euo pipefail
 
-    export PATH="/run/current-system/sw/bin:$HOME/.nix-profile/bin:$PATH"
+    # /run/wrappers/bin holds the setuid sudo; the store copy behind it refuses
+    # to run, so the wrapper dir must come first for every child of the session.
+    export PATH="/run/wrappers/bin:/run/current-system/sw/bin:$HOME/.nix-profile/bin:$PATH"
     export WLR_NO_HARDWARE_CURSORS=1
     export WLR_RENDERER=vulkan
     export GBM_BACKEND=nvidia-drm

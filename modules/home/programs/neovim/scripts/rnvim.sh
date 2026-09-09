@@ -39,7 +39,7 @@ set -euo pipefail
 # Deliberately not a login shell: NixOS sources /etc/bash_logout on exit, which
 # reads an unset variable and so trips this script's own `set -u`. The nix
 # profile directories go on PATH by hand instead.
-PATH="$HOME/.nix-profile/bin:/etc/profiles/per-user/$(id -un)/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:$PATH"
+PATH="$HOME/.nix-profile/bin:/etc/profiles/per-user/$(id -un)/bin:/run/wrappers/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:$PATH"
 
 dir="${1/#\~/$HOME}"
 sock="$2"
