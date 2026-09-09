@@ -546,19 +546,20 @@
       "inputs": {
         "nixpkgs": [
           "nixpkgs"
-        ]
+        ],
+        "provider-spec": "provider-spec"
       },
       "locked": {
-        "lastModified": 1788910636,
-        "narHash": "sha256-HkmlT4XlyUWR2oMBnGIhiVDnKd8ACIw0fiKFKvrEBCA=",
+        "lastModified": 1788915406,
+        "narHash": "sha256-tq0fR8NPIi1DtckDCtV69nnrQgT4McqfzdKOb/4thQ0=",
         "owner": "roshbhatia",
         "repo": "gate",
-        "rev": "e7dd77effa4912dfa8b26f498ff002a8c8e72808",
+        "rev": "6679c71755ca5ad3643998cd7a01d7e69cc20812",
         "type": "github"
       },
       "original": {
         "owner": "roshbhatia",
-        "ref": "v0.3.0",
+        "ref": "v0.4.0",
         "repo": "gate",
         "type": "github"
       }
@@ -1061,6 +1062,23 @@
         "owner": "roshbhatia",
         "ref": "v0.12.1",
         "repo": "orc",
+        "type": "github"
+      }
+    },
+    "provider-spec": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788907976,
+        "narHash": "sha256-o0eerxlZdatjXkv1DB5WtXD15u0e00I3R9gtxIjnj5M=",
+        "owner": "roshbhatia",
+        "repo": "provider-spec",
+        "rev": "7a141d5bce35a4f65cdc08b10e575932b45d2707",
+        "type": "github"
+      },
+      "original": {
+        "owner": "roshbhatia",
+        "ref": "v1.0.0",
+        "repo": "provider-spec",
         "type": "github"
       }
     },
