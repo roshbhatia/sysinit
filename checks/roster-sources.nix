@@ -22,12 +22,10 @@ let
   '';
   # The same plan with tether's ssh alternative promoted: a local hop, whose
   # pane must not inherit the remote directory.
-  localPlan =
-    pkgs.runCommand "tether-plan-arrakis-local.json" { nativeBuildInputs = [ pkgs.jq ]; }
-      ''
-        jq '.plan = .alternatives[0].plan | .hop = .alternatives[0].hop | .chosen = {tier: "ssh", rank: 4} | .loses = .alternatives[0].loses' \
-          ${./fixtures/tether/plan-arrakis.json} > "$out"
-      '';
+  localPlan = pkgs.runCommand "tether-plan-arrakis-local.json" { nativeBuildInputs = [ pkgs.jq ]; } ''
+    jq '.plan = .alternatives[0].plan | .hop = .alternatives[0].hop | .chosen = {tier: "ssh", rank: 4} | .loses = .alternatives[0].loses' \
+      ${./fixtures/tether/plan-arrakis.json} > "$out"
+  '';
   fakeTetherLocal = pkgs.writeShellScriptBin "tether" ''
     case "$1" in
       probe) exit 0 ;;
