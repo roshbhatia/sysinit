@@ -111,17 +111,17 @@ in
       };
       picker.providers = [
         {
-          name = "hosts";
+          name = "tether";
           key = "!";
           manifest = "${pkgs.tether-picker}/share/wezterm/providers/tether.json";
         }
         {
-          name = "sessions";
+          name = "seshy";
           key = "@";
           manifest = "${pkgs.seshy-picker}/share/wezterm/providers/seshy.json";
         }
         {
-          name = "folders";
+          name = "zoxide";
           key = "#";
           manifest = "${pkgs.zoxide-picker}/share/wezterm/providers/zoxide.json";
         }
