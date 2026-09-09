@@ -122,7 +122,7 @@ let
   ) manifests;
   manifestFiles = lib.mapAttrs (_path: source: { inherit source; }) manifestSources;
 
-  # What the wezterm refresh timer spawns. The GUI's environment has neither the
+  # What the wezterm status tick spawns. The GUI's environment has neither the
   # profile bin nor the state layout, so both are pinned here.
   refresh = pkgs.writeShellApplication {
     name = "wezterm-roster-refresh";
@@ -130,6 +130,17 @@ let
     text = ''
       export ROSTER_CATALOG_DIR=${lib.escapeShellArg catalogDir}
       exec roster refresh --if-stale "$@"
+    '';
+  };
+
+  # What the session tree runs for a row whose spawn is deferred: the row as
+  # JSON, plan resolved by the owning source. Same pinning as the refresh.
+  open = pkgs.writeShellApplication {
+    name = "wezterm-roster-open";
+    runtimeInputs = [ pkgs.roster ];
+    text = ''
+      export ROSTER_CATALOG_DIR=${lib.escapeShellArg catalogDir}
+      exec roster open --json "$@"
     '';
   };
 in
@@ -145,6 +156,7 @@ in
     remoteSeshyConfig
     remoteSeshyProviderWith
     refresh
+    open
     ;
   packages = {
     seshy = seshyProvider;

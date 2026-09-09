@@ -3,13 +3,22 @@
   "agents": {},
   "bin": "/bin",
   "colors": {},
+  "cwd_aliases": {
+    "sy": "/state/seshy/sessions"
+  },
   "font": {
     "monospace": "monospace",
     "symbols": "monospace"
   },
+  "passthrough_procs": ["zmx", "caffeinate"],
   "plugins": {},
+  "roster": {
+    "catalog_dir": "/state/roster/catalog",
+    "sources": ["seshy", "remote-seshy"]
+  },
   "scripts": {
-    "seshy_remote_list": "/bin/false"
+    "roster_open": "/bin/false",
+    "roster_refresh": "/bin/false"
   },
   "ssh": {},
   "transparency": {

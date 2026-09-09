@@ -1,6 +1,6 @@
 local lua_root = assert(arg[1], "WezTerm Lua path is required")
 local plugin_fixture = assert(arg[2], "plugin fixture path is required")
-local tether_plan_fixture = assert(arg[3], "tether plan fixture path is required")
+local roster_fixture_dir = assert(arg[3], "roster catalog fixture directory is required")
 
 local switcher_file = assert(io.open(lua_root .. "/sysinit/pkg/ui/switcher.lua", "r"))
 local switcher_source = switcher_file:read("*a")
@@ -40,7 +40,13 @@ local current_process = "zsh"
 local child_process = function(_args)
   return false, "", "no child process stub"
 end
+local json_parse = function(text)
+  error("no json_parse stub for: " .. tostring(text))
+end
 local logged = {}
+-- The mux the tree walks and the panes it can activate; each test sets them.
+local mux_windows = {}
+local mux_panes = {}
 local action = setmetatable({}, {
   __index = function(_, name)
     return function(value)
@@ -50,6 +56,7 @@ local action = setmetatable({}, {
 })
 
 local wezterm = {
+  GLOBAL = {},
   action = action,
   action_callback = function(callback)
     return callback
@@ -69,8 +76,21 @@ local wezterm = {
     logged[#logged + 1] = message
   end,
   log_warn = function() end,
+  mux = {
+    all_windows = function()
+      return mux_windows
+    end,
+    get_pane = function(id)
+      return mux_panes[id]
+    end,
+  },
+  -- The glyph names the fixtures carry, so a resolved glyph is one letter.
+  nerdfonts = { cod_briefcase = "B", md_server = "S", md_sleep = "D" },
   run_child_process = function(args)
     return child_process(args)
+  end,
+  json_parse = function(text)
+    return json_parse(text)
   end,
   on = function(name, callback)
     handlers[name] = callback
@@ -116,6 +136,14 @@ assert(table.concat(nu_args, "\n") == table.concat({
   expected_config_root .. "/nushell/plugin.msgpackz",
 }, "\n"), "WezTerm did not pass every managed Nushell path")
 
+-- Each fixture is a lua chunk, so every load returns a fresh table the way a
+-- JSON parse would, and a reader that mutates its rows cannot leak into the
+-- next test.
+local roster_fixtures = {}
+for _, source in ipairs({ "seshy", "remote-seshy" }) do
+  roster_fixtures[source] = assert(loadfile(roster_fixture_dir .. "/" .. source .. ".lua"))
+end
+
 package.loaded["sysinit.pkg.utils"] = {
   get_config_path = function(path)
     return path
@@ -129,14 +157,24 @@ package.loaded["sysinit.pkg.utils"] = {
   get_process_name = function()
     return current_process
   end,
-  load_json_file = function()
+  load_json_file = function(path)
+    local source = path:match("^/state/roster/catalog/(.+)%.json$")
+    if source then
+      local chunk = roster_fixtures[source]
+      if not chunk then
+        error("Could not open file: " .. path)
+      end
+      return chunk()
+    end
     return {
-      hosts = { arrakis = { tether = {} } },
       plugins = {
         fixture = plugin_fixture,
         missing = plugin_fixture .. "/missing",
       },
-      scripts = { tether_refresh = "wezterm-tether-refresh" },
+      scripts = { roster_refresh = "wezterm-roster-refresh", roster_open = "wezterm-roster-open" },
+      roster = { catalog_dir = "/state/roster/catalog", sources = { "seshy", "remote-seshy" } },
+      cwd_aliases = { sy = "/state/seshy/sessions" },
+      passthrough_procs = { "zmx", "caffeinate" },
     }
   end,
   state_path = function(_, fallback)
@@ -261,7 +299,7 @@ switcher.setup(session_config, { apply_to_config = function() end }, {
     return {}, {}
   end,
   tree = function()
-    return { workspaces = {}, attention = {}, unreachable = {} }
+    return { workspaces = {}, attention = {}, sections = {} }
   end,
   colors = function()
     return {}
@@ -292,17 +330,11 @@ session_keys["/"].action(tree_window, pane)
 assert(#tree_actions == 2, "slash did not leave the session action table")
 assert(tree_actions[2].SendKey.key == "/", "slash did not enter the native filter")
 
-local listed_args
-child_process = function(args)
-  listed_args = args
-  return true, "newest\nolder\n"
-end
-local listed = require("sysinit.pkg.ui.sessions").list_names("/profile/bin/sy")
-assert(listed_args[3] == "--names", "dormant discovery parses the human session table")
-assert(table.concat(listed, ",") == "newest,older", "dormant discovery lost on-disk sessions")
-
 local refreshed
-local switch_action
+local switch_actions = {}
+local function last_switch()
+  return switch_actions[#switch_actions]
+end
 local session_actions = require("sysinit.pkg.ui.actions")
 session_actions.set_refresh_handler(function(target)
   refreshed = target
@@ -312,132 +344,375 @@ local switch_window = {
     return "older"
   end,
   perform_action = function(_, value)
-    switch_action = value
+    switch_actions[#switch_actions + 1] = value
   end,
 }
 session_actions.switch_to_workspace(switch_window, pane, "newest")
-assert(switch_action.SwitchToWorkspace.name == "newest", "session switch did not target the selected workspace")
+assert(last_switch().SwitchToWorkspace.name == "newest", "session switch did not target the selected workspace")
+assert(last_switch().SwitchToWorkspace.spawn == nil, "a switch with no row invented a spawn")
 assert(refreshed == switch_window, "session switch did not refresh the active session indicator")
 
--- tether decides the hop; the tree only has to read its document faithfully.
--- The fixture is a real plan against arrakis, where native-mux won and the
--- mosh-mux tier was filtered because both ends lacked mosh.
-local ui_tether = require("sysinit.pkg.ui.tether")
-local arrakis_plan = dofile(tether_plan_fixture)
-assert(arrakis_plan.version == "tether.plan/v1", "the tether fixture is not a tether.plan/v1 document")
-local plan_args =
-  ui_tether.plan_args("/profile/bin/tether", "arrakis", "sysinit", "ssh:arrakis", { "zmx", "attach", "sysinit" })
+-- roster decides what a session is and how it spawns; the tree only has to
+-- read its catalogs faithfully. The fixtures are the catalogs `roster refresh`
+-- wrote: seshy over this Mac's sessions, remote-seshy with arrakis stubbed to
+-- the committed tether plan.
+local ui_sessions = require("sysinit.pkg.ui.sessions")
 assert(
-  table.concat(plan_args, " ")
-    == "/profile/bin/tether plan --host arrakis --session sysinit --native ssh:arrakis -- zmx attach sysinit",
-  "tether plan argv changed: " .. table.concat(plan_args, " ")
+  table.concat(ui_sessions.sources, ",") == "seshy,remote-seshy",
+  "the catalog sources did not come from config.json"
 )
-local native_spawn, native_err = ui_tether.spawn_for(arrakis_plan, "/home/rshnbhatia/sysinit")
-assert(native_spawn, "the native-mux plan produced no spawn: " .. tostring(native_err))
+assert(ui_sessions.catalog_dir == "/state/roster/catalog", "the catalog directory did not come from config.json")
+
+local stamp = ui_sessions.parse_rfc3339("2026-09-09T03:27:12Z")
+assert(stamp == 1788924432, "an RFC 3339 UTC stamp misparsed: " .. tostring(stamp))
+assert(ui_sessions.parse_rfc3339("2026-09-08T20:27:12.5-07:00") == stamp, "an offset stamp did not normalise to UTC")
+assert(ui_sessions.parse_rfc3339("1970-01-01T00:00:00Z") == 0, "the epoch did not parse to zero")
+assert(ui_sessions.parse_rfc3339("yesterday") == nil, "a non-stamp parsed")
+assert(ui_sessions.parse_duration("30s") == 30, "a Go duration misparsed")
+assert(ui_sessions.parse_duration("1h30m") == 5400, "a compound Go duration misparsed")
+assert(ui_sessions.parse_duration("1.5s") == 1.5, "a fractional duration misparsed")
+assert(ui_sessions.parse_duration("10x") == nil and ui_sessions.parse_duration("") == nil, "a non-duration parsed")
+
+local fresh = ui_sessions.read_catalog("seshy", stamp + 10)
+assert(fresh.ok and not fresh.stale, "a catalog inside its ttl read as stale")
+assert(#fresh.rows == 2 and not fresh.rows[1].stale, "a fresh catalog's rows were not both fresh")
+local aged = ui_sessions.read_catalog("seshy", stamp + 11)
+assert(aged.stale and aged.rows[1].stale, "a catalog past its ttl did not read as stale")
+assert(ui_sessions.is_stale({ generated_at = "bad", ttl = "10s" }), "an unreadable stamp read as fresh")
+local missing = ui_sessions.read_catalog("nothing")
+assert(
+  not missing.ok and missing.error == "not refreshed yet" and #missing.rows == 0,
+  "a missing catalog did not degrade to an empty one"
+)
+
+local catalogs = ui_sessions.catalogs()
+assert(
+  #catalogs == 2 and catalogs[1].source == "seshy" and catalogs[2].source == "remote-seshy",
+  "catalogs did not come back in config order"
+)
+assert(catalogs[1].stale and catalogs[2].stale, "a fixture written on 2026-09-08 read as fresh")
+local remote_row = ui_sessions.row_for("arrakis:sysinit")
+assert(
+  remote_row and remote_row.host == "arrakis" and remote_row.source == "remote-seshy",
+  "row_for did not find the remote row by workspace"
+)
+assert(ui_sessions.row_for("nowhere") == nil, "row_for invented a row")
+
+-- The tree: one section per source in config order, label and glyph from
+-- display, a live workspace joined to its row by name, a live workspace no row
+-- names kept as unmanaged, and every other row dormant under its group.
+local function mux_window(workspace, id)
+  return {
+    get_workspace = function()
+      return workspace
+    end,
+    window_id = function()
+      return id
+    end,
+    tabs = function()
+      return {}
+    end,
+  }
+end
+mux_windows = { mux_window("alpha", 1), mux_window("unmanaged", 2) }
+local ui_session_tree = require("sysinit.pkg.ui.session_tree")
+local tree = ui_session_tree.build({})
+assert(#tree.sections == 2, "the tree did not draw one section per source")
+assert(
+  tree.sections[1].label == "sessions" and tree.sections[1].glyph == "B",
+  "the seshy section lost its display label or glyph"
+)
+assert(
+  tree.sections[2].label == "remote" and tree.sections[2].glyph == "S",
+  "the remote section lost its display label or glyph"
+)
+assert(ui_session_tree.glyph("no_such_glyph") == nil, "an unknown glyph name resolved")
+local by_name = {}
+for _, ws in ipairs(tree.workspaces) do
+  by_name[ws.name] = ws
+end
+assert(
+  by_name.alpha and not by_name.alpha.dormant and by_name.alpha.row and by_name.alpha.source == "seshy",
+  "a live workspace did not join its catalog row"
+)
+assert(
+  by_name.unmanaged and not by_name.unmanaged.dormant and by_name.unmanaged.row == nil,
+  "a live workspace with no row was dropped or claimed"
+)
+assert(by_name["a-much-longer-name"].dormant, "a row with no workspace was not drawn dormant")
+local remote_ws = by_name["arrakis:sysinit"]
+assert(
+  remote_ws.dormant and remote_ws.host == "arrakis" and remote_ws.display_name == "sysinit",
+  "the remote row lost its host or label"
+)
+assert(remote_ws.stale, "a row in a stale catalog did not read as stale")
+local host_group = tree.sections[2].groups[1]
+assert(
+  host_group.id == "host:arrakis" and host_group.ok and #host_group.workspaces == 1,
+  "the host group did not carry its row"
+)
+assert(host_group.meta.tier == "native-mux", "the group lost its meta")
+assert(
+  #tree.sections[1].workspaces == 2 and #tree.sections[2].workspaces == 0,
+  "ungrouped rows landed in the wrong section"
+)
+assert(tree.unreachable == nil, "the tree still carries an unreachable list")
+
+-- spawn.lua: the hop decides the spawn.
+local ui_spawn = require("sysinit.pkg.ui.spawn")
+local native_spawn, native_err = ui_spawn.spawn_for(remote_row)
+assert(native_spawn, "the native row produced no spawn: " .. tostring(native_err))
 assert(native_spawn.domain.DomainName == "ssh:arrakis", "a native hop did not spawn at the ssh domain")
-assert(table.concat(native_spawn.args, " ") == "zmx attach sysinit", "a native hop changed the inner argv")
-assert(native_spawn.cwd == "/home/rshnbhatia/sysinit", "a native hop lost the session directory")
-local native_summary = ui_tether.summary(arrakis_plan)
-assert(native_summary.tier == "native-mux" and not native_summary.stale, "the fixture summary misread chosen or probe")
-assert(ui_tether.loses_suffix(native_summary) == "", "native-mux keeps OSC and panes but drew a suffix")
-
-local ssh_alternative = arrakis_plan.alternatives[1]
-assert(ssh_alternative.tier == "ssh" and ssh_alternative.hop.kind == "local", "the fixture lost its ssh alternative")
-local local_plan = {
-  version = "tether.plan/v1",
-  status = "ok",
-  chosen = { tier = ssh_alternative.tier },
-  plan = ssh_alternative.plan,
-  hop = ssh_alternative.hop,
-  loses = ssh_alternative.loses,
-  probe = { stale = true },
+assert(table.concat(native_spawn.args, " ") == "zmx attach sysinit", "a native hop changed the plan's command")
+assert(native_spawn.cwd == "/home/rshnbhatia/sysinit", "a native hop lost the remote directory")
+local local_row = ui_sessions.row_for("alpha")
+local local_spawn = ui_spawn.spawn_for(local_row)
+assert(local_spawn.domain == nil and local_spawn.args == nil, "a local default-program row carried a domain or args")
+assert(
+  local_spawn.cwd == "/home/test/.local/state/seshy/sessions/alpha",
+  "a local row did not spawn at the plan's directory"
+)
+local local_command = ui_spawn.spawn_for({
+  id = "x",
+  workspace = "x",
+  cwd = "/remote",
+  spawn = { plan = { command = { "ssh", "-t", "arrakis" }, cwd = "" }, hop = { kind = "local" } },
+})
+assert(
+  local_command.cwd == nil and local_command.args[1] == "ssh",
+  "a local hop with a command lost it or kept a remote cwd"
+)
+local rejected_row = {
+  id = "seshy:gone",
+  workspace = "gone",
+  reason = "session directory missing",
+  spawn = { resolve = true },
 }
-local local_spawn = ui_tether.spawn_for(local_plan, "/home/rshnbhatia/sysinit")
-assert(local_spawn.domain == nil and local_spawn.cwd == nil, "a local hop carried a remote domain or cwd")
+local rejected, rejected_reason = ui_spawn.spawn_for(rejected_row)
+assert(rejected == nil and rejected_reason == "session directory missing", "a rejected row spawned or lost its reason")
+assert(ui_spawn.spawn_for(nil) == nil, "a missing row produced a spawn")
+local bad_hop, bad_hop_err =
+  ui_spawn.spawn_for({ id = "x", workspace = "x", spawn = { plan = { command = {} }, hop = { kind = "teleport" } } })
+assert(bad_hop == nil and bad_hop_err:find("teleport", 1, true), "an unknown hop kind spawned")
 assert(
-  local_spawn.args[1] == "ssh" and local_spawn.args[#local_spawn.args] == "sysinit",
-  "a local hop lost the hop tool argv"
-)
-local local_summary = ui_tether.summary(local_plan)
-assert(local_summary.stale, "a stale probe was not surfaced")
-assert(
-  ui_tether.loses_suffix(local_summary) == "no panes",
-  "the ssh tier did not flag lost panes: " .. ui_tether.loses_suffix(local_summary)
+  ui_spawn.spawn_for({ id = "x", workspace = "x", spawn = { plan = { command = {} }, hop = { kind = "native" } } })
+    == nil,
+  "a native hop with no ref spawned"
 )
 
-local pinned_error = {
-  version = "tether.plan/v1",
-  status = "error",
-  error = "pinned tier mosh-mux unavailable: local mosh absent, remote mosh-server absent",
-  reasons = { "mosh-mux filtered: local mosh absent, remote mosh-server absent" },
-  probe = { stale = false },
-}
-local error_spawn, error_reason = ui_tether.spawn_for(pinned_error, nil)
-assert(error_spawn == nil, "an error plan produced a spawn")
-assert(
-  error_reason:find("pinned tier mosh-mux unavailable", 1, true),
-  "an error plan lost tether's error: " .. error_reason
-)
-assert(error_reason:find("mosh-mux filtered", 1, true), "an error plan lost tether's reasons")
-assert(
-  ui_tether.loses_suffix(ui_tether.summary(pinned_error)):find("pinned tier", 1, true),
-  "an error plan drew no row text"
-)
-assert(ui_tether.spawn_for(nil) == nil, "a missing plan produced a spawn")
-assert(ui_tether.summary({ version = "other/v1" }) == nil, "another document version read as a plan")
-
--- The attach branch end to end: run_child_process is the one synchronous call,
--- its stdout is parsed, and the hop decides the spawn. On an error plan the
--- attach logs and still spawns at the ssh domain.
-local tether_stdout
-local tether_argv
+-- A deferred spawn asks roster, once, through the configured wrapper.
+local open_argv
 child_process = function(args)
-  tether_argv = args
-  return true, tether_stdout, ""
+  open_argv = args
+  return true, "resolved-row", ""
 end
-local parsed_docs = { native = arrakis_plan, pinned = pinned_error }
-wezterm.json_parse = function(text)
-  return assert(parsed_docs[text], "unexpected json_parse input: " .. tostring(text))
+json_parse = function(text)
+  assert(text == "resolved-row", "unexpected json_parse input: " .. tostring(text))
+  return local_row
 end
-logged = {}
-local remote_opts = { host = "arrakis", domain = "ssh:arrakis", session = "sysinit", cwd = "/home/rshnbhatia/sysinit" }
-tether_stdout = "native"
-session_actions.switch_to_workspace(switch_window, pane, "arrakis:sysinit", remote_opts)
-assert(tether_argv[1] == "tether" and tether_argv[2] == "plan", "a remote attach did not ask tether for a plan")
+local deferred = { id = "seshy:deferred", workspace = "deferred", spawn = { resolve = true } }
+local resolved_spawn, resolved_err = ui_spawn.spawn_for(deferred, ui_spawn.resolver("wezterm-roster-open"))
+assert(resolved_spawn, "a deferred row did not resolve: " .. tostring(resolved_err))
 assert(
-  tether_argv[#tether_argv] == "sysinit" and tether_argv[#tether_argv - 2] == "zmx",
-  "the attach inner argv is not zmx attach"
+  table.concat(open_argv, " ") == "wezterm-roster-open seshy:deferred",
+  "the deferred row did not call roster open with its id: " .. table.concat(open_argv, " ")
 )
-local remote_spawn = switch_action.SwitchToWorkspace.spawn
-assert(remote_spawn.domain.DomainName == "ssh:arrakis", "a native plan did not attach over the ssh domain")
-assert(table.concat(remote_spawn.args, " ") == "zmx attach sysinit", "a native plan changed the spawned argv")
-assert(#logged == 0, "a usable plan logged an error")
-tether_stdout = "pinned"
-session_actions.switch_to_workspace(switch_window, pane, "arrakis:sysinit", remote_opts)
-assert(
-  #logged == 1 and logged[1]:find("pinned tier mosh-mux unavailable", 1, true),
-  "an error plan was not logged with tether's reasons"
-)
-local fallback_spawn = switch_action.SwitchToWorkspace.spawn
-assert(fallback_spawn.domain.DomainName == "ssh:arrakis", "an error plan did not fall back to the ssh domain")
-assert(table.concat(fallback_spawn.args, " ") == "zmx attach sysinit", "the fallback lost the inner argv")
+assert(resolved_spawn.cwd == local_spawn.cwd, "the resolved row's plan was not used")
+json_parse = function()
+  return deferred
+end
+local looped, looped_err = ui_spawn.spawn_for(deferred, ui_spawn.resolver("wezterm-roster-open"))
+assert(looped == nil and looped_err:find("deferred", 1, true), "a source that defers twice was not refused")
+assert(ui_spawn.spawn_for(deferred) == nil, "a deferred row spawned with no resolver")
+child_process = function()
+  return false, "", "roster open: no catalog lists row"
+end
+json_parse = function()
+  error("must not parse a failed call")
+end
+local failed, failed_err = ui_spawn.spawn_for(deferred, ui_spawn.resolver("wezterm-roster-open"))
+assert(failed == nil and failed_err:find("no catalog lists row", 1, true), "a failed roster open lost its stderr")
 
--- The refresh probes every configured host in the background even when no
--- remote domain is attached, because tether guards its own stalls.
+-- The attach end to end: a native row spawns at its domain; a rejected row
+-- logs once and does nothing else, with no fallback domain.
+logged = {}
+session_actions.switch_to_workspace(switch_window, pane, "arrakis:sysinit", remote_row)
+local remote_switch = last_switch().SwitchToWorkspace
+assert(remote_switch.name == "arrakis:sysinit", "a remote attach did not target its workspace")
+assert(remote_switch.spawn.domain.DomainName == "ssh:arrakis", "a remote attach did not spawn at the ssh domain")
+assert(#logged == 0, "a usable row logged an error")
+local before_rejected = #switch_actions
+session_actions.open_row(switch_window, pane, rejected_row)
+assert(#switch_actions == before_rejected, "a rejected row still performed an action")
+assert(
+  #logged == 1 and logged[1]:find("session directory missing", 1, true),
+  "a rejected row was not logged with its reason: " .. tostring(logged[1])
+)
+
+-- A row a live pane already shows is activated, never spawned.
+local focused = false
+mux_panes[42] = {
+  tab = function()
+    return {
+      activate = function() end,
+      window = function()
+        return {
+          gui_window = function()
+            return {
+              focus = function()
+                focused = true
+              end,
+            }
+          end,
+        }
+      end,
+    }
+  end,
+  activate = function() end,
+}
+local before_shown = #switch_actions
+session_actions.open_row(
+  switch_window,
+  pane,
+  { id = "x", workspace = "shown", pane = "42", spawn = { resolve = true } }
+)
+assert(focused and #switch_actions == before_shown, "a row with a live pane was spawned instead of activated")
+
+-- The refresh spawns roster and nothing else, and throttles itself.
 local background_argv
 wezterm.background_child_process = function(args)
   background_argv = args
 end
-require("sysinit.pkg.ui.sessions").refresh_remote()
-assert(background_argv, "the refresh spawned no tether probe")
+ui_sessions.refresh_catalogs()
 assert(
-  background_argv[1] == "wezterm-tether-refresh" and background_argv[3] == "arrakis",
-  "the tether refresh did not name the configured host"
+  background_argv and #background_argv == 1 and background_argv[1] == "wezterm-roster-refresh",
+  "the refresh spawned something other than roster"
+)
+background_argv = nil
+ui_sessions.refresh_catalogs()
+assert(background_argv == nil, "the refresh did not throttle")
+
+-- Directory aliases and passthrough processes come from config.json, not from
+-- a tool's layout.
+local ui_format = require("sysinit.pkg.ui.format")
+assert(ui_format.smart_path("/state/seshy/sessions/alpha") == "{sy}/alpha", "a configured alias did not abbreviate")
+assert(
+  ui_format.smart_path("/state/seshy/sessions") == "{sy}",
+  "a configured alias did not abbreviate its own directory"
+)
+assert(ui_format.smart_path("/state/seshy/sessionsx") == "/state/seshy/sessionsx", "an alias matched a sibling prefix")
+assert(
+  ui_format.is_passthrough("zmx") and not ui_format.is_passthrough("nvim"),
+  "passthrough processes are not configured"
+)
+
+-- The dormant view: a header per source, group rows with a reason when the
+-- group could not be listed, dormant rows under their group, all from the
+-- catalog. Choosing a row spawns from it. workspace-manager's own picker
+-- offers only rows it can spawn as they are: local, default program,
+-- directory here.
+tree.sections[2].groups[#tree.sections[2].groups + 1] = {
+  id = "host:dune",
+  label = "dune",
+  ok = false,
+  stale = false,
+  reason = "unreachable",
+  meta = {},
+  workspaces = {},
+}
+local ribbon = {
+  new = function()
+    local parts = {}
+    return {
+      append = function(_, _, _, text)
+        parts[#parts + 1] = text
+      end,
+      append_items = function() end,
+      format = function()
+        return table.concat(parts)
+      end,
+    }
+  end,
+}
+local tree_config = {}
+local tree_performed = {}
+local wm_stub = {
+  apply_to_config = function() end,
+  switch_to_previous_workspace = function()
+    return {}
+  end,
+}
+switcher.setup(tree_config, wm_stub, {
+  sessions = function()
+    return {}, {}
+  end,
+  tree = function()
+    return tree
+  end,
+  colors = function()
+    return {}
+  end,
+  icons = { session = "W", dormant = "D", folder = "F", tab = "T", attn = "!" },
+  home = "/home/test",
+  ribbon = ribbon,
+})
+local dormant_entry
+for _, entry in ipairs(handlers["augment-command-palette"]()) do
+  if entry.brief == "Session tree: dormant" then
+    dormant_entry = entry
+  end
+end
+local tree_win = {
+  window_id = function()
+    return 9
+  end,
+  perform_action = function(_, value)
+    tree_performed[#tree_performed + 1] = value
+  end,
+  active_workspace = function()
+    return "default"
+  end,
+}
+dormant_entry.action(tree_win, pane)
+local selector = tree_performed[#tree_performed].InputSelector
+local labels = {}
+for _, choice in ipairs(selector.choices) do
+  labels[#labels + 1] = choice.id .. "|" .. choice.label
+end
+local rendered = table.concat(labels, "\n")
+assert(labels[1] == "section:seshy|B sessions", "the seshy section header was not first: " .. rendered)
+assert(
+  labels[2] == "ws:a-much-longer-name|  D @localhost a-much-longer-name",
+  "the dormant row was not under its section: " .. rendered
+)
+assert(labels[3] == "section:remote-seshy|S remote", "the remote section did not follow the seshy one: " .. rendered)
+assert(
+  labels[4] == "group:host:arrakis|  S arrakis  native-mux",
+  "the host group row lost glyph, label, or meta: " .. rendered
 )
 assert(
-  background_argv[2] == "/state/wezterm/remote_sessions",
-  "the tether refresh wrote outside the remote session cache"
+  labels[5] == "ws:arrakis:sysinit|    D @arrakis sysinit  native-mux",
+  "the remote row is not under its group: " .. rendered
 )
+assert(
+  labels[6] == "group:host:dune|  F dune  unreachable",
+  "a group that could not be listed did not say why: " .. rendered
+)
+assert(#labels == 6 and not rendered:find("alpha", 1, true), "a live workspace was drawn as dormant: " .. rendered)
+selector.action(tree_win, pane, "ws:arrakis:sysinit")
+local chosen = tree_performed[#tree_performed].SwitchToWorkspace
+assert(
+  chosen and chosen.name == "arrakis:sysinit" and chosen.spawn.domain.DomainName == "ssh:arrakis",
+  "choosing a dormant row did not spawn from its catalog row"
+)
+local wm_choices = wm_stub.get_choices()
+assert(#wm_choices == 3 and wm_choices[1].name == "default", "workspace-manager's picker lost the default row")
+assert(
+  wm_choices[2].name == "a-much-longer-name"
+    and wm_choices[2].path == "/home/test/.local/state/seshy/sessions/a-much-longer-name",
+  "workspace-manager's picker did not take the plan's directory"
+)
+assert(wm_choices[3].name == "alpha", "workspace-manager's picker offered a remote row")
 
 local windowtitle = require("sysinit.pkg.ui.windowtitle")
 local test_home = os.getenv("HOME") or "/home/test"

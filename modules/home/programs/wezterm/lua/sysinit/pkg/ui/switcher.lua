@@ -6,7 +6,6 @@ local ui_badges = require("sysinit.pkg.ui.badges")
 local ui_format = require("sysinit.pkg.ui.format")
 local ui_panes = require("sysinit.pkg.ui.panes")
 local ui_sessions = require("sysinit.pkg.ui.sessions")
-local ui_tether = require("sysinit.pkg.ui.tether")
 
 local M = {}
 
@@ -151,38 +150,47 @@ function M.setup(config, wm, ctx)
     local default_choice = { name = "default", path = ctx.home, label = host .. " default" }
     local rows = {}
 
-    for _, name in ipairs(ui_sessions.list_names(ui_sessions.sy_bin)) do
-      if name ~= "default" then
-        local st = sessions[name]
-        local label = host .. " " .. name
-        if st then
-          local icon = ui_format.state_icons[st.status] or "●"
-          label = icon .. " " .. host .. " " .. name
-          local a = agg[name]
-          if a then
-            if a.repo ~= "" then
-              label = label .. "  at " .. a.repo
+    -- Only a row workspace-manager can spawn as it is: a local hop, the
+    -- default program, and a directory on this machine.
+    for _, catalog in ipairs(ui_sessions.catalogs()) do
+      for _, row in ipairs(catalog.rows) do
+        local spawn = type(row.spawn) == "table" and row.spawn or {}
+        local hop = type(spawn.hop) == "table" and spawn.hop or {}
+        local plan = type(spawn.plan) == "table" and spawn.plan or {}
+        local plain = hop.kind == "local" and type(plan.command) == "table" and #plan.command == 0
+        local name = row.workspace
+        if plain and name ~= "default" and type(plan.cwd) == "string" and plan.cwd ~= "" then
+          local st = sessions[name]
+          local label = host .. " " .. name
+          if st then
+            local icon = ui_format.state_icons[st.status] or "●"
+            label = icon .. " " .. host .. " " .. name
+            local a = agg[name]
+            if a then
+              if a.repo ~= "" then
+                label = label .. "  at " .. a.repo
+              end
+              if a.agent ~= "" then
+                label = label .. "  in " .. a.agent
+              end
             end
-            if a.agent ~= "" then
-              label = label .. "  in " .. a.agent
+            local age = st.since and ui_format.age(now - st.since) or ""
+            local fmt = ui_format.status_label(st.status, st.reason)
+            if fmt ~= "" then
+              label = label .. "  — " .. fmt
+            end
+            if age ~= "" then
+              label = label .. "  " .. age
             end
           end
-          local age = st.since and ui_format.age(now - st.since) or ""
-          local fmt = ui_format.status_label(st.status, st.reason)
-          if fmt ~= "" then
-            label = label .. "  — " .. fmt
-          end
-          if age ~= "" then
-            label = label .. "  " .. age
-          end
+          table.insert(rows, {
+            name = name,
+            path = plan.cwd,
+            label = label,
+            _rank = st and st.rank or 0,
+            _since = st and st.since or nil,
+          })
         end
-        table.insert(rows, {
-          name = name,
-          path = ui_sessions.seshy_dir .. "/" .. name,
-          label = label,
-          _rank = st and st.rank or 0,
-          _since = st and st.since or nil,
-        })
       end
     end
 
@@ -203,25 +211,46 @@ function M.setup(config, wm, ctx)
     return choices
   end
 
-  -- A stale tether inventory greys the host tag the way "not probed yet" greys
-  -- an unlisted one: the row is still selectable, but the tier it would attach
-  -- through is a guess until the next probe lands.
-  local function append_host(r, colors, domain, tether)
-    if domain == false then
-      return
-    end
-    local tag, is_local = ui_format.host_tag(domain)
-    local stale = type(tether) == "table" and tether.stale
-    r:append(nil, (is_local or stale) and colors.chrome or colors.dir_ic, tag)
+  -- The host a row is on, greyed when the catalog behind it is stale: the row
+  -- is still selectable, but what it would attach through is a guess until the
+  -- next refresh lands.
+  local function append_host(r, colors, host, is_local, stale)
+    r:append(nil, (is_local or stale) and colors.chrome or colors.dir_ic, "@" .. (host or "localhost"))
     r:append(nil, colors.chrome, " ")
   end
 
-  -- What the chosen hop costs, after the row's name. Empty for native-mux, so
-  -- a host that keeps its panes and OSC draws the row it always drew.
-  local function append_loses(r, colors, tether)
-    local suffix = ui_tether.loses_suffix(tether)
-    if suffix ~= "" then
-      r:append(nil, colors.reason, "  " .. suffix)
+  -- A live node's host is its panes' domain; false means they disagree, and
+  -- no tag is drawn.
+  local function append_domain(r, colors, domain, stale)
+    if domain == false then
+      return
+    end
+    local host, is_local = ui_format.domain_host(domain)
+    append_host(r, colors, host, is_local, stale)
+  end
+
+  -- The meta keys every source may set, drawn the same way whoever set them.
+  -- `loses` lists what the chosen hop gives up; only the two a wezterm user
+  -- feels are drawn, so a hop that keeps its panes and OSC draws the row it
+  -- always drew. `tier` names the hop that won.
+  local loses_labels = { osc = "no osc", ["native-panes"] = "no panes" }
+  local function append_meta(r, colors, meta)
+    if type(meta) ~= "table" then
+      return
+    end
+    local parts = {}
+    if type(meta.loses) == "table" then
+      for _, capability in ipairs(meta.loses) do
+        if loses_labels[capability] then
+          parts[#parts + 1] = loses_labels[capability]
+        end
+      end
+    end
+    if #parts > 0 then
+      r:append(nil, colors.reason, "  " .. table.concat(parts, " "))
+    end
+    if type(meta.tier) == "string" and meta.tier ~= "" then
+      r:append(nil, colors.chrome, "  " .. meta.tier)
     end
   end
 
@@ -238,7 +267,7 @@ function M.setup(config, wm, ctx)
       r:append(nil, nil, "  ")
     end
     r:append(nil, sc, icon .. " ")
-    append_host(r, colors, rec.domain)
+    append_domain(r, colors, rec.domain)
     local crumb = rec.workspace
     if rec.tab_title ~= "" then
       crumb = crumb .. " · " .. rec.tab_title
@@ -325,25 +354,49 @@ function M.setup(config, wm, ctx)
     end
 
     if filter == "dormant" then
-      for _, ws in ipairs(tree.workspaces) do
-        if ws.dormant then
-          local r = ctx.ribbon.new("dormant")
-          r:append(nil, colors.ws_dorm, ctx.icons.dormant .. " ")
-          append_host(r, colors, ws.domain, ws.tether)
-          r:append(nil, colors.ws_dorm, ws.display_name or ws.name)
-          append_loses(r, colors, ws.tether)
-          add("ws:" .. ws.name, r:format(), { workspace = ws.name, dormant = true })
-        end
-      end
-      -- An attached host that cannot be listed gets a row saying why, because a
-      -- silently absent host reads as a host with no sessions.
-      for _, entry in ipairs(tree.unreachable or {}) do
+      local function dormant_row(ws, indent)
         local r = ctx.ribbon.new("dormant")
-        r:append(nil, colors.chrome, ctx.icons.dormant .. " ")
-        append_host(r, colors, entry.domain, entry.tether)
-        r:append(nil, colors.reason, entry.reason)
-        append_loses(r, colors, entry.tether)
-        add("host:" .. entry.host, r:format(), nil)
+        r:append(nil, colors.chrome, indent)
+        r:append(nil, colors.ws_dorm, ctx.icons.dormant .. " ")
+        append_host(r, colors, ws.host, ws.host == nil, ws.stale)
+        r:append(nil, colors.ws_dorm, ws.display_name or ws.name)
+        append_meta(r, colors, ws.meta)
+        add("ws:" .. ws.name, r:format(), { workspace = ws.name, dormant = true, row = ws.row })
+      end
+      -- One section per source, headed by the source's own label and glyph. A
+      -- group that could not be listed gets a row saying why, because a
+      -- silently absent host reads as a host with no sessions.
+      for _, section in ipairs(tree.sections or {}) do
+        local head = ctx.ribbon.new("section")
+        local head_color = section.stale and colors.chrome or colors.dir_ic
+        head:append(nil, head_color, (section.glyph or ctx.icons.session) .. " ")
+        head:append(nil, section.stale and colors.chrome or colors.name, section.label, "Bold")
+        if section.error then
+          head:append(nil, colors.reason, "  " .. section.error)
+        end
+        add("section:" .. section.source, head:format(), nil)
+        for _, ws in ipairs(section.workspaces) do
+          if ws.dormant then
+            dormant_row(ws, "  ")
+          end
+        end
+        for _, group in ipairs(section.groups) do
+          local g = ctx.ribbon.new("group")
+          g:append(nil, colors.chrome, "  ")
+          local group_color = (group.ok and not group.stale) and colors.dir_ic or colors.chrome
+          g:append(nil, group_color, (group.glyph or ctx.icons.folder) .. " ")
+          g:append(nil, group.ok and colors.name or colors.chrome, group.label)
+          if not group.ok then
+            g:append(nil, colors.reason, "  " .. (group.reason or "unavailable"))
+          end
+          append_meta(g, colors, group.meta)
+          add("group:" .. group.id, g:format(), nil)
+          for _, ws in ipairs(group.workspaces) do
+            if ws.dormant then
+              dormant_row(ws, "    ")
+            end
+          end
+        end
       end
       return choices
     end
@@ -367,7 +420,7 @@ function M.setup(config, wm, ctx)
         local r = ctx.ribbon.new("ws")
         r:append(nil, colors.chrome, qs .. "  ")
         r:append(nil, sc or colors.ws_live, ctx.icons.session .. " ")
-        append_host(r, colors, ws.domain)
+        append_domain(r, colors, ws.domain, ws.stale)
         r:append(nil, colors.name, ws.display_name or ws.name, "Bold")
         if ws.status then
           r:append(nil, sc or colors.working, "  " .. (ui_format.state_icons[ws.status] or "●"))
@@ -398,7 +451,7 @@ function M.setup(config, wm, ctx)
       local sc = ui_format.status_color(ws.status, colors)
       local ws_r = ctx.ribbon.new("ws")
       ws_r:append(nil, sc or colors.ws_live, ctx.icons.session .. " ")
-      append_host(ws_r, colors, ws.domain)
+      append_domain(ws_r, colors, ws.domain, ws.stale)
       ws_r:append(nil, colors.name, ws.display_name or ws.name, { "Bold", "Single" })
       if ws.status then
         local ws_lbl = ui_format.state_labels[ws.status] or ""
@@ -425,7 +478,7 @@ function M.setup(config, wm, ctx)
         end
         tab_r:append(nil, colors.chrome, " [" .. tab_ref .. "]")
         tab_r:append(nil, colors.chrome, "  ")
-        append_host(tab_r, colors, tnode.domain)
+        append_domain(tab_r, colors, tnode.domain)
         tab_r:append(nil, colors.name, tnode.title)
         add(
           "tab:" .. tnode.tab_id,
@@ -443,7 +496,7 @@ function M.setup(config, wm, ctx)
             pane_r:append(nil, bc, ui_badges.name(rec.pane_id))
             pane_r:append(nil, colors.chrome, "> ")
           end
-          append_host(pane_r, colors, rec.domain)
+          append_domain(pane_r, colors, rec.domain)
           local pane_dp = ui_format.smart_path(rec.cwd)
           if pane_dp == "" then
             pane_dp = rec.repo
@@ -505,8 +558,7 @@ function M.setup(config, wm, ctx)
     end
     local kind = id:match("^([^:]+):")
     if kind == "ws" and rec.dormant then
-      local spawn = ui_sessions.remote_spawn(rec.workspace) or { cwd = ui_sessions.seshy_dir .. "/" .. rec.workspace }
-      ui_actions.switch_to_workspace(win, pane, rec.workspace, spawn)
+      ui_actions.open_row(win, pane, rec.row)
     elseif kind == "ws" then
       ui_actions.switch_to_workspace(win, pane, rec.workspace)
     else
@@ -652,14 +704,14 @@ function M.setup(config, wm, ctx)
   end
 
   local function open_close_selector(win, pane, notice)
-    ui_sessions.refresh_remote()
+    ui_sessions.refresh_catalogs()
     local tree = ctx.tree()
     local colors = ctx.colors(win)
     local by_id = {}
     local choices = session_tree_choices(tree, by_id, "all", colors)
     local close_choices = {}
     for _, choice in ipairs(choices) do
-      if not choice.id:match("^host:") then
+      if not choice.id:match("^section:") and not choice.id:match("^group:") then
         close_choices[#close_choices + 1] = choice
       end
     end
@@ -687,7 +739,7 @@ function M.setup(config, wm, ctx)
 
   open_session_tree = function(win, pane, filter, notice)
     filter = filter or "all"
-    ui_sessions.refresh_remote()
+    ui_sessions.refresh_catalogs()
     local tree = ctx.tree()
     local colors = ctx.colors(win)
     local by_id = {}
@@ -805,7 +857,7 @@ function M.setup(config, wm, ctx)
         end),
       },
       -- The tree is the one session picker; wezterm workspaces are a different
-      -- set from the seshy sessions every other route shows.
+      -- set from the catalog rows every other route shows.
       {
         brief = "Session: step forward",
         action = wezterm.action_callback(function(win, pane)

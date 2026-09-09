@@ -97,15 +97,52 @@ function M.age(secs)
   return string.format("%dh", math.floor(secs / 3600))
 end
 
+-- Directory aliases from config.json, `{ work = "/path" }`: that path draws as
+-- `{work}` and anything under it as `{work}/rest`. Longest path wins, so a
+-- nested alias beats the one that contains it.
+M.cwd_aliases = {}
+-- Processes that only wrap another one, so a pane running one shows the
+-- process inside it. Named in config.json, not here: which multiplexer a host
+-- runs is not this module's to know.
+local passthrough_procs = {}
+do
+  local ok, cfg = pcall(utils.load_json_file, utils.get_config_path("config.json"))
+  if ok and type(cfg) == "table" then
+    if type(cfg.cwd_aliases) == "table" then
+      for alias, path in pairs(cfg.cwd_aliases) do
+        if type(alias) == "string" and alias ~= "" and type(path) == "string" and path ~= "" then
+          M.cwd_aliases[#M.cwd_aliases + 1] = { alias = alias, path = (path:gsub("/+$", "")) }
+        end
+      end
+      table.sort(M.cwd_aliases, function(a, b)
+        if #a.path ~= #b.path then
+          return #a.path > #b.path
+        end
+        return a.alias < b.alias
+      end)
+    end
+    if type(cfg.passthrough_procs) == "table" then
+      for _, name in ipairs(cfg.passthrough_procs) do
+        if type(name) == "string" and name ~= "" then
+          passthrough_procs[name:lower()] = true
+        end
+      end
+    end
+  end
+end
+
 function M.smart_path(full_cwd)
   if not full_cwd or full_cwd == "" then
     return ""
   end
   local home = os.getenv("HOME") or ""
-  local seshy_base = utils.state_path("seshySessions", "seshy/sessions")
-  if full_cwd == seshy_base or full_cwd:sub(1, #seshy_base + 1) == seshy_base .. "/" then
-    local after = full_cwd:sub(#seshy_base + 2)
-    return after ~= "" and ("{sy}/" .. after) or "{sy}"
+  for _, entry in ipairs(M.cwd_aliases) do
+    if full_cwd == entry.path then
+      return "{" .. entry.alias .. "}"
+    end
+    if full_cwd:sub(1, #entry.path + 1) == entry.path .. "/" then
+      return "{" .. entry.alias .. "}/" .. full_cwd:sub(#entry.path + 2)
+    end
   end
   local gh_base = home .. "/github/"
   if full_cwd:sub(1, #gh_base) == gh_base then
@@ -128,11 +165,6 @@ function M.normalize_proc(raw)
   end
   return (raw:gsub("^%.", ""):gsub("%-wrapped$", ""))
 end
-
-local passthrough_procs = {
-  zmx = true,
-  caffeinate = true,
-}
 
 ---@param name string|nil
 ---@return boolean

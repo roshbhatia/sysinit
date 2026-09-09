@@ -1,0 +1,68 @@
+{
+  "version": "roster.catalog/v1",
+  "source": "remote-seshy",
+  "generated_at": "2026-09-09T03:27:12Z",
+  "ttl": "30s",
+  "display": {
+    "label": "remote",
+    "glyph": "md_server",
+    "order": 20
+  },
+  "groups": [
+    {
+      "id": "host:arrakis",
+      "label": "arrakis",
+      "glyph": "md_server",
+      "ok": true,
+      "stale": false,
+      "reason": null,
+      "meta": {
+        "loses": [
+          "roaming",
+          "local-echo"
+        ],
+        "tier": "native-mux"
+      }
+    }
+  ],
+  "rows": [
+    {
+      "id": "remote-seshy:arrakis:sysinit",
+      "workspace": "arrakis:sysinit",
+      "label": "sysinit",
+      "group": "host:arrakis",
+      "kind": "session",
+      "host": "arrakis",
+      "cwd": "/home/rshnbhatia/sysinit",
+      "status": null,
+      "pane": null,
+      "spawn": {
+        "plan": {
+          "command": [
+            "zmx",
+            "attach",
+            "sysinit"
+          ],
+          "cwd": "/home/rshnbhatia/sysinit",
+          "environment": {},
+          "successCodes": [
+            0
+          ]
+        },
+        "hop": {
+          "kind": "native",
+          "ref": "ssh:arrakis"
+        }
+      },
+      "meta": {
+        "loses": [
+          "roaming",
+          "local-echo"
+        ],
+        "stale": false,
+        "status": "ok",
+        "tier": "native-mux"
+      }
+    }
+  ]
+}
