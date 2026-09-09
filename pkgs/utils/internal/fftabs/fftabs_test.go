@@ -68,6 +68,26 @@ func TestProfilesPreferRecentRecovery(t *testing.T) {
 	}
 }
 
+func TestProfilesReadsNativePlatformLayouts(t *testing.T) {
+	for _, platform := range []string{"linux", "darwin"} {
+		t.Run(platform, func(t *testing.T) {
+			home := t.TempDir()
+			root := filepath.Join(home, ".mozilla", "firefox")
+			profileDir := root
+			if platform == "darwin" {
+				root = filepath.Join(home, "Library", "Application Support", "Firefox")
+				profileDir = filepath.Join(root, "Profiles")
+			}
+			file := filepath.Join(profileDir, "review.default", "sessionstore-backups", "recovery.jsonlz4")
+			writeSession(t, file, `{"windows":[{"tabs":[{"index":1,"entries":[{"url":"https://mozilla.org","title":"Mozilla"}]}]}]}`)
+			found := profiles(defaultRoot(home, platform))
+			if len(found) != 1 || found[0] != file {
+				t.Fatalf("profiles = %v; want %s", found, file)
+			}
+		})
+	}
+}
+
 func TestReadRejectsInvalidData(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "bad.jsonlz4")
 	if err := os.WriteFile(path, []byte("not mozlz4"), 0o600); err != nil {

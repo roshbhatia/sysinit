@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sort"
 )
 
@@ -108,7 +109,11 @@ func read(path string) ([]byte, error) {
 }
 
 func profiles(root string) []string {
-	entries, err := os.ReadDir(filepath.Join(root, "Profiles"))
+	profileDir := filepath.Join(root, "Profiles")
+	if _, err := os.Stat(profileDir); errors.Is(err, os.ErrNotExist) {
+		profileDir = root
+	}
+	entries, err := os.ReadDir(profileDir)
 	if err != nil {
 		return nil
 	}
@@ -123,8 +128,8 @@ func profiles(root string) []string {
 		}
 
 		for _, name := range []string{
-			filepath.Join(root, "Profiles", entry.Name(), "sessionstore-backups", "recovery.jsonlz4"),
-			filepath.Join(root, "Profiles", entry.Name(), "sessionstore.jsonlz4"),
+			filepath.Join(profileDir, entry.Name(), "sessionstore-backups", "recovery.jsonlz4"),
+			filepath.Join(profileDir, entry.Name(), "sessionstore.jsonlz4"),
 		} {
 			info, err := os.Stat(name)
 			if err == nil {
@@ -171,8 +176,15 @@ func tabs(path string) ([]Tab, error) {
 	return found, nil
 }
 
+func defaultRoot(home, platform string) string {
+	if platform == "darwin" {
+		return filepath.Join(home, "Library", "Application Support", "Firefox")
+	}
+	return filepath.Join(home, ".mozilla", "firefox")
+}
+
 func Run(args []string) int {
-	root := filepath.Join(os.Getenv("HOME"), "Library", "Application Support", "Firefox")
+	root := defaultRoot(os.Getenv("HOME"), runtime.GOOS)
 	if len(args) > 0 {
 		root = args[0]
 	}
