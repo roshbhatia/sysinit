@@ -7,7 +7,6 @@ let
   cloud = import ../flake/cloud-files.nix { inherit pkgs lib; };
   committed = {
     ".cursor/environment.json" = ../.cursor/environment.json;
-    ".devin/blueprint.yaml" = ../.devin/blueprint.yaml;
     "hack/cloud-setup.sh" = ../hack/cloud-setup.sh;
   };
   compare = lib.concatStringsSep "\n" (

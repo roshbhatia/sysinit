@@ -11,7 +11,7 @@ the cachix substituter, builds
 `github:roshbhatia/sysinit#packages.x86_64-linux.cloudTools`, and links its
 `bin/*` into `/usr/local/bin`.
 
-`hack/cloud-setup.sh`, `.cursor/environment.json`, and `.devin/blueprint.yaml`
+`hack/cloud-setup.sh` and `.cursor/environment.json`
 are generated from `modules/shared/cloud.nix`. Edit the facts there, run
 `hack/generate-cloud.sh`, and commit the result; `checks.cloud-files` fails on a
 hand edit.
@@ -39,29 +39,6 @@ of truth for Claude Code cloud, so re-paste after you change the script.
 fetch) stay reachable alongside the added domains.
 
 Cursor picks the file up automatically. No manual sync is needed.
-
-## Devin cloud
-
-`.devin/blueprint.yaml` is a git-backed Devin blueprint. Its `initialize` step
-runs `hack/cloud-setup.sh`. Devin discovers the file on the default branch when
-the repository is first added to an environment.
-
-For an already-connected repository, a push does not sync on its own. Trigger a
-sync, then a build:
-
-```bash
-devin cloud drs blueprint-list        # find the blueprint id for this repo
-devin cloud drs build                 # rebuild the snapshot from the synced blueprint
-```
-
-Or drive the beta sync + build API directly:
-
-```bash
-curl -X POST "https://api.devin.ai/v3beta1/organizations/${ORG_ID}/snapshot-setup/sync" \
-  -H "Authorization: Bearer ${DEVIN_API_TOKEN}" -H "Content-Type: application/json"
-curl -X POST "https://api.devin.ai/v3beta1/organizations/${ORG_ID}/snapshot-setup/builds" \
-  -H "Authorization: Bearer ${DEVIN_API_TOKEN}" -H "Content-Type: application/json"
-```
 
 ## Not covered here
 

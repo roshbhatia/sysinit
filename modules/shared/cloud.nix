@@ -1,5 +1,5 @@
-# The one set of facts behind the cloud-agent files: `.cursor/environment.json`,
-# `.devin/blueprint.yaml`, and `hack/cloud-setup.sh`. Each of those is rendered
+# The one set of facts behind the cloud-agent files: `.cursor/environment.json`
+# and `hack/cloud-setup.sh`. Each of those is rendered
 # from this by `flake/cloud-files.nix` and committed; `checks/cloud-files.nix`
 # fails when the committed bytes drift from the render. Edit here, then run
 # `hack/generate-cloud.sh`.
@@ -66,18 +66,5 @@ in
   cursor = {
     name = "sysinit-cloud-tools";
     egressMode = "default_with_network_settings";
-  };
-
-  devin = {
-    stepName = "Install sysinit cloud tools";
-    knowledge = {
-      name = "tools";
-      contents = ''
-        hack/cloud-setup.sh installs this user's own CLIs into /usr/local/bin
-        from roshbhatia.cachix.org: ask, gate, changes, traces, orc, seshy,
-        specutil, calldiff, and the sysinit-utils helpers. The closure
-        substitutes wholesale, so no source build runs.
-      '';
-    };
   };
 }
