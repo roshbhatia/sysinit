@@ -2,7 +2,7 @@
 
 Read this before changing anything under `pkgs/`.
 
-## One module, two directories
+## One Go module
 
 `pkgs/go.mod` declares `github.com/roshbhatia/sysinit/pkgs`. Everything Go
 here is a directory inside it, not a module of its own. There is one `go.sum`
@@ -12,7 +12,6 @@ and one vendor hash.
 pkgs/
   go.mod  go.sum
   utils/            main package + utils/internal/   (one binary, many names)
-  prose-style/      rules.cue, not Go
 ```
 
 `ask`, `changes`, `traces`, `seshy`, `specutil`, and `colchis` used to live
@@ -37,14 +36,9 @@ used to be packages here; `internal/guard`, `internal/lintgate`, and
 
 `utils/main.go` dispatches on `argv[0]`, so one binary answers to its names.
 No gate provider lives here. `prose-gate` moved to gate's `extras/` in
-2026-09; its vale rules stay in `pkgs/prose-style` and reach it as the
-`style` argument of its chain steps, beside every text it injects
-(`modules/home/programs/llm/gate-defaults.nix`).
-
-Every gate function returns a `hookfmt.Outcome` and `hookfmt.Emit` renders it
-for the caller: `--format claude` (hook JSON), `exit-code`, `json`, or the
-`provider` frames the gate dispatcher speaks. The decision and the wire shape
-are separate on purpose.
+2026-09. The rules live in `roshbhatia/prose-style` and reach gate through
+`modules/home/programs/llm/gate-defaults.nix`. Sysinit retains desktop integration
+commands. `go-utils` owns shared Git, path, and workspace primitives.
 
 ### What the model can and cannot see
 
@@ -61,8 +55,8 @@ Stop continues the turn exactly as `decision: block` does, so gate's
 then publishes `utils` under every name in its `links` list, each a wrapper
 that pins `git` and `curl` on PATH.
 Adding a command means a `commands` entry and a `links` entry in `main.go`,
-and the same name in the overlay's `links`. `main_test.go` fails when the two
-disagree.
+and the same name in the overlay's `links`. `main_test.go` compares the Go command and link maps. Check overlay aliases when
+changing either map.
 
 `buildGoModule` runs the Go tests during its check phase, and the `go-tests`
 flake check builds that package, so `nix flake check` covers them. From a

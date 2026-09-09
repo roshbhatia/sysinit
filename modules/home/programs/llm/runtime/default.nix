@@ -163,27 +163,6 @@ let
     ];
   };
 
-  syGateScript = pkgs.writeShellApplication {
-    name = "sy";
-    runtimeInputs = [
-      pkgs.coreutils
-      pkgs.fzf
-    ];
-    text = joinFragments [
-      ''
-        SY_REAL=${lib.getExe' pkgs.seshy "sy"}
-      ''
-      paths
-      (builtins.readFile ./sy-gate.sh)
-    ];
-  };
-
-  syGate = pkgs.runCommand "sy-guard-${lib.getVersion pkgs.seshy}" { } ''
-    mkdir -p "$out/bin" "$out/share"
-    ln -s ${syGateScript}/bin/sy "$out/bin/sy"
-    cp -rs ${pkgs.seshy}/share/. "$out/share/"
-  '';
-
   focusScript = pkgs.writeShellApplication {
     name = "agent-focus";
     runtimeInputs = [
@@ -206,7 +185,6 @@ in
     focusScript
     reviewScript
     sessionsScript
-    syGate
     agentRefine
     specPreflight
     ;

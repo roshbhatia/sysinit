@@ -10,19 +10,22 @@
     "monospace": "monospace",
     "symbols": "monospace"
   },
-  "passthrough_procs": ["zmx", "caffeinate"],
+  "passthrough_procs": [
+    "zmx",
+    "caffeinate"
+  ],
   "plugins": {},
-  "roster": {
-    "catalog_dir": "/state/roster/catalog",
-    "sources": ["seshy", "remote-seshy"]
-  },
-  "scripts": {
-    "roster_open": "/bin/false",
-    "roster_refresh": "/bin/false"
-  },
   "ssh": {},
   "transparency": {
     "blur": 0,
     "opacity": 1
+  },
+  "directories": {
+    "list": [
+      "/bin/false"
+    ],
+    "open": [
+      "/bin/false"
+    ]
   }
 }

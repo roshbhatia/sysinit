@@ -5,8 +5,6 @@ local ui_sessions = require("sysinit.pkg.ui.sessions")
 
 local M = {}
 
-local nf = wezterm.nerdfonts or {}
-
 -- nil is "no pane seen yet", false is "panes disagree", so a tab or workspace
 -- claims a host only when every pane under it is on that one host.
 local function merge_domain(current, domain)
@@ -17,96 +15,6 @@ local function merge_domain(current, domain)
     return false
   end
   return current
-end
-
--- A catalog names its glyph, e.g. "md_server"; the nerdfonts table resolves
--- it. nil when the name is empty or unknown, so the caller can fall back to
--- its own icon table.
----@param name string|nil
----@return string|nil
-function M.glyph(name)
-  if type(name) ~= "string" or name == "" then
-    return nil
-  end
-  local glyph = nf[name]
-  return type(glyph) == "string" and glyph or nil
-end
-
--- One section per catalog, in the order the roster config lists the sources.
--- display.order breaks a tie only; roster's config already sorted by it.
-local function build_sections(catalogs, ws_index, workspaces)
-  local sections = {}
-  for index, catalog in ipairs(catalogs) do
-    local display = catalog.display or {}
-    local section = {
-      source = catalog.source,
-      ok = catalog.ok,
-      error = catalog.error,
-      label = type(display.label) == "string" and display.label ~= "" and display.label or catalog.source,
-      glyph = M.glyph(display.glyph),
-      order = type(display.order) == "number" and display.order or math.huge,
-      config_index = index,
-      stale = catalog.stale,
-      groups = {},
-      workspaces = {},
-    }
-    local group_index = {}
-    for _, group in ipairs(catalog.groups) do
-      local node = {
-        id = group.id,
-        label = type(group.label) == "string" and group.label ~= "" and group.label or group.id,
-        glyph = M.glyph(group.glyph),
-        ok = group.ok ~= false,
-        stale = group.stale == true,
-        reason = type(group.reason) == "string" and group.reason or nil,
-        meta = type(group.meta) == "table" and group.meta or {},
-        workspaces = {},
-      }
-      section.groups[#section.groups + 1] = node
-      group_index[group.id] = node
-    end
-    -- A row joins a live workspace by name and is drawn live; a row with no
-    -- workspace is drawn dormant. A live workspace no row names stays as the
-    -- mux reports it: unmanaged.
-    for _, row in ipairs(catalog.rows) do
-      local ws = ws_index[row.workspace]
-      if not ws then
-        ws = {
-          name = row.workspace,
-          display_name = row.workspace,
-          dormant = true,
-          rank = 0,
-          since = nil,
-          status = nil,
-          tabs = {},
-        }
-        ws_index[row.workspace] = ws
-        workspaces[#workspaces + 1] = ws
-      end
-      ws.row = row
-      ws.source = catalog.source
-      ws.host = row.host
-      ws.stale = row.stale == true
-      ws.meta = type(row.meta) == "table" and row.meta or {}
-      if type(row.label) == "string" and row.label ~= "" then
-        ws.display_name = row.label
-      end
-      local group = type(row.group) == "string" and group_index[row.group] or nil
-      if group then
-        group.workspaces[#group.workspaces + 1] = ws
-      else
-        section.workspaces[#section.workspaces + 1] = ws
-      end
-    end
-    sections[#sections + 1] = section
-  end
-  table.sort(sections, function(a, b)
-    if a.config_index ~= b.config_index then
-      return a.config_index < b.config_index
-    end
-    return a.order < b.order
-  end)
-  return sections
 end
 
 function M.build(deck_states)
@@ -204,8 +112,6 @@ function M.build(deck_states)
     end
   end)
 
-  local sections = build_sections(ui_sessions.catalogs(), ws_index, workspaces)
-
   local now = os.time()
   table.sort(attention, function(a, b)
     if a.rank ~= b.rank then
@@ -214,7 +120,7 @@ function M.build(deck_states)
     return (a.since or now) < (b.since or now)
   end)
 
-  return { workspaces = workspaces, attention = attention, sections = sections }
+  return { workspaces = workspaces, attention = attention }
 end
 
 function M.colors(win, config_data)

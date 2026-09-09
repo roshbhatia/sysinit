@@ -1,15 +1,10 @@
 { lib, pkgs }:
 let
   nushellLib = import ../modules/home/programs/nushell/lib.nix { inherit lib; };
-  runtime = import ../modules/home/programs/llm/runtime {
-    inherit pkgs;
-    inherit (pkgs) lib;
-  };
-
   managedProfile = pkgs.buildEnv {
     name = "nushell-managed-tools-profile";
     paths = [
-      runtime.syGate
+      pkgs.seshy
       pkgs.specutil
     ];
     pathsToLink = [

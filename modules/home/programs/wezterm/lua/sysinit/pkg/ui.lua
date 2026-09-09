@@ -174,7 +174,6 @@ function M.setup(config)
         ui_sessions.touch(window:active_workspace())
       end)
     end
-    ui_sessions.refresh_catalogs()
 
     local _, panes = agent_session_states()
     local live = {}

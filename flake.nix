@@ -108,7 +108,7 @@
     };
 
     seshy = {
-      url = "github:roshbhatia/seshy/main";
+      url = "github:roshbhatia/seshy/144cc4e8ef60d5c15a7b00674713191014b114f4";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -125,13 +125,13 @@
       };
     };
 
-    tether = {
-      url = "github:roshbhatia/tether/v0.2.0";
+    prose-style = {
+      url = "github:roshbhatia/prose-style/cd1ae44c090229e4af7abc11550ebb5434704c85";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    roster = {
-      url = "github:roshbhatia/roster/v0.1.0";
+    tether = {
+      url = "github:roshbhatia/tether/5c2ba931e3f3e2b70f503b5e358052eb1b3f1815";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -303,7 +303,6 @@
             "gate-cli"
             "gate-providers"
             "tether"
-            "roster"
             "citelock"
             "sysinit-utils"
             "orc-cli"

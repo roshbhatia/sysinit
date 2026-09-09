@@ -3,15 +3,15 @@ local keybindings = require("sysinit.pkg.keybindings")
 local utils = require("sysinit.pkg.utils")
 local ui_actions = require("sysinit.pkg.ui.actions")
 local ui_badges = require("sysinit.pkg.ui.badges")
-local ui_format = require("sysinit.pkg.ui.format")
 local ui_panes = require("sysinit.pkg.ui.panes")
 local ui_sessions = require("sysinit.pkg.ui.sessions")
+local launcher = require("sysinit.pkg.ui.launcher")
 
 local M = {}
 
 local SESSION_SELECTOR_ALPHABET = "1234567890abcdefghilmnopqrstuvwyzABCDEFGHILMNOPQRSTUVWYZ"
 local SESSION_TREE_ACTIONS = {
-  { id = "toggle-dormant", key = ".", hint = "dormant" },
+  { id = "open-directory", key = ".", hint = "directory" },
   { id = "close-target", key = "x", hint = "close" },
 }
 local SESSION_SELECTOR_HELP = {
@@ -116,437 +116,14 @@ end
 
 function M.setup(config, wm, ctx)
   wm.get_choices = function()
-    local sessions, panes = ctx.sessions()
-    local now = os.time()
-
-    local agg = {}
-    for _, rec in ipairs(panes) do
-      local a = agg[rec.workspace]
-      if not a then
-        a = { count = 0, blocked = 0, repo = "", agent = "", worst_rank = 0, worst_status = nil }
-        agg[rec.workspace] = a
-      end
-      a.count = a.count + 1
-      if a.repo == "" and rec.repo ~= "" then
-        a.repo = rec.repo
-      end
-      if rec.rank >= ui_panes.state_rank.working then
-        a.blocked = a.blocked + 1
-      end
-      if rec.rank > a.worst_rank then
-        a.worst_rank = rec.rank
-        a.worst_status = rec.status
-        if rec.agent ~= "" then
-          a.agent = rec.agent
-        end
-      end
-    end
-
-    -- Local sessions only: workspace-manager spawns without a domain, so a
-    -- remote session offered here would open on the wrong host. The tag is
-    -- fixed rather than omitted so a row is never silently host-ambiguous.
-    -- Remote sessions live in the session tree, which does set the domain.
-    local host = ui_format.host_tag(nil)
-    local default_choice = { name = "default", path = ctx.home, label = host .. " default" }
-    local rows = {}
-
-    -- Only a row workspace-manager can spawn as it is: a local hop, the
-    -- default program, and a directory on this machine.
-    for _, catalog in ipairs(ui_sessions.catalogs()) do
-      for _, row in ipairs(catalog.rows) do
-        local spawn = type(row.spawn) == "table" and row.spawn or {}
-        local hop = type(spawn.hop) == "table" and spawn.hop or {}
-        local plan = type(spawn.plan) == "table" and spawn.plan or {}
-        local plain = hop.kind == "local" and type(plan.command) == "table" and #plan.command == 0
-        local name = row.workspace
-        if plain and name ~= "default" and type(plan.cwd) == "string" and plan.cwd ~= "" then
-          local st = sessions[name]
-          local label = host .. " " .. name
-          if st then
-            local icon = ui_format.state_icons[st.status] or "●"
-            label = icon .. " " .. host .. " " .. name
-            local a = agg[name]
-            if a then
-              if a.repo ~= "" then
-                label = label .. "  at " .. a.repo
-              end
-              if a.agent ~= "" then
-                label = label .. "  in " .. a.agent
-              end
-            end
-            local age = st.since and ui_format.age(now - st.since) or ""
-            local fmt = ui_format.status_label(st.status, st.reason)
-            if fmt ~= "" then
-              label = label .. "  — " .. fmt
-            end
-            if age ~= "" then
-              label = label .. "  " .. age
-            end
-          end
-          table.insert(rows, {
-            name = name,
-            path = plan.cwd,
-            label = label,
-            _rank = st and st.rank or 0,
-            _since = st and st.since or nil,
-          })
-        end
-      end
-    end
-
-    table.sort(rows, function(a, b)
-      if a._rank ~= b._rank then
-        return a._rank > b._rank
-      end
-      if a._rank > 0 and a._since ~= b._since then
-        return (a._since or now) < (b._since or now)
-      end
-      return a.name < b.name
-    end)
-
-    local choices = { default_choice }
-    for _, row in ipairs(rows) do
-      table.insert(choices, { name = row.name, path = row.path, label = row.label })
-    end
-    return choices
-  end
-
-  -- The host a row is on, greyed when the catalog behind it is stale: the row
-  -- is still selectable, but what it would attach through is a guess until the
-  -- next refresh lands.
-  local function append_host(r, colors, host, is_local, stale)
-    r:append(nil, (is_local or stale) and colors.chrome or colors.dir_ic, "@" .. (host or "localhost"))
-    r:append(nil, colors.chrome, " ")
-  end
-
-  -- A live node's host is its panes' domain; false means they disagree, and
-  -- no tag is drawn.
-  local function append_domain(r, colors, domain, stale)
-    if domain == false then
-      return
-    end
-    local host, is_local = ui_format.domain_host(domain)
-    append_host(r, colors, host, is_local, stale)
-  end
-
-  -- The meta keys every source may set, drawn the same way whoever set them.
-  -- `loses` lists what the chosen hop gives up; only the two a wezterm user
-  -- feels are drawn, so a hop that keeps its panes and OSC draws the row it
-  -- always drew. `tier` names the hop that won.
-  local loses_labels = { osc = "no osc", ["native-panes"] = "no panes" }
-  local function append_meta(r, colors, meta)
-    if type(meta) ~= "table" then
-      return
-    end
-    local parts = {}
-    if type(meta.loses) == "table" then
-      for _, capability in ipairs(meta.loses) do
-        if loses_labels[capability] then
-          parts[#parts + 1] = loses_labels[capability]
-        end
-      end
-    end
-    if #parts > 0 then
-      r:append(nil, colors.reason, "  " .. table.concat(parts, " "))
-    end
-    if type(meta.tier) == "string" and meta.tier ~= "" then
-      r:append(nil, colors.chrome, "  " .. meta.tier)
-    end
-  end
-
-  local function attn_row(rec, now, colors)
-    local sc = ui_format.status_color(rec.status, colors) or colors.idle
-    local icon = ui_format.state_icons[rec.status] or "●"
-    local is_urgent = rec.rank and rec.rank >= ui_panes.state_rank.working
-    local age = rec.since and ui_format.age(now - rec.since) or ""
-
-    local r = ctx.ribbon.new("attn")
-    if is_urgent then
-      r:append(nil, colors.waiting, ctx.icons.attn .. " ")
-    else
-      r:append(nil, nil, "  ")
-    end
-    r:append(nil, sc, icon .. " ")
-    append_domain(r, colors, rec.domain)
-    local crumb = rec.workspace
-    if rec.tab_title ~= "" then
-      crumb = crumb .. " · " .. rec.tab_title
-    end
-    r:append(nil, colors.name, crumb, "Bold")
-    local attn_dp = ui_format.smart_path(rec.cwd)
-    if attn_dp == "" then
-      attn_dp = rec.repo
-    end
-    if attn_dp ~= "" and attn_dp ~= rec.tab_title then
-      r:append(nil, colors.chrome, "  ")
-      r:append(nil, colors.age, "at ")
-      r:append(nil, colors.name, attn_dp)
-    end
-    local scope = ui_format.scope_label(rec)
-    if scope then
-      r:append(nil, colors.chrome, "  ")
-      r:append(nil, colors.age, "on ")
-      r:append(nil, colors.age, scope)
-      if rec.dirty then
-        r:append(nil, colors.working, " *")
-      end
-    end
-    if rec.title ~= "" then
-      r:append(nil, colors.chrome, "  ")
-      r:append(nil, colors.age, "in ")
-      if ctx.sigil_ok then
-        local proc_items = ctx.sigil.items(rec.title, { fallback = true, padding = "right", reset = true })
-        r:append_items(proc_items)
-      end
-      r:append(nil, colors.name, rec.title)
-    end
-    local fmt = ui_format.status_label(rec.status, rec.reason)
-    if fmt ~= "" then
-      r:append(nil, colors.reason, "  " .. fmt)
-    end
-    if age ~= "" then
-      r:append(nil, colors.age, "  " .. age)
-    end
-    local bc = ui_badges.color(rec.pane_id, colors)
-    if bc then
-      r:append(nil, colors.chrome, "  ")
-      r:append(nil, bc, ui_badges.name(rec.pane_id))
-    end
-    return r:format()
-  end
-
-  local function session_tree_choices(tree, by_id, filter, colors)
     local choices = {}
-    local now = os.time()
-    local function add(id, label, rec)
-      by_id[id] = rec or true
-      choices[#choices + 1] = { id = id, label = label }
+    for _, name in ipairs(ui_sessions.active_names()) do
+      choices[#choices + 1] = { name = name, label = name }
     end
-    filter = filter or "all"
-
-    if filter == "blocked" or filter == "agents" then
-      local list = {}
-      if filter == "blocked" then
-        for _, rec in ipairs(tree.attention) do
-          list[#list + 1] = rec
-        end
-      else
-        for _, ws in ipairs(tree.workspaces) do
-          for _, tnode in ipairs(ws.tabs) do
-            for _, rec in ipairs(tnode.panes) do
-              if rec.status then
-                list[#list + 1] = rec
-              end
-            end
-          end
-        end
-        table.sort(list, function(a, b)
-          if a.rank ~= b.rank then
-            return a.rank > b.rank
-          end
-          return (a.since or now) < (b.since or now)
-        end)
-      end
-      for _, rec in ipairs(list) do
-        add("pane:" .. rec.pane_id, attn_row(rec, now, colors), rec)
-      end
-      return choices
-    end
-
-    if filter == "dormant" then
-      local function dormant_row(ws, indent)
-        local r = ctx.ribbon.new("dormant")
-        r:append(nil, colors.chrome, indent)
-        r:append(nil, colors.ws_dorm, ctx.icons.dormant .. " ")
-        append_host(r, colors, ws.host, ws.host == nil, ws.stale)
-        r:append(nil, colors.ws_dorm, ws.display_name or ws.name)
-        append_meta(r, colors, ws.meta)
-        add("ws:" .. ws.name, r:format(), { workspace = ws.name, dormant = true, row = ws.row })
-      end
-      -- One section per source, headed by the source's own label and glyph. A
-      -- group that could not be listed gets a row saying why, because a
-      -- silently absent host reads as a host with no sessions.
-      for _, section in ipairs(tree.sections or {}) do
-        local head = ctx.ribbon.new("section")
-        local head_color = section.stale and colors.chrome or colors.dir_ic
-        head:append(nil, head_color, (section.glyph or ctx.icons.session) .. " ")
-        head:append(nil, section.stale and colors.chrome or colors.name, section.label, "Bold")
-        if section.error then
-          head:append(nil, colors.reason, "  " .. section.error)
-        end
-        add("section:" .. section.source, head:format(), nil)
-        for _, ws in ipairs(section.workspaces) do
-          if ws.dormant then
-            dormant_row(ws, "  ")
-          end
-        end
-        for _, group in ipairs(section.groups) do
-          local g = ctx.ribbon.new("group")
-          g:append(nil, colors.chrome, "  ")
-          local group_color = (group.ok and not group.stale) and colors.dir_ic or colors.chrome
-          g:append(nil, group_color, (group.glyph or ctx.icons.folder) .. " ")
-          g:append(nil, group.ok and colors.name or colors.chrome, group.label)
-          if not group.ok then
-            g:append(nil, colors.reason, "  " .. (group.reason or "unavailable"))
-          end
-          append_meta(g, colors, group.meta)
-          add("group:" .. group.id, g:format(), nil)
-          for _, ws in ipairs(group.workspaces) do
-            if ws.dormant then
-              dormant_row(ws, "    ")
-            end
-          end
-        end
-      end
-      return choices
-    end
-
-    if filter == "sessions" then
-      local live = {}
-      for _, ws in ipairs(tree.workspaces) do
-        if not ws.dormant then
-          live[#live + 1] = ws
-        end
-      end
-      table.sort(live, function(a, b)
-        if (a.last_active or 0) ~= (b.last_active or 0) then
-          return (a.last_active or 0) > (b.last_active or 0)
-        end
-        return a.name < b.name
-      end)
-      for i, ws in ipairs(live) do
-        local sc = ui_format.status_color(ws.status, colors)
-        local qs = i <= 9 and tostring(i) or string.char(96 + i - 9)
-        local r = ctx.ribbon.new("ws")
-        r:append(nil, colors.chrome, qs .. "  ")
-        r:append(nil, sc or colors.ws_live, ctx.icons.session .. " ")
-        append_domain(r, colors, ws.domain, ws.stale)
-        r:append(nil, colors.name, ws.display_name or ws.name, "Bold")
-        if ws.status then
-          r:append(nil, sc or colors.working, "  " .. (ui_format.state_icons[ws.status] or "●"))
-        end
-        local age = ws.last_active and ui_format.age(now - ws.last_active) or ""
-        if age ~= "" then
-          r:append(nil, colors.age, "  " .. age)
-        end
-        add("ws:" .. ws.name, r:format(), { workspace = ws.name, dormant = false })
-      end
-      return choices
-    end
-
-    local live_sorted = {}
-    for _, ws in ipairs(tree.workspaces) do
-      if not ws.dormant then
-        live_sorted[#live_sorted + 1] = ws
-      end
-    end
-    table.sort(live_sorted, function(a, b)
-      if (a.last_active or 0) ~= (b.last_active or 0) then
-        return (a.last_active or 0) > (b.last_active or 0)
-      end
-      return a.name < b.name
-    end)
-
-    for _, ws in ipairs(live_sorted) do
-      local sc = ui_format.status_color(ws.status, colors)
-      local ws_r = ctx.ribbon.new("ws")
-      ws_r:append(nil, sc or colors.ws_live, ctx.icons.session .. " ")
-      append_domain(ws_r, colors, ws.domain, ws.stale)
-      ws_r:append(nil, colors.name, ws.display_name or ws.name, { "Bold", "Single" })
-      if ws.status then
-        local ws_lbl = ui_format.state_labels[ws.status] or ""
-        ws_r:append(nil, colors.chrome, "  ")
-        ws_r:append(nil, sc or colors.working, ui_format.state_icons[ws.status] or "●")
-        if ws_lbl ~= "" then
-          ws_r:append(nil, colors.reason, " " .. ws_lbl)
-        end
-      end
-      add("ws:" .. ws.name, ws_r:format(), { workspace = ws.name, dormant = false })
-
-      for ti, tnode in ipairs(ws.tabs) do
-        local tlast = ti == #ws.tabs
-        local tbranch = tlast and "  └─ " or "  ├─ "
-        local tab_r = ctx.ribbon.new("tab")
-        tab_r:append(nil, colors.chrome, tbranch)
-        tab_r:append(nil, colors.ws_live, ctx.icons.tab)
-        -- tnode.index is the tab's number inside its own window, which is the
-        -- number ActivateTab answers to. A workspace with two windows also needs
-        -- the window said out loud, or two rows both read [1].
-        local tab_ref = tostring(tnode.index)
-        if (ws.window_count or 1) > 1 then
-          tab_ref = "w" .. tostring(tnode.window_index) .. ":" .. tab_ref
-        end
-        tab_r:append(nil, colors.chrome, " [" .. tab_ref .. "]")
-        tab_r:append(nil, colors.chrome, "  ")
-        append_domain(tab_r, colors, tnode.domain)
-        tab_r:append(nil, colors.name, tnode.title)
-        add(
-          "tab:" .. tnode.tab_id,
-          tab_r:format(),
-          { pane_id = tnode.active_pane_id, workspace = ws.name, tab_index = tab_ref }
-        )
-
-        for pi, rec in ipairs(tnode.panes) do
-          local pbranch = (tlast and "     " or "  │  ") .. (pi == #tnode.panes and "└─ " or "├─ ")
-          local pane_r = ctx.ribbon.new("pane")
-          pane_r:append(nil, colors.chrome, pbranch)
-          local bc = ui_badges.color(rec.pane_id, colors)
-          if bc then
-            pane_r:append(nil, colors.chrome, "<")
-            pane_r:append(nil, bc, ui_badges.name(rec.pane_id))
-            pane_r:append(nil, colors.chrome, "> ")
-          end
-          append_domain(pane_r, colors, rec.domain)
-          local pane_dp = ui_format.smart_path(rec.cwd)
-          if pane_dp == "" then
-            pane_dp = rec.repo
-          end
-          if pane_dp ~= "" then
-            pane_r:append(nil, colors.chrome, "  ")
-            pane_r:append(nil, colors.age, "at ")
-            pane_r:append(nil, colors.name, pane_dp)
-          end
-          local pane_scope = ui_format.scope_label(rec)
-          if pane_scope then
-            pane_r:append(nil, colors.chrome, "  ")
-            pane_r:append(nil, colors.age, "on ")
-            pane_r:append(nil, colors.age, pane_scope)
-            if rec.dirty then
-              pane_r:append(nil, colors.working, " *")
-            end
-          end
-          local proc = rec.title ~= "" and rec.title or nil
-          if proc then
-            pane_r:append(nil, colors.chrome, "  ")
-            pane_r:append(nil, colors.age, "in ")
-            if ctx.sigil_ok then
-              local proc_items = ctx.sigil.items(proc, { fallback = true, padding = "right", reset = true })
-              pane_r:append_items(proc_items)
-            end
-            pane_r:append(nil, colors.name, proc)
-          end
-          if rec.status then
-            local asc = ui_format.status_color(rec.status, colors) or colors.idle
-            local p_fmt = ui_format.status_label(rec.status, rec.reason)
-            pane_r:append(nil, colors.chrome, "  ")
-            pane_r:append(nil, asc, ui_format.state_icons[rec.status] or "●")
-            if p_fmt ~= "" then
-              pane_r:append(nil, colors.reason, " " .. p_fmt)
-            end
-            if rec.status ~= "done" then
-              local age = rec.since and ui_format.age(now - rec.since) or ""
-              if age ~= "" then
-                pane_r:append(nil, colors.age, " " .. age)
-              end
-            end
-          end
-          add("pane:" .. rec.pane_id, pane_r:format(), rec)
-        end
-      end
-    end
-
     return choices
   end
+
+  local session_tree_choices = require("sysinit.pkg.ui.tree_rows").new(ctx)
 
   local function session_tree_dispatch(win, pane, id, by_id)
     if not id then
@@ -557,9 +134,7 @@ function M.setup(config, wm, ctx)
       return
     end
     local kind = id:match("^([^:]+):")
-    if kind == "ws" and rec.dormant then
-      ui_actions.open_row(win, pane, rec.row)
-    elseif kind == "ws" then
+    if kind == "ws" then
       ui_actions.switch_to_workspace(win, pane, rec.workspace)
     else
       ui_actions.activate_agent_pane(win, pane, rec)
@@ -704,7 +279,6 @@ function M.setup(config, wm, ctx)
   end
 
   local function open_close_selector(win, pane, notice)
-    ui_sessions.refresh_catalogs()
     local tree = ctx.tree()
     local colors = ctx.colors(win)
     local by_id = {}
@@ -739,7 +313,6 @@ function M.setup(config, wm, ctx)
 
   open_session_tree = function(win, pane, filter, notice)
     filter = filter or "all"
-    ui_sessions.refresh_catalogs()
     local tree = ctx.tree()
     local colors = ctx.colors(win)
     local by_id = {}
@@ -755,7 +328,7 @@ function M.setup(config, wm, ctx)
     end
     local options = M.session_selector_options(target_choices, "open")
     options.description = M.session_tree_description()
-    local title = filter == "dormant" and "Dormant sessions" or "Sessions"
+    local title = "Sessions"
     if notice then
       title = title .. "  · " .. notice
     end
@@ -769,9 +342,9 @@ function M.setup(config, wm, ctx)
           inner_win:perform_action(wezterm.action.PopKeyTable, inner_pane)
         end
       end)
-      if pending == "toggle-dormant" then
+      if pending == "open-directory" then
         wezterm.time.call_after(0.05, function()
-          open_session_tree(inner_win, inner_pane, filter == "dormant" and "all" or "dormant")
+          launcher.open_directory(inner_win, inner_pane)
         end)
         return
       end
@@ -845,9 +418,15 @@ function M.setup(config, wm, ctx)
         end),
       },
       {
-        brief = "Session tree: dormant",
+        brief = "Open directory group",
         action = wezterm.action_callback(function(win, pane)
-          open_session_tree(win, pane, "dormant")
+          launcher.open_directory(win, pane)
+        end),
+      },
+      {
+        brief = "Connect to host",
+        action = wezterm.action_callback(function(win, pane)
+          launcher.connect_host(win, pane, config.ssh_domains or {})
         end),
       },
       {
@@ -856,8 +435,6 @@ function M.setup(config, wm, ctx)
           open_close_selector(win, pane)
         end),
       },
-      -- The tree is the one session picker; wezterm workspaces are a different
-      -- set from the catalog rows every other route shows.
       {
         brief = "Session: step forward",
         action = wezterm.action_callback(function(win, pane)

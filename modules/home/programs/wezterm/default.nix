@@ -12,17 +12,6 @@ let
   themeConfig = config.sysinit.theme;
   c = themeColors;
 
-  remoteHosts = import ./remote-hosts.nix { inherit lib; };
-
-  # roster's session sources: the config, one manifest per source, the two
-  # interim adapters, and the two wrappers the session tree runs. The tree
-  # reads roster's catalogs and nothing else; remote-hosts.nix reaches it only
-  # through the remote-seshy adapter and tether's own config.
-  rosterSources = import ./sources.nix {
-    inherit lib pkgs;
-    catalogDir = config.sysinit.paths.resolved.rosterCatalog;
-  };
-
   sshCfg = config.sysinit.git.ssh;
   sshAgentSocket =
     if lib.hasPrefix "~/" sshCfg.agentSocket then
@@ -114,10 +103,7 @@ in
     '';
   };
 
-  # Shells and the refresh wrapper agree on where the catalog lives.
-  home.sessionVariables.ROSTER_CATALOG_DIR = config.sysinit.paths.resolved.rosterCatalog;
-
-  xdg.configFile = rosterSources.manifestFiles // {
+  xdg.configFile = {
     "wezterm/lua".source = ./lua;
     "wezterm/config.json".text = builtins.toJSON {
       # Generated from the harness registry, so the deck cannot fall behind it.
@@ -193,26 +179,24 @@ in
           };
         };
       };
-      # The two roster commands the session tree runs, pinned to the catalog
-      # directory because the GUI's environment has neither the profile bin nor
-      # the state layout. They are the only tool the lua names.
-      scripts = {
-        roster_refresh = "${rosterSources.refresh}/bin/wezterm-roster-refresh";
-        roster_open = "${rosterSources.open}/bin/wezterm-roster-open";
+      directories = {
+        list = [
+          "${pkgs.coreutils}/bin/timeout"
+          "5"
+          "${lib.getExe pkgs.seshy}"
+          "list"
+          "--json"
+        ];
+        open = [
+          "${pkgs.coreutils}/bin/timeout"
+          "5"
+          "${lib.getExe pkgs.seshy}"
+          "open"
+          "--format"
+          "json"
+        ];
       };
-      # Where roster writes its catalogs and which sources to read, in the
-      # order roster's own config lists them. The lua reads one file per name
-      # and never lists the directory.
-      roster = {
-        catalog_dir = config.sysinit.paths.resolved.rosterCatalog;
-        sources = map (source: source.name) rosterSources.config.sources;
-      };
-      # Directories the tree abbreviates, `{sy}/name` for a seshy session. The
-      # lua used to derive the seshy path itself; now it knows no tool's layout.
       cwd_aliases.sy = config.sysinit.paths.resolved.seshySessions;
-      # Processes that only wrap another one; a pane running one is titled by
-      # the process inside it. zmx is the remote multiplexer every attach
-      # enters, so the lua would otherwise title every remote pane "zmx".
       passthrough_procs = [
         "zmx"
         "caffeinate"
@@ -229,12 +213,6 @@ in
         workspace-manager = "${weztermPlugins.workspace-manager}";
       };
     };
-    # tether reads this; remote-hosts.nix is the source, so the session tree
-    # and the negotiator can never disagree on which hosts exist.
-    "tether/config.json".text = builtins.toJSON remoteHosts.tetherConfig;
-    # roster reads these; sources.nix is the one list of sources, so the
-    # manifests and the config that orders them cannot disagree.
-    "roster/config.json".text = builtins.toJSON rosterSources.config;
     "wezterm/env.json".text = builtins.toJSON {
       PATH = paths.getPathString config.home.username config.home.homeDirectory;
       TERMINFO_DIRS = "${pkgs.wezterm.terminfo}/share/terminfo";

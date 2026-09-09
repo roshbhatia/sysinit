@@ -154,14 +154,7 @@ nix = "zmx"
 [[tool]]
 nix = "mosh"
 
-# `tsh` is ssh with the hop (native mux, mosh, ssh) negotiated from what both
-# ends have installed; `tether` is its plumbing, and the session tree calls
-# `tether plan` on attach. One package installs both binaries.
+# `tsh` selects a foreground SSH or Mosh connection from what both ends support.
+# `tether` is its plumbing. One package installs both binaries.
 [[tool]]
 nix = "tether"
-
-# Session-source catalog. `roster refresh` asks each provider/v1 source under
-# ~/.config/roster/providers for its rows and writes one catalog file per
-# source; the wezterm session tree will read those files.
-[[tool]]
-nix = "roster"

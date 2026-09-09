@@ -49,6 +49,7 @@ in
         ./otel-tui.nix
         ./orc
         ./seshy
+        ./tether
         ./traces.nix
         ./yazi
       ];

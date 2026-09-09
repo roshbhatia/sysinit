@@ -186,7 +186,7 @@ in
       notify.focusScript
       notify.reviewScript
       notify.sessionsScript
-      notify.syGate
+      pkgs.seshy
     ];
   };
 

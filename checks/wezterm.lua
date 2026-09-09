@@ -1,6 +1,5 @@
 local lua_root = assert(arg[1], "WezTerm Lua path is required")
 local plugin_fixture = assert(arg[2], "plugin fixture path is required")
-local roster_fixture_dir = assert(arg[3], "roster catalog fixture directory is required")
 
 local switcher_file = assert(io.open(lua_root .. "/sysinit/pkg/ui/switcher.lua", "r"))
 local switcher_source = switcher_file:read("*a")
@@ -22,7 +21,7 @@ local cli_calls = select(2, switcher_source:gsub('wezterm_bin,%s*"cli"', ""))
 local guarded_calls = select(2, switcher_source:gsub('wezterm_bin,%s*"cli",%s*"%-%-no%-auto%-start"', ""))
 assert(cli_calls == guarded_calls, "a switcher wezterm cli call can start a headless mux")
 assert(not switcher_source:find('id = "action:', 1, true), "a picker action is still rendered as a selectable row")
-assert(switcher_source:find('brief = "Session tree: dormant"', 1, true), "dormant sessions have no separate picker")
+assert(switcher_source:find('brief = "Open directory group"', 1, true), "directory groups have no separate picker")
 assert(
   switcher_source:find('brief = "Session: close target"', 1, true),
   "session targets have no separate close picker"
@@ -136,14 +135,6 @@ assert(table.concat(nu_args, "\n") == table.concat({
   expected_config_root .. "/nushell/plugin.msgpackz",
 }, "\n"), "WezTerm did not pass every managed Nushell path")
 
--- Each fixture is a lua chunk, so every load returns a fresh table the way a
--- JSON parse would, and a reader that mutates its rows cannot leak into the
--- next test.
-local roster_fixtures = {}
-for _, source in ipairs({ "seshy", "remote-seshy" }) do
-  roster_fixtures[source] = assert(loadfile(roster_fixture_dir .. "/" .. source .. ".lua"))
-end
-
 package.loaded["sysinit.pkg.utils"] = {
   get_config_path = function(path)
     return path
@@ -158,21 +149,12 @@ package.loaded["sysinit.pkg.utils"] = {
     return current_process
   end,
   load_json_file = function(path)
-    local source = path:match("^/state/roster/catalog/(.+)%.json$")
-    if source then
-      local chunk = roster_fixtures[source]
-      if not chunk then
-        error("Could not open file: " .. path)
-      end
-      return chunk()
-    end
     return {
       plugins = {
         fixture = plugin_fixture,
         missing = plugin_fixture .. "/missing",
       },
-      scripts = { roster_refresh = "wezterm-roster-refresh", roster_open = "wezterm-roster-open" },
-      roster = { catalog_dir = "/state/roster/catalog", sources = { "seshy", "remote-seshy" } },
+      directories = { list = { "list-directories" }, open = { "open-directory" } },
       cwd_aliases = { sy = "/state/seshy/sessions" },
       passthrough_procs = { "zmx", "caffeinate" },
     }
@@ -288,7 +270,7 @@ assert(not selector.alphabet:find("x", 1, true), "x selects a row after the clos
 assert(not selector.alphabet:find("/", 1, true), "/ cannot enter the built-in filter")
 assert(
   require("sysinit.pkg.ui.switcher").session_tree_description()
-    == "  j/k nav  Enter open  . dormant  x close  / filter  Esc quit",
+    == "  j/k nav  Enter open  . directory  x close  / filter  Esc quit",
   "session tree help diverged from its action metadata"
 )
 
@@ -352,59 +334,12 @@ assert(last_switch().SwitchToWorkspace.name == "newest", "session switch did not
 assert(last_switch().SwitchToWorkspace.spawn == nil, "a switch with no row invented a spawn")
 assert(refreshed == switch_window, "session switch did not refresh the active session indicator")
 
--- roster decides what a session is and how it spawns; the tree only has to
--- read its catalogs faithfully. The fixtures are the catalogs `roster refresh`
--- wrote: seshy over this Mac's sessions, remote-seshy with arrakis stubbed to
--- the committed tether plan.
+local launcher = require("sysinit.pkg.ui.launcher")
 local ui_sessions = require("sysinit.pkg.ui.sessions")
-assert(
-  table.concat(ui_sessions.sources, ",") == "seshy,remote-seshy",
-  "the catalog sources did not come from config.json"
-)
-assert(ui_sessions.catalog_dir == "/state/roster/catalog", "the catalog directory did not come from config.json")
-
-local stamp = ui_sessions.parse_rfc3339("2026-09-09T03:27:12Z")
-assert(stamp == 1788924432, "an RFC 3339 UTC stamp misparsed: " .. tostring(stamp))
-assert(ui_sessions.parse_rfc3339("2026-09-08T20:27:12.5-07:00") == stamp, "an offset stamp did not normalise to UTC")
-assert(ui_sessions.parse_rfc3339("1970-01-01T00:00:00Z") == 0, "the epoch did not parse to zero")
-assert(ui_sessions.parse_rfc3339("yesterday") == nil, "a non-stamp parsed")
-assert(ui_sessions.parse_duration("30s") == 30, "a Go duration misparsed")
-assert(ui_sessions.parse_duration("1h30m") == 5400, "a compound Go duration misparsed")
-assert(ui_sessions.parse_duration("1.5s") == 1.5, "a fractional duration misparsed")
-assert(ui_sessions.parse_duration("10x") == nil and ui_sessions.parse_duration("") == nil, "a non-duration parsed")
-
-local fresh = ui_sessions.read_catalog("seshy", stamp + 10)
-assert(fresh.ok and not fresh.stale, "a catalog inside its ttl read as stale")
-assert(#fresh.rows == 2 and not fresh.rows[1].stale, "a fresh catalog's rows were not both fresh")
-local aged = ui_sessions.read_catalog("seshy", stamp + 11)
-assert(aged.stale and aged.rows[1].stale, "a catalog past its ttl did not read as stale")
-assert(ui_sessions.is_stale({ generated_at = "bad", ttl = "10s" }), "an unreadable stamp read as fresh")
-local missing = ui_sessions.read_catalog("nothing")
-assert(
-  not missing.ok and missing.error == "not refreshed yet" and #missing.rows == 0,
-  "a missing catalog did not degrade to an empty one"
-)
-
-local catalogs = ui_sessions.catalogs()
-assert(
-  #catalogs == 2 and catalogs[1].source == "seshy" and catalogs[2].source == "remote-seshy",
-  "catalogs did not come back in config order"
-)
-assert(catalogs[1].stale and catalogs[2].stale, "a fixture written on 2026-09-08 read as fresh")
-local remote_row = ui_sessions.row_for("arrakis:sysinit")
-assert(
-  remote_row and remote_row.host == "arrakis" and remote_row.source == "remote-seshy",
-  "row_for did not find the remote row by workspace"
-)
-assert(ui_sessions.row_for("nowhere") == nil, "row_for invented a row")
-
--- The tree: one section per source in config order, label and glyph from
--- display, a live workspace joined to its row by name, a live workspace no row
--- names kept as unmanaged, and every other row dormant under its group.
-local function mux_window(workspace, id)
+local function mux_window(name, id)
   return {
     get_workspace = function()
-      return workspace
+      return name
     end,
     window_id = function()
       return id
@@ -412,214 +347,89 @@ local function mux_window(workspace, id)
     tabs = function()
       return {}
     end,
+    gui_window = function()
+      return nil
+    end,
   }
 end
-mux_windows = { mux_window("alpha", 1), mux_window("unmanaged", 2) }
-local ui_session_tree = require("sysinit.pkg.ui.session_tree")
-local tree = ui_session_tree.build({})
-assert(#tree.sections == 2, "the tree did not draw one section per source")
-assert(
-  tree.sections[1].label == "sessions" and tree.sections[1].glyph == "B",
-  "the seshy section lost its display label or glyph"
-)
-assert(
-  tree.sections[2].label == "remote" and tree.sections[2].glyph == "S",
-  "the remote section lost its display label or glyph"
-)
-assert(ui_session_tree.glyph("no_such_glyph") == nil, "an unknown glyph name resolved")
-local by_name = {}
-for _, ws in ipairs(tree.workspaces) do
-  by_name[ws.name] = ws
+mux_windows = { mux_window("alpha", 1), mux_window("remote:alpha", 2) }
+local calls = 0
+child_process = function()
+  calls = calls + 1
+  error("unexpected process")
 end
-assert(
-  by_name.alpha and not by_name.alpha.dormant and by_name.alpha.row and by_name.alpha.source == "seshy",
-  "a live workspace did not join its catalog row"
-)
-assert(
-  by_name.unmanaged and not by_name.unmanaged.dormant and by_name.unmanaged.row == nil,
-  "a live workspace with no row was dropped or claimed"
-)
-assert(by_name["a-much-longer-name"].dormant, "a row with no workspace was not drawn dormant")
-local remote_ws = by_name["arrakis:sysinit"]
-assert(
-  remote_ws.dormant and remote_ws.host == "arrakis" and remote_ws.display_name == "sysinit",
-  "the remote row lost its host or label"
-)
-assert(remote_ws.stale, "a row in a stale catalog did not read as stale")
-local host_group = tree.sections[2].groups[1]
-assert(
-  host_group.id == "host:arrakis" and host_group.ok and #host_group.workspaces == 1,
-  "the host group did not carry its row"
-)
-assert(host_group.meta.tier == "native-mux", "the group lost its meta")
-assert(
-  #tree.sections[1].workspaces == 2 and #tree.sections[2].workspaces == 0,
-  "ungrouped rows landed in the wrong section"
-)
-assert(tree.unreachable == nil, "the tree still carries an unreachable list")
-
--- spawn.lua: the hop decides the spawn.
-local ui_spawn = require("sysinit.pkg.ui.spawn")
-local native_spawn, native_err = ui_spawn.spawn_for(remote_row)
-assert(native_spawn, "the native row produced no spawn: " .. tostring(native_err))
-assert(native_spawn.domain.DomainName == "ssh:arrakis", "a native hop did not spawn at the ssh domain")
-assert(table.concat(native_spawn.args, " ") == "zmx attach sysinit", "a native hop changed the plan's command")
-assert(native_spawn.cwd == "/home/rshnbhatia/sysinit", "a native hop lost the remote directory")
-local local_row = ui_sessions.row_for("alpha")
-local local_spawn = ui_spawn.spawn_for(local_row)
-assert(local_spawn.domain == nil and local_spawn.args == nil, "a local default-program row carried a domain or args")
-assert(
-  local_spawn.cwd == "/home/test/.local/state/seshy/sessions/alpha",
-  "a local row did not spawn at the plan's directory"
-)
-local local_command = ui_spawn.spawn_for({
-  id = "x",
-  workspace = "x",
-  cwd = "/remote",
-  spawn = { plan = { command = { "ssh", "-t", "arrakis" }, cwd = "" }, hop = { kind = "local" } },
-})
-assert(
-  local_command.cwd == nil and local_command.args[1] == "ssh",
-  "a local hop with a command lost it or kept a remote cwd"
-)
-local rejected_row = {
-  id = "seshy:gone",
-  workspace = "gone",
-  reason = "session directory missing",
-  spawn = { resolve = true },
+local tree = require("sysinit.pkg.ui.session_tree").build({})
+assert(#tree.workspaces == 2 and calls == 0, "tree discovery must read only the mux")
+assert(tree.sections == nil, "directory catalogs leaked into the live tree")
+local good_plan =
+  { version = "seshy.open/v1", cwd = "/work/a b", command = {}, environment = { SESHY_SESSION = "alpha" } }
+local spawn = assert(launcher.directory_spawn(good_plan))
+assert(spawn.cwd == "/work/a b" and spawn.args == nil, "directory launch must use the default shell")
+assert(spawn.domain.DomainName == "local", "local directory inherited the remote pane domain")
+assert(spawn.set_environment_variables.SESHY_SESSION == "alpha", "directory environment was lost")
+assert(not launcher.directory_spawn({ version = "other" }), "unknown plan version accepted")
+assert(not launcher.directory_spawn({ version = "seshy.open/v1", cwd = "relative" }), "relative path accepted")
+local notices, performed, argv = {}, {}, {}
+local launch_window = {
+  active_workspace = function()
+    return "remote:alpha"
+  end,
+  perform_action = function(_, value)
+    performed[#performed + 1] = value
+  end,
+  toast_notification = function(_, _, text)
+    notices[#notices + 1] = text
+  end,
 }
-local rejected, rejected_reason = ui_spawn.spawn_for(rejected_row)
-assert(rejected == nil and rejected_reason == "session directory missing", "a rejected row spawned or lost its reason")
-assert(ui_spawn.spawn_for(nil) == nil, "a missing row produced a spawn")
-local bad_hop, bad_hop_err =
-  ui_spawn.spawn_for({ id = "x", workspace = "x", spawn = { plan = { command = {} }, hop = { kind = "teleport" } } })
-assert(bad_hop == nil and bad_hop_err:find("teleport", 1, true), "an unknown hop kind spawned")
-assert(
-  ui_spawn.spawn_for({ id = "x", workspace = "x", spawn = { plan = { command = {} }, hop = { kind = "native" } } })
-    == nil,
-  "a native hop with no ref spawned"
-)
-
--- A deferred spawn asks roster, once, through the configured wrapper.
-local open_argv
+wezterm.uuid_v4 = function()
+  return "unique"
+end
 child_process = function(args)
-  open_argv = args
-  return true, "resolved-row", ""
+  argv[#argv + 1] = args
+  return true, args[1], ""
 end
 json_parse = function(text)
-  assert(text == "resolved-row", "unexpected json_parse input: " .. tostring(text))
-  return local_row
+  if text == "list-directories" then
+    return { { name = "alpha", path = "/work/a b" } }
+  end
+  return good_plan
 end
-local deferred = { id = "seshy:deferred", workspace = "deferred", spawn = { resolve = true } }
-local resolved_spawn, resolved_err = ui_spawn.spawn_for(deferred, ui_spawn.resolver("wezterm-roster-open"))
-assert(resolved_spawn, "a deferred row did not resolve: " .. tostring(resolved_err))
+launcher.open_directory(launch_window, pane)
+local picker = performed[#performed].InputSelector
+assert(#picker.choices == 1 and picker.title == "Open directory group", "directory picker did not list groups")
+local before = #performed
+picker.action(launch_window, pane, nil)
+assert(#performed == before and #argv == 1, "cancel resolved or launched a directory")
+picker.action(launch_window, pane, "alpha")
+local opened = performed[#performed].SwitchToWorkspace
 assert(
-  table.concat(open_argv, " ") == "wezterm-roster-open seshy:deferred",
-  "the deferred row did not call roster open with its id: " .. table.concat(open_argv, " ")
+  opened.spawn.cwd == "/work/a b" and opened.spawn.domain.DomainName == "local",
+  "directory selected from remote pane launched remotely"
 )
-assert(resolved_spawn.cwd == local_spawn.cwd, "the resolved row's plan was not used")
-json_parse = function()
-  return deferred
-end
-local looped, looped_err = ui_spawn.spawn_for(deferred, ui_spawn.resolver("wezterm-roster-open"))
-assert(looped == nil and looped_err:find("deferred", 1, true), "a source that defers twice was not refused")
-assert(ui_spawn.spawn_for(deferred) == nil, "a deferred row spawned with no resolver")
+assert(
+  argv[2][1] == "open-directory" and argv[2][2] == "alpha" and #argv[2] == 2,
+  "selection was not passed as one argument"
+)
 child_process = function()
-  return false, "", "roster open: no catalog lists row"
+  return false, "", "directory disappeared"
 end
-json_parse = function()
-  error("must not parse a failed call")
-end
-local failed, failed_err = ui_spawn.spawn_for(deferred, ui_spawn.resolver("wezterm-roster-open"))
-assert(failed == nil and failed_err:find("no catalog lists row", 1, true), "a failed roster open lost its stderr")
-
--- The attach end to end: a native row spawns at its domain; a rejected row
--- logs once and does nothing else, with no fallback domain.
-logged = {}
-session_actions.switch_to_workspace(switch_window, pane, "arrakis:sysinit", remote_row)
-local remote_switch = last_switch().SwitchToWorkspace
-assert(remote_switch.name == "arrakis:sysinit", "a remote attach did not target its workspace")
-assert(remote_switch.spawn.domain.DomainName == "ssh:arrakis", "a remote attach did not spawn at the ssh domain")
-assert(#logged == 0, "a usable row logged an error")
-local before_rejected = #switch_actions
-session_actions.open_row(switch_window, pane, rejected_row)
-assert(#switch_actions == before_rejected, "a rejected row still performed an action")
+before = #performed
+picker.action(launch_window, pane, "alpha")
 assert(
-  #logged == 1 and logged[1]:find("session directory missing", 1, true),
-  "a rejected row was not logged with its reason: " .. tostring(logged[1])
+  #performed == before and notices[#notices] == "directory disappeared",
+  "failed resolution spawned or hid its error"
 )
+launcher.connect_host(launch_window, pane, { { name = "ssh:host", remote_address = "host" } })
+local host_picker = performed[#performed].InputSelector
+host_picker.action(launch_window, pane, "ssh:host")
+assert(performed[#performed].AttachDomain == "ssh:host", "host selection did not use its domain")
 
--- A row a live pane already shows is activated, never spawned.
-local focused = false
-mux_panes[42] = {
-  tab = function()
-    return {
-      activate = function() end,
-      window = function()
-        return {
-          gui_window = function()
-            return {
-              focus = function()
-                focused = true
-              end,
-            }
-          end,
-        }
-      end,
-    }
-  end,
-  activate = function() end,
-}
-local before_shown = #switch_actions
-session_actions.open_row(
-  switch_window,
-  pane,
-  { id = "x", workspace = "shown", pane = "42", spawn = { resolve = true } }
-)
-assert(focused and #switch_actions == before_shown, "a row with a live pane was spawned instead of activated")
-
--- The refresh spawns roster and nothing else, and throttles itself.
-local background_argv
-wezterm.background_child_process = function(args)
-  background_argv = args
-end
-ui_sessions.refresh_catalogs()
-assert(
-  background_argv and #background_argv == 1 and background_argv[1] == "wezterm-roster-refresh",
-  "the refresh spawned something other than roster"
-)
-background_argv = nil
-ui_sessions.refresh_catalogs()
-assert(background_argv == nil, "the refresh did not throttle")
-
--- Directory aliases and passthrough processes come from config.json, not from
--- a tool's layout.
 local ui_format = require("sysinit.pkg.ui.format")
 assert(ui_format.smart_path("/state/seshy/sessions/alpha") == "{sy}/alpha", "a configured alias did not abbreviate")
-assert(
-  ui_format.smart_path("/state/seshy/sessions") == "{sy}",
-  "a configured alias did not abbreviate its own directory"
-)
+assert(ui_format.smart_path("/state/seshy/sessions") == "{sy}", "an alias did not abbreviate its own directory")
 assert(ui_format.smart_path("/state/seshy/sessionsx") == "/state/seshy/sessionsx", "an alias matched a sibling prefix")
-assert(
-  ui_format.is_passthrough("zmx") and not ui_format.is_passthrough("nvim"),
-  "passthrough processes are not configured"
-)
+assert(ui_format.is_passthrough("zmx") and not ui_format.is_passthrough("nvim"), "passthrough config was ignored")
 
--- The dormant view: a header per source, group rows with a reason when the
--- group could not be listed, dormant rows under their group, all from the
--- catalog. Choosing a row spawns from it. workspace-manager's own picker
--- offers only rows it can spawn as they are: local, default program,
--- directory here.
-tree.sections[2].groups[#tree.sections[2].groups + 1] = {
-  id = "host:dune",
-  label = "dune",
-  ok = false,
-  stale = false,
-  reason = "unreachable",
-  meta = {},
-  workspaces = {},
-}
 local ribbon = {
   new = function()
     local parts = {}
@@ -634,85 +444,11 @@ local ribbon = {
     }
   end,
 }
-local tree_config = {}
-local tree_performed = {}
-local wm_stub = {
-  apply_to_config = function() end,
-  switch_to_previous_workspace = function()
-    return {}
-  end,
-}
-switcher.setup(tree_config, wm_stub, {
-  sessions = function()
-    return {}, {}
-  end,
-  tree = function()
-    return tree
-  end,
-  colors = function()
-    return {}
-  end,
-  icons = { session = "W", dormant = "D", folder = "F", tab = "T", attn = "!" },
-  home = "/home/test",
-  ribbon = ribbon,
-})
-local dormant_entry
-for _, entry in ipairs(handlers["augment-command-palette"]()) do
-  if entry.brief == "Session tree: dormant" then
-    dormant_entry = entry
-  end
-end
-local tree_win = {
-  window_id = function()
-    return 9
-  end,
-  perform_action = function(_, value)
-    tree_performed[#tree_performed + 1] = value
-  end,
-  active_workspace = function()
-    return "default"
-  end,
-}
-dormant_entry.action(tree_win, pane)
-local selector = tree_performed[#tree_performed].InputSelector
-local labels = {}
-for _, choice in ipairs(selector.choices) do
-  labels[#labels + 1] = choice.id .. "|" .. choice.label
-end
-local rendered = table.concat(labels, "\n")
-assert(labels[1] == "section:seshy|B sessions", "the seshy section header was not first: " .. rendered)
-assert(
-  labels[2] == "ws:a-much-longer-name|  D @localhost a-much-longer-name",
-  "the dormant row was not under its section: " .. rendered
-)
-assert(labels[3] == "section:remote-seshy|S remote", "the remote section did not follow the seshy one: " .. rendered)
-assert(
-  labels[4] == "group:host:arrakis|  S arrakis  native-mux",
-  "the host group row lost glyph, label, or meta: " .. rendered
-)
-assert(
-  labels[5] == "ws:arrakis:sysinit|    D @arrakis sysinit  native-mux",
-  "the remote row is not under its group: " .. rendered
-)
-assert(
-  labels[6] == "group:host:dune|  F dune  unreachable",
-  "a group that could not be listed did not say why: " .. rendered
-)
-assert(#labels == 6 and not rendered:find("alpha", 1, true), "a live workspace was drawn as dormant: " .. rendered)
-selector.action(tree_win, pane, "ws:arrakis:sysinit")
-local chosen = tree_performed[#tree_performed].SwitchToWorkspace
-assert(
-  chosen and chosen.name == "arrakis:sysinit" and chosen.spawn.domain.DomainName == "ssh:arrakis",
-  "choosing a dormant row did not spawn from its catalog row"
-)
-local wm_choices = wm_stub.get_choices()
-assert(#wm_choices == 3 and wm_choices[1].name == "default", "workspace-manager's picker lost the default row")
-assert(
-  wm_choices[2].name == "a-much-longer-name"
-    and wm_choices[2].path == "/home/test/.local/state/seshy/sessions/a-much-longer-name",
-  "workspace-manager's picker did not take the plan's directory"
-)
-assert(wm_choices[3].name == "alpha", "workspace-manager's picker offered a remote row")
+local rows = require("sysinit.pkg.ui.tree_rows").new({ ribbon = ribbon, icons = { session = "W" } })
+local targets = {}
+local choices = rows(tree, targets, "all", {})
+assert(#choices == 2 and targets["ws:alpha"] and targets["ws:remote:alpha"], "live tree rendering lost a workspace")
+assert(not targets["ws:directory"], "directory launcher rows leaked into the tree")
 
 local windowtitle = require("sysinit.pkg.ui.windowtitle")
 local test_home = os.getenv("HOME") or "/home/test"

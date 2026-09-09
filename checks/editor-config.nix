@@ -1,33 +1,5 @@
 { pkgs }:
 let
-  inherit (pkgs) lib;
-  remoteHosts = import ../modules/home/programs/wezterm/remote-hosts.nix { inherit lib; };
-  tetherConfig = pkgs.writeText "tether-config.json" (builtins.toJSON remoteHosts.tetherConfig);
-  # The roster.catalog/v1 files `roster refresh` wrote on 2026-09-08: the
-  # seshy catalog from the real adapter over this Mac's sessions, trimmed to
-  # two rows with $HOME replaced, and the remote-seshy catalog from the adapter
-  # with ssh and tether stubbed as roster-sources.nix stubs them. Rendered as
-  # lua tables so the headless test needs no JSON parser.
-  rosterCatalogs = pkgs.runCommand "roster-catalog-fixtures" { } ''
-    mkdir -p "$out"
-    ${lib.concatMapStringsSep "\n"
-      (
-        source:
-        "cp ${
-          pkgs.writeText "roster-${source}.lua" (
-            "return "
-            + lib.generators.toLua { } (
-              builtins.fromJSON (builtins.readFile (./fixtures/roster + "/${source}.json"))
-            )
-          )
-        } \"$out/${source}.lua\""
-      )
-      [
-        "seshy"
-        "remote-seshy"
-      ]
-    }
-  '';
   weztermLua = ../modules/home/programs/wezterm/lua;
 in
 pkgs.runCommand "editor-config-check"
@@ -55,34 +27,11 @@ pkgs.runCommand "editor-config-check"
       -c "PlenaryBustedDirectory ${./neovim} { minimal_init = '${./neovim.lua}', sequential = true }"
     lua ${./wezterm.lua} \
       ${weztermLua} \
-      ${./fixtures/wezterm-plugin} \
-      ${rosterCatalogs}
-    # The session tree names one tool, roster, and reads its catalogs. A session
-    # manager, a hop negotiator, a multiplexer, or one of the deleted cachers
-    # named in the lua is a second decider the catalog never sees. Spelled as
-    # an if: under set -e a failing `! grep` is ignored, so that form cannot
-    # fail.
-    if grep -rEn \
-      -e '\<sy\>' \
-      -e tether \
-      -e zmx \
-      -e mosh \
-      -e seshy-remote-list \
-      -e tether-refresh \
-      ${weztermLua}; then
-      echo "the wezterm lua tree names a tool other than roster" >&2
+      ${./fixtures/wezterm-plugin}
+    if grep -rEn -e roster -e tether -e 'refresh_catalogs' ${weztermLua}; then
+      echo "WezTerm must not perform catalog discovery or transport negotiation" >&2
       exit 1
     fi
-    # The rendered tether config is tether.config/v1: mode and flaky present,
-    # one entry per host in the map, and only the keys the schema allows.
-    jq -e --argjson hosts '${builtins.toJSON (builtins.attrNames remoteHosts.hosts)}' '
-      (.mode | IN("auto", "native", "roam", "persist"))
-      and (.flaky.rtt_ms | type == "number")
-      and (.flaky.loss | type == "number")
-      and ((.hosts | keys) == $hosts)
-      and ([.hosts[] | keys[]] - ["pin", "mode"] == [])
-      and ([.hosts[] | .pin // "native-mux"] | all(IN("native-mux", "mosh-mux", "ssh-raw", "ssh")))
-    ' ${tetherConfig} > /dev/null
     lua ${./hammerspoon.lua} \
       ${../modules/darwin/home/hammerspoon}
     node ${./launcher-actions.mjs} \

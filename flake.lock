@@ -1067,6 +1067,27 @@
         "type": "github"
       }
     },
+    "prose-style": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788970269,
+        "narHash": "sha256-YMQGAKJ/4URRRmB5158fe1Dy48t7KLsNSZ6sP993WE4=",
+        "owner": "roshbhatia",
+        "repo": "prose-style",
+        "rev": "cd1ae44c090229e4af7abc11550ebb5434704c85",
+        "type": "github"
+      },
+      "original": {
+        "owner": "roshbhatia",
+        "repo": "prose-style",
+        "rev": "cd1ae44c090229e4af7abc11550ebb5434704c85",
+        "type": "github"
+      }
+    },
     "provider-spec": {
       "flake": false,
       "locked": {
@@ -1136,23 +1157,6 @@
       }
     },
     "provider-spec_5": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1788907976,
-        "narHash": "sha256-o0eerxlZdatjXkv1DB5WtXD15u0e00I3R9gtxIjnj5M=",
-        "owner": "roshbhatia",
-        "repo": "provider-spec",
-        "rev": "7a141d5bce35a4f65cdc08b10e575932b45d2707",
-        "type": "github"
-      },
-      "original": {
-        "owner": "roshbhatia",
-        "ref": "v1.0.0",
-        "repo": "provider-spec",
-        "type": "github"
-      }
-    },
-    "provider-spec_6": {
       "flake": false,
       "locked": {
         "lastModified": 1788907976,
@@ -1242,7 +1246,7 @@
         "onepassword-shell-plugins": "onepassword-shell-plugins",
         "orc": "orc",
         "orc-extras": "orc-extras",
-        "roster": "roster",
+        "prose-style": "prose-style",
         "rust-overlay": "rust-overlay",
         "seshy": "seshy",
         "slk": "slk",
@@ -1255,28 +1259,6 @@
       }
     },
     "roster": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "provider-spec": "provider-spec_4"
-      },
-      "locked": {
-        "lastModified": 1788920822,
-        "narHash": "sha256-GuIQgubHM3egIasZghrAozERHBgo9dzVYYrYgJKxAF0=",
-        "owner": "roshbhatia",
-        "repo": "roster",
-        "rev": "b5fc3a55de3867d0cb1148a58616f30cbf883acc",
-        "type": "github"
-      },
-      "original": {
-        "owner": "roshbhatia",
-        "ref": "v0.1.0",
-        "repo": "roster",
-        "type": "github"
-      }
-    },
-    "roster_2": {
       "flake": false,
       "locked": {
         "lastModified": 1788920822,
@@ -1344,21 +1326,21 @@
         "nixpkgs": [
           "nixpkgs"
         ],
-        "provider-spec": "provider-spec_5",
-        "roster": "roster_2"
+        "provider-spec": "provider-spec_4",
+        "roster": "roster"
       },
       "locked": {
-        "lastModified": 1788925941,
-        "narHash": "sha256-YKMv76h/5wzCRQ++eXZDLn3rVPERlOxf6KYSq566xZw=",
+        "lastModified": 1788970592,
+        "narHash": "sha256-JZzJ29prDA1eUx76azpefeV7uAIBYFnb8+YBW9La2X0=",
         "owner": "roshbhatia",
         "repo": "seshy",
-        "rev": "05d24d7a10bf542fb52c3cdaf16e6ff635662d7f",
+        "rev": "144cc4e8ef60d5c15a7b00674713191014b114f4",
         "type": "github"
       },
       "original": {
         "owner": "roshbhatia",
-        "ref": "main",
         "repo": "seshy",
+        "rev": "144cc4e8ef60d5c15a7b00674713191014b114f4",
         "type": "github"
       }
     },
@@ -1575,17 +1557,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1788921826,
-        "narHash": "sha256-1mMSY9vRkTQZsGNJdIoVBMj1N3XrJBsLxCVh8/7MqTA=",
+        "lastModified": 1788970469,
+        "narHash": "sha256-P/IzCZxbpI2ORLlK4OwLyxJsAIxr3AX5AA6CES3UMqs=",
         "owner": "roshbhatia",
         "repo": "tether",
-        "rev": "8481f71548e08f4bc71e0f264430225eb7469460",
+        "rev": "5c2ba931e3f3e2b70f503b5e358052eb1b3f1815",
         "type": "github"
       },
       "original": {
         "owner": "roshbhatia",
-        "ref": "v0.2.0",
         "repo": "tether",
+        "rev": "5c2ba931e3f3e2b70f503b5e358052eb1b3f1815",
         "type": "github"
       }
     },
@@ -1658,7 +1640,7 @@
         "nixpkgs": [
           "nixpkgs"
         ],
-        "provider-spec": "provider-spec_6",
+        "provider-spec": "provider-spec_5",
         "systems": [
           "systems"
         ]

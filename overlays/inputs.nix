@@ -40,8 +40,8 @@ in
   # under share/gate/providers are what modules/home/programs/llm/gate.nix links
   # into ~/.config/gate/providers.
   gate-providers = inputs.gate.packages.${final.stdenv.hostPlatform.system}.extras;
+  vale-styles = inputs.prose-style.packages.${final.stdenv.hostPlatform.system}.default;
   tether = inputs.tether.packages.${final.stdenv.hostPlatform.system}.default;
-  roster = inputs.roster.packages.${final.stdenv.hostPlatform.system}.default;
   citelock = inputs.citelock.packages.${final.stdenv.hostPlatform.system}.default;
   changes-cli = inputs.changes.packages.${final.stdenv.hostPlatform.system}.default;
   changes-providers = inputs.changes.packages.${final.stdenv.hostPlatform.system}.extras;
