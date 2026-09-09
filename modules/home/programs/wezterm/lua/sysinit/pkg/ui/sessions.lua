@@ -1,244 +1,233 @@
 local wezterm = require("wezterm")
 local utils = require("sysinit.pkg.utils")
-local ui_format = require("sysinit.pkg.ui.format")
-local ui_tether = require("sysinit.pkg.ui.tether")
 
 local M = {}
 
 M.DEFAULT_WORKSPACE = "default"
 M.DEFAULT_SLOT = 1
 M.MAX_SLOT = 9
-M.HOST_SEP = ":"
-M.REMOTE_REFRESH_SECS = 30
+M.REFRESH_SECS = 30
+M.CATALOG_VERSION = "roster.catalog/v1"
 
-local home = os.getenv("HOME") or ""
-
-M.seshy_dir = utils.state_path("seshySessions", "seshy/sessions")
-M.remote_dir = utils.state_path("weztermRemoteSessions", "wezterm/remote_sessions")
-
-M.remote_lister = ""
-M.tether_refresher = ""
--- `roster refresh --if-stale`, run beside the two cachers above. Nothing reads
--- its catalog yet; the cutover to it is the next step.
+-- roster writes one roster.catalog/v1 file per source into catalog_dir. The
+-- source names arrive in the order roster's own config lists them, so this
+-- module never lists the directory and never decides an order of its own.
+M.catalog_dir = utils.state_path("rosterCatalog", "roster/catalog")
+M.sources = {}
+-- `roster refresh --if-stale`, spawned from the status tick.
 M.roster_refresher = ""
--- The hosts tether probes on the refresh timer: the same map that renders
--- ~/.config/tether/config.json, so attach policy lives there and not here.
-M.tether_hosts = {}
+-- `roster open --json`, run by spawn.lua for a row whose plan is deferred.
+M.roster_opener = ""
 do
   local ok, cfg = pcall(utils.load_json_file, utils.get_config_path("config.json"))
   if ok and type(cfg) == "table" then
     if type(cfg.scripts) == "table" then
-      M.remote_lister = cfg.scripts.seshy_remote_list or ""
-      M.tether_refresher = cfg.scripts.tether_refresh or ""
       M.roster_refresher = cfg.scripts.roster_refresh or ""
+      M.roster_opener = cfg.scripts.roster_open or ""
     end
-    if type(cfg.hosts) == "table" then
-      for host in pairs(cfg.hosts) do
-        M.tether_hosts[#M.tether_hosts + 1] = host:lower()
+    if type(cfg.roster) == "table" then
+      if type(cfg.roster.catalog_dir) == "string" and cfg.roster.catalog_dir ~= "" then
+        M.catalog_dir = cfg.roster.catalog_dir
       end
-      table.sort(M.tether_hosts)
-    end
-  end
-end
-
-M.sy_bin = home .. "/.local/bin/sy"
-do
-  local env = utils.load_json_file(utils.get_config_path("env.json"))
-  for dir in (env and env.PATH or ""):gmatch("[^:]+") do
-    local candidate = dir .. "/sy"
-    local fh = io.open(candidate, "r")
-    if fh then
-      fh:close()
-      M.sy_bin = candidate
-      break
-    end
-  end
-end
-
-function M.list_names(sy_bin)
-  if not sy_bin or sy_bin == "" then
-    return {}, false
-  end
-  local names = {}
-  local ok, out = pcall(function()
-    local success, stdout = wezterm.run_child_process({ sy_bin, "list", "--names" })
-    if not success then
-      error("sy list failed")
-    end
-    return stdout
-  end)
-  if not ok or not out then
-    return {}, false
-  end
-  for _, line in ipairs(wezterm.split_by_newlines(out)) do
-    local name = line:match("^%s*(.-)%s*$")
-    if name ~= "" then
-      names[#names + 1] = name
-    end
-  end
-  return names, true
-end
-
-local seshy_cache = { at = -1, names = {} }
-
-function M.names_cached()
-  local now = os.time()
-  if now - seshy_cache.at >= 5 then
-    local names, ok = M.list_names(M.sy_bin)
-    if ok then
-      seshy_cache = { at = now, names = names }
-    else
-      seshy_cache.at = now
-    end
-  end
-  return seshy_cache.names
-end
-
--- Only an attached domain is safe to probe. A detached one would stall the
--- refresher on an ssh connect timeout for a host that is not even in use.
-function M.remote_hosts()
-  local hosts, at = {}, {}
-  pcall(function()
-    for _, domain in ipairs(wezterm.mux.all_domains()) do
-      if domain:state() == "Attached" then
-        local name = domain:name()
-        local host, is_local = ui_format.domain_host(name)
-        if not is_local then
-          local index = at[host]
-          if not index then
-            hosts[#hosts + 1] = { host = host, domain = name }
-            at[host] = #hosts
-          elseif not name:match("^SSHMUX:") then
-            -- Prefer the configured `ssh:<host>`; the inner SSHMUX name is not
-            -- a valid spawn target.
-            hosts[index].domain = name
-          end
+      for _, name in ipairs(cfg.roster.sources or {}) do
+        if type(name) == "string" and name ~= "" then
+          M.sources[#M.sources + 1] = name
         end
       end
     end
-  end)
-  table.sort(hosts, function(a, b)
-    return a.host < b.host
-  end)
-  return hosts
+  end
 end
 
-local remote_cache = { at = -1, hosts = {} }
-
-function M.remote_cached()
-  local now = os.time()
-  if now - remote_cache.at < 5 then
-    return remote_cache.hosts
+-- Days since 1970-01-01 for a proleptic Gregorian date. os.time's table form
+-- reads the local zone, and a stamp with its own offset must not.
+local function days_from_civil(y, m, d)
+  if m <= 2 then
+    y = y - 1
   end
-  local out = {}
-  for _, entry in ipairs(M.remote_hosts()) do
-    local ok, data = pcall(utils.load_json_file, M.remote_dir .. "/" .. entry.host .. ".json")
-    local cached = (ok and type(data) == "table") and data or nil
-    local plan_ok, plan = pcall(utils.load_json_file, M.remote_dir .. "/" .. entry.host .. ".tether.json")
-    out[#out + 1] = {
-      host = entry.host,
-      domain = entry.domain,
-      tether = ui_tether.summary(plan_ok and plan or nil),
-      ok = cached ~= nil and cached.ok == true,
-      reason = cached and cached.reason or (cached == nil and "not probed yet" or nil),
-      shell = cached and cached.shell or nil,
-      sessions = (cached and type(cached.sessions) == "table") and cached.sessions or {},
-    }
-  end
-  remote_cache = { at = now, hosts = out }
-  return out
+  local era = (y >= 0 and y or y - 399) // 400
+  local yoe = y - era * 400
+  local mp = (m + 9) % 12
+  local doy = (153 * mp + 2) // 5 + d - 1
+  local doe = yoe * 365 + yoe // 4 - yoe // 100 + doy
+  return era * 146097 + doe - 719468
 end
 
-local remote_refresh_at = -1
-
-function M.refresh_remote()
-  local now = os.time()
-  if now - remote_refresh_at < M.REMOTE_REFRESH_SECS then
-    return
-  end
-  remote_refresh_at = now
-  if M.roster_refresher ~= "" then
-    pcall(function()
-      wezterm.background_child_process({ M.roster_refresher })
-    end)
-  end
-  -- Only an attached host is listed (remote_hosts), but every configured host
-  -- is probed: tether skips a host its registry says is offline and backs off
-  -- an unreachable one itself, so there is no connect stall to guard here.
-  if M.tether_refresher ~= "" and #M.tether_hosts > 0 then
-    local args = { M.tether_refresher, M.remote_dir }
-    for _, host in ipairs(M.tether_hosts) do
-      args[#args + 1] = host
-    end
-    pcall(function()
-      wezterm.background_child_process(args)
-    end)
-  end
-  if M.remote_lister == "" then
-    return
-  end
-  local hosts = M.remote_hosts()
-  if #hosts == 0 then
-    return
-  end
-  local args = { M.remote_lister, M.remote_dir }
-  for _, entry in ipairs(hosts) do
-    args[#args + 1] = entry.host
-  end
-  pcall(function()
-    wezterm.background_child_process(args)
-  end)
-end
-
-function M.qualify(host, name)
-  return host .. M.HOST_SEP .. name
-end
-
--- Splits only on a host that is attached right now, so a local session whose
--- own name contains a colon is never read as a remote one.
----@return string|nil host
----@return string name
----@return string|nil domain
-function M.split(workspace, hosts)
-  for _, entry in ipairs(hosts or M.remote_cached()) do
-    local prefix = entry.host .. M.HOST_SEP
-    if workspace:sub(1, #prefix) == prefix then
-      return entry.host, workspace:sub(#prefix + 1), entry.domain
-    end
-  end
-  return nil, workspace, nil
-end
-
--- Everything a spawn needs for a host-qualified workspace, or nil when the
--- workspace is local.
-function M.remote_spawn(workspace)
-  local host, name = M.split(workspace)
-  if not host then
+-- An RFC 3339 stamp as epoch seconds, or nil when it is not one. Fractional
+-- seconds are dropped; the offset is applied.
+---@param stamp string|nil e.g. 2026-09-09T03:27:12Z or 2026-09-08T20:27:12.5-07:00
+---@return integer|nil
+function M.parse_rfc3339(stamp)
+  if type(stamp) ~= "string" then
     return nil
   end
-  for _, entry in ipairs(M.remote_cached()) do
-    if entry.host == host then
-      for _, session in ipairs(entry.sessions) do
-        if session.name == name then
-          -- `cwd`, not `path`: this table is read by switch_to_workspace, whose
-          -- spawn takes a cwd. Named `path` it type-checked and silently landed
-          -- every remote session in the login home instead of the session dir.
-          return {
-            domain = entry.domain,
-            cwd = session.path,
-            session = name,
-            host = entry.host,
-          }
-        end
+  local y, mo, d, h, mi, s, rest = stamp:match("^(%d%d%d%d)%-(%d%d)%-(%d%d)[Tt ](%d%d):(%d%d):(%d%d)(.*)$")
+  if not y then
+    return nil
+  end
+  local zone = rest:match("^%.%d+(.*)$") or rest
+  local offset
+  if zone == "Z" or zone == "z" then
+    offset = 0
+  else
+    local sign, zh, zm = zone:match("^([+-])(%d%d):?(%d%d)$")
+    if not sign then
+      return nil
+    end
+    offset = (tonumber(zh) * 3600 + tonumber(zm) * 60) * (sign == "-" and -1 or 1)
+  end
+  local days = days_from_civil(tonumber(y), tonumber(mo), tonumber(d))
+  return days * 86400 + tonumber(h) * 3600 + tonumber(mi) * 60 + tonumber(s) - offset
+end
+
+local duration_units = {
+  ns = 1e-9,
+  us = 1e-6,
+  ["µs"] = 1e-6,
+  ["μs"] = 1e-6,
+  ms = 1e-3,
+  s = 1,
+  m = 60,
+  h = 3600,
+}
+
+-- A Go duration string as seconds, or nil when it is not one.
+---@param text string|nil e.g. 30s, 1h30m, 1.5s, 500ms
+---@return number|nil
+function M.parse_duration(text)
+  if type(text) ~= "string" or text == "" then
+    return nil
+  end
+  local total, pos = 0, 1
+  while pos <= #text do
+    local num, unit, next_pos = text:match("^(%d+%.?%d*)([^%d%.]+)()", pos)
+    local scale = num and duration_units[unit]
+    if not scale then
+      return nil
+    end
+    total = total + tonumber(num) * scale
+    pos = next_pos
+  end
+  return total
+end
+
+-- A catalog is stale once it has outlived its ttl. An unreadable stamp or ttl
+-- reads as stale, never as fresh.
+---@param catalog table a roster.catalog/v1 document
+---@param now integer|nil epoch seconds; os.time() when nil
+---@return boolean
+function M.is_stale(catalog, now)
+  local at = M.parse_rfc3339(catalog.generated_at)
+  local ttl = M.parse_duration(catalog.ttl)
+  if not at or not ttl then
+    return true
+  end
+  return (now or os.time()) - at > ttl
+end
+
+local function missing_catalog(source, err)
+  return {
+    source = source,
+    ok = false,
+    error = err,
+    display = { label = source, glyph = "", order = math.huge },
+    groups = {},
+    rows = {},
+    stale = true,
+  }
+end
+
+-- One source's catalog, read from disk. Every row gains `source` and `stale`:
+-- stale when the file is, when the row's group is, or when the source marked
+-- the row's own inventory stale in meta.
+---@param source string
+---@param now integer|nil
+---@return table catalog { source, ok, error?, display, groups, rows, stale, generated_at?, ttl? }
+function M.read_catalog(source, now)
+  local ok, data = pcall(utils.load_json_file, M.catalog_dir .. "/" .. source .. ".json")
+  if not ok then
+    return missing_catalog(source, "not refreshed yet")
+  end
+  if type(data) ~= "table" or data.version ~= M.CATALOG_VERSION then
+    return missing_catalog(source, "not a " .. M.CATALOG_VERSION .. " document")
+  end
+  local stale = M.is_stale(data, now)
+  local groups, by_id = {}, {}
+  for _, group in ipairs(data.groups or {}) do
+    if type(group) == "table" and type(group.id) == "string" then
+      groups[#groups + 1] = group
+      by_id[group.id] = group
+    end
+  end
+  local rows = {}
+  for _, row in ipairs(data.rows or {}) do
+    if type(row) == "table" and type(row.workspace) == "string" and row.workspace ~= "" then
+      local group = type(row.group) == "string" and by_id[row.group] or nil
+      row.source = data.source
+      row.stale = stale
+        or (group ~= nil and group.stale == true)
+        or (type(row.meta) == "table" and row.meta.stale == true)
+      rows[#rows + 1] = row
+    end
+  end
+  return {
+    source = data.source,
+    ok = true,
+    display = type(data.display) == "table" and data.display or {},
+    groups = groups,
+    rows = rows,
+    stale = stale,
+    generated_at = data.generated_at,
+    ttl = data.ttl,
+  }
+end
+
+local catalog_cache = { at = -1, list = {} }
+
+-- Every configured source's catalog, in config order, re-read at most every
+-- five seconds. The status tick and the tree both call this.
+function M.catalogs()
+  local now = os.time()
+  if now - catalog_cache.at >= 5 then
+    local list = {}
+    for _, source in ipairs(M.sources) do
+      list[#list + 1] = M.read_catalog(source, now)
+    end
+    catalog_cache = { at = now, list = list }
+  end
+  return catalog_cache.list
+end
+
+-- The catalog row a workspace name belongs to, or nil when no source lists it.
+---@param workspace string
+---@return table|nil row
+function M.row_for(workspace)
+  for _, catalog in ipairs(M.catalogs()) do
+    for _, row in ipairs(catalog.rows) do
+      if row.workspace == workspace then
+        return row
       end
-      return {
-        domain = entry.domain,
-        session = name,
-        host = entry.host,
-      }
     end
   end
   return nil
+end
+
+local refresh_at = -1
+
+-- Spawns `roster refresh --if-stale` in the background, at most once every
+-- REFRESH_SECS. roster skips a source whose file is inside its ttl and exits
+-- at once when another refresh is running, so a tick never stacks probes.
+function M.refresh_catalogs()
+  local now = os.time()
+  if now - refresh_at < M.REFRESH_SECS then
+    return
+  end
+  refresh_at = now
+  if M.roster_refresher == "" then
+    return
+  end
+  pcall(function()
+    wezterm.background_child_process({ M.roster_refresher })
+  end)
 end
 
 function M.active_names()

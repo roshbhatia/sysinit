@@ -652,7 +652,7 @@ function M.setup(config, wm, ctx)
   end
 
   local function open_close_selector(win, pane, notice)
-    ui_sessions.refresh_remote()
+    ui_sessions.refresh_catalogs()
     local tree = ctx.tree()
     local colors = ctx.colors(win)
     local by_id = {}
@@ -687,7 +687,7 @@ function M.setup(config, wm, ctx)
 
   open_session_tree = function(win, pane, filter, notice)
     filter = filter or "all"
-    ui_sessions.refresh_remote()
+    ui_sessions.refresh_catalogs()
     local tree = ctx.tree()
     local colors = ctx.colors(win)
     local by_id = {}

@@ -224,6 +224,13 @@ in
         tether_refresh = "${tetherRefresh}/bin/wezterm-tether-refresh";
         roster_refresh = "${rosterSources.refresh}/bin/wezterm-roster-refresh";
       };
+      # Where roster writes its catalogs and which sources to read, in the
+      # order roster's own config lists them. The lua reads one file per name
+      # and never lists the directory.
+      roster = {
+        catalog_dir = config.sysinit.paths.resolved.rosterCatalog;
+        sources = map (source: source.name) rosterSources.config.sources;
+      };
       # The hosts the session tree probes and attaches through tether. The
       # attach tier is not declared here: `tether plan` picks it at attach time
       # from remote-hosts.nix policy and what the probe found on both ends.
