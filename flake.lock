@@ -1522,11 +1522,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788998214,
-        "narHash": "sha256-Uxjomge4sxVb4SGjTbNg7ZQ8OZqg2jUK23PD5sxBtS0=",
+        "lastModified": 1788998745,
+        "narHash": "sha256-ukRAv1XDtKEJleYZCTyQheTKV+HpCw5PySmXz+IdUk4=",
         "owner": "roshbhatia",
         "repo": "sysinit.wezterm",
-        "rev": "89535632c8b64d17bd2f36bbea8eb74984aa4de5",
+        "rev": "e0838eb34c37a2542ec47ab7311cc5cc3085fe36",
         "type": "github"
       },
       "original": {
