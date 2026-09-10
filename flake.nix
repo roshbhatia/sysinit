@@ -100,7 +100,7 @@
     };
 
     changes = {
-      url = "github:roshbhatia/changes/v0.12.2";
+      url = "github:roshbhatia/changes/v0.12.3";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         systems.follows = "systems";
@@ -142,7 +142,7 @@
       };
     };
     prose-style = {
-      url = "github:roshbhatia/prose-style/b23b75eeedfce9025e297f18c48b18d7c34d69a6";
+      url = "github:roshbhatia/prose-style/8d131f507a7a43a99f25cc4e16d97b75cf921a8e";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -178,7 +178,7 @@
 
     hermes-agent = {
       url = "github:NousResearch/hermes-agent";
-      inputs.nixpkgs.url = "github:NixOS/nixpkgs/0954f7ee2f6bb3dc7d4e3d0d8bcb8fd4bde4cfc5";
+      inputs.nixpkgs.url = "github:NixOS/nixpkgs/5052d7ccbcfb7e4ae1586cb2ecf95a2e3707dce9";
     };
 
   };
