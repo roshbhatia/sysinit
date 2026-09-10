@@ -109,11 +109,20 @@ in
           };
         };
       };
+      spawn.commands = {
+        ssh = lib.getExe' pkgs.openssh "ssh";
+        mosh = lib.getExe pkgs.mosh;
+      };
       picker.providers = [
         {
           name = "tether";
           key = "!";
           manifest = "${pkgs.tether-picker}/share/wezterm/providers/tether.json";
+        }
+        {
+          name = "zmx";
+          key = "$";
+          manifest = "${pkgs.zmx-picker}/share/wezterm/providers/zmx.json";
         }
         {
           name = "seshy";

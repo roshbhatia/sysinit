@@ -48,6 +48,7 @@ in
   seshy-picker = inputs.seshy.packages.${final.stdenv.hostPlatform.system}.provider-wezterm;
   tether-picker = inputs.tether.packages.${final.stdenv.hostPlatform.system}.provider-wezterm;
   zoxide-picker = inputs.sysinit-wezterm.packages.${final.stdenv.hostPlatform.system}.provider-zoxide;
+  zmx-picker = inputs.sysinit-wezterm.packages.${final.stdenv.hostPlatform.system}.provider-zmx;
   vale-styles = inputs.prose-style.packages.${final.stdenv.hostPlatform.system}.default;
   tether = inputs.tether.packages.${final.stdenv.hostPlatform.system}.default;
   citelock = inputs.citelock.packages.${final.stdenv.hostPlatform.system}.default;
