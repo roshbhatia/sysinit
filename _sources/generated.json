@@ -8,11 +8,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-6lJomh3U3X+Bo9QQdRtAAGpwhaQco+5BNnqbOz70HEI=",
+            "sha256": "sha256-1AI9mwVTQR/zdoZvRgzjac92/8QjcPiQLzjhtAiDaKY=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1788967642-g223bb4/amp-darwin-arm64.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1789000905-g58d041/amp-darwin-arm64.gz"
         },
-        "version": "0.0.1788967642-g223bb4"
+        "version": "0.0.1789000905-g58d041"
     },
     "amp-cli-aarch64-linux": {
         "cargoLock": null,
@@ -23,11 +23,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-XIa/hAuDWhomZEZiBXH1UrbpPqYQAaelABAj/LqmRq4=",
+            "sha256": "sha256-LqkpPBk80vWuLHrx6pohAZTIb2gNqrY+8Z/yIjUkPus=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1788967642-g223bb4/amp-linux-arm64.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1789000905-g58d041/amp-linux-arm64.gz"
         },
-        "version": "0.0.1788967642-g223bb4"
+        "version": "0.0.1789000905-g58d041"
     },
     "amp-cli-x86_64-linux": {
         "cargoLock": null,
@@ -38,11 +38,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-0s4Wam74tBt2cSVQc6YjsbQelwDaSqK1/3ZZt65kSRw=",
+            "sha256": "sha256-iKxjXMNe9wcGeJ9i/NyyLp2zqi6MvmaPn/1OQd1LW3k=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1788967642-g223bb4/amp-linux-x64-baseline.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1789000905-g58d041/amp-linux-x64-baseline.gz"
         },
-        "version": "0.0.1788967642-g223bb4"
+        "version": "0.0.1789000905-g58d041"
     },
     "atomic-coding-agent": {
         "cargoLock": null,
@@ -113,11 +113,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-KwUqkngBqeqRaY3kgiisPm4RcUmMVWF+H515VA8Zs6w=",
+            "sha256": "sha256-oSVF5cXCzfvWZH2xkwW62R8/m7k7Ko8Rs0uIhIkx0+o=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.92.0/crush_0.92.0_Darwin_arm64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.93.1/crush_0.93.1_Darwin_arm64.tar.gz"
         },
-        "version": "0.92.0"
+        "version": "0.93.1"
     },
     "crush-aarch64-linux": {
         "cargoLock": null,
@@ -128,11 +128,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-G28DhCl6HnfQHfQdsfVvwIcvHpydmWNMSywgi3u12TU=",
+            "sha256": "sha256-IAuRYoFRh3cdmcgT8tcfSy7+WpSngw5+00/CV2TmcK4=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.92.0/crush_0.92.0_Linux_arm64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.93.1/crush_0.93.1_Linux_arm64.tar.gz"
         },
-        "version": "0.92.0"
+        "version": "0.93.1"
     },
     "crush-x86_64-darwin": {
         "cargoLock": null,
@@ -143,11 +143,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-lmuPiQcjkuiHdqZnRm+g4f7133MMXArsF3ShMjx+ZJ0=",
+            "sha256": "sha256-0ZTIQACHx4K1CwjX+r7NpOiczJ/yTtQBqlciraTD8AQ=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.92.0/crush_0.92.0_Darwin_x86_64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.93.1/crush_0.93.1_Darwin_x86_64.tar.gz"
         },
-        "version": "0.92.0"
+        "version": "0.93.1"
     },
     "crush-x86_64-linux": {
         "cargoLock": null,
@@ -158,11 +158,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-fZrKmreAjugooLsP3gHZb8SAzgpmpf9heqJ6wJ4jy9U=",
+            "sha256": "sha256-MIZxnD5P9ZK1Z8ImkRV0VxWLhyRUaQCeUwRHSByXUQI=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.92.0/crush_0.92.0_Linux_x86_64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.93.1/crush_0.93.1_Linux_x86_64.tar.gz"
         },
-        "version": "0.92.0"
+        "version": "0.93.1"
     },
     "fx": {
         "cargoLock": null,
@@ -233,11 +233,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-fWvMRRxl851zCeTCRlZL2PDhjFrDAUlmGkn5KG+lucI=",
+            "sha256": "sha256-8cDOYu8X/CWegwRjxMPhhuQEotmOwbEn550bvVDjasI=",
             "type": "url",
-            "url": "https://github.com/git-ai-project/git-ai/releases/download/v1.7.4/git-ai-macos-arm64"
+            "url": "https://github.com/git-ai-project/git-ai/releases/download/v1.7.5/git-ai-macos-arm64"
         },
-        "version": "1.7.4"
+        "version": "1.7.5"
     },
     "git-ai-aarch64-linux": {
         "cargoLock": null,
@@ -248,11 +248,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-1pctEd2gOKxbokWskeD2ocvL5e7BNvBXjJG4HskIoKw=",
+            "sha256": "sha256-s0AAW00cfUwcM4PZSwkmJ7ztm08vdn4hJZJ8WCec26k=",
             "type": "url",
-            "url": "https://github.com/git-ai-project/git-ai/releases/download/v1.7.4/git-ai-linux-arm64"
+            "url": "https://github.com/git-ai-project/git-ai/releases/download/v1.7.5/git-ai-linux-arm64"
         },
-        "version": "1.7.4"
+        "version": "1.7.5"
     },
     "git-ai-x86_64-darwin": {
         "cargoLock": null,
@@ -263,11 +263,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-W7lqXclw4lDQqCRYT7a81mU32O/GNE+zf0IKVHsTi6s=",
+            "sha256": "sha256-nGMcKpo/rq/Q8Y2lxlTHc/VmQaYis8YP5nYWuX+XjLY=",
             "type": "url",
-            "url": "https://github.com/git-ai-project/git-ai/releases/download/v1.7.4/git-ai-macos-x64"
+            "url": "https://github.com/git-ai-project/git-ai/releases/download/v1.7.5/git-ai-macos-x64"
         },
-        "version": "1.7.4"
+        "version": "1.7.5"
     },
     "git-ai-x86_64-linux": {
         "cargoLock": null,
@@ -278,11 +278,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-H4DEr/pE2aIWZ+kwt6pqyU98L0a/IW12ZLq4THqLYsI=",
+            "sha256": "sha256-bPaKg8yUj71GdeRrxePFCXPAQle7Q6lUpnEqIQcgZpU=",
             "type": "url",
-            "url": "https://github.com/git-ai-project/git-ai/releases/download/v1.7.4/git-ai-linux-x64"
+            "url": "https://github.com/git-ai-project/git-ai/releases/download/v1.7.5/git-ai-linux-x64"
         },
-        "version": "1.7.4"
+        "version": "1.7.5"
     },
     "go-enum": {
         "cargoLock": null,

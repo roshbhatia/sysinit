@@ -8,26 +8,26 @@
 {
   amp-cli = {
     pname = "amp-cli";
-    version = "0.0.1788967642-g223bb4";
+    version = "0.0.1789000905-g58d041";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1788967642-g223bb4/amp-darwin-arm64.gz";
-      sha256 = "sha256-6lJomh3U3X+Bo9QQdRtAAGpwhaQco+5BNnqbOz70HEI=";
+      url = "https://static.ampcode.com/cli/0.0.1789000905-g58d041/amp-darwin-arm64.gz";
+      sha256 = "sha256-1AI9mwVTQR/zdoZvRgzjac92/8QjcPiQLzjhtAiDaKY=";
     };
   };
   amp-cli-aarch64-linux = {
     pname = "amp-cli-aarch64-linux";
-    version = "0.0.1788967642-g223bb4";
+    version = "0.0.1789000905-g58d041";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1788967642-g223bb4/amp-linux-arm64.gz";
-      sha256 = "sha256-XIa/hAuDWhomZEZiBXH1UrbpPqYQAaelABAj/LqmRq4=";
+      url = "https://static.ampcode.com/cli/0.0.1789000905-g58d041/amp-linux-arm64.gz";
+      sha256 = "sha256-LqkpPBk80vWuLHrx6pohAZTIb2gNqrY+8Z/yIjUkPus=";
     };
   };
   amp-cli-x86_64-linux = {
     pname = "amp-cli-x86_64-linux";
-    version = "0.0.1788967642-g223bb4";
+    version = "0.0.1789000905-g58d041";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1788967642-g223bb4/amp-linux-x64-baseline.gz";
-      sha256 = "sha256-0s4Wam74tBt2cSVQc6YjsbQelwDaSqK1/3ZZt65kSRw=";
+      url = "https://static.ampcode.com/cli/0.0.1789000905-g58d041/amp-linux-x64-baseline.gz";
+      sha256 = "sha256-iKxjXMNe9wcGeJ9i/NyyLp2zqi6MvmaPn/1OQd1LW3k=";
     };
   };
   atomic-coding-agent = {
@@ -64,34 +64,34 @@
   };
   crush = {
     pname = "crush";
-    version = "0.92.0";
+    version = "0.93.1";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.92.0/crush_0.92.0_Darwin_arm64.tar.gz";
-      sha256 = "sha256-KwUqkngBqeqRaY3kgiisPm4RcUmMVWF+H515VA8Zs6w=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.93.1/crush_0.93.1_Darwin_arm64.tar.gz";
+      sha256 = "sha256-oSVF5cXCzfvWZH2xkwW62R8/m7k7Ko8Rs0uIhIkx0+o=";
     };
   };
   crush-aarch64-linux = {
     pname = "crush-aarch64-linux";
-    version = "0.92.0";
+    version = "0.93.1";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.92.0/crush_0.92.0_Linux_arm64.tar.gz";
-      sha256 = "sha256-G28DhCl6HnfQHfQdsfVvwIcvHpydmWNMSywgi3u12TU=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.93.1/crush_0.93.1_Linux_arm64.tar.gz";
+      sha256 = "sha256-IAuRYoFRh3cdmcgT8tcfSy7+WpSngw5+00/CV2TmcK4=";
     };
   };
   crush-x86_64-darwin = {
     pname = "crush-x86_64-darwin";
-    version = "0.92.0";
+    version = "0.93.1";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.92.0/crush_0.92.0_Darwin_x86_64.tar.gz";
-      sha256 = "sha256-lmuPiQcjkuiHdqZnRm+g4f7133MMXArsF3ShMjx+ZJ0=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.93.1/crush_0.93.1_Darwin_x86_64.tar.gz";
+      sha256 = "sha256-0ZTIQACHx4K1CwjX+r7NpOiczJ/yTtQBqlciraTD8AQ=";
     };
   };
   crush-x86_64-linux = {
     pname = "crush-x86_64-linux";
-    version = "0.92.0";
+    version = "0.93.1";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.92.0/crush_0.92.0_Linux_x86_64.tar.gz";
-      sha256 = "sha256-fZrKmreAjugooLsP3gHZb8SAzgpmpf9heqJ6wJ4jy9U=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.93.1/crush_0.93.1_Linux_x86_64.tar.gz";
+      sha256 = "sha256-MIZxnD5P9ZK1Z8ImkRV0VxWLhyRUaQCeUwRHSByXUQI=";
     };
   };
   fx = {
@@ -128,34 +128,34 @@
   };
   git-ai = {
     pname = "git-ai";
-    version = "1.7.4";
+    version = "1.7.5";
     src = fetchurl {
-      url = "https://github.com/git-ai-project/git-ai/releases/download/v1.7.4/git-ai-macos-arm64";
-      sha256 = "sha256-fWvMRRxl851zCeTCRlZL2PDhjFrDAUlmGkn5KG+lucI=";
+      url = "https://github.com/git-ai-project/git-ai/releases/download/v1.7.5/git-ai-macos-arm64";
+      sha256 = "sha256-8cDOYu8X/CWegwRjxMPhhuQEotmOwbEn550bvVDjasI=";
     };
   };
   git-ai-aarch64-linux = {
     pname = "git-ai-aarch64-linux";
-    version = "1.7.4";
+    version = "1.7.5";
     src = fetchurl {
-      url = "https://github.com/git-ai-project/git-ai/releases/download/v1.7.4/git-ai-linux-arm64";
-      sha256 = "sha256-1pctEd2gOKxbokWskeD2ocvL5e7BNvBXjJG4HskIoKw=";
+      url = "https://github.com/git-ai-project/git-ai/releases/download/v1.7.5/git-ai-linux-arm64";
+      sha256 = "sha256-s0AAW00cfUwcM4PZSwkmJ7ztm08vdn4hJZJ8WCec26k=";
     };
   };
   git-ai-x86_64-darwin = {
     pname = "git-ai-x86_64-darwin";
-    version = "1.7.4";
+    version = "1.7.5";
     src = fetchurl {
-      url = "https://github.com/git-ai-project/git-ai/releases/download/v1.7.4/git-ai-macos-x64";
-      sha256 = "sha256-W7lqXclw4lDQqCRYT7a81mU32O/GNE+zf0IKVHsTi6s=";
+      url = "https://github.com/git-ai-project/git-ai/releases/download/v1.7.5/git-ai-macos-x64";
+      sha256 = "sha256-nGMcKpo/rq/Q8Y2lxlTHc/VmQaYis8YP5nYWuX+XjLY=";
     };
   };
   git-ai-x86_64-linux = {
     pname = "git-ai-x86_64-linux";
-    version = "1.7.4";
+    version = "1.7.5";
     src = fetchurl {
-      url = "https://github.com/git-ai-project/git-ai/releases/download/v1.7.4/git-ai-linux-x64";
-      sha256 = "sha256-H4DEr/pE2aIWZ+kwt6pqyU98L0a/IW12ZLq4THqLYsI=";
+      url = "https://github.com/git-ai-project/git-ai/releases/download/v1.7.5/git-ai-linux-x64";
+      sha256 = "sha256-bPaKg8yUj71GdeRrxePFCXPAQle7Q6lUpnEqIQcgZpU=";
     };
   };
   go-enum = {
