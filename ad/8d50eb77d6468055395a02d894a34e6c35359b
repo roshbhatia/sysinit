@@ -1,0 +1,21 @@
+hack/update-openspec.sh
+  s_881d178d72dce1::t_f0266ccf9ac7fa 19-21,24,26-29,32-41,43-44,46,48-50,52-66
+overlays/openspec/default.nix
+  s_881d178d72dce1::t_aa080fd0369733 19,33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "ad8d50eb77d6468055395a02d894a34e6c35359b",
+  "prompts": {},
+  "sessions": {
+    "s_881d178d72dce1": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a086cf-b5ce-7d53-b4e1-41e7a429e120",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
