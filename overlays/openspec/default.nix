@@ -16,7 +16,7 @@ in
       owner = "Fission-AI";
       repo = "OpenSpec";
       tag = "v${version}";
-      hash = "sha256-4Sc0MUZu7pP/Pi189Kg6lsXtU5ZXEab5c1d/vkvnYrM=";
+      hash = "sha256-LXZ6MBhP9QhdvT3VbI9uwXluYlJaIqenEgedTWwE6nY="; # autoupdate:src-hash
     };
 
     nativeBuildInputs = [
@@ -30,7 +30,7 @@ in
       inherit (finalAttrs) pname version src;
       pnpm = pnpm22;
       fetcherVersion = 4;
-      hash = "sha256-HuVltL2c+acN1KHDSRD1lZu+Rn92jO7yp1np1g0oQRw=";
+      hash = "sha256-1HSvDGfn3TUG3x+p58tqtmEIb29ka0CiA6dtCIm3fTY="; # autoupdate:pnpm-deps-hash
     };
 
     # The build needs the dev dependencies; what ships does not, and they are 100M.

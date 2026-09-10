@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
 
 OVERLAY_FILE="overlays/openspec/default.nix"
@@ -17,67 +16,51 @@ build_openspec() {
   " 2>&1
 }
 
-refresh_pnpm_deps_hash() {
-  sed -i.bak \
-    -e "s|hash = \"[^\"]*\"; # autoupdate:pnpm-deps-hash|hash = \"${FAKE_HASH}\"; # autoupdate:pnpm-deps-hash|" \
-    "${OVERLAY_FILE}"
-  rm "${OVERLAY_FILE}.bak"
-
-  echo "  Computing pnpm deps hash (fake-hash build)..."
-  local build_output
-  build_output=$(build_openspec || true)
-
-  local new_hash
-  new_hash=$(echo "${build_output}" | grep -o 'got: *sha256-[A-Za-z0-9+/=]*' | head -1 | sed 's/got: *//' || true)
-
-  if [[ -z ${new_hash} ]]; then
-    echo "ERROR: Could not parse fetchPnpmDeps hash from build output:"
-    echo "${build_output}" | tail -30
+for marker in src-hash pnpm-deps-hash; do
+  if [[ $(grep -c "# autoupdate:${marker}$" "${OVERLAY_FILE}") != 1 ]]; then
+    echo "ERROR: Expected one ${marker} marker in ${OVERLAY_FILE}" >&2
     exit 1
   fi
+done
 
-  sed -i.bak \
-    -e "s|hash = \"[^\"]*\"; # autoupdate:pnpm-deps-hash|hash = \"${new_hash}\"; # autoupdate:pnpm-deps-hash|" \
-    "${OVERLAY_FILE}"
-  rm "${OVERLAY_FILE}.bak"
-}
-
-CURRENT=$(grep -oP '(?<=version = ")[^"]+' "${OVERLAY_FILE}" | head -1)
-LATEST=$(curl -sf "https://registry.npmjs.org/@fission-ai/openspec/latest" | jq -r '.version')
-
-if [[ ${LATEST} == "${CURRENT}" ]]; then
-  echo "openspec at ${CURRENT}; verifying current hashes still build..."
-  if build_openspec > /dev/null 2>&1; then
-    echo "OK: openspec already at ${CURRENT}"
-    exit 0
-  fi
-  echo "openspec at ${CURRENT} but build is broken; recomputing pnpm-deps hash..."
-  refresh_pnpm_deps_hash
-  echo "OK: openspec at ${CURRENT}, pnpm-deps hash refreshed"
-  exit 0
+LATEST=$(curl -fsS 'https://registry.npmjs.org/@fission-ai/openspec/latest' | jq -er '.version')
+if [[ ! ${LATEST} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  echo "ERROR: Invalid OpenSpec version: ${LATEST}" >&2
+  exit 1
 fi
 
-echo "Updating openspec ${CURRENT} -> ${LATEST}..."
+update_backup=$(mktemp)
+cp "${OVERLAY_FILE}" "${update_backup}"
+update_complete=false
+cleanup() {
+  if [[ ${update_complete} != true ]]; then
+    cp "${update_backup}" "${OVERLAY_FILE}"
+  fi
+  rm -f "${update_backup}" "${OVERLAY_FILE}.bak"
+}
+trap cleanup EXIT
 
-TGZ_URL="https://registry.npmjs.org/@fission-ai/openspec/-/openspec-${LATEST}.tgz"
-PNPM_LOCK_URL="https://raw.githubusercontent.com/Fission-AI/OpenSpec/v${LATEST}/pnpm-lock.yaml"
-
-echo "  Computing src hash..."
-RAW_SRC=$(nix-prefetch-url --type sha256 "${TGZ_URL}" 2> /dev/null)
+echo "Updating OpenSpec to ${LATEST} from its Git tag..." >&2
+RAW_SRC=$(nix-prefetch-url --unpack --type sha256 "https://github.com/Fission-AI/OpenSpec/archive/refs/tags/v${LATEST}.tar.gz")
 SRC_HASH=$(nix hash convert --hash-algo sha256 --from nix32 --to sri "${RAW_SRC}")
-
-echo "  Computing pnpm-lock hash..."
-RAW_LOCK=$(nix-prefetch-url --type sha256 "${PNPM_LOCK_URL}" 2> /dev/null)
-PNPM_LOCK_HASH=$(nix hash convert --hash-algo sha256 --from nix32 --to sri "${RAW_LOCK}")
-
-cp "${OVERLAY_FILE}" "${OVERLAY_FILE}.bak"
-sed \
+sed -i.bak \
   -e "s|version = \"[^\"]*\";|version = \"${LATEST}\";|" \
-  -e "s|hash = \"[^\"]*\"; # autoupdate:src-hash|hash = \"${SRC_HASH}\"; # autoupdate:src-hash|g" \
-  -e "s|hash = \"[^\"]*\"; # autoupdate:pnpm-lock-hash|hash = \"${PNPM_LOCK_HASH}\"; # autoupdate:pnpm-lock-hash|" \
-  "${OVERLAY_FILE}.bak" > "${OVERLAY_FILE}"
-rm "${OVERLAY_FILE}.bak"
+  -e "s|hash = \"[^\"]*\"; # autoupdate:src-hash|hash = \"${SRC_HASH}\"; # autoupdate:src-hash|" \
+  -e "s|hash = \"[^\"]*\"; # autoupdate:pnpm-deps-hash|hash = \"${FAKE_HASH}\"; # autoupdate:pnpm-deps-hash|" \
+  "${OVERLAY_FILE}"
 
-refresh_pnpm_deps_hash
-
-echo "OK: openspec updated to ${LATEST}"
+if build_output=$(build_openspec); then
+  echo 'ERROR: Expected a dependency hash mismatch with the placeholder hash' >&2
+  exit 1
+fi
+DEPS_HASH=$(printf '%s\n' "${build_output}" | sed -n 's/.*got: *\(sha256-[A-Za-z0-9+/=]*\).*/\1/p')
+if [[ ! ${DEPS_HASH} =~ ^sha256-[A-Za-z0-9+/=]+$ ]] || ! [[ ${build_output} == *openspec-pnpm-deps* ]]; then
+  printf 'ERROR: OpenSpec dependency hash calculation failed:\n%s\n' "${build_output}" >&2
+  exit 1
+fi
+sed -i.bak \
+  -e "s|hash = \"[^\"]*\"; # autoupdate:pnpm-deps-hash|hash = \"${DEPS_HASH}\"; # autoupdate:pnpm-deps-hash|" \
+  "${OVERLAY_FILE}"
+build_openspec >&2
+update_complete=true
+echo "OK: OpenSpec ${LATEST} source, dependencies, and build verified" >&2
