@@ -195,16 +195,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1788985566,
-        "narHash": "sha256-eiLWglSlOD9Op8eOf8gSTdrglqcXh0QoRWHegHj0Hnk=",
+        "lastModified": 1789155456,
+        "narHash": "sha256-iwoqmwUpZ3C9e7YUQ05MXq97x9QMrdI8nBomuJ64S10=",
         "owner": "roshbhatia",
         "repo": "changes",
-        "rev": "80cbfa533500c342b0d8f4cd81b984cc563607b5",
+        "rev": "4062e38661501a05ca99f54e6a5e325cd6c8b74b",
         "type": "github"
       },
       "original": {
         "owner": "roshbhatia",
-        "ref": "v0.12.3",
+        "ref": "v0.13.0",
         "repo": "changes",
         "type": "github"
       }
@@ -361,11 +361,11 @@
       },
       "locked": {
         "dir": "repos/rycee/pkgs/firefox-addons",
-        "lastModified": 1789120701,
-        "narHash": "sha256-yLluv6g1Mj1RHUPtiRNr1NYJR4GIstl0m53FKBlWrEg=",
+        "lastModified": 1789141193,
+        "narHash": "sha256-+lK7DyIMJn+9+/8Q3kkrJiYGavcDUUALdbKYiyesYAw=",
         "owner": "nix-community",
         "repo": "nur-combined",
-        "rev": "acc1f42e84dc44d75bfaf823a2cb63fb7dcb1880",
+        "rev": "60494b3f5cb5c592dfbe256e8dcf663cd83a6c48",
         "type": "github"
       },
       "original": {
@@ -707,11 +707,11 @@
         "uv2nix": "uv2nix"
       },
       "locked": {
-        "lastModified": 1789122215,
-        "narHash": "sha256-6ZegFoE3A8ZakNWLjNcKhRql1KeSWm3yIbiXfGK3Nsg=",
+        "lastModified": 1789139829,
+        "narHash": "sha256-5BzcnDCE8z7PjBpRJ1oK6x7gsYPunIG84ccSIe4okq8=",
         "owner": "NousResearch",
         "repo": "hermes-agent",
-        "rev": "8c74118c4a0c332a6bc57d2509147bad0e6ee864",
+        "rev": "ad03f20dd61919ca2135d6904e787a94284aacaf",
         "type": "github"
       },
       "original": {
@@ -750,11 +750,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789099078,
-        "narHash": "sha256-zzHj2wl69724lzx7DLAVziWbL75wRIk+xJ3duD0Bgrc=",
+        "lastModified": 1789136855,
+        "narHash": "sha256-82D7ADWE8erhfALj3dqxAOeQaoa+Bwlsdcp9v2m/ExM=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "f10b3f2ad4aae9259617a1ff518cc921e3394228",
+        "rev": "d0fd95e15e0c3baf565a9fd4bc352321e2564ea3",
         "type": "github"
       },
       "original": {
@@ -997,11 +997,11 @@
         "nixpkgs": "nixpkgs_5"
       },
       "locked": {
-        "lastModified": 1789120564,
-        "narHash": "sha256-N9qQ2BNnVtWEe0jq1scNOh88u1TkWHVWuC0zjdT4Eno=",
+        "lastModified": 1789141061,
+        "narHash": "sha256-T2+uq8rR7zvUFh7/R8DQgsf2AGrUO3EPpr1iv7Jby8Y=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "1445115c1b133093cdefd478e2ed946511bc1aba",
+        "rev": "4250406d791dcb1db2b1ce7bd223ac3ee120cfe3",
         "type": "github"
       },
       "original": {
@@ -1093,16 +1093,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1788993374,
-        "narHash": "sha256-CQbLJP/55Ij+udls2TRTdUj44mqLN6WvozzEym8GLX4=",
+        "lastModified": 1789154793,
+        "narHash": "sha256-BbEDO+vb8bI+04hXIrE+j3CJHy7dcvR6b0lJe5U7+zs=",
         "owner": "roshbhatia",
         "repo": "orc",
-        "rev": "acb53173cc1cd99467fe2602d86a0b6db7f6ce52",
+        "rev": "a5d9905b19305d1567de4bfbef883a58450f2d07",
         "type": "github"
       },
       "original": {
         "owner": "roshbhatia",
-        "ref": "v0.12.3",
+        "ref": "v0.12.5",
         "repo": "orc",
         "type": "github"
       }
@@ -1132,17 +1132,17 @@
       },
       "locked": {
         "dir": "extras",
-        "lastModified": 1788993374,
-        "narHash": "sha256-CQbLJP/55Ij+udls2TRTdUj44mqLN6WvozzEym8GLX4=",
+        "lastModified": 1789154793,
+        "narHash": "sha256-BbEDO+vb8bI+04hXIrE+j3CJHy7dcvR6b0lJe5U7+zs=",
         "owner": "roshbhatia",
         "repo": "orc",
-        "rev": "acb53173cc1cd99467fe2602d86a0b6db7f6ce52",
+        "rev": "a5d9905b19305d1567de4bfbef883a58450f2d07",
         "type": "github"
       },
       "original": {
         "dir": "extras",
         "owner": "roshbhatia",
-        "ref": "v0.12.3",
+        "ref": "v0.12.5",
         "repo": "orc",
         "type": "github"
       }
@@ -1577,11 +1577,11 @@
         "traces": "traces"
       },
       "locked": {
-        "lastModified": 1789123416,
-        "narHash": "sha256-J6Y4p7h5ZNjMDi2x3Ss36UFj+aVkhkf7qIERQLEwmyg=",
+        "lastModified": 1789155614,
+        "narHash": "sha256-2rU2j1nc4VWPuN9Sy25GzPIIzgEqRtlJOKOBjPwiy+E=",
         "owner": "roshbhatia",
         "repo": "sysinit",
-        "rev": "ea993ea018c700f110a50b2efdc8c6f4e51e3113",
+        "rev": "5f503019ebb315107d90c4a13c3491c898e15115",
         "type": "github"
       },
       "original": {
@@ -1627,11 +1627,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789077919,
-        "narHash": "sha256-sPM7DOl8sOUG8uxNWN4Qt+YFW/dBF3G9leyI8fg8JzQ=",
+        "lastModified": 1789155131,
+        "narHash": "sha256-hfhi2iwu2Z11xCch0qONyZID2mncPalXGVLaje7Y+2k=",
         "owner": "roshbhatia",
         "repo": "sysinit.wezterm",
-        "rev": "452b79e82b271d8810c65f34b700e9c4ff08f456",
+        "rev": "38e29e4f378db8135d0cca3a69eab3dbc258da44",
         "type": "github"
       },
       "original": {
