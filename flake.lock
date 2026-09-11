@@ -187,16 +187,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1788985566,
-        "narHash": "sha256-eiLWglSlOD9Op8eOf8gSTdrglqcXh0QoRWHegHj0Hnk=",
+        "lastModified": 1789155456,
+        "narHash": "sha256-iwoqmwUpZ3C9e7YUQ05MXq97x9QMrdI8nBomuJ64S10=",
         "owner": "roshbhatia",
         "repo": "changes",
-        "rev": "80cbfa533500c342b0d8f4cd81b984cc563607b5",
+        "rev": "4062e38661501a05ca99f54e6a5e325cd6c8b74b",
         "type": "github"
       },
       "original": {
         "owner": "roshbhatia",
-        "ref": "v0.12.3",
+        "ref": "v0.13.0",
         "repo": "changes",
         "type": "github"
       }
@@ -1060,16 +1060,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1788993374,
-        "narHash": "sha256-CQbLJP/55Ij+udls2TRTdUj44mqLN6WvozzEym8GLX4=",
+        "lastModified": 1789154793,
+        "narHash": "sha256-BbEDO+vb8bI+04hXIrE+j3CJHy7dcvR6b0lJe5U7+zs=",
         "owner": "roshbhatia",
         "repo": "orc",
-        "rev": "acb53173cc1cd99467fe2602d86a0b6db7f6ce52",
+        "rev": "a5d9905b19305d1567de4bfbef883a58450f2d07",
         "type": "github"
       },
       "original": {
         "owner": "roshbhatia",
-        "ref": "v0.12.3",
+        "ref": "v0.12.5",
         "repo": "orc",
         "type": "github"
       }
@@ -1094,17 +1094,17 @@
       },
       "locked": {
         "dir": "extras",
-        "lastModified": 1788993374,
-        "narHash": "sha256-CQbLJP/55Ij+udls2TRTdUj44mqLN6WvozzEym8GLX4=",
+        "lastModified": 1789154793,
+        "narHash": "sha256-BbEDO+vb8bI+04hXIrE+j3CJHy7dcvR6b0lJe5U7+zs=",
         "owner": "roshbhatia",
         "repo": "orc",
-        "rev": "acb53173cc1cd99467fe2602d86a0b6db7f6ce52",
+        "rev": "a5d9905b19305d1567de4bfbef883a58450f2d07",
         "type": "github"
       },
       "original": {
         "dir": "extras",
         "owner": "roshbhatia",
-        "ref": "v0.12.3",
+        "ref": "v0.12.5",
         "repo": "orc",
         "type": "github"
       }
@@ -1522,11 +1522,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789077919,
-        "narHash": "sha256-sPM7DOl8sOUG8uxNWN4Qt+YFW/dBF3G9leyI8fg8JzQ=",
+        "lastModified": 1789155131,
+        "narHash": "sha256-hfhi2iwu2Z11xCch0qONyZID2mncPalXGVLaje7Y+2k=",
         "owner": "roshbhatia",
         "repo": "sysinit.wezterm",
-        "rev": "452b79e82b271d8810c65f34b700e9c4ff08f456",
+        "rev": "38e29e4f378db8135d0cca3a69eab3dbc258da44",
         "type": "github"
       },
       "original": {

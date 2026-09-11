@@ -9,6 +9,7 @@ let
 in
 {
   home.packages = [
+    pkgs.diffnav
     (lib.lowPrio pkgs.changes-providers)
     (lib.lowPrio pkgs.changes-provider-git-notes)
   ];
@@ -16,6 +17,7 @@ in
   xdg.configFile = {
     "changes/config.yaml".source = yamlFormat.generate "changes-config.yaml" {
       color = "auto";
+      interactive.reader = [ "${pkgs.diffnav}/bin/diffnav" ];
       diff = {
         engine = "builtin";
         layout = "unified";
