@@ -178,7 +178,7 @@
 
     hermes-agent = {
       url = "github:NousResearch/hermes-agent";
-      inputs.nixpkgs.url = "github:NixOS/nixpkgs/d5dfd8e6716dde34398bc14bc87c10dece9c8c68";
+      inputs.nixpkgs.url = "github:NixOS/nixpkgs/aff8a0b28396750446e5537a96461bc4facdb287";
     };
 
   };
