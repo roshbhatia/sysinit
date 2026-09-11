@@ -361,11 +361,11 @@
       },
       "locked": {
         "dir": "repos/rycee/pkgs/firefox-addons",
-        "lastModified": 1789054151,
-        "narHash": "sha256-RExeXO4LXYOCpQsJcPJ8Y5kiylGCkkpUJPzcYKU+Beg=",
+        "lastModified": 1789069919,
+        "narHash": "sha256-Ki9weer8Gvg15ZJIn+3RRZqNKEZKkt8HkqOY8r4RGRs=",
         "owner": "nix-community",
         "repo": "nur-combined",
-        "rev": "f1ae63bebeb408904970c672e65496a25b788146",
+        "rev": "c8caab55193d58c49e62e93ee4cea9cc566d8152",
         "type": "github"
       },
       "original": {
@@ -707,11 +707,11 @@
         "uv2nix": "uv2nix"
       },
       "locked": {
-        "lastModified": 1789053977,
-        "narHash": "sha256-b/Fs1DsP66X7m33xypXBOCymqcQvRQuqh2bxLEGxvNo=",
+        "lastModified": 1789067924,
+        "narHash": "sha256-s4iia80Z8PAyn6Bgq8BcLhe+WTTYHTYX/ji5Vf2Ly90=",
         "owner": "NousResearch",
         "repo": "hermes-agent",
-        "rev": "110736c0bc9fd249f1ce7f7ca5d353040f640be6",
+        "rev": "564aef2946c436500a5e80ee117b66b789b3f99a",
         "type": "github"
       },
       "original": {
@@ -750,11 +750,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789047607,
-        "narHash": "sha256-TvkqeCjWyQvQs7jZ/2WcOWF1GMSgKtAP3qrw7eKpp1k=",
+        "lastModified": 1789071706,
+        "narHash": "sha256-S+oyh2YSP9V5bSjWbbK0N7GxdxxMwgBfUOtUdVcAWc4=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "f7f333f04ff6e2f94f955642a1b4956d4fcd3010",
+        "rev": "150f9ce4ddd41544ea42eb9d6043a75bd615fa24",
         "type": "github"
       },
       "original": {
@@ -809,11 +809,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788980493,
-        "narHash": "sha256-S1uKFPSAMtjAfXS4/iKP7Gzdir8c88aOJmIfOolGn9E=",
+        "lastModified": 1789066899,
+        "narHash": "sha256-9JKN9rn2mlioHFbZfzq/m9T8L2grTYTI2TLVyRLW9Xo=",
         "owner": "ryoppippi",
         "repo": "nix-claude-code",
-        "rev": "c1b3b0b07d055d26c1b2adf754d004a85b4912bb",
+        "rev": "092ae62a8e5b856ab784cff9dd1ca84da953c156",
         "type": "github"
       },
       "original": {
@@ -997,11 +997,11 @@
         "nixpkgs": "nixpkgs_5"
       },
       "locked": {
-        "lastModified": 1789053993,
-        "narHash": "sha256-QOTdWnif5j2t7JkSrWzmE1xOz+Bc460U3GVwhLrg6FQ=",
+        "lastModified": 1789069776,
+        "narHash": "sha256-WO2ZX598ma765nodrTTUo12WDetMJ3A/ocZjDlorVAU=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "991105256c2506f3f8d8cb4e5b8cb25476d41295",
+        "rev": "febee81256f1c56cd0b11c40a5b5b8b019459d0d",
         "type": "github"
       },
       "original": {
@@ -1045,11 +1045,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789014322,
-        "narHash": "sha256-RnfU2lNKWffVGxzgK7/o2j9GclHkx644Q/5duL38sto=",
+        "lastModified": 1789057782,
+        "narHash": "sha256-Qe1P64tgnq7LMZ+A1Y+cjpowhRsSkbzZJzV3ofAaKZM=",
         "owner": "roshbhatia",
         "repo": "nu_plugin_nvim",
-        "rev": "a87737c21c032354d4f3aee47240529c94f84aa7",
+        "rev": "bd887b00e35a2d44b0bddce25972dfcf81a5a090",
         "type": "github"
       },
       "original": {
@@ -1577,11 +1577,11 @@
         "traces": "traces"
       },
       "locked": {
-        "lastModified": 1789055818,
-        "narHash": "sha256-9DYfNHulg7/eurxxvy3w4tR35NpvkZ50gC8aMglPjJY=",
+        "lastModified": 1789078621,
+        "narHash": "sha256-jV5/J2SvpAYZqcHZhwLMtCQtaNvGDrnu6+1ctpQsytg=",
         "owner": "roshbhatia",
         "repo": "sysinit",
-        "rev": "526089a91c2d8e6f672e6d67285efd45b6376211",
+        "rev": "ad8d50eb77d6468055395a02d894a34e6c35359b",
         "type": "github"
       },
       "original": {
@@ -1627,11 +1627,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789000929,
-        "narHash": "sha256-1mK26rT2WiV126eGLiy44xtUezresQjqKZhk/rYhDGk=",
+        "lastModified": 1789077919,
+        "narHash": "sha256-sPM7DOl8sOUG8uxNWN4Qt+YFW/dBF3G9leyI8fg8JzQ=",
         "owner": "roshbhatia",
         "repo": "sysinit.wezterm",
-        "rev": "e511ebc5b5840f83aceb9f34ad97923ad09a29ad",
+        "rev": "452b79e82b271d8810c65f34b700e9c4ff08f456",
         "type": "github"
       },
       "original": {
