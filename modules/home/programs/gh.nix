@@ -7,6 +7,7 @@
     gitCredentialHelper.enable = true;
 
     extensions = [
+      pkgs.gh-aw
       pkgs.gh-dash
       pkgs.gh-enhance
       pkgs.gh-stack
