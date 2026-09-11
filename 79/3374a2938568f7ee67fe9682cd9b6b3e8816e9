@@ -1,0 +1,19 @@
+flake.lock
+  s_26d23fecd28e64::t_9ede1728fefe85 1525-1526,1529
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "793374a2938568f7ee67fe9682cd9b6b3e8816e9",
+  "prompts": {},
+  "sessions": {
+    "s_26d23fecd28e64": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a091db-21fc-7023-9478-a2e21d77d4db",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
