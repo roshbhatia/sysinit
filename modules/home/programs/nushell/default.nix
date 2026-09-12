@@ -236,6 +236,17 @@ in
 
         ${selfAppendLines}
 
+        # source runs at parse time, so secrets cannot be optional-sourced like
+        # .zshsecrets. Load them as TOML at runtime and keep a bad file loud.
+        let secrets_file = ("~/.nusecrets" | path expand)
+        if ($secrets_file | path exists) {
+          try {
+            load-env (open $secrets_file | from toml)
+          } catch {|err|
+            print -e $"nusecrets: ($err.msg)"
+          }
+        }
+
         ${nushellLib.pathAdd pathsList}
 
         ${nushellLib.sourceCompletion pkgs.seshy "sy"}
