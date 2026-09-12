@@ -154,6 +154,13 @@ in
 
   home.packages = [ pkgs.nuvim ];
 
+  home.activation.sysinitNusecrets = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    SECRETS="${config.home.homeDirectory}/.nusecrets.nu"
+    if [ ! -e "$SECRETS" ]; then
+      (umask 077; printf '# nu code, sourced by every nushell start; keep it parseable\n' > "$SECRETS")
+    fi
+  '';
+
   programs = {
     nushell = {
       enable = true;
@@ -236,16 +243,11 @@ in
 
         ${selfAppendLines}
 
-        # source runs at parse time, so secrets cannot be optional-sourced like
-        # .zshsecrets. Load them as TOML at runtime and keep a bad file loud.
-        let secrets_file = ("~/.nusecrets" | path expand)
-        if ($secrets_file | path exists) {
-          try {
-            load-env (open $secrets_file | from toml)
-          } catch {|err|
-            print -e $"nusecrets: ($err.msg)"
-          }
-        }
+        # source resolves at parse time, so the file cannot be optional in the
+        # config itself. The activation below creates an empty ~/.nusecrets.nu
+        # when missing; deleting it afterwards breaks shell startup until the
+        # next switch recreates it.
+        source ~/.nusecrets.nu
 
         ${nushellLib.pathAdd pathsList}
 
