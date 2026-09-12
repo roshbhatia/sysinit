@@ -1,0 +1,19 @@
+flake.lock
+  s_746e3294ae5939::t_e6f718cff5a22a 1525-1526,1529
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "f967777cfb903a6d6b73daa36a68b6b09fcba146",
+  "prompts": {},
+  "sessions": {
+    "s_746e3294ae5939": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bccf4dca-ae8d-4979-9769-685ddfd64294",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
