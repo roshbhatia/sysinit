@@ -26,7 +26,14 @@ let
     "ollama"
     "osx-cross/arm/arm-none-eabi-binutils"
     "osx-cross/arm/arm-none-eabi-gcc@8"
+    # krunkit pulls both of these from the same untrusted tap. brew bundle
+    # rewrites ~/.homebrew/trust.json to exactly the tap-qualified formulae the
+    # Brewfile names, so a dependency trusted by hand is dropped on the next
+    # switch and activation fails again. Naming them here is what makes the
+    # trust survive.
     "slp/krunkit/krunkit"
+    "slp/krunkit/libkrun-efi"
+    "slp/krunkit/virglrenderer"
     "steipete/tap/peekaboo"
     "switchaudio-osx"
   ];
