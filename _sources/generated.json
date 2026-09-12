@@ -8,11 +8,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-KaYsUY+M95Yl8o3F4OpE+D9LIk/FbtHwxlLd+xkK78c=",
+            "sha256": "sha256-iU92U6OydRnkyNubv4ry3uPU3l356YKqUFf4sE2PJoc=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1789156837-g39de4c/amp-darwin-arm64.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1789171288-gd95a61/amp-darwin-arm64.gz"
         },
-        "version": "0.0.1789156837-g39de4c"
+        "version": "0.0.1789171288-gd95a61"
     },
     "amp-cli-aarch64-linux": {
         "cargoLock": null,
@@ -23,11 +23,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-RkWIoPogy3kdkDD9UpW467Q3eHaGf/oRLLNt0cw25BE=",
+            "sha256": "sha256-X2sJLY7ac5+Z1ExR3EIExyAnoXUdh3QAvvjaQWzh8A0=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1789156837-g39de4c/amp-linux-arm64.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1789171288-gd95a61/amp-linux-arm64.gz"
         },
-        "version": "0.0.1789156837-g39de4c"
+        "version": "0.0.1789171288-gd95a61"
     },
     "amp-cli-x86_64-linux": {
         "cargoLock": null,
@@ -38,11 +38,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-Ai70cY7Cvu4NLicFHiac2f0ricVaxo/x08Q0yFOOyes=",
+            "sha256": "sha256-xH8QnTmi70fuuSS7WrtPX61S6p37Bdbl+pzABo9hCXk=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1789156837-g39de4c/amp-linux-x64-baseline.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1789171288-gd95a61/amp-linux-x64-baseline.gz"
         },
-        "version": "0.0.1789156837-g39de4c"
+        "version": "0.0.1789171288-gd95a61"
     },
     "atomic-coding-agent": {
         "cargoLock": null,
@@ -113,11 +113,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-oSVF5cXCzfvWZH2xkwW62R8/m7k7Ko8Rs0uIhIkx0+o=",
+            "sha256": "sha256-fRCraVUTtznrgzGyvh+spSl4G3xIeg0vp4Udgmf7Z6A=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.93.1/crush_0.93.1_Darwin_arm64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.94.1/crush_0.94.1_Darwin_arm64.tar.gz"
         },
-        "version": "0.93.1"
+        "version": "0.94.1"
     },
     "crush-aarch64-linux": {
         "cargoLock": null,
@@ -128,11 +128,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-IAuRYoFRh3cdmcgT8tcfSy7+WpSngw5+00/CV2TmcK4=",
+            "sha256": "sha256-GIhTqGbXeC2mBtoxC8N9sgmp/xxyQtFH+9+X4dwRF9c=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.93.1/crush_0.93.1_Linux_arm64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.94.1/crush_0.94.1_Linux_arm64.tar.gz"
         },
-        "version": "0.93.1"
+        "version": "0.94.1"
     },
     "crush-x86_64-darwin": {
         "cargoLock": null,
@@ -143,11 +143,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-0ZTIQACHx4K1CwjX+r7NpOiczJ/yTtQBqlciraTD8AQ=",
+            "sha256": "sha256-G6eunIABbeWP2Vdj0OdAYgUWPNeN0z7c96JSzw4Hqvc=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.93.1/crush_0.93.1_Darwin_x86_64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.94.1/crush_0.94.1_Darwin_x86_64.tar.gz"
         },
-        "version": "0.93.1"
+        "version": "0.94.1"
     },
     "crush-x86_64-linux": {
         "cargoLock": null,
@@ -158,11 +158,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-MIZxnD5P9ZK1Z8ImkRV0VxWLhyRUaQCeUwRHSByXUQI=",
+            "sha256": "sha256-hBAtcPoS+0WI46FkV5Urq+Cf54XDVwVTvFlOnRPBy0w=",
             "type": "url",
-            "url": "https://github.com/charmbracelet/crush/releases/download/v0.93.1/crush_0.93.1_Linux_x86_64.tar.gz"
+            "url": "https://github.com/charmbracelet/crush/releases/download/v0.94.1/crush_0.94.1_Linux_x86_64.tar.gz"
         },
-        "version": "0.93.1"
+        "version": "0.94.1"
     },
     "fx": {
         "cargoLock": null,
