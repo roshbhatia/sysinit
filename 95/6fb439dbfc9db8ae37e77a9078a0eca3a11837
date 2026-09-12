@@ -1,0 +1,20 @@
+modules/home/programs/nushell/default.nix
+  s_335d7111014c7e::t_fb9ba660cab060 157-163
+  s_335d7111014c7e::t_9a23e83cd2939e 246-250
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "956fb439dbfc9db8ae37e77a9078a0eca3a11837",
+  "prompts": {},
+  "sessions": {
+    "s_335d7111014c7e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "85623334-23e4-4f8a-aca7-1e129276e82f",
+        "model": "z-ai/glm-5.3-flash"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
