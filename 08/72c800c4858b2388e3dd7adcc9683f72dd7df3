@@ -1,0 +1,19 @@
+modules/darwin/homebrew.nix
+  s_746e3294ae5939::t_2afc261fd34e7e 29-33,35-36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "0872c800c4858b2388e3dd7adcc9683f72dd7df3",
+  "prompts": {},
+  "sessions": {
+    "s_746e3294ae5939": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bccf4dca-ae8d-4979-9769-685ddfd64294",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
