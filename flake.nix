@@ -33,7 +33,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nur.url = "github:nix-community/NUR";
+    nur = {
+      url = "github:nix-community/NUR";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     nix-gaming = {
       url = "github:fufexan/nix-gaming";
@@ -231,12 +234,15 @@
         "x86_64-linux"
         "aarch64-linux"
       ];
-      pkgsFor =
+      # An attrset, not a function. As a function it re-instantiated nixpkgs
+      # with the full overlay list once per call site per system.
+      pkgsFor = lib.genAttrs cacheSystems (
         system:
         builders.mkPkgs {
           inherit system;
           overlays = builders.mkOverlays;
-        };
+        }
+      );
     in
     {
       inherit darwinConfigurations nixosConfigurations;
@@ -350,7 +356,7 @@
         lib.genAttrs cacheSystems (
           system:
           let
-            pkgs = pkgsFor system;
+            pkgs = pkgsFor.${system};
           in
           {
             # Resolve strictly. `pkgs.${name} or null` silently shrank the
@@ -405,14 +411,14 @@
             nixosConfigurations
             ;
           homeManagerLib = inputs.home-manager.lib;
-          pkgs = pkgsFor system;
+          pkgs = pkgsFor.${system};
         }
       );
 
       devShells = lib.genAttrs cacheSystems (
         system:
         let
-          pkgs = pkgsFor system;
+          pkgs = pkgsFor.${system};
         in
         {
           default = pkgs.mkShellNoCC {
