@@ -1,0 +1,21 @@
+modules/darwin/home/colima.nix
+  s_429700c772be9c::t_e52467b6bb50a8 4,9-12,14-28
+  s_429700c772be9c::t_defe88b3232b79 29-31
+  s_429700c772be9c::t_27035b1cef9fb4 32-33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "7a6b57d0c4a45728577a3be35a958a43f113e746",
+  "prompts": {},
+  "sessions": {
+    "s_429700c772be9c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "12db108b-88bf-415b-992d-e126bb2b685a",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
