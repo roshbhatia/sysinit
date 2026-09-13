@@ -1,0 +1,21 @@
+flake.lock
+  s_429700c772be9c::t_63b6c3e8293bef 954-956
+flake.nix
+  s_429700c772be9c::t_ed0c482226d7c5 36-39,237-239,244-245,359,414,421
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "25d367ec2251aeb3f0bc3f87feee80cb14669440",
+  "prompts": {},
+  "sessions": {
+    "s_429700c772be9c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "12db108b-88bf-415b-992d-e126bb2b685a",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
