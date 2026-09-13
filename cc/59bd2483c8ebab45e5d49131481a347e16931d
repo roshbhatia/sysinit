@@ -1,0 +1,23 @@
+AGENTS.md
+  s_429700c772be9c::t_b2b841e6271384 114-117
+README.md
+  s_429700c772be9c::t_8ee20b24dd4716 28-30
+docs/runbooks.md
+  s_429700c772be9c::t_6b8c531886316c 1-152
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "cc59bd2483c8ebab45e5d49131481a347e16931d",
+  "prompts": {},
+  "sessions": {
+    "s_429700c772be9c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "12db108b-88bf-415b-992d-e126bb2b685a",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
