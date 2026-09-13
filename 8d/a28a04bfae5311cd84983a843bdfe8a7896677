@@ -1,0 +1,26 @@
+modules/home/programs/llm/harnesses/publish.nix
+  s_429700c772be9c::t_a2d2bceb252e81 11-13
+  s_429700c772be9c::t_be019ba13b58c9 39-51
+AGENTS.md
+  s_429700c772be9c::t_8bb1f1f05d1095 13,19,24,29-31,38,46,88-89,99-107,131-132,216-217,235
+modules/home/programs/ast-grep/rules/README.md
+  s_429700c772be9c::t_6cec673e997d79 75-76
+modules/home/programs/llm/harnesses/deck-patterns.nix
+  s_429700c772be9c::t_77de5f1ee1679f 5-6,12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "8da28a04bfae5311cd84983a843bdfe8a7896677",
+  "prompts": {},
+  "sessions": {
+    "s_429700c772be9c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "12db108b-88bf-415b-992d-e126bb2b685a",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
