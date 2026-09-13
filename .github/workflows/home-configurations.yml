@@ -40,6 +40,23 @@ jobs:
 
       - uses: DeterminateSystems/nix-installer-action@v22
 
+      # Without this the six builds below are discarded when the job ends.
+      - name: Detect Cachix token
+        id: cachix
+        run: |
+          if [ -n "${{ secrets.CACHIX_AUTH_TOKEN }}" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::CACHIX_AUTH_TOKEN not set; building without pushing."
+          fi
+
+      - uses: cachix/cachix-action@v17
+        if: steps.cachix.outputs.enabled == 'true'
+        with:
+          name: roshbhatia
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
       - name: Build ${{ matrix.profile }}-${{ matrix.system }}
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"

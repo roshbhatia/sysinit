@@ -293,7 +293,6 @@
             "pi-coding-agent"
             "crush"
             "contextive"
-            "cua-computer-server"
             "codex"
             "claude-code"
             "go-enum"
@@ -329,6 +328,23 @@
             "wumpusMono"
             "bookerly"
             "mise-nix"
+            "zoetrope"
+            "prime-agent"
+            "atomic-coding-agent"
+            "hermes-agent"
+            "fx"
+            "meat"
+            "amp-cli"
+            "acp-amp"
+            "git-ai-gate"
+            "agent-notes"
+          ];
+
+          # Attrs the overlays define only on Linux. Naming them here rather
+          # than tolerating an absent attr keeps a typo an error everywhere.
+          linuxCacheAttrs = [
+            "cua-computer-server"
+            "sunshine"
           ];
         in
         lib.genAttrs cacheSystems (
@@ -337,9 +353,16 @@
             pkgs = pkgsFor system;
           in
           {
+            # Resolve strictly. `pkgs.${name} or null` silently shrank the
+            # bundle whenever an attr was renamed, so the miss showed up as a
+            # source build on the laptop rather than as a CI failure.
             cacheBundle = pkgs.symlinkJoin {
               name = "sysinit-cache-bundle-${system}";
-              paths = builtins.filter (p: p != null) (map (name: pkgs.${name} or null) cacheAttrs);
+              paths = map (
+                name:
+                pkgs.${name}
+                  or (throw "cacheAttrs names `${name}`, which the overlay set does not define on ${system}")
+              ) (cacheAttrs ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux linuxCacheAttrs);
             };
             # Trimmed profile of this user's own CLIs for cloud agent boxes.
             # Every component is in cacheAttrs, so only the join builds; the

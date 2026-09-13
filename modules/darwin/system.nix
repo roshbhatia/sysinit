@@ -16,27 +16,10 @@ let
   );
 in
 {
-  nix = {
-    enable = false;
-    buildMachines = [
-      {
-        hostName = "arrakis";
-        system = "x86_64-linux";
-        supportedFeatures = [
-          "nixos-test"
-          "benchmark"
-          "big-parallel"
-          "kvm"
-        ];
-        maxJobs = 8;
-        speedFactor = 2;
-        protocol = "ssh-ng";
-        sshUser = "rshnbhatia";
-        sshKey = "/Users/rshnbhatia/.ssh/id_ed25519";
-      }
-    ];
-    settings.builders-use-substitutes = true;
-  };
+  # Determinate owns nix here. nix-darwin gates `environment.etc."nix/machines"`
+  # and every `nix.settings` key behind this flag, so a remote builder declared
+  # as `nix.buildMachines` is silently dropped. Declare it in customSettings.
+  nix.enable = false;
 
   determinateNix.customSettings = {
     experimental-features = "nix-command flakes";
@@ -50,6 +33,22 @@ in
     max-jobs = "auto";
     cores = 0;
     connect-timeout = 10;
+
+    # Fields are: uri system sshKey maxJobs speedFactor supported mandatory hostKey.
+    builders = "ssh-ng://rshnbhatia@arrakis x86_64-linux /Users/${user}/.ssh/id_ed25519 8 2 nixos-test,benchmark,big-parallel,kvm - -";
+    builders-use-substitutes = true;
+
+    # The 3600 default makes a switch within an hour of a cachix push rebuild
+    # every path Nix already recorded as missing.
+    narinfo-cache-negative-ttl = 60;
+
+    # Determinate defaults this on in /etc/nix/nix.conf. With it on, two
+    # consecutive evals of this flake produce different darwin-system
+    # derivations, because the flake source gets a fresh store path each time.
+    # Every switch then rebuilds the whole home-manager generation, and no CI
+    # cache entry can ever match. Measured 2026-09-13: off is also faster,
+    # 10.4s against 11.3s per eval.
+    lazy-trees = false;
   };
 
   determinateNix.determinateNixd.garbageCollector.strategy = "automatic";
