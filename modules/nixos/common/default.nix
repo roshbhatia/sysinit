@@ -31,7 +31,6 @@
       ];
       extra-substituters = [
         "https://roshbhatia.cachix.org"
-        "https://cache.iog.io"
         "https://devenv.cachix.org"
         "https://nix-community.cachix.org"
         "https://numtide.cachix.org"
