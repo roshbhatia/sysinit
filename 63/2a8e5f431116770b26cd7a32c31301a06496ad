@@ -1,0 +1,21 @@
+modules/home/programs/nushell/default.nix
+  s_429700c772be9c::t_20f1edf5d4a625 9
+modules/home/programs/zsh/default.nix
+  s_429700c772be9c::t_07bd326b379bec 12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "632a8e5f431116770b26cd7a32c31301a06496ad",
+  "prompts": {},
+  "sessions": {
+    "s_429700c772be9c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "12db108b-88bf-415b-992d-e126bb2b685a",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
