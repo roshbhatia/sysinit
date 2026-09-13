@@ -72,8 +72,8 @@ real files. A per-file entry, or `recursive = true`, installs all eleven rules a
 loads zero, reporting nothing and exiting 0.
 
 There is no signal when this happens: a scan that loaded no rules and a scan that
-found no violations produce identical output. That is why `checks/ast-grep-nix-rules.nix`
-scans a known-bad fixture and fails when it comes back clean.
+found no violations produce identical output. No check covers this today, so
+verify by hand with `sgg scan` against a file you know violates a rule.
 
 ## Go patterns: a parser gotcha
 

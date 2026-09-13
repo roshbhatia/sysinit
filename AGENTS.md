@@ -10,32 +10,32 @@ not restate any of those here.
 
 ## Stack
 
-- openspec 1.6.0 via `overlays/openspec/`. The `spec-driven` schema is NOT in
+- openspec via `overlays/openspec/`, which owns the version. The `spec-driven` schema is NOT in
   that overlay. It lives in `modules/home/programs/llm/openspec-schema/`.
   home-manager installs it to openspec's XDG user schema directory, where it
   shadows the built-in. Editing a template rebuilds nothing
 - Harness configs all generate from `modules/home/programs/llm/harnesses/`, one
   module per entry in `registry.nix`. Do not keep a second list here; the last
-  one named eleven of the fourteen and called the `claude` attr `claude-code`.
+  one named eleven of fifteen and called the `claude` attr `claude-code`.
   A harness owning assets is a directory holding its `default.nix` beside them;
   one with no asset is a single file
 - `registry.nix` carries what each harness can do, not just who it is: `guard`,
   `notify`, `editBus`, `acp`, `exitHook`, `projectDir`, `transcriptRoot`.
-  `harnesses/assertions.nix` rejects a null on the ones that must be answered,
+  `harnesses/default.nix` rejects a null on the ones that must be answered,
   so a new harness cannot inherit a capability gap in silence
 - `harnesses/publish.nix` renders the whole registry to
   `~/.config/sysinit/agents.json`. Publish the entry, not a chosen subset: the
   subset is what let neovim, wezterm and seshy each keep a private copy
-- Four harnesses have no destructive-command guard, recorded as `guard = "none"`:
-  copilot, crush, goose, hermes. None of the four exposes a deny mechanism this
-  repo knows how to drive. Eleven declare `status_patterns = [ ]`, meaning the
+- Three harnesses have no destructive-command guard, recorded as `guard = "none"`:
+  crush, goose, hermes. None of the three exposes a deny mechanism this repo
+  knows how to drive. Thirteen declare `status_patterns = [ ]`, meaning the
   deck plugin's shared default strings, which have not been observed per agent
 - The rest of `modules/home/programs/llm/` splits by role. `lib/` is
   evaluation-time helpers. `runtime/` is the agent-agnostic runtime a harness
   hook executes: notifier, state bus, gates, guard bodies. `skills/` is the
   scanned skill registry, and `subagents/` is the teammate definitions
 - ACP adapter commands live in one registry, `lib/acp.nix`, rendered to
-  `~/.config/acp/agents.json`. No ACP client is installed yet. Each of the nine
+  `~/.config/acp/agents.json`. No ACP client is installed yet. Each of the ten
   answered `initialize` at protocol version 1 over newline-delimited JSON on
   stdio, probed 2026-08-22. `hermes-acp` took about ten seconds to answer; every
   other server took under one
@@ -43,7 +43,7 @@ not restate any of those here.
   an agent in a pane, and it renders into `wezterm/config.json` as `agents`.
   `ui.lua` held that table inline and covered 8 agents. hermes was never added,
   so it declared `notify = "scrape"` and had no status on any channel.
-  `runtime/default.nix` now asserts the file covers the registry exactly
+  `harnesses/publish.nix` asserts the file covers the registry exactly
 - The harness registry is the one list of who the agents are. It renders to
   `~/.config/sysinit/agents.json`, and Neovim's `harness/launch.lua` reads that
   rather than keeping its own copy. Neovim starts an agent in a wezterm split and
@@ -85,7 +85,8 @@ nh darwin switch                # apply config to system (use deliberately)
 `nh` reaches PATH only after a switch, so run it from `nix develop` on a clean
 checkout. `README.md` bootstraps the first switch with `nix run nixpkgs#nh`.
 
-The `checks` flake output runs the Go suite and editor behavior tests.
+`checks/default.nix` is the list of flake checks. Read it rather than a copy
+here.
 `hack/lint.sh` is the one list of formatters and linters. It covers Go, Lua,
 Nix, shell, YAML, JSON, TOML, CUE, C, SVG, TypeScript, and JavaScript.
 It also checks Nushell and Python script blocks.
@@ -95,14 +96,15 @@ whole tree. Each tool is skipped when it is absent, so the `nix develop`
 shell carries every external linter. `hack/` also holds update scripts for the
 sources nvfetcher does not cover.
 
-The OpenSpec schema, the citation locks, the destructive-command guard
-fixtures, and the parse of every authored fragment are evaluation-time
-assertions. They live in the module tree, so they fire on `nix eval` of a host,
-not on `nix flake check`. The parse checks scan broadly, not per-directory.
-They read every `.zsh` and `.lua` under `modules/`, and every shell script in
-the whole flake source. Selection is by shebang as well as by extension. Each
-also asserts that specific subtrees still contribute files, so moving one fails
-loudly instead of dropping coverage.
+Some invariants are module assertions, not flake checks. They fire on
+`nix eval` of a host, so `nix flake check` does not reach them. They live in
+`modules/home/programs/llm/harnesses/default.nix`,
+`modules/home/programs/llm/subagents/default.nix`,
+`modules/home/programs/llm/harnesses/codex.nix`,
+`modules/home/programs/nushell/default.nix`,
+`modules/darwin/keybindings.nix`, `modules/darwin/closed-lid-ssh.nix`, and
+`modules/nixos/home/desktop.nix`. Nothing parses `.zsh`, `.lua`, or shell
+scripts at evaluation time; `hack/lint.sh` is the only parse gate.
 
 CI runs `nix fmt -- --check`, `hack/lint.sh --all`, and `nix flake check` on
 every push to `main` and every pull request. It evaluates every host and each
@@ -126,8 +128,8 @@ subcommands: `feature-based-session-manager`, `openspec-workflow`, `specutil`.
   entry, or `recursive = true`, installs every rule and loads none of them, with
   no warning and exit 0. This is the openspec schema gotcha with the halves
   swapped: openspec skips a symlinked *directory* and needs per-file entries.
-  The `ast-grep-nix-rules` check carries a known-bad fixture for exactly this.
-  A scan that loaded no rules is indistinguishable from a clean one.
+  A scan that loaded no rules is indistinguishable from a clean one, and no
+  check covers that today.
 - `~/.config/git/ignore` excludes `**/sgconfig.yml` and `ast-grep/`. This repo's
   `.gitignore` negates both. An untracked file is absent from the flake source, so
   forgetting the negation presents as a check that cannot find its own rules.
@@ -211,8 +213,8 @@ them errors; the code no longer carries a comment saying so.
 - `left-alt` chords cannot fire on macOS: WezTerm defaults
   `send_composed_key_when_left_alt_is_pressed` to true, so left-alt composes.
   `modules/darwin/lib/chords.nix` is the shared vocabulary. Two layers binding
-  one chord means one wins and the other never fires, and nothing checks for it:
-  the eval-time collision check was removed with the rest of the assertions.
+  one chord means one wins and the other never fires. Three assertions in
+  `modules/darwin/keybindings.nix` catch that at eval time.
 - `wezterm cli` starts a headless `wezterm-mux-server` when it finds no GUI. So
   `wezterm cli spawn` with WezTerm closed prints a pane id, exits 0, and draws
   nothing. The window is real and lives in the daemon until something attaches.
@@ -230,7 +232,7 @@ them errors; the code no longer carries a comment saying so.
   `session.set_active`, whose only caller was the picker that spawned an agent
   inside the editor. Running the agent in a wezterm pane, which is the ordinary
   case, therefore started no poll at all, and the only surviving refresh was
-  `edit_events`, which five of fourteen harnesses feed. `api.setup` now starts it
+  `edit_events`, which six of fifteen harnesses feed. `api.setup` now starts it
   unconditionally. Nothing reported the gap; buffers simply went stale
 - An unreferenced `let` binding is dropped silently. Use `config.assertions`
   for a registry invariant rather than forcing a `throw` from something that

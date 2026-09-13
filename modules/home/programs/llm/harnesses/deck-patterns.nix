@@ -2,14 +2,14 @@
 #
 # The deck is the only status source for a harness whose notify is "scrape", so a
 # harness missing from this file has no status on any channel. hermes was missing
-# for exactly that reason and nothing reported it; runtime/default.nix now asserts
-# this file covers the registry.
+# for exactly that reason and nothing reported it; publish.nix now asserts this
+# file covers the registry in both directions.
 #
 # These are Lua patterns, and the deck matches them against the full executable
 # path, the basename, the argv string, and the pane title. An unanchored pattern
 # therefore matches anywhere in a /nix/store path. Anchor every short name.
 #
-# status_patterns = [ ] means "use the plugin's shared default strings". Eleven
+# status_patterns = [ ] means "use the plugin's shared default strings". Thirteen
 # agents declare that, because their busy and idle strings have not been observed
 # in a pane. Declaring it makes the choice visible instead of a silent fallback.
 {

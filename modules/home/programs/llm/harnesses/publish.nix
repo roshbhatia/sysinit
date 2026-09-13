@@ -8,6 +8,9 @@ let
   registry = import ./registry.nix;
   deck = import ./deck-patterns.nix;
 
+  missingDeck = lib.subtractLists (lib.attrNames deck) (lib.attrNames registry);
+  strayDeck = lib.subtractLists (lib.attrNames registry) (lib.attrNames deck);
+
   agents = lib.mapAttrsToList (
     name: h:
     {
@@ -33,6 +36,19 @@ let
   ) registry;
 in
 {
+  # A harness whose notify is "scrape" has no status on any channel when it is
+  # missing here, and nothing else reports that. hermes was missing for months.
+  assertions = [
+    {
+      assertion = missingDeck == [ ];
+      message = "deck-patterns.nix is missing: ${lib.concatStringsSep ", " missingDeck}";
+    }
+    {
+      assertion = strayDeck == [ ];
+      message = "deck-patterns.nix names harnesses not in registry.nix: ${lib.concatStringsSep ", " strayDeck}";
+    }
+  ];
+
   xdg.configFile."sysinit/agents.json".text = builtins.toJSON {
     version = 2;
     agents = lib.sort (a: b: a.name < b.name) agents;
