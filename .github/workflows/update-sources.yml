@@ -9,6 +9,12 @@ permissions:
   contents: write
   pull-requests: write
 
+# A manual dispatch during the 6-hourly run raced it. Both force-pushed
+# automation/update-sources and both rewrote the same pull request.
+concurrency:
+  group: update-sources
+  cancel-in-progress: true
+
 env:
   GH_TOKEN: ${{ github.token }}
 
