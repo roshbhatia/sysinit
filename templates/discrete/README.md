@@ -6,8 +6,18 @@ This template creates a minimal flake that consumes `roshbhatia/sysinit` as an i
 
 ### Build and Apply Configuration
 
+`nh` reaches PATH only after the first switch, so run it through `nix run` once.
+
+macOS:
+
 ```bash
-# First run needs the nix run, then can be omitted
+nix run nixpkgs#nh -- darwin switch .
+nh darwin switch .
+```
+
+NixOS:
+
+```bash
 nix run nixpkgs#nh -- os switch .
 nh os switch .
 ```
@@ -27,4 +37,4 @@ Edit `hosts/default.nix`:
 
 ### 3. Add Host Overlays
 
-Create `overlays/default.nix` for any package customizations
+Edit `overlays/default.nix` for any package customizations

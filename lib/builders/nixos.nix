@@ -8,6 +8,7 @@
       nix-gaming ? null,
     }:
     {
+      extraModules ? [ ],
       hostConfig,
       hostname,
       pkgs,
@@ -28,7 +29,7 @@
       modules = [
         {
           _module.args = {
-            inherit hostname profile;
+            inherit hostname;
           };
           nixpkgs.pkgs = lib.mkDefault pkgs;
         }
@@ -63,6 +64,7 @@
       ++ lib.optionals ((hostConfig.desktop or false) && nix-gaming != null) [
         nix-gaming.nixosModules.pipewireLowLatency
         nix-gaming.nixosModules.platformOptimizations
-      ];
+      ]
+      ++ extraModules;
     };
 }

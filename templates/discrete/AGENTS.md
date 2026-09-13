@@ -2,8 +2,6 @@
 
 Nix-flakes configuration for discrete host setup consuming `roshbhatia/sysinit`.
 
-## Repository Structure
-
 ## Minimal Nix flake layout
 - `flake.nix` - Entry point consuming sysinit as input
 - `hosts/` - Host configuration (update `default.nix` for your system)
@@ -15,10 +13,10 @@ Nix-flakes configuration for discrete host setup consuming `roshbhatia/sysinit`.
 ### Build/Test/Apply
 ```bash
 nix flake check               # Validate flake configuration
-nh os build                   # Test current system config (macOS)
-nh os switch                  # Apply current config to system (use with caution)
-nh os build .#<hostname>      # Build NixOS configuration
-nh os switch .#<hostname>     # Apply NixOS configuration
+nh darwin build .#<hostname>  # Build a macOS configuration
+nh darwin switch .#<hostname> # Apply a macOS configuration
+nh os build .#<hostname>      # Build a NixOS configuration
+nh os switch .#<hostname>     # Apply a NixOS configuration
 ```
 
 ### Format/Lint
@@ -30,18 +28,15 @@ nixfmt *.nix                  # Format specific Nix files
 ### Maintenance
 ```bash
 nix flake update              # Update flake inputs
-nix flake lock --update-input sysinit  # Update just sysinit
+nix flake update sysinit      # Update only the sysinit input
 nix profile history           # View generation history
 nix-collect-garbage -d        # Cleanup old generations
 ```
 
-## Always-Followed Rules
+## Before a commit
 
-- No Emojis: Strictly enforced in all code and documentation
-- DRY: Extract repeated patterns to shared utilities
-- Comments: Use for complex logic only
-- Testing: Run `nix flake check` before commits
-- Pre-Commit: `nix fmt` then `nix flake check` then `nh os build`
+Run `nix fmt`, then `nix flake check`, then the `build` command for the host
+kind you changed.
 
 ## Inheriting from sysinit
 

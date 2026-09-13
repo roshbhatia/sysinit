@@ -9,6 +9,7 @@
       onepassword-shell-plugins,
     }:
     {
+      extraModules ? [ ],
       hostConfig,
       hostname,
       pkgs,
@@ -26,12 +27,11 @@
           values
           pkgs
           ;
-        inherit (hostConfig) system;
       };
       modules = [
         {
           _module.args = {
-            inherit hostname profile;
+            inherit hostname;
           };
           nixpkgs.pkgs = lib.mkDefault pkgs;
         }
@@ -68,6 +68,7 @@
           ];
           documentation.enable = false;
         }
-      ];
+      ]
+      ++ extraModules;
     };
 }

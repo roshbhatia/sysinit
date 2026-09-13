@@ -27,6 +27,7 @@ in
     {
       hostConfig,
       hostname,
+      extraModules ? [ ],
     }:
     let
       pkgs = mkPkgs {
@@ -45,6 +46,7 @@ in
 
       commonArgs = {
         inherit
+          extraModules
           hostConfig
           hostname
           pkgs

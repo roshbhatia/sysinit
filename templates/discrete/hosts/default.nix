@@ -28,8 +28,8 @@ in
 
       theme = {
         appearance = "dark";
-        colorscheme = "everforest";
-        variant = "dark-soft";
+        # A name from `pkgs.base16-schemes`, or a handmade base00..base0F set.
+        base16Scheme = "everforest";
         font.monospace = "TX-02";
         transparency = {
           opacity = 0.8;
