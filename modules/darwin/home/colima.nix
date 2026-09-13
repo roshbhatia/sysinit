@@ -1,36 +1,36 @@
 {
   lib,
   pkgs,
-  values,
+  osConfig,
   ...
 }:
 
 let
-  colima = (values.darwin or { }).colima or { };
-  cpu = colima.cpu or 2;
-  memory = colima.memory or 4;
-  disk = colima.disk or 100;
-  forwardAgent = if (colima.forwardAgent or true) then "true" else "false";
+  # Read the declared options rather than the raw `values` specialArg. Reading
+  # `values` with its own `or` defaults meant modules/darwin/options.nix never
+  # typed these, so any value reached the YAML unchecked.
+  cfg = osConfig.sysinit.darwin.colima;
 
-  colimaYamlFile = pkgs.writeText "colima.yaml" ''
-    cpu: ${toString cpu}
-    disk: ${toString disk}
-    memory: ${toString memory}
-    arch: aarch64
-    runtime: docker
-    hostname: colima
-    kubernetes:
-      enabled: false
-    autoActivate: true
-    forwardAgent: ${forwardAgent}
-    vmType: vz
-    mountType: virtiofs
-    mountInotify: true
-    sshConfig: true
-    sshPort: 0
-    mounts: []
-    env: {}
-  '';
+  colimaYamlFile = (pkgs.formats.yaml { }).generate "colima.yaml" {
+    inherit (cfg)
+      cpu
+      disk
+      memory
+      forwardAgent
+      ;
+    arch = "aarch64";
+    runtime = "docker";
+    hostname = "colima";
+    kubernetes.enabled = false;
+    autoActivate = true;
+    vmType = "vz";
+    mountType = "virtiofs";
+    mountInotify = true;
+    sshConfig = true;
+    sshPort = 0;
+    mounts = [ ];
+    env = { };
+  };
 in
 {
   home.activation.colimaConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
