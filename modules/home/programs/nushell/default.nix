@@ -6,7 +6,7 @@
 }:
 let
   shell = import ../../../lib/shell.nix { inherit lib; };
-  paths_lib = import ../../../lib/paths.nix { inherit config lib; };
+  paths_lib = import ../../../lib/paths.nix { inherit lib; };
   nushellLib = import ./lib.nix { inherit lib; };
 
   pathsList = paths_lib.getAllPaths config.home.username config.home.homeDirectory;

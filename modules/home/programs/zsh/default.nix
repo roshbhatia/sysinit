@@ -9,7 +9,7 @@ let
   themeLib = import ../../../shared/theme-colors.nix { inherit lib; };
   themeColors = themeLib.colorsOf config;
   shellUtils = import ../../../lib/shell.nix { inherit lib; };
-  paths_lib = import ../../../lib/paths.nix { inherit config lib; };
+  paths_lib = import ../../../lib/paths.nix { inherit lib; };
 
   pathsList = paths_lib.getAllPaths config.home.username config.home.homeDirectory;
 
