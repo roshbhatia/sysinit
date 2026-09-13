@@ -1,0 +1,33 @@
+lib/builders.nix
+  s_429700c772be9c::t_b869a807d1d39b 30,49
+lib/builders/darwin.nix
+  s_429700c772be9c::t_68c8481e264559 12,34,71-72
+lib/builders/nixos.nix
+  s_429700c772be9c::t_1eb8a16da7b69c 11,32,67-68
+lib/output-builders.nix
+  s_429700c772be9c::t_d54e9886d4aabd 9-11,18
+templates/discrete/AGENTS.md
+  s_429700c772be9c::t_7d1602dd8b703e 16-19,31,36,38-39
+templates/discrete/README.md
+  s_429700c772be9c::t_bd76c24c58c63f 9-19,40
+templates/discrete/flake.nix
+  s_429700c772be9c::t_71f0326b15b3d8 30-35,37-38,45-46
+templates/discrete/hosts/default.nix
+  s_429700c772be9c::t_2ffc5c38bcd84d 31-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "cc77d72aa51fbb11b9b9eaab1cf8d445b2d69932",
+  "prompts": {},
+  "sessions": {
+    "s_429700c772be9c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "12db108b-88bf-415b-992d-e126bb2b685a",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
