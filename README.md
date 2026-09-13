@@ -25,6 +25,9 @@
 
 This comprises most of my dotfiles, managed (mostly) by `nix`.
 
+`docs/runbooks.md` holds the recipes for changing it: adding a package, an
+overlay, a host, or a module, and recovering a failed switch.
+
 ## Quick Start
 
 ### Build and Apply Configuration

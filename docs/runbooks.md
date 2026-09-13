@@ -1,0 +1,152 @@
+# Runbooks
+
+Recipes for the changes this repository takes often. Each one names the files
+to edit and the gate that proves the change.
+
+`AGENTS.md` holds the command list, the gate inventory, and the known
+footguns. This file does not repeat them.
+
+## Add a package that nixpkgs already carries
+
+Pick the tier by who needs the tool.
+
+| Tier | File | Reaches |
+| --- | --- | --- |
+| `minimal` | `modules/home/tools.toml` | every profile, including a bare box |
+| `dev` and above | `modules/home/packages.nix` | workstation profiles |
+| One host only | that host's entry in `hosts/default.nix` | that host |
+
+`tools.toml` entries carry the nixpkgs attribute name and nothing else:
+
+```toml
+[[tool]]
+nix = "ripgrep"
+```
+
+Then run `nix flake check`.
+
+## Add a package that nixpkgs does not carry
+
+Write an overlay under `overlays/`, then register it in the list in
+`overlays/default.nix`. Choose the source mechanism first.
+
+- The upstream tags releases and you want them tracked: add a block to
+  `nvfetcher.toml`, run the nvfetcher command in the header of that file, and
+  read the pinned source from `_sources/generated.nix`.
+- The upstream is a flake: add it as a flake input and import it through
+  `overlays/inputs.nix`.
+- The version moves rarely: pin the revision and hash in the overlay itself.
+
+Name the attribute `sysinit-<tool>` when nixpkgs also defines that name. An
+unprefixed attribute silently shadows the nixpkgs package, and only the
+`REMOVED` lines in `nh` output report it.
+
+Gate a Darwin-only workaround on `stdenv.hostPlatform.isDarwin`. Overlays apply
+to every host, so an ungated Darwin fix breaks the Linux build.
+
+## Update a Go package after a `go.mod` change
+
+`vendorHash` is not derived from the source. Run:
+
+```bash
+./hack/update-vendor-hash.sh
+```
+
+The script finds every overlay that declares a `vendorHash`, builds each one,
+and writes back the hash Nix reports. It restores the original file if it is
+interrupted.
+
+A `pkgs/go.mod` edit breaks `overlays/sysinit-gotools.nix`. Search the whole
+`nh` output for `error:`, not the tail; the failure is not always last.
+
+## Bump pinned sources
+
+- Flake inputs: `nix flake update`, or `nix flake update <input>` for one.
+- nvfetcher sources: the command in the `nvfetcher.toml` header.
+- The forked openspec schema: `./hack/sync-openspec-schema.sh` reports drift.
+
+CI opens a pull request for the first two on a schedule. Run them by hand only
+when you need the bump now.
+
+## Put a package in the binary cache
+
+Add the attribute name to `cacheAttrs` in `flake.nix`. Put Linux-only
+attributes in `linuxCacheAttrs` instead.
+
+The bundle resolves strictly. A name that no overlay defines fails the flake
+check rather than shrinking the bundle, so a rename cannot quietly send the
+build back to the laptop.
+
+Confirm a path is cached before you blame a slow switch:
+
+```bash
+nix path-info --store https://roshbhatia.cachix.org <store-path>
+```
+
+A test-skip override (`doCheck = false`, `disabledTests`,
+`disabledTestPaths`) changes the derivation hash. The upstream cache then
+misses, and the package builds from source. Keep such a package out of
+`cacheAttrs`, or drop the override.
+
+## Add a host
+
+Add an entry to `hosts/default.nix`. A host declares `system`, `platform`,
+`username`, and its own `values`. A NixOS host also names a `hardware` module
+under `modules/nixos/hardware/`.
+
+`flake.nix` splits the set by `platform` into `darwinConfigurations` and
+`nixosConfigurations`. No other file needs the new name.
+
+Evaluate before you switch:
+
+```bash
+nix eval .#darwinConfigurations.<name>.system --raw
+```
+
+## Add a module
+
+| Scope | Directory |
+| --- | --- |
+| Both platforms | `modules/shared/` |
+| macOS system | `modules/darwin/` |
+| NixOS system | `modules/nixos/` |
+| User environment | `modules/home/` |
+
+Import it from the `default.nix` of that directory. Declare its settings as
+options and read them through `config`, not through the raw `values` argument.
+Cross-platform options live in `modules/shared/options/`; macOS-only options
+live in `modules/darwin/options.nix`. An option that no module reads is not a
+gate: a bad value reaches the generated file unchecked.
+
+Keep a value that both platforms need in one file and import it from both.
+
+## Run the gates
+
+`.githooks/pre-commit` runs `hack/lint.sh` on the staged files, so most
+violations become a rejected commit. Before a switch, run `nix fmt` and
+`nix flake check`.
+
+Some invariants are module assertions and fire only on `nix eval` of a host.
+`nix flake check` does not reach them. `AGENTS.md` lists the files that hold
+them.
+
+## Recover a failed switch
+
+A `nh darwin switch` that fails part way leaves the previous generation
+active. Roll back with:
+
+```bash
+darwin-rebuild --list-generations
+sudo darwin-rebuild --switch-generation <n>
+```
+
+On NixOS the equivalents are `nixos-rebuild --list-generations` and the boot
+menu.
+
+A switch that fails with store errors under a nearly full disk is usually the
+Determinate garbage collector racing the unrooted switch window. Free space
+first:
+
+```bash
+nh clean all
+```

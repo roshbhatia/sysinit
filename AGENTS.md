@@ -111,6 +111,10 @@ every push to `main` and every pull request. It evaluates every host and each
 standalone Home Manager profile. The explicit evaluations fire module
 assertions without building host closures that exceed hosted runner storage.
 
+`docs/runbooks.md` holds the recipes: add a package, add an overlay, add a
+host, add a module, bump sources, refresh a `vendorHash`, extend the cache set,
+and recover a failed switch.
+
 `sy`, `openspec`, and `specutil` are machine-wide. Their own skills carry the
 subcommands: `feature-based-session-manager`, `openspec-workflow`, `specutil`.
 
