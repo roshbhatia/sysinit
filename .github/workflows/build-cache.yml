@@ -71,9 +71,12 @@ jobs:
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: |
+          # inputDerivation realises the dev shell dependencies. The shell
+          # derivation itself refuses to build, so `nix build` cannot cache it.
           nix build --print-build-logs --keep-going \
             ".#packages.${{ matrix.system }}.cacheBundle" \
-            ".#packages.${{ matrix.system }}.cloudTools"
+            ".#packages.${{ matrix.system }}.cloudTools" \
+            ".#devShells.${{ matrix.system }}.default.inputDerivation"
 
       # The daily-driver closure. Without this the laptop builds locally
       # whatever cache.nixos.org does not serve.
