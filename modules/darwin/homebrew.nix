@@ -1,9 +1,53 @@
-{ config, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   additionalTaps = config.sysinit.darwin.homebrew.additionalPackages.taps;
   additionalBrews = config.sysinit.darwin.homebrew.additionalPackages.brews;
   additionalCasks = config.sysinit.darwin.homebrew.additionalPackages.casks;
+
+  cfg = config.homebrew;
+  brewfile = pkgs.writeText "Brewfile" cfg.brewfile;
+  brew = lib.concatStringsSep " " (
+    [
+      "/usr/bin/sudo"
+      "--user=${lib.escapeShellArg cfg.user}"
+      "--set-home"
+      "/usr/bin/env"
+      "HOMEBREW_NO_AUTO_UPDATE=1"
+      ''PATH="${cfg.prefix}/bin:${lib.makeBinPath [ pkgs.mas ]}:$PATH"''
+    ]
+    ++ lib.mapAttrsToList (name: value: "${name}=${lib.escapeShellArg value}") cfg.onActivation.extraEnv
+    ++ [ "${lib.escapeShellArg cfg.prefix}/bin/brew" ]
+  );
+  inventory = pkgs.writeShellScript "homebrew-inventory" ''
+    set -euo pipefail
+    printf '%s\n' ${
+      lib.escapeShellArgs [
+        (toString brewfile)
+        (toString reconcile)
+      ]
+    }
+    ${brew} list --versions | LC_ALL=C sort
+    ${brew} tap | LC_ALL=C sort
+  '';
+  check = pkgs.writeShellScript "homebrew-check" ''
+    set -euo pipefail
+    ${brew} bundle check --file=${lib.escapeShellArg (toString brewfile)} --no-upgrade
+  '';
+  reconcile = pkgs.writeShellScript "homebrew-reconcile" ''
+    set -euo pipefail
+    ${cfg.onActivation.brewBundleCmd { onlyCheck = false; }}
+  '';
+  incremental = pkgs.writeShellApplication {
+    name = "sysinit-homebrew";
+    runtimeInputs = [ pkgs.coreutils ];
+    text = builtins.readFile ./reconcile-homebrew.sh;
+  };
 
   baseTaps = [
     "charmbracelet/tap"
@@ -49,6 +93,17 @@ let
   ];
 in
 {
+  system.activationScripts.homebrew.text = lib.mkIf cfg.enable (
+    lib.mkForce ''
+      ${
+        if cfg.onActivation.autoUpdate || cfg.onActivation.upgrade then
+          toString reconcile
+        else
+          "${lib.getExe incremental} /var/db/sysinit/homebrew-inventory ${inventory} ${check} ${reconcile}"
+      }
+    ''
+  );
+
   homebrew = {
     enable = true;
     onActivation = {

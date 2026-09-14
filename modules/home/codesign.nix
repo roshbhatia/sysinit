@@ -92,16 +92,21 @@ in
     lib.mkMerge [
       {
         home.activation.sysinitCodesign = lib.hm.dag.entryAfter [ "writeBoundary" "copyApps" ] ''
-          run ${lib.getExe signer}
+          run env SYSINIT_APPS_VALIDATED="''${sysinit_home_apps_validated:-0}" ${lib.getExe signer}
           ${lib.optionalString config.targets.darwin.copyApps.enable ''
-            run ${appState} record ${appStateArgs} || echo "sysinit: app signatures need repair" >&2
+            if [ "''${sysinit_home_apps_validated:-0}" != 1 ]; then
+              run ${appState} record ${appStateArgs} || echo "sysinit: app signatures need repair" >&2
+            fi
           ''}
         '';
       }
       (lib.mkIf config.targets.darwin.copyApps.enable {
         home.activation.copyApps = lib.mkForce (
           lib.hm.dag.entryAfter [ "installPackages" "linkGeneration" ] ''
-            if ! ${appState} check ${appStateArgs}; then
+            sysinit_home_apps_validated=0
+            if ${appState} check ${appStateArgs}; then
+              sysinit_home_apps_validated=1
+            else
               run mkdir -p ${lib.escapeShellArg "${home}/${config.targets.darwin.copyApps.directory}"}
               run ${lib.getExe pkgs.rsync} --recursive --checksum --perms --links \
                 --copy-unsafe-links --specials --delete --chmod=+w \

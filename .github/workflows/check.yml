@@ -1,6 +1,6 @@
 name: Check
 
-# Runs `nix flake check` and builds the daily-driver host configuration.
+# Validate source, flake checks, and every supported configuration.
 
 on:
   push:
@@ -8,17 +8,17 @@ on:
   pull_request:
   workflow_dispatch: {}
 
-# Cancel superseded PR runs, never main runs.
+# Cache publishing has separate concurrency groups.
 concurrency:
   group: check-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: true
 
 # Read-only.
 permissions:
   contents: read
 
 jobs:
-  verify:
+  verify-darwin:
     # macos-latest is aarch64-darwin, the platform the daily-driver host targets.
     runs-on: macos-latest
     timeout-minutes: 30
@@ -51,14 +51,6 @@ jobs:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: nix flake check --print-build-logs
 
-      - name: Evaluate all configurations
-        env:
-          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
-        run: |
-          for system in aarch64-darwin x86_64-linux aarch64-linux; do
-            nix eval --json ".#lib.configurationDerivations.$system"
-          done
-
   # `nix flake check` skips the systems a runner cannot build, so the macOS job
   # never reaches checks.x86_64-linux. The Linux bodies, cua-computer-server
   # among them, had never run anywhere.
@@ -79,3 +71,33 @@ jobs:
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: nix flake check --print-build-logs
+
+  evaluate:
+    strategy:
+      fail-fast: false
+      matrix:
+        system: [aarch64-darwin, x86_64-linux, aarch64-linux]
+    runs-on: ${{ matrix.system == 'aarch64-darwin' && 'macos-latest' || (github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && fromJSON('["self-hosted", "Linux", "X64", "arrakis", "nix"]') || 'ubuntu-latest') }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: DeterminateSystems/nix-installer-action@v23
+        if: runner.environment != 'self-hosted'
+      - uses: ./.github/actions/cachix
+        with:
+          auth-token: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      - name: Evaluate platform configurations
+        env:
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+          SYSTEM: ${{ matrix.system }}
+        run: nix eval --json ".#lib.configurationDerivations.$SYSTEM"
+
+  verify:
+    if: ${{ always() }}
+    needs: [verify-darwin, verify-linux, evaluate]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require all validation jobs
+        env:
+          RESULTS: ${{ toJSON(needs.*.result) }}
+        run: jq -e 'all(.[]; . == "success")' <<< "$RESULTS"

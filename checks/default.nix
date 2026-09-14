@@ -56,6 +56,18 @@ let
   );
 in
 {
+  homebrew-reconcile =
+    pkgs.runCommand "homebrew-reconcile-test"
+      {
+        nativeBuildInputs = [
+          pkgs.python3
+          pkgs.bash
+        ];
+      }
+      ''
+        python3 ${./homebrew-reconcile.py} ${../modules/darwin/reconcile-homebrew.sh}
+        touch "$out"
+      '';
   app-copy-state = pkgs.runCommand "app-copy-state-test" { nativeBuildInputs = [ pkgs.python3 ]; } ''
     python3 ${./app-copy-state.py} ${../modules/home/app-copy-state.py}
     touch "$out"

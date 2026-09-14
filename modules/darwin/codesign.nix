@@ -43,13 +43,20 @@ in
   services.sketchybar.package = lib.mkForce (stable "sketchybar" pkgs.sketchybar);
 
   system.activationScripts.postActivation.text = ''
-    ${lib.getExe config.home-manager.users.${user}.sysinit.codesign.package} system
-    ${appState} record ${appStateArgs} || echo "sysinit: app signatures need repair" >&2
+    SYSINIT_APPS_VALIDATED="''${sysinit_system_apps_validated:-0}" ${
+      lib.getExe config.home-manager.users.${user}.sysinit.codesign.package
+    } system
+    if [ "''${sysinit_system_apps_validated:-0}" != 1 ]; then
+      ${appState} record ${appStateArgs} || echo "sysinit: app signatures need repair" >&2
+    fi
   '';
 
   system.activationScripts.applications.text = lib.mkMerge [
     (lib.mkBefore ''
-      if ! ${appState} check ${appStateArgs}; then
+      sysinit_system_apps_validated=0
+      if ${appState} check ${appStateArgs}; then
+        sysinit_system_apps_validated=1
+      else
     '')
     (lib.mkAfter ''
       fi

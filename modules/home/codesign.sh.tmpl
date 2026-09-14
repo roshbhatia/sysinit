@@ -144,6 +144,7 @@ sign() {
 
 sign_app() {
   local app="$1" sudo_prefix="${2:-}"
+  if [ "${SYSINIT_APPS_VALIDATED:-0}" = 1 ]; then return 0; fi
   if [ ! -d "$app" ]; then return 0; fi
   if ! managed "$app"; then return 0; fi
   if already_ours "$app" && codesign --verify --deep --strict "$app" 2>/dev/null; then
