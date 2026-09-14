@@ -116,22 +116,22 @@ in
       picker.providers = [
         {
           name = "tether";
-          key = "!";
+          key = "$";
           manifest = "${pkgs.tether-picker}/share/wezterm/providers/tether.json";
         }
         {
           name = "zmx";
-          key = "$";
+          key = "@";
           manifest = "${pkgs.zmx-picker}/share/wezterm/providers/zmx.json";
         }
         {
           name = "seshy";
-          key = "@";
+          key = "#";
           manifest = "${pkgs.seshy-picker}/share/wezterm/providers/seshy.json";
         }
         {
           name = "zoxide";
-          key = "#";
+          key = "%";
           manifest = "${pkgs.zoxide-picker}/share/wezterm/providers/zoxide.json";
         }
       ];
