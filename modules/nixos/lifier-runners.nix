@@ -63,6 +63,7 @@ in
     systemd.services.lifier-cluster = {
       description = "Prepare persistent Pod and KubeVirt runners";
       wantedBy = [ "multi-user.target" ];
+      wants = [ "network-online.target" ];
       requires = [ "k3s.service" ];
       after = [
         "k3s.service"
