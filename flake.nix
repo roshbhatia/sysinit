@@ -334,7 +334,7 @@
             "prime-agent"
             "atomic-coding-agent"
             "hermes-agent"
-            "fx"
+            "sysinit-fx"
             "meat"
             "amp-cli"
             "acp-amp"

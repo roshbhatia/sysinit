@@ -198,7 +198,7 @@
     notify = "scrape";
     editBus = false;
     bridge = null;
-    package = "fx";
+    package = "sysinit-fx";
     glyph = "▲";
     command = "fx";
     acp = true;

@@ -14,7 +14,9 @@ let
   };
 in
 {
-  fx = final.stdenv.mkDerivation {
+  # `sysinit-` prefixed because nixpkgs `fx` is antonmedv's JSON viewer, an
+  # unrelated tool. The unprefixed attr shadowed it with no warning.
+  sysinit-fx = final.stdenv.mkDerivation {
     pname = "fx";
     inherit version;
 
