@@ -1,4 +1,5 @@
 import os
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -23,7 +24,7 @@ class ReconcileTest(unittest.TestCase):
             }
             for name, body in commands.items():
                 script = root / name
-                script.write_text("#!/usr/bin/env bash\nset -euo pipefail\n" + body + "\n")
+                script.write_text("#!" + shutil.which("bash") + "\nset -euo pipefail\n" + body + "\n")
                 script.chmod(0o755)
             env = dict(os.environ, INVENTORY=str(inventory), COUNT=str(count),
                        MISSING=str(missing), FAILURE=str(failure))
