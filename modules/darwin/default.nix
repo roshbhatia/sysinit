@@ -12,6 +12,7 @@
     ./clamshell.nix
     ./borders.nix
     ./codesign.nix
+    ./defaults-incremental.nix
     ./desktop.nix
     ./homebrew.nix
     ./keybindings.nix

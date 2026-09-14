@@ -93,6 +93,16 @@ let
         pkgs.check-jsonschema
       ];
       text = renderTemplate (readSource "managed-file-reconcile.sh.tmpl") {
+        CACHE_TOOL = "${lib.getExe pkgs.python3} ${./managed-file-cache.py}";
+        CACHE_REVISION = lib.escapeShellArg (
+          builtins.hashString "sha256" (
+            readSource "managed-file-reconcile.sh.tmpl"
+            + mergeProgram
+            + readSource "managed-file-adopt.jq"
+            + readSource "managed-file-apply-enforced.jq"
+            + "${pkgs.jq}:${pkgs.yq-go}:${pkgs.check-jsonschema}:${pkgs.python3}:${./managed-file-cache.py}"
+          )
+        );
         EMPTY_MANAGED_COMMENT = lib.optionalString (
           enabled == { }
         ) "# Every managed file is disabled, so only base cleanup runs.\n";

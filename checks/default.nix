@@ -56,6 +56,13 @@ let
   );
 in
 {
+  managed-file-cache = import ./managed-file-cache.nix { inherit pkgs; };
+  incremental-defaults =
+    pkgs.runCommand "incremental-defaults-test" { nativeBuildInputs = [ pkgs.python3 ]; }
+      ''
+        python3 ${./incremental-defaults.py} ${../modules/darwin/defaults-incremental.py}
+        touch "$out"
+      '';
   homebrew-reconcile =
     pkgs.runCommand "homebrew-reconcile-test"
       {

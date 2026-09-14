@@ -99,13 +99,10 @@ if [ "${#nix_files[@]}" -gt 0 ]; then
   run nixfmt nixfmt --check "${nix_files[@]}"
 fi
 if [ "${#nix_files[@]}" -gt 0 ] && command -v statix > /dev/null 2>&1; then
-  echo "==> statix" >&2
-  for file in "${nix_files[@]}"; do
-    if ! statix check "${file}"; then
-      echo "FAIL: statix ${file}" >&2
-      status=1
-    fi
-  done
+  [ -n "$lint_tmp" ] || lint_tmp="$(mktemp -d "${TMPDIR:-/tmp}/sysinit-lint.XXXXXX")"
+  mkdir "$lint_tmp/statix"
+  printf '%s\0' "${nix_files[@]}" | tar -c --null -T - | tar -x -C "$lint_tmp/statix"
+  run_at statix "$lint_tmp/statix" statix check --unrestricted --config "$repo_root" .
 fi
 if [ "${#nix_files[@]}" -gt 0 ] && command -v deadnix > /dev/null 2>&1; then
   run deadnix deadnix --fail "${nix_files[@]}"
@@ -119,7 +116,7 @@ if [ "${#lua_files[@]}" -gt 0 ] && command -v stylua > /dev/null 2>&1; then
   run stylua stylua --check "${lua_files[@]}"
 fi
 if [ "${#lua_files[@]}" -gt 0 ] && command -v lua-language-server > /dev/null 2>&1; then
-  lint_tmp="$(mktemp -d "${TMPDIR:-/tmp}/sysinit-lint.XXXXXX")"
+  [ -n "$lint_tmp" ] || lint_tmp="$(mktemp -d "${TMPDIR:-/tmp}/sysinit-lint.XXXXXX")"
   while IFS= read -r config; do
     [ -n "${config}" ] || continue
     root="${config%/.luarc.json}"
