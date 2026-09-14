@@ -253,11 +253,19 @@
     {
       inherit darwinConfigurations nixosConfigurations;
 
-      lib.configurationDerivations = {
-        darwin = lib.mapAttrs (_: cfg: cfg.system.drvPath) darwinConfigurations;
-        nixos = lib.mapAttrs (_: cfg: cfg.config.system.build.toplevel.drvPath) nixosConfigurations;
-        home = lib.mapAttrs (_: cfg: cfg.activationPackage.drvPath) inputs.self.homeConfigurations;
-      };
+      lib.configurationDerivations = lib.genAttrs cacheSystems (system: {
+        darwin = lib.mapAttrs (_: cfg: cfg.system.drvPath) (
+          lib.filterAttrs (
+            name: _: name != "bootstrap" && hostConfigs.${name}.system == system
+          ) darwinConfigurations
+        );
+        nixos = lib.mapAttrs (_: cfg: cfg.config.system.build.toplevel.drvPath) (
+          lib.filterAttrs (name: _: hostConfigs.${name}.system == system) nixosConfigurations
+        );
+        home = lib.genAttrs [ "dev" "minimal" ] (
+          profile: inputs.self.homeConfigurations.${profile + "-" + system}.activationPackage.drvPath
+        );
+      });
 
       homeModules = {
         default = ./modules/home;

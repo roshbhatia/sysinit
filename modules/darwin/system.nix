@@ -119,6 +119,12 @@ in
         /usr/bin/ssh-keygen -q -t ed25519 -N "" -C "sysinit-builder-${hostname}" \
           -f /var/root/.ssh/sysinit-builder
       fi
+      if ! /usr/bin/cmp -s /etc/nix/nix.custom.conf /var/db/sysinit/nix-settings.applied; then
+        /bin/launchctl kickstart -k system/systems.determinate.nix-daemon
+        /nix/var/nix/profiles/default/bin/nix store info --store daemon >/dev/null
+        /usr/bin/install -d -m 755 /var/db/sysinit
+        /usr/bin/install -m 600 /etc/nix/nix.custom.conf /var/db/sysinit/nix-settings.applied
+      fi
     '';
 
     defaults.LaunchServices.LSQuarantine = false;

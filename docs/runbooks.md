@@ -136,8 +136,14 @@ violations become a rejected commit. Before a switch, run `nix fmt` and
 `nix flake check`.
 
 Some invariants are module assertions and fire only on `nix eval` of a host.
-`nix flake check` does not reach all of them. Evaluate all configurations in
-one process with `nix eval --json .#lib.configurationDerivations`.
+`nix flake check` does not reach all of them. Evaluate configurations in
+platform batches to share package sets while bounding evaluator memory:
+
+```bash
+for system in aarch64-darwin x86_64-linux aarch64-linux; do
+  nix eval --json ".#lib.configurationDerivations.$system"
+done
+```
 
 ## Build once and activate
 

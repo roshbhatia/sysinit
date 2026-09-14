@@ -54,7 +54,10 @@ jobs:
       - name: Evaluate all configurations
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
-        run: nix eval --json .#lib.configurationDerivations
+        run: |
+          for system in aarch64-darwin x86_64-linux aarch64-linux; do
+            nix eval --json ".#lib.configurationDerivations.$system"
+          done
 
   # `nix flake check` skips the systems a runner cannot build, so the macOS job
   # never reaches checks.x86_64-linux. The Linux bodies, cua-computer-server
