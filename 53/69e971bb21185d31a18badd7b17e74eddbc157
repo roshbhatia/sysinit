@@ -1,0 +1,25 @@
+flake.nix
+  s_429700c772be9c::t_44efc08dd5750f 358,372-376
+modules/nixos/desktop/sway.nix
+  s_429700c772be9c::t_36edfe32508a9a 28,56
+overlays/default.nix
+  s_429700c772be9c::t_308d1b2deff077 23
+overlays/sysinit-swayfx.nix
+  s_429700c772be9c::t_2aad84fa71eec2 1-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "5369e971bb21185d31a18badd7b17e74eddbc157",
+  "prompts": {},
+  "sessions": {
+    "s_429700c772be9c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "12db108b-88bf-415b-992d-e126bb2b685a",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
