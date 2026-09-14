@@ -46,9 +46,10 @@ pkgs.runCommand "editor-config-check"
     mkdir -p "$XDG_CONFIG_HOME/wezterm"
     cp ${weztermRoot + "/checks/fixtures/wezterm/config.json"} "$XDG_CONFIG_HOME/wezterm/config.json"
     cp ${weztermRoot + "/checks/fixtures/wezterm/env.json"} "$XDG_CONFIG_HOME/wezterm/env.json"
-    SYSINIT_WEZTERM_LUA=${weztermLua} \
+    SYSINIT_WEZTERM_LUA=${weztermLua} WEZTERM_TEST_RESULT="$TMPDIR/tab-passed" \
       wezterm --config-file ${weztermRoot + "/checks/wezterm-entry.lua"} show-keys --lua \
       > "$TMPDIR/wezterm-keys.lua"
+    test "$(cat "$TMPDIR/tab-passed")" = passed
     grep -Fq "{ key = 'h', mods = 'CTRL'" "$TMPDIR/wezterm-keys.lua"
     grep -Fq "{ key = 'phys:1', mods = 'SHIFT|SUPER'" "$TMPDIR/wezterm-keys.lua"
     test "$(grep -c '^    { key =' "$TMPDIR/wezterm-keys.lua")" -ge 80
