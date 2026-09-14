@@ -9,11 +9,18 @@ derivations=()
 publish_and_clean() {
   local status=$?
   if [ "${#derivations[@]}" -gt 0 ]; then
-    if ! nix-store --query --requisites --include-outputs "${derivations[@]}" \
-      | awk '!/\.drv$/' > "$cache_work/paths"; then
+    if ! nix-store --query --requisites --include-outputs "${derivations[@]}" > "$cache_work/closure"; then
       [ "$status" -ne 0 ] || status=1
-    elif ! cachix push "$cache_name" < "$cache_work/paths"; then
-      [ "$status" -ne 0 ] || status=1
+    else
+      while IFS= read -r path; do
+        case "$path" in
+          *.drv) ;;
+          *) printf '%s\n' "$path" ;;
+        esac
+      done < "$cache_work/closure" > "$cache_work/paths"
+      if ! cachix push "$cache_name" < "$cache_work/paths"; then
+        [ "$status" -ne 0 ] || status=1
+      fi
     fi
   fi
   rm -rf "${cache_work:?}"
