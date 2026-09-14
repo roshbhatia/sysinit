@@ -1046,17 +1046,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1789164733,
-        "narHash": "sha256-2/+xKLhVlfXYKgX/1ohAOvnw9jHJZNgrvOvwzw1zDNk=",
+        "lastModified": 1789412898,
+        "narHash": "sha256-OwPfa5TwhU9qlkOajQy+tgwNlM7qzm9KAnxzTuDOs3Q=",
         "owner": "roshbhatia",
         "repo": "orc",
-        "rev": "2beaf635538f2eb9bf8a5bbbbcc286c234fa7975",
+        "rev": "f9e485693b03d9d938e5ebe659c1b1bb2f452a88",
         "type": "github"
       },
       "original": {
         "owner": "roshbhatia",
-        "ref": "v0.12.8",
         "repo": "orc",
+        "rev": "f9e485693b03d9d938e5ebe659c1b1bb2f452a88",
         "type": "github"
       }
     },
@@ -1080,18 +1080,18 @@
       },
       "locked": {
         "dir": "extras",
-        "lastModified": 1789164733,
-        "narHash": "sha256-2/+xKLhVlfXYKgX/1ohAOvnw9jHJZNgrvOvwzw1zDNk=",
+        "lastModified": 1789412898,
+        "narHash": "sha256-OwPfa5TwhU9qlkOajQy+tgwNlM7qzm9KAnxzTuDOs3Q=",
         "owner": "roshbhatia",
         "repo": "orc",
-        "rev": "2beaf635538f2eb9bf8a5bbbbcc286c234fa7975",
+        "rev": "f9e485693b03d9d938e5ebe659c1b1bb2f452a88",
         "type": "github"
       },
       "original": {
         "dir": "extras",
         "owner": "roshbhatia",
-        "ref": "v0.12.8",
         "repo": "orc",
+        "rev": "f9e485693b03d9d938e5ebe659c1b1bb2f452a88",
         "type": "github"
       }
     },
@@ -1508,11 +1508,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789410775,
-        "narHash": "sha256-3uirlxZ2t+peJLsW0jDtdu7GPtcOyR6X59jrKke2DFc=",
+        "lastModified": 1789412333,
+        "narHash": "sha256-e49+/cPRKHsqIh/uWXpnrOniQ+ab7ytHBW1sRVfItcQ=",
         "owner": "roshbhatia",
         "repo": "sysinit.wezterm",
-        "rev": "ecee53b4d19e63882c0c03926dfcc547f01f597b",
+        "rev": "47fa95e840702033bf83672072376b2c1f13247d",
         "type": "github"
       },
       "original": {
@@ -1723,17 +1723,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1788995217,
-        "narHash": "sha256-s2pQZQozLY/TaPPSrH00Nws4DxtvloPKmLq+cgxovng=",
+        "lastModified": 1789412738,
+        "narHash": "sha256-PGxnHfl9ZoKHdKKGLzPuqtOSK9u1BloJHXR3lzJdH9A=",
         "owner": "roshbhatia",
         "repo": "traces",
-        "rev": "6a8a9c8af2536ee467d55e47fa30c6d7f589b37f",
+        "rev": "6fffbfc35cef710ea41d11d6f56258161c0d0996",
         "type": "github"
       },
       "original": {
         "owner": "roshbhatia",
-        "ref": "v0.11.2",
         "repo": "traces",
+        "rev": "6fffbfc35cef710ea41d11d6f56258161c0d0996",
         "type": "github"
       }
     },

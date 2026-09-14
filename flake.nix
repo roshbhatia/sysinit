@@ -65,7 +65,7 @@
     };
 
     orc = {
-      url = "github:roshbhatia/orc/v0.12.8";
+      url = "github:roshbhatia/orc/f9e485693b03d9d938e5ebe659c1b1bb2f452a88";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         systems.follows = "systems";
@@ -73,7 +73,7 @@
     };
 
     orc-extras = {
-      url = "github:roshbhatia/orc/v0.12.8?dir=extras";
+      url = "github:roshbhatia/orc/f9e485693b03d9d938e5ebe659c1b1bb2f452a88?dir=extras";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         systems.follows = "systems";
@@ -121,7 +121,7 @@
     };
 
     traces = {
-      url = "github:roshbhatia/traces/v0.11.2";
+      url = "github:roshbhatia/traces/6fffbfc35cef710ea41d11d6f56258161c0d0996";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         systems.follows = "systems";
