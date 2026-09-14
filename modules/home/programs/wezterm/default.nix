@@ -115,24 +115,24 @@ in
       };
       picker.providers = [
         {
-          name = "zmx";
+          name = "tether";
           key = "@";
+          manifest = "${pkgs.tether-picker}/share/wezterm/providers/tether.json";
+        }
+        {
+          name = "zmx";
+          key = "#";
           manifest = "${pkgs.zmx-picker}/share/wezterm/providers/zmx.json";
         }
         {
           name = "seshy";
-          key = "#";
+          key = "$";
           manifest = "${pkgs.seshy-picker}/share/wezterm/providers/seshy.json";
         }
         {
           name = "zoxide";
-          key = "$";
-          manifest = "${pkgs.zoxide-picker}/share/wezterm/providers/zoxide.json";
-        }
-        {
-          name = "tether";
           key = "%";
-          manifest = "${pkgs.tether-picker}/share/wezterm/providers/tether.json";
+          manifest = "${pkgs.zoxide-picker}/share/wezterm/providers/zoxide.json";
         }
       ];
       cwd_aliases.sy = config.sysinit.paths.resolved.seshySessions;
