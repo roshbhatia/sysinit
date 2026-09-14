@@ -60,6 +60,7 @@ in
   seshy-cli = inputs.seshy.packages.${final.stdenv.hostPlatform.system}.default;
   specutil-cli = inputs.specutil.packages.${final.stdenv.hostPlatform.system}.full;
   traces-cli = tracesPackages.default;
+  lifier = inputs.lifier.packages.${final.stdenv.hostPlatform.system}.default;
   traces-providers = tracesPackages.extras // {
     providers = tracesProviderPackages;
   };

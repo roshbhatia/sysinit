@@ -120,6 +120,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    lifier = {
+      url = "github:roshbhatia/lifier/bc005b16285f8a410bbe5932565969bd34e533e0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     traces = {
       url = "github:roshbhatia/traces/6fffbfc35cef710ea41d11d6f56258161c0d0996";
       inputs = {
@@ -314,6 +319,7 @@
             "changes-provider-git-notes"
             "changes-neovim-plugin"
             "traces"
+            "lifier"
             "traces-providers"
             "ask"
             "ask-providers"

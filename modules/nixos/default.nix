@@ -3,6 +3,7 @@
 {
   imports = [
     ./github-runner.nix
+    ./lifier-runners.nix
     ./common
   ]
   ++ lib.optional values.isDesktop ./desktop
