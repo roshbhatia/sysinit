@@ -14,7 +14,7 @@ let
     url = "https://github.com/kubevirt/containerized-data-importer/releases/download/v1.66.1/cdi-operator.yaml";
     hash = "sha256-x9kr0bLuGjlSpZkAAEN8CNWBCfMcC9SKthiOwnoT4iQ=";
   };
-  resources = (pkgs.formats.yaml { }).generate "lifier-cluster.yaml" {
+  resources = (pkgs.formats.json { }).generate "lifier-cluster.json" {
     apiVersion = "v1";
     kind = "List";
     items = [
