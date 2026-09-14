@@ -17,6 +17,7 @@ nix.secrets.conf
 
 # AI Tooling
 .claude/
+.sysinit/
 .serena
 !AGENTS.md
 .pi/
