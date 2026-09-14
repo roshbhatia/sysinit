@@ -1,0 +1,19 @@
+docs/runbooks.md
+  s_429700c772be9c::t_0107232aa1cec6 80-88
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "307b1964d31284fbfbd9c1619d80fa01fb6717a9",
+  "prompts": {},
+  "sessions": {
+    "s_429700c772be9c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "12db108b-88bf-415b-992d-e126bb2b685a",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
