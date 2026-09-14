@@ -82,8 +82,8 @@ in
       script = ''
         test -c /dev/kvm
         kubectl wait node/${hostname} --for=condition=Ready --timeout=180s
-        kubectl apply --server-side -f ${kubevirtOperator}
-        kubectl apply --server-side -f ${cdiOperator}
+        ${pkgs.python3.withPackages (ps: [ ps.pyyaml ])}/bin/python ${./runner-operator.py} ${kubevirtOperator}
+        ${pkgs.python3.withPackages (ps: [ ps.pyyaml ])}/bin/python ${./runner-operator.py} ${cdiOperator}
         kubectl wait crd/kubevirts.kubevirt.io crd/cdis.cdi.kubevirt.io --for=condition=Established --timeout=180s
         kubectl -n kubevirt rollout status deployment/virt-operator --timeout=180s
         kubectl -n cdi rollout status deployment/cdi-operator --timeout=180s
