@@ -16,8 +16,8 @@ def fingerprint(paths, policy):
     return {"files": hashes, "inputs": paths[2:], "policy": policy}
 
 
-def main():
-    operation, cache, target, base, declared, schema, *policy = sys.argv[1:]
+def run(arguments):
+    operation, cache, target, base, declared, schema, *policy = arguments
     paths = [target, base, declared] + ([schema] if schema != "-" else [])
     state = Path(cache)
     try:
@@ -39,6 +39,21 @@ def main():
         return 0
     except (OSError, ValueError):
         return 1
+
+
+def main():
+    if sys.argv[1] != "batch":
+        return run(sys.argv[1:])
+    manifest, revision = sys.argv[2:]
+    for entry in json.loads(Path(manifest).read_text()):
+        name, relative, format_name, declared, declared_format, schema, enforced, retired, create = entry
+        target = Path.home() / relative
+        base = target.with_name(("" if target.name.startswith(".") else ".") + target.name + ".nix-base")
+        arguments = ["check", str(base) + ".cache", str(target), str(base), declared, schema,
+                     format_name, declared_format, enforced, retired, create, revision]
+        if run(arguments):
+            sys.stdout.buffer.write(name.encode() + b"\0")
+    return 0
 
 
 if __name__ == "__main__":

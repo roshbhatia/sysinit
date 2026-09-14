@@ -59,11 +59,6 @@
     *) sidecar="$(dirname "$target")/.$base_name.nix-base" ;;
   esac
   local cache="$sidecar.cache"
-  local cache_args=("$cache" "$target" "$sidecar" "$declared_file" "$schema"
-    "$format" "$declared_format" "$enforced_paths" "$retired_paths" "$create" @CACHE_REVISION@)
-  if @CACHE_TOOL@ check "${cache_args[@]}"; then
-    return 0
-  fi
   mkdir -p "$(dirname "$target")"
 
   local staged_file
@@ -203,5 +198,12 @@
 
 result=0
 @FORGET_CALLS@
-@RECONCILE_CALLS@
+batch_file=$(mktemp)
+trap 'rm -f "$batch_file"' EXIT
+@CACHE_TOOL@ batch @CACHE_MANIFEST@ @CACHE_REVISION@ > "$batch_file"
+while IFS= read -r -d '' name; do
+  case "$name" in
+    @RECONCILE_CALLS@
+  esac
+done < "$batch_file"
 exit "$result"

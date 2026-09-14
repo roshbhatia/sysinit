@@ -56,7 +56,7 @@ let
         readSource "managed-file-apply-enforced.jq"
       );
 
-      mkCall =
+      mkArgs =
         name: file:
         let
           declaredFile =
@@ -65,20 +65,15 @@ let
             else
               pkgs.writeText "managed-${name}-new.json" (builtins.toJSON file.content);
         in
-        lib.concatStringsSep " " [
-          "reconcile"
-          (lib.escapeShellArg name)
-          (lib.escapeShellArg file.path)
+        [
+          name
+          file.path
           file.format
-          declaredFile
+          (toString declaredFile)
           (if file.contentFile != null then file.format else "json")
-          (if file.schema == null then "-" else file.schema)
-          (lib.escapeShellArg (
-            builtins.toJSON (map (path: if builtins.isList path then path else [ path ]) file.enforce)
-          ))
-          (lib.escapeShellArg (
-            builtins.toJSON (map (path: if builtins.isList path then path else [ path ]) file.retire)
-          ))
+          (if file.schema == null then "-" else toString file.schema)
+          (builtins.toJSON (map (path: if builtins.isList path then path else [ path ]) file.enforce))
+          (builtins.toJSON (map (path: if builtins.isList path then path else [ path ]) file.retire))
           (if file.createIfMissing then "create" else "skip")
         ];
 
@@ -93,6 +88,9 @@ let
         pkgs.check-jsonschema
       ];
       text = renderTemplate (readSource "managed-file-reconcile.sh.tmpl") {
+        CACHE_MANIFEST = toString (
+          pkgs.writeText "managed-file-manifest.json" (builtins.toJSON (lib.mapAttrsToList mkArgs enabled))
+        );
         CACHE_TOOL = "${lib.getExe pkgs.python3} ${./managed-file-cache.py}";
         CACHE_REVISION = lib.escapeShellArg (
           builtins.hashString "sha256" (
@@ -113,7 +111,10 @@ let
         MERGE_FILE = toString mergeFile;
         FORGET_CALLS = lib.concatStringsSep "\n" (lib.mapAttrsToList mkForget disabled);
         RECONCILE_CALLS = lib.concatStringsSep "\n" (
-          lib.mapAttrsToList (name: file: "${mkCall name file} || result=1") enabled
+          lib.mapAttrsToList (
+            name: file:
+            "${lib.escapeShellArg name}) reconcile ${lib.escapeShellArgs (mkArgs name file)} || result=1 ;; "
+          ) enabled
         );
       };
     };

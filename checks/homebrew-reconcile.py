@@ -8,6 +8,34 @@ import unittest
 
 
 class ReconcileTest(unittest.TestCase):
+    def test_checks_overlap_and_finish_before_reconcile(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            programs = {
+                "snapshot": "Path('snapshot-started').touch()\n"
+                            "wait_for('check-started')\n"
+                            "print('inventory')\n",
+                "check": "if Path('fixed').exists(): sys.exit(0)\n"
+                         "Path('check-started').touch()\n"
+                         "wait_for('snapshot-started')\n"
+                         "time.sleep(0.1)\nPath('check-finished').touch()\nsys.exit(1)\n",
+                "reconcile": "assert Path('check-finished').exists()\nPath('fixed').touch()\n",
+            }
+            for name, program in programs.items():
+                script = root / name
+                script.write_text("#!" + sys.executable + "\nfrom pathlib import Path\nimport sys,time\n"
+                                  "def wait_for(name):\n"
+                                  " deadline = time.monotonic() + 3\n"
+                                  " while not Path(name).exists():\n"
+                                  "  assert time.monotonic() < deadline, name\n"
+                                  "  time.sleep(0.01)\n" + program)
+                script.chmod(0o755)
+            result = subprocess.run(["bash", sys.argv[1], str(root / "state"),
+                                     *[str(root / name) for name in programs]],
+                                    cwd=root, timeout=10, check=False)
+            self.assertEqual(result.returncode, 0)
+            self.assertEqual((root / "state").read_text(), "inventory\n")
+
     def test_drift_and_failure(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

@@ -1,20 +1,24 @@
 { pkgs }:
 let
   helper = import ../modules/home/programs/llm/lib/managed-file.nix { inherit (pkgs) lib; };
+  entry = {
+    enable = true;
+    path = ".config/test.json";
+    format = "json";
+    contentFile = null;
+    content = {
+      owned = true;
+    };
+    schema = null;
+    enforce = [ "owned" ];
+    retire = [ "retired" ];
+    createIfMissing = true;
+  };
   runner = helper.mkReconciler {
     inherit pkgs;
-    files.test = {
-      enable = true;
-      path = ".config/test.json";
-      format = "json";
-      contentFile = null;
-      content = {
-        owned = true;
-      };
-      schema = null;
-      enforce = [ "owned" ];
-      retire = [ "retired" ];
-      createIfMissing = true;
+    files.test = entry;
+    files.other = entry // {
+      path = ".config/other.json";
     };
   };
 in

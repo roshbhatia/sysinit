@@ -21,12 +21,15 @@ class CacheTest(unittest.TestCase):
 
             self.assertEqual(run(), 0)
             self.assertTrue(cache.exists())
+            other = root / ".config/other.json"
+            other_stamp = other.stat().st_mtime_ns
             stamp = target.stat().st_mtime_ns
             self.assertEqual(run(), 0)
             self.assertEqual(target.stat().st_mtime_ns, stamp)
             target.write_text('{"owned": false, "custom": 7, "retired": true}')
             self.assertEqual(run(), 0)
             self.assertEqual(json.loads(target.read_text()), {"owned": True, "custom": 7})
+            self.assertEqual(other.stat().st_mtime_ns, other_stamp)
             previous_cache = cache.read_bytes()
             target.write_text("invalid")
             self.assertNotEqual(run(), 0)
