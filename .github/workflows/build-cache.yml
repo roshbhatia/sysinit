@@ -50,22 +50,9 @@ jobs:
 
       - uses: DeterminateSystems/nix-installer-action@v22
 
-      # Missing secrets disable uploads while preserving build verification.
-      - name: Detect Cachix token
-        id: cachix
-        run: |
-          if [ -n "${{ secrets.CACHIX_AUTH_TOKEN }}" ]; then
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::CACHIX_AUTH_TOKEN not set; building without pushing."
-          fi
-
-      - uses: cachix/cachix-action@v17
-        if: steps.cachix.outputs.enabled == 'true'
+      - uses: ./.github/actions/cachix
         with:
-          name: roshbhatia
-          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          auth-token: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
       - name: Build cache bundle (${{ matrix.system }})
         env:

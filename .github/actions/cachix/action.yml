@@ -1,0 +1,20 @@
+name: Cachix cache
+description: Add the roshbhatia cache as a substituter, and push to it when a token is present.
+
+inputs:
+  auth-token:
+    description: CACHIX_AUTH_TOKEN. Empty on a pull request from a fork.
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    # The step ran only when a token was present, so a fork pull request added
+    # no substituter and read nothing from the cache. `skipPush` keeps the read
+    # path and drops only the write path.
+    - uses: cachix/cachix-action@v17
+      with:
+        name: roshbhatia
+        authToken: ${{ inputs.auth-token }}
+        skipPush: ${{ inputs.auth-token == '' }}
