@@ -1,0 +1,25 @@
+.github/actions/cachix/action.yml
+  s_429700c772be9c::t_54fa4d5f918475 1-20
+.github/workflows/build-cache.yml
+  s_429700c772be9c::t_7f001a6961ee37 53,55
+.github/workflows/check.yml
+  s_429700c772be9c::t_32a511b9a8f2ca 30,32
+.github/workflows/home-configurations.yml
+  s_429700c772be9c::t_0d72468766d9db 43,45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "520e4993df3c4f89d388871274aea4203e73b158",
+  "prompts": {},
+  "sessions": {
+    "s_429700c772be9c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "12db108b-88bf-415b-992d-e126bb2b685a",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
