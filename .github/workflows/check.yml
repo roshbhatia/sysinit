@@ -67,3 +67,23 @@ jobs:
               nix eval --raw ".#homeConfigurations.${profile}-${system}.activationPackage.drvPath"
             done
           done
+
+  # `nix flake check` skips the systems a runner cannot build, so the macOS job
+  # never reaches checks.x86_64-linux. The Linux bodies, cua-computer-server
+  # among them, had never run anywhere.
+  verify-linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: DeterminateSystems/nix-installer-action@v22
+
+      - uses: ./.github/actions/cachix
+        with:
+          auth-token: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
+      - name: nix flake check
+        env:
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+        run: nix flake check --print-build-logs
