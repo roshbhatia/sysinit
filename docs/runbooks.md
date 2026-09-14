@@ -184,21 +184,21 @@ Check service logs with `journalctl -u github-runner-sysinit` on Arrakis.
 Dispatch the `Arrakis runner` workflow to verify job execution, Tailscale,
 and a Nix build through the daemon.
 
-## Private Lifier runners
+## Private Ere runners
 
-Every profile installs `lifier`, `limactl`, `kubectl`, `virtctl`, and SSH.
+Every profile installs `ere`, `limactl`, `kubectl`, `virtctl`, and SSH.
 The work Mac inherits the same setup through `sysinit.laurel`.
-`~/.config/lifier/config.yaml` declares a local Lima runner. The separate
+`~/.config/ere/config.yaml` declares a local Lima runner. The separate
 `arrakis.yaml` and `vorgossos.yaml` files declare StatefulSet and KubeVirt runners.
 Runner names include the controller host to prevent collisions between Macs.
 
 Prepare remote access through the existing SSH connection:
 
 ```bash
-lifier-setup arrakis
-lifier-setup vorgossos
-lifier api runner_profiles
-lifier --config ~/.config/lifier/arrakis.yaml api runner_profiles
+ere-setup arrakis
+ere-setup vorgossos
+ere api runner_profiles
+ere --config ~/.config/ere/arrakis.yaml api runner_profiles
 ```
 
 The setup command writes separate mode-0600 admin kubeconfigs. It preserves
@@ -209,8 +209,8 @@ KubeVirt and CDI releases. Homelab owns those services on Vorgossos.
 Before starting a VM, import its declared boot volume:
 
 ```bash
-kubectl --kubeconfig ~/.kube/lifier-arrakis.yaml apply -f ~/.config/lifier/arrakis-boot.yaml
-kubectl --kubeconfig ~/.kube/lifier-arrakis.yaml -n lifier get datavolumes
+kubectl --kubeconfig ~/.kube/ere-arrakis.yaml apply -f ~/.config/ere/arrakis-boot.yaml
+kubectl --kubeconfig ~/.kube/ere-arrakis.yaml -n ere get datavolumes
 ```
 
 Use the corresponding Vorgossos paths for that cluster. Boot and workspace
@@ -218,7 +218,7 @@ volumes use retained storage classes. StatefulSet runners install Amp during
 startup and retain their workspace PVCs after compute removal. Lima guest disks
 survive `down`; `rm` removes them.
 
-Set `AMP_API_KEY` through your secret manager before `lifier up <runner-name>`.
+Set `AMP_API_KEY` through your secret manager before `ere up <runner-name>`.
 Use `--config` to select a remote cluster and select one runner by name.
 Bare `up` starts every runner in the selected file. A successful `plan` verifies
 the declared compute changes; an Amp task verifies actual runner registration.

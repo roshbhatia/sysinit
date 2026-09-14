@@ -120,8 +120,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    lifier = {
-      url = "github:roshbhatia/lifier/bc005b16285f8a410bbe5932565969bd34e533e0";
+    ere = {
+      url = "github:roshbhatia/ere/f22fa13dc0b3e652a03d3f8f3bb60189c64b6fd2";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -319,7 +319,7 @@
             "changes-provider-git-notes"
             "changes-neovim-plugin"
             "traces"
-            "lifier"
+            "ere"
             "traces-providers"
             "ask"
             "ask-providers"

@@ -21,7 +21,7 @@ in
         ./git
         ./helix.nix
         ./hushlogin.nix
-        ./lifier.nix
+        ./ere.nix
         ./nix.nix
         ./nix-your-shell.nix
         ./omp.nix

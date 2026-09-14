@@ -10,7 +10,7 @@ from urllib.parse import urlsplit
 import yaml
 
 
-parser = argparse.ArgumentParser(description="Prepare private Lifier cluster access")
+parser = argparse.ArgumentParser(description="Prepare private Ere cluster access")
 parser.add_argument("host", choices=["arrakis", "vorgossos"])
 args = parser.parse_args()
 host = args.host
@@ -31,23 +31,23 @@ cluster["tls-server-name"] = urlsplit(cluster["server"]).hostname
 cluster["server"] = f"https://{host}:6443"
 data["clusters"][0]["name"] = host
 data["contexts"] = [{"name": host, "context": {
-    "cluster": host, "user": data["users"][0]["name"], "namespace": "lifier"
+    "cluster": host, "user": data["users"][0]["name"], "namespace": "ere"
 }}]
 data["current-context"] = host
 directory = Path.home() / ".kube"
 directory.mkdir(mode=0o700, exist_ok=True)
-destination = directory / f"lifier-{host}.yaml"
-fd, temporary = tempfile.mkstemp(dir=directory, prefix=".lifier-")
+destination = directory / f"ere-{host}.yaml"
+fd, temporary = tempfile.mkstemp(dir=directory, prefix=".ere-")
 try:
     with os.fdopen(fd, "w") as output:
         json.dump(data, output)
     subprocess.run([
-        "kubectl", "--kubeconfig", temporary, "get", "namespace", "lifier"
+        "kubectl", "--kubeconfig", temporary, "get", "namespace", "ere"
     ], check=True)
     os.replace(temporary, destination)
 finally:
     Path(temporary).unlink(missing_ok=True)
-key = Path.home() / ".ssh" / "lifier"
+key = Path.home() / ".ssh" / "ere"
 key.parent.mkdir(mode=0o700, exist_ok=True)
 if not key.exists():
     subprocess.run([

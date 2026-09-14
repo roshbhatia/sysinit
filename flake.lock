@@ -340,6 +340,28 @@
         "url": "https://install.determinate.systems/determinate-nixd/tag/v3.22.3/x86_64-linux"
       }
     },
+    "ere": {
+      "inputs": {
+        "flake-utils": "flake-utils_2",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1789418107,
+        "narHash": "sha256-J+ELkbDdy918ZJ1yWhZX1fGcz3xIVEGyarNigh8WIlw=",
+        "owner": "roshbhatia",
+        "repo": "ere",
+        "rev": "f22fa13dc0b3e652a03d3f8f3bb60189c64b6fd2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "roshbhatia",
+        "repo": "ere",
+        "rev": "f22fa13dc0b3e652a03d3f8f3bb60189c64b6fd2",
+        "type": "github"
+      }
+    },
     "firefox-addons": {
       "inputs": {
         "nixpkgs": [
@@ -755,28 +777,6 @@
         "owner": "nix-community",
         "ref": "master",
         "repo": "home-manager",
-        "type": "github"
-      }
-    },
-    "lifier": {
-      "inputs": {
-        "flake-utils": "flake-utils_2",
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1789413593,
-        "narHash": "sha256-eNqdsRE70HoNPH5AVQg/RiFx9kB/lLgezMjSyA2Rk88=",
-        "owner": "roshbhatia",
-        "repo": "lifier",
-        "rev": "bc005b16285f8a410bbe5932565969bd34e533e0",
-        "type": "github"
-      },
-      "original": {
-        "owner": "roshbhatia",
-        "repo": "lifier",
-        "rev": "bc005b16285f8a410bbe5932565969bd34e533e0",
         "type": "github"
       }
     },
@@ -1302,11 +1302,11 @@
         "cupcake": "cupcake",
         "darwin": "darwin",
         "determinate": "determinate",
+        "ere": "ere",
         "firefox-addons": "firefox-addons",
         "gate": "gate",
         "hermes-agent": "hermes-agent",
         "home-manager": "home-manager_2",
-        "lifier": "lifier",
         "meat": "meat",
         "nix-claude-code": "nix-claude-code",
         "nix-gaming": "nix-gaming",

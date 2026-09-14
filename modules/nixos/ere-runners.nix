@@ -14,19 +14,19 @@ let
     url = "https://github.com/kubevirt/containerized-data-importer/releases/download/v1.66.1/cdi-operator.yaml";
     hash = "sha256-x9kr0bLuGjlSpZkAAEN8CNWBCfMcC9SKthiOwnoT4iQ=";
   };
-  resources = (pkgs.formats.yaml { }).generate "lifier-cluster.yaml" {
+  resources = (pkgs.formats.json { }).generate "ere-cluster.json" {
     apiVersion = "v1";
     kind = "List";
     items = [
       {
         apiVersion = "v1";
         kind = "Namespace";
-        metadata.name = "lifier";
+        metadata.name = "ere";
       }
       {
         apiVersion = "storage.k8s.io/v1";
         kind = "StorageClass";
-        metadata.name = "lifier-retain";
+        metadata.name = "ere-retain";
         provisioner = "rancher.io/local-path";
         reclaimPolicy = "Retain";
         volumeBindingMode = "WaitForFirstConsumer";
@@ -60,7 +60,7 @@ in
       "fs.inotify.max_user_watches" = 524288;
     };
     environment.systemPackages = [ pkgs.kubevirt ];
-    systemd.services.lifier-cluster = {
+    systemd.services.ere-cluster = {
       description = "Prepare persistent Pod and KubeVirt runners";
       wantedBy = [ "multi-user.target" ];
       wants = [ "network-online.target" ];

@@ -16,8 +16,12 @@ let
       apt-get install -y ca-certificates curl git openssh-client
       if ! test -x /opt/amp/bin/amp; then
         curl -fsSL https://ampcode.com/install.sh -o /tmp/install-amp.sh
-        AMP_HOME=/opt/amp bash /tmp/install-amp.sh
+        env HOME=/root AMP_HOME=/opt/amp bash /tmp/install-amp.sh
         rm /tmp/install-amp.sh
+      fi
+      chmod 755 /opt/amp /opt/amp/bin /opt/amp/bin/amp
+      if ! test /usr/local/bin/amp -ef /opt/amp/bin/amp; then
+        ln -s /opt/amp/bin/amp /usr/local/bin/amp
       fi
     ''
   ];
@@ -45,12 +49,12 @@ let
         backend:
         {
           context = name;
-          namespace = "lifier";
-          kubeconfig = "${config.home.homeDirectory}/.kube/lifier-${name}.yaml";
+          namespace = "ere";
+          kubeconfig = "${config.home.homeDirectory}/.kube/ere-${name}.yaml";
         }
         // lib.optionalAttrs (backend == "kubernetes-kubevirt") {
-          sshKey = "${config.home.homeDirectory}/.ssh/lifier";
-          sshUser = "lifier";
+          sshKey = "${config.home.homeDirectory}/.ssh/ere";
+          sshUser = "ere";
         }
       );
       runners = [
@@ -84,42 +88,40 @@ let
 in
 {
   home.packages = with pkgs; [
-    lifier
+    ere
     lima
     kubectl
     kubevirt
     openssh
     (pkgs.writeShellApplication {
-      name = "lifier-setup";
+      name = "ere-setup";
       runtimeInputs = [
         pkgs.openssh
         pkgs.kubectl
       ];
-      text = ''exec ${
-        pkgs.python3.withPackages (ps: [ ps.pyyaml ])
-      }/bin/python ${./lifier-setup.py} "$@"'';
+      text = ''exec ${pkgs.python3.withPackages (ps: [ ps.pyyaml ])}/bin/python ${./ere-setup.py} "$@"'';
     })
   ];
 
   xdg.configFile =
-    lib.genAttrs [ "lifier/arrakis-boot.yaml" "lifier/vorgossos-boot.yaml" ] (
+    lib.genAttrs [ "ere/arrakis-boot.yaml" "ere/vorgossos-boot.yaml" ] (
       path:
       let
         target = if lib.hasInfix "arrakis" path then "arrakis" else "vorgossos";
       in
       {
-        source = yaml.generate "lifier-${target}-boot.yaml" {
+        source = (pkgs.formats.json { }).generate "ere-${target}-boot.json" {
           apiVersion = "cdi.kubevirt.io/v1beta1";
           kind = "DataVolume";
           metadata = {
             name = "${identity}-${target}-boot";
-            namespace = "lifier";
+            namespace = "ere";
             annotations."cdi.kubevirt.io/storage.bind.immediate.requested" = "true";
           };
           spec = {
             source.http.url = "https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-amd64.img";
             storage = {
-              storageClassName = if target == "arrakis" then "lifier-retain" else "zfs-path";
+              storageClassName = if target == "arrakis" then "ere-retain" else "zfs-path";
               accessModes = [ "ReadWriteOnce" ];
               resources.requests.storage = "30Gi";
             };
@@ -128,7 +130,7 @@ in
       }
     )
     // {
-      "lifier/config.yaml".source = yaml.generate "lifier-local.yaml" (
+      "ere/config.yaml".source = yaml.generate "ere-local.yaml" (
         base
         // {
           defaultBackend = "lima";
@@ -145,11 +147,7 @@ in
           ];
         }
       );
-      "lifier/arrakis.yaml".source = yaml.generate "lifier-arrakis.yaml" (
-        cluster "arrakis" "lifier-retain"
-      );
-      "lifier/vorgossos.yaml".source = yaml.generate "lifier-vorgossos.yaml" (
-        cluster "vorgossos" "zfs-path"
-      );
+      "ere/arrakis.yaml".source = yaml.generate "ere-arrakis.yaml" (cluster "arrakis" "ere-retain");
+      "ere/vorgossos.yaml".source = yaml.generate "ere-vorgossos.yaml" (cluster "vorgossos" "zfs-path");
     };
 }
