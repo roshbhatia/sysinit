@@ -82,8 +82,10 @@ nh darwin switch                # apply config to system (use deliberately)
 ./hack/update-pi.sh             # report pi package drift
 ```
 
-`nh` reaches PATH only after a switch, so run it from `nix develop` on a clean
-checkout. `README.md` bootstraps the first switch with `nix run nixpkgs#nh`.
+Use the installed `nh` for routine builds and switches; use `nix develop` for
+checks. For separate build and activation steps, use `nh darwin build .
+--out-link result-system`, then `nh darwin switch ./result-system`.
+`README.md` bootstraps the first switch with `nix run nixpkgs#nh`.
 
 `checks/default.nix` is the list of flake checks. Read it rather than a copy
 here.

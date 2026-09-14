@@ -30,8 +30,8 @@ in
       config.sysinit.user.username
     ];
     fallback = true;
-    max-jobs = "auto";
-    cores = 0;
+    max-jobs = 2;
+    cores = 6;
     connect-timeout = 10;
 
     # Fields are: uri system sshKey maxJobs speedFactor supported mandatory hostKey.
@@ -40,7 +40,7 @@ in
     # not read the user ssh config that maps `arrakis` to the tailnet. Root
     # resolves the bare name through LAN DNS to 192.168.50.18, so the builder
     # worked at home and vanished anywhere else.
-    builders = "ssh-ng://rshnbhatia@arrakis.stork-eel.ts.net x86_64-linux /Users/${user}/.ssh/id_ed25519 8 2 nixos-test,benchmark,big-parallel,kvm - -";
+    builders = "ssh-ng://nix-builder@arrakis.stork-eel.ts.net x86_64-linux /var/root/.ssh/sysinit-builder 8 2 nixos-test,benchmark,big-parallel,kvm - -";
     builders-use-substitutes = true;
 
     # The 3600 default makes a switch within an hour of a cachix push rebuild
@@ -54,6 +54,11 @@ in
     # cache entry can ever match. Measured 2026-09-13: off is also faster,
     # 10.4s against 11.3s per eval.
     lazy-trees = false;
+  };
+
+  programs.ssh.knownHosts.arrakis-builder = {
+    hostNames = [ "arrakis.stork-eel.ts.net" ];
+    publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILFMJdjdiDn8ofDD+3z9w5SDoFdfzocrCxDXtvCemZrj";
   };
 
   determinateNix.determinateNixd.garbageCollector.strategy = "automatic";
@@ -108,6 +113,14 @@ in
   system.tools."darwin-uninstaller".enable = false;
 
   system = {
+    activationScripts.postActivation.text = ''
+      /usr/bin/install -d -m 700 /var/root/.ssh
+      if [ ! -f /var/root/.ssh/sysinit-builder ]; then
+        /usr/bin/ssh-keygen -q -t ed25519 -N "" -C "sysinit-builder-${hostname}" \
+          -f /var/root/.ssh/sysinit-builder
+      fi
+    '';
+
     defaults.LaunchServices.LSQuarantine = false;
     primaryUser = config.sysinit.user.username;
     stateVersion = 6;

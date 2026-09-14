@@ -95,6 +95,9 @@ while IFS= read -r file; do
     nix_files+=("${file}")
   fi
 done < <(files_for '\.nix$')
+if [ "${#nix_files[@]}" -gt 0 ]; then
+  run nixfmt nixfmt --check "${nix_files[@]}"
+fi
 if [ "${#nix_files[@]}" -gt 0 ] && command -v statix > /dev/null 2>&1; then
   echo "==> statix" >&2
   for file in "${nix_files[@]}"; do

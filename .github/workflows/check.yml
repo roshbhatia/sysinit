@@ -51,23 +51,10 @@ jobs:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: nix flake check --print-build-logs
 
-      # Evaluate every host because the current runner cannot build Linux outputs.
-      - name: Evaluate host configurations
+      - name: Evaluate all configurations
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
-        run: |
-          nix eval --raw ".#darwinConfigurations.lv426.system.drvPath"
-          nix eval --raw ".#nixosConfigurations.arrakis.config.system.build.toplevel.drvPath"
-
-      - name: Evaluate standalone home configurations
-        env:
-          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
-        run: |
-          for profile in dev minimal; do
-            for system in aarch64-darwin x86_64-linux aarch64-linux; do
-              nix eval --raw ".#homeConfigurations.${profile}-${system}.activationPackage.drvPath"
-            done
-          done
+        run: nix eval --json .#lib.configurationDerivations
 
   # `nix flake check` skips the systems a runner cannot build, so the macOS job
   # never reaches checks.x86_64-linux. The Linux bodies, cua-computer-server

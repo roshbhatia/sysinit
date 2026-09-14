@@ -7,6 +7,12 @@
 let
   paths = import ../shared/codesign.nix;
   user = config.sysinit.user.username;
+  appState = "${lib.getExe pkgs.python3} ${../home/app-copy-state.py}";
+  appStateArgs = lib.escapeShellArgs [
+    "${config.system.build.applications}/Applications"
+    "/Applications/Nix Apps"
+    "/var/db/sysinit/app-copy.json"
+  ];
   signedBin = "${config.users.users.${user}.home}/${paths.signedBinDir}";
 
   # Keep everything the real package ships and redirect only the executable, so
@@ -36,9 +42,17 @@ in
   services.jankyborders.package = lib.mkForce (stable "borders" pkgs.jankyborders);
   services.sketchybar.package = lib.mkForce (stable "sketchybar" pkgs.sketchybar);
 
-  # Runs last, after nix-darwin has rewritten /Applications/Nix Apps from the
-  # store and dropped whatever signature was on it.
   system.activationScripts.postActivation.text = ''
-    ${lib.getExe config.home-manager.users.${user}.sysinit.codesign.package} system || true
+    ${lib.getExe config.home-manager.users.${user}.sysinit.codesign.package} system
+    ${appState} record ${appStateArgs} || echo "sysinit: app signatures need repair" >&2
   '';
+
+  system.activationScripts.applications.text = lib.mkMerge [
+    (lib.mkBefore ''
+      if ! ${appState} check ${appStateArgs}; then
+    '')
+    (lib.mkAfter ''
+      fi
+    '')
+  ];
 }

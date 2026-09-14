@@ -215,7 +215,8 @@
           onepassword-shell-plugins
           nix-gaming
           ;
-        inherit (builders) mkPkgs mkOverlays;
+        inherit (builders) mkOverlays;
+        mkPkgs = { system, ... }: pkgsFor.${system};
       };
 
       darwinConfigurations = outputBuilders.mkConfigurations {
@@ -252,6 +253,12 @@
     {
       inherit darwinConfigurations nixosConfigurations;
 
+      lib.configurationDerivations = {
+        darwin = lib.mapAttrs (_: cfg: cfg.system.drvPath) darwinConfigurations;
+        nixos = lib.mapAttrs (_: cfg: cfg.config.system.build.toplevel.drvPath) nixosConfigurations;
+        home = lib.mapAttrs (_: cfg: cfg.activationPackage.drvPath) inputs.self.homeConfigurations;
+      };
+
       homeModules = {
         default = ./modules/home;
         options = {
@@ -267,7 +274,8 @@
         let
           buildHome = builders.mkHome {
             inherit (inputs) home-manager;
-            inherit (builders) mkPkgs mkOverlays;
+            inherit (builders) mkOverlays;
+            mkPkgs = { system, ... }: pkgsFor.${system};
           };
         in
         lib.listToAttrs (
@@ -432,6 +440,7 @@
             name = "sysinit-dev";
             packages = [
               pkgs.nh
+              pkgs.nixfmt
               pkgs.actionlint
               pkgs.clang
               pkgs.go

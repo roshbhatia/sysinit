@@ -3,6 +3,7 @@
 {
   imports = [
     ./github-runner.nix
+    ./nix-builder.nix
     ./ere-runners.nix
     ./common
   ]

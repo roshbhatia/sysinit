@@ -136,8 +136,48 @@ violations become a rejected commit. Before a switch, run `nix fmt` and
 `nix flake check`.
 
 Some invariants are module assertions and fire only on `nix eval` of a host.
-`nix flake check` does not reach them. `AGENTS.md` lists the files that hold
-them.
+`nix flake check` does not reach all of them. Evaluate all configurations in
+one process with `nix eval --json .#lib.configurationDerivations`.
+
+## Build once and activate
+
+Use the installed `nh`; development shells supply tools for checks. Keep the
+built result rooted through review and activation:
+
+```bash
+nh darwin build . --out-link result-system
+nh darwin switch ./result-system
+```
+
+On the work Mac, run these commands from `sysinit.laurel`. Update its pinned
+`sysinit` input after the upstream commit is pushed. The output path deploys the
+reviewed build even if the checkout changes afterwards.
+
+## Configure a remote builder
+
+Darwin activation creates `/var/root/.ssh/sysinit-builder` once. The private
+key stays on its Mac. Enroll its public key in `modules/nixos/nix-builder.nix`
+and switch Arrakis before using the builder. Each Mac needs its own key.
+The forced SSH command exposes only the Nix daemon, with forwarding disabled.
+
+The daemon pins Arrakis's host key through `programs.ssh.knownHosts`. When the
+host key changes, verify it through an existing authenticated connection before
+updating the declaration. Check the connection as root:
+
+```bash
+sudo nix store ping --store 'ssh-ng://nix-builder@arrakis.stork-eel.ts.net?ssh-key=/var/root/.ssh/sysinit-builder'
+```
+
+Arrakis builds x86_64 Linux outputs. Native Darwin outputs build on macOS.
+
+## Populate caches
+
+`build-cache.yml` builds package bundles and development tools after package
+inputs change. `system-cache.yml` builds host closures after module, host, or
+package changes. On Arrakis, Cachix watches only the current build's post-build
+hook, so successful dependencies upload even if a later dependency fails.
+The publisher also uploads existing result closures. Private work-machine
+configurations stay out of the public cache.
 
 ## Recover a failed switch
 

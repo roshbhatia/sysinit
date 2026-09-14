@@ -38,6 +38,18 @@ let
       ]
       (builtins.readFile ./codesign.sh.tmpl);
 
+  applications = pkgs.buildEnv {
+    name = "home-manager-applications";
+    paths = config.home.packages;
+    pathsToLink = [ "/Applications" ];
+  };
+  appState = "${lib.getExe pkgs.python3} ${./app-copy-state.py}";
+  appStateArgs = lib.escapeShellArgs [
+    "${applications}/Applications"
+    "${home}/${config.targets.darwin.copyApps.directory}"
+    "${config.xdg.stateHome}/sysinit/app-copy.json"
+  ];
+
   signer = pkgs.writeShellApplication {
     name = "sysinit-codesign";
     runtimeInputs = [ pkgs.openssl ];
@@ -76,9 +88,28 @@ in
     };
   };
 
-  config = lib.mkIf cfg.enable {
-    home.activation.sysinitCodesign = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      run ${lib.getExe signer} || true
-    '';
-  };
+  config = lib.mkIf cfg.enable (
+    lib.mkMerge [
+      {
+        home.activation.sysinitCodesign = lib.hm.dag.entryAfter [ "writeBoundary" "copyApps" ] ''
+          run ${lib.getExe signer}
+          ${lib.optionalString config.targets.darwin.copyApps.enable ''
+            run ${appState} record ${appStateArgs} || echo "sysinit: app signatures need repair" >&2
+          ''}
+        '';
+      }
+      (lib.mkIf config.targets.darwin.copyApps.enable {
+        home.activation.copyApps = lib.mkForce (
+          lib.hm.dag.entryAfter [ "installPackages" "linkGeneration" ] ''
+            if ! ${appState} check ${appStateArgs}; then
+              run mkdir -p ${lib.escapeShellArg "${home}/${config.targets.darwin.copyApps.directory}"}
+              run ${lib.getExe pkgs.rsync} --recursive --checksum --perms --links \
+                --copy-unsafe-links --specials --delete --chmod=+w \
+                ${applications}/Applications/ ${lib.escapeShellArg "${home}/${config.targets.darwin.copyApps.directory}"}
+            fi
+          ''
+        );
+      })
+    ]
+  );
 }

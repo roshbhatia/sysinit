@@ -1,6 +1,4 @@
-name: Build cache
-
-# Builds every custom package for each supported system.
+name: System cache
 
 on:
   push:
@@ -12,13 +10,14 @@ on:
       - "overlays/**"
       - "pkgs/**"
       - "_sources/**"
-      - "nvfetcher.toml"
-      - ".github/workflows/build-cache.yml"
+      - "modules/**"
+      - "hosts/**"
+      - ".github/workflows/system-cache.yml"
       - ".github/actions/cachix/**"
   workflow_dispatch: {}
 
 concurrency:
-  group: build-cache-${{ github.ref }}
+  group: system-cache-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -33,53 +32,34 @@ jobs:
         include:
           - os: macos-latest
             system: aarch64-darwin
+            installable: darwinConfigurations.lv426.system
           - os: ubuntu-latest
             system: x86_64-linux
-          - os: ubuntu-24.04-arm
-            system: aarch64-linux
+            installable: nixosConfigurations.arrakis.config.system.build.toplevel
     runs-on: ${{ matrix.system == 'x86_64-linux' && github.ref == 'refs/heads/main' && fromJSON('["self-hosted", "Linux", "X64", "arrakis", "nix"]') || matrix.os }}
     steps:
       - uses: actions/checkout@v7
-
-      # Linux runners lack space for the full custom-package closure.
-      - name: Free disk space
-        if: runner.os == 'Linux' && runner.environment != 'self-hosted'
-        run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
-            /opt/hostedtoolcache/CodeQL /usr/local/share/boost /usr/local/.ghcup \
-            "$AGENT_TOOLSDIRECTORY" || true
-          df -h /
-
       - uses: DeterminateSystems/nix-installer-action@v22
         if: runner.environment != 'self-hosted'
-
       - uses: ./.github/actions/cachix
         with:
           auth-token: ${{ secrets.CACHIX_AUTH_TOKEN }}
-
-      - name: Build cache bundle (${{ matrix.system }})
+      - name: Build system
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
           CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          INSTALLABLE: ${{ matrix.installable }}
         run: |
           cache=()
           if [ "$RUNNER_ENVIRONMENT" = self-hosted ]; then
             cache=(cachix watch-exec --watch-mode post-build-hook roshbhatia)
           fi
-          # inputDerivation realises the dev shell dependencies. The shell
-          # derivation itself refuses to build, so `nix build` cannot cache it.
-          "${cache[@]}" nix build --print-build-logs --keep-going --out-link result \
-            ".#packages.${{ matrix.system }}.cacheBundle" \
-            ".#packages.${{ matrix.system }}.cloudTools" \
-            ".#devShells.${{ matrix.system }}.default.inputDerivation"
-
-      - name: Publish existing bundle outputs
+          "${cache[@]}" nix build --out-link result --print-build-logs --keep-going ".#$INSTALLABLE"
+      - name: Publish existing system output
         if: always() && runner.environment == 'self-hosted'
         env:
           CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
         run: |
-          for result in result result-2 result-3; do
-            if [ -e "$result" ]; then
-              nix path-info --recursive "$result" | cachix push roshbhatia
-            fi
-          done
+          if [ -e result ]; then
+            nix path-info --recursive result | cachix push roshbhatia
+          fi

@@ -37,6 +37,18 @@ overlay, a host, or a module, and recovering a failed switch.
 nix run nixpkgs#nh -- darwin switch .
 nh darwin switch .
 ```
+
+Use the installed `nh` for routine switches. Enter `nix develop` for lint and tests.
+To review a build before activation, retain its output:
+
+```bash
+nh darwin build . --out-link result-system
+nh darwin switch ./result-system
+```
+
+The second command uses the built output. Keep `result-system` until activation
+succeeds, then remove the link when it is no longer needed.
+
 ### Profiles
 
 Every host picks one profile in `hosts/default.nix`. The three are additive, so

@@ -131,20 +131,24 @@ managed() {
 }
 
 sign() {
-  local target="$1" sudo_prefix="${2:-}"
+  local target="$1" sudo_prefix="${2:-}" output
   echo "sysinit-codesign: signing $target" >&2
   # shellcheck disable=SC2086
-  $sudo_prefix codesign -f -s "$IDENTITY" --keychain "$KEYCHAIN" --deep \
-    --timestamp=none "$target" 2>&1 | grep -v "replacing existing signature" || true
+  if ! output=$($sudo_prefix codesign -f -s "$IDENTITY" --keychain "$KEYCHAIN" --deep \
+    --timestamp=none "$target" 2>&1); then
+    printf '%s\n' "$output" >&2
+    return 1
+  fi
+  codesign --verify --deep --strict "$target"
 }
 
-# Both rsyncs restore these bundles from the store on every activation, so
-# signing runs every time. Signing an already-signed bundle costs seconds;
-# skipping one wrongly costs a permission prompt.
 sign_app() {
   local app="$1" sudo_prefix="${2:-}"
   if [ ! -d "$app" ]; then return 0; fi
   if ! managed "$app"; then return 0; fi
+  if already_ours "$app" && codesign --verify --deep --strict "$app" 2>/dev/null; then
+    return 0
+  fi
   sign "$app" "$sudo_prefix"
 }
 

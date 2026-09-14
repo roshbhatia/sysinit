@@ -56,6 +56,10 @@ let
   );
 in
 {
+  app-copy-state = pkgs.runCommand "app-copy-state-test" { nativeBuildInputs = [ pkgs.python3 ]; } ''
+    python3 ${./app-copy-state.py} ${../modules/home/app-copy-state.py}
+    touch "$out"
+  '';
   github-runner-guard = import ./github-runner-guard.nix { inherit pkgs; };
   # These assertions sat at file scope. One failure aborted the whole attrset,
   # so every check on every system reported the same message, and the message
