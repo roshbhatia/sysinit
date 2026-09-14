@@ -3,6 +3,10 @@ name: Home configurations
 # Builds every standalone home configuration: profile crossed with system.
 
 on:
+  # Weekly, not per push. The 6 builds below are the only source of these
+  # closures in the cache, and a fresh box with no Nix builds them from source.
+  schedule:
+    - cron: "0 5 * * 0"
   workflow_dispatch: {}
 
 concurrency:
