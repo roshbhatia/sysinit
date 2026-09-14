@@ -77,6 +77,15 @@ The bundle resolves strictly. A name that no overlay defines fails the flake
 check rather than shrinking the bundle, so a rename cannot quietly send the
 build back to the laptop.
 
+A package that no overlay attribute names cannot go in `cacheAttrs`. Add it to
+`linuxInputPackages` in `flake.nix` instead, which reads the flake input
+directly. `swayfx` is the one entry today.
+
+CI builds the `lv426` closure but not the `arrakis` closure. Measured
+2026-09-14, `arrakis` needs 1298 built derivations and 31.2 GiB unpacked. A
+hosted runner has 14 GiB free and a 6 hour limit. Cache the expensive leaves
+through `linuxCacheAttrs` and let `arrakis` link the closure itself.
+
 Confirm a path is cached before you blame a slow switch:
 
 ```bash
