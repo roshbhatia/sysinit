@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v7
       - name: Verify runner and tailnet
         run: |
-          test "$(hostname)" = arrakis
+          test "$(uname -n)" = arrakis
           test "$(nix eval --impure --raw --expr builtins.currentSystem)" = x86_64-linux
           tailscale status --json | jq -e '.BackendState == "Running" and .Self.Online'
       - name: Build through the Nix daemon
