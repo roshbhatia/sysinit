@@ -15,6 +15,7 @@ on:
       - "nvfetcher.toml"
       - ".github/workflows/build-cache.yml"
       - ".github/actions/cachix/**"
+      - ".github/actions/cache-build/**"
   workflow_dispatch: {}
 
 concurrency:
@@ -58,28 +59,12 @@ jobs:
           auth-token: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
       - name: Build cache bundle (${{ matrix.system }})
+        uses: ./.github/actions/cache-build
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
-          CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
-        run: |
-          cache=()
-          if [ "$RUNNER_ENVIRONMENT" = self-hosted ]; then
-            cache=(cachix watch-exec --watch-mode post-build-hook roshbhatia)
-          fi
-          # inputDerivation realises the dev shell dependencies. The shell
-          # derivation itself refuses to build, so `nix build` cannot cache it.
-          "${cache[@]}" nix build --print-build-logs --keep-going --out-link result \
-            ".#packages.${{ matrix.system }}.cacheBundle" \
-            ".#packages.${{ matrix.system }}.cloudTools" \
-            ".#devShells.${{ matrix.system }}.default.inputDerivation"
-
-      - name: Publish existing bundle outputs
-        if: always() && runner.environment == 'self-hosted'
-        env:
-          CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
-        run: |
-          for result in result result-2 result-3; do
-            if [ -e "$result" ]; then
-              nix path-info --recursive "$result" | cachix push roshbhatia
-            fi
-          done
+        with:
+          auth-token: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          installables: |
+            .#packages.${{ matrix.system }}.cacheBundle
+            .#packages.${{ matrix.system }}.cloudTools
+            .#devShells.${{ matrix.system }}.default.inputDerivation

@@ -1,0 +1,25 @@
+name: Cache build
+description: Build declared targets and publish their completed dependencies on success or failure.
+inputs:
+  installables:
+    description: One flake installable per line.
+    required: true
+  auth-token:
+    description: Cachix upload token.
+    required: true
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        INSTALLABLES: ${{ inputs.installables }}
+        CACHIX_AUTH_TOKEN: ${{ inputs.auth-token }}
+        CACHE_BUILD_ACTION: ${{ github.action_path }}
+      run: |
+        targets=()
+        while IFS= read -r target; do
+          if [ -n "$target" ]; then
+            targets+=("$target")
+          fi
+        done <<< "$INSTALLABLES"
+        bash "$CACHE_BUILD_ACTION/build.sh" roshbhatia "${targets[@]}"

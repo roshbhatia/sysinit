@@ -14,6 +14,7 @@ on:
       - "hosts/**"
       - ".github/workflows/system-cache.yml"
       - ".github/actions/cachix/**"
+      - ".github/actions/cache-build/**"
   workflow_dispatch: {}
 
 concurrency:
@@ -45,21 +46,9 @@ jobs:
         with:
           auth-token: ${{ secrets.CACHIX_AUTH_TOKEN }}
       - name: Build system
+        uses: ./.github/actions/cache-build
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
-          CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
-          INSTALLABLE: ${{ matrix.installable }}
-        run: |
-          cache=()
-          if [ "$RUNNER_ENVIRONMENT" = self-hosted ]; then
-            cache=(cachix watch-exec --watch-mode post-build-hook roshbhatia)
-          fi
-          "${cache[@]}" nix build --out-link result --print-build-logs --keep-going ".#$INSTALLABLE"
-      - name: Publish existing system output
-        if: always() && runner.environment == 'self-hosted'
-        env:
-          CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
-        run: |
-          if [ -e result ]; then
-            nix path-info --recursive result | cachix push roshbhatia
-          fi
+        with:
+          auth-token: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          installables: .#${{ matrix.installable }}

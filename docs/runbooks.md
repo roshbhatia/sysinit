@@ -174,9 +174,9 @@ Arrakis builds x86_64 Linux outputs. Native Darwin outputs build on macOS.
 
 `build-cache.yml` builds package bundles and development tools after package
 inputs change. `system-cache.yml` builds host closures after module, host, or
-package changes. On Arrakis, Cachix watches only the current build's post-build
-hook, so successful dependencies upload even if a later dependency fails.
-The publisher also uploads existing result closures. Private work-machine
+package changes. The cache action queries only the requested derivations' dependency graph,
+including completed outputs. Successful dependencies upload even if a later
+build fails, without a privileged hook or a scan of the shared store. Private work-machine
 configurations stay out of the public cache.
 
 ## Recover a failed switch
