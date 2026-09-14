@@ -115,11 +115,6 @@ in
       };
       picker.providers = [
         {
-          name = "tether";
-          key = "$";
-          manifest = "${pkgs.tether-picker}/share/wezterm/providers/tether.json";
-        }
-        {
           name = "zmx";
           key = "@";
           manifest = "${pkgs.zmx-picker}/share/wezterm/providers/zmx.json";
@@ -131,8 +126,13 @@ in
         }
         {
           name = "zoxide";
-          key = "%";
+          key = "$";
           manifest = "${pkgs.zoxide-picker}/share/wezterm/providers/zoxide.json";
+        }
+        {
+          name = "tether";
+          key = "%";
+          manifest = "${pkgs.tether-picker}/share/wezterm/providers/tether.json";
         }
       ];
       cwd_aliases.sy = config.sysinit.paths.resolved.seshySessions;
