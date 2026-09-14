@@ -140,7 +140,15 @@ in
     inherit pkgs;
     inherit (pkgs) lib;
   };
-  system-generation-prune = import ./system-generation-prune.nix { inherit pkgs; };
+  # modules/darwin/prune-system-generations.sh is a launchd job, and the test
+  # drives nix-env, which creates /nix/var/nix/profiles. The Linux sandbox
+  # denies that. macOS builds are unsandboxed, which is the only reason this
+  # ever passed there.
+  system-generation-prune =
+    if pkgs.stdenv.hostPlatform.isDarwin then
+      import ./system-generation-prune.nix { inherit pkgs; }
+    else
+      evalOnly "system-generation-prune-not-applicable";
   nushell-command-surface =
     pkgs.runCommand "nushell-command-surface" { nativeBuildInputs = [ pkgs.jq ]; }
       ''
