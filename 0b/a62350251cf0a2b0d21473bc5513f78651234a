@@ -1,0 +1,23 @@
+flake.nix
+  s_429700c772be9c::t_7690e84b57d67e 337
+modules/home/programs/llm/harnesses/registry.nix
+  s_429700c772be9c::t_faf778af1bd40f 201
+overlays/fx.nix
+  s_429700c772be9c::t_edba7a07a638ac 17-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "0ba62350251cf0a2b0d21473bc5513f78651234a",
+  "prompts": {},
+  "sessions": {
+    "s_429700c772be9c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "12db108b-88bf-415b-992d-e126bb2b685a",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
