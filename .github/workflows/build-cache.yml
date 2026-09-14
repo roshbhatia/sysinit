@@ -74,6 +74,12 @@ jobs:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: nix build --no-link --print-build-logs --keep-going ".#darwinConfigurations.lv426.system"
 
+      - name: Build Arrakis system closure
+        if: matrix.system == 'x86_64-linux'
+        env:
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+        run: nix build --out-link result-arrakis --print-build-logs --keep-going ".#nixosConfigurations.arrakis.config.system.build.toplevel"
+
       - name: Publish Arrakis outputs
         if: runner.environment == 'self-hosted'
         env:

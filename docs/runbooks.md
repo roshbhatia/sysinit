@@ -171,6 +171,7 @@ The runner's pre-job hook also rejects PR events and refs other than main.
 The NixOS module uses the host Nix daemon and existing Tailscale connection.
 It does not grant the runner sudo or access to the interactive user's home.
 The cache workflows push their output closures with the repository Cachix secret.
+The x86_64 cache job also builds and publishes the Arrakis system closure.
 
 Before first activation, mint a repository registration token and place it at
 `/var/lib/secrets/github-runner-sysinit` on Arrakis, owned by root with mode 0600.
