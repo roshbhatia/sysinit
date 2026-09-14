@@ -6,6 +6,12 @@
   ...
 }:
 let
+  inherit (pkgs) lib;
+
+  # Every check that is pure evaluation shares this. The derivation carries no
+  # build step; the assertions above it decide whether it evaluates at all.
+  evalOnly = name: pkgs.runCommand name { } "touch $out";
+
   commandPath = import ../modules/shared/command-path.nix { inherit (pkgs) lib; };
   darwinPath = commandPath.entriesFor true "/profile/bin";
   linuxPath = commandPath.entriesFor false "/profile/bin";
@@ -49,18 +55,41 @@ let
       (builtins.readFile ../modules/home/programs/nushell/functions.nu)
   );
 in
-assert builtins.elemAt darwinPath 3 == "/opt/homebrew/bin";
-assert builtins.elemAt darwinPath 4 == "/opt/homebrew/sbin";
-assert builtins.elemAt darwinPath 5 == "/usr/local/bin";
-assert !(builtins.elem "/opt/homebrew/bin" linuxPath);
-assert builtins.all (path: builtins.elem path darwinShellPath) standardSystemPath;
-assert builtins.all (path: builtins.elem path linuxShellPath) standardSystemPath;
-assert ampMcpServers.kept.command == "kept";
-assert !(ampMcpServers ? suppressed);
 {
-  command-path-order = pkgs.runCommand "command-path-order" { } ''
-    touch $out
-  '';
+  # These assertions sat at file scope. One failure aborted the whole attrset,
+  # so every check on every system reported the same message, and the message
+  # named no invariant.
+  command-path-order =
+    assert lib.assertMsg (
+      builtins.elemAt darwinPath 3 == "/opt/homebrew/bin"
+    ) "darwin path entry 3 is ${builtins.elemAt darwinPath 3}, not /opt/homebrew/bin";
+    assert lib.assertMsg (
+      builtins.elemAt darwinPath 4 == "/opt/homebrew/sbin"
+    ) "darwin path entry 4 is ${builtins.elemAt darwinPath 4}, not /opt/homebrew/sbin";
+    assert lib.assertMsg (
+      builtins.elemAt darwinPath 5 == "/usr/local/bin"
+    ) "darwin path entry 5 is ${builtins.elemAt darwinPath 5}, not /usr/local/bin";
+    assert lib.assertMsg (
+      !(builtins.elem "/opt/homebrew/bin" linuxPath)
+    ) "the linux path carries /opt/homebrew/bin, which exists only on darwin";
+    assert lib.assertMsg (builtins.all (path: builtins.elem path darwinShellPath)
+      standardSystemPath
+    ) "the darwin shell path drops one of ${builtins.concatStringsSep " " standardSystemPath}";
+    assert lib.assertMsg (builtins.all (path: builtins.elem path linuxShellPath)
+      standardSystemPath
+    ) "the linux shell path drops one of ${builtins.concatStringsSep " " standardSystemPath}";
+    evalOnly "command-path-order";
+
+  # Named separately. Folded into command-path-order, an MCP regression
+  # reported a path failure.
+  mcp-harness-suppression =
+    assert lib.assertMsg (
+      ampMcpServers.kept.command == "kept"
+    ) "the amp MCP set dropped the kept server";
+    assert lib.assertMsg (
+      !(ampMcpServers ? suppressed)
+    ) "the amp MCP set carries suppressed, which harnessSuppressedServers removes";
+    evalOnly "mcp-harness-suppression";
   editor-config = import ./editor-config.nix { inherit pkgs; };
   harness-instructions = import ./harness-instructions.nix {
     inherit pkgs;
@@ -90,9 +119,7 @@ assert !(ampMcpServers ? suppressed);
         inherit (pkgs) lib;
       }
     else
-      pkgs.runCommand "cua-computer-server-not-applicable" { } ''
-        touch $out
-      '';
+      evalOnly "cua-computer-server-not-applicable";
   go-tests = pkgs.sysinit-gotools;
   gate-config = import ./gate-config.nix {
     inherit pkgs;
