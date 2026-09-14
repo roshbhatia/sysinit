@@ -108,7 +108,7 @@ in
         target = if lib.hasInfix "arrakis" path then "arrakis" else "vorgossos";
       in
       {
-        source = yaml.generate "lifier-${target}-boot.yaml" {
+        source = (pkgs.formats.json { }).generate "lifier-${target}-boot.json" {
           apiVersion = "cdi.kubevirt.io/v1beta1";
           kind = "DataVolume";
           metadata = {
