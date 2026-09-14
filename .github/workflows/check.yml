@@ -26,6 +26,7 @@ jobs:
       - uses: actions/checkout@v7
 
       - uses: DeterminateSystems/nix-installer-action@v22
+        if: runner.environment != 'self-hosted'
 
       - uses: ./.github/actions/cachix
         with:
@@ -72,12 +73,13 @@ jobs:
   # never reaches checks.x86_64-linux. The Linux bodies, cua-computer-server
   # among them, had never run anywhere.
   verify-linux:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && fromJSON('["self-hosted", "Linux", "X64", "arrakis", "nix"]') || 'ubuntu-latest' }}
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
 
       - uses: DeterminateSystems/nix-installer-action@v22
+        if: runner.environment != 'self-hosted'
 
       - uses: ./.github/actions/cachix
         with:

@@ -37,12 +37,13 @@ jobs:
             os: ubuntu-latest
           - system: aarch64-linux
             os: ubuntu-24.04-arm
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.system == 'x86_64-linux' && github.ref == 'refs/heads/main' && fromJSON('["self-hosted", "Linux", "X64", "arrakis", "nix"]') || matrix.os }}
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7
 
       - uses: DeterminateSystems/nix-installer-action@v22
+        if: runner.environment != 'self-hosted'
 
       - uses: ./.github/actions/cachix
         with:
@@ -52,5 +53,11 @@ jobs:
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: |
-          nix build --no-link -L \
+          nix build --out-link result -L \
             ".#homeConfigurations.${{ matrix.profile }}-${{ matrix.system }}.activationPackage"
+
+      - name: Publish Arrakis outputs
+        if: runner.environment == 'self-hosted'
+        env:
+          CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
+        run: nix path-info --recursive ./result | cachix push roshbhatia

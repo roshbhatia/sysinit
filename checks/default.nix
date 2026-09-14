@@ -56,6 +56,7 @@ let
   );
 in
 {
+  github-runner-guard = import ./github-runner-guard.nix { inherit pkgs; };
   # These assertions sat at file scope. One failure aborted the whole attrset,
   # so every check on every system reported the same message, and the message
   # named no invariant.

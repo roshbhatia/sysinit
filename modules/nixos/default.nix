@@ -2,6 +2,7 @@
 
 {
   imports = [
+    ./github-runner.nix
     ./common
   ]
   ++ lib.optional values.isDesktop ./desktop

@@ -14,6 +14,7 @@ runs:
     # no substituter and read nothing from the cache. `skipPush` keeps the read
     # path and drops only the write path.
     - uses: cachix/cachix-action@v17
+      if: runner.environment != 'self-hosted'
       with:
         name: roshbhatia
         authToken: ${{ inputs.auth-token }}

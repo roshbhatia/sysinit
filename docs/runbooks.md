@@ -159,3 +159,26 @@ first:
 ```bash
 nh clean all
 ```
+
+## Arrakis GitHub runner
+
+`github-runner-sysinit.service` runs trusted `roshbhatia/sysinit` main jobs on
+Arrakis. Labels are `self-hosted`, `Linux`, `X64`, `arrakis`, `nix`, and `tailscale`.
+PR checks use GitHub-hosted runners. Keep approval required for all external
+contributors; do not approve a PR that directs untrusted code to Arrakis.
+The runner's pre-job hook also rejects PR events and refs other than main.
+
+The NixOS module uses the host Nix daemon and existing Tailscale connection.
+It does not grant the runner sudo or access to the interactive user's home.
+The cache workflows push their output closures with the repository Cachix secret.
+
+Before first activation, mint a repository registration token and place it at
+`/var/lib/secrets/github-runner-sysinit` on Arrakis, owned by root with mode 0600.
+Keep it outside the Nix store. Registration tokens expire after one hour.
+Existing runner credentials survive restarts; changes to runner registration
+settings require a fresh token before restarting the service.
+
+Check registration with `gh api repos/roshbhatia/sysinit/actions/runners`.
+Check service logs with `journalctl -u github-runner-sysinit` on Arrakis.
+Dispatch the `Arrakis runner` workflow to verify job execution, Tailscale,
+and a Nix build through the daemon.
