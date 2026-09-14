@@ -35,7 +35,12 @@ in
     connect-timeout = 10;
 
     # Fields are: uri system sshKey maxJobs speedFactor supported mandatory hostKey.
-    builders = "ssh-ng://rshnbhatia@arrakis x86_64-linux /Users/${user}/.ssh/id_ed25519 8 2 nixos-test,benchmark,big-parallel,kvm - -";
+    #
+    # The tailnet FQDN, not the bare name. The daemon runs as root, which does
+    # not read the user ssh config that maps `arrakis` to the tailnet. Root
+    # resolves the bare name through LAN DNS to 192.168.50.18, so the builder
+    # worked at home and vanished anywhere else.
+    builders = "ssh-ng://rshnbhatia@arrakis.stork-eel.ts.net x86_64-linux /Users/${user}/.ssh/id_ed25519 8 2 nixos-test,benchmark,big-parallel,kvm - -";
     builders-use-substitutes = true;
 
     # The 3600 default makes a switch within an hour of a cachix push rebuild
