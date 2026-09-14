@@ -1,17 +1,10 @@
 {
   pkgs,
-  inputs,
   config,
   ...
 }:
 
 let
-  swayfxPkg = inputs.swayfx.packages.${pkgs.stdenv.hostPlatform.system}.default;
-
-  swayfxWrapped = pkgs.sway.override {
-    sway-unwrapped = swayfxPkg;
-  };
-
   swayWrapped = pkgs.writeShellScriptBin "sway-wrapped" ''
     set -euo pipefail
 
@@ -32,7 +25,7 @@ let
 
     ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd --all || true
 
-    exec ${swayfxWrapped}/bin/sway --unsupported-gpu "$@"
+    exec ${pkgs.sysinit-swayfx}/bin/sway --unsupported-gpu "$@"
   '';
 in
 {
@@ -60,7 +53,7 @@ in
   programs = {
     sway = {
       enable = true;
-      package = swayfxWrapped;
+      package = pkgs.sysinit-swayfx;
       xwayland.enable = true;
     };
 

@@ -355,13 +355,8 @@
           linuxCacheAttrs = [
             "cua-computer-server"
             "sunshine"
+            "sysinit-swayfx"
           ];
-
-          # Consumed straight from a flake input, so no overlay attr names it
-          # and `cacheAttrs` cannot reach it. swayfx tracks master and its
-          # source build is 1298 derivations, which arrakis repeated after
-          # every input bump.
-          linuxInputPackages = system: [ inputs.swayfx.packages.${system}.default ];
         in
         lib.genAttrs cacheSystems (
           system:
@@ -374,13 +369,11 @@
             # source build on the laptop rather than as a CI failure.
             cacheBundle = pkgs.symlinkJoin {
               name = "sysinit-cache-bundle-${system}";
-              paths =
-                map (
-                  name:
-                  pkgs.${name}
-                    or (throw "cacheAttrs names `${name}`, which the overlay set does not define on ${system}")
-                ) (cacheAttrs ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux linuxCacheAttrs)
-                ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux (linuxInputPackages system);
+              paths = map (
+                name:
+                pkgs.${name}
+                  or (throw "cacheAttrs names `${name}`, which the overlay set does not define on ${system}")
+              ) (cacheAttrs ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux linuxCacheAttrs);
             };
             # Trimmed profile of this user's own CLIs for cloud agent boxes.
             # Every component is in cacheAttrs, so only the join builds; the
