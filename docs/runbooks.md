@@ -146,7 +146,8 @@ built result rooted through review and activation:
 
 ```bash
 nh darwin build . --out-link result-system
-nh darwin switch ./result-system
+sudo nix-env -p /nix/var/nix/profiles/system --set "$(realpath result-system)"
+sudo ./result-system/sw/bin/darwin-rebuild activate
 ```
 
 On the work Mac, run these commands from `sysinit.laurel`. Update its pinned

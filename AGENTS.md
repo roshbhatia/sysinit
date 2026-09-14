@@ -83,8 +83,9 @@ nh darwin switch                # apply config to system (use deliberately)
 ```
 
 Use the installed `nh` for routine builds and switches; use `nix develop` for
-checks. For separate build and activation steps, use `nh darwin build .
---out-link result-system`, then `nh darwin switch ./result-system`.
+checks. For separate build and activation steps, keep `nh darwin build .
+--out-link result-system` rooted, then use the native activation recipe in
+`docs/runbooks.md`. NH's Darwin command rejects store-path installables.
 `README.md` bootstraps the first switch with `nix run nixpkgs#nh`.
 
 `checks/default.nix` is the list of flake checks. Read it rather than a copy

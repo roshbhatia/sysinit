@@ -43,10 +43,11 @@ To review a build before activation, retain its output:
 
 ```bash
 nh darwin build . --out-link result-system
-nh darwin switch ./result-system
+sudo nix-env -p /nix/var/nix/profiles/system --set "$(realpath result-system)"
+sudo ./result-system/sw/bin/darwin-rebuild activate
 ```
 
-The second command uses the built output. Keep `result-system` until activation
+Activation uses the built output. Keep `result-system` until activation
 succeeds, then remove the link when it is no longer needed.
 
 ### Profiles
