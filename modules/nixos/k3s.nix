@@ -31,6 +31,7 @@
     extraFlags = builtins.concatStringsSep " " [
       "--write-kubeconfig-mode=0644"
       "--tls-san=arrakis"
+      "--nonroot-devices"
       "--resolv-conf=/etc/k3s/resolv.conf"
     ];
   };
