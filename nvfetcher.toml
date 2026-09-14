@@ -3,10 +3,6 @@
 
 # Go packages (note: vendorHash must still be updated manually) These use v-prefixed
 # tags (e.g.
-[go-enum]
-src.github = "abice/go-enum"
-fetch.github = "abice/go-enum"
-
 [gomvp]
 src.github_tag = "abenz1267/gomvp"
 fetch.github = "abenz1267/gomvp"

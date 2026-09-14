@@ -25,7 +25,6 @@
   (import ./calldiff.nix)
   (import ./python313.nix)
   (import ./kubernetes-zeitgeist.nix)
-  (import ./go-enum.nix)
   (import ./gomvp.nix)
   (import ./mermaid-ascii.nix)
   (import ./pretty-mermaid.nix)

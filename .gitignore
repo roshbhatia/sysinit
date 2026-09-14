@@ -18,6 +18,10 @@ nix.secrets.conf
 # AI Tooling
 .claude/
 .sysinit/
+
+# Determinate writes a root-owned sentry cache here when nix runs under sudo
+# with XDG_CACHE_HOME unset. It breaks `nix eval --impure` on a dirty tree.
+.cache/
 .serena
 !AGENTS.md
 .pi/
