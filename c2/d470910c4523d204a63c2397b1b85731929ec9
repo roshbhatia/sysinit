@@ -1,0 +1,19 @@
+.ast-grep/rules/nix-overlay-test-skip.yml
+  s_429700c772be9c::t_45bca7c2d1ec2c 6-11,13-15,19-37
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "c2d470910c4523d204a63c2397b1b85731929ec9",
+  "prompts": {},
+  "sessions": {
+    "s_429700c772be9c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "12db108b-88bf-415b-992d-e126bb2b685a",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
