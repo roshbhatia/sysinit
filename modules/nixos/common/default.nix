@@ -77,6 +77,7 @@
       "audio"
       "docker"
       "libvirtd"
+      "kvm"
     ];
     shell = pkgs.nushell;
     openssh.authorizedKeys.keys = [
