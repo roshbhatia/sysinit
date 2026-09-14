@@ -50,7 +50,7 @@ jobs:
             "$AGENT_TOOLSDIRECTORY" || true
           df -h /
 
-      - uses: DeterminateSystems/nix-installer-action@v22
+      - uses: DeterminateSystems/nix-installer-action@v23
         if: runner.environment != 'self-hosted'
 
       - uses: ./.github/actions/cachix

@@ -39,7 +39,7 @@ jobs:
     runs-on: ${{ matrix.system == 'x86_64-linux' && github.ref == 'refs/heads/main' && fromJSON('["self-hosted", "Linux", "X64", "arrakis", "nix"]') || matrix.os }}
     steps:
       - uses: actions/checkout@v7
-      - uses: DeterminateSystems/nix-installer-action@v22
+      - uses: DeterminateSystems/nix-installer-action@v23
         if: runner.environment != 'self-hosted'
       - uses: ./.github/actions/cachix
         with:
