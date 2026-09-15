@@ -1,7 +1,7 @@
 { pkgs }:
 let
   weztermRoot = pkgs.sysinit-wezterm-source;
-  weztermLua = weztermRoot + "/lua";
+  weztermLua = pkgs.sysinit-wezterm-lua;
   nvimRoot = pkgs.sysinit-nvim-source;
 in
 pkgs.runCommand "editor-config-check"
