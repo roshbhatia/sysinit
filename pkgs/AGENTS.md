@@ -37,8 +37,9 @@ used to be packages here; `internal/guard`, `internal/lintgate`, and
 `utils/main.go` dispatches on `argv[0]`, so one binary answers to its names.
 No gate provider lives here. `prose-gate` moved to gate's `extras/` in
 2026-09. The rules live in `roshbhatia/prose-style` and reach gate through
-`modules/home/programs/llm/gate-defaults.nix`. Sysinit retains desktop integration
-commands. `go-utils` owns shared Git, path, and workspace primitives.
+`modules/home/programs/llm/gate-defaults.nix`. Sysinit retains the personal status line and compatibility dispatch.
+`agent-signals`, `firefox-tabs`, and `worker` own the extracted implementations.
+Changes owns `ws`. `go-utils` owns shared Git, path, and workspace primitives.
 
 ### What the model can and cannot see
 
@@ -51,12 +52,11 @@ Stop continues the turn exactly as `decision: block` does, so gate's
 
 ## Build
 
-`overlays/sysinit-gotools.nix` builds the module once as `sysinit-gotools`,
-then publishes `utils` under every name in its `links` list, each a wrapper
-that pins `git` and `curl` on PATH.
-Adding a command means a `commands` entry and a `links` entry in `main.go`,
-and the same name in the overlay's `links`. `main_test.go` compares the Go command and link maps. Check overlay aliases when
-changing either map.
+`overlays/sysinit-gotools.nix` builds the remaining module as `sysinit-gotools`.
+Its `sysinit-utils` output links external commands to their owning packages.
+`utils <command>` forwards through pinned absolute paths. `agent-statusline`
+remains a local wrapper. `main_test.go` compares the Go command and link maps.
+Check the overlay's `external` map when changing aliases.
 
 `buildGoModule` runs the Go tests during its check phase, and the `go-tests`
 flake check builds that package, so `nix flake check` covers them. From a

@@ -74,9 +74,13 @@ let
     inherit (config.sysinit.theme) transparency;
   };
   launcherConfig = {
+    clipboard = true;
+    stateDir = "${home}/.local/state/sysinit/launcher";
+    recencyFile = "${home}/.local/state/sysinit/launcher_recency.json";
+    emojiFile = "${home}/.local/state/sysinit/launcher_emoji.json";
     wezterm = "${pkgs.wezterm}/bin/wezterm";
     sy = "/etc/profiles/per-user/${config.home.username}/bin/sy";
-    fftabs = "${pkgs.sysinit-utils}/bin/firefox-tabs";
+    fftabs = "${pkgs.firefox-tabs}/bin/firefox-tabs";
     firefoxProfileRoot = "${home}/Library/Application Support/Firefox/Profiles";
     bat = "${pkgs.bat}/bin/bat";
     # Read by the launcher's `:` mode. Built from the same CLDR annotations
@@ -166,6 +170,7 @@ in
     sysinit.hammerspoon.appExcludes = lib.mkBefore defaultAppExcludes;
 
     home.file = {
+      ".hammerspoon/Spoons/CommandPalette.spoon".source = pkgs.command-palette;
       ".hammerspoon/init.lua".source = ./init.lua;
       ".hammerspoon/lua".source = ./lua;
       ".config/sysinit/launcher_config.json".text = builtins.toJSON launcherConfig;

@@ -103,7 +103,7 @@
     };
 
     changes = {
-      url = "github:roshbhatia/changes/v0.13.0";
+      url = "github:roshbhatia/changes";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         systems.follows = "systems";
@@ -133,6 +133,22 @@
       };
     };
 
+    agent-signals = {
+      url = "github:roshbhatia/agent-signals";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    firefox-tabs = {
+      url = "github:roshbhatia/firefox-tabs";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    worker = {
+      url = "github:roshbhatia/worker";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    command-palette = {
+      url = "github:roshbhatia/CommandPalette.spoon";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     agent-notes = {
       url = "github:roshbhatia/agent-notes";
       inputs.nixpkgs.follows = "nixpkgs";

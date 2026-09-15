@@ -30,6 +30,10 @@ not restate any of those here.
   crush, goose, hermes. None of the three exposes a deny mechanism this repo
   knows how to drive. Thirteen declare `status_patterns = [ ]`, meaning the
   deck plugin's shared default strings, which have not been observed per agent
+- `agent-signals` owns the pane-state writer and shared notification fragments.
+  `worker` owns pane execution and log viewing; Changes owns `ws`.
+  `CommandPalette.spoon` owns the Hammerspoon launcher. This repository supplies
+  its theme, sources, hotkeys, and screenshot callbacks.
 - The rest of `modules/home/programs/llm/` splits by role. `lib/` is
   evaluation-time helpers. `runtime/` is the agent-agnostic runtime a harness
   hook executes: notifier, state bus, gates, guard bodies. `skills/` is the

@@ -30,17 +30,15 @@ let
     }
   '';
 
-  paths = builtins.readFile ./paths.sh;
+  paths = builtins.readFile (pkgs.agent-signals-source + "/runtime/paths.sh");
 
-  identity = builtins.readFile ./agent-identity.sh;
+  identity = builtins.readFile (pkgs.agent-signals-source + "/runtime/agent-identity.sh");
 
-  group = builtins.readFile ./agent-group.sh;
+  group = builtins.readFile (pkgs.agent-signals-source + "/runtime/agent-group.sh");
 
-  reviewSuffix = builtins.readFile ./agent-review-suffix.sh;
+  busyPanes = builtins.readFile (pkgs.agent-signals-source + "/runtime/agent-busy-panes.sh");
 
-  busyPanes = builtins.readFile ./agent-busy-panes.sh;
-
-  classify = builtins.readFile ./agent-classify.sh;
+  classify = builtins.readFile (pkgs.agent-signals-source + "/runtime/agent-classify.sh");
 
   joinFragments = lib.concatStringsSep "\n";
 
@@ -58,26 +56,7 @@ let
       --background-color '#FFFFFF' '${genericSvg}' --output "$out/agent.png"
   '';
 
-  script = pkgs.writeShellApplication {
-    name = "agent-notify";
-    runtimeInputs = [
-      pkgs.jq
-      pkgs.git
-      pkgs.coreutils
-      pkgs.wezterm
-    ]
-    ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ pkgs.alerter ];
-    bashOptions = [ ];
-    text = joinFragments [
-      paths
-      group
-      reviewSuffix
-      identity
-      labels
-      classify
-      (builtins.readFile ./agent-notify.sh)
-    ];
-  };
+  script = pkgs.mkAgentNotifier { inherit pkgs labels; };
 
   promptScript = pkgs.writeShellApplication {
     name = "agent-prompt";
@@ -173,7 +152,7 @@ let
     bashOptions = [ ];
     text = joinFragments [
       group
-      (builtins.readFile ./agent-focus.sh)
+      (builtins.readFile (pkgs.agent-signals-source + "/runtime/agent-focus.sh"))
     ];
   };
 in

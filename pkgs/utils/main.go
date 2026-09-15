@@ -6,13 +6,9 @@ import (
 	"path/filepath"
 	"sort"
 
-	"github.com/roshbhatia/sysinit/pkgs/utils/internal/agentstate"
-	"github.com/roshbhatia/sysinit/pkgs/utils/internal/fftabs"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/forward"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/statusline"
-	"github.com/roshbhatia/sysinit/pkgs/utils/internal/watch"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/wezspawn"
-	"github.com/roshbhatia/sysinit/pkgs/utils/internal/worker"
-	"github.com/roshbhatia/sysinit/pkgs/utils/internal/workspace"
 )
 
 type command struct {
@@ -22,13 +18,13 @@ type command struct {
 }
 
 var commands = map[string]command{
-	"agent-state":  {name: "agent-state", summary: agentstate.Summary, run: agentstate.Run},
-	"firefox-tabs": {name: "firefox-tabs", summary: fftabs.Summary, run: fftabs.Run},
+	"agent-state":  {name: "agent-state", summary: "publish pane status", run: forward.Command("SYSINIT_AGENT_STATE", "agent-state")},
+	"firefox-tabs": {name: "firefox-tabs", summary: "read Firefox session tabs", run: forward.Command("SYSINIT_FIREFOX_TABS", "firefox-tabs")},
 	"statusline":   {name: "statusline", summary: statusline.Summary, run: statusline.Run},
-	"watch":        {name: "watch", summary: watch.Summary, run: watch.Run},
+	"watch":        {name: "watch", summary: "view worker logs and pane status", run: forward.Command("SYSINIT_AGENT_WATCH", "agent-watch")},
 	"wezspawn":     {name: "wezspawn", summary: wezspawn.Summary, run: wezspawn.Run},
-	"worker":       {name: "worker", summary: worker.Summary, run: worker.Run},
-	"workspace":    {name: "workspace", summary: workspace.Summary, run: workspace.Run},
+	"worker":       {name: "worker", summary: "run a command in a reused pane", run: forward.Command("SYSINIT_WORKER", "worker")},
+	"workspace":    {name: "workspace", summary: "inspect workspace repositories and changes", run: forward.Command("SYSINIT_WORKSPACE", "ws")},
 }
 
 type link struct {

@@ -9,7 +9,7 @@ let
 
     src = ../pkgs;
 
-    vendorHash = "sha256-/+jspwRJYr8+w228iNMkoD28VZI+HR6oRJzNtN3r5B4=";
+    vendorHash = "sha256-LLhR96vCSXd90RwwoFHEtMCik4p1iVVU2YGcIkIuR9k=";
 
     nativeCheckInputs = [ final.git ];
 
@@ -157,14 +157,13 @@ in
 
   sysinit-utils =
     let
-      links = [
-        "agent-state"
-        "agent-statusline"
-        "agent-watch"
-        "firefox-tabs"
-        "worker"
-        "ws"
-      ];
+      external = {
+        agent-state = "${final.agent-state}/bin/agent-state";
+        agent-watch = "${final.worker}/bin/agent-watch";
+        firefox-tabs = "${final.firefox-tabs}/bin/firefox-tabs";
+        worker = "${final.worker}/bin/worker";
+        ws = "${final.workspace-cli}/bin/ws";
+      };
 
       runtimePath = final.lib.makeBinPath [
         final.git
@@ -183,13 +182,20 @@ in
       ''
         mkdir -p "$out/bin"
         makeWrapper "${sysinit-gotools}/bin/utils" "$out/bin/utils" \
+          --set SYSINIT_AGENT_STATE "${external.agent-state}" \
+          --set SYSINIT_AGENT_WATCH "${external.agent-watch}" \
+          --set SYSINIT_FIREFOX_TABS "${external.firefox-tabs}" \
+          --set SYSINIT_WORKER "${external.worker}" \
+          --set SYSINIT_WORKSPACE "${external.ws}" \
           --set SYSINIT_WEZSPAWN "${final.wezspawn}/bin/wezspawn" \
           --prefix PATH : "${runtimePath}"
         ln -s "${final.wezspawn}/bin/wezspawn" "$out/bin/wezspawn"
-        ${final.lib.concatMapStringsSep "\n" (name: ''
-          makeWrapper "${sysinit-gotools}/bin/utils" "$out/bin/${name}" \
-            --argv0 "${name}" \
-            --prefix PATH : "${runtimePath}"
-        '') links}
+        makeWrapper "${sysinit-gotools}/bin/utils" "$out/bin/agent-statusline" \
+          --argv0 agent-statusline --prefix PATH : "${runtimePath}"
+        ${final.lib.concatStringsSep "\n" (
+          final.lib.mapAttrsToList (name: binary: ''
+            ln -s "${binary}" "$out/bin/${name}"
+          '') external
+        )}
       '';
 }

@@ -41,6 +41,26 @@
         "type": "github"
       }
     },
+    "agent-signals": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1789495655,
+        "narHash": "sha256-vky7/X0pmu86ScFcEW595Gge7mwDlqhDS8jM5Nfz+h4=",
+        "owner": "roshbhatia",
+        "repo": "agent-signals",
+        "rev": "93c3c1212b08429a807f3d789718d0c899422b61",
+        "type": "github"
+      },
+      "original": {
+        "owner": "roshbhatia",
+        "repo": "agent-signals",
+        "type": "github"
+      }
+    },
     "ask": {
       "inputs": {
         "nixpkgs": [
@@ -187,16 +207,15 @@
         ]
       },
       "locked": {
-        "lastModified": 1789155456,
-        "narHash": "sha256-iwoqmwUpZ3C9e7YUQ05MXq97x9QMrdI8nBomuJ64S10=",
+        "lastModified": 1789496005,
+        "narHash": "sha256-e4x4Ao2YozBMElNCaPNITAkjlUTxOFYMK85t8a6Olcs=",
         "owner": "roshbhatia",
         "repo": "changes",
-        "rev": "4062e38661501a05ca99f54e6a5e325cd6c8b74b",
+        "rev": "6cc2e911056e91a99b5aa7f61a76710328101caf",
         "type": "github"
       },
       "original": {
         "owner": "roshbhatia",
-        "ref": "v0.13.0",
         "repo": "changes",
         "type": "github"
       }
@@ -219,6 +238,26 @@
         "owner": "roshbhatia",
         "ref": "v0.1.0",
         "repo": "citelock",
+        "type": "github"
+      }
+    },
+    "command-palette": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1789496004,
+        "narHash": "sha256-ar4aBMct79hvJH6szIrBNGJBQVC+vtlHehi+nP9ZQ9A=",
+        "owner": "roshbhatia",
+        "repo": "CommandPalette.spoon",
+        "rev": "8e7b3aa81686303d212d433daf5c432efae1f0ec",
+        "type": "github"
+      },
+      "original": {
+        "owner": "roshbhatia",
+        "repo": "CommandPalette.spoon",
         "type": "github"
       }
     },
@@ -397,6 +436,26 @@
       "original": {
         "owner": "rafaelmardojai",
         "repo": "firefox-gnome-theme",
+        "type": "github"
+      }
+    },
+    "firefox-tabs": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1789495655,
+        "narHash": "sha256-0QtWgeI3pMQrkU5Fy0hO6A1Tia0iIVYvjqsrf4dWZf8=",
+        "owner": "roshbhatia",
+        "repo": "firefox-tabs",
+        "rev": "f667e2fe4c6b8b3d2889f936079567e7a7ac3752",
+        "type": "github"
+      },
+      "original": {
+        "owner": "roshbhatia",
+        "repo": "firefox-tabs",
         "type": "github"
       }
     },
@@ -1294,16 +1353,19 @@
     "root": {
       "inputs": {
         "agent-notes": "agent-notes",
+        "agent-signals": "agent-signals",
         "ask": "ask",
         "ask-extras": "ask-extras",
         "ast-grep-skills": "ast-grep-skills",
         "changes": "changes",
         "citelock": "citelock",
+        "command-palette": "command-palette",
         "cupcake": "cupcake",
         "darwin": "darwin",
         "determinate": "determinate",
         "ere": "ere",
         "firefox-addons": "firefox-addons",
+        "firefox-tabs": "firefox-tabs",
         "gate": "gate",
         "hermes-agent": "hermes-agent",
         "home-manager": "home-manager_2",
@@ -1327,7 +1389,8 @@
         "sysinit-wezterm": "sysinit-wezterm",
         "systems": "systems_8",
         "tether": "tether",
-        "traces": "traces"
+        "traces": "traces",
+        "worker": "worker"
       }
     },
     "roster": {
@@ -1881,6 +1944,26 @@
       "original": {
         "owner": "pyproject-nix",
         "repo": "uv2nix",
+        "type": "github"
+      }
+    },
+    "worker": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1789496004,
+        "narHash": "sha256-L77Q8ckaqiBoQhrf7EyyRYZ2Tj6yXcGe3DqIRqyzePY=",
+        "owner": "roshbhatia",
+        "repo": "worker",
+        "rev": "d680c5f5b869976bbdea2986c4c38f373929956b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "roshbhatia",
+        "repo": "worker",
         "type": "github"
       }
     }
