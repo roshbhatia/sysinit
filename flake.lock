@@ -207,11 +207,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789496005,
-        "narHash": "sha256-e4x4Ao2YozBMElNCaPNITAkjlUTxOFYMK85t8a6Olcs=",
+        "lastModified": 1789497206,
+        "narHash": "sha256-fgOydSHHFqmTr2vMm4GgI2lCOqUyI5e0y4aa1OGrZGA=",
         "owner": "roshbhatia",
         "repo": "changes",
-        "rev": "6cc2e911056e91a99b5aa7f61a76710328101caf",
+        "rev": "a260ae2eb8b61ee59c57650a1cf9d5a3dca4f196",
         "type": "github"
       },
       "original": {
@@ -1954,11 +1954,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789496004,
-        "narHash": "sha256-L77Q8ckaqiBoQhrf7EyyRYZ2Tj6yXcGe3DqIRqyzePY=",
+        "lastModified": 1789496811,
+        "narHash": "sha256-+8b0n/UC4x79nmQjPPVVGXAFVlxEz+GVpsuX7B9JwTY=",
         "owner": "roshbhatia",
         "repo": "worker",
-        "rev": "d680c5f5b869976bbdea2986c4c38f373929956b",
+        "rev": "cc5d581d9c05f79280297e692e5a9551fc7ffd9f",
         "type": "github"
       },
       "original": {
