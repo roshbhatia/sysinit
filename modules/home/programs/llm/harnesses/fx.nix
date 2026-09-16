@@ -45,7 +45,7 @@ in
     format = "json";
     content = {
       provider = "codex";
-      models.codex = config.programs.codex.settings.model;
+      models.codex = config.programs.codex.settings.model or "gpt-6-astra";
       permission_mode = "auto";
       permission = fxPermission;
     };
