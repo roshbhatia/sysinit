@@ -15,17 +15,19 @@ def main [] {
             }
 
             let status = wpctl status
-            
+
             let lines = $status | lines
             let sink_start = $lines | zip (0..(($lines | length) - 1)) | where {|it| $it.0 =~ "Sinks:"} | get 1 | first
-            
-            let next_section = $lines | zip (0..(($lines | length) - 1)) 
-                | skip ($sink_start + 1) 
-                | where {|it| ($it.0 | str trim | is-empty) or ($it.0 | str starts-with " ") == false} 
-                | get 1 | first
+
+            let next_section = $lines
+            | zip (0..(($lines | length) - 1))
+            | skip ($sink_start + 1)
+            | where {|it| ($it.0 | str trim | is-empty) or ($it.0 | str starts-with " ") == false}
+            | get 1
+            | first
 
             let sink_lines = $lines | slice ($sink_start + 1)..<$next_section | str trim
-            
+
             let sinks = $sink_lines | each {|line|
                 let is_active = $line | str starts-with "*"
                 let clean_line = if $is_active { $line | str replace "*" "" | str trim } else { $line }
@@ -48,14 +50,14 @@ def main [] {
 "
 
             let selected_name = $rofi_input | ^rofi -dmenu -p "Select Audio Output" -i -markup-rows
-            
+
             if ($selected_name | is-empty) { exit 0 }
 
             let clean_selected = $selected_name | str replace --all r#'\x1b\[[0-9;]*m'# "" | str replace "* " "" | str trim
             let target = $sinks | where name == $clean_selected | first
 
             wpctl set-default $target.id
-            
+
             if (which notify-send | is-not-empty) {
                 ^notify-send "Audio Output Switched" $"Default output set to: ($target.name)" -i audio-speakers
             }
@@ -68,7 +70,7 @@ def main [] {
 
             let devices = ^SwitchAudioSource -a -t output | lines
             let current = ^SwitchAudioSource -c
-            
+
             let rofi_input = $devices | each {|d|
                 if $d == $current { $"* ($d)" } else { $d }
             } | str join "
@@ -87,9 +89,9 @@ def main [] {
 
             if ($selected | is-empty) { exit 0 }
             let clean_selected = $selected | str replace "* " "" | str trim
-            
+
             ^SwitchAudioSource -s $clean_selected
-            
+
             osascript -e $'display notification "Default output set to: ($clean_selected)" with title "Audio Output Switched"'
         }
         _ => {

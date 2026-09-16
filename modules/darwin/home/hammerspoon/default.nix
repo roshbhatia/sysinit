@@ -173,8 +173,10 @@ in
       ".hammerspoon/Spoons/CommandPalette.spoon".source = pkgs.command-palette;
       ".hammerspoon/init.lua".source = ./init.lua;
       ".hammerspoon/lua".source = ./lua;
-      ".config/sysinit/launcher_config.json".text = builtins.toJSON launcherConfig;
-      ".config/sysinit/theme_config.json".text = builtins.toJSON themeConfig;
+      ".config/sysinit/launcher_config.json".source =
+        pkgs.sysinit.writeJSON "hammerspoon-default.json" launcherConfig;
+      ".config/sysinit/theme_config.json".source =
+        pkgs.sysinit.writeJSON "hammerspoon-default.json" themeConfig;
     };
   };
 }

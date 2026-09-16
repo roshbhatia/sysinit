@@ -24,7 +24,7 @@
         openssh
         tailscale
       ];
-      extraEnvironment.ACTIONS_RUNNER_HOOK_JOB_STARTED = pkgs.writeShellScript "sysinit-runner-job-guard.sh" (
+      extraEnvironment.ACTIONS_RUNNER_HOOK_JOB_STARTED = pkgs.sysinit.writeShellScript "sysinit-runner-job-guard.sh" (
         builtins.readFile ./github-runner-guard.sh
       );
     };

@@ -81,6 +81,14 @@ files_for() {
   fi
 }
 
+format_files=()
+while IFS= read -r file; do
+  [ -f "${file}" ] && format_files+=("${file}")
+done < <(files_for '.' '(^treefmt\.toml$|^flake/formatter\.nix$|^hack/format\.sh$)')
+if [ "${#format_files[@]}" -gt 0 ] && command -v treefmt > /dev/null 2>&1; then
+  run formatting hack/format.sh --check "${format_files[@]}"
+fi
+
 ast_files=()
 while IFS= read -r file; do
   [ -n "${file}" ] && ast_files+=("${file}")

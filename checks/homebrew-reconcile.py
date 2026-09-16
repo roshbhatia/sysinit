@@ -13,26 +13,38 @@ class ReconcileTest(unittest.TestCase):
             root = Path(directory)
             programs = {
                 "snapshot": "Path('snapshot-started').touch()\n"
-                            "wait_for('check-started')\n"
-                            "print('inventory')\n",
+                "wait_for('check-started')\n"
+                "print('inventory')\n",
                 "check": "if Path('fixed').exists(): sys.exit(0)\n"
-                         "Path('check-started').touch()\n"
-                         "wait_for('snapshot-started')\n"
-                         "time.sleep(0.1)\nPath('check-finished').touch()\nsys.exit(1)\n",
+                "Path('check-started').touch()\n"
+                "wait_for('snapshot-started')\n"
+                "time.sleep(0.1)\nPath('check-finished').touch()\nsys.exit(1)\n",
                 "reconcile": "assert Path('check-finished').exists()\nPath('fixed').touch()\n",
             }
             for name, program in programs.items():
                 script = root / name
-                script.write_text("#!" + sys.executable + "\nfrom pathlib import Path\nimport sys,time\n"
-                                  "def wait_for(name):\n"
-                                  " deadline = time.monotonic() + 3\n"
-                                  " while not Path(name).exists():\n"
-                                  "  assert time.monotonic() < deadline, name\n"
-                                  "  time.sleep(0.01)\n" + program)
+                script.write_text(
+                    "#!"
+                    + sys.executable
+                    + "\nfrom pathlib import Path\nimport sys,time\n"
+                    "def wait_for(name):\n"
+                    " deadline = time.monotonic() + 3\n"
+                    " while not Path(name).exists():\n"
+                    "  assert time.monotonic() < deadline, name\n"
+                    "  time.sleep(0.01)\n" + program
+                )
                 script.chmod(0o755)
-            result = subprocess.run(["bash", sys.argv[1], str(root / "state"),
-                                     *[str(root / name) for name in programs]],
-                                    cwd=root, timeout=10, check=False)
+            result = subprocess.run(
+                [
+                    "bash",
+                    sys.argv[1],
+                    str(root / "state"),
+                    *[str(root / name) for name in programs],
+                ],
+                cwd=root,
+                timeout=10,
+                check=False,
+            )
             self.assertEqual(result.returncode, 0)
             self.assertEqual((root / "state").read_text(), "inventory\n")
 
@@ -52,15 +64,29 @@ class ReconcileTest(unittest.TestCase):
             }
             for name, body in commands.items():
                 script = root / name
-                script.write_text("#!" + shutil.which("bash") + "\nset -euo pipefail\n" + body + "\n")
+                script.write_text(
+                    "#!" + shutil.which("bash") + "\nset -euo pipefail\n" + body + "\n"
+                )
                 script.chmod(0o755)
-            env = dict(os.environ, INVENTORY=str(inventory), COUNT=str(count),
-                       MISSING=str(missing), FAILURE=str(failure))
+            env = dict(
+                os.environ,
+                INVENTORY=str(inventory),
+                COUNT=str(count),
+                MISSING=str(missing),
+                FAILURE=str(failure),
+            )
 
             def run():
-                return subprocess.run(["bash", sys.argv[1], str(state),
-                                       *[str(root / name) for name in commands]],
-                                      env=env, check=False).returncode
+                return subprocess.run(
+                    [
+                        "bash",
+                        sys.argv[1],
+                        str(state),
+                        *[str(root / name) for name in commands],
+                    ],
+                    env=env,
+                    check=False,
+                ).returncode
 
             self.assertEqual(run(), 0)
             self.assertEqual(run(), 0)

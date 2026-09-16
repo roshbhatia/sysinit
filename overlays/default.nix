@@ -16,6 +16,7 @@
       else
         prev.sunshine;
   })
+  (import ./sysinit-writers.nix)
   (import ./nvfetcher-sources.nix)
   (import ./inputs.nix { inherit inputs; })
   (import ./meat.nix { inherit inputs; })

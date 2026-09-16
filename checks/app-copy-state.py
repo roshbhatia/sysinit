@@ -23,17 +23,31 @@ class AppCopyStateTest(unittest.TestCase):
         (self.app / "payload").write_text("signed")
         self.state = self.root / "state.json"
         self.codesign = self.root / "codesign"
-        self.codesign.write_text("#!" + sys.executable + "\n" +
-            "import pathlib,sys\n" +
-            "app=pathlib.Path(sys.argv[-1])\n" +
-            "if '--verify' in sys.argv: sys.exit(0 if (app/'payload').read_text() == 'signed' else 1)\n" +
-            "print('designated => certificate leaf = test')\n")
+        self.codesign.write_text(
+            "#!"
+            + sys.executable
+            + "\n"
+            + "import pathlib,sys\n"
+            + "app=pathlib.Path(sys.argv[-1])\n"
+            + "if '--verify' in sys.argv: sys.exit(0 if (app/'payload').read_text() == 'signed' else 1)\n"
+            + "print('designated => certificate leaf = test')\n"
+        )
         self.codesign.chmod(0o755)
 
     def run_state(self, operation):
-        return subprocess.run([sys.executable, sys.argv[1], operation,
-                               str(self.source), str(self.target), str(self.state),
-                               "--codesign", str(self.codesign)], check=False).returncode
+        return subprocess.run(
+            [
+                sys.executable,
+                sys.argv[1],
+                operation,
+                str(self.source),
+                str(self.target),
+                str(self.state),
+                "--codesign",
+                str(self.codesign),
+            ],
+            check=False,
+        ).returncode
 
     def record(self):
         self.assertEqual(self.run_state("record"), 0)

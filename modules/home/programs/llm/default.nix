@@ -139,7 +139,7 @@ in
   ];
 
   xdg.dataFile = openspecSchemaFiles;
-  xdg.configFile."sysinit/mcp-clients.json".text = builtins.toJSON (
+  xdg.configFile."sysinit/mcp-clients.json".source = pkgs.sysinit.writeJSON "llm-default.json" (
     lib.genAttrs (builtins.attrNames (import ./harnesses/registry.nix)) mcpCatalog.serversFor
   );
 

@@ -16,8 +16,11 @@ class CacheTest(unittest.TestCase):
             cache = Path(str(base) + ".cache")
 
             def run():
-                return subprocess.run([sys.argv[1]], env=dict(os.environ, HOME=directory),
-                                      capture_output=True).returncode
+                return subprocess.run(
+                    [sys.argv[1]],
+                    env=dict(os.environ, HOME=directory),
+                    capture_output=True,
+                ).returncode
 
             self.assertEqual(run(), 0)
             self.assertTrue(cache.exists())
@@ -28,7 +31,9 @@ class CacheTest(unittest.TestCase):
             self.assertEqual(target.stat().st_mtime_ns, stamp)
             target.write_text('{"owned": false, "custom": 7, "retired": true}')
             self.assertEqual(run(), 0)
-            self.assertEqual(json.loads(target.read_text()), {"owned": True, "custom": 7})
+            self.assertEqual(
+                json.loads(target.read_text()), {"owned": True, "custom": 7}
+            )
             self.assertEqual(other.stat().st_mtime_ns, other_stamp)
             previous_cache = cache.read_bytes()
             target.write_text("invalid")
@@ -53,8 +58,17 @@ class CacheTest(unittest.TestCase):
             state = root / "cache"
 
             def run(operation, policy="v1"):
-                return subprocess.run([sys.executable, sys.argv[2], operation, str(state),
-                                       *map(str, files), policy], check=False).returncode
+                return subprocess.run(
+                    [
+                        sys.executable,
+                        sys.argv[2],
+                        operation,
+                        str(state),
+                        *map(str, files),
+                        policy,
+                    ],
+                    check=False,
+                ).returncode
 
             self.assertEqual(run("record"), 0)
             self.assertEqual(run("check"), 0)

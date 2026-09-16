@@ -28,7 +28,7 @@ let
         name: file:
         "  ${lib.escapeShellArg name})\n    capture ${lib.escapeShellArg name} ${lib.escapeShellArg file.path} ${file.format}\n    ;;";
     in
-    pkgs.writeShellApplication {
+    pkgs.sysinit.writeShellApplication {
       name = "sysinit-llm-capture";
       runtimeInputs = [
         pkgs.jq
@@ -63,7 +63,7 @@ let
             if file.contentFile != null then
               file.contentFile
             else
-              pkgs.writeText "managed-${name}-new.json" (builtins.toJSON file.content);
+              pkgs.sysinit.writeJSON "managed-${name}-new.json" file.content;
         in
         [
           name
@@ -80,7 +80,7 @@ let
       mkForget = _name: file: "forget_base ${lib.escapeShellArg file.path}";
       unusedDirective = "# shellcheck disable=SC2329";
     in
-    pkgs.writeShellApplication {
+    pkgs.sysinit.writeShellApplication {
       name = "sysinit-llm-reconcile";
       runtimeInputs = [
         pkgs.jq
@@ -89,7 +89,7 @@ let
       ];
       text = renderTemplate (readSource "managed-file-reconcile.sh.tmpl") {
         CACHE_MANIFEST = toString (
-          pkgs.writeText "managed-file-manifest.json" (builtins.toJSON (lib.mapAttrsToList mkArgs enabled))
+          pkgs.sysinit.writeJSON "managed-file-manifest.json" (lib.mapAttrsToList mkArgs enabled)
         );
         CACHE_TOOL = "${lib.getExe pkgs.python3} ${./managed-file-cache.py}";
         CACHE_REVISION = lib.escapeShellArg (

@@ -29,7 +29,9 @@ def run(arguments):
         state.parent.mkdir(parents=True, exist_ok=True)
         temporary = None
         try:
-            with tempfile.NamedTemporaryFile(mode="w", dir=state.parent, delete=False) as handle:
+            with tempfile.NamedTemporaryFile(
+                mode="w", dir=state.parent, delete=False
+            ) as handle:
                 temporary = Path(handle.name)
                 json.dump(current, handle)
             os.replace(temporary, state)
@@ -46,11 +48,35 @@ def main():
         return run(sys.argv[1:])
     manifest, revision = sys.argv[2:]
     for entry in json.loads(Path(manifest).read_text()):
-        name, relative, format_name, declared, declared_format, schema, enforced, retired, create = entry
+        (
+            name,
+            relative,
+            format_name,
+            declared,
+            declared_format,
+            schema,
+            enforced,
+            retired,
+            create,
+        ) = entry
         target = Path.home() / relative
-        base = target.with_name(("" if target.name.startswith(".") else ".") + target.name + ".nix-base")
-        arguments = ["check", str(base) + ".cache", str(target), str(base), declared, schema,
-                     format_name, declared_format, enforced, retired, create, revision]
+        base = target.with_name(
+            ("" if target.name.startswith(".") else ".") + target.name + ".nix-base"
+        )
+        arguments = [
+            "check",
+            str(base) + ".cache",
+            str(target),
+            str(base),
+            declared,
+            schema,
+            format_name,
+            declared_format,
+            enforced,
+            retired,
+            create,
+            revision,
+        ]
         if run(arguments):
             sys.stdout.buffer.write(name.encode() + b"\0")
     return 0

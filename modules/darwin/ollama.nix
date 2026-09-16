@@ -8,7 +8,7 @@
 let
   user = lib.escapeShellArg config.system.primaryUser;
 
-  ollamaStartScript = pkgs.writeShellScript "ollama-start" ''
+  ollamaStartScript = pkgs.sysinit.writeShellScript "ollama-start" ''
     set -euo pipefail
     /opt/homebrew/bin/ollama serve
   '';

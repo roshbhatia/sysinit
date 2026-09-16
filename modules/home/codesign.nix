@@ -50,7 +50,7 @@ let
     "${config.xdg.stateHome}/sysinit/app-copy.json"
   ];
 
-  signer = pkgs.writeShellApplication {
+  signer = pkgs.sysinit.writeShellApplication {
     name = "sysinit-codesign";
     runtimeInputs = [ pkgs.openssl ];
     text = signerScript;

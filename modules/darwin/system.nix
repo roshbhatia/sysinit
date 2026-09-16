@@ -11,7 +11,7 @@ let
   systemPath = commandPath.systemEntriesFor true;
   user = config.sysinit.user.username;
   agentRegistry = "/Users/${user}/.config/sysinit/agents.json";
-  systemGenerationPruner = pkgs.writeShellScript "sysinit-prune-system-generations" (
+  systemGenerationPruner = pkgs.sysinit.writeShellScript "sysinit-prune-system-generations" (
     builtins.readFile ./prune-system-generations.sh
   );
 in

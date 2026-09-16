@@ -8,7 +8,9 @@
 let
   cfg = config.sysinit.darwin.closedLidSsh;
   marker = "/var/db/sysinit/closed-lid-ssh-enabled";
-  monitor = pkgs.writeShellScript "sysinit-closed-lid-ssh" (builtins.readFile ./closed-lid-ssh.sh);
+  monitor = pkgs.sysinit.writeShellScript "sysinit-closed-lid-ssh" (
+    builtins.readFile ./closed-lid-ssh.sh
+  );
 in
 {
   config = lib.mkMerge [

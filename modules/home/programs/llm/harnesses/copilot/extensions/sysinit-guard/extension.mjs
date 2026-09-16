@@ -10,31 +10,34 @@ import { joinSession } from "@github/copilot-sdk/extension";
 const GUARD = "@guard@";
 
 function commandOf(toolArgs) {
-	if (!toolArgs || typeof toolArgs !== "object") return undefined;
-	const candidate = toolArgs.command ?? toolArgs.script ?? toolArgs.cmd;
-	return typeof candidate === "string" && candidate !== "" ? candidate : undefined;
+  if (!toolArgs || typeof toolArgs !== "object") return undefined;
+  const candidate = toolArgs.command ?? toolArgs.script ?? toolArgs.cmd;
+  return typeof candidate === "string" && candidate !== ""
+    ? candidate
+    : undefined;
 }
 
 joinSession({
-	hooks: {
-		onPreToolUse: (input) => {
-			const command = commandOf(input?.toolArgs);
-			if (command === undefined) return;
+  hooks: {
+    onPreToolUse: (input) => {
+      const command = commandOf(input?.toolArgs);
+      if (command === undefined) return;
 
-			const result = spawnSync(GUARD, [], {
-				input: JSON.stringify({ tool_input: { command } }),
-				encoding: "utf8",
-			});
+      const result = spawnSync(GUARD, [], {
+        input: JSON.stringify({ tool_input: { command } }),
+        encoding: "utf8",
+      });
 
-			// A guard that failed to run denies nothing. Failing closed here would
-			// brick every shell call on a machine where the store path is missing.
-			if (result.error || result.status !== 2) return;
+      // A guard that failed to run denies nothing. Failing closed here would
+      // brick every shell call on a machine where the store path is missing.
+      if (result.error || result.status !== 2) return;
 
-			return {
-				permissionDecision: "deny",
-				permissionDecisionReason:
-					result.stderr.trim() || "Denied by the sysinit destructive-command guard.",
-			};
-		},
-	},
+      return {
+        permissionDecision: "deny",
+        permissionDecisionReason:
+          result.stderr.trim() ||
+          "Denied by the sysinit destructive-command guard.",
+      };
+    },
+  },
 });

@@ -5,7 +5,7 @@
 }:
 
 let
-  swayWrapped = pkgs.writeShellScriptBin "sway-wrapped" ''
+  swayWrapped = pkgs.sysinit.writeShellScriptBin "sway-wrapped" ''
     set -euo pipefail
 
     # /run/wrappers/bin holds the setuid sudo; the store copy behind it refuses

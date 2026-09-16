@@ -75,7 +75,7 @@ in
       };
 
       ".prime/agent/extensions/pi-permission-system/config.json" = {
-        text = builtins.toJSON {
+        source = pkgs.sysinit.writeJSON "prime-agent-default.json" {
           debugLog = false;
           permissionReviewLog = true;
           inherit yoloMode;

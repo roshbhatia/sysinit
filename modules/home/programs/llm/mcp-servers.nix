@@ -5,7 +5,7 @@
   ...
 }:
 let
-  basicMemoryMcp = pkgs.writeShellScript "basic-memory-mcp" ''
+  basicMemoryMcp = pkgs.sysinit.writeShellScript "basic-memory-mcp" ''
     set -euo pipefail
 
     export PATH="${
@@ -29,7 +29,7 @@ let
     export UV_PYTHON_DOWNLOADS=never
   '';
 
-  cuaComputerServer = pkgs.writeShellScript "cua-computer-server" ''
+  cuaComputerServer = pkgs.sysinit.writeShellScript "cua-computer-server" ''
     set -euo pipefail
     ${uvEnv}
 

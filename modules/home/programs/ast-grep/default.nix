@@ -7,7 +7,7 @@
 let
   configDir = "${config.xdg.configHome}/ast-grep";
 
-  sgg = pkgs.writeShellApplication {
+  sgg = pkgs.sysinit.writeShellApplication {
     name = "sgg";
     runtimeInputs = [ pkgs.ast-grep ];
     text = ''

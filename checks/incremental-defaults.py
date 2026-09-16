@@ -23,15 +23,22 @@ class DefaultsTest(unittest.TestCase):
             if operation == "export":
                 reads.append(domain)
                 if domain not in inventory:
-                    return subprocess.CompletedProcess(args, 1, b"", b"Domain does not exist")
-                return subprocess.CompletedProcess(args, 0, plistlib.dumps(inventory[domain]), b"")
+                    return subprocess.CompletedProcess(
+                        args, 1, b"", b"Domain does not exist"
+                    )
+                return subprocess.CompletedProcess(
+                    args, 0, plistlib.dumps(inventory[domain]), b""
+                )
             key, value = rest
             inventory.setdefault(domain, {})[key] = plistlib.loads(value.encode())
             writes.append((domain, key))
             return subprocess.CompletedProcess(args, 0)
 
-        desired = [["com.apple.dock", {"size": 40}], ["new", {"enabled": False}],
-                   ["new", {"list": [1, "two"]}]]
+        desired = [
+            ["com.apple.dock", {"size": 40}],
+            ["new", {"enabled": False}],
+            ["new", {"list": [1, "two"]}],
+        ]
         with patch.object(module.subprocess, "run", side_effect=run):
             self.assertEqual(module.apply(desired, "defaults", "restart"), 2)
             self.assertEqual(reads, ["com.apple.dock", "new"])
@@ -43,8 +50,11 @@ class DefaultsTest(unittest.TestCase):
             self.assertTrue(inventory["com.apple.dock"]["unmanaged"])
 
     def test_read_error_does_not_write(self):
-        with patch.object(module.subprocess, "run", return_value=
-                          subprocess.CompletedProcess([], 1, b"", b"permission denied")) as run:
+        with patch.object(
+            module.subprocess,
+            "run",
+            return_value=subprocess.CompletedProcess([], 1, b"", b"permission denied"),
+        ) as run:
             with self.assertRaises(RuntimeError):
                 module.apply([["domain", {"key": 1}]])
             self.assertEqual(run.call_count, 1)

@@ -24,7 +24,7 @@ let
     ++ lib.mapAttrsToList (name: value: "${name}=${lib.escapeShellArg value}") cfg.onActivation.extraEnv
     ++ [ "${lib.escapeShellArg cfg.prefix}/bin/brew" ]
   );
-  inventory = pkgs.writeShellScript "homebrew-inventory" ''
+  inventory = pkgs.sysinit.writeShellScript "homebrew-inventory" ''
     set -euo pipefail
     printf '%s\n' ${
       lib.escapeShellArgs [
@@ -35,15 +35,15 @@ let
     ${brew} list --versions | LC_ALL=C sort
     ${brew} tap | LC_ALL=C sort
   '';
-  check = pkgs.writeShellScript "homebrew-check" ''
+  check = pkgs.sysinit.writeShellScript "homebrew-check" ''
     set -euo pipefail
     ${brew} bundle check --file=${lib.escapeShellArg (toString brewfile)} --no-upgrade
   '';
-  reconcile = pkgs.writeShellScript "homebrew-reconcile" ''
+  reconcile = pkgs.sysinit.writeShellScript "homebrew-reconcile" ''
     set -euo pipefail
     ${cfg.onActivation.brewBundleCmd { onlyCheck = false; }}
   '';
-  incremental = pkgs.writeShellApplication {
+  incremental = pkgs.sysinit.writeShellApplication {
     name = "sysinit-homebrew";
     runtimeInputs = [ pkgs.coreutils ];
     text = builtins.readFile ./reconcile-homebrew.sh;

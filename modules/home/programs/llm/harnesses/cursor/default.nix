@@ -16,7 +16,7 @@ let
   # `--format cursor` answers in cursor's own permission vocabulary at exit 0.
   # No --event: the normalizer keys on the payload's hook_event_name, and a
   # passed event would arrive before that mapping runs.
-  shellGuardScript = pkgs.writeShellApplication {
+  shellGuardScript = pkgs.sysinit.writeShellApplication {
     name = "cursor-gate-shell-guard";
     text = ''
       ${llmLib.guards.gateStateDir}
@@ -28,7 +28,7 @@ let
   # normalizer maps afterFileEdit onto PostToolUse with tool Edit and
   # beforeSubmitPrompt onto UserPromptSubmit, and takes the workspace from the
   # payload, so neither needs the cd below.
-  gateHookScript = pkgs.writeShellApplication {
+  gateHookScript = pkgs.sysinit.writeShellApplication {
     name = "cursor-gate-hook";
     text = ''
       ${llmLib.guards.gateStateDir}
@@ -143,7 +143,7 @@ in
       force = true;
     };
     ".cursor/hooks.json" = {
-      text = builtins.toJSON cursorHooks;
+      source = pkgs.sysinit.writeJSON "cursor-default.json" cursorHooks;
       force = true;
     };
   }

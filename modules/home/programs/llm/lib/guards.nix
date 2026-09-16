@@ -5,7 +5,7 @@ in
 rec {
   # The destructive deny rules as the JSON file gate's bash-guard provider reads.
   rulesFile =
-    pkgs: pkgs.writeText "destructive-deny-rules.json" (builtins.toJSON allowlist.destructiveDenyRules);
+    pkgs: pkgs.sysinit.writeJSON "destructive-deny-rules.json" allowlist.destructiveDenyRules;
 
   # One hook entry: the gate dispatcher for a harness and an event. The chain it
   # runs comes from ~/.config/gate/config.yaml, which gate.nix renders, so a
@@ -32,7 +32,7 @@ rec {
       event,
       format ? "claude",
     }:
-    pkgs.writeShellApplication {
+    pkgs.sysinit.writeShellApplication {
       inherit name;
       text = ''
         ${gateStateDir}

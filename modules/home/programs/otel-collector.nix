@@ -51,7 +51,7 @@ let
     };
   };
 
-  otelCollector = pkgs.writeShellApplication {
+  otelCollector = pkgs.sysinit.writeShellApplication {
     name = "otel-collector";
     text = ''
       mkdir -p "$(dirname '${telemetryFile}')"

@@ -1,6 +1,6 @@
 { lib, pkgs }:
 let
-  bridge = pkgs.writeShellScript "sysinit-mcp-gateway" ''
+  bridge = pkgs.sysinit.writeShellScript "sysinit-mcp-gateway" ''
     set -euo pipefail
     exec ${pkgs.sysinit-gotools}/bin/mcp-gateway \
       --gateway ${lib.getExe pkgs.agentgateway} \
@@ -9,7 +9,7 @@ let
 in
 name: server:
 let
-  definition = pkgs.writeText "mcp-${name}.json" (builtins.toJSON (server // { inherit name; }));
+  definition = pkgs.sysinit.writeJSON "mcp-${name}.json" (server // { inherit name; });
 in
 {
   command = toString bridge;

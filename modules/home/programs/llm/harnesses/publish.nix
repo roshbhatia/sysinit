@@ -3,7 +3,7 @@
 # Publish the whole entry, not a chosen subset. The subset is what let
 # neovim, wezterm and seshy each keep a private copy of who the agents are,
 # and each copy drifted from the registry independently.
-{ lib, ... }:
+{ lib, pkgs, ... }:
 let
   registry = import ./registry.nix;
   deck = import ./deck-patterns.nix;
@@ -49,7 +49,7 @@ in
     }
   ];
 
-  xdg.configFile."sysinit/agents.json".text = builtins.toJSON {
+  xdg.configFile."sysinit/agents.json".source = pkgs.sysinit.writeJSON "harnesses-publish.json" {
     version = 2;
     agents = lib.sort (a: b: a.name < b.name) agents;
   };

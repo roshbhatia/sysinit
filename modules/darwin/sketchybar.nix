@@ -11,7 +11,7 @@ let
     '';
   };
 
-  monitor-reload-script = pkgs.writeShellScript "sketchybar-monitor-reload" ''
+  monitor-reload-script = pkgs.sysinit.writeShellScript "sketchybar-monitor-reload" ''
     set -euo pipefail
     HOME="''${HOME:-/Users/$(whoami)}"
     CACHE_DIR="''${XDG_CACHE_HOME:-$HOME/.cache}/sketchybar"

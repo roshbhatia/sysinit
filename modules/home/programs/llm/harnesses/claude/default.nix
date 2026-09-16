@@ -33,7 +33,7 @@ let
       ) llmLib.allowlist.slackSendTools;
       scheduleTools = lib.filter (lib.hasSuffix "schedule_message") llmLib.allowlist.slackSendTools;
     in
-    pkgs.writeShellApplication {
+    pkgs.sysinit.writeShellApplication {
       name = "claude-slack-guard";
       runtimeInputs = [ pkgs.jq ];
       bashOptions = [ ];

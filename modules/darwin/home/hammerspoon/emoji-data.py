@@ -16,7 +16,9 @@ def load_variations(data: Path) -> set[str]:
     return variations
 
 
-def load_annotations(data: Path) -> tuple[dict[str, str], dict[str, list[str]], list[str]]:
+def load_annotations(
+    data: Path,
+) -> tuple[dict[str, str], dict[str, list[str]], list[str]]:
     names: dict[str, str] = {}
     keywords: dict[str, list[str]] = {}
     order = []

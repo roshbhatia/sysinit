@@ -33,7 +33,7 @@ let
   };
 in
 {
-  home.file.".fx/mcp.json".text = builtins.toJSON {
+  home.file.".fx/mcp.json".source = pkgs.sysinit.writeJSON "harnesses-fx.json" {
     mcpServers = llmLib.mcp.formatForCursor (kit.mcpServers.serversFor "fx");
   };
   # fx rewrites settings.json whenever `fx provider` or `/model` runs, so this is

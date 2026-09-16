@@ -15,7 +15,7 @@ let
 
   gamescopeCmd = ''gamescope -W "$W" -H "$H" -w "$W" -h "$H" --expose-wayland --force-windows-fullscreen -e --'';
 
-  sunshine-res = pkgs.writeShellApplication {
+  sunshine-res = pkgs.sysinit.writeShellApplication {
     name = "sunshine-res";
     runtimeInputs = [ pkgs.util-linux ];
     text = ''
@@ -36,7 +36,7 @@ let
     '';
   };
 
-  steam-bigpicture = pkgs.writeShellApplication {
+  steam-bigpicture = pkgs.sysinit.writeShellApplication {
     name = "steam-bigpicture";
     runtimeInputs = [ pkgs.util-linux ];
     text = ''
@@ -51,7 +51,7 @@ let
     '';
   };
 
-  steam-run-game = pkgs.writeShellApplication {
+  steam-run-game = pkgs.sysinit.writeShellApplication {
     name = "steam-run-game";
     runtimeInputs = [ pkgs.util-linux ];
     text = ''
@@ -67,7 +67,7 @@ let
     '';
   };
 
-  heroic-run-game = pkgs.writeShellApplication {
+  heroic-run-game = pkgs.sysinit.writeShellApplication {
     name = "heroic-run-game";
     runtimeInputs = [ pkgs.util-linux ];
     text = ''
@@ -84,7 +84,7 @@ let
     '';
   };
 
-  steam-run-wineapp = pkgs.writeShellApplication {
+  steam-run-wineapp = pkgs.sysinit.writeShellApplication {
     name = "steam-run-wineapp";
     runtimeInputs = [ pkgs.util-linux ];
     text = ''
@@ -114,7 +114,7 @@ let
     '';
   };
 
-  sunshine-apps-gen = pkgs.writeShellApplication {
+  sunshine-apps-gen = pkgs.sysinit.writeShellApplication {
     name = "sunshine-apps-gen";
     runtimeInputs = [
       pkgs.imagemagick

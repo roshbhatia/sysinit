@@ -465,8 +465,12 @@
             packages = [
               pkgs.nh
               pkgs.nixfmt
+              pkgs.treefmt
+              pkgs.ruff
+              pkgs.nufmt
               pkgs.actionlint
               pkgs.clang
+              pkgs.clang-tools
               pkgs.go
               pkgs.golangci-lint
               pkgs.shfmt

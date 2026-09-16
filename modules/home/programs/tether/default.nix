@@ -1,5 +1,6 @@
+{ pkgs, ... }:
 {
-  xdg.configFile."tether/config.json".text = builtins.toJSON {
+  xdg.configFile."tether/config.json".source = pkgs.sysinit.writeJSON "tether-default.json" {
     mode = "auto";
     flaky = {
       rtt_ms = 60;

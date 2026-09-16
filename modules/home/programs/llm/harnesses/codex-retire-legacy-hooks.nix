@@ -1,6 +1,6 @@
 { lib, pkgs }:
 let
-  script = pkgs.writeShellScript "codex-retire-legacy-hooks" ''
+  script = pkgs.sysinit.writeShellScript "codex-retire-legacy-hooks" ''
     set -euo pipefail
     rm -f "$HOME/.codex/hooks.json"
   '';

@@ -79,7 +79,7 @@ in
 
           extraFiles = {
             ".obsidian/community-plugins.json" = {
-              text = builtins.toJSON communityPlugins;
+              source = pkgs.sysinit.writeJSON "programs-obsidian.json" communityPlugins;
             };
 
             ".obsidian.vimrc" = {

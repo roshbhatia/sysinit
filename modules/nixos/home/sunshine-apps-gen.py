@@ -79,7 +79,9 @@ def heroic_games():
     if lib_cache.exists():
         lib = json.loads(lib_cache.read_text())
         for game in lib.get("library", []):
-            art_by_app[game.get("app_name")] = game.get("art_cover") or game.get("art_square")
+            art_by_app[game.get("app_name")] = game.get("art_cover") or game.get(
+                "art_square"
+            )
     if installed.exists():
         for app_name, meta in json.loads(installed.read_text()).items():
             if meta.get("is_dlc"):
@@ -101,7 +103,9 @@ def heroic_games():
         lib = json.loads(gog_lib.read_text())
         for game in lib.get("games", []):
             title_by_app[game.get("app_name")] = game.get("title")
-            art_by_gog[game.get("app_name")] = game.get("art_cover") or game.get("art_square")
+            art_by_gog[game.get("app_name")] = game.get("art_cover") or game.get(
+                "art_square"
+            )
     if gog_installed.exists():
         for game in json.loads(gog_installed.read_text()).get("installed", []):
             app_name = game.get("appName")

@@ -1,0 +1,71 @@
+excludes = [
+  "_sources/**",
+  "**/*.lock",
+  "**/*.lock.json",
+  "**/package-lock.json",
+  "**/*-package-lock.json",
+  "**/vendor/**",
+]
+on-unmatched = "debug"
+
+[formatter.nix]
+command = "nixfmt"
+includes = ["*.nix"]
+
+[formatter.shell]
+command = "shfmt"
+options = ["-w", "-i", "2", "-ci", "-sr", "-s"]
+includes = ["*.sh", ".githooks/*"]
+
+[formatter.lua]
+command = "stylua"
+includes = ["*.lua"]
+
+[formatter.go]
+command = "gofmt"
+options = ["-w"]
+includes = ["*.go"]
+
+[formatter.python]
+command = "ruff"
+options = ["format"]
+includes = ["*.py"]
+
+[formatter.nushell]
+command = "nufmt"
+includes = ["*.nu"]
+
+[formatter.fish]
+command = "fish_indent"
+options = ["-w"]
+includes = ["*.fish"]
+
+[formatter.toml]
+command = "taplo"
+options = ["format"]
+includes = ["*.toml"]
+
+[formatter.web]
+command = "prettier"
+options = ["--write"]
+includes = [
+  "*.json",
+  "*.yaml",
+  "*.yml",
+  "*.js",
+  "*.mjs",
+  "*.ts",
+  "*.tsx",
+  "*.css",
+  "*.html",
+]
+
+[formatter.c]
+command = "clang-format"
+options = ["-i"]
+includes = ["*.c", "*.h"]
+
+[formatter.cue]
+command = "cue"
+options = ["fmt"]
+includes = ["*.cue"]

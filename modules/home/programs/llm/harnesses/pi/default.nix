@@ -284,17 +284,15 @@ let
   inherit (piKeys) retired;
   piRetiredSettings = retired;
 
-  stylixTheme = builtins.toJSON stylixThemeAttrs;
+  stylixTheme = pkgs.sysinit.writeJSON "pi-theme.json" stylixThemeAttrs;
 
-  piKeybindings = pkgs.writeText "pi-keybindings.json" (
-    builtins.toJSON {
-      "app.session.rename" = "ctrl+shift+r";
-      "tui.editor.cursorLeft" = "left";
-      "app.message.followUp" = "ctrl+enter";
-    }
-  );
+  piKeybindings = pkgs.sysinit.writeJSON "pi-keybindings.json" {
+    "app.session.rename" = "ctrl+shift+r";
+    "tui.editor.cursorLeft" = "left";
+    "app.message.followUp" = "ctrl+enter";
+  };
 
-  piOpenaiModels = pkgs.writeShellApplication {
+  piOpenaiModels = pkgs.sysinit.writeShellApplication {
     name = "pi-openai-model-configs";
     runtimeInputs = [
       pkgs.jq
@@ -335,7 +333,7 @@ in
           force = true;
         };
         ".pi/agent/pi-vcc-config.json" = {
-          text = builtins.toJSON {
+          source = pkgs.sysinit.writeJSON "pi-default.json" {
             overrideDefaultCompaction = true;
           };
           force = true;
@@ -348,11 +346,11 @@ in
           force = true;
         };
         ".pi/agent/themes/${piThemeName}.json" = {
-          text = stylixTheme;
+          source = stylixTheme;
           force = true;
         };
         ".pi/agent/extensions/pi-permission-system/config.json" = {
-          text = builtins.toJSON {
+          source = pkgs.sysinit.writeJSON "pi-default.json" {
             debugLog = false;
             permissionReviewLog = true;
             inherit yoloMode;
@@ -370,7 +368,7 @@ in
         # not leftovers. They were the only hand-made files among the extension
         # configs here, which is how they drifted out of view.
         ".pi/agent/extensions/pi-openai-fast.json" = {
-          text = builtins.toJSON {
+          source = pkgs.sysinit.writeJSON "pi-default.json" {
             persistState = true;
             active = false;
             supportedModels = [
@@ -382,7 +380,7 @@ in
         };
 
         ".pi/agent/extensions/pi-openai-verbosity.json" = {
-          text = builtins.toJSON {
+          source = pkgs.sysinit.writeJSON "pi-default.json" {
             models = {
               "openai-codex/gpt-5.4" = "low";
               "openai-codex/gpt-5.5" = "low";
@@ -397,7 +395,7 @@ in
         };
 
         ".pi/agent/extensions/pi-tool-display/config.json" = {
-          text = builtins.toJSON {
+          source = pkgs.sysinit.writeJSON "pi-default.json" {
             registerToolOverrides = {
               read = true;
               grep = true;

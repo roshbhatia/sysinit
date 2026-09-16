@@ -31,8 +31,14 @@ def main [--update] {
         }
     } else if $update {
         print $"(ansi blue)[INFO](ansi reset) Updating wallpapers repository"
-        let fetch = do { cd $wallpapers_dir; git fetch --quiet } | complete
-        let pull = do { cd $wallpapers_dir; git pull --quiet } | complete
+        let fetch = do {
+            cd $wallpapers_dir
+            git fetch --quiet
+        } | complete
+        let pull = do {
+            cd $wallpapers_dir
+            git pull --quiet
+        } | complete
 
         if $fetch.exit_code != 0 {
             print $"(ansi yellow_bold)[WARN](ansi reset) Could not fetch updates - continuing with local version"
@@ -61,11 +67,11 @@ def main [--update] {
         }
 
         let found_images = $fallback_dirs
-            | where {|dir| $dir | path exists}
-            | each {|dir| do { fd --type f --extension jpg --extension jpeg --extension png --extension webp . $dir } | complete | get stdout | str trim | lines }
-            | flatten
-            | sort
-            | uniq
+        | where {|dir| $dir | path exists}
+        | each {|dir| do { fd --type f --extension jpg --extension jpeg --extension png --extension webp . $dir } | complete | get stdout | str trim | lines }
+        | flatten
+        | sort
+        | uniq
 
         if ($found_images | is-empty) {
             print $"(ansi red_bold)[ERROR](ansi reset) No images found in any location"

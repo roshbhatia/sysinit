@@ -1,21 +1,21 @@
 /* ========== BASE16 THEME VARIABLES (from Stylix) ========== */
 :root {
-  --bg: #@base00@;
-  --bg-alt: #@base01@;
-  --bg-sel: #@base02@;
-  --fg-muted: #@base03@;
-  --fg-dim: #@base04@;
-  --fg: #@base05@;
-  --fg-bright: #@base06@;
-  --accent: #@base0D@;
-  --accent-alt: #@base0E@;
-  --error: #@base08@;
-  --warning: #@base0A@;
-  --success: #@base0B@;
-  --info: #@base0D@;
+  --bg: #@base00 @;
+  --bg-alt: #@base01 @;
+  --bg-sel: #@base02 @;
+  --fg-muted: #@base03 @;
+  --fg-dim: #@base04 @;
+  --fg: #@base05 @;
+  --fg-bright: #@base06 @;
+  --accent: #@base0D @;
+  --accent-alt: #@base0E @;
+  --error: #@base08 @;
+  --warning: #@base0A @;
+  --success: #@base0B @;
+  --info: #@base0D @;
 
-  --opacity: @opacity@;
-  --blur-amount: @blur@px;
+  --opacity: @opacity @;
+  --blur-amount: @blur @px;
   --tab-border-radius: 6px !important;
 }
 
@@ -24,7 +24,13 @@
    into the standard `liga` feature, so URLs/tab titles render `=>`, `!=`,
    `fi` etc. as ligatures unless we opt out at the chrome level. */
 * {
-  font-family: "@monospace-font@", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-family:
+    "@monospace-font@",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif !important;
   font-variant-ligatures: none !important;
 }
 
@@ -77,9 +83,15 @@ toolbar .toolbarbutton-1:focus-visible {
 }
 
 /* ========== WINDOW CONTROLS ========== */
-.titlebar-buttonbox-container { display: none !important; }
-.titlebar-placeholder[type="pre-tabs"] { display: none !important; }
-.titlebar-spacer { display: none; }
+.titlebar-buttonbox-container {
+  display: none !important;
+}
+.titlebar-placeholder[type="pre-tabs"] {
+  display: none !important;
+}
+.titlebar-spacer {
+  display: none;
+}
 
 /* ========== TABS ========== */
 .tabbrowser-tab::before,
@@ -87,7 +99,7 @@ toolbar .toolbarbutton-1:focus-visible {
   border-left: none !important;
 }
 
-.tab-background:not([selected=true]),
+.tab-background:not([selected="true"]),
 .tab-background[selected="true"],
 #titlebar-buttonbox,
 #TabsToolbar,
@@ -168,7 +180,9 @@ scrollbar {
   border-color: var(--accent) !important;
 }
 
-#page-action-buttons { display: none !important; }
+#page-action-buttons {
+  display: none !important;
+}
 
 #urlbar .urlbar-input,
 #urlbar .urlbar-input-box input {
@@ -181,9 +195,13 @@ scrollbar {
   color: var(--bg) !important;
 }
 
-.urlbar-input-box > .urlbar-input::placeholder { opacity: 0 !important; }
+.urlbar-input-box > .urlbar-input::placeholder {
+  opacity: 0 !important;
+}
 
-#urlbar-results { background-color: var(--bg-alt) !important; }
+#urlbar-results {
+  background-color: var(--bg-alt) !important;
+}
 
 .urlbarView-row {
   background-color: var(--bg-alt) !important;
@@ -197,27 +215,46 @@ scrollbar {
 }
 
 .urlbarView-title,
-.urlbarView-action { color: var(--fg) !important; }
-.urlbarView-url { color: var(--fg-dim) !important; }
+.urlbarView-action {
+  color: var(--fg) !important;
+}
+.urlbarView-url {
+  color: var(--fg-dim) !important;
+}
 
 /* ========== HIDE CLUTTER ========== */
 #identity-box.extensionPage #identity-icon-labels,
 #identity-box.extensionPage #identity-icon-label {
   visibility: collapse !important;
 }
-#tracking-protection-icon-container { visibility: collapse !important; }
-#identity-icon { visibility: visible !important; }
-#home-button, #reload-button { display: none !important; }
-#alltabs-button { display: none !important; }
+#tracking-protection-icon-container {
+  visibility: collapse !important;
+}
+#identity-icon {
+  visibility: visible !important;
+}
+#home-button,
+#reload-button {
+  display: none !important;
+}
+#alltabs-button {
+  display: none !important;
+}
 #identity-permission-box,
 #star-button-box,
 #identity-icon-box,
 #picture-in-picture-button,
 #reader-mode-button,
-#translations-button { display: none !important; }
-#urlbar .search-one-offs { display: none !important; }
+#translations-button {
+  display: none !important;
+}
+#urlbar .search-one-offs {
+  display: none !important;
+}
 
-.bookmark-item > .toolbarbutton-icon { display: none !important; }
+.bookmark-item > .toolbarbutton-icon {
+  display: none !important;
+}
 
 /* ========== FIND BAR ========== */
 #findbar {
@@ -226,15 +263,24 @@ scrollbar {
   border-color: var(--bg-sel) !important;
 }
 
-#findbar-textbox, #findbar input {
+#findbar-textbox,
+#findbar input {
   background-color: var(--bg) !important;
   color: var(--fg) !important;
   border-color: var(--bg-sel) !important;
 }
 
-#findbar button:hover { background-color: var(--bg-sel) !important; }
-#findbar .found { background-color: var(--success) !important; color: var(--bg) !important; }
-#findbar .notfound { background-color: var(--error) !important; color: var(--bg) !important; }
+#findbar button:hover {
+  background-color: var(--bg-sel) !important;
+}
+#findbar .found {
+  background-color: var(--success) !important;
+  color: var(--bg) !important;
+}
+#findbar .notfound {
+  background-color: var(--error) !important;
+  color: var(--bg) !important;
+}
 
 /* ========== CONTEXT MENUS ========== */
 menupopup,
@@ -247,24 +293,31 @@ menupopup,
   border-radius: 4px !important;
 }
 
-menulist, menuitem, menu {
+menulist,
+menuitem,
+menu {
   min-height: 1.8em !important;
   color: var(--fg) !important;
   -moz-appearance: none !important;
 }
 
-menu:hover, menu[_moz-menuactive], menuitem:hover, menuitem[_moz-menuactive] {
+menu:hover,
+menu[_moz-menuactive],
+menuitem:hover,
+menuitem[_moz-menuactive] {
   background-color: var(--bg-sel) !important;
   color: var(--fg) !important;
 }
 
-menu[disabled="true"], menuitem[disabled="true"] {
+menu[disabled="true"],
+menuitem[disabled="true"] {
   color: var(--fg-dim) !important;
   opacity: 0.6 !important;
 }
 
 /* ========== NOTIFICATIONS ========== */
-.notification, .infobar {
+.notification,
+.infobar {
   background-color: var(--bg-alt) !important;
   color: var(--fg) !important;
 }
@@ -280,6 +333,10 @@ tooltip {
 }
 
 /* ========== CONTENT AREA ========== */
-.browserContainer { background-color: var(--bg) !important; }
+.browserContainer {
+  background-color: var(--bg) !important;
+}
 
-#nav-bar toolbarspring { display: none !important; }
+#nav-bar toolbarspring {
+  display: none !important;
+}

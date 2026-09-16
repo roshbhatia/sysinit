@@ -77,7 +77,7 @@ in
       };
 
       ".atomic/agent/extensions/pi-permission-system/config.json" = {
-        text = builtins.toJSON {
+        source = pkgs.sysinit.writeJSON "atomic-default.json" {
           debugLog = false;
           permissionReviewLog = true;
           inherit yoloMode;

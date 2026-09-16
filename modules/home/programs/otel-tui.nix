@@ -10,7 +10,7 @@ let
   # The collector owns 4317, 4318 and the OTLP traffic; otel-tui reads what the
   # collector wrote. It still opens receivers of its own, so they move off the
   # collector's ports, off 8888, and off 0.0.0.0.
-  otel-tui = pkgs.writeShellApplication {
+  otel-tui = pkgs.sysinit.writeShellApplication {
     name = "otel-tui";
     text = ''
       mkdir -p "$(dirname '${telemetryFile}')"

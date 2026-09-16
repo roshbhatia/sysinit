@@ -75,6 +75,6 @@ in
       executable = true;
     };
     "sketchybar/lua".source = ./lua;
-    "sketchybar/config.json".text = builtins.toJSON sketchybarConfig;
+    "sketchybar/config.json".source = pkgs.sysinit.writeJSON "sketchybar-default.json" sketchybarConfig;
   };
 }

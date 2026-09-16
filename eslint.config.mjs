@@ -37,7 +37,11 @@ export default [
     rules: {
       "no-unused-vars": [
         "error",
-        { args: "after-used", caughtErrors: "none", varsIgnorePattern: "^(calculate|prepare|rank)$" },
+        {
+          args: "after-used",
+          caughtErrors: "none",
+          varsIgnorePattern: "^(calculate|prepare|rank)$",
+        },
       ],
     },
   },
