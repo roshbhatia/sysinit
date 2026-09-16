@@ -76,6 +76,7 @@ in
         eslint
         prettier
         typescript-language-server
+        graphql-language-service-cli
         vscode-langservers-extracted
 
         luajit
