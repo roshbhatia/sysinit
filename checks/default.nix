@@ -56,6 +56,7 @@ let
   );
 in
 {
+  editor-composition = import ./editor-composition.nix { inherit pkgs homeManagerLib; };
   slack-guard = import ./slack-guard.nix { inherit pkgs; };
   hammerspoon-startup =
     pkgs.runCommand "hammerspoon-startup-test" { nativeBuildInputs = [ pkgs.lua5_4 ]; }

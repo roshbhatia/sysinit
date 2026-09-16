@@ -1655,11 +1655,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788990081,
-        "narHash": "sha256-r3Ohw8dB5fB/nqq+HkbdaDAoGEHT1bz6ukrLsytE5Bc=",
+        "lastModified": 1789592798,
+        "narHash": "sha256-9mrBIk6qOnqe8FHzPV8zTfBV0CFcSRVgeSNPX4Dgpjw=",
         "owner": "roshbhatia",
         "repo": "sysinit.nvim",
-        "rev": "a79beaee98307b85314baca9d2b1b98602e2f0ee",
+        "rev": "dc082c2dff81375a0e98bc867495a598be414b7f",
         "type": "github"
       },
       "original": {
@@ -1678,11 +1678,11 @@
         "spawn": "spawn"
       },
       "locked": {
-        "lastModified": 1789493488,
-        "narHash": "sha256-ciLJ0BkIFdZLfS+WJ8XSmS/RqfiDnJjjHPDtHKxwvEo=",
+        "lastModified": 1789592799,
+        "narHash": "sha256-vBSy0hpPa8+LwsGZ1lFDsooJATzaZwsahO0VaFDPGgE=",
         "owner": "roshbhatia",
         "repo": "sysinit.wezterm",
-        "rev": "0e2f83eb667f8f427d9e1df46ca7c9dedc403dcb",
+        "rev": "406503c5803be1010fa77ad1c9cdbf165719df37",
         "type": "github"
       },
       "original": {

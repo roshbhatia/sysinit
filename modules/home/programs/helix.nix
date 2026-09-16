@@ -1,8 +1,65 @@
-_:
+{
+  lib,
+  profile ? "workstation",
+  ...
+}:
 
 {
   programs.helix = {
     enable = true;
+    languages = lib.mkIf (profile != "minimal") {
+      language-server = {
+        pyright = {
+          command = "pyright-langserver";
+          args = [ "--stdio" ];
+        };
+        docker-language-server = {
+          command = "docker-language-server";
+          args = [
+            "start"
+            "--stdio"
+          ];
+        };
+        tofu-ls = {
+          command = "tofu-ls";
+          args = [ "serve" ];
+        };
+      };
+      language = [
+        {
+          name = "nix";
+          language-servers = [ "nixd" ];
+          formatter.command = "nixfmt";
+        }
+        {
+          name = "python";
+          language-servers = [
+            "pyright"
+            "ruff"
+          ];
+        }
+        {
+          name = "go";
+          language-servers = [ "gopls" ];
+        }
+        {
+          name = "dockerfile";
+          language-servers = [ "docker-language-server" ];
+        }
+        {
+          name = "markdown";
+          language-servers = [ "markdown-oxide" ];
+        }
+        {
+          name = "hcl";
+          language-servers = [ "tofu-ls" ];
+        }
+        {
+          name = "tfvars";
+          language-servers = [ "tofu-ls" ];
+        }
+      ];
+    };
     settings = {
       editor = {
         line-number = "relative";
@@ -11,7 +68,6 @@ _:
         bufferline = "multiple";
         true-color = true;
         undercurl = true;
-        clipboard-provider = "pasteboard";
         cursorline = false;
 
         cursor-shape = {

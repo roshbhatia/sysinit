@@ -36,6 +36,8 @@ in
         shellcheck
         shfmt
         actionlint
+        checkmake
+        commitlint
         gum
         grc
 
@@ -44,6 +46,9 @@ in
         delve
         golangci-lint
         gofumpt
+        go-tools
+        gomodifytags
+        impl
         gotestsum
         govulncheck
         ginkgo
@@ -58,6 +63,7 @@ in
         uv
         pipx
         pyright
+        ruff
 
         rustup
         cargo-watch
@@ -68,6 +74,7 @@ in
         typescript
         yarn
         eslint
+        prettier
         typescript-language-server
         vscode-langservers-extracted
 
