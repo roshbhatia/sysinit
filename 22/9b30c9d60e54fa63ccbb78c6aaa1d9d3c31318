@@ -1,0 +1,21 @@
+modules/home/programs/llm/lib/harness-kit.nix
+  s_895ab6f768032e::t_f4a0f94efbee1d 18
+overlays/default.nix
+  s_895ab6f768032e::t_bfef7c5aedc205 26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "229b30c9d60e54fa63ccbb78c6aaa1d9d3c31318",
+  "prompts": {},
+  "sessions": {
+    "s_895ab6f768032e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a0ca-05c9-7e31-8c65-9dfb547dce39",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
