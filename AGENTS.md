@@ -34,6 +34,9 @@ not restate any of those here.
   `worker` owns pane execution and log viewing; Changes owns `ws`.
   `CommandPalette.spoon` owns the Hammerspoon launcher. This repository supplies
   its theme, sources, hotkeys, and screenshot callbacks.
+- MCP declarations pass through `lib/mcp-routing.nix`. `pkgs/mcp-gateway`
+  supervises per-client agentgateway processes and the Go transport adapter.
+  Existing host gateways use `gateway = true`. See `docs/mcp-routing.md`.
 - The rest of `modules/home/programs/llm/` splits by role. `lib/` is
   evaluation-time helpers. `runtime/` is the agent-agnostic runtime a harness
   hook executes: notifier, state bus, gates, guard bodies. `skills/` is the

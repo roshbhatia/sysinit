@@ -278,14 +278,20 @@ in
                 type = types.enum [
                   "local"
                   "http"
+                  "sse"
                 ];
                 default = "local";
-                description = "Transport type — stdio (`local`) or remote `http`.";
+                description = "Upstream transport: stdio (`local`), Streamable HTTP (`http`), or legacy SSE (`sse`).";
               };
               command = mkOption {
                 type = types.nullOr types.str;
                 default = null;
                 description = "Command to run the MCP server (stdio servers only).";
+              };
+              gateway = mkOption {
+                type = types.bool;
+                default = false;
+                description = "Whether this HTTP endpoint is already a host-owned loopback agentgateway.";
               };
               args = mkOption {
                 type = types.listOf types.str;

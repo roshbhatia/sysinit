@@ -33,6 +33,9 @@ let
   };
 in
 {
+  home.file.".fx/mcp.json".text = builtins.toJSON {
+    mcpServers = llmLib.mcp.formatForCursor (kit.mcpServers.serversFor "fx");
+  };
   # fx rewrites settings.json whenever `fx provider` or `/model` runs, so this is
   # a managed file rather than a symlink. The model keys stay the user's to set
   # from the interactive shell; only the provider and the rules are reasserted.

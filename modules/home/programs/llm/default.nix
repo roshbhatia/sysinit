@@ -103,23 +103,16 @@ let
     ) skills.skillExtraFiles
     // vendoredSkillFilesFor root;
 
-  pruneServer =
-    server:
-    let
-      isHttp = server.type == "http";
-      stripped = removeAttrs server [ "type" ];
-      filtered = lib.filterAttrs (
-        name: value:
-        value != null && !(name == "headers" && value == { }) && !(name == "args" && value == [ ])
-      ) stripped;
-    in
-    if isHttp then filtered // { type = "http"; } else filtered;
-
-  suppressed = config.sysinit.llm.mcp.suppressedServers;
-
-  mcpServers = lib.mapAttrs (_: pruneServer) (
-    lib.filterAttrs (name: _: !(builtins.elem name suppressed)) config.sysinit.llm.mcp.additionalServers
-  );
+  mcpCatalog = import ./lib/mcp-catalog.nix {
+    inherit lib;
+    inherit (config.sysinit.llm.mcp)
+      additionalServers
+      suppressedServers
+      harnessSuppressedServers
+      harnessOverrides
+      ;
+    routeServer = import ./lib/mcp-routing.nix { inherit lib pkgs; };
+  };
 
   llmLibForCoverage = import ./lib { inherit lib; };
 
@@ -146,6 +139,9 @@ in
   ];
 
   xdg.dataFile = openspecSchemaFiles;
+  xdg.configFile."sysinit/mcp-clients.json".text = builtins.toJSON (
+    lib.genAttrs (builtins.attrNames (import ./harnesses/registry.nix)) mcpCatalog.serversFor
+  );
 
   home = {
     # All harnesses inherit the same command search path. Codex and Claude also
@@ -192,6 +188,6 @@ in
 
   programs.mcp = {
     enable = true;
-    servers = mcpServers;
+    inherit (mcpCatalog) servers;
   };
 }

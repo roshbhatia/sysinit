@@ -4,6 +4,7 @@
   suppressedServers ? [ ],
   harnessSuppressedServers ? { },
   harnessOverrides ? { },
+  routeServer ? (_: server: server),
 }:
 let
   flattenPermissions =
@@ -95,22 +96,26 @@ let
   };
 
   allPermissions = flattenPermissions (builtins.attrValues permissions);
-  allServers = lib.filterAttrs (name: _: !(builtins.elem name suppressedServers)) (
-    defaultServers // additionalServers
-  );
+  allServers = lib.filterAttrs (
+    name: server: (server.enabled or true) && !(builtins.elem name suppressedServers)
+  ) (defaultServers // additionalServers);
   serversFor =
     harness:
     let
       suppressedForHarness = harnessSuppressedServers.${harness} or [ ];
       availableServers = lib.filterAttrs (name: _: !(builtins.elem name suppressedForHarness)) allServers;
-      patches = lib.filterAttrs (name: _: !(builtins.elem name suppressedForHarness)) (
+      patches = lib.filterAttrs (name: _: builtins.hasAttr name availableServers) (
         harnessOverrides.${harness} or { }
       );
     in
-    availableServers // lib.mapAttrs (name: patch: availableServers.${name} // patch) patches;
+    lib.mapAttrs routeServer (
+      lib.filterAttrs (_: server: server.enabled or true) (
+        availableServers // lib.mapAttrs (name: patch: availableServers.${name} // patch) patches
+      )
+    );
 in
 {
-  servers = allServers;
+  servers = lib.mapAttrs routeServer allServers;
   inherit serversFor;
   inherit permissions;
   inherit allPermissions;

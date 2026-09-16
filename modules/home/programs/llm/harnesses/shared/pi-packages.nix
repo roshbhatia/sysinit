@@ -59,6 +59,29 @@ let
     };
 
   packages = {
+    mcpAdapter = pkgs.buildNpmPackage {
+      pname = "pi-mcp-adapter";
+      version = "2.20.0";
+      passthru.npmName = "pi-mcp-adapter";
+      src = pkgs.fetchurl {
+        url = "https://registry.npmjs.org/pi-mcp-adapter/-/pi-mcp-adapter-2.20.0.tgz";
+        hash = "sha256-AP/urazUw7au4PEASjd72uSykdhjCCZPrdDPXDqVKEM=";
+      };
+      postPatch = ''
+        ${lib.getExe pkgs.jq} 'del(.devDependencies) | .dependencies["@modelcontextprotocol/sdk"] = "1.29.0"' package.json > package.production.json
+        mv package.production.json package.json
+        cp ${./locks/pi-mcp-adapter.lock.json} package-lock.json
+      '';
+      npmDepsHash = "sha256-v3dg4r1OidTmD03PKTd4gbeOo99XcoYvnK2UlcXh9BA=";
+      npmFlags = [
+        "--ignore-scripts"
+        "--legacy-peer-deps"
+      ];
+      dontNpmBuild = true;
+      installPhase = ''
+        cp -r . "$out"
+      '';
+    };
 
     mermaid = pkgs.buildNpmPackage {
       pname = "pi-mermaid";

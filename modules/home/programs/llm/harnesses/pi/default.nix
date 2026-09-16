@@ -199,6 +199,7 @@ let
   piPackages = piPkgs.packages;
 
   piPackageList = with piPackages; [
+    mcpAdapter
     piPermissionSystem
     openaiFast
     openaiVerbosity

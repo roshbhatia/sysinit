@@ -12,6 +12,8 @@ let
     vendorHash = "sha256-LLhR96vCSXd90RwwoFHEtMCik4p1iVVU2YGcIkIuR9k=";
 
     nativeCheckInputs = [ final.git ];
+    AGENTGATEWAY_BINARY = "${final.agentgateway}/bin/agentgateway";
+    MCP_REMOTE_BINARY = "${final.mcp-remote-go}/bin/mcp-remote";
 
     meta.platforms = final.lib.platforms.unix;
   };

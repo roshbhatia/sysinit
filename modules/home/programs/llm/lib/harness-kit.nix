@@ -15,6 +15,7 @@
       skillsLib = import ../skills/render.nix { inherit pkgs; };
       mcpServers = import ./mcp-catalog.nix {
         inherit lib;
+        routeServer = import ./mcp-routing.nix { inherit lib pkgs; };
         inherit (config.sysinit.llm.mcp)
           additionalServers
           suppressedServers

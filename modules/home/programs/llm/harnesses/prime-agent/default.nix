@@ -13,6 +13,7 @@ let
   inherit (piPkgs) packages;
 
   loaded = [
+    "mcpAdapter"
     "piPermissionSystem"
     "openaiFast"
     "openaiVerbosity"

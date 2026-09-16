@@ -56,6 +56,7 @@ let
   );
 in
 {
+  mcp-client-routing = import ./mcp-routing.nix { inherit pkgs; };
   managed-file-cache = import ./managed-file-cache.nix { inherit pkgs; };
   incremental-defaults =
     pkgs.runCommand "incremental-defaults-test" { nativeBuildInputs = [ pkgs.python3 ]; }

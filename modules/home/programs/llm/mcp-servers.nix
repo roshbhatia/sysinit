@@ -48,7 +48,7 @@ in
 {
   sysinit.llm.mcp.additionalServers = {
     ast-grep = {
-      command = "uvx";
+      command = "${lib.getExe' pkgs.uv "uvx"}";
       args = [
         "--from"
         "git+https://github.com/ast-grep/ast-grep-mcp"
@@ -68,7 +68,7 @@ in
     };
 
     playwright = {
-      command = "npx";
+      command = "${lib.getExe' pkgs.nodejs "npx"}";
       args = [
         "-y"
         "@playwright/mcp@latest"

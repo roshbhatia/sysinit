@@ -7,6 +7,7 @@
 let
   llmLib = import ../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
+  routeServer = import ../lib/mcp-routing.nix { inherit lib pkgs; };
 
   bundledExtensions = {
     computercontroller = {
@@ -27,20 +28,16 @@ let
     };
   };
 
-  mkBundledExtension = name: ext: {
-    inherit (ext) description enabled;
-    inherit name;
-    args = [
-      "mcp"
-      name
-    ];
-    bundled = null;
-    cmd = "${pkgs.goose-cli}/bin/goose";
-    env_keys = [ ];
-    envs = { };
-    timeout = 300;
-    type = "stdio";
-  };
+  mkBundledExtension =
+    name: ext:
+    mkLocalExtension name {
+      inherit (ext) description enabled;
+      args = [
+        "mcp"
+        name
+      ];
+      cmd = "${pkgs.goose-cli}/bin/goose";
+    };
 
   # Declared here rather than in mcp-servers.nix, which every harness reads: a
   # tool that delegates coding to Codex earns its tokens from goose and is noise
@@ -59,20 +56,24 @@ let
   # disagrees, so it is written the way goose would write it.
   gooseName = name: (lib.toUpper (builtins.substring 0 1 name)) + builtins.substring 1 (-1) name;
 
-  mkLocalExtension = name: ext: {
-    inherit (ext)
-      args
-      cmd
-      description
-      enabled
-      ;
-    bundled = null;
-    env_keys = [ ];
-    envs = { };
-    name = gooseName name;
-    timeout = 300;
-    type = "stdio";
-  };
+  mkLocalExtension =
+    name: ext:
+    let
+      routed = routeServer name {
+        command = ext.cmd;
+        inherit (ext) args description enabled;
+      };
+    in
+    {
+      inherit (routed) args description enabled;
+      cmd = routed.command;
+      bundled = null;
+      env_keys = [ ];
+      envs = { };
+      name = gooseName name;
+      timeout = 300;
+      type = "stdio";
+    };
 
   platformExtensions = {
     analyze = true;

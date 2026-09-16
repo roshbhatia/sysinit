@@ -23,6 +23,7 @@
   (import ./sysinit-swayfx.nix { inherit inputs; })
   (import ./sysinit-gotools.nix { inherit inputs; })
   (import ./calldiff.nix)
+  (import ./agentgateway.nix)
   (import ./python313.nix)
   (import ./kubernetes-zeitgeist.nix)
   (import ./gomvp.nix)

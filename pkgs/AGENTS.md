@@ -12,6 +12,7 @@ and one vendor hash.
 pkgs/
   go.mod  go.sum
   utils/            main package + utils/internal/   (one binary, many names)
+  mcp-gateway/      session-preserving MCP gateway supervisor and probe
 ```
 
 `ask`, `changes`, `traces`, `seshy`, `specutil`, and `colchis` used to live
@@ -61,3 +62,6 @@ Check the overlay's `external` map when changing aliases.
 `buildGoModule` runs the Go tests during its check phase, and the `go-tests`
 flake check builds that package, so `nix flake check` covers them. From a
 checkout, `cd pkgs && go test ./utils/...` is the fast path.
+
+The gateway integration tests use `AGENTGATEWAY_BINARY` and `MCP_REMOTE_BINARY`.
+The Nix derivation supplies both so tests exercise the pinned binaries.

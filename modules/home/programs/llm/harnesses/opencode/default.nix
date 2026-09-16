@@ -8,24 +8,13 @@ let
   llmLib = import ../../lib { inherit lib; };
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
-  disabledMcpServers = [ "slack" ];
+  disabledMcpServers = [ ];
 
   schemaDir = "${render.schemas}";
 
   defaultInstructions = kit.mkInstructionsWithStyle {
     harness = "opencode";
     skillsRoot = "~/.claude/skills";
-    extraSections = [
-      {
-        title = "Slack";
-        body = ''
-          OpenCode's MCP client does not support Slack's dynamic auth flow. If you
-          need Slack context or need to send a Slack message, ask Claude Code to do
-          it with `claude -p '<your Slack task>'` because Claude has Slack MCP
-          access configured.
-        '';
-      }
-    ];
   };
 
   render = import ./render.nix { inherit pkgs lib; };
