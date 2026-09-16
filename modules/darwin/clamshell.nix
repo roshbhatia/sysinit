@@ -1,5 +1,6 @@
+{ config, lib, ... }:
 {
-  launchd.user.agents.clamshell-thunderbolt = {
+  launchd.user.agents.clamshell-thunderbolt = lib.mkIf (!config.sysinit.darwin.closedLidSsh.enable) {
     serviceConfig = {
       ProgramArguments = [
         "/bin/sh"

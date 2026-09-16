@@ -1,23 +1,16 @@
 {
   config,
-  lib,
-  pkgs,
   ...
 }:
 
-let
-  user = lib.escapeShellArg config.system.primaryUser;
-
-  ollamaStartScript = pkgs.sysinit.writeShellScript "ollama-start" ''
-    set -euo pipefail
-    /opt/homebrew/bin/ollama serve
-  '';
-in
 {
   launchd.user.agents.ollama = {
     serviceConfig = {
       Label = "com.ollama.default";
-      Program = toString ollamaStartScript;
+      ProgramArguments = [
+        "${config.homebrew.prefix}/bin/ollama"
+        "serve"
+      ];
       RunAtLoad = true;
       KeepAlive = true;
       StandardOutPath = "/tmp/ollama.log";
@@ -29,8 +22,4 @@ in
       };
     };
   };
-
-  system.activationScripts.postActivation.text = ''
-    launchctl kickstart -k "gui/$(id -u -- ${user})/com.ollama.default" || true
-  '';
 }

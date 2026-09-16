@@ -1,5 +1,6 @@
 {
   lib,
+  config,
   pkgs,
   osConfig,
   ...
@@ -33,6 +34,7 @@ let
   };
 in
 {
+  home.sessionVariables.COLIMA_HOME = "${config.home.homeDirectory}/.colima";
   home.activation.colimaConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     mkdir -p "$HOME/.colima/default"
     $DRY_RUN_CMD cp ${colimaYamlFile} "$HOME/.colima/default/colima.yaml"
