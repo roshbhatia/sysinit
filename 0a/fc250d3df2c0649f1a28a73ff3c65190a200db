@@ -1,0 +1,21 @@
+modules/home/programs/llm/skills/taskwarrior/SKILL.md
+  s_895ab6f768032e::t_9f8d6956f9c187 38-44
+modules/home/programs/taskwarrior.nix
+  s_895ab6f768032e::t_4f2f1e274e7585 71,116-146
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0afc250d3df2c0649f1a28a73ff3c65190a200db",
+  "prompts": {},
+  "sessions": {
+    "s_895ab6f768032e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a0ca-05c9-7e31-8c65-9dfb547dce39",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
