@@ -9,13 +9,15 @@ PROBE_TIMEOUT=${AGENT_SESSIONS_PROBE_TIMEOUT:-2}
 LOCK_STALE_AFTER=${AGENT_SESSIONS_LOCK_STALE_AFTER:-30}
 
 emit_empty() {
-  printf '{"selected":null,"selection_state":"absent","sessions":[]}\n'
+  printf '{"selected":null,"selection_state":"absent","discovery_state":"unavailable","sessions":[]}\n'
   exit 0
 }
 
 emit_cached() {
-  if [ -s "$cache_file" ]; then
-    cat "$cache_file"
+  if [ -s "$cache_file" ] && jq -e '
+    select(type == "object" and (.sessions | type) == "array")
+    | .selection_state = "stale" | .discovery_state = "unavailable"
+  ' "$cache_file" 2> /dev/null; then
     exit 0
   fi
   emit_empty
@@ -59,101 +61,20 @@ if [ -f "$selected_file" ]; then
   fi
 fi
 
-live=""
-have_live=0
-pane_ws=""
-active_pane=""
-if command -v wezterm > /dev/null 2>&1; then
-  pane_ws=$(timeout "$PROBE_TIMEOUT" wezterm cli --no-auto-start list --format json 2> /dev/null |
-    jq -r '.[] | "\(.pane_id) \(.workspace // "") \(.is_active)"' 2> /dev/null)
-  live=$(printf '%s\n' "$pane_ws" | awk 'NF { print $1 }' | tr '\n' ' ')
-  [ -n "$live" ] && have_live=1
+if ! live=$(timeout "$PROBE_TIMEOUT" wezterm cli --no-auto-start list --format json 2> /dev/null) ||
+  ! printf '%s' "$live" | jq -e 'type == "array" and all(.[]; type == "object" and has("pane_id"))' > /dev/null 2>&1; then
+  emit_cached
 fi
-
-pane_is_live() {
-  [ "$have_live" -eq 0 ] && return 0
-  case " $live " in
-    *" $1 "*) return 0 ;;
-    *) return 1 ;;
-  esac
-}
-
-workspace_of() {
-  [ -n "$pane_ws" ] || return 0
-  printf '%s\n' "$pane_ws" | awk -v p="$1" '$1 == p { print $2; exit }'
-}
-
-session_of_pane() {
-  [ -n "$1" ] || return 0
-  [ -f "$panes_dir/$1.json" ] || return 0
-  jq -r '.session // ""' "$panes_dir/$1.json" 2> /dev/null
-}
-
-if [ -n "$pane_ws" ]; then
-  active_pane=$(printf '%s\n' "$pane_ws" | awk '$3 == "true" { print $1; exit }')
+known=$(timeout "$PROBE_TIMEOUT" sy list --names 2> /dev/null) || known=""
+shopt -s nullglob
+pane_files=("$panes_dir"/*.json)
+records='[]'
+if [ "${#pane_files[@]}" -gt 0 ]; then
+  records=$(jq -Rn '[inputs | fromjson? | select(type == "object")]' "${pane_files[@]}") || emit_cached
 fi
-if [ "$selected" != null ] && [ -n "$active_pane" ]; then
-  sel_session=$(session_of_pane "$active_pane")
-  [ -n "$sel_session" ] && selected=$(jq -cn --arg s "$sel_session" '$s')
-fi
-
-rank_of() {
-  case "$1" in
-    waiting) echo 3 ;;
-    done) echo 2 ;;
-    working) echo 1 ;;
-    *) echo 0 ;;
-  esac
-}
-
-rollup=$(
-  if [ -d "$panes_dir" ]; then
-    for f in "$panes_dir"/*.json; do
-      [ -f "$f" ] || continue
-      pane=$(jq -r '.pane // ""' "$f" 2> /dev/null)
-      [ -n "$pane" ] || continue
-      pane_is_live "$pane" || continue
-      sess=$(jq -r '.session // ""' "$f" 2> /dev/null)
-      [ -n "$sess" ] || sess=$(workspace_of "$pane")
-      [ -n "$sess" ] || sess="default"
-      status=$(jq -r '.status // ""' "$f" 2> /dev/null)
-      repo=$(jq -r '.repo // ""' "$f" 2> /dev/null)
-      since=$(jq -r '.since // 0' "$f" 2> /dev/null)
-      printf '%s\t%s\t%s\t%s\t%s\n' "$sess" "$(rank_of "$status")" "$status" "$repo" "$since"
-    done
-  fi
-)
-
-known=$(
-  if command -v sy > /dev/null 2>&1; then
-    timeout "$PROBE_TIMEOUT" sy list 2> /dev/null | awk 'NR > 1 && NF > 0 { print $1 }'
-  fi
-)
-
-out=$(printf '%s' "$rollup" | jq -R -s --arg sel "$selected_file" --argjson selected "$selected" \
-  --arg selstate "$selection_state" --arg known "$known" '
-  def rows: split("\n") | map(select(length > 0) | split("\t"));
-  ( rows
-    | group_by(.[0])
-    | map({
-        name: .[0][0],
-        status: (max_by(.[1] | tonumber) | .[2]),
-        rank: (max_by(.[1] | tonumber) | .[1] | tonumber),
-        repo: ([.[] | .[3] | select(length > 0)] | first // ""),
-        panes: length,
-        blocked: ([.[] | select((.[1] | tonumber) >= 1)] | length),
-        since: ([.[] | .[4] | tonumber | select(. > 0)] | min // null),
-      })
-  ) as $active
-  | ( $known | split("\n") | map(select(length > 0)) ) as $names
-  | ( $names - ($active | map(.name)) | map({ name: ., status: null, rank: 0, repo: "", panes: 0, blocked: 0, since: null }) ) as $idle
-  | { selected: $selected,
-      selection_state: $selstate,
-      sessions: (($active + $idle) | sort_by(-.rank, .name)) }
-' 2> /dev/null) || emit_cached
-
+out=$(printf '%s' "$records" | jq --argjson live "$live" --argjson selected "$selected" \
+  --arg selstate "$selection_state" --arg known "$known" -f @agentSessionsReducer@) || emit_cached
 [ -n "$out" ] || emit_cached
-
 printf '%s\n' "$out" > "$cache_file.tmp" 2> /dev/null &&
   mv -f "$cache_file.tmp" "$cache_file" 2> /dev/null
 printf '%s\n' "$out"

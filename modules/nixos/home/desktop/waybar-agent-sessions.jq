@@ -5,7 +5,7 @@ else
   | (
       [
         .sessions[]
-        | select((.blocked // 0) > 0 and .name != $selected)
+        | select((.attention // 0) > 0 and .name != $selected)
       ]
       | length
     ) as $blocked
@@ -18,8 +18,8 @@ else
       tooltip: (
         [
           .sessions[]
-          | select((.blocked // 0) > 0)
-          | .name + ": " + (.status // "idle")
+          | select((.attention // 0) > 0)
+          | .name + ": " + (.attention_status // "idle")
         ]
         | join("\n")
       ),

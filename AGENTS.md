@@ -79,7 +79,7 @@ not restate any of those here.
 ```bash
 nix develop                     # dev shell: every tool used by hack/lint.sh
 nix flake check                 # validate flake (run before commits)
-nix fmt                         # format all Nix and .sh files
+nix fmt                         # format tracked sources with treefmt
 nix fmt -- --check              # verify formatting, no writes
 ast-grep scan                   # structural lint (reads ./sgconfig.yml)
 sgg <path>                      # the same rules against any other repository
@@ -97,7 +97,7 @@ checks. For separate build and activation steps, keep `nh darwin build .
 
 `checks/default.nix` is the list of flake checks. Read it rather than a copy
 here.
-`hack/lint.sh` is the one list of formatters and linters. It covers Go, Lua,
+`treefmt.toml` selects source formatters; `hack/lint.sh` adds semantic checks. It covers Go, Lua,
 Nix, shell, YAML, JSON, TOML, CUE, C, SVG, TypeScript, and JavaScript.
 It also checks Nushell and Python script blocks.
 `.githooks/pre-commit` calls it on the staged files, so a violation is a

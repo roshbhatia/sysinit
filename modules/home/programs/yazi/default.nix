@@ -4,8 +4,6 @@
 }:
 
 let
-  tomlFormat = pkgs.formats.toml { };
-
   yaziConfig = {
     mgr = {
       show_hidden = true;
@@ -25,26 +23,38 @@ let
     sparseCheckout = plugins;
   };
 
-  mkPluginConfigs = builtins.listToAttrs (
-    map (name: {
-      name = "yazi/plugins/${name}";
-      value = {
-        source = yaziPluginsRepo + "/${name}";
-        force = true;
-      };
-    }) plugins
-  );
-
 in
 {
-  home.packages = [ pkgs.yazi ];
-
-  xdg.configFile = mkPluginConfigs // {
-    "yazi/yazi.toml" = {
-      source = tomlFormat.generate "yazi.toml" yaziConfig;
-      force = true;
+  programs.yazi = {
+    enable = true;
+    enableZshIntegration = true;
+    enableBashIntegration = true;
+    enableFishIntegration = true;
+    enableNushellIntegration = true;
+    shellWrapperName = "y";
+    settings = yaziConfig // {
+      plugin.prepend_fetchers = [
+        {
+          id = "git";
+          name = "*";
+          run = "git";
+        }
+        {
+          id = "git";
+          name = "*/";
+          run = "git";
+        }
+      ];
     };
-
-    "yazi/init.lua".source = ./init.lua;
+    plugins = {
+      git = {
+        package = yaziPluginsRepo + "/git.yazi";
+        setup = true;
+      };
+      no-status = {
+        package = yaziPluginsRepo + "/no-status.yazi";
+        setup = true;
+      };
+    };
   };
 }

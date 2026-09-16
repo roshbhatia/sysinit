@@ -14,7 +14,7 @@ _seshy_names() {
     _seshy_err "sy not found on PATH"
     return 1
   fi
-  sy list 2> /dev/null | awk 'NR > 1 { print $1 }'
+  sy list --names
 }
 
 _seshy_session_name() {

@@ -5,28 +5,28 @@
 const SESHY_ROOT = "@seshySessions@"
 
 def sysinit-ls-icon [kind: string] {
-  match $kind {
-    dir => (char --integer 0xf07b)
-    symlink => (char --integer 0xf0c1)
-    socket => (char --integer 0xf6a7)
-    pipe => (char --integer 0xf569)
-    _ => (char --integer 0xf15b)
-  }
+    match $kind {
+        dir => (char --integer 0xf07b)
+        symlink => (char --integer 0xf0c1)
+        socket => (char --integer 0xf6a7)
+        pipe => (char --integer 0xf569)
+        _ => (char --integer 0xf15b)
+    }
 }
 
 export def ls [
-  --all (-a)
-  --long (-l)
-  --short-names (-s)
-  --full-paths (-f)
-  --du (-d)
-  --directory (-D)
-  --mime-type (-m)
-  --threads (-t)
-  ...pattern: glob
-]: [nothing -> table] {
-  let pattern = if ($pattern | is-empty) { [.] } else { $pattern }
-  (%ls
+    --all(-a)
+    --long(-l)
+    --short-names(-s)
+    --full-paths(-f)
+    --du(-d)
+    --directory(-D)
+    --mime-type(-m)
+    --threads(-t)
+    ...pattern: glob
+]: nothing -> table {
+    let pattern = if ($pattern | is-empty) { [.] } else { $pattern }
+    (%ls
     --all=$all
     --long=$long
     --short-names=$short_names
@@ -37,147 +37,147 @@ export def ls [
     --threads=$threads
     ...$pattern
   )
-  | insert icon {|row| sysinit-ls-icon $row.type }
-  | move icon --before name
+    | insert icon {|row| sysinit-ls-icon $row.type }
+    | move icon --before name
 }
 
 export alias ll = ls --all --long
 
 def sysinit-seshy-session [dir: string] {
-  if ($dir | str starts-with $"($SESHY_ROOT)/") {
-    $dir | path relative-to $SESHY_ROOT | split row "/" | first
-  } else {
-    ""
-  }
+    if ($dir | str starts-with $"($SESHY_ROOT)/") {
+        $dir | path relative-to $SESHY_ROOT | split row "/" | first
+    } else {
+        ""
+    }
 }
 
 def sysinit-seshy-names [] {
-  if (which sy | is-empty) {
-    print -e "seshy: sy not found on PATH"
-    return []
-  }
-  let out = (^sy list | complete)
-  if $out.exit_code != 0 {
-    return []
-  }
-  $out.stdout
-  | lines
-  | skip 1
-  | each {|line| $line | split row -r '\s+' | first }
-  | where {|name| $name | is-not-empty }
+    if (which sy | is-empty) {
+        print -e "seshy: sy not found on PATH"
+        return []
+    }
+    let out = (^sy list --names | complete)
+    if $out.exit_code != 0 {
+        return []
+    }
+    $out.stdout
+    | lines
+    | where {|name| $name | is-not-empty }
 }
 
 export def --env s [name?: string] {
-  if ($name | is-empty) {
-    print -e "seshy: usage: s <session>"
-    return
-  }
-  let out = (^sy --greedy $name | complete)
-  let target = ($out.stdout | str trim)
-  if $out.exit_code != 0 or ($target | is-empty) {
-    print -e $"seshy: no session matches ($name)"
-    return
-  }
-  cd $target
+    if ($name | is-empty) {
+        print -e "seshy: usage: s <session>"
+        return
+    }
+    let out = (^sy --greedy $name | complete)
+    let target = $out.stdout | str trim
+    if $out.exit_code != 0 or ($target | is-empty) {
+        print -e $"seshy: no session matches ($name)"
+        return
+    }
+    cd $target
 }
 
 # zmx holds terminal state in libghostty-vt and hands the client a grid snapshot,
 # so OSC never crosses it. A wrapped pane loses OSC 7 and OSC 1337 SetUserVar,
 # which is every wezterm surface this config drives. Attaching stays deliberate.
 export def sz [] {
-  if (which zmx | is-empty) {
-    print -e "seshy: zmx not found on PATH"
-    return
-  }
-  let session = (sysinit-seshy-session $env.PWD)
-  if ($session | is-empty) {
-    print -e $"seshy: ($env.PWD) is not inside a seshy session"
-    return
-  }
-  let prefix = ($env.ZMX_SESSION_PREFIX? | default "")
-  if ($env.ZMX_SESSION? | default "") == $"($prefix)($session)" {
-    return
-  }
-  ^zmx attach $session
+    if (which zmx | is-empty) {
+        print -e "seshy: zmx not found on PATH"
+        return
+    }
+    let session = (sysinit-seshy-session $env.PWD)
+    if ($session | is-empty) {
+        print -e $"seshy: ($env.PWD) is not inside a seshy session"
+        return
+    }
+    let prefix = $env.ZMX_SESSION_PREFIX? | default ""
+    if ($env.ZMX_SESSION? | default "") == $"($prefix)($session)" {
+        return
+    }
+    ^zmx attach $session
 }
 
 export def sl [] {
-  sysinit-seshy-names
+    sysinit-seshy-names
 }
 
 export def --env si [] {
-  let names = (sysinit-seshy-names)
-  if ($names | is-empty) {
-    return
-  }
-  let picked = (
+    let names = (sysinit-seshy-names)
+    if ($names | is-empty) {
+        return
+    }
+    let picked = (
     $names
     | str join (char newline)
     | ^fzf --height 40% --reverse --prompt "session> "
     | str trim
   )
-  if ($picked | is-empty) {
-    return
-  }
-  s $picked
+    if ($picked | is-empty) {
+        return
+    }
+    s $picked
 }
 
 def sysinit-set-user-var [name: string, value: string] {
-  print -n $"(ansi -o $'($name)=($value | encode base64)')(char bel)"
+    print -n $"(ansi -o $'($name)=($value | encode base64)')(char bel)"
 }
 
 export def wezcopy [...args: string] {
-  let data = if ($args | is-empty) { $in | into string } else { $args | str join " " }
-  sysinit-set-user-var "1337;SetUserVar=wez_copy" $data
+    let data = if ($args | is-empty) { $in | into string } else {
+        $args | str join " "
+    }
+    sysinit-set-user-var "1337;SetUserVar=wez_copy" $data
 }
 
 export def weznot [message: string] {
-  sysinit-set-user-var "1337;SetUserVar=wez_not" $message
+    sysinit-set-user-var "1337;SetUserVar=wez_not" $message
 }
 
 # wezmon needs `eval`, which nushell does not have, so it stays a zsh function
 # and this is the shim. argv rides in as positional words, so quoting survives.
 export def --wrapped wezmon [...args: string] {
-  ^zsh -ic 'wezmon "$@"' wezmon ...$args
+    ^zsh -ic 'wezmon "$@"' wezmon ...$args
 }
 
 export def "path.print" [] {
-  $env.PATH | to text | ^bat --style=numbers,grid --language=txt
+    $env.PATH | to text | ^bat --style=numbers,grid --language=txt
 }
 
 export def "env.print" [pattern?: string] {
-  let prefix = ($pattern | default "")
-  $env
-  | transpose name value
-  | where {|row| $row.name | str starts-with $prefix }
-  | sort-by name
-  | each {|row| $"($row.name)=($row.value | into string)" }
-  | to text
-  | ^bat --style=numbers,grid --language=txt
+    let prefix = $pattern | default ""
+    $env
+    | transpose name value
+    | where {|row| $row.name | str starts-with $prefix }
+    | sort-by name
+    | each {|row| $"($row.name)=($row.value | into string)" }
+    | to text
+    | ^bat --style=numbers,grid --language=txt
 }
 
 export alias nuvim-plugin-context = nuvim context
 export alias nuvim-plugin-servers = nuvim servers
 
 export def --env nuvim [] {
-  if ($env.NVIM? | default "" | is-not-empty) {
-    return (nuvim-plugin-context)
-  }
+    if ($env.NVIM? | default "" | is-not-empty) {
+        return (nuvim-plugin-context)
+    }
 
-  let servers = (nuvim-plugin-servers)
-  if ($servers | is-empty) {
-    error make {msg: "nuvim: no running Neovim sessions found"}
-  }
+    let servers = (nuvim-plugin-servers)
+    if ($servers | is-empty) {
+        error make {msg: "nuvim: no running Neovim sessions found"}
+    }
 
-  let selected = if ($servers | length) == 1 {
-    $servers | first
-  } else {
-    $servers
-    | input list --display {|server| $"($server.label)  ($server.cwd)  pid ($server.pid)"} "Choose a Neovim session:"
-  }
+    let selected = if ($servers | length) == 1 {
+        $servers | first
+    } else {
+        $servers
+        | input list --display {|server| $"($server.label)  ($server.cwd)  pid ($server.pid)"} "Choose a Neovim session:"
+    }
 
-  $env.NVIM = $selected.server
-  nuvim-plugin-context
+    $env.NVIM = $selected.server
+    nuvim-plugin-context
 }
 
 export-env {

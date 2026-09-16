@@ -38,10 +38,10 @@ local function render(payload)
 
   local attention, worst = 0, nil
   for _, s in ipairs(sessions) do
-    if type(s.blocked) == "number" and s.blocked > 0 and str(s.name) ~= selected then
+    if type(s.attention) == "number" and s.attention > 0 and str(s.name) ~= selected then
       attention = attention + 1
-      local r = type(s.rank) == "number" and s.rank or 0
-      local wr = worst and type(worst.rank) == "number" and worst.rank or 0
+      local r = type(s.attention_rank) == "number" and s.attention_rank or 0
+      local wr = worst and type(worst.attention_rank) == "number" and worst.attention_rank or 0
       if not worst or r > wr then
         worst = s
       end
@@ -59,7 +59,7 @@ local function render(payload)
   end
 
   local icon = "󰆍"
-  local worst_status = worst and str(worst.status)
+  local worst_status = worst and str(worst.attention_status)
   if worst_status and status_icons[worst_status] then
     icon = status_icons[worst_status]
   end

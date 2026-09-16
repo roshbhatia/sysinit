@@ -189,7 +189,6 @@ in
 
       core = {
         editor = "nvim";
-        compression = 9;
         preloadIndex = true;
         hooksPath = ".githooks";
       };

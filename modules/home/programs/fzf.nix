@@ -19,14 +19,12 @@ in
     defaultCommand = "${pkgs.fd}/bin/fd --type f --hidden --follow --exclude .git --exclude node_modules";
 
     defaultOptions = [
-      "--multi"
       "--bind=ctrl-d:half-page-down"
       "--bind=ctrl-f:jump,jump:toggle"
       "--bind=ctrl-k:toggle-preview"
       "--bind=ctrl-u:half-page-up"
       "--bind=resize:refresh-preview"
       "--bind=shift-tab:up"
-      "--bind=space:toggle"
       "--bind=tab:down"
       "--border=none"
       "--gutter=' '"
@@ -42,6 +40,8 @@ in
     fileWidget = {
       command = "${pkgs.fd}/bin/fd --type f --hidden --follow --exclude .git --exclude node_modules";
       options = [
+        "--multi"
+        "--bind=ctrl-space:toggle"
         "--preview '${pkgs.bat}/bin/bat --style=numbers --color=always --line-range :500 {}'"
       ];
     };

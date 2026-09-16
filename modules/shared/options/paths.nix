@@ -13,12 +13,10 @@ let
 
   resolved = builtins.mapAttrs (_name: expand) layout.paths;
 
-  manifest = pkgs.writeText "sysinit-paths.json" (
-    builtins.toJSON {
-      inherit (layout) version;
-      paths = resolved;
-    }
-  );
+  manifest = pkgs.sysinit.writeJSON "sysinit-paths.json" {
+    inherit (layout) version;
+    paths = resolved;
+  };
 
   manifestRelative = lib.removePrefix "${config.home.homeDirectory}/" resolved.manifest;
 in

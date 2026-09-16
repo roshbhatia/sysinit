@@ -58,7 +58,7 @@ let
 
   script = pkgs.mkAgentNotifier { inherit pkgs labels; };
 
-  promptScript = pkgs.writeShellApplication {
+  promptScript = pkgs.sysinit.writeShellApplication {
     name = "agent-prompt";
     runtimeInputs = [
       pkgs.jq
@@ -81,23 +81,24 @@ let
     ];
   };
 
-  sessionsScript = pkgs.writeShellApplication {
+  sessionsScript = pkgs.sysinit.writeShellApplication {
     name = "agent-sessions";
     runtimeInputs = [
       pkgs.jq
       pkgs.coreutils
-      pkgs.gawk
       pkgs.wezterm
       pkgs.seshy
     ];
     bashOptions = [ ];
     text = joinFragments [
       paths
-      (builtins.readFile ./agent-sessions.sh)
+      (builtins.replaceStrings [ "@agentSessionsReducer@" ] [ "${./agent-sessions.jq}" ] (
+        builtins.readFile ./agent-sessions.sh
+      ))
     ];
   };
 
-  reviewScript = pkgs.writeShellApplication {
+  reviewScript = pkgs.sysinit.writeShellApplication {
     name = "agent-review";
     runtimeInputs = [
       pkgs.git
@@ -113,7 +114,7 @@ let
     ];
   };
 
-  specPreflight = pkgs.writeShellApplication {
+  specPreflight = pkgs.sysinit.writeShellApplication {
     name = "spec-preflight";
     runtimeInputs = [
       pkgs.citelock
@@ -121,14 +122,13 @@ let
       pkgs.git
       pkgs.gnugrep
       pkgs.gnused
-      pkgs.gawk
       pkgs.findutils
       pkgs.ripgrep
     ];
     text = builtins.readFile ./spec-preflight.sh;
   };
 
-  agentRefine = pkgs.writeShellApplication {
+  agentRefine = pkgs.sysinit.writeShellApplication {
     name = "agent-refine";
     runtimeInputs = [
       pkgs.coreutils
@@ -142,7 +142,7 @@ let
     ];
   };
 
-  focusScript = pkgs.writeShellApplication {
+  focusScript = pkgs.sysinit.writeShellApplication {
     name = "agent-focus";
     runtimeInputs = [
       pkgs.wezterm

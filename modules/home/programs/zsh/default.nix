@@ -20,15 +20,31 @@ let
   coreAgentGlob = shellUtils.stripHeaders ./core/agent-glob.zsh;
   corePathApply = shellUtils.stripHeaders ./core/path-apply.zsh;
   env = shellUtils.stripHeaders ./system/env.zsh;
-  integrationsCompletions = shellUtils.stripHeaders ./integrations/completions.zsh;
+  integrationsCompletions = builtins.replaceStrings [ "@fzf@" ] [ "${lib.getExe pkgs.fzf}" ] (
+    shellUtils.stripHeaders ./integrations/completions.zsh
+  );
   integrationsExtras = shellUtils.stripHeaders ./integrations/extras.zsh;
   seshyWezterm = shellUtils.stripHeaders ./integrations/seshy-wezterm.zsh;
   askCapture = builtins.replaceStrings [ "@timeout@" ] [ "${pkgs.coreutils}/bin/timeout" ] (
     shellUtils.stripHeaders ./integrations/ask.zsh
   );
   libCache = shellUtils.stripHeaders ./lib/cache.zsh;
+  goTaskCompletion = pkgs.runCommand "go-task-zsh-completion" { nativeBuildInputs = [ pkgs.zsh ]; } ''
+    mkdir -p "$out/share/zsh/site-functions"
+    completion="$out/share/zsh/site-functions/_go_task"
+    ${pkgs.go-task}/bin/task --completion zsh > "$completion"
+    substituteInPlace "$completion" \
+      --replace-fail '#compdef task' '#compdef go-task' \
+      --replace-fail '_task' '_go_task' \
+      --replace-fail 'TASK_CMD' 'GO_TASK_CMD' \
+      --replace-fail '"''${TASK_EXE:-task}"' '"${pkgs.go-task}/bin/task"' \
+      --replace-fail 'compdef _go_task "$GO_TASK_CMD"' 'compdef _go_task go-task' \
+      --replace-fail '    task --experiments' '    "$GO_TASK_CMD" --experiments'
+    zsh -n "$completion"
+  '';
 in
 {
+  home.packages = [ goTaskCompletion ];
   programs.zsh = {
     enable = true;
 

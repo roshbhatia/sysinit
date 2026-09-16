@@ -6,6 +6,7 @@
   ...
 }:
 let
+  connections = config.sysinit.ere.connections;
   yaml = pkgs.formats.yaml { };
   identity = lib.toLower values.hostname;
   provision = [
@@ -41,7 +42,7 @@ let
     env.PATH = "/opt/amp/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
   };
   cluster =
-    name: storageClass:
+    name: connection:
     base
     // {
       defaultBackend = "kubernetes-pod";
@@ -49,7 +50,7 @@ let
         backend:
         {
           context = name;
-          namespace = "ere";
+          inherit (connection) namespace;
           kubeconfig = "${config.home.homeDirectory}/.kube/ere-${name}.yaml";
         }
         // lib.optionalAttrs (backend == "kubernetes-kubevirt") {
@@ -65,7 +66,7 @@ let
             image = "docker.io/library/ubuntu:24.04";
             storage = {
               kind = "pvc";
-              class = storageClass;
+              class = connection.storageClass;
               sizeGB = 30;
             };
           }
@@ -78,7 +79,7 @@ let
             bootVolume = "${identity}-${name}-boot";
             storage = {
               kind = "pvc";
-              class = storageClass;
+              class = connection.storageClass;
               sizeGB = 30;
             };
           }
@@ -87,67 +88,123 @@ let
     };
 in
 {
-  home.packages = with pkgs; [
-    ere
-    lima
-    kubectl
-    kubevirt
-    openssh
-    (pkgs.writeShellApplication {
-      name = "ere-setup";
-      runtimeInputs = [
-        pkgs.openssh
-        pkgs.kubectl
-      ];
-      text = ''exec ${pkgs.python3.withPackages (ps: [ ps.pyyaml ])}/bin/python ${./ere-setup.py} "$@"'';
-    })
-  ];
-
-  xdg.configFile =
-    lib.genAttrs [ "ere/arrakis-boot.yaml" "ere/vorgossos-boot.yaml" ] (
-      path:
-      let
-        target = if lib.hasInfix "arrakis" path then "arrakis" else "vorgossos";
-      in
-      {
-        source = (pkgs.formats.json { }).generate "ere-${target}-boot.json" {
-          apiVersion = "cdi.kubevirt.io/v1beta1";
-          kind = "DataVolume";
-          metadata = {
-            name = "${identity}-${target}-boot";
-            namespace = "ere";
-            annotations."cdi.kubevirt.io/storage.bind.immediate.requested" = "true";
+  options.sysinit.ere.connections = lib.mkOption {
+    description = "Named private runner connections used by configuration and credential setup.";
+    type = lib.types.attrsOf (
+      lib.types.submodule (
+        { name, ... }: {
+          options = {
+            sshHost = lib.mkOption {
+              type = lib.types.str;
+              default = name;
+            };
+            endpoint = lib.mkOption {
+              type = lib.types.str;
+              default = "https://${name}:6443";
+            };
+            namespace = lib.mkOption {
+              type = lib.types.str;
+              default = "ere";
+            };
+            storageClass = lib.mkOption { type = lib.types.str; };
+            credentialCommand = lib.mkOption { type = lib.types.listOf lib.types.str; };
           };
-          spec = {
-            source.http.url = "https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-amd64.img";
-            storage = {
-              storageClassName = if target == "arrakis" then "ere-retain" else "zfs-path";
-              accessModes = [ "ReadWriteOnce" ];
-              resources.requests.storage = "30Gi";
+        }
+      )
+    );
+    default = {
+      arrakis = {
+        storageClass = "ere-retain";
+        credentialCommand = [
+          "sudo"
+          "-n"
+          "k3s"
+          "kubectl"
+          "config"
+          "view"
+          "--raw"
+          "--minify"
+          "-o"
+          "json"
+        ];
+      };
+      vorgossos = {
+        storageClass = "zfs-path";
+        credentialCommand = [
+          "sudo"
+          "-n"
+          "/usr/local/bin/k0s"
+          "kubeconfig"
+          "admin"
+        ];
+      };
+    };
+  };
+  config = {
+    home.packages = with pkgs; [
+      ere
+      lima
+      kubectl
+      kubevirt
+      openssh
+      (pkgs.sysinit.writeShellApplication {
+        name = "ere-setup";
+        runtimeInputs = [
+          pkgs.openssh
+          pkgs.kubectl
+        ];
+        text = ''exec ${pkgs.sysinit-gotools}/bin/ere-setup --config ${config.xdg.configHome}/ere/connections.json "$@"'';
+      })
+    ];
+
+    xdg.configFile =
+      lib.mapAttrs' (
+        target: connection:
+        lib.nameValuePair "ere/${target}-boot.yaml" {
+          source = (pkgs.formats.json { }).generate "ere-${target}-boot.json" {
+            apiVersion = "cdi.kubevirt.io/v1beta1";
+            kind = "DataVolume";
+            metadata = {
+              name = "${identity}-${target}-boot";
+              inherit (connection) namespace;
+              annotations."cdi.kubevirt.io/storage.bind.immediate.requested" = "true";
+            };
+            spec = {
+              source.http.url = "https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-amd64.img";
+              storage = {
+                storageClassName = connection.storageClass;
+                accessModes = [ "ReadWriteOnce" ];
+                resources.requests.storage = "30Gi";
+              };
             };
           };
-        };
-      }
-    )
-    // {
-      "ere/config.yaml".source = yaml.generate "ere-local.yaml" (
-        base
-        // {
-          defaultBackend = "lima";
-          providers.lima.vmType = "auto";
-          runners = [
-            (
-              (runner "lima")
-              // {
-                backend = "lima";
-                image = "template://_images/ubuntu-lts";
-                storage.kind = "guest-disk";
-              }
-            )
-          ];
         }
-      );
-      "ere/arrakis.yaml".source = yaml.generate "ere-arrakis.yaml" (cluster "arrakis" "ere-retain");
-      "ere/vorgossos.yaml".source = yaml.generate "ere-vorgossos.yaml" (cluster "vorgossos" "zfs-path");
-    };
+      ) connections
+      // {
+        "ere/config.yaml".source = yaml.generate "ere-local.yaml" (
+          base
+          // {
+            defaultBackend = "lima";
+            providers.lima.vmType = "auto";
+            runners = [
+              (
+                (runner "lima")
+                // {
+                  backend = "lima";
+                  image = "template://_images/ubuntu-lts";
+                  storage.kind = "guest-disk";
+                }
+              )
+            ];
+          }
+        );
+        "ere/connections.json".source = (pkgs.formats.json { }).generate "ere-connections.json" connections;
+      }
+      // lib.mapAttrs' (
+        name: connection:
+        lib.nameValuePair "ere/${name}.yaml" {
+          source = yaml.generate "ere-${name}.yaml" (cluster name connection);
+        }
+      ) connections;
+  };
 }

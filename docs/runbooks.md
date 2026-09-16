@@ -269,3 +269,49 @@ Set `AMP_API_KEY` through your secret manager before `ere up <runner-name>`.
 Use `--config` to select a remote cluster and select one runner by name.
 Bare `up` starts every runner in the selected file. A successful `plan` verifies
 the declared compute changes; an Amp task verifies actual runner registration.
+
+## Format source and generated files
+
+Run `nix fmt` to apply the formatters in `treefmt.toml`. Use
+`nix fmt -- --check` for a check that leaves the working tree unchanged.
+The check formats a temporary copy of tracked files. Stage new files first.
+Hooks use the same configuration through `hack/format.sh` in the Nix shell.
+
+Use the language formatter: nixfmt, shfmt, StyLua, gofmt, Ruff, nufmt,
+fish_indent, Taplo, Prettier, clang-format, or cue fmt. Lockfiles, fetched
+sources, and vendor directories stay under their upstream generators.
+Zsh and jq programs retain their syntax checks; Bash formatting is not valid
+for arbitrary Zsh syntax.
+
+Generate local shell commands with `pkgs.sysinit.writeShellApplication`,
+`writeShellScript`, or `writeShellScriptBin`. These builders format the fully
+expanded script with shfmt before the existing checks. Generate JSON with
+`pkgs.sysinit.writeJSON name value`, which uses the native Nix JSON generator.
+Use `pkgs.formats` for other structured configuration formats.
+
+## Compose local utilities
+
+`y` and `f` use Yazi's native directory-changing shell wrapper. `fd` respects
+repository ignore rules; use `fda` to search ignored files. `find` retains its
+standard meaning. Fzf file selection supports multiple results with Ctrl-Space;
+history and directory selection use their own modes.
+
+Enable session planning explicitly with `sysinit.seshy.planning.enable`.
+Append independent commands through `sysinit.seshy.postCreateHooks`.
+`sysinit.ere.connections` declares each connection's SSH host, API endpoint,
+namespace, storage class, and credential command in one place.
+
+`task-context repo` lists actionable work for the current repository. TUI keys
+`1` and `2` open the task URL and repository. Set `sysinit.tasks.urlAttribute`
+for an integration-specific URL field. The TUI uses the effective focus report.
+Daily export snapshots retain 14 copies by default; configure
+`sysinit.tasks.backup.enable` and `.keep` to change that policy.
+
+## Hide applications after a restart
+
+Hammerspoon hides regular applications 15 seconds after its startup and
+Accessibility initialization on a new boot. It records the boot UUID in its
+settings. First installation records the current boot without hiding anything;
+subsequent Hammerspoon reloads in the same boot do nothing. Applications remain
+running and can be reopened normally. Applications launched after the delay
+remain visible.

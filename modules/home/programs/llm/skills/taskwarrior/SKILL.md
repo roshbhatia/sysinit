@@ -9,7 +9,7 @@ Use the installed `task` CLI and its managed configuration. All agents on this
 machine share one Taskwarrior database. Shell access is the integration; no MCP
 server is required. Do not create a task database inside a repository.
 
-Before starting multi-step work, inspect `task rc.context:none status:pending export` and filter
+Before starting multi-step work, inspect `task rc.context:none \( +PENDING or +WAITING \) export` and filter
 by repository or project. Reuse an existing task when it
 matches the requested outcome. Use UUIDs, since numeric IDs can change.
 
@@ -56,3 +56,11 @@ Taskwarrior is shared across local agents, not automatically across machines.
 Use host-specific instructions for external integrations and data boundaries.
 Downstream flakes extend `programs.taskwarrior.config` for fields and reports,
 and `sysinit.llm.instructions.extraSections` for agent guidance.
+
+Use `task-context repo` for the current Git repository's actionable tasks.
+TUI keys `1` and `2` open the configured source URL and repository directory.
+`task-context backup` creates a private export snapshot. Restore with
+`task-context restore SNAPSHOT NEW_DIRECTORY`; the destination must not exist.
+Snapshots retain tasks, annotations, dependencies, and effective configuration.
+They do not retain undo or replica synchronization history. Restores disable hooks
+and synchronization settings until explicitly reconfigured.

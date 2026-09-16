@@ -59,16 +59,26 @@ let
     branchFormat = "dev/{{.User}}/{{.Session}}/{{.Repo}}";
     sessionsDir = config.sysinit.paths.resolved.seshySessions;
     hooks = {
-      postCreate = [
-        "[ -d openspec ] || openspec init --tools ${lib.concatStringsSep "," openspecTools}"
-        "command -v specutil >/dev/null 2>&1 && [ -d openspec/changes ] && specutil graph --as mermaid | mermaid-ascii || true"
-      ];
+      postCreate =
+        config.sysinit.seshy.postCreateHooks
+        ++ lib.optionals config.sysinit.seshy.planning.enable [
+          "[ -d openspec ] || openspec init --tools ${lib.concatStringsSep "," openspecTools}"
+          "command -v specutil >/dev/null 2>&1 && [ -d openspec/changes ] && specutil graph --as mermaid | mermaid-ascii || true"
+        ];
       preDelete = [ ];
     };
   };
 in
 {
-  xdg.configFile = {
+  options.sysinit.seshy = {
+    planning.enable = lib.mkEnableOption "OpenSpec initialization for new sessions";
+    postCreateHooks = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      description = "Explicit commands to run after session creation.";
+    };
+  };
+  config.xdg.configFile = {
     "seshy/config.yaml".source = (pkgs.formats.yaml { }).generate "seshy-config.yaml" settings;
     "fish/completions/sy.fish".source = syFishCompletion;
   };

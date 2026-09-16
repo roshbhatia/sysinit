@@ -1,13 +1,13 @@
 _:
 
 {
+  home.shellAliases.fda = "fd --no-ignore";
   programs.fd = {
     enable = true;
     hidden = true;
 
     extraOptions = [
       "--follow"
-      "--no-ignore-vcs"
     ];
 
     ignores = [

@@ -2,7 +2,7 @@ let
   commonAliases = {
     c = "claude --dangerously-skip-permissions";
     cat = "bat -pp";
-    f = "yazi";
+    f = "y";
     kk = "k9s";
     ll = "eza --icons=always -l -a";
     lt = "eza --tree";
@@ -15,7 +15,6 @@ let
 
   posixAliases = {
     diff = "diff --color";
-    find = "fd";
     grep = "rg -s --color=auto";
     sudo = "sudo -E";
   };

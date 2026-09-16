@@ -56,6 +56,14 @@ let
   );
 in
 {
+  hammerspoon-startup =
+    pkgs.runCommand "hammerspoon-startup-test" { nativeBuildInputs = [ pkgs.lua5_4 ]; }
+      ''
+        lua ${./hammerspoon-startup.lua} ${../modules/darwin/home/hammerspoon/lua/sysinit/pkg/core/startup.lua}
+        touch "$out"
+      '';
+  generated-format = import ./generated-format.nix { inherit pkgs; };
+  agent-sessions = import ./agent-sessions.nix { inherit pkgs; };
   mcp-client-routing = import ./mcp-routing.nix { inherit pkgs; };
   managed-file-cache = import ./managed-file-cache.nix { inherit pkgs; };
   incremental-defaults =
