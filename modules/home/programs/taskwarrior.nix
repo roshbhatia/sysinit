@@ -68,6 +68,7 @@ let
   };
 in
 {
+  home.packages = [ pkgs.taskwarrior-tui ];
   programs.taskwarrior = {
     enable = true;
     package = pkgs.taskwarrior3;
@@ -112,6 +113,37 @@ in
         };
       };
       uda = {
+        taskwarrior-tui = {
+          task-report = {
+            next.filter = actionable;
+            use-alternate-style = false;
+            info-location = "auto";
+            prompt-on-done = true;
+            prompt-on-delete = true;
+            prompt-on-undo = true;
+          };
+          selection.indicator = "> ";
+          mark.indicator = "* ";
+          mark-selection.indicator = "*>";
+          unmark-selection.indicator = "> ";
+          style = {
+            title = "bold blue";
+            "title.border" = "color8";
+            navbar = "black on blue";
+            command = "blue";
+            "command.error" = "bold red";
+            "help.gauge" = "blue";
+            "report.selection" = "black on blue";
+            "report-menu.active" = "black on blue";
+            "context.active" = "black on blue";
+            "calendar.title" = "bold blue";
+            "calendar.today" = "black on blue";
+            "report.scrollbar" = "blue";
+            "report.scrollbar.area" = "color8";
+            "report.completion-pane" = "white on black";
+            "report.completion-pane-highlight" = "black on blue";
+          };
+        };
         kind = {
           type = "string";
           label = "Kind";

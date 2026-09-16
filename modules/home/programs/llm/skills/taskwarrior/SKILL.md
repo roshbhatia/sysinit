@@ -35,6 +35,13 @@ Taskwarrior holds durable outcomes and unfinished work.
 for active, blocked, and all unfinished work. The focus view excludes waiting,
 blocked, backlog, inbox, idea, and note entries; absence there does not mean completion.
 
+For interactive review, run `taskwarrior-tui`. Its initial view uses the actionable
+filter. Press `R` to select a report, `/` to filter, `z` for details, and `?` for
+help. `taskwarrior-tui -r review` opens all unfinished work. The `c` context menu
+changes the shared persistent context; agents must continue to use per-command
+overrides. For isolated testing, set `TASKRC` and `TASKDATA` explicitly: existing
+environment values take precedence over the TUI's command-line path options.
+
 Capture ideas with `task add 'Idea' kind:idea +inbox` and reference notes with
 `task add 'Note' kind:note`. Use `task inbox`, `task ideas`, or `task notes` to find
 them. Clear `inbox` after triage. Convert an agreed idea with `kind:task -inbox`.
