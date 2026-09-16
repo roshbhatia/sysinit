@@ -207,11 +207,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789497206,
-        "narHash": "sha256-fgOydSHHFqmTr2vMm4GgI2lCOqUyI5e0y4aa1OGrZGA=",
+        "lastModified": 1789580878,
+        "narHash": "sha256-xoK3mnihtUk7ClGOcWRk7rBXjOAcTm4ABrNMga4zudo=",
         "owner": "roshbhatia",
         "repo": "changes",
-        "rev": "a260ae2eb8b61ee59c57650a1cf9d5a3dca4f196",
+        "rev": "3cf68efdfe2699a3f9f3718bc5f4f29e462ff1b4",
         "type": "github"
       },
       "original": {
