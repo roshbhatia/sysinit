@@ -45,6 +45,7 @@ in
     format = "json";
     content = {
       provider = "codex";
+      models.codex = config.programs.codex.settings.model;
       permission_mode = "auto";
       permission = fxPermission;
     };
