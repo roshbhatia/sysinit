@@ -124,6 +124,13 @@ let
         ${contextRules}
         ${loaderNote}
         ${orcReporting}
+
+        ## Shared tasks
+
+        Taskwarrior is the durable todo context shared by agents on this machine.
+        Before multi-step work, read the `taskwarrior` skill and check relevant tasks.
+        Record agreed work, blockers, and verified completion there. Use UUIDs across sessions.
+        Follow host-specific instructions for imported tasks and external synchronization.
       '';
     in
     vocab.applyVocab harness (base + lib.optionalString (extraSections != [ ]) "\n${extras}");

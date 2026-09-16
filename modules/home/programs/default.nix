@@ -26,6 +26,7 @@ in
         ./nix-your-shell.nix
         ./omp.nix
         ./ssh.nix
+        ./taskwarrior.nix
         ./utils
         ./vivid.nix
         ./zmx
