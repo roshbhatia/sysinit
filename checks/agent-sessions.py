@@ -103,6 +103,8 @@ class SessionTests(unittest.TestCase):
 
     def test_malformed_records(self):
         self.seed(["working"])
+        valid = self.panes / "0.json"
+        valid.write_text(json.dumps(json.loads(valid.read_text()), indent=2))
         (self.panes / "bad.json").write_text("interrupted write\n")
         self.assertEqual(self.run_status()["sessions"][0]["panes"], 1)
         self.env["LIVE"] = "invalid"

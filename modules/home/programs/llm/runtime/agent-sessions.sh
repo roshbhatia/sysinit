@@ -70,7 +70,11 @@ shopt -s nullglob
 pane_files=("$panes_dir"/*.json)
 records='[]'
 if [ "${#pane_files[@]}" -gt 0 ]; then
-  records=$(jq -Rn '[inputs | fromjson? | select(type == "object")]' "${pane_files[@]}") || emit_cached
+  records=$(
+    for pane_file in "${pane_files[@]}"; do
+      printf '%s\0' "$(< "$pane_file")"
+    done | jq -Rs 'split("\u0000") | map(fromjson? | select(type == "object"))'
+  ) || emit_cached
 fi
 out=$(printf '%s' "$records" | jq --argjson live "$live" --argjson selected "$selected" \
   --arg selstate "$selection_state" --arg known "$known" -f @agentSessionsReducer@) || emit_cached
