@@ -62,6 +62,18 @@ in
         lua ${./hammerspoon-startup.lua} ${../modules/darwin/home/hammerspoon/lua/sysinit/pkg/core/startup.lua}
         touch "$out"
       '';
+  completion-cache =
+    pkgs.runCommand "completion-cache-test"
+      {
+        nativeBuildInputs = [
+          pkgs.python3
+          pkgs.zsh
+        ];
+      }
+      ''
+        python3 ${./completion-cache.py} ${../modules/home/programs/zsh/core/compinit.zsh}
+        touch "$out"
+      '';
   generated-format = import ./generated-format.nix { inherit pkgs; };
   agent-sessions = import ./agent-sessions.nix { inherit pkgs; };
   mcp-client-routing = import ./mcp-routing.nix { inherit pkgs; };

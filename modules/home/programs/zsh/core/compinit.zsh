@@ -18,14 +18,21 @@ for _zsitefns in \
   [[ -d $_zsitefns ]] && fpath=("$_zsitefns" $fpath)
 done
 
-# -C skips the scan for new completion files, which is the fast path and the
-# reason a switch used to leave the dump stale. A new profile generation adds
-# completions the dump cannot know about, so drop it when the profile is newer.
-[[ -f $_zdump && -e $_zprofile && $_zdump -ot $_zprofile ]] && rm -f "$_zdump"
-
+# Store files have fixed timestamps, so the resolved profile identifies a new generation.
+_zgeneration=${_zprofile:A}
+_zgeneration_file="$_zdump.profile"
+_zcached_generation=""
+[[ -f $_zgeneration_file ]] && _zcached_generation=$(< "$_zgeneration_file")
+mkdir -p "${_zdump:h}"
 autoload -Uz compinit
-compinit -C -d "$_zdump"
-unset _zdump _zprofile _zsitefns
+if [[ -f $_zdump && $_zcached_generation == $_zgeneration ]]; then
+  compinit -C -d "$_zdump"
+else
+  rm -f "$_zdump" "$_zdump.zwc"
+  compinit -d "$_zdump"
+  print -r -- "$_zgeneration" > "$_zgeneration_file"
+fi
+unset _zdump _zprofile _zsitefns _zgeneration _zgeneration_file _zcached_generation
 
 setopt globdots
 
