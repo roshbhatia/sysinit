@@ -1,0 +1,19 @@
+modules/home/programs/default.nix
+  s_895ab6f768032e::t_2fd98e34f9850d 29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b84163d98f62d148d032e3a7eb8e7db99d080c3e",
+  "prompts": {},
+  "sessions": {
+    "s_895ab6f768032e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a0ca-05c9-7e31-8c65-9dfb547dce39",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
