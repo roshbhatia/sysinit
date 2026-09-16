@@ -1,0 +1,103 @@
+checks/app-copy-state.py
+  s_895ab6f768032e::t_8b789c84e6f028 26-34,38-50
+checks/homebrew-reconcile.py
+  s_895ab6f768032e::t_ae094270474807 16-17,19-21,26-35,37-47,67-69,71-77,80-89
+checks/incremental-defaults.py
+  s_895ab6f768032e::t_1b5b1dc65de586 26-31,37-41,53-57
+checks/managed-file-cache.py
+  s_895ab6f768032e::t_b5ae95e25beaf5 19-23,34-36,61-71
+eslint.config.mjs
+  s_895ab6f768032e::t_6b7e4c8a51b1e6 40-44
+flake.nix
+  s_895ab6f768032e::t_958ddbc437ad92 468-470,473
+flake/formatter.nix
+  s_895ab6f768032e::t_f68ca472478122 9-22,24
+hack/format.sh
+  s_895ab6f768032e::t_e2cf51f7e8bbc5 1-20
+hack/test_update_flakes.py
+  s_895ab6f768032e::t_69e36c10eefaba 8-9,18-24,28-29,31-55,57-70,75,77,79-91,96
+hack/update-flakes.py
+  s_895ab6f768032e::t_5f745dc663f256 15-17,22-24,29-33,37-44,46-55,60-62
+modules/darwin/closed-lid-ssh.nix
+  s_895ab6f768032e::t_dc96a9c0006409 11-13
+modules/darwin/home/hammerspoon/emoji-data.py
+  s_895ab6f768032e::t_07a2a480ea521b 19-21
+modules/darwin/home/sketchybar/helpers/menus/menus.c
+  s_895ab6f768032e::t_c8fc65c0485a3c 4-5,8-10,14-15,19-20,28-29,31-32,40-41,43-44,52-53,55-56,64-65,67-68,78-79,86-89,93,96-97,104-105,107-108,110-111,115-116,124,126-127,129-131,134,144-145,148-149,153-154,156-157,166-169,177-178,191-195,197-198,208-211,223,231-232,239-240,243-244
+modules/darwin/homebrew.nix
+  s_895ab6f768032e::t_c5322216c07699 27,38,42,46
+modules/darwin/ollama.nix
+  s_895ab6f768032e::t_b956fb2c8d88fa 11
+modules/darwin/sketchybar.nix
+  s_895ab6f768032e::t_ac07cc9b2eac6b 14
+modules/darwin/system.nix
+  s_895ab6f768032e::t_655206f8fee3d6 14
+modules/home/app-copy-state.py
+  s_895ab6f768032e::t_418b83d3a6bef5 20-34,48-50,55-57
+modules/home/codesign.nix
+  s_895ab6f768032e::t_fb6752e7a6162b 53
+modules/home/programs/ast-grep/default.nix
+  s_895ab6f768032e::t_b362847b20efeb 10
+modules/home/programs/firefox/newtab.html
+  s_895ab6f768032e::t_fa84b4b7fb4069 1,3-18
+modules/home/programs/firefox/tridactyl.css
+  s_895ab6f768032e::t_cfba1a0c9bacbf 8-9,12-13,15-18,21-29,35-37
+modules/home/programs/firefox/userChrome.css
+  s_895ab6f768032e::t_4898882fe0f4c2 3-18,27-33,86-94,102,183-185,198-200,202-204,218-223,230-242,248-253,255-257,266-267,273-283,296-298,304-307,312-313,319-320,336-338,340-342
+modules/home/programs/firefox/userContent.css
+  s_895ab6f768032e::t_2b8c49a11a176d 2-7,10-18,23-25
+modules/home/programs/llm/harnesses/claude/default.nix
+  s_895ab6f768032e::t_99a17b79988b2f 36
+modules/home/programs/llm/harnesses/codex-retire-legacy-hooks.nix
+  s_895ab6f768032e::t_2eb07d6a97922e 3
+modules/home/programs/llm/harnesses/copilot/extensions/sysinit-guard/extension.mjs
+  s_895ab6f768032e::t_82074675cf577b 13-17,21-24,26-29,31-33,35-42
+modules/home/programs/llm/harnesses/pi/extensions/openspec-sidebar/package.json
+  s_895ab6f768032e::t_7c51304a8f38dd 6-8
+modules/home/programs/llm/harnesses/shared/nvim-markdown-editor.nix
+  s_895ab6f768032e::t_6c69f0504430ae 2
+modules/home/programs/llm/lib/managed-file-cache.py
+  s_895ab6f768032e::t_3bb8a22d9d5cbd 32-34,51-61,63-79
+modules/home/programs/llm/mcp-servers.nix
+  s_895ab6f768032e::t_cf4e09691b7897 8,32
+modules/home/programs/otel-collector.nix
+  s_895ab6f768032e::t_df02fc8b1e2979 54
+modules/home/programs/otel-tui.nix
+  s_895ab6f768032e::t_564dc8879a623e 13
+modules/home/programs/utils/dev/fzf-preview.nu
+  s_895ab6f768032e::t_364c9de0cf40cf 5,14,20,35,37,39-47,73-83,85,98,129-135,137,143-146,148,163,165,167-172,182-184
+modules/home/programs/utils/network/dns-flush.nu
+  s_895ab6f768032e::t_b7c8caa0336f60 5-6,12
+modules/home/programs/utils/system/audio-switcher.nu
+  s_895ab6f768032e::t_21293c29170a63 18,21-27,30,53,60,73,92,94
+modules/home/programs/utils/system/set-background.nu
+  s_895ab6f768032e::t_68bc8ee4fe3f18 34-41,70-74
+modules/nixos/desktop/sway.nix
+  s_895ab6f768032e::t_71522d2cdc56cd 8
+modules/nixos/github-runner.nix
+  s_895ab6f768032e::t_5275ac98ee911f 27
+modules/nixos/home/launcher/style.css
+  s_895ab6f768032e::t_1c1f7f9002d03e 19,27,32,36,50,56,69,74,78,85,87,92,97
+modules/nixos/home/streaming.nix
+  s_895ab6f768032e::t_ec67a1261ab5a1 18,39,54,70,87,117
+modules/nixos/home/sunshine-apps-gen.py
+  s_895ab6f768032e::t_7e63342c8aabd7 82-84,106-108
+overlays/default.nix
+  s_895ab6f768032e::t_a1b7324a9271d3 19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9512eb8c44841bb15be57fc128df9eea01109d0c",
+  "prompts": {},
+  "sessions": {
+    "s_895ab6f768032e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a0ca-05c9-7e31-8c65-9dfb547dce39",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
