@@ -1,0 +1,25 @@
+checks/default.nix
+  s_895ab6f768032e::t_3b9bdabad954ae 59
+checks/editor-composition.nix
+  s_895ab6f768032e::t_57943a9686cbd2 1-51
+modules/home/packages.nix
+  s_895ab6f768032e::t_b927b397c10602 39-40,49-51,66,77
+modules/home/programs/helix.nix
+  s_895ab6f768032e::t_f7ce2c229aea7a 1-5,10-62
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "02989d71d0affa0722d4ba99b5a016a4b0c4b17b",
+  "prompts": {},
+  "sessions": {
+    "s_895ab6f768032e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a0ca-05c9-7e31-8c65-9dfb547dce39",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
