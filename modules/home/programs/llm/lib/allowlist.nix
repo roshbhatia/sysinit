@@ -329,11 +329,22 @@ let
       action = "reject";
     }) patterns;
 
-  slackSendTools = [
-    "mcp__claude_ai_Slack__slack_send_message"
-    "mcp__claude_ai_Slack__slack_send_message_draft"
-    "mcp__claude_ai_Slack__slack_schedule_message"
-  ];
+  slackSendTools =
+    lib.concatMap
+      (
+        prefix:
+        map (name: "${prefix}${name}") [
+          "slack_send_message"
+          "slack_send_message_draft"
+          "slack_schedule_message"
+        ]
+      )
+      [
+        "mcp__claude_ai_Slack__"
+        "mcp__slack__"
+        "mcp__plugin_hm_slack__"
+        "mcp__plugin_claude-code-home-manager_slack__"
+      ];
 
   tierMcp = [
     "mcp__ast-grep__*"
