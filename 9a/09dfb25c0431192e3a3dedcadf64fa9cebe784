@@ -1,0 +1,25 @@
+docs/runbooks.md
+  s_895ab6f768032e::t_d4075f0d27ffb2 283-284
+modules/home/programs/zsh/default.nix
+  s_895ab6f768032e::t_dffc04b98525fb 32-53
+modules/home/programs/zsh/integrations/seshy-wezterm.zsh
+  s_895ab6f768032e::t_60e6cf1111561e 49,122
+treefmt.toml
+  s_895ab6f768032e::t_d139e3451b8547 72-76
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9a09dfb25c0431192e3a3dedcadf64fa9cebe784",
+  "prompts": {},
+  "sessions": {
+    "s_895ab6f768032e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a0ca-05c9-7e31-8c65-9dfb547dce39",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
