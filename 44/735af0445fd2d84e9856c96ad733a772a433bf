@@ -1,0 +1,19 @@
+modules/home/programs/llm/harnesses/fx.nix
+  s_895ab6f768032e::t_575e16c396ba0b 48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "44735af0445fd2d84e9856c96ad733a772a433bf",
+  "prompts": {},
+  "sessions": {
+    "s_895ab6f768032e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a0ca-05c9-7e31-8c65-9dfb547dce39",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
