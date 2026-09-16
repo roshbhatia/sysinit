@@ -1,0 +1,23 @@
+checks/hammerspoon-startup.lua
+  s_895ab6f768032e::t_690d2c5a31225a 1-66
+modules/darwin/home/hammerspoon/init.lua
+  s_895ab6f768032e::t_eb607e7b288301 17
+modules/darwin/home/hammerspoon/lua/sysinit/pkg/core/startup.lua
+  s_895ab6f768032e::t_ae7cafa4c842f5 1-33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c467a9deb5686c0fe661a4da5d1ed23736292ebe",
+  "prompts": {},
+  "sessions": {
+    "s_895ab6f768032e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a0ca-05c9-7e31-8c65-9dfb547dce39",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
