@@ -46,7 +46,7 @@ add-zsh-hook chpwd _seshy_export_workspace
 _seshy_export_workspace
 
 function s() {
-  if (( $# == 0 )); then
+  if (($# == 0)); then
     _seshy_err "usage: s <session>"
     return 1
   fi
@@ -119,11 +119,10 @@ function wezmon() {
   local cmd="$*"
   eval "$cmd"
   local rc=$?
-  if (( rc == 0 )); then
+  if ((rc == 0)); then
     weznot "'$cmd' completed successfully"
   else
     weznot "'$cmd' failed (exit $rc)"
   fi
   return $rc
 }
-

@@ -69,3 +69,8 @@ includes = ["*.c", "*.h"]
 command = "cue"
 options = ["fmt"]
 includes = ["*.cue"]
+
+[formatter.zsh]
+command = "shfmt"
+options = ["-ln", "zsh", "-w", "-i", "2", "-ci", "-sr"]
+includes = ["*.zsh"]

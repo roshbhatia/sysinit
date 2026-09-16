@@ -280,8 +280,8 @@ Hooks use the same configuration through `hack/format.sh` in the Nix shell.
 Use the language formatter: nixfmt, shfmt, StyLua, gofmt, Ruff, nufmt,
 fish_indent, Taplo, Prettier, clang-format, or cue fmt. Lockfiles, fetched
 sources, and vendor directories stay under their upstream generators.
-Zsh and jq programs retain their syntax checks; Bash formatting is not valid
-for arbitrary Zsh syntax.
+Zsh uses shfmt's explicit Zsh dialect. jq programs retain their focused behavior
+tests; jqfmt does not yet support the function definitions these programs use.
 
 Generate local shell commands with `pkgs.sysinit.writeShellApplication`,
 `writeShellScript`, or `writeShellScriptBin`. These builders format the fully
