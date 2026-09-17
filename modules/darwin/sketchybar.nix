@@ -13,14 +13,13 @@ let
 
   monitor-reload-script = pkgs.sysinit.writeShellScript "sketchybar-monitor-reload" ''
     set -euo pipefail
-    HOME="''${HOME:-/Users/$(whoami)}"
     CACHE_DIR="''${XDG_CACHE_HOME:-$HOME/.cache}/sketchybar"
     PREV_HASH_FILE="$CACHE_DIR/monitor-hash"
     LOG_FILE="/tmp/sketchybar-reload.log"
 
-    mkdir -p "$CACHE_DIR" 2>/dev/null || true
+    mkdir -p "$CACHE_DIR"
 
-    current_monitors=$(${pkgs.aerospace}/bin/aerospace list-monitors 2>/dev/null) || {
+    current_monitors=$(${pkgs.coreutils}/bin/timeout 2 ${pkgs.aerospace}/bin/aerospace list-monitors 2>/dev/null) || {
         echo "[$(${pkgs.coreutils}/bin/date '+%Y-%m-%d %H:%M:%S')] ERROR: Failed to get monitor list" >> "$LOG_FILE"
         exit 1
     }
@@ -35,8 +34,11 @@ let
 
     if [ "$current_hash" != "$prev_hash" ]; then
         echo "[$(${pkgs.coreutils}/bin/date '+%Y-%m-%d %H:%M:%S')] Monitor configuration changed" >> "$LOG_FILE"
-        if ${pkgs.sketchybar}/bin/sketchybar --reload 2>>"$LOG_FILE"; then
-            echo "$current_hash" > "$PREV_HASH_FILE"
+        if ${pkgs.coreutils}/bin/timeout 5 ${pkgs.sketchybar}/bin/sketchybar --reload 2>>"$LOG_FILE"; then
+            printf '%s\n' "$current_hash" > "$PREV_HASH_FILE.tmp"
+            mv "$PREV_HASH_FILE.tmp" "$PREV_HASH_FILE"
+        else
+            exit 1
         fi
     fi
   '';
@@ -59,7 +61,7 @@ in
         "${monitor-reload-script}"
       ];
       RunAtLoad = true;
-      StartInterval = 5;
+      StartInterval = 30;
       StandardOutPath = "/tmp/sketchybar-reload.log";
       StandardErrorPath = "/tmp/sketchybar-reload.error.log";
       EnvironmentVariables.PATH = "${

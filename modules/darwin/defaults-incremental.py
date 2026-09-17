@@ -24,8 +24,13 @@ def apply(entries, defaults="/usr/bin/defaults", restart="/usr/bin/killall"):
         for key, value in desired.items():
             if key in current and current[key] == value:
                 continue
-            payload = plistlib.dumps(value).decode()
-            subprocess.run([defaults, "write", domain, key, payload], check=True)
+            if value is None:
+                if key not in current:
+                    continue
+                subprocess.run([defaults, "delete", domain, key], check=True)
+            else:
+                payload = plistlib.dumps(value).decode()
+                subprocess.run([defaults, "write", domain, key, payload], check=True)
             changed += 1
             dock_changed |= domain == "com.apple.dock"
     if dock_changed:

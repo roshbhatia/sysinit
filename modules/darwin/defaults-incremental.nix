@@ -10,6 +10,10 @@ let
     domain
     (lib.filterAttrs (_: value: value != null) values)
   ];
+  removals = lib.mapAttrsToList (domain: keys: [
+    domain
+    (lib.genAttrs keys (_: null))
+  ]) config.sysinit.darwin.defaults.remove;
   users = [
     (entry ".GlobalPreferences" cfg.NSGlobalDomain)
     (entry ".GlobalPreferences" cfg.".GlobalPreferences")
@@ -29,6 +33,7 @@ let
     (entry "com.apple.universalaccess" cfg.universalaccess)
     (entry "com.apple.ActivityMonitor" cfg.ActivityMonitor)
   ]
+  ++ removals
   ++ lib.mapAttrsToList entry cfg.CustomUserPreferences
   ++ [
     (entry "com.apple.WindowManager" cfg.WindowManager)

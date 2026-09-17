@@ -7,6 +7,14 @@
         "-c"
         ''
           CAFPID=""
+          cleanup() {
+            if [ -n "$CAFPID" ]; then
+              kill "$CAFPID" 2>/dev/null || true
+              wait "$CAFPID" 2>/dev/null || true
+            fi
+          }
+          trap cleanup EXIT
+          trap 'exit 0' HUP INT TERM
           is_connected() {
             /usr/sbin/system_profiler SPDisplaysDataType 2>/dev/null \
               | /usr/bin/grep -q "Thunderbolt Display"

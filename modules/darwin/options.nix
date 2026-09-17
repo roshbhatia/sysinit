@@ -5,6 +5,11 @@ let
 in
 {
   options.sysinit.darwin = {
+    defaults.remove = mkOption {
+      type = types.attrsOf (types.listOf types.str);
+      default = { };
+      description = "Explicit obsolete user preference keys to remove during activation.";
+    };
     colima = {
       cpu = mkOption {
         type = types.int;

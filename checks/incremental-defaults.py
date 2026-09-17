@@ -29,6 +29,10 @@ class DefaultsTest(unittest.TestCase):
                 return subprocess.CompletedProcess(
                     args, 0, plistlib.dumps(inventory[domain]), b""
                 )
+            if operation == "delete":
+                del inventory[domain][rest[0]]
+                writes.append((domain, rest[0]))
+                return subprocess.CompletedProcess(args, 0)
             key, value = rest
             inventory.setdefault(domain, {})[key] = plistlib.loads(value.encode())
             writes.append((domain, key))
@@ -48,6 +52,11 @@ class DefaultsTest(unittest.TestCase):
             self.assertEqual(module.apply(desired, "defaults", "restart"), 1)
             self.assertEqual(len(restarts), 1)
             self.assertTrue(inventory["com.apple.dock"]["unmanaged"])
+            removal = [["com.apple.dock", {"size": None, "absent": None}]]
+            self.assertEqual(module.apply(removal, "defaults", "restart"), 1)
+            self.assertNotIn("size", inventory["com.apple.dock"])
+            self.assertTrue(inventory["com.apple.dock"]["unmanaged"])
+            self.assertEqual(module.apply(removal, "defaults", "restart"), 0)
 
     def test_read_error_does_not_write(self):
         with patch.object(

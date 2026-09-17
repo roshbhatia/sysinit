@@ -16,6 +16,7 @@
     ./desktop.nix
     ./homebrew.nix
     ./keybindings.nix
+    ./log-retention.nix
     ./macos-tools.nix
     ./ollama.nix
     ./openssh.nix
@@ -24,6 +25,11 @@
     ./stylix.nix
     ./system.nix
     ./tailscale.nix
+  ];
+
+  sysinit.darwin.defaults.remove."org.mozilla.firefox" = [
+    "HomepageURL"
+    "NewTabURL"
   ];
 
   system.build.applications = pkgs.buildEnv {

@@ -19,8 +19,13 @@ local function get_profile(width, height)
   return nil
 end
 
+local cached_displays
+
 local function get_displays()
-  local handle = io.popen("system_profiler SPDisplaysDataType -json 2>/dev/null")
+  if cached_displays then
+    return cached_displays
+  end
+  local handle = io.popen("/usr/sbin/system_profiler SPDisplaysDataType -json -timeout 2 2>/dev/null")
   if not handle then
     return {}
   end
@@ -44,6 +49,7 @@ local function get_displays()
       end
     end
   end
+  cached_displays = displays
   return displays
 end
 
