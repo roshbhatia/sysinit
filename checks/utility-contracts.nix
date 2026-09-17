@@ -6,6 +6,10 @@ pkgs.runCommand "utility-contracts"
       pkgs.nushell
       pkgs.zsh
       pkgs.lua5_4
+      pkgs.gnutar
+      pkgs.gzip
+      pkgs.bzip2
+      pkgs._7zz
       pkgs.logrotate
       pkgs.coreutils
     ];

@@ -42,6 +42,8 @@ in
       pkgs.ncurses
       pkgs.bat
       pkgs.gnutar
+      pkgs.gzip
+      pkgs.bzip2
       pkgs.unzip
       pkgs._7zz
       pkgs.coreutils

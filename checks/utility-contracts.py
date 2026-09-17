@@ -4,6 +4,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import tarfile
 
 root = Path(sys.argv[1])
 with tempfile.TemporaryDirectory() as temporary:
@@ -149,4 +150,22 @@ with tempfile.TemporaryDirectory() as temporary:
     env["PICKER_EXIT"] = "2"
     result = run(["nu", "--no-config-file", str(wallpaper)])
     assert result.returncode == 2, result
+    preview = root / "modules/home/programs/utils/dev/fzf-preview.nu"
+    sample = scratch / "sample.txt"
+    sample.write_text("fixture")
+    for extension, mode in [("tar", "w"), ("tgz", "w:gz"), ("bz2", "w:bz2")]:
+        archive = scratch / f"fixture.{extension}"
+        with tarfile.open(archive, mode) as handle:
+            handle.add(sample, arcname="sample.txt")
+        result = run(
+            ["nu", "--no-config-file", str(preview), str(archive), "--kind", "archive"]
+        )
+        assert result.returncode == 0 and "sample.txt" in result.stdout, result
+    archive = scratch / "fixture.7z"
+    result = run(["7zz", "a", str(archive), str(sample)])
+    assert result.returncode == 0, result
+    result = run(
+        ["nu", "--no-config-file", str(preview), str(archive), "--kind", "archive"]
+    )
+    assert result.returncode == 0 and "sample.txt" in result.stdout, result
 print("Utility runtime contracts passed")

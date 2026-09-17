@@ -110,13 +110,13 @@ def preview-archive [path: string] {
     let ext = $path | path parse | get extension
     match $ext {
         "gz" | "tgz" | "tar" | "tbz2" | "bz2" => {
-            ^tar -tzvf $path | lines | first 20
+            ^tar -tvf $path | lines | first 20
         }
         "zip" => {
             ^unzip -l $path
         }
         "7z" => {
-            ^7z l $path
+            ^7zz l $path
         }
         _ => {
             print $"Archive: ($path)"
