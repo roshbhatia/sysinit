@@ -140,7 +140,7 @@ in
         contextive
         devbox
         devcontainer
-        (lib.lowPrio go-task)
+        go-task
         jq-lsp
         localias
         markdown-oxide

@@ -16,6 +16,7 @@
       else
         prev.sunshine;
   })
+  (import ./taskwarrior-command.nix)
   (import ./sysinit-writers.nix)
   (import ./nvfetcher-sources.nix)
   (import ./inputs.nix { inherit inputs; })

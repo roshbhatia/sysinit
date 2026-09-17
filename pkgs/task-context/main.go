@@ -189,7 +189,7 @@ func openAttribute(binary, field, uuid string, directory bool) error {
 }
 
 func run() error {
-	binary := flag.String("task", "task", "Taskwarrior executable")
+	binary := flag.String("task", "taskwarrior", "Taskwarrior executable")
 	directory := flag.String("directory", "", "backup directory")
 	keep := flag.Int("keep", 14, "backup retention")
 	field := flag.String("field", "url", "attribute to open")

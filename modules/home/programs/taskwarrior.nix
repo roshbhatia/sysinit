@@ -9,7 +9,7 @@ let
   taskContext = pkgs.sysinit.writeShellApplication {
     name = "task-context";
     runtimeInputs = [ pkgs.git ] ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs.xdg-utils ];
-    text = ''exec ${pkgs.sysinit-gotools}/bin/task-context --task ${lib.getExe pkgs.taskwarrior3} --directory ${lib.escapeShellArg "${config.xdg.stateHome}/task-backups"} --keep ${toString cfg.backup.keep} "$@"'';
+    text = ''exec ${pkgs.sysinit-gotools}/bin/task-context --task ${lib.getExe pkgs.taskwarrior-cli} --directory ${lib.escapeShellArg "${config.xdg.stateHome}/task-backups"} --keep ${toString cfg.backup.keep} "$@"'';
   };
   actionable = "+PENDING -WAITING -BLOCKED -blocked -backlog -inbox ( kind:task or kind.none: )";
   report = description: filter: {
@@ -101,12 +101,12 @@ in
   config = lib.mkMerge [
     {
       home.packages = [
-        pkgs.taskwarrior-tui
+        pkgs.taskwarrior-tui-private
         taskContext
       ];
       programs.taskwarrior = {
         enable = true;
-        package = pkgs.taskwarrior3;
+        package = pkgs.taskwarrior-cli;
         config = {
           news.version = pkgs.taskwarrior3.version;
           default.command = "focus";
