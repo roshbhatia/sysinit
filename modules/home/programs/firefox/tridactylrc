@@ -30,8 +30,8 @@ bind <Space>tp tabprev
 bind d scrollpage 0.5
 bind u scrollpage -0.5
 
-" Close tab (neovim: <leader>w closes pane, <C-w> also common)
-bind <C-w> tabclose
+" Let Firefox handle its native tab and text-editing shortcut.
+unbind <C-w>
 
 " Space-leader bindings (mirroring neovim <Space> leader)
 bind <Space><Space> fillcmdline_notrail
@@ -40,7 +40,17 @@ bind <Space>qq qall
 
 bind <Space>ff fillcmdline open
 bind <Space>fs fillcmdline open search
-bind <Space>t fillcmdline tab
+unbind <Space>t
+bind <Space>tt fillcmdline tab
+bind <Space>tu undo
+bind <Space>td tabduplicate
+bind <Space>ti pin
+bind <Space>tm mute toggle
+bind <Space>? help
+
+" AeroSpace owns these chords; use the tab prefix in Firefox.
+unbind <A-p>
+unbind <A-m>
 
 " Splits (neovim: <leader>v for vsplit)
 bind <Space>v winopen

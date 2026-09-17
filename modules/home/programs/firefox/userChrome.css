@@ -1,21 +1,21 @@
 /* ========== BASE16 THEME VARIABLES (from Stylix) ========== */
 :root {
-  --bg: #@base00 @;
-  --bg-alt: #@base01 @;
-  --bg-sel: #@base02 @;
-  --fg-muted: #@base03 @;
-  --fg-dim: #@base04 @;
-  --fg: #@base05 @;
-  --fg-bright: #@base06 @;
-  --accent: #@base0D @;
-  --accent-alt: #@base0E @;
-  --error: #@base08 @;
-  --warning: #@base0A @;
-  --success: #@base0B @;
-  --info: #@base0D @;
+  --bg: var(--sysinit-base00);
+  --bg-alt: var(--sysinit-base01);
+  --bg-sel: var(--sysinit-base02);
+  --fg-muted: var(--sysinit-base03);
+  --fg-dim: var(--sysinit-base04);
+  --fg: var(--sysinit-base05);
+  --fg-bright: var(--sysinit-base06);
+  --accent: var(--sysinit-base0D);
+  --accent-alt: var(--sysinit-base0E);
+  --error: var(--sysinit-base08);
+  --warning: var(--sysinit-base0A);
+  --success: var(--sysinit-base0B);
+  --info: var(--sysinit-base0D);
 
-  --opacity: @opacity @;
-  --blur-amount: @blur @px;
+  --opacity: var(--sysinit-opacity);
+  --blur-amount: var(--sysinit-blur);
   --tab-border-radius: 6px !important;
 }
 
@@ -157,7 +157,7 @@ scrollbar {
 
 /* ========== URL BAR ========== */
 #urlbar-container {
-  min-width: 600px !important;
+  min-width: 0 !important;
   flex: 1 !important;
   padding-top: 6px !important;
   margin-top: 2px !important;

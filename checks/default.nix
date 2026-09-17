@@ -56,6 +56,7 @@ let
   );
 in
 {
+  firefox = import ./firefox.nix { inherit pkgs darwinConfigurations nixosConfigurations; };
   editor-composition = import ./editor-composition.nix { inherit pkgs homeManagerLib; };
   slack-guard = import ./slack-guard.nix { inherit pkgs; };
   hammerspoon-startup =

@@ -19,50 +19,46 @@ let
       lib.attrNames replacements
     )) (builtins.readFile path);
 
-  newtabHTML = render ./firefox/newtab.html {
-    "@base00@" = c.base00;
-  };
-
-  userChromeCSS = render ./firefox/userChrome.css {
-    "@base00@" = c.base00;
-    "@base01@" = c.base01;
-    "@base02@" = c.base02;
-    "@base03@" = c.base03;
-    "@base04@" = c.base04;
-    "@base05@" = c.base05;
-    "@base06@" = c.base06;
-    "@base08@" = c.base08;
-    "@base0A@" = c.base0A;
-    "@base0B@" = c.base0B;
-    "@base0D@" = c.base0D;
-    "@base0E@" = c.base0E;
-    "@blur@" = blur;
-    "@monospace-font@" = monospaceFont;
-    "@opacity@" = opacity;
-  };
-
-  userContentCSS = render ./firefox/userContent.css {
-    "@base00@" = c.base00;
-    "@base01@" = c.base01;
-    "@base02@" = c.base02;
-    "@base04@" = c.base04;
-    "@base05@" = c.base05;
-    "@base0D@" = c.base0D;
-  };
-
+  renderTheme =
+    path:
+    render path (
+      builtins.listToAttrs (
+        map
+          (name: {
+            name = "var(--sysinit-${name})";
+            value = "#${c.${name}}";
+          })
+          [
+            "base00"
+            "base01"
+            "base02"
+            "base03"
+            "base04"
+            "base05"
+            "base06"
+            "base07"
+            "base08"
+            "base09"
+            "base0A"
+            "base0B"
+            "base0C"
+            "base0D"
+            "base0E"
+            "base0F"
+          ]
+      )
+      // {
+        "@monospace-font@" = monospaceFont;
+        "var(--sysinit-opacity)" = opacity;
+        "var(--sysinit-blur)" = "${blur}px";
+      }
+    );
+  newtabHTML = renderTheme ./firefox/newtab.html;
+  userChromeCSS = renderTheme ./firefox/userChrome.css;
+  userContentCSS = renderTheme ./firefox/userContent.css;
+  tridactylThemeCSS = renderTheme ./firefox/tridactyl.css;
   tridactylRC = builtins.readFile ./firefox/tridactylrc;
 
-  tridactylThemeCSS = render ./firefox/tridactyl.css {
-    "@base00@" = c.base00;
-    "@base01@" = c.base01;
-    "@base02@" = c.base02;
-    "@base03@" = c.base03;
-    "@base04@" = c.base04;
-    "@base05@" = c.base05;
-    "@base0A@" = c.base0A;
-    "@base0D@" = c.base0D;
-    "@monospace-font@" = monospaceFont;
-  };
 in
 {
 
@@ -243,8 +239,10 @@ in
       DisableAccounts = true;
       DisableFirefoxScreenshots = true;
       DontCheckDefaultBrowser = true;
-      NewTabURL = "file://${config.home.homeDirectory}/.local/share/firefox/newtab.html";
-      HomepageURL = "file://${config.home.homeDirectory}/.local/share/firefox/newtab.html";
+      Homepage = {
+        URL = "https://www.google.com";
+        StartPage = "previous-session";
+      };
       DisplayBookmarksToolbar = "never";
       DisplayMenuBar = "default-off";
       SearchBar = "unified";

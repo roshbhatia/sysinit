@@ -1,10 +1,10 @@
 :root {
-  --bg: #@base00 @;
-  --bg-alt: #@base01 @;
-  --fg: #@base05 @;
-  --fg-dim: #@base04 @;
-  --accent: #@base0D @;
-  --border: #@base02 @;
+  --bg: var(--sysinit-base00);
+  --bg-alt: var(--sysinit-base01);
+  --fg: var(--sysinit-base05);
+  --fg-dim: var(--sysinit-base04);
+  --accent: var(--sysinit-base0D);
+  --border: var(--sysinit-base02);
 }
 
 @-moz-document url-prefix("moz-extension://")
