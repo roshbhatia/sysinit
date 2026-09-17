@@ -4,7 +4,26 @@
 let
   inherit (lib) mkOption types;
 
-  skillTools = import ../modules/home/programs/llm/skill-tools.nix { inherit lib pkgs; };
+  skillTools =
+    (lib.evalModules {
+      modules = [
+        ../modules/home/programs/llm/skill-tools.nix
+        hostStub
+      ];
+    }).config;
+  customSkillTools =
+    (lib.evalModules {
+      modules = [
+        ../modules/home/programs/llm/skill-tools.nix
+        hostStub
+        {
+          sysinit.ask.settings.evaluation = {
+            provider = "custom-evaluator";
+            model = "small";
+          };
+        }
+      ];
+    }).config;
 
   # gate.nix reads only these four options out of a home-manager evaluation, so
   # the module renders its real document here without a host closure.
@@ -66,6 +85,9 @@ let
   );
   unpinned = builtins.filter (name: !(builtins.elem name dependabotIgnored)) tagPinned;
 in
+assert customSkillTools.sysinit.ask.settings.evaluation.provider == "custom-evaluator";
+assert customSkillTools.sysinit.ask.settings.evaluation.model == "small";
+assert customSkillTools.sysinit.ask.settings.provider == skillTools.sysinit.ask.settings.provider;
 assert lib.assertMsg (
   tagPinned != [ ]
 ) "no roshbhatia flake input is pinned to a release tag; the lock shape changed";
@@ -106,6 +128,11 @@ pkgs.runCommand "llm-composition"
       and (.model | type == "string" and length > 0)' prompt.json > /dev/null
     schema=$(jq -r '.schema' prompt.json)
     test -f "${askTemplates}/ask/templates/schemas/$schema.yaml"
+
+    export XDG_CONFIG_HOME=${askTemplates}
+    for rubric in task-triage log-triage answer-review; do
+      ${lib.getExe pkgs.ask} rubric show "$rubric" | jq -e 'length > 0' > /dev/null
+    done
 
     touch "$out"
   ''

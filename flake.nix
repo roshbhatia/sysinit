@@ -84,7 +84,7 @@
     };
 
     ask = {
-      url = "github:roshbhatia/ask/v0.7.2";
+      url = "github:roshbhatia/ask/v0.8.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -94,7 +94,7 @@
     };
 
     ask-extras = {
-      url = "github:roshbhatia/ask/v0.7.2?dir=extras";
+      url = "github:roshbhatia/ask/v0.8.0?dir=extras";
       inputs = {
         ask.follows = "ask";
         nixpkgs.follows = "nixpkgs";
