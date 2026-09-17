@@ -24,7 +24,11 @@ let
     shellUtils.stripHeaders ./integrations/completions.zsh
   );
   integrationsExtras = shellUtils.stripHeaders ./integrations/extras.zsh;
-  seshyWezterm = shellUtils.stripHeaders ./integrations/seshy-wezterm.zsh;
+  seshyWezterm =
+    builtins.replaceStrings
+      [ "@seshySessions@" ]
+      [ (lib.escapeShellArg config.sysinit.paths.resolved.seshySessions) ]
+      (shellUtils.stripHeaders ./integrations/seshy-wezterm.zsh);
   askCapture = builtins.replaceStrings [ "@timeout@" ] [ "${pkgs.coreutils}/bin/timeout" ] (
     shellUtils.stripHeaders ./integrations/ask.zsh
   );

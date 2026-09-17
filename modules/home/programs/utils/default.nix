@@ -1,30 +1,65 @@
-_:
-
 {
-  home.file = {
-    ".local/bin/dns-flush" = {
-      source = ./network/dns-flush.nu;
-      executable = true;
+  lib,
+  pkgs,
+  profile ? "workstation",
+  ...
+}:
+let
+  script =
+    name: source: dependencies:
+    pkgs.sysinit.writeShellApplication {
+      inherit name;
+      runtimeInputs = dependencies;
+      text = ''
+        ${
+          if pkgs.stdenv.hostPlatform.isDarwin then
+            ''export PATH="$PATH:/usr/bin:/bin:/usr/sbin:/sbin"''
+          else
+            ''export PATH="/run/wrappers/bin:$PATH"''
+        }
+        exec ${lib.getExe pkgs.nushell} --no-config-file ${source} "$@"
+      '';
     };
-
-    ".local/bin/set-background" = {
-      source = ./system/set-background.nu;
-      executable = true;
-    };
-
-    ".local/bin/audio-switcher" = {
-      source = ./system/audio-switcher.nu;
-      executable = true;
-    };
-
-    ".local/bin/connect" = {
-      source = ./dev/connect.nu;
-      executable = true;
-    };
-
-    ".local/bin/fzf-preview" = {
-      source = ./dev/fzf-preview.nu;
-      executable = true;
-    };
+  audio = pkgs.sysinit.writeShellApplication {
+    name = "audio-switcher";
+    runtimeInputs = [
+      pkgs.fzf
+    ]
+    ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ pkgs.switchaudio-osx ]
+    ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs.pulseaudio ];
+    text = ''exec ${pkgs.sysinit-gotools}/bin/audio-switcher "$@"'';
   };
+in
+{
+  home.packages = [
+    (script "dns-flush" ./network/dns-flush.nu (
+      lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs.systemd ]
+    ))
+    (script "fzf-preview" ./dev/fzf-preview.nu [
+      pkgs.file
+      pkgs.eza
+      pkgs.chafa
+      pkgs.ncurses
+      pkgs.bat
+      pkgs.gnutar
+      pkgs.unzip
+      pkgs._7zz
+      pkgs.coreutils
+    ])
+  ]
+  ++ lib.optionals (profile == "workstation") [
+    (script "connect" ./dev/connect.nu [ pkgs.wezterm ])
+    (script "set-background" ./system/set-background.nu (
+      [
+        pkgs.fzf
+        pkgs.chafa
+        pkgs.gh
+        pkgs.fd
+        pkgs.git
+        pkgs.coreutils
+      ]
+      ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs.sway ]
+    ))
+    audio
+  ];
 }

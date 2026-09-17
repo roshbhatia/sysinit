@@ -19,7 +19,7 @@ _seshy_names() {
 
 _seshy_session_name() {
   local dir=$1 root
-  root=$(sysinit_path seshySessions 2> /dev/null) || root="$HOME/.local/state/seshy/sessions"
+  root=@seshySessions@
   case "$dir/" in
     "$root"/*)
       dir=${dir#"$root"/}
@@ -36,7 +36,7 @@ _seshy_export_workspace() {
     unset SYSINIT_WORKSPACE
     return 0
   fi
-  root=$(sysinit_path seshySessions 2> /dev/null) || root="$HOME/.local/state/seshy/sessions"
+  root=@seshySessions@
   export SYSINIT_WORKSPACE="$root/$session"
   _seshy_debug "workspace $SYSINIT_WORKSPACE"
 }
@@ -112,12 +112,17 @@ function wezcopy() {
 }
 
 function weznot() {
-  printf "\033]1337;SetUserVar=%s=%s\007" wez_not "$(printf '%s' "$1" | base64 | tr -d '\n')"
+  [[ -t 2 ]] || return 0
+  printf "\033]1337;SetUserVar=%s=%s\007" wez_not "$(printf '%s' "$1" | base64 | tr -d '\n')" >&2
 }
 
 function wezmon() {
   local cmd="$*"
-  eval "$cmd"
+  if (($# == 0)); then
+    _seshy_err "usage: wezmon <command> [args...]"
+    return 2
+  fi
+  "$@"
   local rc=$?
   if ((rc == 0)); then
     weznot "'$cmd' completed successfully"

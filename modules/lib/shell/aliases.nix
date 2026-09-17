@@ -15,7 +15,6 @@ let
 
   posixAliases = {
     diff = "diff --color";
-    grep = "rg -s --color=auto";
     sudo = "sudo -E";
   };
 in

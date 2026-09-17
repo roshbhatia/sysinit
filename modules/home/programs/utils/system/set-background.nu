@@ -37,7 +37,7 @@ def main [--update] {
         } | complete
         let pull = do {
             cd $wallpapers_dir
-            git pull --quiet
+            git pull --ff-only --quiet
         } | complete
 
         if $fetch.exit_code != 0 {
@@ -48,7 +48,7 @@ def main [--update] {
     }
 
     print $"(ansi blue)[INFO](ansi reset) Scanning for wallpapers..."
-    let images = do { fd --type f --extension jpg --extension jpeg --extension png --extension webp . $wallpapers_dir } | complete | get stdout | str trim | lines
+    let images = do { fd --print0 --type f --extension jpg --extension jpeg --extension png --extension webp . $wallpapers_dir } | complete | get stdout | split row (char nul) | where {|item| $item != "" }
 
     let images = if ($images | is-empty) {
         print $"(ansi blue)[INFO](ansi reset) No images in wallpapers repo, checking system locations..."
@@ -68,7 +68,7 @@ def main [--update] {
 
         let found_images = $fallback_dirs
         | where {|dir| $dir | path exists}
-        | each {|dir| do { fd --type f --extension jpg --extension jpeg --extension png --extension webp . $dir } | complete | get stdout | str trim | lines }
+        | each {|dir| do { fd --print0 --type f --extension jpg --extension jpeg --extension png --extension webp . $dir } | complete | get stdout | split row (char nul) | where {|item| $item != "" } }
         | flatten
         | sort
         | uniq
@@ -85,33 +85,27 @@ def main [--update] {
 
     print $"(ansi green)[OK](ansi reset) Found ($images | length) wallpapers"
 
-    let selected = $images | str join "\n" | fzf --preview "chafa --size 80x24 --colors 256 {}" --preview-window "right:50%" --height 50% | str trim
-
-    if ($selected | is-empty) {
-        print $"(ansi blue)[INFO](ansi reset) No wallpaper selected"
-        exit 0
+    let selection = (
+        $images
+        | str join (char nul)
+        | ^fzf --read0 --print0 --preview "chafa --size 80x24 --colors 256 {}" --preview-window "right:50%" --height 50%
+        | complete
+    )
+    if $selection.exit_code in [1 130] { return }
+    if $selection.exit_code != 0 {
+        print -e $selection.stderr
+        exit $selection.exit_code
     }
+    let selected = $selection.stdout | split row (char nul) | first
+    if ($selected | is-empty) { return }
 
     print $"(ansi blue)[INFO](ansi reset) Setting background to: ($selected | path basename)"
 
     if $os == "macos" {
-        let result = do { osascript -e $"tell application \"System Events\" to set picture of every desktop to \"($selected)\"" } | complete
-
-        if $result.exit_code != 0 {
-            print $"(ansi yellow_bold)[WARN](ansi reset) osascript failed - trying database update"
-
-            let db_path = $env.HOME | path join "Library" "Application Support" "Dock" "desktoppicture.db"
-            if ($db_path | path exists) {
-                do { sqlite3 $db_path $"UPDATE pictures SET path = '($selected)';" } | complete | ignore
-                do { killall Dock } | complete | ignore
-                print $"(ansi green)[OK](ansi reset) Background set via database update"
-            } else {
-                print $"(ansi red_bold)[ERROR](ansi reset) Could not set background"
-                exit 1
-            }
-        } else {
-            print $"(ansi green)[OK](ansi reset) Background set on macOS"
-        }
+        ^osascript -e 'on run argv
+            tell application "System Events" to set picture of every desktop to item 1 of argv
+        end run' $selected
+        if $env.LAST_EXIT_CODE != 0 { exit $env.LAST_EXIT_CODE }
     } else if $os == "linux" {
         mkdir ($env.HOME | path join ".config" "background")
         cp $selected ($env.HOME | path join ".config" "background" "current")
@@ -121,7 +115,7 @@ def main [--update] {
 
         if "SWAYSOCK" in $env {
             try {
-                swaymsg $'output * bg ($selected) fill'
+                swaymsg $'output * bg ($selected | to json -r) fill'
                 print $"(ansi blue)[INFO](ansi reset) Applied background in sway"
             } catch {
                 print $"(ansi yellow_bold)[WARN](ansi reset) Could not set sway background"

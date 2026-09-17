@@ -11,8 +11,7 @@ def get-target [target_arg: string] {
 }
 
 def normalize-target [target: string] {
-    let target = $target | str trim --right
-    let target = if ($target | str starts-with "~") {
+    let target = if ($target | str starts-with "~/") {
         $target | str replace "~" $env.HOME
     } else {
         $target
@@ -25,7 +24,7 @@ def normalize-target [target: string] {
     }
 
     if ($target | path exists) {
-        $target | path expand
+        $target | path expand --no-symlink
     } else {
         null
     }

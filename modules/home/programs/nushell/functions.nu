@@ -1,7 +1,5 @@
 # Ported from the zsh tree so a nushell pane keeps the same command surface.
-# @seshySessions@ is substituted at build time. The zsh copy resolves the same
-# root by calling `sysinit_path`, which is defined nowhere and on no PATH, so it
-# has always taken its own fallback branch instead.
+# @seshySessions@ is substituted from the shared path option at build time.
 const SESHY_ROOT = "@seshySessions@"
 
 def sysinit-ls-icon [kind: string] {

@@ -11,7 +11,7 @@ _ask_capture() {
   command -v ask > /dev/null 2>&1 || return 0
   command -v wezterm > /dev/null 2>&1 || return 0
   snapshot=$(@timeout@ 0.25 wezterm cli --no-auto-start get-text --pane-id "$WEZTERM_PANE" 2> /dev/null) || return 0
-  print -rn -- "$snapshot" | ask --capture 2> /dev/null
+  print -rn -- "$snapshot" | @timeout@ --kill-after=0.1 0.25 ask --capture 2> /dev/null || return 0
 }
 
 autoload -Uz add-zsh-hook
