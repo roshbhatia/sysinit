@@ -57,7 +57,7 @@ in
       command = pr;
       home = config.home.homeDirectory;
       wezterm = "${pkgs.wezterm}/bin/wezterm";
-      weztermApp = "${pkgs.wezterm}/Applications/WezTerm.app";
+      weztermApp = "${config.home.homeDirectory}/${config.targets.darwin.copyApps.directory}/WezTerm.app";
     };
   };
 }

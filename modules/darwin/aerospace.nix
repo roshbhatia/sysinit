@@ -1,7 +1,14 @@
-{ pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   notifySketchybar = "${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_workspace_change FOCUSED=$(${pkgs.aerospace}/bin/aerospace list-workspaces --focused)";
+  home = config.home-manager.users.${config.sysinit.user.username};
+  weztermApp = "${home.home.homeDirectory}/${home.targets.darwin.copyApps.directory}/WezTerm.app";
 in
 {
   services.aerospace = {
@@ -204,7 +211,7 @@ in
 
       mode = {
         main.binding = {
-          alt-enter = "exec-and-forget ${pkgs.sysinit-utils}/bin/wezspawn --wezterm ${pkgs.wezterm}/bin/wezterm --gui-app ${pkgs.wezterm}/Applications/WezTerm.app";
+          alt-enter = "exec-and-forget ${pkgs.sysinit-utils}/bin/wezspawn --wezterm ${pkgs.wezterm}/bin/wezterm --gui-app ${lib.escapeShellArg weztermApp}";
 
           alt-t = "layout tiles horizontal vertical";
           alt-a = "layout accordion horizontal vertical";

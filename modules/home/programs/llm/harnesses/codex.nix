@@ -105,6 +105,31 @@ in
           "approval_policy"
           "sandbox_mode"
           [
+            "plugins"
+            "computer-use@openai-bundled"
+            "enabled"
+          ]
+          [
+            "plugins"
+            "browser@openai-bundled"
+            "enabled"
+          ]
+          [
+            "mcp_servers"
+            "computer-use"
+            "enabled"
+          ]
+          [
+            "mcp_servers"
+            "cua_repl"
+            "enabled"
+          ]
+          [
+            "mcp_servers"
+            "node_repl"
+            "enabled"
+          ]
+          [
             "desktop"
             "external-agent-import-sync-enabled"
           ]
@@ -127,7 +152,13 @@ in
     settings = {
       check_for_update_on_startup = false;
       compact_prompt = compactPrompt;
-      mcp_servers = codexMcpServers;
+      mcp_servers = codexMcpServers // {
+        computer-use.enabled = false;
+        cua_repl.enabled = false;
+        node_repl.enabled = false;
+      };
+      plugins."computer-use@openai-bundled".enabled = false;
+      plugins."browser@openai-bundled".enabled = false;
 
       approval_policy = "never";
 

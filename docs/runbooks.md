@@ -167,6 +167,8 @@ Home Manager options live under `sysinit.hammerspoon.urlRouting`:
 - `enable`: set false and reload Hammerspoon to restore the fallback handler.
 
 After activation, reload Hammerspoon and accept macOS's default-browser prompt.
+If macOS returns `OSStatus -54`, select Hammerspoon in System Settings →
+Desktop & Dock → Default web browser. This is a one-time registration.
 Hammerspoon must be running to receive links; keep its login startup enabled.
 Its URL API can lose the first event when macOS starts a stopped Hammerspoon.
 Slack in a browser follows the browser exception.

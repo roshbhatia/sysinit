@@ -32,10 +32,12 @@ let
   cuaComputerServer = pkgs.sysinit.writeShellScript "cua-computer-server" ''
     set -euo pipefail
     ${uvEnv}
+    export FASTMCP_STATELESS_HTTP=true
 
-    exec ${pkgs.uv}/bin/uv run --no-project \
+    exec ${lib.escapeShellArg "${config.sysinit.codesign.signedBinDir}/cua-uv"} run --no-project \
       --with "cua-computer-server==${cuaComputerServerVersion}" \
-      python -m computer_server "$@"
+      --with "fastmcp==3.2.4" \
+      python ${./runtime/cua-macos.py} "$@"
   '';
 
   cuaComputerServerCommand =
@@ -46,6 +48,10 @@ let
 
 in
 {
+  sysinit.codesign.binaries = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
+    cua-uv = lib.getExe pkgs.uv;
+  };
+
   sysinit.llm.mcp.additionalServers = {
     ast-grep = {
       command = "${lib.getExe' pkgs.uv "uvx"}";
@@ -68,10 +74,10 @@ in
     };
 
     playwright = {
-      command = "${lib.getExe' pkgs.nodejs "npx"}";
+      command = "${lib.getExe pkgs.playwright-mcp}";
       args = [
-        "-y"
-        "@playwright/mcp@latest"
+        "--isolated"
+        "--headless"
       ];
       description = "Browser automation and end-to-end testing via Playwright";
     };

@@ -91,14 +91,16 @@ in
   config = lib.mkIf cfg.enable (
     lib.mkMerge [
       {
-        home.activation.sysinitCodesign = lib.hm.dag.entryAfter [ "writeBoundary" "copyApps" ] ''
-          run env SYSINIT_APPS_VALIDATED="''${sysinit_home_apps_validated:-0}" ${lib.getExe signer}
-          ${lib.optionalString config.targets.darwin.copyApps.enable ''
-            if [ "''${sysinit_home_apps_validated:-0}" != 1 ]; then
-              run ${appState} record ${appStateArgs} || echo "sysinit: app signatures need repair" >&2
-            fi
-          ''}
-        '';
+        home.activation.sysinitCodesign =
+          lib.hm.dag.entryBetween [ "setupLaunchAgents" ] [ "writeBoundary" "copyApps" ]
+            ''
+              run env SYSINIT_APPS_VALIDATED="''${sysinit_home_apps_validated:-0}" ${lib.getExe signer}
+              ${lib.optionalString config.targets.darwin.copyApps.enable ''
+                if [ "''${sysinit_home_apps_validated:-0}" != 1 ]; then
+                  run ${appState} record ${appStateArgs} || echo "sysinit: app signatures need repair" >&2
+                fi
+              ''}
+            '';
       }
       (lib.mkIf config.targets.darwin.copyApps.enable {
         home.activation.copyApps = lib.mkForce (
@@ -107,10 +109,7 @@ in
             if ${appState} check ${appStateArgs}; then
               sysinit_home_apps_validated=1
             else
-              run mkdir -p ${lib.escapeShellArg "${home}/${config.targets.darwin.copyApps.directory}"}
-              run ${lib.getExe pkgs.rsync} --recursive --checksum --perms --links \
-                --copy-unsafe-links --specials --delete --chmod=+w \
-                ${applications}/Applications/ ${lib.escapeShellArg "${home}/${config.targets.darwin.copyApps.directory}"}
+              run ${appState} sync ${appStateArgs} --rsync ${lib.getExe pkgs.rsync}
             fi
           ''
         );

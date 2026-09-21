@@ -50,6 +50,47 @@ tool count. A successful probe does not prove authorization for every tool.
 The Go integration tests exercise a real gateway and adapter with a local
 fixture, including tool calls, resources, session context, and shutdown.
 
+## Desktop automation
+
+CUA owns desktop control. Playwright owns isolated browser automation. Codex's
+bundled browser and computer-use plugins, and its `computer-use`, `cua_repl`,
+and `node_repl` entries, are disabled by managed configuration.
+
+Darwin launches CUA through `~/.local/state/sysinit/signed/bin/cua-uv`. The
+stable path and signing certificate keep its permission identity across Nix
+updates. A first migration can require Screen Recording and Accessibility
+approval for that executable in System Settings → Privacy & Security. Restart
+only the CUA LaunchAgent after granting access:
+
+```sh
+launchctl kickstart -k "gui/$(id -u)/org.nix-community.home.cua-computer-server"
+```
+
+The CUA adapter reads the main display's current point dimensions before every
+tool call. It scales screenshots to at most 1280 pixels and maps coordinates
+back to display points. If the display changes, coordinate actions require a
+new screenshot. CUA's HTTP transport is stateless, so idle clients do not hold
+expired server sessions. The macOS adapter is checked against CUA 0.3.42.
+
+Playwright uses the package pinned by nixpkgs, with matching browser binaries.
+Each client uses a headless, isolated profile. Login state does not persist
+between sessions. Use CUA when a task needs an existing signed-in desktop app.
+
+## Connection failures
+
+A running gateway does not prove upstream authorization. On the Laurel host,
+`agentgateway-target status` reports OAuth state separately from job readiness.
+Use `agentgateway-target auth SERVER` when it reports missing or expired auth.
+An upstream authorization failure can surface as `upstream closed on receive`.
+
+On 2026-09-21, all 15 rendered harness catalogs contained the same 13 shared
+servers. Live discovery passed for 12 servers; LaunchDarkly lacked a shared
+OAuth token. Notion returned 45 tools. Orc returned zero outside an active Orc
+workspace, which is expected. Native Claude, Cursor, Amp, OpenCode, Copilot,
+Crush, Hermes, and Pi checks loaded their MCP configuration. Devin and
+Antigravity listed the expected registrations. Configuration loading does not
+prove every tool call or a model provider's credentials.
+
 ## LiteLLM comparison
 
 LiteLLM supports [HTTP, SSE, and stdio MCP upstreams](https://docs.litellm.ai/docs/mcp)

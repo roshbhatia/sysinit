@@ -95,6 +95,32 @@ class AppCopyStateTest(unittest.TestCase):
         self.app.symlink_to(self.original)
         self.assertEqual(self.run_state("check"), 1)
 
+    def test_other_app_update_preserves_signed_bundle(self):
+        self.record()
+        before = (self.app / "payload").stat()
+        (self.original / "payload").write_text("unsigned store payload")
+        added = self.source / "Another.app"
+        added.mkdir()
+        (added / "payload").write_text("new application")
+        self.assertEqual(self.run_state("sync"), 0)
+        after = (self.app / "payload").stat()
+        self.assertEqual(before.st_ino, after.st_ino)
+        self.assertEqual(before.st_mtime_ns, after.st_mtime_ns)
+        self.assertEqual((self.app / "payload").read_text(), "signed")
+        self.assertEqual(
+            (self.target / "Another.app" / "payload").read_text(), "new application"
+        )
+
+    def test_sync_repairs_changed_source(self):
+        self.record()
+        updated = self.root / "updated.app"
+        updated.mkdir()
+        (updated / "payload").write_text("updated")
+        (self.source / "Test App.app").unlink()
+        (self.source / "Test App.app").symlink_to(updated)
+        self.assertEqual(self.run_state("sync"), 0)
+        self.assertEqual((self.app / "payload").read_text(), "updated")
+
 
 if __name__ == "__main__":
     unittest.main(argv=[sys.argv[0]])

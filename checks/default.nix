@@ -61,6 +61,12 @@ in
   firefox = import ./firefox.nix { inherit pkgs darwinConfigurations nixosConfigurations; };
   editor-composition = import ./editor-composition.nix { inherit pkgs homeManagerLib; };
   slack-guard = import ./slack-guard.nix { inherit pkgs; };
+  cua-coordinates =
+    pkgs.runCommand "cua-coordinates-test" { nativeBuildInputs = [ pkgs.python3 ]; }
+      ''
+        python ${./cua-coordinates.py} ${../modules/home/programs/llm/runtime/cua-macos.py}
+        touch "$out"
+      '';
   gh-dash-pr = pkgs.runCommand "gh-dash-pr-test" { nativeBuildInputs = [ pkgs.sysinit-gh-dash ]; } ''
     export HOME="$TMPDIR/home"
     mkdir -p "$HOME"
@@ -115,10 +121,18 @@ in
         python3 ${./homebrew-reconcile.py} ${../modules/darwin/reconcile-homebrew.sh}
         touch "$out"
       '';
-  app-copy-state = pkgs.runCommand "app-copy-state-test" { nativeBuildInputs = [ pkgs.python3 ]; } ''
-    python3 ${./app-copy-state.py} ${../modules/home/app-copy-state.py}
-    touch "$out"
-  '';
+  app-copy-state =
+    pkgs.runCommand "app-copy-state-test"
+      {
+        nativeBuildInputs = [
+          pkgs.python3
+          pkgs.rsync
+        ];
+      }
+      ''
+        python3 ${./app-copy-state.py} ${../modules/home/app-copy-state.py}
+        touch "$out"
+      '';
   github-runner-guard = import ./github-runner-guard.nix { inherit pkgs; };
   # These assertions sat at file scope. One failure aborted the whole attrset,
   # so every check on every system reported the same message, and the message
