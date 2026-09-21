@@ -10,6 +10,8 @@ package.path = package.path
 
 require("hs.ipc")
 
+require("sysinit.pkg.url_routing").setup()
+
 require("sysinit.pkg.theme")
 
 local function bindHotkeys()

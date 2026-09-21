@@ -145,6 +145,35 @@ for system in aarch64-darwin x86_64-linux aarch64-linux; do
 done
 ```
 
+## Open external GitHub PR links in Dash on macOS
+
+Hammerspoon routes external `github.com/OWNER/REPO/pull/NUMBER` links to
+`gh dash pr URL`. Install the fork supporting that command before activation.
+The router normalizes file, comment, and query links to their PR URL.
+Firefox, Chrome, and Safari navigation stays in the originating browser.
+Other external links use Firefox.
+
+The PR opens locally in a new WezTerm window in the most recently active
+workspace. It starts in the home directory, without attaching zmx or changing
+an existing pane, SSH connection, seshy checkout, or agent session.
+When no GUI is attached, the launch command includes the PR on startup.
+Dash browser actions use an explicit browser command to avoid routing loops.
+
+Home Manager options live under `sysinit.hammerspoon.urlRouting`:
+
+- `command`: absolute executable and arguments; the router appends the PR URL.
+- `browser`: fallback browser bundle ID, initially `org.mozilla.firefox`.
+- `enable`: set false and reload Hammerspoon to restore the fallback handler.
+
+After activation, reload Hammerspoon and accept macOS's default-browser prompt.
+Hammerspoon must be running to receive links; keep its login startup enabled.
+Its URL API can lose the first event when macOS starts a stopped Hammerspoon.
+Slack in a browser follows the browser exception.
+
+Run `nix build .#checks.aarch64-darwin.url-routing` for routing checks.
+Verify a native Slack PR click and a normal browser PR click after installing
+the fork. Confirm the Dash view and unchanged browser navigation, respectively.
+
 ## Build once and activate
 
 Use the installed `nh`; development shells supply tools for checks. Keep the

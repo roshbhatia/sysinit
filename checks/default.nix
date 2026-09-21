@@ -61,6 +61,10 @@ in
   firefox = import ./firefox.nix { inherit pkgs darwinConfigurations nixosConfigurations; };
   editor-composition = import ./editor-composition.nix { inherit pkgs homeManagerLib; };
   slack-guard = import ./slack-guard.nix { inherit pkgs; };
+  url-routing = pkgs.runCommand "url-routing-test" { nativeBuildInputs = [ pkgs.lua5_4 ]; } ''
+    lua ${./url-routing.lua} ${../modules/darwin/home/hammerspoon/lua/sysinit/pkg/url_routing.lua}
+    touch "$out"
+  '';
   hammerspoon-startup =
     pkgs.runCommand "hammerspoon-startup-test" { nativeBuildInputs = [ pkgs.lua5_4 ]; }
       ''

@@ -160,6 +160,8 @@ let
   };
 in
 {
+  imports = [ ./url-routing.nix ];
+
   options.sysinit.hammerspoon.appExcludes = lib.mkOption {
     type = lib.types.listOf lib.types.str;
     default = [ ];
