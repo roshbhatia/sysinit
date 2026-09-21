@@ -45,7 +45,19 @@ in
       builtins.listToAttrs (
         map (name: {
           name = "ask/providers/${name}/provider.yaml";
-          value.source = "${pkgs.ask-providers}/share/ask/providers/${name}/provider.yaml";
+          value.source = pkgs.runCommand "ask-${name}-terminal-provider.yaml" { } ''
+            ${lib.getExe pkgs.yq-go} ${
+              lib.escapeShellArg (
+                ".command = "
+                + builtins.toJSON [
+                  (lib.getExe pkgs.python3)
+                  "${./runtime/ask-terminal.py}"
+                ]
+                + " + .command"
+                + lib.optionalString (name == "claude") " | .defaults.model = \"haiku\""
+              )
+            } ${pkgs.ask-providers}/share/ask/providers/${name}/provider.yaml > "$out"
+          '';
         }) askProviderNames
       )
       // lib.mapAttrs' (

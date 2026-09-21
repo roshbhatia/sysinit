@@ -1,0 +1,137 @@
+{
+  "notificationsSections": [
+    {
+      "title": "All",
+      "filters": ""
+    },
+    {
+      "title": "Created",
+      "filters": "reason:author"
+    },
+    {
+      "title": "Participating",
+      "filters": "reason:participating"
+    },
+    {
+      "title": "Mentioned",
+      "filters": "reason:mention"
+    },
+    {
+      "title": "Review Requested",
+      "filters": "reason:review-requested"
+    },
+    {
+      "title": "Assigned",
+      "filters": "reason:assign"
+    },
+    {
+      "title": "Subscribed",
+      "filters": "reason:subscribed"
+    },
+    {
+      "title": "Team Mentioned",
+      "filters": "reason:team-mention"
+    }
+  ],
+  "repo": {
+    "branchesRefetchIntervalSeconds": 30,
+    "prsRefetchIntervalSeconds": 60
+  },
+  "defaults": {
+    "preview": {
+      "open": true,
+      "width": 0.35,
+      "height": 0.5,
+      "position": "auto"
+    },
+    "prsLimit": 20,
+    "prApproveComment": "",
+    "issuesLimit": 20,
+    "notificationsLimit": 20,
+    "view": "prs",
+    "layout": {
+      "prs": {
+        "repo": {
+          "width": 30
+        },
+        "title": {
+          "hidden": false
+        },
+        "author": {
+          "width": 14
+        },
+        "authorIcon": {
+          "hidden": true
+        },
+        "updatedAt": {
+          "width": 5
+        },
+        "createdAt": {
+          "hidden": true
+        },
+        "state": {
+          "hidden": false
+        },
+        "reviewStatus": {
+          "hidden": false
+        },
+        "ci": {
+          "hidden": false
+        },
+        "numComments": {
+          "hidden": false
+        },
+        "lines": {
+          "width": 13
+        },
+        "labels": {
+          "hidden": true
+        },
+        "assignees": {
+          "hidden": true
+        },
+        "base": {
+          "hidden": true
+        }
+      },
+      "issues": {
+        "updatedAt": {
+          "width": 5
+        },
+        "createdAt": {
+          "width": 5
+        },
+        "repo": {
+          "width": 15
+        },
+        "creator": {
+          "width": 10
+        },
+        "creatorIcon": {
+          "hidden": false
+        },
+        "assignees": {
+          "width": 20,
+          "hidden": true
+        }
+      }
+    },
+    "refetchIntervalMinutes": 30
+  },
+  "theme": {
+    "ui": {
+      "sectionsShowCount": true,
+      "table": {
+        "showSeparator": true,
+        "compact": false
+      }
+    }
+  },
+  "pager": {
+    "diff": ""
+  },
+  "confirmQuit": false,
+  "showAuthorIcons": true,
+  "smartFilteringAtLaunch": false,
+  "includeReadNotifications": true
+}

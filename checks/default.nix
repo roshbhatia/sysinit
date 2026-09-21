@@ -67,6 +67,21 @@ in
         python ${./cua-coordinates.py} ${../modules/home/programs/llm/runtime/cua-macos.py}
         touch "$out"
       '';
+  pr-workflow =
+    pkgs.runCommand "pr-workflow-test"
+      {
+        nativeBuildInputs = [
+          pkgs.python3
+          pkgs.git
+          pkgs.nushell
+        ];
+      }
+      ''
+        export HOME="$TMPDIR/home"
+        mkdir -p "$HOME"
+        python ${./pr-workflow.py} ${../modules/home/programs/gh-pr-diff.py} ${../modules/home/programs/llm/runtime/ask-terminal.py} ${nuFunctions}
+        touch "$out"
+      '';
   gh-dash-pr = pkgs.runCommand "gh-dash-pr-test" { nativeBuildInputs = [ pkgs.sysinit-gh-dash ]; } ''
     export HOME="$TMPDIR/home"
     mkdir -p "$HOME"

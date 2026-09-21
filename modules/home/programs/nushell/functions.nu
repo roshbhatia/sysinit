@@ -41,6 +41,49 @@ export def ls [
 
 export alias ll = ls --all --long
 
+export def "pr urls" []: string -> list<string> {
+    let message = $in
+    if ($message | str trim | is-empty) { return [] }
+    let result = (
+        $message
+        | ^ask --quiet --schema 'urls:[]string' -- 'Extract GitHub pull request URLs from stdin. Return {"urls": ["https://github.com/owner/repo/pull/123"]}. Accept Slack link markup and links without a scheme. Remove suffix paths, queries, and fragments. Preserve owner/repository spelling, preserve order, and deduplicate. Include only PR links explicitly present in the input; return an empty list when none exist.'
+        | complete
+    )
+    if $result.exit_code != 0 {
+        error make {msg: $"ask failed: ($result.stderr | str trim)"}
+    }
+    let urls = $result.stdout | from json | get urls
+    let present = ($message
+        | parse --regex '(?i)(?:https?://)?github\.com/(?P<owner>[a-z0-9-]+)/(?P<repo>[a-z0-9_.-]+)/pull/(?P<number>[1-9][0-9]*)(?:[/?#\s<>|),.;]|$)'
+        | each {|pr| $"https://github.com/($pr.owner)/($pr.repo)/pull/($pr.number)" })
+    for url in $urls {
+        if ($url | describe) != 'string' or ($url not-in $present) {
+            error make {msg: $"ask returned a PR URL not present in the input: ($url)"}
+        }
+    }
+    let ordered = $urls | uniq
+    if $ordered != ($present | uniq) {
+        error make {msg: "ask omitted or reordered PR URLs; no PRs were opened"}
+    }
+    $ordered
+}
+
+export def prq [--dry-run] {
+    let piped = $in
+    let message = if ($piped | is-empty) {
+        let clipboard = (^pbpaste | complete)
+        if $clipboard.exit_code != 0 { error make {msg: $"Could not read clipboard: ($clipboard.stderr | str trim)"} }
+        $clipboard.stdout
+    } else { $piped }
+    let urls = $message | pr urls
+    if $dry_run { return $urls }
+    for url in $urls {
+        print -e $"Opening ($url); quit gh-dash to continue to the next PR."
+        ^gh dash $url
+        if $env.LAST_EXIT_CODE != 0 { error make {msg: $"gh dash failed for ($url)"} }
+    }
+}
+
 def sysinit-seshy-session [dir: string] {
     if ($dir | str starts-with $"($SESHY_ROOT)/") {
         $dir | path relative-to $SESHY_ROOT | split row "/" | first
