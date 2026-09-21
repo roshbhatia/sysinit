@@ -20,7 +20,9 @@ def revision(value):
     return value
 
 
-def review(directory, repository, merge_base, head, tool, history):
+def review(
+    directory, repository, merge_base, head, tool, history, url=None, overview=False
+):
     def git(*args):
         return subprocess.run(["git", "-C", str(directory), *args], check=True)
 
@@ -34,6 +36,9 @@ def review(directory, repository, merge_base, head, tool, history):
     git("read-tree", head)
     if tool == "changes":
         command = ["changes", "interactive", "--staged"]
+    elif tool == "nvim" and not history:
+        action = "PRReview!" if overview else "PRReview"
+        command = ["nvim", "-n", "-c", f"{action} {url}"]
     else:
         comparison = f"{merge_base}..{head}"
         action = (
@@ -42,10 +47,12 @@ def review(directory, repository, merge_base, head, tool, history):
             else f"DiffviewOpen {comparison}"
         )
         command = ["nvim", "-n", "-c", action]
+    if tool != "changes":
+        command[2:2] = ["--cmd", "let g:sysinit_pr_review = v:true"]
     return subprocess.run(command, cwd=directory).returncode
 
 
-def main(url, tool="nvim", history=False):
+def main(url, tool="nvim", history=False, overview=False):
     match = re.fullmatch(
         r"https://github\.com/([A-Za-z0-9-]+)/([A-Za-z0-9_.-]+)/pull/([1-9][0-9]*)", url
     )
@@ -72,19 +79,26 @@ def main(url, tool="nvim", history=False):
             head,
             tool,
             history,
+            url,
+            overview,
         )
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("url")
-    parser.add_argument("--tool", choices=["nvim", "changes"], default="nvim")
+    parser.add_argument(
+        "--tool", choices=["nvim", "diffview", "changes"], default="nvim"
+    )
     parser.add_argument("--history", action="store_true")
+    parser.add_argument("--overview", action="store_true")
     args = parser.parse_args()
     if args.history and args.tool != "nvim":
         parser.error("--history uses Neovim")
+    if args.overview and (args.history or args.tool != "nvim"):
+        parser.error("--overview uses the GitHub review view in Neovim")
     try:
-        sys.exit(main(args.url, args.tool, args.history))
+        sys.exit(main(args.url, args.tool, args.history, args.overview))
     except (ValueError, KeyError, OSError, subprocess.CalledProcessError) as error:
         print(f"gh-pr-diff: {error}", file=sys.stderr)
         sys.exit(1)

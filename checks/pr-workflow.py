@@ -37,6 +37,7 @@ class WorkflowTests(unittest.TestCase):
             "GIT_COMMITTER_NAME": "Test",
             "GIT_COMMITTER_EMAIL": "test@example.invalid",
             "GH_CALLS": str(self.root / "gh-calls"),
+            "XDG_CACHE_HOME": str(self.root / "cache"),
         }
         self.patcher = patch.dict(os.environ, self.env)
         self.patcher.start()
@@ -91,6 +92,22 @@ class WorkflowTests(unittest.TestCase):
             f"DiffviewFileHistory --range={base}..{head}",
             json.loads((target / "editor.json").read_text()),
         )
+        url = "https://github.com/one/repo/pull/1"
+        for tool, overview, action in [
+            ("nvim", False, f"PRReview {url}"),
+            ("nvim", True, f"PRReview! {url}"),
+            ("diffview", False, f"DiffviewOpen {base}..{head}"),
+        ]:
+            self.assertEqual(
+                review.review(
+                    target, source.as_uri(), base, head, tool, False, url, overview
+                ),
+                0,
+            )
+            self.assertEqual(
+                json.loads((target / "editor.json").read_text()),
+                ["-n", "--cmd", "let g:sysinit_pr_review = v:true", "-c", action],
+            )
         self.assertEqual(self.git(source, "status", "--porcelain"), "")
 
     def test_invalid_url_cannot_fetch(self):
@@ -120,18 +137,38 @@ class WorkflowTests(unittest.TestCase):
         envelope = {"action": "models.list", "request": {}}
         self.assertEqual(terminal.prepare(envelope.copy()), envelope)
 
-    def queue(self, output, message, dry=False, ask_exit=0):
-        self.executable("ask", f"import sys\nprint({output!r})\nsys.exit({ask_exit})\n")
+    def queue(self, output, message, dry=False, ask_exit=0, refresh=False):
+        self.executable(
+            "ask",
+            f"import sys, os\nfrom pathlib import Path\np = Path(os.environ['XDG_CACHE_HOME']).parent / 'ask-calls'\nwith p.open('a') as f: f.write('call\\n')\nprint({output!r})\nsys.exit({ask_exit})\n",
+        )
         self.executable(
             "gh",
             "import json, os, sys\nwith open(os.environ['GH_CALLS'], 'a') as f: f.write(json.dumps(sys.argv[1:])+'\\n')\n",
         )
         command = f'use "{functions}" *; {json.dumps(message)} | prq' + (
-            " --dry-run | to json --raw" if dry else ""
+            (" --refresh" if refresh else "")
+            + (" --dry-run | to json --raw" if dry else "")
         )
         return subprocess.run(
             ["nu", "--no-config-file", "-c", command], capture_output=True, text=True
         )
+
+    def test_queue_cache_reuses_only_identical_validated_input(self):
+        url = "https://github.com/one/repo/pull/1"
+        response = json.dumps({"urls": [url]})
+        for refresh in [False, False, True]:
+            result = self.queue(response, url, dry=True, refresh=refresh)
+            self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(len((self.root / "ask-calls").read_text().splitlines()), 2)
+        result = self.queue(response, "Please review " + url, dry=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(len((self.root / "ask-calls").read_text().splitlines()), 3)
+        for cache in (self.root / "cache").rglob("*.json"):
+            cache.write_text("not JSON")
+        result = self.queue(response, url, dry=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(len((self.root / "ask-calls").read_text().splitlines()), 4)
 
     def test_queue_deduplicates_without_shell_evaluation(self):
         urls = [

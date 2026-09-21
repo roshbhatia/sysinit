@@ -21,6 +21,7 @@ pkgs.runCommand "editor-config-check"
     export XDG_DATA_HOME="$TMPDIR/data"
     export XDG_STATE_HOME="$TMPDIR/state"
     mkdir -p "$HOME" "$XDG_CACHE_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME"
+    export SYSINIT_NVIM_OCTO=${pkgs.vimPlugins.octo-nvim}
     export SYSINIT_NVIM_CONFIG=${nvimRoot}
     export SYSINIT_NOTES_PLUGIN=${pkgs.agent-notes-nvim}
     export SYSINIT_NVIM_DIFFVIEW=${pkgs.vimPlugins.diffview-nvim}

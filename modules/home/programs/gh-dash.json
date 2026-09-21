@@ -46,6 +46,8 @@
     },
     "prsLimit": 20,
     "prApproveComment": "",
+    "prQuickApprove": true,
+    "prQuickApproveAdvance": false,
     "issuesLimit": 20,
     "notificationsLimit": 20,
     "view": "prs",

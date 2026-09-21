@@ -46,7 +46,7 @@ in
       keybindings.prs = [
         {
           key = "d";
-          name = "Review diff in Neovim";
+          name = "GitHub review diff in Neovim";
           command = ''${lib.getExe prDiff} "https://github.com/{{.RepoName}}/pull/{{.PrNumber}}"'';
         }
         {
@@ -66,8 +66,8 @@ in
         }
         {
           key = "V";
-          name = "Write a PR review";
-          command = ''gh pr review "https://github.com/{{.RepoName}}/pull/{{.PrNumber}}"'';
+          name = "Review PR in Neovim";
+          command = ''${lib.getExe prDiff} --overview "https://github.com/{{.RepoName}}/pull/{{.PrNumber}}"'';
         }
       ]
       ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
@@ -98,6 +98,7 @@ in
     settings = {
       git_protocol = "https";
       prompt = "enabled";
+      browser = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin "/usr/bin/open -b org.mozilla.firefox";
 
       aliases = {
         co = "pr checkout";

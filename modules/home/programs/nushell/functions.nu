@@ -41,9 +41,20 @@ export def ls [
 
 export alias ll = ls --all --long
 
-export def "pr urls" []: string -> list<string> {
+export def "pr urls" [--refresh(-f)]: string -> list<string> {
     let message = $in
     if ($message | str trim | is-empty) { return [] }
+    let present = ($message
+        | parse --regex '(?i)(?:https?://)?github\.com/(?P<owner>[a-z0-9-]+)/(?P<repo>[a-z0-9_.-]+)/pull/(?P<number>[1-9][0-9]*)(?:[/?#\s<>|),.;]|$)'
+        | each {|pr| $"https://github.com/($pr.owner)/($pr.repo)/pull/($pr.number)" })
+    let cache_root = ($env.XDG_CACHE_HOME? | default ($nu.home-dir | path join ".cache")) | path join "gh-dash" "prq-v1"
+    let cache_file = $cache_root | path join $"($message | hash sha256).json"
+    if not $refresh {
+        let cached = try {
+            open --raw $cache_file | from json
+        } catch { null }
+        if $cached != null and $cached == ($present | uniq) { return $cached }
+    }
     let result = (
         $message
         | ^ask --quiet --schema 'urls:[]string' -- 'Extract GitHub pull request URLs from stdin. Return {"urls": ["https://github.com/owner/repo/pull/123"]}. Accept Slack link markup and links without a scheme. Remove suffix paths, queries, and fragments. Preserve owner/repository spelling, preserve order, and deduplicate. Include only PR links explicitly present in the input; return an empty list when none exist.'
@@ -53,9 +64,6 @@ export def "pr urls" []: string -> list<string> {
         error make {msg: $"ask failed: ($result.stderr | str trim)"}
     }
     let urls = $result.stdout | from json | get urls
-    let present = ($message
-        | parse --regex '(?i)(?:https?://)?github\.com/(?P<owner>[a-z0-9-]+)/(?P<repo>[a-z0-9_.-]+)/pull/(?P<number>[1-9][0-9]*)(?:[/?#\s<>|),.;]|$)'
-        | each {|pr| $"https://github.com/($pr.owner)/($pr.repo)/pull/($pr.number)" })
     for url in $urls {
         if ($url | describe) != 'string' or ($url not-in $present) {
             error make {msg: $"ask returned a PR URL not present in the input: ($url)"}
@@ -65,17 +73,25 @@ export def "pr urls" []: string -> list<string> {
     if $ordered != ($present | uniq) {
         error make {msg: "ask omitted or reordered PR URLs; no PRs were opened"}
     }
+    try {
+        mkdir $cache_root
+        ^chmod 700 $cache_root
+        let temporary = $cache_root | path join $"(random uuid).tmp"
+        $ordered | to json --raw | save --force $temporary
+        ^chmod 600 $temporary
+        mv --force $temporary $cache_file
+    } catch { print -e "prq: could not cache the validated PR list" }
     $ordered
 }
 
-export def prq [--dry-run] {
+export def prq [--dry-run, --refresh(-f)] {
     let piped = $in
     let message = if ($piped | is-empty) {
         let clipboard = (^pbpaste | complete)
         if $clipboard.exit_code != 0 { error make {msg: $"Could not read clipboard: ($clipboard.stderr | str trim)"} }
         $clipboard.stdout
     } else { $piped }
-    let urls = $message | pr urls
+    let urls = $message | pr urls --refresh=$refresh
     if $dry_run { return $urls }
     for url in $urls {
         print -e $"Opening ($url); quit gh-dash to continue to the next PR."

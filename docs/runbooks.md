@@ -177,6 +177,22 @@ Run `nix build .#checks.aarch64-darwin.url-routing` for routing checks.
 Verify a native Slack PR click and a normal browser PR click after activation.
 Confirm the Dash view and unchanged browser navigation, respectively.
 
+### Review controls
+
+In Dash, `v` approves immediately without a comment. `V` opens the PR discussion
+in Neovim. `d` opens the Octo review diff, `D` opens Changes, `H` opens commit
+history, `T` opens Enhance, and `o` opens Firefox.
+
+In Neovim, `,gr` starts or resumes a review. `,gc` comments on a line or selection,
+`,gs` suggests a change, and `,gv` opens the approval/comment/request-changes form.
+Save comment buffers with `:w`. Opening the diff alone does not create a review.
+Use `gh-pr-diff --tool diffview URL` for the plain Diffview view.
+
+`prq` extracts PR URLs from the clipboard and opens each in Dash. It caches only
+validated URLs against the exact input hash. Repeating the same message avoids
+another model call. `prq --refresh` recomputes; `prq --dry-run` prints the list.
+The cache lives under `$XDG_CACHE_HOME/gh-dash/prq-v1` (normally `~/.cache`).
+
 ## Build once and activate
 
 Use the installed `nh`; development shells supply tools for checks. Keep the
