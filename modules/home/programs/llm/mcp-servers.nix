@@ -24,7 +24,7 @@ let
   cuaComputerServerVersion = "0.3.42";
 
   uvEnv = ''
-    export PATH="${lib.makeBinPath [ pkgs.uv ]}:$PATH"
+    export PATH="${lib.makeBinPath [ pkgs.uv ]}:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
     export UV_PYTHON="${pkgs.python313}/bin/python3"
     export UV_PYTHON_DOWNLOADS=never
   '';
