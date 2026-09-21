@@ -87,6 +87,7 @@ in
         lua ${./hammerspoon-startup.lua} ${../modules/darwin/home/hammerspoon/lua/sysinit/pkg/core/startup.lua}
         touch "$out"
       '';
+  shell-completions = import ./shell-completions.nix { inherit pkgs; };
   completion-cache =
     pkgs.runCommand "completion-cache-test"
       {

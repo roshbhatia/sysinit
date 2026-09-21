@@ -73,6 +73,10 @@ let external_completer = {|spans: list<string>|
     $spans
   }
 
+  let spans = if $spans.0 == "sgg" {
+    $spans | skip 1 | prepend ["ast-grep" "scan"]
+  } else { $spans }
+
   let primary = match $spans.0 {
     nu | git => (do $fish_completer $spans)
     _ => (do $carapace_completer $spans)

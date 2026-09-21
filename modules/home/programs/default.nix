@@ -37,6 +37,7 @@ in
       dev = [
         ./ast-grep
         ./bottom.nix
+        ./completions
         ./changes.nix
         ./gh.nix
         ./htop.nix

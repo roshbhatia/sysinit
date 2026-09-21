@@ -97,6 +97,7 @@ in
     # Nushell and the Fish fallback discover package-owned completions through
     # XDG_DATA_DIRS. Darwin only links Zsh's tree unless these paths are named.
     pathsToLink = [
+      "/share/bash-completion"
       "/share/fish"
       "/share/nushell"
     ];
