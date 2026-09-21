@@ -31,7 +31,7 @@ let
   };
 
   devinSettings = {
-    attribution = false;
+    attribution = true;
 
     auto_update = false;
 

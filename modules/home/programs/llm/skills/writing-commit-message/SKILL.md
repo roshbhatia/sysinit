@@ -1,5 +1,5 @@
 ---
-description: 'Writes git commit messages in a terse, conventional-commit-shaped style. Lowercase preferred but not absolute, title-only by default, no body, no period. Supports the historical `<type>: <TICKET-ID>: <subject>` variant when a tracker ticket is in scope. Use when drafting a commit message or when the user says ''commit this'' / ''propose a commit message'' / ''write commit''.'
+description: 'Writes concise conventional commit messages with agent attribution trailers. Use when drafting or creating commits. Supports ticket prefixes when a tracker ticket is in scope.'
 model: haiku
 effort: low
 ---
@@ -53,7 +53,7 @@ When a repo has no contribution docs, apply the defaults below unmodified.
 - `scope` is optional: the affected module, lowercase, kebab-case if multi-word.
   In-this-config scopes: `pi`, `llm`, `claude`, `gemini`, `goose`, `codex`,
   `cursor`, `amp`, `opencode`, `openspec`, `hack`, `flake`.
-- `subject` is an imperative sentence fragment. No trailing period. No body by default.
+- `subject` is an imperative sentence fragment. No trailing period. Omit explanatory prose by default; retain required trailers.
 - Lowercase is preferred (~80% of the corpus). Capitalize only when an identifier
   or proper noun opens the subject; do not force lowercase onto one.
 
@@ -109,12 +109,30 @@ or the ticket may stand alone (`PROJECT-NNN: <subject>`). Bare subjects without
 a ticket are equally acceptable. The project codes above are historical, not
 vocabulary for new work.
 
+## Agent attribution
+
+Include attribution for each agent that contributed to the committed change.
+Use its documented `Co-authored-by:` identity when available. Otherwise use
+`Assisted-by: <harness>` without inventing an email address or model version.
+Include the model when it is known. Keep attribution in trailers after a blank line.
+
+Preserve existing human and agent trailers when amending, cherry-picking, or
+squashing. Deduplicate identical trailers. Attribute contributors to this change,
+not every installed harness. Do not rewrite pushed history without authorization.
+
+For example, a Codex contribution without a documented co-author identity uses:
+
+```text
+fix(cua): check display geometry before actions
+
+Assisted-by: Codex
+```
+
 ## What to avoid: and what to do instead
 
 - Two-clause subject joined with `;` or em-dash -> split into two commits.
 - Multi-paragraph body to explain a big change -> the change is too big; split it.
-- `Co-authored-by:` / "Generated with..." trailers -> omit unless the user
-  explicitly directed them.
+- Promotional "Generated with..." prose -> use the agent attribution trailers above.
 - Inventing a ticket ID when no tracker is in scope -> use a bare or scoped subject.
 - Bolded list rows (`- **Foo**: bar`) if a body is written at all -> plain bullets.
 - Emojis -> never, anywhere.

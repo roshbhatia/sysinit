@@ -65,7 +65,7 @@ let
       disable_metrics = true;
       attribution = {
         generated_with = false;
-        trailer_style = "none";
+        trailer_style = "co-authored-by";
       };
       initialize_as = "AGENTS.md";
       global_context_paths = [
