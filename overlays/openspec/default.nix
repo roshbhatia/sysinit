@@ -38,6 +38,8 @@ in
       runHook preBuild
       pnpm run build
       pnpm prune --prod --ignore-scripts
+      # pnpm leaves internal links to removed development dependencies after pruning.
+      find node_modules/.pnpm/node_modules -xtype l -delete
       runHook postBuild
     '';
 
@@ -48,6 +50,14 @@ in
       makeWrapper ${final.nodejs}/bin/node $out/bin/openspec \
         --add-flags "$out/lib/openspec/bin/openspec.js"
       runHook postInstall
+    '';
+
+    doInstallCheck = true;
+    installCheckPhase = ''
+      runHook preInstallCheck
+      $out/bin/openspec --version | grep -Fx '${version}'
+      $out/bin/openspec --help > /dev/null
+      runHook postInstallCheck
     '';
 
     meta = with final.lib; {
