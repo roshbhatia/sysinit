@@ -8,7 +8,7 @@
 
     extensions = [
       pkgs.gh-aw
-      pkgs.gh-dash
+      (if pkgs.stdenv.hostPlatform.isDarwin then pkgs.sysinit-gh-dash else pkgs.gh-dash)
       pkgs.gh-enhance
       pkgs.gh-stack
     ];

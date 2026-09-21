@@ -29,6 +29,7 @@
   (import ./python313.nix)
   (import ./kubernetes-zeitgeist.nix)
   (import ./gomvp.nix)
+  (import ./gh-dash.nix)
   (import ./mermaid-ascii.nix)
   (import ./pretty-mermaid.nix)
   (import ./hererocks.nix)

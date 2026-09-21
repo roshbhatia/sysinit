@@ -61,6 +61,16 @@ in
   firefox = import ./firefox.nix { inherit pkgs darwinConfigurations nixosConfigurations; };
   editor-composition = import ./editor-composition.nix { inherit pkgs homeManagerLib; };
   slack-guard = import ./slack-guard.nix { inherit pkgs; };
+  gh-dash-pr = pkgs.runCommand "gh-dash-pr-test" { nativeBuildInputs = [ pkgs.sysinit-gh-dash ]; } ''
+    export HOME="$TMPDIR/home"
+    mkdir -p "$HOME"
+    if gh-dash https://github.com/owner/repo/issues/1 > stdout 2> stderr; then
+      echo "gh-dash accepted an issue URL as a PR" >&2
+      exit 1
+    fi
+    grep -F 'points to an issue, only pull requests are supported' stderr
+    touch "$out"
+  '';
   url-routing = pkgs.runCommand "url-routing-test" { nativeBuildInputs = [ pkgs.lua5_4 ]; } ''
     lua ${./url-routing.lua} ${../modules/darwin/home/hammerspoon/lua/sysinit/pkg/url_routing.lua}
     touch "$out"

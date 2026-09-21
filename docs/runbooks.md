@@ -148,7 +148,8 @@ done
 ## Open external GitHub PR links in Dash on macOS
 
 Hammerspoon routes external `github.com/OWNER/REPO/pull/NUMBER` links to
-`gh dash pr URL`. Install the fork supporting that command before activation.
+`gh dash URL`. The Darwin GitHub CLI extension uses the pinned
+`roshbhatia/gh-dash` fork from `overlays/gh-dash.nix`.
 The router normalizes file, comment, and query links to their PR URL.
 Firefox, Chrome, and Safari navigation stays in the originating browser.
 Other external links use Firefox.
@@ -171,8 +172,8 @@ Its URL API can lose the first event when macOS starts a stopped Hammerspoon.
 Slack in a browser follows the browser exception.
 
 Run `nix build .#checks.aarch64-darwin.url-routing` for routing checks.
-Verify a native Slack PR click and a normal browser PR click after installing
-the fork. Confirm the Dash view and unchanged browser navigation, respectively.
+Verify a native Slack PR click and a normal browser PR click after activation.
+Confirm the Dash view and unchanged browser navigation, respectively.
 
 ## Build once and activate
 

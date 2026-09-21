@@ -339,6 +339,7 @@
             "codex"
             "claude-code"
             "gomvp"
+            "sysinit-gh-dash"
             "kubernetes-zeitgeist"
             "hererocks"
             "sheets"

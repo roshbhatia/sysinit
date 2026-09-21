@@ -36,7 +36,6 @@ in
       default = [
         "${config.home.profileDirectory}/bin/gh"
         "dash"
-        "pr"
       ];
       description = "Command prefix to open a PR; the URL is appended as one argument.";
     };
