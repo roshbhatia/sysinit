@@ -41,8 +41,8 @@
     "preview": {
       "open": true,
       "width": 0.35,
-      "height": 0.5,
-      "position": "auto"
+      "height": 0.75,
+      "position": "top"
     },
     "prsLimit": 20,
     "prApproveComment": "",
@@ -124,8 +124,8 @@
     "ui": {
       "sectionsShowCount": true,
       "table": {
-        "showSeparator": true,
-        "compact": false
+        "showSeparator": false,
+        "compact": true
       }
     }
   },

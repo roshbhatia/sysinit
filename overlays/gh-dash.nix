@@ -1,6 +1,6 @@
 final: prev:
 let
-  revision = "a48dde04f31377d99fd22507f84c7fcc694d4283";
+  revision = "15f86d17b1a3f7217d97817b008176df8d3b7968";
   version = "4.25.2-roshbhatia-2026-09-21";
 in
 {
@@ -12,7 +12,7 @@ in
           owner = "roshbhatia";
           repo = "gh-dash";
           rev = revision;
-          hash = "sha256-RR/jCE0KmKnPHS8MzWs1E6H5OgzK1se2Hhwh3QXeRaw=";
+          hash = "sha256-KN4AkWFdJQ7Q5/R22zlypnMhDhoR8LFa1NS8jkE8tYA=";
         };
         vendorHash = "sha256-edFzZpM1DIwFnMLQlOuh5c8CFzYm3X2YheGFDgOLZ0I=";
         ldflags = [
