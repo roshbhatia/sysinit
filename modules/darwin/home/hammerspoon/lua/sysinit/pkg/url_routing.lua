@@ -1,6 +1,7 @@
 local M = {}
 local json = require("sysinit.pkg.utils.json_loader")
 local tasks = {}
+local picker = nil
 local browsers = {
   ["org.mozilla.firefox"] = true,
   ["org.mozilla.firefoxdeveloperedition"] = true,
@@ -62,13 +63,21 @@ function M.prURL(url)
   return "https://github.com/" .. owner .. "/" .. repo .. "/pull/" .. number
 end
 
+function M.prLabel(url)
+  local owner, repo, number = url:match("^https://github%.com/([%w%-]+)/([%w_.%-]+)/pull/([1-9]%d*)$")
+  if not owner then
+    return url
+  end
+  return owner .. "/" .. repo .. "#" .. number
+end
+
 local function openBrowser(url, bundle)
   if not hs.urlevent.openURLWithBundle(url, bundle) then
     report("Cannot open browser: " .. bundle)
   end
 end
 
-local function launch(config, url)
+local function launch(config, command, url)
   run(config.wezterm, { "cli", "--no-auto-start", "list-clients", "--format", "json" }, function(code, stdout)
     local clients = {}
     if code == 0 then
@@ -98,7 +107,7 @@ local function launch(config, url)
         "--cwd",
         config.home,
         "--",
-        config.command,
+        command,
         url,
       }, function(result, _, stderr)
         if result ~= 0 then
@@ -119,7 +128,7 @@ local function launch(config, url)
       "--cwd",
       config.home,
       "--",
-      config.command,
+      command,
       url,
     }, function(result, _, stderr)
       if result ~= 0 then
@@ -129,6 +138,50 @@ local function launch(config, url)
       hs.application.launchOrFocusByBundleID("com.github.wez.wezterm")
     end)
   end)
+end
+
+local function dispatch(config, reviewer, url)
+  if reviewer.bundle then
+    openBrowser(url, reviewer.bundle)
+  else
+    launch(config, reviewer.command, url)
+  end
+end
+
+local function choose(config, url)
+  local reviewers = config.reviewers or {}
+  if #reviewers == 0 then
+    report("No PR reviewer is configured")
+    return
+  end
+  if #reviewers == 1 then
+    dispatch(config, reviewers[1], url)
+    return
+  end
+  -- A second link must not leave the first picker orphaned on screen.
+  if picker then
+    picker:delete()
+    picker = nil
+  end
+  local choices = {}
+  for index, reviewer in ipairs(reviewers) do
+    choices[index] = { text = reviewer.name, subText = reviewer.detail, reviewer = index }
+  end
+  picker = hs.chooser.new(function(choice)
+    picker = nil
+    if choice then
+      dispatch(config, reviewers[choice.reviewer], url)
+    end
+  end)
+  if not picker then
+    report("Cannot create the review picker")
+    dispatch(config, reviewers[1], url)
+    return
+  end
+  picker:placeholderText(M.prLabel(url))
+  picker:rows(#choices)
+  picker:choices(choices)
+  picker:show()
 end
 
 function M.setup(config)
@@ -145,7 +198,7 @@ function M.setup(config)
     end
     local pr = config.enable and M.prURL(url)
     if pr then
-      launch(config, pr)
+      choose(config, pr)
     else
       openBrowser(url, config.browser)
     end
