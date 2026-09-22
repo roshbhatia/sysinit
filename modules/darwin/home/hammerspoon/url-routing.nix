@@ -16,20 +16,20 @@ let
     lib.strings.sanitizeDerivationName (
       lib.toLower (builtins.replaceStrings [ " " "(" ")" ] [ "-" "" "" ] name)
     );
-  reviewerScript =
-    reviewer:
-    pkgs.sysinit.writeShellScript "open-github-pr-${slug reviewer.name}" ''
+  targetScript =
+    kind: target:
+    pkgs.sysinit.writeShellScript "open-github-${kind}-${slug target.name}" ''
       set -euo pipefail
       export PATH=${lib.escapeShellArg (paths.getPathString config.home.username config.home.homeDirectory)}
       export GH_BROWSER=${browser}
       export BROWSER=${browser}
-      exec ${lib.escapeShellArgs reviewer.command} "$@"
+      exec ${lib.escapeShellArgs target.command} "$@"
     '';
-  reviewerType = lib.types.submodule {
+  targetType = lib.types.submodule {
     options = {
       name = lib.mkOption {
         type = lib.types.str;
-        description = "Row label shown in the review picker.";
+        description = "Row label shown in the picker.";
       };
       detail = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
@@ -48,90 +48,138 @@ let
       };
     };
   };
+  routeType = lib.types.submodule {
+    options = {
+      verb = lib.mkOption {
+        type = lib.types.str;
+        default = "Open";
+        description = "What the picker says choosing a row does.";
+      };
+      targets = lib.mkOption {
+        type = lib.types.listOf targetType;
+        default = [ ];
+        description = "Targets offered for this link kind. The first row is preselected.";
+      };
+    };
+  };
 in
 {
   options.sysinit.hammerspoon.urlRouting = {
     enable = lib.mkOption {
       type = lib.types.bool;
       default = true;
-      description = "Route external GitHub PR links through Hammerspoon to a review picker.";
+      description = "Route external GitHub links through Hammerspoon to a picker.";
     };
     browser = lib.mkOption {
       type = lib.types.str;
       default = "org.mozilla.firefox";
       description = "Browser bundle identifier for other links and Dash browser actions.";
     };
-    reviewers = lib.mkOption {
-      type = lib.types.listOf reviewerType;
-      description = "Review targets offered for a PR link. The first row is preselected.";
-      default = [
-        {
-          name = "gh dash";
-          detail = "Dashboard, checks, and review actions";
-          command = [
-            "${config.home.profileDirectory}/bin/gh"
-            "dash"
+    routes = lib.mkOption {
+      type = lib.types.attrsOf routeType;
+      description = ''
+        Targets per link kind the router recognises. The keys are the kinds
+        `url_routing.lua` matches: `pull` and `actions`.
+      '';
+      default = {
+        pull = {
+          verb = "Review";
+          targets = [
+            {
+              name = "gh dash";
+              detail = "Dashboard, checks, and review actions";
+              command = [
+                "${config.home.profileDirectory}/bin/gh"
+                "dash"
+              ];
+            }
+            {
+              name = "Neovim";
+              detail = "Octo overview with existing threads";
+              command = [
+                "${config.home.profileDirectory}/bin/gh-pr-diff"
+                "--overview"
+              ];
+            }
+            {
+              name = "Firefox";
+              detail = "Open the PR on github.com";
+              bundle = cfg.browser;
+            }
           ];
-        }
-        {
-          name = "Neovim (Octo)";
-          detail = "Octo diff with existing threads";
-          command = [ "${config.home.profileDirectory}/bin/gh-pr-diff" ];
-        }
-        {
-          name = "Firefox";
-          detail = "Open the PR on github.com";
-          bundle = cfg.browser;
-        }
-      ];
+        };
+        actions = {
+          verb = "Watch";
+          targets = [
+            {
+              name = "gh enhance";
+              detail = "Watch the run's jobs and logs";
+              command = [
+                "${config.home.profileDirectory}/bin/gh"
+                "enhance"
+              ];
+            }
+            {
+              name = "Firefox";
+              detail = "Open the run on github.com";
+              bundle = cfg.browser;
+            }
+          ];
+        };
+      };
     };
   };
 
-  config = {
-    assertions = [
-      {
-        assertion = cfg.browser != "org.hammerspoon.Hammerspoon";
-        message = "The URL fallback browser must not route back to Hammerspoon.";
-      }
-      {
-        assertion = cfg.reviewers != [ ];
-        message = "The PR review picker must offer at least one reviewer.";
-      }
-      {
-        assertion = lib.all (
-          reviewer: (reviewer.command != [ ]) != (reviewer.bundle != null)
-        ) cfg.reviewers;
-        message = "Each PR reviewer must set exactly one of command or bundle.";
-      }
-      {
-        assertion = lib.all (
-          reviewer: reviewer.command == [ ] || lib.hasPrefix "/" (builtins.head reviewer.command)
-        ) cfg.reviewers;
-        message = "A PR reviewer command must begin with an absolute executable path.";
-      }
-      {
-        assertion = lib.all (reviewer: reviewer.bundle != "org.hammerspoon.Hammerspoon") cfg.reviewers;
-        message = "A PR reviewer bundle must not route back to Hammerspoon.";
-      }
-    ];
-    xdg.configFile."sysinit/url_routing.json".source = pkgs.sysinit.writeJSON "url-routing.json" {
-      inherit (cfg) enable browser;
-      reviewers = map (
-        reviewer:
+  config =
+    let
+      targets = lib.concatMap (route: route.targets) (lib.attrValues cfg.routes);
+    in
+    {
+      assertions = [
         {
-          inherit (reviewer) name;
+          assertion = cfg.browser != "org.hammerspoon.Hammerspoon";
+          message = "The URL fallback browser must not route back to Hammerspoon.";
         }
-        // lib.optionalAttrs (reviewer.detail != null) { inherit (reviewer) detail; }
-        // (
-          if reviewer.bundle != null then
-            { inherit (reviewer) bundle; }
-          else
-            { command = reviewerScript reviewer; }
-        )
-      ) cfg.reviewers;
-      home = config.home.homeDirectory;
-      wezterm = "${pkgs.wezterm}/bin/wezterm";
-      weztermApp = "${config.home.homeDirectory}/${config.targets.darwin.copyApps.directory}/WezTerm.app";
+        {
+          assertion = lib.all (route: route.targets != [ ]) (lib.attrValues cfg.routes);
+          message = "Each URL route must offer at least one target.";
+        }
+        {
+          assertion = lib.all (target: (target.command != [ ]) != (target.bundle != null)) targets;
+          message = "Each URL target must set exactly one of command or bundle.";
+        }
+        {
+          assertion = lib.all (
+            target: target.command == [ ] || lib.hasPrefix "/" (builtins.head target.command)
+          ) targets;
+          message = "A URL target command must begin with an absolute executable path.";
+        }
+        {
+          assertion = lib.all (target: target.bundle != "org.hammerspoon.Hammerspoon") targets;
+          message = "A URL target bundle must not route back to Hammerspoon.";
+        }
+      ];
+      xdg.configFile."sysinit/url_routing.json".source = pkgs.sysinit.writeJSON "url-routing.json" {
+        inherit (cfg) enable browser;
+        routes = lib.mapAttrs (kind: route: {
+          inherit (route) verb;
+          targets = map (
+            target:
+            {
+              inherit (target) name;
+            }
+            // lib.optionalAttrs (target.detail != null) { inherit (target) detail; }
+            // (
+              if target.bundle != null then
+                { inherit (target) bundle; }
+              else
+                { command = targetScript kind target; }
+            )
+          ) route.targets;
+        }) cfg.routes;
+        home = config.home.homeDirectory;
+        wezterm = "${pkgs.wezterm}/bin/wezterm";
+        weztermApp = "${config.home.homeDirectory}/${config.targets.darwin.copyApps.directory}/WezTerm.app";
+      };
     };
-  };
 }

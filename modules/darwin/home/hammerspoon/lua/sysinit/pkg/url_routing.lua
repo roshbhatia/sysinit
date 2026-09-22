@@ -1,7 +1,6 @@
 local M = {}
 local json = require("sysinit.pkg.utils.json_loader")
 local tasks = {}
-local picker = nil
 local browsers = {
   ["org.mozilla.firefox"] = true,
   ["org.mozilla.firefoxdeveloperedition"] = true,
@@ -48,7 +47,46 @@ local function run(binary, args, callback)
   end)
 end
 
-function M.prURL(url)
+-- Everything after the part that identifies the page. A query, a fragment, or a
+-- deeper path still names the same PR or run; a bare suffix is a different page
+-- wearing the same prefix, so it is not ours.
+---@param suffix string
+---@return boolean
+local function carries(suffix)
+  return suffix == "" or suffix:match("^[/#?]") ~= nil
+end
+
+-- Ordered, because `actions/runs` has to be tried before anything that would
+-- also accept it.
+local routes = {
+  {
+    kind = "pull",
+    match = function(path)
+      local owner, repo, number, suffix = path:match("^/([%w%-]+)/([%w_.%-]+)/pull/([1-9]%d*)(.*)$")
+      if not owner or not carries(suffix) then
+        return nil
+      end
+      return "https://github.com/" .. owner .. "/" .. repo .. "/pull/" .. number, owner .. "/" .. repo .. "#" .. number
+    end,
+  },
+  {
+    -- Only a run, because that is what `gh enhance` takes. A link to the Actions
+    -- tab or to a workflow file names no run and goes to the browser instead.
+    kind = "actions",
+    match = function(path)
+      local owner, repo, id, suffix = path:match("^/([%w%-]+)/([%w_.%-]+)/actions/runs/([1-9]%d*)(.*)$")
+      if not owner or not carries(suffix) then
+        return nil
+      end
+      return "https://github.com/" .. owner .. "/" .. repo .. "/actions/runs/" .. id,
+        owner .. "/" .. repo .. " run " .. id
+    end,
+  },
+}
+
+---@param url string
+---@return table|nil
+function M.route(url)
   local scheme, authority, path = url:match("^([%a]+)://([^/]+)(/.*)$")
   if not scheme or (scheme:lower() ~= "https" and scheme:lower() ~= "http") then
     return nil
@@ -56,19 +94,13 @@ function M.prURL(url)
   if authority:lower() ~= "github.com" then
     return nil
   end
-  local owner, repo, number, suffix = path:match("^/([%w%-]+)/([%w_.%-]+)/pull/([1-9]%d*)(.*)$")
-  if not owner or (suffix ~= "" and not suffix:match("^[/#?]")) then
-    return nil
+  for _, route in ipairs(routes) do
+    local canonical, label = route.match(path)
+    if canonical then
+      return { kind = route.kind, url = canonical, label = label }
+    end
   end
-  return "https://github.com/" .. owner .. "/" .. repo .. "/pull/" .. number
-end
-
-function M.prLabel(url)
-  local owner, repo, number = url:match("^https://github%.com/([%w%-]+)/([%w_.%-]+)/pull/([1-9]%d*)$")
-  if not owner then
-    return url
-  end
-  return owner .. "/" .. repo .. "#" .. number
+  return nil
 end
 
 local function openBrowser(url, bundle)
@@ -140,48 +172,54 @@ local function launch(config, command, url)
   end)
 end
 
-local function dispatch(config, reviewer, url)
-  if reviewer.bundle then
-    openBrowser(url, reviewer.bundle)
+local function dispatch(config, target, url)
+  if target.bundle then
+    openBrowser(url, target.bundle)
   else
-    launch(config, reviewer.command, url)
+    launch(config, target.command, url)
   end
 end
 
-local function choose(config, url)
-  local reviewers = config.reviewers or {}
-  if #reviewers == 0 then
-    report("No PR reviewer is configured")
+-- The palette the launcher already runs, so a routed link is picked in the same
+-- panel as everything else rather than in a second style of list.
+local function choose(config, route)
+  local settings = (config.routes or {})[route.kind] or {}
+  local targets = settings.targets or {}
+  if #targets == 0 then
+    report("No target is configured for a " .. route.kind .. " link")
     return
   end
-  if #reviewers == 1 then
-    dispatch(config, reviewers[1], url)
+  if #targets == 1 then
+    dispatch(config, targets[1], route.url)
     return
   end
-  -- A second link must not leave the first picker orphaned on screen.
-  if picker then
-    picker:delete()
-    picker = nil
+  local verb = settings.verb or "Open"
+  local rows = {}
+  for index, target in ipairs(targets) do
+    rows[index] = {
+      text = target.name,
+      detail = target.detail or "",
+      label = verb,
+      glyph = "command",
+      target = index,
+    }
   end
-  local choices = {}
-  for index, reviewer in ipairs(reviewers) do
-    choices[index] = { text = reviewer.name, subText = reviewer.detail, reviewer = index }
+  local palette = hs.loadSpoon("CommandPalette")
+  local ok = palette ~= nil
+    and pcall(function()
+      palette:pick({ placeholder = route.label, verb = verb, rows = rows }, function(row)
+        if row then
+          dispatch(config, targets[row.target], route.url)
+        end
+      end)
+    end)
+  if not ok then
+    -- The palette is the launcher's, so it can be stopped or reloading. A link
+    -- is still worth opening, and the first target is the one the picker would
+    -- have preselected.
+    report("Cannot open the " .. route.kind .. " picker")
+    dispatch(config, targets[1], route.url)
   end
-  picker = hs.chooser.new(function(choice)
-    picker = nil
-    if choice then
-      dispatch(config, reviewers[choice.reviewer], url)
-    end
-  end)
-  if not picker then
-    report("Cannot create the review picker")
-    dispatch(config, reviewers[1], url)
-    return
-  end
-  picker:placeholderText(M.prLabel(url))
-  picker:rows(#choices)
-  picker:choices(choices)
-  picker:show()
 end
 
 function M.setup(config)
@@ -196,9 +234,9 @@ function M.setup(config)
       openBrowser(url, sender)
       return
     end
-    local pr = config.enable and M.prURL(url)
-    if pr then
-      choose(config, pr)
+    local route = config.enable and M.route(url)
+    if route then
+      choose(config, route)
     else
       openBrowser(url, config.browser)
     end
