@@ -6,6 +6,8 @@ let
     "theme"
     "keybinds"
     "tui"
+    "subagent_depth"
+    "lsp"
   ];
 
   retiredTui = [ ];
@@ -14,10 +16,11 @@ let
     "mcp"
     "provider"
     "permission"
-    "lsp"
     "formatter"
     "plugin"
     "instructions"
+    "experimental"
+    "compaction"
   ];
 
   mergeProgram =
@@ -48,7 +51,7 @@ in
 
   schemas = pkgs.runCommand "opencode-schemas-local" { nativeBuildInputs = [ pkgs.jq ]; } ''
     mkdir -p "$out"
-    for f in config tui; do
+    for f in config cli; do
       jq 'walk(
             if type == "object" and has("$ref") and (.["$ref"] | startswith("http"))
             then {}
@@ -59,33 +62,23 @@ in
 
     jq -e '.["$defs"].Config.additionalProperties == false' "$out/config.json" > /dev/null \
       || { echo "opencode schema localization lost Config.additionalProperties" >&2; exit 1; }
-    jq -e '.additionalProperties == false' "$out/tui.json" > /dev/null \
-      || { echo "opencode schema localization lost the tui additionalProperties" >&2; exit 1; }
+    jq -e '.additionalProperties == false' "$out/cli.json" > /dev/null \
+      || { echo "opencode schema localization lost the cli additionalProperties" >&2; exit 1; }
   '';
 
   main = {
     "$schema" = "https://opencode.ai/config.json";
     autoupdate = false;
     share = "disabled";
-
-    # opencode speaks OTLP over HTTP with a JSON body and appends /v1/traces and
-    # /v1/logs itself, so the endpoint from otel-collector.nix is enough. No
-    # metrics path exists in the binary.
-    #
-    # Undocumented upstream: this key is in the shipped JSON schema and in the
-    # binary, and nothing in the opencode docs names it. Log export fires on the
-    # endpoint variable alone; traces need the flag, so both are set.
-    experimental.openTelemetry = true;
+    experimental = { };
 
     model = "openai/gpt-5.5";
     small_model = "openai/gpt-5.4-mini";
 
     default_agent = "build";
-    subagent_depth = 1;
 
     compaction = {
       auto = true;
-      prune = true;
     };
 
     tool_output = {
@@ -122,13 +115,6 @@ in
       };
     };
 
-    lsp = {
-      nixd = {
-        command = [ "${pkgs.nixd}/bin/nixd" ];
-        extensions = [ ".nix" ];
-      };
-    };
-
     formatter = {
       deadnix = {
         command = [
@@ -140,18 +126,7 @@ in
       };
     };
 
-    plugin = [
-      "@bastiangx/opencode-unmoji"
-      "opencode-gemini-auth"
-      "opencode-handoff"
-      "opencode-claude-memory"
-      "opencode-plugin-openspec"
-
-      "opencode-openai-codex-auth"
-      "opencode-pty"
-      "opencode-vibeguard"
-      "@franlol/opencode-md-table-formatter"
-    ];
+    plugin = [ ];
 
     provider = {
       openai = {
@@ -212,14 +187,13 @@ in
   };
 
   tui = {
-    "$schema" = "https://opencode.ai/tui.json";
-    theme = "system";
+    "$schema" = "https://opencode.ai/v2/cli.json";
+    theme.mode = "system";
     keybinds = {
       leader = "ctrl+a";
     };
-    scroll_acceleration = {
-      enabled = true;
-    };
+    scroll.acceleration = true;
+    plugins = [ "./sysinit-notify.js" ];
 
     attention = {
       notifications = false;

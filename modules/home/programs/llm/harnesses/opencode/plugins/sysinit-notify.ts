@@ -1,100 +1,50 @@
-function resolve(exe: string): string {
-  const { existsSync } = require("node:fs");
-  for (const dir of (process.env.PATH ?? "").split(":")) {
-    if (dir && existsSync(`${dir}/${exe}`)) return `${dir}/${exe}`;
-  }
-  return exe;
-}
+import type { Plugin } from "@opencode/plugin/tui";
+import { resolveExecutable, spawnQuiet } from "./sysinit-process.ts";
 
-function spawnQuiet(exe: string, args: string[], input?: string): void {
-  try {
-    const { spawn } = require("node:child_process");
-    const child = spawn(resolve(exe), args, {
-      stdio: input === undefined ? "ignore" : ["pipe", "ignore", "ignore"],
-    });
-    child.on("error", () => {});
-    if (input !== undefined && child.stdin) {
-      child.stdin.on("error", () => {});
-      child.stdin.end(input);
+export default {
+  id: "sysinit.notify",
+  setup(ctx) {
+    function owns(sessionID: string): boolean {
+      const root = ctx.data.session.root(sessionID);
+      const route = ctx.ui.router.current();
+      return (
+        (route.type === "session" && route.sessionID === root) ||
+        ctx.ui.tabs.list().some((tab) => tab.sessionID === root)
+      );
     }
-    child.unref();
-  } catch {}
-}
 
-// One record per agent write, through the same dispatcher every hook uses.
-// `--harness json` takes a gate envelope as is, so the tool name is the one
-// the chains match on: Edit or Write.
-function editEvent(harness: string, tool: string, file: string): void {
-  spawnQuiet(
-    "gate",
-    ["hook", "--harness", "json", "--event", "PostToolUse", "--format", "json"],
-    JSON.stringify({
-      version: "gate.event/v1",
-      harness,
-      event: "PostToolUse",
-      tool,
-      input: { file_path: file },
-      cwd: process.cwd(),
-    }),
-  );
-}
+    function notify(sessionID: string, failed: boolean): void {
+      if (!owns(sessionID)) return;
+      spawnQuiet("agent-state", [
+        "opencode",
+        failed ? "waiting" : "done",
+        failed ? "needs attention" : "your move",
+      ]);
+      spawnQuiet(
+        "agent-notify",
+        [
+          "opencode",
+          failed ? "approval" : "done",
+          resolveExecutable("agent-focus"),
+        ],
+        "{}",
+      );
+    }
 
-let rootSession: string | undefined;
-
-export const SysinitNotify = () => ({
-  event: ({
-    event,
-  }: {
-    event?: {
-      type?: string;
-      properties?: {
-        sessionID?: string;
-        status?: { type?: string };
-        file?: string;
-      };
-    };
-  }) => {
-    try {
-      const sid = event?.properties?.sessionID;
-
-      if (event?.type === "file.edited") {
-        const file = event?.properties?.file;
-        if (file) {
-          editEvent("opencode", "Edit", file);
-        }
-        return;
-      }
-
-      if (event?.type === "session.created") {
-        rootSession ??= sid;
-        return;
-      }
-
-      if (event?.type !== "session.status") return;
-      if (!sid || sid !== rootSession) return;
-
-      switch (event?.properties?.status?.type) {
-        case "idle":
-          spawnQuiet("agent-state", ["opencode", "done", "your move"]);
-          spawnQuiet(
-            "agent-notify",
-            ["opencode", "done", resolve("agent-focus")],
-            "{}",
-          );
-          break;
-
-        case "error":
-          spawnQuiet("agent-state", ["opencode", "waiting", "session error"]);
-          spawnQuiet(
-            "agent-notify",
-            ["opencode", "approval", resolve("agent-focus")],
-            "{}",
-          );
-          break;
-
-        default:
-          break;
-      }
-    } catch {}
+    const stops = [
+      ctx.data.on("session.idle", (event) => {
+        if (
+          ctx.data.session.root(event.data.sessionID) === event.data.sessionID
+        )
+          notify(event.data.sessionID, false);
+      }),
+      ctx.data.on("permission.asked", (event) =>
+        notify(event.data.sessionID, true),
+      ),
+      ctx.data.on("session.execution.failed", (event) =>
+        notify(event.data.sessionID, true),
+      ),
+    ];
+    return () => stops.forEach((stop) => stop());
   },
-});
+} satisfies Plugin.Definition;

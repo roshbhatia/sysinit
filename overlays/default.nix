@@ -45,6 +45,7 @@
   (import ./wumpusMono.nix)
   (import ./bookerly.nix)
   (import ./codex.nix)
+  (import ./opencode.nix)
   (import ./acp-amp.nix)
   (import ./localias.nix)
   (import ./git-ai.nix)

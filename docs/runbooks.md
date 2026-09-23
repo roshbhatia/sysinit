@@ -435,6 +435,70 @@ is outside the cancellation contract. Drain running work before changing the
 Pueue daemon configuration or upgrading it; terminal persistence does not
 provide process recovery across reboot.
 
+### Choose a queue workflow
+
+Keep resource-heavy jobs, finite agent runs, and interactive sessions in
+separate groups. One waiting interactive session must not block build checks.
+
+| Work | Group | Command after `--` | Result |
+| --- | --- | --- | --- |
+| Check a Nix checkout | `builds` | `nix flake check` | Serialized build and retained logs |
+| Check a Go checkout with a dev shell | `checks` | `nix develop -c go test ./...` | Exit status without occupying a terminal |
+| Review a feature with OpenCode | `reviews` | `opencode run --standalone 'Review this branch. Do not edit files. Report findings with file paths and lines.'` | Finite run with a review report |
+| Work with an interactive agent | `interactive` | `opencode --standalone` | Attachable terminal until the agent exits |
+
+Submit from an existing feature workspace:
+
+```bash
+task-queue submit --session FEATURE --group builds -- nix flake check
+task-queue submit --session FEATURE --group reviews --terminal -- opencode run --standalone 'Review this branch. Do not edit files. Report findings with file paths and lines.'
+task-queue submit --task FULL_UUID --session FEATURE --group interactive --terminal -- opencode --standalone
+```
+
+Use `--terminal` when a command can request input. Open the `pq-...` session
+from the zmx picker to answer permission requests or inspect the terminal.
+An interactive agent holds its slot until it exits. `opencode run` exits after
+its turn; the retained terminal remains available for inspection.
+Use OpenCode's `--standalone` mode in the queue so its server belongs to that
+job. The default shared server can outlive a cancelled terminal client.
+
+`--session` uses the directory in `sy open FEATURE --format json`. For a
+multi-repository workspace, select the repository with `--cwd` instead.
+Neither option creates a worktree. Create separate seshy workspaces before
+running concurrent agents that can edit files.
+
+Review results with `pueue log ID`, then inspect code with Changes or Neovim
+in that workspace. Complete a local Taskwarrior task only after accepting the
+result. For imported tasks, update Linear through its normal workflow, then
+sync. Exit code zero alone does not establish completion.
+
+Use Taskwarrior dependencies to express readiness, then submit explicitly.
+Pending dependencies reject submission; they do not create a waiting pipeline.
+Do not put agent dispatch in a generic task-change hook: imports and ordinary
+metadata edits would become execution triggers.
+
+### OpenCode v2
+
+`opencode` and `opencode2` resolve to the same Nix-pinned v2 binary. Upgrade
+the version and platform hashes in `overlays/opencode.nix`, then build and
+switch. The package also installs native shell completions.
+
+The server keeps supported v1 configuration syntax. Terminal settings now
+live in `~/.config/opencode/cli.json`. The server edit plugin and terminal
+notification plugin use the v2 API. Notifications use the terminal's pane
+environment and ignore sessions owned by other terminals.
+
+The old third-party plugin list is retired because v1 plugins cannot run in
+v2. OpenAI authentication uses v2's built-in integration. Existing credentials
+and session files remain in place. V2 no longer runs the configured language
+servers; use the repository's compiler and lint commands. The old experimental
+OpenTelemetry flag is also unsupported and is removed.
+
+Validate an upgrade with `opencode --version`, `opencode debug config`, and
+`opencode mcp list`. Check plugin status after opening a project. Use an
+isolated config and data directory for migration tests before switching the
+real account.
+
 ## Hide applications after a restart
 
 Hammerspoon hides regular applications 15 seconds after its startup and

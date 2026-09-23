@@ -58,6 +58,7 @@ in
 {
   task-commands = import ./task-commands.nix { inherit pkgs; };
   task-queue = import ./task-queue.nix { inherit pkgs; };
+  opencode = import ./opencode.nix { inherit pkgs; };
   utility-contracts = import ./utility-contracts.nix { inherit pkgs; };
   firefox = import ./firefox.nix { inherit pkgs darwinConfigurations nixosConfigurations; };
   editor-composition = import ./editor-composition.nix { inherit pkgs homeManagerLib; };

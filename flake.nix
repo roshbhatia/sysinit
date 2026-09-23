@@ -337,6 +337,7 @@
             "crush"
             "contextive"
             "codex"
+            "opencode"
             "claude-code"
             "gomvp"
             "sysinit-gh-dash"
