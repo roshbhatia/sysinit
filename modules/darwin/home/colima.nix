@@ -31,6 +31,24 @@ let
     sshPort = 0;
     mounts = [ ];
     env = { };
+    docker.builder.gc = {
+      enabled = true;
+      defaultKeepStorage = "4GB";
+    };
+    provision = [
+      {
+        mode = "system";
+        script = ''
+          set -eu
+          mkdir -p /etc/systemd/system/fstrim.timer.d
+          printf '%s\n' '[Timer]' 'OnCalendar=' 'OnCalendar=daily' \
+            'RandomizedDelaySec=1h' > /etc/systemd/system/fstrim.timer.d/sysinit.conf
+          systemctl daemon-reload
+          systemctl enable --now fstrim.timer
+          systemctl restart fstrim.timer
+        '';
+      }
+    ];
   };
 in
 {

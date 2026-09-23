@@ -355,6 +355,33 @@ for an integration-specific URL field. The TUI uses the effective focus report.
 Daily export snapshots retain 14 copies by default; configure
 `sysinit.tasks.backup.enable` and `.keep` to change that policy.
 
+## Maintain development caches
+
+Enable `sysinit.storage.maintenance.enable` on a macOS host. The daily job
+measures allocated cache space and calls the owning tool when a threshold is
+exceeded: 4 GiB for Go build objects, 4 GiB for Lima downloads, and 2 GiB for uv.
+
+```bash
+cache-maintain
+cache-maintain --apply
+```
+
+The default command reports planned cleanup. `--apply` runs it. The scheduled
+job replaces `~/.local/state/sysinit/cache-maintenance.json` with its latest
+result. These thresholds trigger cleanup; they are not hard size limits.
+
+Go clears its build cache and rebuilds objects as needed. Lima clears downloaded
+image archives while retaining VM disks. uv uses its cache lock and reports `busy`
+when running processes prevent pruning. It never forces that lock.
+
+This job does not remove worktrees, Terraform state, Docker images or volumes,
+agent transcripts, attribution records, or application databases.
+
+Colima's managed configuration limits Docker build cache to 4 GB and provisions
+a daily filesystem trim timer. Trimming lets macOS reclaim unused VM disk
+blocks. Colima applies Docker daemon settings on its next start; do not restart
+running containers just to apply a cache policy.
+
 ## Queue local work
 
 Enable `sysinit.queue.enable` on the host. Home Manager runs Pueue as a user
