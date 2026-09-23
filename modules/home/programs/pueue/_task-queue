@@ -1,0 +1,27 @@
+#compdef task-queue
+
+_task-queue() {
+  local context state state_descr line
+  typeset -A opt_args
+  _arguments -C \
+    '--state[Execution record directory]:directory:_directories' \
+    '1:action:(submit status reconcile cancel resume)' \
+    '*::argument:->args'
+  case $line[1] in
+    submit)
+      _arguments \
+        '--task[Full Taskwarrior UUID]:UUID:' \
+        '--session[Existing seshy session]:session:' \
+        '--cwd[Working directory]:directory:_directories' \
+        '--group[Pueue group]:group:(agents builds default)' \
+        '--terminal[Create an attachable zmx session]' \
+        '--retry[Create another attempt after completion]' \
+        '*:command:_command_names'
+      ;;
+    cancel|resume)
+      _message 'execution attempt UUID'
+      ;;
+  esac
+}
+
+_task-queue "$@"

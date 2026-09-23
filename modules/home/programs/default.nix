@@ -51,6 +51,7 @@ in
         ./otel-collector.nix
         ./otel-tui.nix
         ./orc
+        ./pueue
         ./seshy
         ./tether
         ./traces.nix

@@ -355,6 +355,59 @@ for an integration-specific URL field. The TUI uses the effective focus report.
 Daily export snapshots retain 14 copies by default; configure
 `sysinit.tasks.backup.enable` and `.keep` to change that policy.
 
+## Queue local work
+
+Enable `sysinit.queue.enable` on the host. Home Manager runs Pueue as a user
+service. `pueue` and `task-queue` complete in Nushell through Carapace's Zsh
+bridge, using the same completion definitions as Zsh.
+
+Use native `pueue add` for background commands. Use `task-queue` to retain an
+execution attempt, link a Taskwarrior UUID, or create an attachable terminal:
+
+```bash
+task-queue submit --group builds --cwd /path/to/repo -- nix flake check
+task-queue submit --task FULL_UUID --session feature --terminal -- claude
+task-queue status
+pueue status
+```
+
+`--terminal` creates a dedicated `pq-...` zmx session. Select that name in the
+existing zmx picker to attach. The session remains available after completion.
+Arguments after `--` are literal argv. For shell syntax, pass `bash -c '...'`
+explicitly. Commands enter their own Nix environment when needed.
+
+Groups are created on first submission, with one running job by default.
+Use `pueue parallel 2 --group agents` to change concurrency. Task-linked runs
+also lock their working directory; competing runs fail rather than edit it
+together. Other tools do not participate in that lock.
+Failures pause the group's queue. Inspect the failure, then use
+`pueue start --group agents` to release waiting work. Native `pueue pause ID`
+and `pueue start ID` also pause and resume an attached terminal command.
+
+```bash
+task-queue cancel ATTEMPT_UUID
+task-queue reconcile
+task-queue resume ATTEMPT_UUID
+task-queue submit --retry --task FULL_UUID --terminal -- claude
+```
+
+`resume` releases a stashed attempt after interrupted submission. It does not
+restart an executed command. Use `--retry` for a new attempt and new logs;
+native `pueue restart` cannot replay the same managed attempt. A missing job
+remains unresolved rather than being rerun automatically.
+
+Taskwarrior tasks must be pending with completed dependencies. Dispatch checks
+these conditions again at execution. Success sets `review: true` in queue
+status; it never completes the task or changes Linear metadata. Ordinary task
+edits and imports do not dispatch work.
+
+Execution records live in `$XDG_STATE_HOME/task-queue`, and Pueue state lives
+in `$XDG_STATE_HOME/pueue`. Inspect logs with `pueue log ID` or `pueue follow ID`.
+Terminal commands must remain foreground processes. Daemonizing descendants
+is outside the cancellation contract. Drain running work before changing the
+Pueue daemon configuration or upgrading it; terminal persistence does not
+provide process recovery across reboot.
+
 ## Hide applications after a restart
 
 Hammerspoon hides regular applications 15 seconds after its startup and
