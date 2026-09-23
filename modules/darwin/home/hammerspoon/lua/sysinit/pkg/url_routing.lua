@@ -204,10 +204,17 @@ local function choose(config, route)
       target = index,
     }
   end
+  local spec = {
+    placeholder = route.label,
+    verb = verb,
+    rows = rows,
+    showStatus = false,
+    historyKey = "github." .. route.kind,
+  }
   local palette = hs.loadSpoon("CommandPalette")
   local ok = palette ~= nil
     and pcall(function()
-      palette:pick({ placeholder = route.label, verb = verb, rows = rows }, function(row)
+      palette:pick(spec, function(row)
         if row then
           dispatch(config, targets[row.target], route.url)
         end

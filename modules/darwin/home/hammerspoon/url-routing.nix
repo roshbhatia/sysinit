@@ -58,7 +58,7 @@ let
       targets = lib.mkOption {
         type = lib.types.listOf targetType;
         default = [ ];
-        description = "Targets offered for this link kind. The first row is preselected.";
+        description = "Targets offered for this link kind. Unused targets keep this order; selections rank by scoped frecency.";
       };
     };
   };
@@ -94,17 +94,35 @@ in
               ];
             }
             {
-              name = "Neovim";
-              detail = "Octo overview with existing threads";
+              name = "Firefox";
+              detail = "Open the PR on github.com";
+              bundle = cfg.browser;
+            }
+            {
+              name = "Neovim (Octo)";
+              detail = "GitHub overview, comments, and reviews";
               command = [
                 "${config.home.profileDirectory}/bin/gh-pr-diff"
                 "--overview"
               ];
             }
             {
-              name = "Firefox";
-              detail = "Open the PR on github.com";
-              bundle = cfg.browser;
+              name = "Neovim (Diff)";
+              detail = "Read the patch in Diffview";
+              command = [
+                "${config.home.profileDirectory}/bin/gh-pr-diff"
+                "--tool"
+                "diffview"
+              ];
+            }
+            {
+              name = "Changes";
+              detail = "Browse the patch and authorship in Changes";
+              command = [
+                "${config.home.profileDirectory}/bin/gh-pr-diff"
+                "--tool"
+                "changes"
+              ];
             }
           ];
         };
