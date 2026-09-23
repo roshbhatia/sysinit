@@ -50,6 +50,7 @@ func TestDevicesAndStableSelection(t *testing.T) {
 		})
 	}
 }
+
 func TestDiscoveryFailure(t *testing.T) {
 	for _, data := range []string{"{", "{\"id\":\"1\"}\n{"} {
 		n := 0

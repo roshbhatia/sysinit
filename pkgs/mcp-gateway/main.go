@@ -40,12 +40,15 @@ type stdioTarget struct {
 type remoteTarget struct {
 	Host string `json:"host"`
 }
+
 type headerModifier struct {
 	Set map[string]string `json:"set"`
 }
+
 type targetPolicies struct {
 	Headers headerModifier `json:"requestHeaderModifier"`
 }
+
 type target struct {
 	Name     string          `json:"name"`
 	Stdio    *stdioTarget    `json:"stdio,omitempty"`
@@ -53,16 +56,20 @@ type target struct {
 	SSE      *remoteTarget   `json:"sse,omitempty"`
 	Policies *targetPolicies `json:"policies,omitempty"`
 }
+
 type apiKey struct {
 	Key string `json:"key"`
 }
+
 type apiKeys struct {
 	Mode string   `json:"mode"`
 	Keys []apiKey `json:"keys"`
 }
+
 type policies struct {
 	APIKey apiKeys `json:"apiKey"`
 }
+
 type mcpConfig struct {
 	Port          int      `json:"port"`
 	PrefixMode    string   `json:"prefixMode"`
@@ -71,11 +78,13 @@ type mcpConfig struct {
 	Policies      policies `json:"policies"`
 	Targets       []target `json:"targets"`
 }
+
 type runtimeConfig struct {
 	Admin     string `json:"adminAddr"`
 	Readiness string `json:"readinessAddr"`
 	Stats     string `json:"statsAddr"`
 }
+
 type gatewayConfig struct {
 	Config runtimeConfig `json:"config"`
 	MCP    mcpConfig     `json:"mcp"`
@@ -127,7 +136,10 @@ func start(cmd *exec.Cmd) (<-chan error, error) {
 		return nil, err
 	}
 	done := make(chan error, 1)
-	go func() { done <- cmd.Wait(); close(done) }()
+	go func() {
+		done <- cmd.Wait()
+		close(done)
+	}()
 	return done, nil
 }
 

@@ -73,7 +73,12 @@ func backup(binary, directory string, keep int) (string, error) {
 		return "", err
 	}
 	now := time.Now().UTC()
-	encoded, err := json.Marshal(snapshot{Schema: "task-context-backup/v1", Created: now.Format(time.RFC3339), Config: string(config), Tasks: data})
+	encoded, err := json.Marshal(snapshot{
+		Schema:  "task-context-backup/v1",
+		Created: now.Format(time.RFC3339),
+		Config:  string(config),
+		Tasks:   data,
+	})
 	if err != nil {
 		return "", err
 	}
@@ -127,7 +132,10 @@ func restore(binary, source, destination string) error {
 	settings := []string{}
 	for _, line := range strings.Split(s.Config, "\n") {
 		key, _, ok := strings.Cut(line, "=")
-		if ok && !strings.HasPrefix(key, "sync.") && !strings.HasPrefix(key, "taskd.") && key != "data.location" && key != "hooks.location" && key != "context" {
+		if ok &&
+			!strings.HasPrefix(key, "sync.") &&
+			!strings.HasPrefix(key, "taskd.") &&
+			key != "data.location" && key != "hooks.location" && key != "context" {
 			settings = append(settings, line)
 		}
 	}
@@ -237,6 +245,7 @@ func run() error {
 		return errors.New("unknown task-context command")
 	}
 }
+
 func main() {
 	if err := run(); err != nil {
 		fmt.Fprintln(os.Stderr, "task-context:", err)

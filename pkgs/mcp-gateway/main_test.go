@@ -84,7 +84,15 @@ func TestGatewayRoundTrip(t *testing.T) {
 			defer func() { _ = log.Close() }()
 			done := make(chan error, 1)
 			go func() {
-				done <- run(ctx, definition{Name: "fixture", Command: executable, Args: []string{"-test.run=^TestBackend$"}, Env: map[string]string{"SYSINIT_MCP_FIXTURE": "1", "ORC_SESSION_ID": session}}, gateway, proxy, input, output, log)
+				done <- run(ctx, definition{
+					Name:    "fixture",
+					Command: executable,
+					Args:    []string{"-test.run=^TestBackend$"},
+					Env: map[string]string{
+						"SYSINIT_MCP_FIXTURE": "1",
+						"ORC_SESSION_ID":      session,
+					},
+				}, gateway, proxy, input, output, log)
 				_ = output.Close()
 			}()
 			scanner := bufio.NewScanner(reader)
@@ -142,7 +150,10 @@ func TestGatewayRoundTrip(t *testing.T) {
 }
 
 func TestRejectGatewayBypass(t *testing.T) {
-	err := run(context.Background(), definition{Gateway: true, URL: "https://example.com/mcp"}, "unused", "unused", strings.NewReader(""), io.Discard, io.Discard)
+	err := run(context.Background(), definition{
+		Gateway: true,
+		URL:     "https://example.com/mcp",
+	}, "unused", "unused", strings.NewReader(""), io.Discard, io.Discard)
 	if err == nil {
 		t.Fatal("accepted non-gateway endpoint")
 	}
@@ -150,7 +161,12 @@ func TestRejectGatewayBypass(t *testing.T) {
 
 func TestConfigTransports(t *testing.T) {
 	for _, transport := range []string{"local", "http", "sse"} {
-		config, err := makeConfig(definition{Name: "fixture", Type: transport, Command: "fixture", URL: "https://example.com/mcp"}, 18000, "secret")
+		config, err := makeConfig(definition{
+			Name:    "fixture",
+			Type:    transport,
+			Command: "fixture",
+			URL:     "https://example.com/mcp",
+		}, 18000, "secret")
 		if err != nil {
 			t.Fatal(err)
 		}

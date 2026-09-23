@@ -18,13 +18,41 @@ type command struct {
 }
 
 var commands = map[string]command{
-	"agent-state":  {name: "agent-state", summary: "publish pane status", run: forward.Command("SYSINIT_AGENT_STATE", "agent-state")},
-	"firefox-tabs": {name: "firefox-tabs", summary: "read Firefox session tabs", run: forward.Command("SYSINIT_FIREFOX_TABS", "firefox-tabs")},
-	"statusline":   {name: "statusline", summary: statusline.Summary, run: statusline.Run},
-	"watch":        {name: "watch", summary: "view worker logs and pane status", run: forward.Command("SYSINIT_AGENT_WATCH", "agent-watch")},
-	"wezspawn":     {name: "wezspawn", summary: wezspawn.Summary, run: wezspawn.Run},
-	"worker":       {name: "worker", summary: "run a command in a reused pane", run: forward.Command("SYSINIT_WORKER", "worker")},
-	"workspace":    {name: "workspace", summary: "inspect workspace repositories and changes", run: forward.Command("SYSINIT_WORKSPACE", "ws")},
+	"agent-state": {
+		name:    "agent-state",
+		summary: "publish pane status",
+		run:     forward.Command("SYSINIT_AGENT_STATE", "agent-state"),
+	},
+	"firefox-tabs": {
+		name:    "firefox-tabs",
+		summary: "read Firefox session tabs",
+		run:     forward.Command("SYSINIT_FIREFOX_TABS", "firefox-tabs"),
+	},
+	"statusline": {
+		name:    "statusline",
+		summary: statusline.Summary,
+		run:     statusline.Run,
+	},
+	"watch": {
+		name:    "watch",
+		summary: "view worker logs and pane status",
+		run:     forward.Command("SYSINIT_AGENT_WATCH", "agent-watch"),
+	},
+	"wezspawn": {
+		name:    "wezspawn",
+		summary: wezspawn.Summary,
+		run:     wezspawn.Run,
+	},
+	"worker": {
+		name:    "worker",
+		summary: "run a command in a reused pane",
+		run:     forward.Command("SYSINIT_WORKER", "worker"),
+	},
+	"workspace": {
+		name:    "workspace",
+		summary: "inspect workspace repositories and changes",
+		run:     forward.Command("SYSINIT_WORKSPACE", "ws"),
+	},
 }
 
 type link struct {

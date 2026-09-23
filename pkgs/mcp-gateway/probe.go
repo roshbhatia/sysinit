@@ -35,8 +35,17 @@ func probe(parent context.Context, server definition, gateway, proxy string) err
 		_ = output.Close()
 		close(done)
 	}()
-	defer func() { cancel(); _ = writer.Close(); _ = reader.Close(); <-done }()
-	go func() { <-ctx.Done(); _ = reader.Close(); _ = writer.Close() }()
+	defer func() {
+		cancel()
+		_ = writer.Close()
+		_ = reader.Close()
+		<-done
+	}()
+	go func() {
+		<-ctx.Done()
+		_ = reader.Close()
+		_ = writer.Close()
+	}()
 	decoder := json.NewDecoder(reader)
 	request := func(message string) (json.RawMessage, error) {
 		if _, err := fmt.Fprintln(writer, message); err != nil {

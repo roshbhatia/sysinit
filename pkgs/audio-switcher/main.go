@@ -18,6 +18,7 @@ type device struct {
 	Name    string `json:"name"`
 	Current bool   `json:"current"`
 }
+
 type runner func(string, ...string) ([]byte, error)
 
 func command(name string, args ...string) ([]byte, error) {
@@ -25,6 +26,7 @@ func command(name string, args ...string) ([]byte, error) {
 	cmd.Stderr = os.Stderr
 	return cmd.Output()
 }
+
 func devices(platform string, run runner) ([]device, error) {
 	var result []device
 	switch platform {
@@ -85,6 +87,7 @@ func devices(platform string, run runner) ([]device, error) {
 	}
 	return result, nil
 }
+
 func set(platform, id string, items []device, run runner) error {
 	for _, item := range items {
 		if item.ID == id {
@@ -99,6 +102,7 @@ func set(platform, id string, items []device, run runner) error {
 	}
 	return fmt.Errorf("unknown audio device ID: %s", id)
 }
+
 func run(args []string) error {
 	if len(args) > 0 && (args[0] == "--help" || args[0] == "-h") {
 		fmt.Println("audio-switcher [list | set ID]\nNo arguments: select an output with fzf. list emits JSON.")
@@ -147,6 +151,7 @@ func run(args []string) error {
 	}
 	return set(runtime.GOOS, items[index].ID, items, command)
 }
+
 func main() {
 	if err := run(os.Args[1:]); err != nil {
 		fmt.Fprintln(os.Stderr, "audio-switcher:", err)

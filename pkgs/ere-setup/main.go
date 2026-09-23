@@ -57,7 +57,14 @@ func configure(raw []byte, name string, c connection) ([]byte, error) {
 	k.Clusters[0].Name = name
 	k.Clusters[0].Cluster["tls-server-name"] = u.Hostname()
 	k.Clusters[0].Cluster["server"] = c.Endpoint
-	k.Contexts = []map[string]any{{"name": name, "context": map[string]string{"cluster": name, "user": k.Users[0].Name, "namespace": c.Namespace}}}
+	k.Contexts = []map[string]any{{
+		"name": name,
+		"context": map[string]string{
+			"cluster":   name,
+			"user":      k.Users[0].Name,
+			"namespace": c.Namespace,
+		},
+	}}
 	k.CurrentContext = name
 	return json.Marshal(k)
 }
