@@ -15,6 +15,10 @@ switch.err
 **/*.old
 nix.secrets.conf
 
+# Python
+__pycache__/
+*.py[cod]
+
 # AI Tooling
 .claude/
 .sysinit/
