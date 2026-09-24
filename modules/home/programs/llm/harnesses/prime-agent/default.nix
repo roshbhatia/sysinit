@@ -42,8 +42,6 @@ let
     skills = [ "~/.claude/skills" ];
 
     quietStartup = true;
-
-    shellCommandPrefix = builtins.readFile ../pi/shell-prefix.sh;
   };
 
   yoloMode = true;

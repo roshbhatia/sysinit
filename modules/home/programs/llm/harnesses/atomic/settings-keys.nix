@@ -6,7 +6,6 @@
     "externalEditor"
     "enableInstallTelemetry"
     "enableAnalytics"
-    "shellCommandPrefix"
   ];
 
   ownerPreference = [
@@ -19,5 +18,5 @@
     "onboardedVersion"
   ];
 
-  retired = [ ];
+  retired = [ "shellCommandPrefix" ];
 }

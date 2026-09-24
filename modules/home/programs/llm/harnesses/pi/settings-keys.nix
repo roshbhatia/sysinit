@@ -3,7 +3,6 @@
     "packages"
     "theme"
     "enableInstallTelemetry"
-    "shellCommandPrefix"
     "skills"
     "externalEditor"
     "quietStartup"
@@ -17,6 +16,7 @@
   ];
 
   retired = [
+    "shellCommandPrefix"
     "showLastPrompt"
     "powerline"
   ];

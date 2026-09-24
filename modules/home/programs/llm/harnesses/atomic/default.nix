@@ -42,8 +42,6 @@ let
     externalEditor = "${lib.getExe nvimAtomic}";
     enableInstallTelemetry = false;
     enableAnalytics = false;
-
-    shellCommandPrefix = builtins.readFile ../pi/shell-prefix.sh;
   };
 
   yoloMode = true;

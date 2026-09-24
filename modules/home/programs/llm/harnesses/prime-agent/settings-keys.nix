@@ -3,7 +3,6 @@
     "packages"
     "skills"
     "quietStartup"
-    "shellCommandPrefix"
   ];
 
   ownerPreference = [
@@ -15,5 +14,5 @@
     "onboardingCompleted"
   ];
 
-  retired = [ ];
+  retired = [ "shellCommandPrefix" ];
 }

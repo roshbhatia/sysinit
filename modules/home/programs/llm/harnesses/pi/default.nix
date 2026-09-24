@@ -277,8 +277,6 @@ let
 
     externalEditor = "${lib.getExe nvimPi}";
     enableInstallTelemetry = false;
-
-    shellCommandPrefix = builtins.readFile ./shell-prefix.sh;
   };
 
   inherit (piKeys) retired;
