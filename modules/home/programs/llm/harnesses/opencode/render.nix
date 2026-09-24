@@ -18,6 +18,22 @@ let
 
   retiredTui = [ ];
 
+  authoritativeTui = [
+    "theme"
+    "keybinds"
+    "leader"
+    "mouse"
+    "scroll"
+    "prompt"
+    "session"
+    "tabs"
+    "diffs"
+    "terminal"
+    "mini"
+    "plugins"
+    "attention"
+  ];
+
   authoritative = [
     "mcp"
     "providers"
@@ -54,12 +70,14 @@ in
   inherit
     retiredMain
     retiredTui
+    authoritativeTui
     authoritative
     mergeProgram
     ;
 
   retire = retiredMain;
   enforce = authoritative;
+  enforceTui = authoritativeTui;
 
   schemas = pkgs.runCommand "opencode-schemas-local" { nativeBuildInputs = [ pkgs.jq ]; } ''
     mkdir -p "$out"

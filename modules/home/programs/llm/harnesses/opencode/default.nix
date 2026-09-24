@@ -53,6 +53,7 @@ in
       format = "json";
       content = render.tui;
       schema = "${schemaDir}/cli.json";
+      enforce = render.enforceTui;
       retire = render.retiredTui;
     };
   };
