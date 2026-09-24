@@ -19,12 +19,11 @@
       }
   );
 
-  formatForOpencode =
-    disabledServers: servers:
-    builtins.mapAttrs (
+  formatForOpencode = disabledServers: servers: {
+    servers = builtins.mapAttrs (
       name: server:
       let
-        isDisabled = builtins.elem name disabledServers;
+        isDisabled = builtins.elem name disabledServers || !(server.enabled or true);
         baseConfig =
           if (server.type or "local") == "http" then
             {
@@ -40,8 +39,9 @@
             }
             // lib.optionalAttrs (server.env or { } != { }) { environment = server.env; };
       in
-      baseConfig // { enabled = if isDisabled then false else (server.enabled or true); }
+      baseConfig // lib.optionalAttrs isDisabled { disabled = true; }
     ) servers;
+  };
 
   formatForAmp =
     servers:

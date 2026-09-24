@@ -8,19 +8,27 @@ let
     "tui"
     "subagent_depth"
     "lsp"
+    "autoupdate"
+    "provider"
+    "permission"
+    "plugin"
+    "small_model"
+    "share"
   ];
 
   retiredTui = [ ];
 
   authoritative = [
     "mcp"
-    "provider"
-    "permission"
+    "providers"
+    "permissions"
     "formatter"
-    "plugin"
+    "plugins"
+    "skills"
     "instructions"
     "experimental"
     "compaction"
+    "agents"
   ];
 
   mergeProgram =
@@ -37,6 +45,10 @@ let
             | (.[0] | ${strip})
             | (. * $managed)
             | ${repl}'';
+
+  permissionRule = action: resource: effect: {
+    inherit action resource effect;
+  };
 in
 {
   inherit
@@ -68,12 +80,12 @@ in
 
   main = {
     "$schema" = "https://opencode.ai/config.json";
-    autoupdate = false;
-    share = "disabled";
-    experimental = { };
+    update = "disable";
+    experimental = {
+      portable_shell_scanner = true;
+    };
 
     model = "openai/gpt-5.5";
-    small_model = "openai/gpt-5.4-mini";
 
     default_agent = "build";
 
@@ -98,22 +110,12 @@ in
       ".sysinit/lessons.md"
     ];
 
-    permission = {
-      webfetch = "allow";
-      grep = "allow";
-      read = "allow";
-      # `edit`, not `write`. opencode 1.18.18 asks under `edit` for all three of
-      # write, edit and patch; it never queries a permission id named `write`.
-      # The schema accepts any key, so the dead one failed silently.
-      edit = "allow";
-      bash = {
-        "*" = "allow";
-      }
-      // (llmLib.allowlist.formatDestructiveForOpencode llmLib.allowlist.destructiveDenyGlobs);
-      skill = {
-        "*" = "allow";
-      };
-    };
+    skills = [ "~/.claude/skills" ];
+
+    permissions = [
+      (permissionRule "*" "*" "allow")
+    ]
+    ++ map (cmd: permissionRule "shell" cmd "deny") llmLib.allowlist.destructiveDenyGlobs;
 
     formatter = {
       deadnix = {
@@ -126,11 +128,11 @@ in
       };
     };
 
-    plugin = [ ];
+    plugins = [ "./plugins/sysinit-edits.js" ];
 
-    provider = {
+    providers = {
       openai = {
-        options = {
+        settings = {
           reasoningEffort = "medium";
           reasoningSummary = "auto";
           textVerbosity = "medium";
@@ -146,7 +148,7 @@ in
           };
           "gpt-5.4-mini" = {
             name = "GPT-5.4 Mini (ChatGPT)";
-            options = {
+            settings = {
               reasoningEffort = "low";
             };
           };
@@ -154,9 +156,8 @@ in
       };
 
       ollama = {
-        npm = "@ai-sdk/openai-compatible";
         name = "Ollama (local)";
-        options = {
+        settings = {
           baseURL = "http://localhost:11434/v1";
         };
         models = {
@@ -188,11 +189,61 @@ in
 
   tui = {
     "$schema" = "https://opencode.ai/v2/cli.json";
-    theme.mode = "system";
+    theme = {
+      name = "system";
+      mode = "system";
+    };
     keybinds = {
       leader = "ctrl+a";
     };
+    leader.timeout = 2000;
+    mouse = true;
     scroll.acceleration = true;
+    prompt = {
+      editor = true;
+      paste = "compact";
+      image_preview = true;
+    };
+    session = {
+      sidebar = "auto";
+      scrollbar = true;
+      thinking = "hide";
+      grouping = "auto";
+      image_preview = true;
+      tps = true;
+      markdown = "rendered";
+      new_location = "inherit";
+      permissions = "autoaccept";
+    };
+    tabs = {
+      mode = "auto";
+      scope = "cwd";
+      layout = "horizontal";
+      indicators = "status";
+    };
+    diffs = {
+      source = "branch";
+      wrap = "word";
+      tree = true;
+      single = false;
+      view = "auto";
+    };
+    terminal = {
+      title = true;
+      copy = "select";
+    };
+    mini = {
+      thinking = "hide";
+      tools = "show";
+      shell_output = "show";
+      turn_summary = "show";
+      footer = "show";
+      splash = "show";
+      work_spinner = "block-soft-slide";
+      mono = false;
+      replay = true;
+      replay_limit = 200;
+    };
     plugins = [ "./sysinit-notify.js" ];
 
     attention = {

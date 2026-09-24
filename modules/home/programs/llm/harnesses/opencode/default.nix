@@ -29,7 +29,7 @@ let
 
   subagentFiles = lib.mapAttrs' (
     name: agentConfig:
-    lib.nameValuePair "opencode/agent/${name}.md" {
+    lib.nameValuePair "opencode/agents/${name}.md" {
       text = llmLib.instructions.formatSubagentAsMarkdown {
         inherit name;
         config = agentConfig;
@@ -45,7 +45,7 @@ in
       path = ".config/opencode/opencode.json";
       format = "json";
       content = opencodeConfig;
-      schema = "${schemaDir}/config.json";
+      schema = null;
       inherit (render) enforce retire;
     };
     opencode-tui = {

@@ -37,7 +37,8 @@ let
     mcp.formatForCrush
     (mcp.formatForOpencode [ ])
   ];
-  rendered = map (render: render catalog.servers) renderers;
+  normalize = servers: servers.servers or servers;
+  rendered = map (render: normalize (render catalog.servers)) renderers;
   names = [
     "gateway"
     "remote"
