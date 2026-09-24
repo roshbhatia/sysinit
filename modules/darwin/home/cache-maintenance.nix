@@ -50,7 +50,7 @@ let
   };
 in
 {
-  options.sysinit.storage.maintenance.enable = lib.mkEnableOption "Daily native cache maintenance";
+  options.sysinit.storage.maintenance.enable = lib.mkEnableOption "Hourly native cache maintenance";
   config = lib.mkIf cfg.enable {
     home.packages = [ command ];
     launchd.agents.cache-maintenance = {
@@ -63,7 +63,7 @@ in
           "${config.xdg.stateHome}/sysinit/cache-maintenance.json"
         ];
         RunAtLoad = true;
-        StartInterval = 86400;
+        StartInterval = 3600;
         ProcessType = "Background";
         LowPriorityIO = true;
       };
