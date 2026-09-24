@@ -329,6 +329,7 @@
           cacheAttrs = [
             "openspec"
             "calldiff"
+            "strands-cli"
             "localias"
             "git-ai"
             "mermaid-ascii"
@@ -400,6 +401,7 @@
             pkgs = pkgsFor.${system};
           in
           {
+            inherit (pkgs) strands-cli;
             # Resolve strictly. `pkgs.${name} or null` silently shrank the
             # bundle whenever an attr was renamed, so the miss showed up as a
             # source build on the laptop rather than as a CI failure.

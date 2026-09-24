@@ -68,6 +68,11 @@
       command = "pi-acp";
       args = [ ];
     };
+
+    strands = {
+      command = "strands";
+      args = [ "--acp-server" ];
+    };
   };
 
   formatAsAgentServers = builtins.mapAttrs (

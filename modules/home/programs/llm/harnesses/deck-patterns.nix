@@ -195,4 +195,15 @@
     title_patterns = [ "prime agent" ];
     status_patterns = [ ];
   };
+
+  strands = {
+    patterns = [ "strands" ];
+    executable_patterns = [ "/strands$" ];
+    argv_patterns = [
+      "@strands%-agents/cli/"
+      "^strands%s*$"
+    ];
+    title_patterns = [ "strands" ];
+    status_patterns = [ ];
+  };
 }

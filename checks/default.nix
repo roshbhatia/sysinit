@@ -56,6 +56,7 @@ let
   );
 in
 {
+  strands = pkgs.strands-cli;
   task-commands = import ./task-commands.nix { inherit pkgs; };
   task-queue = import ./task-queue.nix { inherit pkgs; };
   opencode = import ./opencode.nix { inherit pkgs; };

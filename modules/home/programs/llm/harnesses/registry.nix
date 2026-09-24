@@ -338,4 +338,26 @@
     transcriptRoot = null;
     exitHook = true;
   };
+
+  strands = {
+    label = "Strands";
+    module = ./strands.nix;
+    context = "~/.strands/cli/config.json profile.instructions";
+    skillLoader = true;
+    ownIcon = false;
+    notify = "scrape";
+    editBus = false;
+    bridge = null;
+    package = "strands-cli";
+    glyph = "S";
+    command = "strands";
+    launch.modelFlag = "--model";
+    acp = true;
+    openspecTool = [ ];
+    guard = "none";
+    gate = "none";
+    projectDir = ".agent/";
+    transcriptRoot = null;
+    exitHook = false;
+  };
 }
