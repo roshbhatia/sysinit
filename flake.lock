@@ -1629,11 +1629,11 @@
         "systems": "systems_7"
       },
       "locked": {
-        "lastModified": 1788819441,
-        "narHash": "sha256-BYeQAEh47T02mBAModeIL4XNQKftfphN3I9segEb4CM=",
+        "lastModified": 1789930081,
+        "narHash": "sha256-Y+WC+RaThl8+LZ46Aq4Xz+KtShC9lus5ViKhIoMA1+U=",
         "owner": "WillPower3309",
         "repo": "swayfx",
-        "rev": "663cf66f92c2d4c99b9c2c4c79ce3538d37470ac",
+        "rev": "972e98614168a3a79ae1a84f59baa5001639e15f",
         "type": "github"
       },
       "original": {
