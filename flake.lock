@@ -1100,11 +1100,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789765429,
-        "narHash": "sha256-hvUEJQPKHpFnmuigLlSdQP7GqDevVIHtRVfkQa11aas=",
+        "lastModified": 1790356799,
+        "narHash": "sha256-ZOgwucCin7NM3CKmMPeh8c2AVMpPHQFDou3r1N5KaJ8=",
         "owner": "roshbhatia",
         "repo": "nu_plugin_nvim",
-        "rev": "7bad16e4328e33f7fd1311627832f9b7591a10f8",
+        "rev": "7e4904fd069c11a8819313aca85aea898bab1b39",
         "type": "github"
       },
       "original": {
