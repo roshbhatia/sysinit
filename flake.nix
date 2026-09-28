@@ -181,7 +181,7 @@
     };
 
     slk = {
-      url = "github:gammons/slk/v0.21.0";
+      url = "github:gammons/slk/v0.22.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
