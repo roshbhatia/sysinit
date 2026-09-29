@@ -121,7 +121,6 @@ in
       enable = true;
       authorizedKeys = personalSshKeys;
     };
-    darwin.closedLidSsh.enable = true;
   };
 
   arrakis = {

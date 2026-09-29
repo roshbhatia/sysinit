@@ -53,16 +53,6 @@ in
       };
     };
 
-    closedLidSsh.enable = mkOption {
-      type = types.bool;
-      default = false;
-      description = ''
-        Whether to keep this Mac awake so SSH remains reachable while the lid
-        is closed. This changes the system sleep policy and can increase heat
-        and battery use.
-      '';
-    };
-
     keybindings = {
       symbolicHotkeys = mkOption {
         type = types.attrsOf (

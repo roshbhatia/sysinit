@@ -112,7 +112,7 @@ Some invariants are module assertions, not flake checks. They fire on
 `modules/home/programs/llm/subagents/default.nix`,
 `modules/home/programs/llm/harnesses/codex.nix`,
 `modules/home/programs/nushell/default.nix`,
-`modules/darwin/keybindings.nix`, `modules/darwin/closed-lid-ssh.nix`, and
+`modules/darwin/keybindings.nix`, and
 `modules/nixos/home/desktop.nix`. Nothing parses `.zsh`, `.lua`, or shell
 scripts at evaluation time; `hack/lint.sh` is the only parse gate.
 

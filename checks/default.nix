@@ -196,7 +196,6 @@ in
     inherit pkgs homeManagerLib;
     inherit (pkgs) lib;
   };
-  closed-lid-ssh = import ./closed-lid-ssh.nix { inherit pkgs; };
   host-access-security = import ./host-access-security.nix {
     inherit
       pkgs

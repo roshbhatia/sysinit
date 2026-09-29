@@ -115,6 +115,9 @@ in
 
   system = {
     activationScripts.postActivation.text = ''
+      /usr/bin/pmset -a disablesleep 0
+      /usr/bin/pmset -b displaysleep 5 sleep 10
+      /bin/rm -f /var/db/sysinit/closed-lid-ssh-enabled
       /usr/bin/install -d -m 700 /var/root/.ssh
       if [ ! -f /var/root/.ssh/sysinit-builder ]; then
         /usr/bin/ssh-keygen -q -t ed25519 -N "" -C "sysinit-builder-${hostname}" \
