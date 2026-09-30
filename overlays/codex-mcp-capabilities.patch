@@ -1,0 +1,26 @@
+--- a/codex-mcp/src/connection_manager/resources.rs
++++ b/codex-mcp/src/connection_manager/resources.rs
+@@ -51,0 +52,11 @@
++            if view
++                .connection
++                .client
++                .server_capabilities
++                .lock()
++                .unwrap_or_else(std::sync::PoisonError::into_inner)
++                .as_ref()
++                .is_some_and(|capabilities| capabilities.get("resources").is_none())
++            {
++                continue;
++            }
+@@ -98,0 +110,11 @@
++            if view
++                .connection
++                .client
++                .server_capabilities
++                .lock()
++                .unwrap_or_else(std::sync::PoisonError::into_inner)
++                .as_ref()
++                .is_some_and(|capabilities| capabilities.get("resources").is_none())
++            {
++                continue;
++            }

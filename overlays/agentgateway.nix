@@ -17,24 +17,23 @@ let
   asset = assets.${final.stdenv.hostPlatform.system};
 in
 {
-  mcp-remote-go = final.stdenvNoCC.mkDerivation {
+  mcp-remote-go = final.buildGoModule {
     pname = "mcp-remote";
     version = "0.0.1";
-    src = final.fetchurl {
-      url = "https://github.com/dezer32/mcp-remote/releases/download/v0.0.1/mcp-remote_0.0.1_${
-        builtins.replaceStrings [ "-" ] [ "_" ] asset.name
-      }.tar.gz";
-      hash =
-        {
-          aarch64-darwin = "sha256-bTIxn9uDE4WJ7exe3yjDmO6WNQDY8Ffjl03BrUwKSwI=";
-          aarch64-linux = "sha256:f48e06b6d1a750e24bf718cc37805fd2f93685fcd4dfe76c96462d8342f1a074";
-          x86_64-linux = "sha256:04d7812374a8650261c30b77b82c9b57e2f245bfcbd3f317b77e27567052cd42";
-        }
-        .${final.stdenv.hostPlatform.system};
+    src = final.fetchFromGitHub {
+      owner = "dezer32";
+      repo = "mcp-remote";
+      tag = "v0.0.1";
+      hash = "sha256-gPcm0P60oDHHhUT0E5+b4ONIvvPMiqQVrU+HSIyIKGs=";
     };
-    sourceRoot = ".";
-    installPhase = ''
-      install -Dm755 mcp-remote "$out/bin/mcp-remote"
+    vendorHash = null;
+    subPackages = [ "." ];
+    patches = [ ./mcp-remote-oauth-discovery.patch ];
+    checkPhase = ''
+      runHook preCheck
+      export GOFLAGS="''${GOFLAGS//-trimpath/}"
+      go test -tags=integration ./...
+      runHook postCheck
     '';
     meta = {
       mainProgram = "mcp-remote";

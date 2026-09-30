@@ -19,7 +19,7 @@
     };
 
     firefox-addons = {
-      url = "github:nix-community/nur-combined?dir=repos/rycee/pkgs/firefox-addons";
+      url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -165,6 +165,18 @@
         changes.follows = "changes";
       };
     };
+    hunk = {
+      url = "github:modem-dev/hunk";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    hunk-commit-log = {
+      url = "github:sadick254/hunk-commit-log";
+      flake = false;
+    };
+    hunk-viewed = {
+      url = "github:jacegodk/hunk-viewed";
+      flake = false;
+    };
     prose-style = {
       url = "github:roshbhatia/prose-style/8d131f507a7a43a99f25cc4e16d97b75cf921a8e";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -256,8 +268,7 @@
         "x86_64-linux"
         "aarch64-linux"
       ];
-      # An attrset, not a function. As a function it re-instantiated nixpkgs
-      # with the full overlay list once per call site per system.
+
       pkgsFor = lib.genAttrs cacheSystems (
         system:
         builders.mkPkgs {
@@ -327,8 +338,11 @@
       packages =
         let
           cacheAttrs = [
+            "hunk"
             "openspec"
             "calldiff"
+            "basic-memory"
+            "ast-grep-mcp"
             "strands-cli"
             "localias"
             "git-ai"
@@ -387,8 +401,6 @@
             "zmx-picker"
           ];
 
-          # Attrs the overlays define only on Linux. Naming them here rather
-          # than tolerating an absent attr keeps a typo an error everywhere.
           linuxCacheAttrs = [
             "cua-computer-server"
             "sunshine"
@@ -402,20 +414,23 @@
           in
           {
             inherit (pkgs) strands-cli;
-            # Resolve strictly. `pkgs.${name} or null` silently shrank the
-            # bundle whenever an attr was renamed, so the miss showed up as a
-            # source build on the laptop rather than as a CI failure.
+
             cacheBundle = pkgs.symlinkJoin {
               name = "sysinit-cache-bundle-${system}";
-              paths = map (
-                name:
-                pkgs.${name}
-                  or (throw "cacheAttrs names `${name}`, which the overlay set does not define on ${system}")
-              ) (cacheAttrs ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux linuxCacheAttrs);
+              paths =
+                map
+                  (
+                    name:
+                    pkgs.${name}
+                      or (throw "cacheAttrs names `${name}`, which the overlay set does not define on ${system}")
+                  )
+                  (
+                    cacheAttrs
+                    ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux linuxCacheAttrs
+                    ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ "cua-driver" ]
+                  );
             };
-            # Trimmed profile of this user's own CLIs for cloud agent boxes.
-            # Every component is in cacheAttrs, so only the join builds; the
-            # closure substitutes from roshbhatia.cachix.org with no source build.
+
             cloudTools = pkgs.symlinkJoin {
               name = "sysinit-cloud-tools-${system}";
               paths = map (name: pkgs.${name}) [
@@ -434,9 +449,7 @@
                 "sysinit-utils"
               ];
             };
-            # The committed .cursor, .devin, and hack/cloud-setup.sh files,
-            # rendered from modules/shared/cloud.nix. hack/generate-cloud.sh
-            # copies them in; checks.cloud-files fails on drift.
+
             cloud-files =
               (import ./flake/cloud-files.nix {
                 inherit pkgs;
@@ -471,6 +484,7 @@
               pkgs.nixfmt
               pkgs.treefmt
               pkgs.ruff
+              pkgs.python3
               pkgs.nufmt
               pkgs.actionlint
               pkgs.clang
