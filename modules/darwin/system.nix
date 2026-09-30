@@ -16,9 +16,7 @@ let
   );
 in
 {
-  # Determinate owns nix here. nix-darwin gates `environment.etc."nix/machines"`
-  # and every `nix.settings` key behind this flag, so a remote builder declared
-  # as `nix.buildMachines` is silently dropped. Declare it in customSettings.
+
   nix.enable = false;
 
   determinateNix.customSettings = {
@@ -34,25 +32,11 @@ in
     cores = 6;
     connect-timeout = 10;
 
-    # Fields are: uri system sshKey maxJobs speedFactor supported mandatory hostKey.
-    #
-    # The tailnet FQDN, not the bare name. The daemon runs as root, which does
-    # not read the user ssh config that maps `arrakis` to the tailnet. Root
-    # resolves the bare name through LAN DNS to 192.168.50.18, so the builder
-    # worked at home and vanished anywhere else.
     builders = "ssh-ng://nix-builder@arrakis.stork-eel.ts.net x86_64-linux /var/root/.ssh/sysinit-builder 8 2 nixos-test,benchmark,big-parallel,kvm - -";
     builders-use-substitutes = true;
 
-    # The 3600 default makes a switch within an hour of a cachix push rebuild
-    # every path Nix already recorded as missing.
     narinfo-cache-negative-ttl = 60;
 
-    # Determinate defaults this on in /etc/nix/nix.conf. With it on, two
-    # consecutive evals of this flake produce different darwin-system
-    # derivations, because the flake source gets a fresh store path each time.
-    # Every switch then rebuilds the whole home-manager generation, and no CI
-    # cache entry can ever match. Measured 2026-09-13: off is also faster,
-    # 10.4s against 11.3s per eval.
     lazy-trees = false;
   };
 
@@ -88,14 +72,17 @@ in
   users.users.${config.sysinit.user.username}.home = "/Users/${config.sysinit.user.username}";
 
   environment = {
+    variables.TERMINFO_DIRS = lib.mkForce [
+      "${pkgs.ncurses}/share/terminfo"
+      "${pkgs.wezterm.terminfo}/share/terminfo"
+      "/usr/share/terminfo"
+    ];
     shells = [
       pkgs.bashInteractive
       pkgs.nushell
       pkgs.zsh
     ];
 
-    # Nushell and the Fish fallback discover package-owned completions through
-    # XDG_DATA_DIRS. Darwin only links Zsh's tree unless these paths are named.
     pathsToLink = [
       "/share/bash-completion"
       "/share/fish"
@@ -107,6 +94,7 @@ in
 
   launchd.user.envVariables = {
     PATH = commandPath.entriesFor true "/etc/profiles/per-user/${user}/bin";
+    CODEX_CLI_PATH = lib.getExe pkgs.codex;
     ORC_AGENT_REGISTRY = agentRegistry;
   };
 

@@ -1,16 +1,11 @@
 {
   lib,
   pkgs,
-  homeManagerLib,
   darwinConfigurations,
 }:
 let
   host = darwinConfigurations.lv426.config;
   home = host.home-manager.users.${host.sysinit.user.username};
-  legacyHooks = import ../modules/home/programs/llm/harnesses/codex-retire-legacy-hooks.nix {
-    inherit pkgs;
-    lib = homeManagerLib;
-  };
   declaredConfig = pkgs.writeText "codex-config.toml" ''
     [desktop]
     external-agent-import-sync-enabled = false
@@ -45,12 +40,19 @@ let
         inherit pkgs;
         files.codex = home.sysinit.llm.managedFiles."codex-config.toml";
       };
+  nativeToolsPython = pkgs.python3.withPackages (ps: [ ps.tomlkit ]);
 in
-assert lib.hasInfix "codex-retire-legacy-hooks" legacyHooks.activation.data;
-pkgs.runCommand "codex-legacy-hooks" { } ''
+assert home.programs.codex.settings.features.hooks;
+assert builtins.all (event: home.programs.codex.settings.hooks.${event} != [ ]) [
+  "SessionStart"
+  "PreToolUse"
+  "PostToolUse"
+  "UserPromptSubmit"
+  "Stop"
+];
+pkgs.runCommand "codex-config" { } ''
   export HOME="$TMPDIR/home"
   mkdir -p "$HOME/.codex"
-  touch "$HOME/.codex/hooks.json.disabled"
 
   printf '%s\n' '[desktop]' 'external-agent-import-sync-enabled = true' \
     > "$HOME/.codex/config.toml"
@@ -62,17 +64,6 @@ pkgs.runCommand "codex-legacy-hooks" { } ''
     "$HOME/.codex/config.toml"
   ${reconciler}/bin/sysinit-llm-reconcile
   grep -F 'external-agent-import-sync-enabled = false' "$HOME/.codex/config.toml"
-
-  printf '%s\n' '{"hooks":{"SessionStart":[{"hooks":[{"command":"claude-hook"}]}]}}' \
-    > "$HOME/.codex/hooks.json"
-  ${legacyHooks.script}
-  test ! -e "$HOME/.codex/hooks.json"
-
-  printf '%s\n' '{"hooks":{"Stop":[{"hooks":[{"command":"claude-hook"}]}]}}' \
-    > "$HOME/.codex/hooks.json"
-  ${legacyHooks.script}
-  test ! -e "$HOME/.codex/hooks.json"
-  test -e "$HOME/.codex/hooks.json.disabled"
 
   export HOME="$TMPDIR/bootstrap-home"
   mkdir -p "$HOME/.codex"
@@ -93,10 +84,40 @@ pkgs.runCommand "codex-legacy-hooks" { } ''
   command = "/user/cua"
   [mcp_servers.node_repl]
   enabled = false
+  command = "/app/node_repl"
+  [mcp_servers.node_repl.env]
+  NATIVE_PIPE = "/app/pipe"
+  [plugins."computer-use@openai-bundled"]
+  enabled = false
+  [plugins."browser@openai-bundled"]
+  enabled = false
+  [features]
+  js_repl = false
   EOF
+  ${lib.getExe nativeToolsPython} ${../modules/home/programs/llm/harnesses/codex-native-tools.py}
   ${bootstrapReconciler}/bin/sysinit-llm-reconcile
   ${lib.getExe pkgs.codex} mcp list > "$TMPDIR/mcp-list"
   grep -F 'node_repl' "$TMPDIR/mcp-list"
+  ${lib.getExe nativeToolsPython} - <<'PY'
+  import os
+  from pathlib import Path
+  import tomlkit
+  path = Path(os.environ["HOME"]) / ".codex/config.toml"
+  document = tomlkit.parse(path.read_text())
+  servers = document["mcp_servers"]
+  assert "computer-use" not in servers
+  assert "cua_repl" not in servers
+  assert servers["node_repl"]["command"] == "/app/node_repl"
+  assert servers["node_repl"]["env"]["NATIVE_PIPE"] == "/app/pipe"
+  assert servers["node_repl"].get("enabled", True)
+  assert not document["plugins"]["computer-use@openai-bundled"]["enabled"]
+  assert document["plugins"]["browser@openai-bundled"]["enabled"]
+  assert "js_repl" not in document["features"]
+  document["plugins"]["browser@openai-bundled"]["enabled"] = False
+  path.write_text(tomlkit.dumps(document))
+  PY
+  ${lib.getExe nativeToolsPython} ${../modules/home/programs/llm/harnesses/codex-native-tools.py}
+  grep -A 1 '\[plugins."browser@openai-bundled"\]' "$HOME/.codex/config.toml" | grep -F 'enabled = false'
 
   touch "$out"
 ''
