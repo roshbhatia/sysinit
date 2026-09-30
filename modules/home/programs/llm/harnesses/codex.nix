@@ -76,6 +76,11 @@ let
   ) (kit.mcpServers.serversFor "codex");
 
   codexManagedFiles = [ "config.toml" ] ++ map (n: "${n}.config.toml") (lib.attrNames codexProfiles);
+  # Codex validates transports even when the server is disabled.
+  disabledMcpServer = {
+    enabled = false;
+    command = "${pkgs.coreutils}/bin/false";
+  };
   legacyHooks = import ./codex-retire-legacy-hooks.nix { inherit lib pkgs; };
 in
 {
@@ -153,9 +158,9 @@ in
       check_for_update_on_startup = false;
       compact_prompt = compactPrompt;
       mcp_servers = codexMcpServers // {
-        computer-use.enabled = false;
-        cua_repl.enabled = false;
-        node_repl.enabled = false;
+        computer-use = disabledMcpServer;
+        cua_repl = disabledMcpServer;
+        node_repl = disabledMcpServer;
       };
       plugins."computer-use@openai-bundled".enabled = false;
       plugins."browser@openai-bundled".enabled = false;

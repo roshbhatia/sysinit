@@ -193,7 +193,7 @@ in
     inherit (pkgs) lib;
   };
   codex-legacy-hooks = import ./codex-legacy-hooks.nix {
-    inherit pkgs homeManagerLib;
+    inherit pkgs homeManagerLib darwinConfigurations;
     inherit (pkgs) lib;
   };
   host-access-security = import ./host-access-security.nix {

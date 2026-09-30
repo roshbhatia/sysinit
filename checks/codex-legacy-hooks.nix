@@ -2,8 +2,12 @@
   lib,
   pkgs,
   homeManagerLib,
+  darwinConfigurations,
 }:
 let
+  host = darwinConfigurations.lv426.config;
+  home = host.home-manager.users.${host.sysinit.user.username};
+  codexConfig = home.home.file.".codex/config.toml".source;
   legacyHooks = import ../modules/home/programs/llm/harnesses/codex-retire-legacy-hooks.nix {
     inherit pkgs;
     lib = homeManagerLib;
@@ -64,6 +68,10 @@ pkgs.runCommand "codex-legacy-hooks" { } ''
   ${legacyHooks.script}
   test ! -e "$HOME/.codex/hooks.json"
   test -e "$HOME/.codex/hooks.json.disabled"
+
+  cp ${codexConfig} "$HOME/.codex/config.toml"
+  ${lib.getExe pkgs.codex} mcp list > "$TMPDIR/mcp-list"
+  grep -F 'node_repl' "$TMPDIR/mcp-list"
 
   touch "$out"
 ''
