@@ -51,8 +51,6 @@ in
       (lib.lowPrio pkgs.traces-providers)
     ];
 
-    # Traces reads the file at runtime, so provider changes reach a shell that
-    # was already open. Private providers remain ordinary commands on PATH.
     xdg.configFile =
       builtins.listToAttrs (
         map (name: {

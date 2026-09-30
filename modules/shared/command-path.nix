@@ -13,8 +13,6 @@ let
     "/sbin"
   ];
 
-  # NixOS puts setuid binaries (sudo) in /run/wrappers/bin; the same names in
-  # the system profile are the unwrapped store copies and refuse to run.
   systemEntriesFor =
     isDarwin:
     lib.optionals (!isDarwin) [ "/run/wrappers/bin" ]

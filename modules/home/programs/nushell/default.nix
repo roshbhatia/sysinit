@@ -13,26 +13,12 @@ let
   carapaceBin = "${pkgs.carapace}/bin/carapace";
   fishBin = "${pkgs.fish}/bin/fish";
 
-  # home.sessionVariables reaches bash, zsh and fish through hm-session-vars.sh,
-  # which nushell cannot source. Without this a nushell pane had no EDITOR, no
-  # XDG_*, no LANG and no PROSE_GATE_STYLE, which is why zsh had to stay the
-  # pane shell. Carried as JSON so a value needing an escape cannot break the
-  # file, and read back with a three-hash raw string so no value can close it.
-  #
-  # hm-session-vars.sh is a POSIX script, so a value there may hold an expansion
-  # that nushell never performs. $HOME is expanded here; TERMINFO_DIRS appends to
-  # itself and is rebuilt below; anything else is caught by the assertion, rather
-  # than reaching a pane as a literal dollar sign.
   sessionVarsRaw = builtins.mapAttrs (_name: toString) config.home.sessionVariables;
 
   sessionVarsExpanded = builtins.mapAttrs (
     _name: builtins.replaceStrings [ "$HOME" "\${HOME}" ] (lib.replicate 2 config.home.homeDirectory)
   ) sessionVarsRaw;
 
-  # A colon-list variable appends to itself through a POSIX conditional, in two
-  # shapes: home-manager writes TERMINFO_DIRS as "<before>:$VAR${VAR:+:}<after>",
-  # and stylix writes XDG_CONFIG_DIRS as "<before>${VAR:+:$VAR}". Nushell performs
-  # neither, so each is split on its self-reference and rebuilt below in order.
   selfAppendPatterns = name: [
     "\$${name}\${${name}:+:}"
     "\${${name}:+:\$${name}}"
@@ -91,8 +77,6 @@ let
         "source"
       ] null config.xdg.configFile;
 
-  # vivid costs 10ms per startup for a string that only changes when the theme
-  # does. The theme file is already a store path, so the answer is too.
   lsColorsFile =
     if vividThemeSource == null then
       null
@@ -105,9 +89,6 @@ let
     ln -s ${config.xdg.configFile."oh-my-posh/config.json".source} $out
   '';
 
-  # `oh-my-posh init nu` without --print writes nothing a shell can source, so
-  # home-manager's nushell integration left the stock prompt in place and paid
-  # 14ms per startup for it. Baked here, sourced once, measured at 0 subprocesses.
   ompInitFile = pkgs.runCommand "sysinit-omp-init.nu" { } ''
     export HOME=$(mktemp -d)
     ${config.programs.oh-my-posh.package}/bin/oh-my-posh init nu \
@@ -165,11 +146,9 @@ in
     nushell = {
       enable = true;
       plugins = [ pkgs.nu-plugin-nuvim ];
-      # Nushell still opens env.nu when config.nu owns every environment value.
-      # A nonempty value makes Home Manager install the required file.
+
       extraEnv = "# Environment values are generated in config.nu.\n";
-      # Home Manager renders shell aliases after extraConfig. Force the shared
-      # `ll` alias out so it cannot replace the structured command sourced below.
+
       shellAliases = lib.mkForce (builtins.removeAttrs shell.commonAliases [ "ll" ]);
 
       environmentVariables = lib.optionalAttrs (lsColorsFile != null) {
@@ -204,9 +183,7 @@ in
               ];
             };
           }
-          # reedline binds no vi-insert Ctrl-U, and `worker` opens every run by
-          # sending \025 to clear whatever the pane was holding. Without this the
-          # clear is swallowed and the run appends to a half-typed line.
+
           {
             name = "clear_line";
             modifier = "control";
@@ -273,10 +250,6 @@ in
       '';
     };
 
-    # Fish stays available as Nushell's completion database. It is not the login
-    # shell. Carapace is configured above so its generated shell init cannot
-    # replace the timeout and fallback policy. Fish otherwise enables man caches
-    # by default, but current Darwin profiles have no man package to build them.
     man.generateCaches = false;
     fish.enable = true;
     carapace = {

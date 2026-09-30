@@ -39,8 +39,7 @@ done < <(find "${UPSTREAM_PATH}" -type f -print0)
 if [[ ${DRIFT_COUNT} -gt 0 ]]; then
   echo ""
   echo "Detected ${DRIFT_COUNT} divergence(s) from upstream spec-driven." >&2
-  echo "Document deliberate divergences in ${FORK_DIR}/CHANGES.md;" >&2
-  echo "reconcile accidental drift by editing the fork." >&2
+  echo "Reconcile accidental drift by editing the fork." >&2
   exit 1
 fi
 

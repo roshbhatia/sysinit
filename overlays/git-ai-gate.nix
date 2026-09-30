@@ -1,9 +1,5 @@
 final: _prev: {
-  # A gate provider that turns a PostToolUse edit event into a git-ai checkpoint,
-  # so the edit's lines are attributed to the agent in refs/notes/ai. It speaks
-  # provider/v1 gate.decide: it reads the request frame, checkpoints as a side
-  # effect, and always answers pass. A checkpoint must never block an edit, so
-  # every step that can fail is swallowed.
+
   git-ai-gate = final.writeShellApplication {
     name = "git-ai-gate";
     runtimeInputs = [

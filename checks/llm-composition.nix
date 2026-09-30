@@ -1,5 +1,3 @@
-# The seams between the tools this repository composes. Each one is a value
-# one tool prints and another tool must answer to, with no import between them.
 { pkgs, lib }:
 let
   inherit (lib) mkOption types;
@@ -25,8 +23,6 @@ let
       ];
     }).config;
 
-  # gate.nix reads only these four options out of a home-manager evaluation, so
-  # the module renders its real document here without a host closure.
   hostStub = {
     options = {
       xdg = {
@@ -75,7 +71,6 @@ let
     && builtins.match "v[0-9].*" (original.ref or "") != null
   ) (builtins.attrNames rootInputs);
 
-  # No fromYAML at evaluation time, so read the ignore list off the source.
   dependabotIgnored = map builtins.head (
     builtins.filter (match: match != null) (
       map (builtins.match ''[[:space:]]*-[[:space:]]*dependency-name:[[:space:]]*"([^"]+)".*'') (

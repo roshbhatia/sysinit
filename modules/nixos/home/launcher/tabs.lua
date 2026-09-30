@@ -5,8 +5,6 @@ Action = "xdg-open %VALUE%"
 SearchName = true
 History = true
 
--- @menu-prelude@
-
 function GetEntries()
   local entries = {}
   local cmd = [[@firefox-tabs@ | @jq@ -r '.[] | [

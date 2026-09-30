@@ -14,8 +14,7 @@ let
   missing = "harness registry: no gate wire declared for ${builtins.concatStringsSep ", " gateless}";
   unknown = "harness registry: unknown gate wire on ${builtins.concatStringsSep ", " badWire}";
 in
-# Every harness answers how the gate dispatcher reaches it, so a new one cannot
-# inherit the gap in silence.
+
 assert gateless == [ ] || throw missing;
 assert badWire == [ ] || throw unknown;
 {

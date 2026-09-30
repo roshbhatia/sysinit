@@ -6,9 +6,7 @@
       config,
     }:
     let
-      # Not `import ../lib`: from inside lib/ that resolves to this file's own
-      # directory, so default.nix and this file imported each other and only
-      # laziness kept it working. instructions is all any caller reads through here.
+
       llmLib = {
         instructions = import ./instructions.nix { inherit lib; };
       };

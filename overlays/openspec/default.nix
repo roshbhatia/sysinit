@@ -5,9 +5,7 @@ let
   pnpm22 = final.pnpm.override { nodejs-slim = final.nodejs-slim_22; };
 in
 {
-  # Built from the git tag, not the npm tarball. Publish strips pnpm.overrides from
-  # the manifest while every lockfile carries them, so --frozen-lockfile rejects the
-  # tarball against any real lockfile. One tree keeps the two in agreement.
+
   openspec = final.stdenvNoCC.mkDerivation (finalAttrs: {
     pname = "openspec";
     inherit version;
@@ -33,7 +31,6 @@ in
       hash = "sha256-1HSvDGfn3TUG3x+p58tqtmEIb29ka0CiA6dtCIm3fTY="; # autoupdate:pnpm-deps-hash
     };
 
-    # The build needs the dev dependencies; what ships does not, and they are 100M.
     buildPhase = ''
       runHook preBuild
       pnpm run build

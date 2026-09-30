@@ -48,30 +48,12 @@ in
       GIT_DISCOVERY_ACROSS_FILESYSTEM = "1";
       BUILDX_EXPERIMENTAL = "1";
 
-      # The hook gets this file as args.style (gate-defaults.nix). This is for
-      # the CLI, `prose-gate lint` and `prose-gate fix`, and so the audit
-      # config next to it is reachable as
-      # "$(dirname "$PROSE_GATE_STYLE")/vale-audit.ini".
-      #
-      # It does NOT make a bare `vale` find the rule set, which an earlier
-      # comment here claimed: vale reads ~/.vale.ini and never this variable.
-      # That gap is why another session wrote its own Sysinit style by hand.
-      # `home.file.".vale.ini"` below closes it.
       PROSE_GATE_STYLE = "${pkgs.vale-styles}/vale.ini";
     }
     // (values.environment or { });
 
     shellAliases = shellLib.aliases;
 
-    # A bare `vale` reads this and nothing else, so without it the rule set this
-    # repository states was unreachable outside the hook. It points at the audit
-    # config: a person linting a doc by hand wants the suggestion floor and the
-    # borrowed styles. The hook runs at the error floor with neither.
-    #
-    # The hook passes --no-global, so this file can never redefine the gate. That
-    # separation is deliberate: a hand-written Sysinit style under
-    # ~/.local/share/vale/styles once replaced all 22 rules with 12 of its own,
-    # and the hook reported their messages with no sign the set had changed.
     file.".vale.ini" = {
       source = "${pkgs.vale-styles}/vale-audit.ini";
       force = true;

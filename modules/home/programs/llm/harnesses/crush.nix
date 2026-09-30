@@ -32,8 +32,7 @@ let
     lsp = {
       nix = {
         command = "${pkgs.nixd}/bin/nixd";
-        # No dot. crush matches this against a bare filetype id, and its own
-        # builtin nixd entry uses "nix", so ".nix" matched no buffer.
+
         filetypes = [ "nix" ];
         root_markers = [ "flake.nix" ];
       };

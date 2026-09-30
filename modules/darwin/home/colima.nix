@@ -7,9 +7,7 @@
 }:
 
 let
-  # Read the declared options rather than the raw `values` specialArg. Reading
-  # `values` with its own `or` defaults meant modules/darwin/options.nix never
-  # typed these, so any value reached the YAML unchecked.
+
   cfg = osConfig.sysinit.darwin.colima;
 
   colimaYamlFile = (pkgs.formats.yaml { }).generate "colima.yaml" {

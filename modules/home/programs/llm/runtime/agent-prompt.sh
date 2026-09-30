@@ -22,8 +22,6 @@ plain_notify() {
   printf '%s' "$input" | "$NOTIFY_EXE" "$agent" "$reason" "$focus_exe" 2> /dev/null || true
 }
 
-# 1 is a type this repo never routes, so fall back to a plain notification.
-# 2 is an unclassified message, which still carries the original reason on.
 eff_reason=$(agent_classify "$reason" "$notif_type" "$msg")
 case $? in
   1)

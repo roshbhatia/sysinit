@@ -1,6 +1,3 @@
-# ast-grep project root.
 ruleDirs:
-  # Rules that only make sense in this repository.
   - .ast-grep/rules
-  # The global library this repository also installs to ~/.config/ast-grep/.
   - modules/home/programs/ast-grep/rules

@@ -13,9 +13,7 @@ let
   src = platformInfo.${final.stdenv.hostPlatform.system};
 in
 {
-  # The release assets are single statically linked binaries (no PT_INTERP, no
-  # PT_DYNAMIC on linux), so they install like localias and need no
-  # autoPatchelfHook.
+
   git-ai = final.stdenv.mkDerivation {
     pname = "git-ai";
     inherit version src;

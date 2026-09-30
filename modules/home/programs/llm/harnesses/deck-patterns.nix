@@ -1,17 +1,3 @@
-# How the wezterm agent-deck plugin recognises each agent in a pane.
-#
-# The deck is the only status source for a harness whose notify is "scrape", so a
-# harness missing from this file has no status on any channel. hermes was missing
-# for exactly that reason and nothing reported it; publish.nix now asserts this
-# file covers the registry in both directions.
-#
-# These are Lua patterns, and the deck matches them against the full executable
-# path, the basename, the argv string, and the pane title. An unanchored pattern
-# therefore matches anywhere in a /nix/store path. Anchor every short name.
-#
-# status_patterns = [ ] means "use the plugin's shared default strings". Thirteen
-# agents declare that, because their busy and idle strings have not been observed
-# in a pane. Declaring it makes the choice visible instead of a silent fallback.
 {
   amp = {
     patterns = [ "amp" ];
@@ -100,8 +86,6 @@
     status_patterns = [ ];
   };
 
-  # "fx" is two characters, so every pattern here is anchored, as for "pi".
-  # Unanchored it matches "fx" inside any /nix/store path.
   fx = {
     patterns = [ "^fx$" ];
     executable_patterns = [ "/fx$" ];
@@ -175,8 +159,6 @@
     ];
   };
 
-  # "pi" is two characters, so every pattern here is anchored. Unanchored it
-  # matches "compile", "pip", and any /nix/store path holding either.
   pi = {
     patterns = [ "^pi$" ];
     executable_patterns = [

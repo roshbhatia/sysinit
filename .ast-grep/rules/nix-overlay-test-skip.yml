@@ -27,7 +27,6 @@ rule:
         - pattern:
             context: "{ disabledTestPaths = $V; }"
             selector: binding
-    # Only an override of a package that already exists upstream.
     - inside:
         stopBy: end
         kind: apply_expression

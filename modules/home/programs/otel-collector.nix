@@ -15,9 +15,6 @@ let
       http.endpoint = "127.0.0.1:4318";
     };
 
-    # The file exporter is a contrib component; the core distribution does not
-    # carry it. It writes one OTLP JSON request per line, which is the only
-    # on-disk shape otel-tui can read back.
     exporters.file = {
       path = telemetryFile;
       format = "json";
@@ -31,8 +28,7 @@ let
     };
 
     service = {
-      # The collector serves its own Prometheus metrics on 8888 by default, and
-      # otel-tui wants that same port. Nothing here reads them.
+
       telemetry.metrics.level = "none";
       pipelines = {
         traces = {
@@ -63,15 +59,8 @@ in
 {
   home.packages = [ otelCollector ];
 
-  # Every harness that speaks OTLP reads this one variable, so the collector
-  # publishes it rather than each harness module repeating the endpoint. The
-  # protocol is left unset so each exporter keeps its own default; the receiver
-  # above takes both protobuf and JSON on 4318.
   home.sessionVariables.OTEL_EXPORTER_OTLP_ENDPOINT = "http://127.0.0.1:4318";
 
-  # Both are declared on both hosts. home-manager gates each on its own `enable`,
-  # which already defaults to the platform that owns it, so the one that does not
-  # apply writes nothing.
   launchd.agents.otel-collector = {
     enable = true;
     config = {

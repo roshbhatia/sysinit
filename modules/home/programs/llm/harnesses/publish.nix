@@ -1,8 +1,3 @@
-# The harness registry, rendered for every consumer that is not Nix.
-#
-# Publish the whole entry, not a chosen subset. The subset is what let
-# neovim, wezterm and seshy each keep a private copy of who the agents are,
-# and each copy drifted from the registry independently.
 { lib, pkgs, ... }:
 let
   registry = import ./registry.nix;
@@ -36,8 +31,7 @@ let
   ) registry;
 in
 {
-  # A harness whose notify is "scrape" has no status on any channel when it is
-  # missing here, and nothing else reports that. hermes was missing for months.
+
   assertions = [
     {
       assertion = missingDeck == [ ];

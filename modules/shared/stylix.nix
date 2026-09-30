@@ -4,11 +4,6 @@
   ...
 }:
 
-# The theme core both platforms share. Each platform module imports this and
-# adds only what is genuinely platform-specific: the wallpaper, and the font
-# packages that platform ships. Keeping two full copies let the NixOS one drift
-# and lose opacity, font sizes, and two font packages.
-
 let
   themeConfig = config.sysinit.theme;
   base16Scheme =

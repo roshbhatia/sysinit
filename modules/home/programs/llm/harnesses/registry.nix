@@ -1,16 +1,3 @@
-# Who the agents are, and what each one can do.
-#
-# guard says which destructive-command mechanism a harness has. "hook" is a
-# regex the guard binary evaluates at PreToolUse, "globs" is a deny list the
-# harness's own permission engine evaluates, "both" is both, and "none" means
-# the harness exposes no deny mechanism this repo knows how to drive. null is
-# rejected, so a new harness has to make the choice rather than inherit a gap.
-#
-# gate says which wire the gate dispatcher answers the harness on. "claude-json"
-# is Claude Code's hook JSON, which codex also reads; "exit-code" is a status
-# and a stderr line, for a harness whose hook reads nothing else; "none" means
-# the harness runs no gate chain, so every provider in llm/gate.nix is absent
-# there and the harness's own deny globs are the whole guard.
 {
   amp = {
     label = "Amp";
@@ -114,8 +101,7 @@
     command = "copilot";
     acp = true;
     openspecTool = [ "github-copilot" ];
-    # "hook" by way of a JS shim: copilot has no declarative shell hook, so a
-    # user-scoped extension calls the same guard binary the other hooks call.
+
     guard = "hook";
     gate = "exit-code";
     projectDir = ".copilot/";
@@ -192,7 +178,7 @@
     label = "fx";
     module = ./fx.nix;
     context = "~/.fx/AGENTS.md";
-    # fx scans ~/.claude/skills itself, so it needs no copy of the skill tree.
+
     skillLoader = true;
     ownIcon = false;
     notify = "scrape";

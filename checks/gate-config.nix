@@ -1,6 +1,3 @@
-# The default gate chains validate against the providers that ship, with the
-# same renderer the module uses. A chain that names a provider with no manifest
-# is a hook that exits 1 on every call, which is worse than no hook.
 { pkgs, lib }:
 let
   llmLib = import ../modules/home/programs/llm/lib { inherit lib; };
@@ -18,8 +15,7 @@ let
     // lib.optionalAttrs (step ? args) { inherit (step) args; };
   configFile = yamlFormat.generate "gate-config.yaml" {
     version = "gate.config/v1";
-    # The sandbox cannot write /tmp, and gate drops a provider's stderr into
-    # this log, so an unwritable path hides why a decision went wrong.
+
     log = "@log@";
     providers.directory = "@providers@";
     defaults = {

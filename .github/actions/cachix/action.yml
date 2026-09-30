@@ -10,9 +10,6 @@ inputs:
 runs:
   using: composite
   steps:
-    # The step ran only when a token was present, so a fork pull request added
-    # no substituter and read nothing from the cache. `skipPush` keeps the read
-    # path and drops only the write path.
     - uses: cachix/cachix-action@v17
       if: runner.environment != 'self-hosted'
       with:

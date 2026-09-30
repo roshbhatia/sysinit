@@ -13,7 +13,6 @@ jobs:
     if: github.actor == 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
-      # Squash + delete branch, queued behind the required checks.
       - name: Merge Dependabot PR
         env:
           GH_TOKEN: ${{ secrets.WORKFLOWS_PAT || secrets.GITHUB_TOKEN }}
