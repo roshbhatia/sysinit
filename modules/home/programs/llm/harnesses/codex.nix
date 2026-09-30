@@ -122,17 +122,14 @@ in
           [
             "mcp_servers"
             "computer-use"
-            "enabled"
           ]
           [
             "mcp_servers"
             "cua_repl"
-            "enabled"
           ]
           [
             "mcp_servers"
             "node_repl"
-            "enabled"
           ]
           [
             "desktop"

@@ -7,7 +7,6 @@
 let
   host = darwinConfigurations.lv426.config;
   home = host.home-manager.users.${host.sysinit.user.username};
-  codexConfig = home.home.file.".codex/config.toml".source;
   legacyHooks = import ../modules/home/programs/llm/harnesses/codex-retire-legacy-hooks.nix {
     inherit pkgs;
     lib = homeManagerLib;
@@ -40,6 +39,12 @@ let
           retire = [ ];
         };
       };
+  bootstrapReconciler =
+    (import ../modules/home/programs/llm/lib/managed-file.nix { inherit (pkgs) lib; }).mkReconciler
+      {
+        inherit pkgs;
+        files.codex = home.sysinit.llm.managedFiles."codex-config.toml";
+      };
 in
 assert lib.hasInfix "codex-retire-legacy-hooks" legacyHooks.activation.data;
 pkgs.runCommand "codex-legacy-hooks" { } ''
@@ -69,7 +74,27 @@ pkgs.runCommand "codex-legacy-hooks" { } ''
   test ! -e "$HOME/.codex/hooks.json"
   test -e "$HOME/.codex/hooks.json.disabled"
 
-  cp ${codexConfig} "$HOME/.codex/config.toml"
+  export HOME="$TMPDIR/bootstrap-home"
+  mkdir -p "$HOME/.codex"
+  cat > "$HOME/.codex/.config.toml.nix-base" <<'EOF'
+  [mcp_servers.computer-use]
+  enabled = false
+  [mcp_servers.cua_repl]
+  enabled = false
+  [mcp_servers.node_repl]
+  enabled = false
+  EOF
+  cat > "$HOME/.codex/config.toml" <<'EOF'
+  [mcp_servers.computer-use]
+  enabled = false
+  command = "/user/computer-use"
+  [mcp_servers.cua_repl]
+  enabled = false
+  command = "/user/cua"
+  [mcp_servers.node_repl]
+  enabled = false
+  EOF
+  ${bootstrapReconciler}/bin/sysinit-llm-reconcile
   ${lib.getExe pkgs.codex} mcp list > "$TMPDIR/mcp-list"
   grep -F 'node_repl' "$TMPDIR/mcp-list"
 
