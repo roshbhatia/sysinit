@@ -32,7 +32,6 @@ def review(
     git("fetch", "--quiet", "--no-tags", *depth, repository, merge_base, head)
     git("update-ref", "HEAD", merge_base)
     git("update-ref", "refs/pr/head", head)
-    # Changes' staged view compares the whole PR without touching a user's checkout.
     git("read-tree", head)
     if tool == "changes":
         command = ["changes", "interactive", "--staged"]
@@ -59,11 +58,6 @@ def main(url, tool="nvim", history=False, overview=False):
     if not match or match[2] in (".", ".."):
         raise ValueError("Expected https://github.com/owner/repo/pull/number")
     owner, repo, number = match.groups()
-    api = f"repos/{owner}/{repo}"
-    pr = read_json(f"{api}/pulls/{number}")
-    base, head = revision(pr["base"]["sha"]), revision(pr["head"]["sha"])
-    comparison = read_json(f"{api}/compare/{base}...{head}")
-    merge_base = revision(comparison["merge_base_commit"]["sha"])
     state = Path(os.environ.get("XDG_STATE_HOME", Path.home() / ".local/state"))
     directory = state / "gh-dash/reviews" / owner.lower() / repo.lower() / number
     directory.mkdir(parents=True, exist_ok=True)
@@ -72,6 +66,24 @@ def main(url, tool="nvim", history=False, overview=False):
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError as error:
             raise ValueError("This PR already has an open diff viewer") from error
+        if tool == "hunk":
+            environment = os.environ.copy()
+            if not (environment.get("GH_TOKEN") or environment.get("GITHUB_TOKEN")):
+                environment["GH_TOKEN"] = subprocess.check_output(
+                    ["gh", "auth", "token", "--hostname", "github.com"], text=True
+                ).strip()
+                if not environment["GH_TOKEN"]:
+                    raise ValueError(
+                        "GitHub CLI returned an empty authentication token"
+                    )
+            return subprocess.run(
+                ["hunk", "gh", "pr", url], cwd=directory, env=environment
+            ).returncode
+        api = f"repos/{owner}/{repo}"
+        pr = read_json(f"{api}/pulls/{number}")
+        base, head = revision(pr["base"]["sha"]), revision(pr["head"]["sha"])
+        comparison = read_json(f"{api}/compare/{base}...{head}")
+        merge_base = revision(comparison["merge_base_commit"]["sha"])
         return review(
             directory,
             f"https://github.com/{owner}/{repo}.git",
@@ -88,7 +100,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("url")
     parser.add_argument(
-        "--tool", choices=["nvim", "diffview", "changes"], default="nvim"
+        "--tool", choices=["nvim", "diffview", "changes", "hunk"], default="nvim"
     )
     parser.add_argument("--history", action="store_true")
     parser.add_argument("--overview", action="store_true")

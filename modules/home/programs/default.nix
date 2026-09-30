@@ -40,6 +40,7 @@ in
         ./completions
         ./changes.nix
         ./gh.nix
+        ./hunk.nix
         ./htop.nix
         ./k9s.nix
         ./kubectl.nix

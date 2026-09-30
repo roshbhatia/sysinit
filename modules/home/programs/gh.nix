@@ -11,6 +11,7 @@ let
     runtimeInputs = [
       pkgs.gh
       pkgs.git
+      pkgs.hunk
     ];
     text = ''
       exec ${lib.getExe pkgs.python3} ${./gh-pr-diff.py} "$@"

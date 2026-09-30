@@ -121,6 +121,48 @@ class WorkflowTests(unittest.TestCase):
                     review.main(url)
             api.assert_not_called()
 
+    def test_hunk_uses_gh_credentials_and_isolates_pr_state(self):
+        self.executable("gh", "print('fixture-token')\n")
+        self.executable(
+            "hunk",
+            "import json, os, sys\nfrom pathlib import Path\n"
+            "Path('hunk.json').write_text(json.dumps({'args': sys.argv[1:], "
+            "'authenticated': os.environ.get('GH_TOKEN') == 'fixture-token'}))\n",
+        )
+        with patch.dict(os.environ, {"XDG_STATE_HOME": str(self.root / "state")}):
+            os.environ.pop("GH_TOKEN", None)
+            os.environ.pop("GITHUB_TOKEN", None)
+            url = "https://github.com/one/repo/pull/1"
+            self.assertEqual(review.main(url, tool="hunk"), 0)
+            directory = self.root / "state/gh-dash/reviews/one/repo/1"
+            self.assertEqual(
+                json.loads((directory / "hunk.json").read_text()),
+                {"args": ["gh", "pr", url], "authenticated": True},
+            )
+            self.assertFalse((directory / ".git").exists())
+            self.assertNotIn("GH_TOKEN", os.environ)
+
+    def test_hunk_preserves_explicit_credentials_and_exit_status(self):
+        with (
+            patch.dict(
+                os.environ,
+                {
+                    "XDG_STATE_HOME": str(self.root / "state"),
+                    "GITHUB_TOKEN": "explicit-fixture-token",
+                },
+            ),
+            patch.object(review.subprocess, "check_output") as auth,
+            patch.object(review.subprocess, "run") as launch,
+        ):
+            launch.return_value.returncode = 7
+            self.assertEqual(
+                review.main("https://github.com/one/repo/pull/2", "hunk"), 7
+            )
+            auth.assert_not_called()
+            self.assertEqual(
+                launch.call_args.kwargs["env"]["GITHUB_TOKEN"], "explicit-fixture-token"
+            )
+
     def test_provider_preserves_protocol_and_explicit_model(self):
         request = {
             "prompt": "Extract URLs",
