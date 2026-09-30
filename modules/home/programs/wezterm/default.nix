@@ -111,7 +111,7 @@ in
       };
       spawn.commands = {
         ssh = lib.getExe' pkgs.openssh "ssh";
-        mosh = lib.getExe pkgs.mosh;
+        mosh = lib.getExe' pkgs.mosh "mosh";
       };
       picker.providers = [
         {

@@ -18,6 +18,13 @@ in
 
 final: _prev:
 let
+  askExtras = inputs.ask-extras.packages.${final.stdenv.hostPlatform.system}.extras;
+  askProviders = askExtras.providers // {
+    hermes = import (inputs.ask-extras + /hermes/package.nix) {
+      pkgs = final;
+      runtime = final.hermes-agent;
+    };
+  };
   tracesPackages = inputs.traces.packages.${final.stdenv.hostPlatform.system};
   tracesProviderPackages = final.lib.mapAttrs' (
     name: package: final.lib.nameValuePair (final.lib.removePrefix "provider-" name) package
@@ -42,7 +49,11 @@ in
   orc-cli = inputs.orc-extras.packages.${final.stdenv.hostPlatform.system}.full;
   orc-providers = inputs.orc-extras.packages.${final.stdenv.hostPlatform.system}.all;
   ask-cli = patchHackShebangs inputs.ask.packages.${final.stdenv.hostPlatform.system}.default;
-  ask-providers = inputs.ask-extras.packages.${final.stdenv.hostPlatform.system}.extras;
+  ask-providers = final.symlinkJoin {
+    inherit (askExtras) name;
+    paths = final.lib.attrValues askProviders;
+    passthru.providers = askProviders;
+  };
   gate-cli = inputs.gate.packages.${final.stdenv.hostPlatform.system}.gate;
   # Every provider in gate's extras plus the `review` ledger CLI. The manifests
   # under share/gate/providers are what modules/home/programs/llm/gate.nix links

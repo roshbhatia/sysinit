@@ -2,7 +2,12 @@
 
 final: _prev:
 let
-  base = inputs.hermes-agent.packages.${final.stdenv.hostPlatform.system}.minimal.override {
+  upstream = inputs.hermes-agent.packages.${final.stdenv.hostPlatform.system}.minimal;
+  base = upstream.override {
+    # Hermes still reads `stdenv.isLinux`, so supply the host-platform value.
+    stdenv = upstream.stdenv // {
+      inherit (upstream.stdenv.hostPlatform) isLinux;
+    };
     # otlp carries the OpenTelemetry SDK. Without it `hermes monitoring status`
     # reports "OTel SDK: not installed" and the monitoring.export.otlp keys are
     # inert. Only the gateway daemon emits, so a plain `hermes chat` still
