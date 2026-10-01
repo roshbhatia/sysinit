@@ -12,6 +12,7 @@ let
       inherit (step) provider;
     }
     // lib.optionalAttrs (step ? match) { inherit (step) match; }
+    // lib.optionalAttrs (step ? timeout) { inherit (step) timeout; }
     // lib.optionalAttrs (step ? args) { inherit (step) args; };
   configFile = yamlFormat.generate "gate-config.yaml" {
     version = "gate.config/v1";
@@ -44,6 +45,7 @@ pkgs.runCommand "gate-config"
       pkgs.gate-providers
       pkgs.agent-notes
       pkgs.git
+      pkgs.git-ai
       pkgs.git-ai-gate
     ];
   }
@@ -98,11 +100,29 @@ pkgs.runCommand "gate-config"
     git -C "$work" -c user.name=t -c user.email=t@example.invalid -c commit.gpgsign=false add a.txt
     git -C "$work" -c user.name=t -c user.email=t@example.invalid -c commit.gpgsign=false commit --quiet -m base
     root=$(cd "$work" && pwd -P)
+    mkdir -p "$HOME/.git-ai"
+    printf '%s' '{"telemetry_oss":"off","prompt_storage":"local","feature_flags":{"transcript_sweep":false,"token_usage_metrics":false,"daemon_log_upload":false}}' > "$HOME/.git-ai/config.json"
+    git-ai bg run > "$TMPDIR/git-ai.log" 2>&1 &
+    git_ai_pid=$!
+    trap 'if kill -0 "$git_ai_pid" 2>/dev/null; then kill "$git_ai_pid"; wait "$git_ai_pid" || true; fi' EXIT
+    for _ in $(seq 1 40); do
+      if git-ai bg status > /dev/null 2>&1; then break; fi
+      sleep 0.25
+    done
+    if ! git-ai bg status; then
+      cat "$TMPDIR/git-ai.log" >&2
+      exit 1
+    fi
+    printf '%s\n' '{"type":"assistant","message":{"model":"test-model"}}' > "$work/session.jsonl"
     printf '%s' "{\"hook_event_name\":\"UserPromptSubmit\",\"session_id\":\"s2\",\"cwd\":\"$root\",\"prompt\":\"Make a.txt say new\"}" \
       | gate hook --harness claude --event UserPromptSubmit --format json > /dev/null
     printf 'new\n' > "$work/a.txt"
-    printf '%s' "{\"hook_event_name\":\"PostToolUse\",\"session_id\":\"s2\",\"cwd\":\"$root\",\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$root/a.txt\",\"old_string\":\"old\",\"new_string\":\"new\"}}" \
+    printf '%s' "{\"hook_event_name\":\"PostToolUse\",\"session_id\":\"s2\",\"transcript_path\":\"$root/session.jsonl\",\"cwd\":\"$root\",\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$root/a.txt\",\"old_string\":\"old\",\"new_string\":\"new\"}}" \
       | gate hook --harness claude --event PostToolUse --format json > edit
+    if grep -q '"decision":"deny"' edit; then
+      cat edit "$TMPDIR/gate-decisions.jsonl" >&2
+      exit 1
+    fi
     stem="$XDG_STATE_HOME/agents/edits/work-$(printf %s "$root" | sha256sum | cut -c1-16)"
     if ! grep -q "\"harness\":\"claude\",\"kind\":\"edit\",\"file\":\"$root/a.txt\"" "$stem.jsonl"; then
       echo "edit-event did not record the edit at $stem.jsonl:" >&2

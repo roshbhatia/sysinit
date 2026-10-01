@@ -66,10 +66,10 @@ let
   gitAiGateManifest = {
     version = "provider/v1";
     name = "git-ai-gate";
-    description = "Checkpoint a PostToolUse edit into git-ai's refs/notes/ai authorship notes";
+    description = "Record native edit and shell checkpoints for Git AI attribution";
     command = [ "${pkgs.git-ai-gate}/bin/git-ai-gate" ];
     actions."gate.decide" = {
-      description = "PostToolUse on Edit, Write, MultiEdit";
+      description = "PreToolUse and PostToolUse edit and shell checkpoints";
       argv = [ "serve" ];
     };
     defaults.timeout = "10s";

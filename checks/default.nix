@@ -56,6 +56,22 @@ in
 {
   strands = pkgs.strands-cli;
   task-commands = import ./task-commands.nix { inherit pkgs; };
+  git-ai-integration =
+    pkgs.runCommand "git-ai-integration"
+      {
+        nativeBuildInputs = [
+          pkgs.python3
+          pkgs.git
+          pkgs.changes
+          pkgs.traces
+          pkgs.traces-providers
+        ];
+      }
+      ''
+        python3 ${./git-ai-integration.py} ${pkgs.git-ai}/bin/git-ai ${pkgs.git-ai-gate}/bin/git-ai-gate \
+          ${../modules/home/programs/git-ai/changes-provider.py}
+        touch "$out"
+      '';
   task-queue = import ./task-queue.nix { inherit pkgs; };
   opencode = import ./opencode.nix { inherit pkgs; };
   utility-contracts = import ./utility-contracts.nix { inherit pkgs; };

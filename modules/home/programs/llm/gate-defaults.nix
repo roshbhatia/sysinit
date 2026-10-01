@@ -68,6 +68,11 @@ in
         provider = "review-gate";
         match = "^(Agent|Task)$";
       }
+      {
+        provider = "git-ai-gate";
+        match = "^(functions\\.)?(Edit|Write|MultiEdit|NotebookEdit|apply_patch|Bash|exec_command|shell|shell_command)$";
+        timeout = "10s";
+      }
     ];
     PostToolUse = [
 
@@ -77,7 +82,8 @@ in
       }
       {
         provider = "git-ai-gate";
-        match = "^(Edit|Write|MultiEdit)$";
+        match = "^(functions\\.)?(Edit|Write|MultiEdit|NotebookEdit|apply_patch|Bash|exec_command|shell|shell_command)$";
+        timeout = "10s";
       }
       {
         provider = "lint-gate";

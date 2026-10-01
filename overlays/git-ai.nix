@@ -1,45 +1,33 @@
 final: _prev:
 let
-  sources = final.nvfetcherSources;
-  inherit (sources.git-ai) version;
-
-  platformInfo = {
-    "aarch64-darwin" = sources.git-ai.src;
-    "x86_64-darwin" = sources.git-ai-x86_64-darwin.src;
-    "aarch64-linux" = sources.git-ai-aarch64-linux.src;
-    "x86_64-linux" = sources.git-ai-x86_64-linux.src;
+  toolchain = final.rust-bin.stable."1.95.0".minimal;
+  rustPlatform = final.makeRustPlatform {
+    cargo = toolchain;
+    rustc = toolchain;
   };
-
-  src = platformInfo.${final.stdenv.hostPlatform.system};
 in
 {
-
-  git-ai = final.stdenv.mkDerivation {
+  git-ai = rustPlatform.buildRustPackage {
     pname = "git-ai";
-    inherit version src;
-
-    dontUnpack = true;
-
-    installPhase = ''
-      runHook preInstall
-      install -Dm755 $src $out/bin/git-ai
-      runHook postInstall
-    '';
-
-    doInstallCheck = true;
-    installCheckPhase = ''
-      runHook preInstallCheck
-      got=$($out/bin/git-ai --version 2>&1)
-      case "$got" in
-        *${version}*) ;;
-        *)
-          echo "git-ai --version printed '$got', expected it to name ${version}" >&2
-          exit 1
-          ;;
-      esac
-      runHook postInstallCheck
-    '';
-
+    version = "1.7.5";
+    src = final.fetchFromGitHub {
+      owner = "git-ai-project";
+      repo = "git-ai";
+      rev = "f67fe0d732dfebf6bc229ad7c784e3a8a2d42a66";
+      hash = "sha256-e4hJMjWoHRRycYekbcM5hLIyNnz7xSeIO2Hx5xz4jX0=";
+    };
+    cargoHash = "sha256-/a2YpqhN5hbrFJTcehEPkFH9Jsinqf4sYTRiN+OTqp4=";
+    patches = [ ./git-ai-codex-pre-edit.patch ];
+    nativeBuildInputs = [
+      final.pkg-config
+      final.git
+    ];
+    buildInputs = final.lib.optionals final.stdenv.hostPlatform.isLinux [ final.openssl ];
+    doCheck = true;
+    cargoTestFlags = [
+      "--lib"
+      "commands::checkpoint_agent::presets::codex::tests"
+    ];
     meta = with final.lib; {
       description = "Git extension for line-level AI-code authorship attribution, stored in git notes";
       homepage = "https://github.com/git-ai-project/git-ai";
