@@ -17,18 +17,4 @@
     ];
   };
 
-  launchd.user.agents.colima = {
-    serviceConfig = {
-      ProgramArguments = [
-        "${pkgs.colima}/bin/colima"
-        "start"
-      ];
-      RunAtLoad = true;
-      EnvironmentVariables.COLIMA_HOME = "${
-        config.users.users.${config.sysinit.user.username}.home
-      }/.colima";
-      StandardOutPath = "/tmp/colima.log";
-      StandardErrorPath = "/tmp/colima.error.log";
-    };
-  };
 }
