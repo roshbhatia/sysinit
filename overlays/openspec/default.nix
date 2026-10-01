@@ -2,7 +2,7 @@ final: _prev:
 let
   version = "1.13.0";
 
-  pnpm22 = final.pnpm.override { nodejs-slim = final.nodejs-slim_22; };
+  pnpm22 = final.pnpm_10.override { nodejs-slim = final.nodejs-slim_22; };
 in
 {
 
@@ -28,7 +28,7 @@ in
       inherit (finalAttrs) pname version src;
       pnpm = pnpm22;
       fetcherVersion = 4;
-      hash = "sha256-1HSvDGfn3TUG3x+p58tqtmEIb29ka0CiA6dtCIm3fTY="; # autoupdate:pnpm-deps-hash
+      hash = "sha256-0spuBuU1AodlvYGQWnf0fTqgVPieFeljtVPOTQWJhmE="; # autoupdate:pnpm-deps-hash
     };
 
     buildPhase = ''
