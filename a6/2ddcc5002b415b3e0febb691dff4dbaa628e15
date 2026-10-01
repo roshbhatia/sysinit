@@ -1,0 +1,19 @@
+overlays/openspec/default.nix
+  s_7bd22515963f31::t_ecc8daa8efd3ed 5,31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a62ddcc5002b415b3e0febb691dff4dbaa628e15",
+  "prompts": {},
+  "sessions": {
+    "s_7bd22515963f31": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0f092-cea8-7f71-a088-11b5e44b5418",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
