@@ -8,6 +8,10 @@
 let
   notifySketchybar = "${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_workspace_change FOCUSED=$(${pkgs.aerospace}/bin/aerospace list-workspaces --focused)";
   home = config.home-manager.users.${config.sysinit.user.username};
+  exitMode = [
+    "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MAIN"
+    "mode main"
+  ];
   weztermApp = "${home.home.homeDirectory}/${home.targets.darwin.copyApps.directory}/WezTerm.app";
 in
 {
@@ -215,6 +219,10 @@ in
 
           alt-t = "layout tiles horizontal vertical";
           alt-a = "layout accordion horizontal vertical";
+          alt-s = "layout v_accordion";
+          alt-w = "layout h_accordion";
+          alt-e = "layout tiles horizontal vertical";
+          alt-shift-space = "layout floating tiling";
 
           alt-x = [
             "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MOVE"
@@ -230,6 +238,11 @@ in
           alt-j = "focus down";
           alt-k = "focus up";
           alt-l = "focus right";
+
+          alt-shift-h = "move left";
+          alt-shift-j = "move down";
+          alt-shift-k = "move up";
+          alt-shift-l = "move right";
 
           alt-r = [
             "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=RESIZE"
@@ -256,29 +269,28 @@ in
         };
 
         locked.binding = {
-          alt-esc = [
-            "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MAIN"
-            "mode main"
-          ];
+          alt-esc = exitMode;
         };
 
         resize.binding = {
-          alt-esc = [
-            "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MAIN"
-            "mode main"
-          ];
+          esc = exitMode;
+          enter = exitMode;
+          h = "resize width -72";
+          j = "resize height +72";
+          k = "resize height -72";
+          l = "resize width +72";
+          alt-esc = exitMode;
 
-          alt-h = "resize smart -72";
-          alt-j = "resize smart -72";
-          alt-k = "resize smart +72";
-          alt-l = "resize smart +72";
+          alt-h = "resize width -72";
+          alt-j = "resize height +72";
+          alt-k = "resize height -72";
+          alt-l = "resize width +72";
         };
 
         move.binding = {
-          alt-esc = [
-            "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_changed MODE=MAIN"
-            "mode main"
-          ];
+          esc = exitMode;
+          enter = exitMode;
+          alt-esc = exitMode;
 
           alt-h = "move left";
           alt-j = "move down";

@@ -234,6 +234,11 @@ in
           "${mod}+k" = "focus up";
           "${mod}+l" = "focus right";
 
+          "${mod}+Shift+h" = "move left";
+          "${mod}+Shift+j" = "move down";
+          "${mod}+Shift+k" = "move up";
+          "${mod}+Shift+l" = "move right";
+
           "${mod}+r" = "mode resize";
 
           "${mod}+1" = "workspace 1";
@@ -259,6 +264,10 @@ in
 
           "${mod}+v" = "floating toggle";
           "${mod}+t" = "layout toggle split";
+          "${mod}+e" = "layout toggle split";
+          "${mod}+s" = "layout stacking";
+          "${mod}+w" = "layout tabbed";
+          "${mod}+Shift+space" = "floating toggle";
 
           "${mod}+x" = "mode move";
 
@@ -290,6 +299,8 @@ in
 
         modes = {
           move = {
+            Escape = "mode default";
+            Return = "mode default";
             "${mod}+h" = "move left";
             "${mod}+j" = "move down";
             "${mod}+k" = "move up";
@@ -297,6 +308,12 @@ in
             "${mod}+Escape" = "mode default";
           };
           resize = {
+            h = "resize shrink width 72 px";
+            j = "resize grow height 72 px";
+            k = "resize shrink height 72 px";
+            l = "resize grow width 72 px";
+            Escape = "mode default";
+            Return = "mode default";
             "${mod}+h" = "resize shrink width 72 px";
             "${mod}+j" = "resize grow height 72 px";
             "${mod}+k" = "resize shrink height 72 px";
