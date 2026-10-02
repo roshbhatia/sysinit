@@ -1,0 +1,19 @@
+overlays/git-ai.nix
+  s_e884fe805a8a38::t_acf209aad9d035 26-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b7ec3cb19316b7d706859c1fa4cb85bec7d05ff6",
+  "prompts": {},
+  "sessions": {
+    "s_e884fe805a8a38": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0fa3e-7504-7db2-b389-ae61582015cf",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
