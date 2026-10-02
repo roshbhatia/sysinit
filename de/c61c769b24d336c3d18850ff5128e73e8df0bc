@@ -1,0 +1,21 @@
+modules/darwin/aerospace.nix
+  s_e66529e22f60b7::t_bfe4df2f0df3a1 11-14,222-225,242-246,272,276-282,284-287,291-293
+modules/nixos/home/desktop.nix
+  s_e66529e22f60b7::t_bd6db6613bddc8 237-241,267-270,302-303,311-316
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "dec61c769b24d336c3d18850ff5128e73e8df0bc",
+  "prompts": {},
+  "sessions": {
+    "s_e66529e22f60b7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0fe61-af23-7a03-8aa8-9faf706aa4eb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
