@@ -199,7 +199,6 @@ let
   piPackages = piPkgs.packages;
 
   piPackageList = with piPackages; [
-    mcpAdapter
     piPermissionSystem
     openaiFast
     openaiVerbosity
@@ -307,6 +306,16 @@ in
     content = piManagedSettings;
     retire = piRetiredSettings;
     enforce = piKeys.declared;
+  };
+
+  sysinit.llm.managedFiles.pi-mcp = {
+    path = ".pi/agent/mcp.json";
+    format = "json";
+    content.mcpServers = llmLib.mcp.formatForCursor (kit.mcpServers.serversFor "pi");
+    enforce = map (name: [
+      "mcpServers"
+      name
+    ]) (builtins.attrNames (kit.mcpServers.serversFor "pi"));
   };
 
   home.activation.piOpenaiModelConfigs = lib.hm.dag.entryAfter [ "linkGeneration" ] ''

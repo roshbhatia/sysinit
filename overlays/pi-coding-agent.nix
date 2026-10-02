@@ -18,6 +18,11 @@ in
     inherit version src;
 
     sourceRoot = ".";
+    nativeBuildInputs = final.lib.optionals final.stdenv.hostPlatform.isLinux [
+      final.autoPatchelfHook
+    ];
+    buildInputs = final.lib.optionals final.stdenv.hostPlatform.isLinux [ final.stdenv.cc.cc.lib ];
+    dontStrip = true;
 
     installPhase = ''
       runHook preInstall
@@ -25,6 +30,16 @@ in
       cp -r pi $out/
       ln -s $out/pi/pi $out/bin/pi
       runHook postInstall
+    '';
+
+    doInstallCheck = true;
+    installCheckPhase = ''
+      runHook preInstallCheck
+      export HOME="$TMPDIR/home"
+      mkdir -p "$HOME"
+      test "$("$out/bin/pi" --version)" = "${version}"
+      "$out/bin/pi" --help | grep -F 'pi mcp'
+      runHook postInstallCheck
     '';
 
     meta = with final.lib; {

@@ -59,30 +59,6 @@ let
     };
 
   packages = {
-    mcpAdapter = pkgs.buildNpmPackage {
-      pname = "pi-mcp-adapter";
-      version = "2.20.0";
-      passthru.npmName = "pi-mcp-adapter";
-      src = pkgs.fetchurl {
-        url = "https://registry.npmjs.org/pi-mcp-adapter/-/pi-mcp-adapter-2.20.0.tgz";
-        hash = "sha256-AP/urazUw7au4PEASjd72uSykdhjCCZPrdDPXDqVKEM=";
-      };
-      postPatch = ''
-        ${lib.getExe pkgs.jq} 'del(.devDependencies) | .dependencies["@modelcontextprotocol/sdk"] = "1.29.0"' package.json > package.production.json
-        mv package.production.json package.json
-        cp ${./locks/pi-mcp-adapter.lock.json} package-lock.json
-      '';
-      npmDepsHash = "sha256-v3dg4r1OidTmD03PKTd4gbeOo99XcoYvnK2UlcXh9BA=";
-      npmFlags = [
-        "--ignore-scripts"
-        "--legacy-peer-deps"
-      ];
-      dontNpmBuild = true;
-      installPhase = ''
-        cp -r . "$out"
-      '';
-    };
-
     mermaid = pkgs.buildNpmPackage {
       pname = "pi-mermaid";
       passthru.npmName = "pi-mermaid";
@@ -107,8 +83,16 @@ let
       mkFetchedNpmPackage "pi-context" "1.1.4"
         "sha256-pdRI1D2KIOJVV164DKpzXAQneOOEypB2GXqFzGRvasc=";
     subagents =
-      mkFetchedNpmPackage "pi-subagents" "0.24.2"
-        "sha256-cRcUl0gNmk4gqStqNffT6FQOozjAMuETe3OeNaQMXfA=";
+      (mkBuiltNpmPackage "pi-subagents" "0.74.0" "sha256-NCTn+mi7wnmF0rLhfSX4GtQ+8Rp96gHuIn1spSpb4ns="
+        "sha256-snXEIjTT4cyH+8JD4O5QyA4xjTPOoD8HJMuGis+mfxM="
+        ./locks/pi-subagents.lock.json
+      ).overrideAttrs
+        {
+          npmFlags = [
+            "--ignore-scripts"
+            "--legacy-peer-deps"
+          ];
+        };
     readlineSearch =
       mkFetchedNpmPackage "pi-readline-search" "0.1.0"
         "sha256-HxomHcIceZX68M0f0ZcRJSiqDzqCI0p+wcyq8CVL514=";

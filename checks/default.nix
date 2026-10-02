@@ -54,6 +54,7 @@ let
   );
 in
 {
+  pi = pkgs.pi-coding-agent;
   strands = pkgs.strands-cli;
   task-commands = import ./task-commands.nix { inherit pkgs; };
   git-ai-integration =
