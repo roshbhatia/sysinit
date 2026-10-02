@@ -3,9 +3,6 @@ let
   sources = final.nvfetcherSources;
   inherit (sources.fx) version;
 
-  # The tarball is flat and its name carries no platform, so only the source
-  # differs per system. The linux binaries are statically linked, so neither
-  # autoPatchelfHook nor a runtime dependency is needed.
   srcFor = {
     "aarch64-darwin" = sources.fx.src;
     "x86_64-darwin" = sources.fx-x86_64-darwin.src;
@@ -14,8 +11,7 @@ let
   };
 in
 {
-  # `sysinit-` prefixed because nixpkgs `fx` is antonmedv's JSON viewer, an
-  # unrelated tool. The unprefixed attr shadowed it with no warning.
+
   sysinit-fx = final.stdenv.mkDerivation {
     pname = "fx";
     inherit version;

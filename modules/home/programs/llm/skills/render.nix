@@ -9,11 +9,6 @@ let
   vocab = import ../lib/vocab.nix { inherit lib; };
   frontmatter = import ../lib/frontmatter.nix { inherit lib; };
 
-  # Name and description are the one level of a skill that is always in the system
-  # prompt, so this budget is spent on every session that never loads the skill.
-  # The largest description here is 489 chars, so the cap binds on the next one
-  # that grows rather than after it has already shipped.
-
   normativePreamble = ''
     > Normative keywords follow [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119); "never" is MUST NOT, "always" is MUST, "prefer" is SHOULD.
 

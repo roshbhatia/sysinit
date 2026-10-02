@@ -13,11 +13,9 @@ let
   swaymsg = "${pkgs.sway}/bin/swaymsg";
   jq = "${pkgs.jq}/bin/jq";
   fftabs = "${pkgs.sysinit-utils}/bin/firefox-tabs";
-  # seshy is installed per-user rather than from a store path, the same way the
-  # Hammerspoon launcher reaches it.
+
   sy = "/etc/profiles/per-user/${config.home.username}/bin/sy";
 
-  # TSV avoids elephant's inconsistently named JSON decoder global.
   menuPrelude = builtins.readFile ./launcher/menu-prelude.lua;
 
   render =
@@ -34,17 +32,10 @@ in
     imagemagick
   ];
 
-  # Menus are read from ~/.config/elephant/menus, and each provider reads its
-  # own ~/.config/elephant/<provider>.toml, so there is nothing for the
-  # top-level settings to carry.
   services.elephant.enable = true;
 
   xdg.configFile = {
-    # The emoji picker. `history_when_empty = false` is the whole reason this
-    # file exists: it ranks by what was picked before once something is typed,
-    # and shows nothing on an empty query, so recents live in this sub-picker
-    # and never reach the main list. `wl-copy` is the default command and is
-    # named here because the copy is the point of the picker.
+
     "elephant/symbols.toml".text = ''
       history = true
       history_when_empty = false
@@ -79,16 +70,6 @@ in
       "-- @menu-prelude@" = menuPrelude;
     };
 
-    # elephant ships a `windows` provider, but its only implementation is niri,
-    # and on sway it returns an empty list rather than an error. This menu is
-    # what makes Super+Tab work here.
-    #
-    # The socket is found rather than read from SWAYSOCK. elephant is started by
-    # graphical-session.target, which wins the race against the
-    # `dbus-update-activation-environment` sway runs from its own startup list:
-    # measured on arrakis, `systemctl --user show-environment` has SWAYSOCK and
-    # the running elephant process does not, so every window query came back
-    # empty.
     "elephant/menus/windows.lua".text = render ./launcher/windows.lua {
       "@head@" = "${pkgs.coreutils}/bin/head";
       "@jq@" = jq;
@@ -97,10 +78,6 @@ in
       "@swaymsg@" = swaymsg;
     };
 
-    # `:` is the emoji prefix and `!` runs a command, both to match what the
-    # Hammerspoon launcher already does on the other host. That costs the two
-    # defaults walker ships on those keys: clipboard moves to `,` and the todo
-    # provider is not configured here.
     "walker/config.toml".text = ''
       theme = "sysinit"
       close_when_open = true
@@ -160,9 +137,6 @@ in
       provider = "providerlist"
     '';
 
-    # Only style.css is written. walker reads a theme directory file by file and
-    # falls back to the compiled-in default for anything absent, so the layout
-    # and every item template stay upstream's.
     "walker/themes/sysinit/style.css".text = render ./launcher/style.css {
       "@accent@" = c.base0D;
       "@background-alt@" = c.base01;

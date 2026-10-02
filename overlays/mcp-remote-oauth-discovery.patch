@@ -1,0 +1,182 @@
+--- a/internal/oauth/discovery.go
++++ b/internal/oauth/discovery.go
+@@ -214 +214,5 @@
+-	u := base + wellKnownAS
++	issuer, err := url.Parse(base)
++	if err != nil {
++		return nil, fmt.Errorf("oauth: parse issuer: %w", err)
++	}
++	u := issuer.Scheme + "://" + issuer.Host + wellKnownAS + strings.TrimRight(issuer.EscapedPath(), "/")
+--- a/internal/oauth/discovery_test.go
++++ b/internal/oauth/discovery_test.go
+@@ -243,0 +244,25 @@
++
++func TestDiscoveryIssuerPath(t *testing.T) {
++	for _, path := range []string{"", "/mcp/launchdarkly", "/mcp/launchdarkly/", "/tenant%2Fname"} {
++		t.Run(path, func(t *testing.T) {
++			expected := wellKnownAS + strings.TrimRight(path, "/")
++			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++				if r.URL.EscapedPath() != expected {
++					t.Errorf("metadata path = %q, want %q", r.URL.EscapedPath(), expected)
++					http.NotFound(w, r)
++					return
++				}
++				w.Header().Set("Content-Type", "application/json")
++				_, _ = w.Write([]byte(`{"authorization_endpoint":"https://issuer/auth","token_endpoint":"https://issuer/token","registration_endpoint":"https://issuer/dcr"}`))
++			}))
++			defer server.Close()
++			meta, err := newTestProvider(t, nil).fetchAS(context.Background(), server.URL+path)
++			if err != nil {
++				t.Fatal(err)
++			}
++			if meta.RegistrationEndpoint != "https://issuer/dcr" {
++				t.Fatalf("registration endpoint = %q", meta.RegistrationEndpoint)
++			}
++		})
++	}
++}
+--- a/internal/oauth/flow.go
++++ b/internal/oauth/flow.go
+@@ -17,0 +18 @@
++	"slices"
+@@ -210 +211,3 @@
+-	if p.cachedClient == nil && meta.RegistrationEndpoint != "" {
++	needsRegistration := p.cachedClient == nil || (len(p.cfg.StaticOAuthClientInfoJSON) == 0 &&
++		!slices.Contains(p.cachedClient.RedirectURIs, callbackURL))
++	if needsRegistration && meta.RegistrationEndpoint != "" {
+--- a/internal/oauth/flow_test.go
++++ b/internal/oauth/flow_test.go
+@@ -131,0 +132,10 @@
++		}
++		if uris := f.clients[clientID].RedirectURIs; len(uris) > 0 {
++			registered := false
++			for _, uri := range uris {
++				registered = registered || uri == q.Get("redirect_uri")
++			}
++			if !registered {
++				http.Error(w, "invalid redirect_uri", http.StatusBadRequest)
++				return
++			}
+@@ -293,0 +304,45 @@
++func TestHandleUnauthorizedReplacesCachedCallback(t *testing.T) {
++	t.Parallel()
++	as := newASFixture(t)
++	opener := newFakeOpener()
++	cfg := &config.Config{
++		ServerURL:   "https://mcp.example/server",
++		ConfigDir:   t.TempDir(),
++		AuthTimeout: 5 * time.Second,
++	}
++	storage, err := NewStorage(cfg.ConfigDir, cfg.ServerURL)
++	if err != nil {
++		t.Fatal(err)
++	}
++	if err := storage.SaveClient(&ClientInfo{
++		ClientID:     "previous-client",
++		RedirectURIs: []string{"http://127.0.0.1:1/callback"},
++	}); err != nil {
++		t.Fatal(err)
++	}
++	p := New(cfg, opener, logging.Discard())
++	done := make(chan error, 1)
++	go func() { done <- p.HandleUnauthorized(context.Background(), as.wwwAuthenticate()) }()
++	select {
++	case authURL := <-opener.openedURL:
++		runUserAgent(t, authURL)
++	case <-time.After(3 * time.Second):
++		t.Fatal("opener was never called")
++	}
++	if err := <-done; err != nil {
++		t.Fatal(err)
++	}
++	as.mu.Lock()
++	defer as.mu.Unlock()
++	if as.dcrCalls != 1 {
++		t.Fatalf("DCR calls: got %d, want 1", as.dcrCalls)
++	}
++	client, err := storage.LoadClient()
++	if err != nil {
++		t.Fatal(err)
++	}
++	if client.ClientID == "previous-client" {
++		t.Fatal("stale client was reused")
++	}
++}
++
+--- a/internal/proxy/proxy.go
++++ b/internal/proxy/proxy.go
+@@ -66,3 +66,5 @@
+-	transport Transport
+-	remote    Remote
+-	log       *slog.Logger
++	transport      Transport
++	remote         Remote
++	log            *slog.Logger
++	initialized    chan struct{}
++	initializeOnce sync.Once
+@@ -114,0 +117 @@
++		initialized:     make(chan struct{}),
+@@ -369,0 +373 @@
++	p.initializeOnce.Do(func() { close(p.initialized) })
+@@ -444,0 +449,5 @@
++	select {
++	case <-ctx.Done():
++		return
++	case <-p.initialized:
++	}
+--- a/internal/proxy/proxy_test.go
++++ b/internal/proxy/proxy_test.go
+@@ -310 +309,0 @@
+-
+@@ -312,23 +311,28 @@
+-	listenCh <- MessageOrError{Msg: jsonrpc.Message{
+-		JSONRPC: jsonrpc.Version,
+-		Method:  "notifications/ping",
+-	}}
+-
+-	rm.listenHandler = func(ctx context.Context) (<-chan MessageOrError, error) {
+-		return listenCh, nil
+-	}
+-
+-	p := New(tr, rm, logging.Discard())
+-	ctx, cancel := context.WithCancel(context.Background())
+-	defer cancel()
+-
+-	wait := runProxy(t, p, ctx)
+-
+-	got, ok := tr.ExpectOut(2 * time.Second)
+-	if !ok {
+-		t.Fatal("expected listen msg on stdout")
+-	}
+-	if got.Method != "notifications/ping" {
+-		t.Fatalf("expected ping, got %+v", got)
+-	}
+-
++	listenCh <- MessageOrError{Msg: jsonrpc.Message{JSONRPC: jsonrpc.Version, Method: "notifications/ping"}}
++	rm.listenHandler = func(ctx context.Context) (<-chan MessageOrError, error) { return listenCh, nil }
++	rm.handler = func(ctx context.Context, msg jsonrpc.Message) (<-chan MessageOrError, error) {
++		ch := make(chan MessageOrError, 1)
++		ch <- MessageOrError{Msg: jsonrpc.Message{JSONRPC: jsonrpc.Version, ID: msg.ID, Result: json.RawMessage(`{"protocolVersion":"2025-03-26"}`)}}
++		close(ch)
++		return ch, nil
++	}
++	p := New(tr, rm, logging.Discard())
++	ctx, cancel := context.WithCancel(context.Background())
++	defer cancel()
++	wait := runProxy(t, p, ctx)
++	if got, ok := tr.ExpectOut(100 * time.Millisecond); ok {
++		t.Fatalf("listener started before initialization: %+v", got)
++	}
++	tr.PushIn(makeRequest(1, "initialize"))
++	seenResponse, seenNotification := false, false
++	for range 2 {
++		got, ok := tr.ExpectOut(2 * time.Second)
++		if !ok {
++			t.Fatal("expected initialize response and server notification")
++		}
++		seenResponse = seenResponse || got.IsResponse()
++		seenNotification = seenNotification || got.Method == "notifications/ping"
++	}
++	if !seenResponse || !seenNotification {
++		t.Fatal("initialize or notification missing")
++	}

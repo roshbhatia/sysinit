@@ -10,10 +10,6 @@ let
   themeColors = themeLib.colorsOf config;
   c = themeColors;
 
-  # Every directive is `key=#rrggbb`. tuigreet hands the value to ratatui's
-  # `Color::from_str`, which requires the leading `#` and a length of exactly 7,
-  # and tuigreet drops any directive that fails to parse. A bare hex therefore
-  # made the greeter fall back to its own colours with no error.
   tuigreetTheme = lib.concatStringsSep ";" [
     "container=#${c.base00}"
     "text=#${c.base05}"

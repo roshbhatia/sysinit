@@ -124,6 +124,15 @@ in
                 "changes"
               ];
             }
+            {
+              name = "Hunk";
+              detail = "Review the PR in Hunk";
+              command = [
+                "${config.home.profileDirectory}/bin/gh-pr-diff"
+                "--tool"
+                "hunk"
+              ];
+            }
           ];
         };
         actions = {

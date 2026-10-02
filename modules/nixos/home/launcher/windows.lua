@@ -5,8 +5,6 @@ Action = "lua:Focus"
 SearchName = true
 History = true
 
--- @menu-prelude@
-
 local function socket()
   local held = os.getenv("SWAYSOCK")
   if held ~= nil and held ~= "" then

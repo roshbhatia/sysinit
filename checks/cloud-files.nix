@@ -1,7 +1,3 @@
-# The committed cloud-agent files equal their render from
-# `modules/shared/cloud.nix`, so a hand edit fails here rather than diverging
-# from the facts. The second half proves the egress invariant on the rendered
-# bytes: every https host the setup script contacts is in the Cursor allowlist.
 { pkgs, lib }:
 let
   cloud = import ../flake/cloud-files.nix { inherit pkgs lib; };

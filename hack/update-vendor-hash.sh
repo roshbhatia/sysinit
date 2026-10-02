@@ -6,8 +6,6 @@ OVERLAY_DIR="${REPO_ROOT}/overlays"
 
 FAKE_HASH="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
 
-# Restore every overlay this run has rewritten. Without it an interrupt leaves
-# the fake hash on disk, and the automation PR commits it.
 backups=()
 # shellcheck disable=SC2329
 restore() {
@@ -27,8 +25,6 @@ if [[ $# -gt 0 ]]; then
     fi
   done
 else
-  # Every overlay carrying a vendorHash, so a new Go package is covered on the
-  # day it lands rather than when its hash first breaks a build.
   mapfile -t packages < <(grep -l 'vendorHash' "${OVERLAY_DIR}"/*.nix | xargs -n1 basename | sed 's/\.nix$//' | sort)
 fi
 
@@ -75,8 +71,6 @@ for pkg in "${packages[@]}"; do
     continue
   fi
 
-  # Branch on the exit status. Searching the log for "error" misfired on a Go
-  # file or dependency path that contains the word.
   if [[ ${rc} -eq 0 ]]; then
     echo "OK: ${pkg} built successfully"
     continue

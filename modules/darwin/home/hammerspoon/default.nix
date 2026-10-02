@@ -55,9 +55,7 @@ let
     "base0F"
   ];
   themeConfig = {
-    # The eight roles `pkg/theme` reads. Kept as roles rather than slots because
-    # the window switcher and the workspace overlay ask for a background or an
-    # accent, not for base01.
+
     palette = {
       bg_primary = "#${c.base00}";
       bg_secondary = "#${c.base01}";
@@ -68,8 +66,7 @@ let
       primary = "#${c.base0D}";
       accent = "#${c.base0E}";
     };
-    # The launcher page composes its own rgba() per CSS variable, so it gets the
-    # whole scheme rather than the eight roles above.
+
     base16 = lib.listToAttrs (map (name: lib.nameValuePair name "#${c.${name}}") slots);
     inherit (config.sysinit.theme) transparency;
   };
@@ -83,11 +80,10 @@ let
     fftabs = "${pkgs.firefox-tabs}/bin/firefox-tabs";
     firefoxProfileRoot = "${home}/Library/Application Support/Firefox/Profiles";
     bat = "${pkgs.bat}/bin/bat";
-    # Read by the launcher's `:` mode. Built from the same CLDR annotations
-    # arrakis reads through elephant, so a shortcode resolves the same on both.
+
     emoji = "${emojiData}";
-    # What a `!` command in the launcher is run by.
-    shell = "${pkgs.zsh}/bin/zsh";
+
+    shell = "${pkgs.nushell}/bin/nu";
     browser = "Firefox";
     searchURL = "https://www.google.com/search?q=%s";
     fzf = "${pkgs.fzf}/bin/fzf";
@@ -96,16 +92,9 @@ let
     fileRoots = [
       home
     ];
-    # ~/Desktop, ~/Documents and ~/Downloads are TCC-protected. Hammerspoon holds
-    # no grant for them, and tccd will not prompt for the walk, so readdir blocks
-    # there until something kills it. Without this bound the walk never finishes
-    # and the index it was writing is never published. Grant Hammerspoon Full
-    # Disk Access and the walk finishes in about 4 seconds instead.
+
     fileDeadline = 15;
-    # The walk is bounded by what it skips rather than by a depth, because real
-    # source sits 14 levels below home and a depth that reaches it is no cheaper
-    # than no depth at all. These trees hold 530k of the 620k paths under home,
-    # and none of them is a path anybody searches for by name.
+
     fileExcludes = [
       ".cache"
       ".cargo"

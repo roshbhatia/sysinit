@@ -11,11 +11,6 @@ let
   profileBin = "${config.home.profileDirectory}/bin";
   worklogHook = llmLib.worklog.mkHook { inherit pkgs config; };
 
-  # gate v0.2.5 speaks cursor natively: `--harness cursor` maps
-  # beforeShellExecution onto PreToolUse with tool Bash and Input {command}, and
-  # `--format cursor` answers in cursor's own permission vocabulary at exit 0.
-  # No --event: the normalizer keys on the payload's hook_event_name, and a
-  # passed event would arrive before that mapping runs.
   shellGuardScript = pkgs.sysinit.writeShellApplication {
     name = "cursor-gate-shell-guard";
     text = ''
@@ -24,10 +19,6 @@ let
     '';
   };
 
-  # The same dispatcher for the hooks that only record: gate's cursor
-  # normalizer maps afterFileEdit onto PostToolUse with tool Edit and
-  # beforeSubmitPrompt onto UserPromptSubmit, and takes the workspace from the
-  # payload, so neither needs the cd below.
   gateHookScript = pkgs.sysinit.writeShellApplication {
     name = "cursor-gate-hook";
     text = ''
@@ -36,9 +27,6 @@ let
     '';
   };
 
-  # A user hook runs from ~/.cursor, not from the workspace, so anything that
-  # resolves a repository from its working directory needs the workspace cursor
-  # puts in the environment.
   inWorkspace = command: ''cd "''${CURSOR_PROJECT_DIR:-$PWD}" && ${command}'';
 
   cursorHooks = {
@@ -48,7 +36,7 @@ let
         {
           command = lib.getExe shellGuardScript;
           timeout = 10;
-          # A guard that fails open is the hole it exists to close.
+
           failClosed = true;
         }
       ];
@@ -107,7 +95,6 @@ let
     markdown = ./rules/markdown.mdc;
   };
 
-  # managedFiles paths are relative to the home directory.
   cursorConfigDir = "${lib.removePrefix "${config.home.homeDirectory}/" config.xdg.configHome}/cursor";
 
   ruleFiles = lib.mapAttrs' (
@@ -121,12 +108,6 @@ let
 in
 {
 
-  # cursor-agent resolves its config dir as CURSOR_CONFIG_DIR, then
-  # $XDG_CONFIG_HOME/cursor, then ~/.cursor, with no platform gate. This repo
-  # exports XDG_CONFIG_HOME, so the second branch always wins and a file under
-  # ~/.cursor is never read: the deny list here was inert. `rules/`,
-  # `mcp.json` and `hooks.json` stay below, because cursor reads those from the
-  # home directory rather than from the config dir.
   sysinit.llm.managedFiles.cursor = {
     path = "${cursorConfigDir}/cli-config.json";
     format = "json";

@@ -2,23 +2,8 @@ final: prev:
 let
   version = "0.5.0";
 
-  # A bundle, not the upstream repo. calldiff ships only to npm, and its grammar
-  # loader shells out to `npm install --prefix ~/.cache/calldiff/grammars` the
-  # first time it meets a language. That is a network call and a home-directory
-  # write triggered by an agent's shell command. `loadGrammarPackage` tries
-  # `createRequire(import.meta.url)` before that cache, so a grammar sitting in
-  # calldiff's own node_modules wins and the npm path never runs. This package.json
-  # names the grammars for the languages this repo holds, plus python and rust.
-  #
-  # The tarballs carry prebuilt .node addons for six platforms, so nothing here
-  # needs node-gyp and `npm ci --ignore-scripts` is enough. Grammars outside this
-  # list still fall back to the runtime cache, which keeps calldiff usable in a
-  # repo written in something else.
   src = ./calldiff;
 
-  # node-gyp-build resolves prebuilds/<platform>-<arch> at require time, so the
-  # other five are dead weight worth about 36 MiB. null keeps them all, which is
-  # what an unrecognised system needs.
   keepPrebuild =
     {
       aarch64-darwin = "darwin-arm64";

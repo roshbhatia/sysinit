@@ -72,11 +72,6 @@ in
       // {
         "ask/config.yaml".source = yamlFormat.generate "ask-config.yaml" config.sysinit.ask.settings;
 
-        # The cheap reader that read-router and bash-guard name when they deny a
-        # whole-file read over 16 KiB. It is Spotify's bulk-read mode as an ask
-        # template: the file goes to a light model, bullets come back, and the
-        # file never enters the caller's context. The template pins the provider
-        # and the light role, so the deny prints `ask -t bulk-read`.
         "ask/templates/schemas/${bulkRead.schema}.yaml".source =
           yamlFormat.generate "ask-schema-bulk-read-result.yaml"
             {

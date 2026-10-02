@@ -1,23 +1,14 @@
 { lib, ... }:
 
 let
-  # `modules/shared/command-path.nix` owns the system segment: the Nix
-  # profiles, the Linux-only wrappers directory, Homebrew, and the /usr
-  # fallbacks. Repeating those lists here let the two drift, and this copy had
-  # picked up /run/wrappers/bin on Darwin, where the directory does not exist.
+
   commandPath = import ../shared/command-path.nix { inherit lib; };
 
-  # wezterm imports this file with `lib` alone, so Darwin is read off the home
-  # directory rather than a `pkgs` the three call sites do not pass. This is a
-  # string test, not a platform test: a Linux host with a `/Users/` home would
-  # read as Darwin here.
   isDarwin = home: lib.hasPrefix "/Users/" home;
 
   getSystemPaths = username: home: {
     system = commandPath.entriesFor (isDarwin home) "/etc/profiles/per-user/${username}/bin";
 
-    # Keg-only Homebrew formulae. They are not on the shared system path
-    # because only interactive shells need them.
     kegOnly = lib.optionals (isDarwin home) [
       "/opt/homebrew/opt/libgit2@1.8/bin"
       "/usr/local/opt/cython/bin"

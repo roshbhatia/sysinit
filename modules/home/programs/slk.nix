@@ -12,9 +12,6 @@ in
 {
   home.packages = [ pkgs.slk ];
 
-  # Custom themes take priority over built-ins. Keep the existing theme name so
-  # slk's mutable config can retain workspace state while this file supplies an
-  # opaque, terminal-independent palette.
   xdg.configFile."slk/themes/sysinit-ansi-dark.toml".text = ''
     name = "ANSI Dark"
 

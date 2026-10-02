@@ -362,9 +362,6 @@ in
           force = true;
         };
 
-        # Both extensions are declared in `packages`, so these are live config,
-        # not leftovers. They were the only hand-made files among the extension
-        # configs here, which is how they drifted out of view.
         ".pi/agent/extensions/pi-openai-fast.json" = {
           source = pkgs.sysinit.writeJSON "pi-default.json" {
             persistState = true;

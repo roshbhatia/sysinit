@@ -2,10 +2,6 @@
 
 set -euo pipefail
 
-# Renders the cloud-agent files from modules/shared/cloud.nix and copies them
-# to their repo paths. `--check` diffs instead of copying and exits 1 on
-# drift; `checks/cloud-files.nix` runs the same comparison in `nix flake check`.
-
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${repo_root}"
 

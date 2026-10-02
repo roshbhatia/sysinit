@@ -32,13 +32,7 @@ in
     }
     // (
       let
-        # `settings` is a home-manager DAG, and an entry with no stated position
-        # sorts by attribute name. That puts `*.stork-eel.ts.net` ahead of every
-        # host it covers, because `*` is 42 in ASCII and a letter is 97. ssh
-        # keeps the first value it obtains for a keyword, so the wildcard's User
-        # wins over a host block that needs a different one. The hosts below all
-        # happened to share the wildcard's user, which hid this. entryBefore
-        # pins each host ahead of the wildcard that would otherwise answer for it.
+
         beforeStork = lib.hm.dag.entryBefore [ "*.stork-eel.ts.net" ];
         beforeTaila = lib.hm.dag.entryBefore [ "*.taila415c.ts.net" ];
       in
@@ -58,10 +52,6 @@ in
           User = "rshnbhatia";
         };
 
-        # The work Mac. Its tailnet name is set with `tailscale set --hostname`
-        # rather than derived from the macOS name, which is a serial this public
-        # repo should not carry. nix-darwin's tailscale module exposes no
-        # hostname option, so that rename lives on the machine, not here.
         "urth" = beforeStork {
           HostName = "urth.stork-eel.ts.net";
           User = "roshan";

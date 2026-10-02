@@ -1,10 +1,3 @@
-# The gate dispatcher: one authoritative hook layer for every harness.
-#
-# Each harness declares one `gate hook` per event (lib/guards.nix). The chain
-# that runs behind it is this file's concern: which providers, in what order,
-# with what arguments. Every provider comes from the gate repository; what this
-# repository owns is the arguments, including prose-gate's whole rule set and
-# every text it injects (gate-defaults.nix).
 {
   lib,
   pkgs,
@@ -57,9 +50,7 @@ let
   gateConfig = {
     version = "gate.config/v1";
     log = "${config.xdg.stateHome}/gate/decisions.jsonl";
-    # gate does not know what these mean. Naming them here is what lets a
-    # decision line join an orc checkpoint without either tool importing the
-    # other.
+
     log_fields = {
       orc_session = "ORC_SESSION_ID";
       orc_scope = "ORC_SCOPE";
@@ -72,16 +63,13 @@ let
     chains = lib.mapAttrs (_event: steps: map renderStep steps) cfg.chains;
   };
 
-  # git-ai-gate checkpoints an edit's lines to refs/notes/ai as a side effect,
-  # then answers pass. The timeout covers git-ai spawning its background service
-  # on the first checkpoint of a session.
   gitAiGateManifest = {
     version = "provider/v1";
     name = "git-ai-gate";
-    description = "Checkpoint a PostToolUse edit into git-ai's refs/notes/ai authorship notes";
+    description = "Record native edit and shell checkpoints for Git AI attribution";
     command = [ "${pkgs.git-ai-gate}/bin/git-ai-gate" ];
     actions."gate.decide" = {
-      description = "PostToolUse on Edit, Write, MultiEdit";
+      description = "PreToolUse and PostToolUse edit and shell checkpoints";
       argv = [ "serve" ];
     };
     defaults.timeout = "10s";

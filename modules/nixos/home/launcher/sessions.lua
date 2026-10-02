@@ -5,8 +5,6 @@ Action = "@wezterm@ cli spawn --new-window --workspace %VALUE%"
 SearchName = true
 History = true
 
--- @menu-prelude@
-
 function GetEntries()
   local entries = {}
   local cmd = [[@sy@ list --json | @jq@ -r '.[] | [

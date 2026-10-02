@@ -1,0 +1,169 @@
+diff --git a/src/authorship/post_commit.rs b/src/authorship/post_commit.rs
+index 99d74b3..f32caa3 100644
+--- a/src/authorship/post_commit.rs
++++ b/src/authorship/post_commit.rs
+@@ -406,12 +406,25 @@ where
+     });
+     // Synthetic self-check commits already provide explicit attribution for every line.
+     if options.recover_attribution && !is_debug_self_check {
+-        let recovery_hunks = recovery_committed_hunks(
++        let mut recovery_hunks = recovery_committed_hunks(
+             repo,
+             &parent_sha,
+             &commit_sha,
+             context.precomputed_parent_diff,
+         )?;
++        let human_snapshots: HashSet<&str> = parent_working_log
++            .iter()
++            .filter(|checkpoint| checkpoint.kind == CheckpointKind::Human)
++            .flat_map(|checkpoint| checkpoint.entries.iter().map(|entry| entry.file.as_str()))
++            .collect();
++        let ai_snapshots: HashSet<&str> = parent_working_log
++            .iter()
++            .filter(|checkpoint| checkpoint.kind.is_ai())
++            .flat_map(|checkpoint| checkpoint.entries.iter().map(|entry| entry.file.as_str()))
++            .collect();
++        recovery_hunks.retain(|path, _| {
++            !(human_snapshots.contains(path.as_str()) && ai_snapshots.contains(path.as_str()))
++        });
+         crate::authorship::attribution_recovery::recover_attribution(
+             repo,
+             &parent_sha,
+diff --git a/src/commands/checkpoint_agent/presets/codex.rs b/src/commands/checkpoint_agent/presets/codex.rs
+index c1510e6..4067cf4 100644
+--- a/src/commands/checkpoint_agent/presets/codex.rs
++++ b/src/commands/checkpoint_agent/presets/codex.rs
+@@ -174,7 +174,10 @@ impl AgentPreset for CodexPreset {
+                 } else if is_file_edit {
+                     ParsedHookEvent::PreFileEdit(PreFileEdit {
+                         context,
+-                        file_paths: vec![],
++                        file_paths: OpenCodePreset::extract_filepaths_from_tool_input(
++                            data.get("tool_input").or_else(|| data.get("toolInput")),
++                            cwd,
++                        ),
+                         dirty_files: None,
+                         tool_use_id: Some(tool_use_id.to_string()),
+                     })
+@@ -234,6 +237,24 @@ mod tests {
+     use crate::commands::checkpoint_agent::presets::*;
+     use serde_json::json;
+ 
++    #[test]
++    fn test_codex_pre_edit_preserves_human_changes() {
++        let input = json!({
++            "cwd": "/tmp/repo",
++            "session_id": "codex-pre-edit",
++            "hook_event_name": "PreToolUse",
++            "tool_name": "functions.apply_patch",
++            "tool_input": "*** Begin Patch\n*** Update File: sample.txt\n@@\n old\n+new\n*** End Patch"
++        }).to_string();
++        let events = CodexPreset.parse(&input, "t_test123456789a").unwrap();
++        match &events[0] {
++            ParsedHookEvent::PreFileEdit(event) => {
++                assert_eq!(event.file_paths, vec![PathBuf::from("/tmp/repo/sample.txt")]);
++            }
++            _ => panic!("expected pre-edit checkpoint"),
++        }
++    }
++
+     #[test]
+     fn test_codex_pre_bash_call() {
+         let input = json!({
+diff --git a/src/commands/git_ai_handlers.rs b/src/commands/git_ai_handlers.rs
+index be1c942..66f57fe 100644
+--- a/src/commands/git_ai_handlers.rs
++++ b/src/commands/git_ai_handlers.rs
+@@ -421,28 +421,28 @@ fn handle_checkpoint(args: &[String]) {
+                         let mut buffer = Vec::new();
+                         if let Err(e) = stdin.read_to_end(&mut buffer) {
+                             eprintln!("Failed to read stdin for hook input: {}", e);
+-                            std::process::exit(0);
++                            std::process::exit(1);
+                         }
+                         let buffer = match decode_hook_input_bytes(buffer) {
+                             Ok(buffer) => buffer,
+                             Err(e) => {
+                                 eprintln!("Failed to decode stdin for hook input: {}", e);
+-                                std::process::exit(0);
++                                std::process::exit(1);
+                             }
+                         };
+                         if buffer.trim().is_empty() {
+                             eprintln!("No hook input provided (via --hook-input or stdin).");
+-                            std::process::exit(0);
++                            std::process::exit(1);
+                         }
+                         hook_input = Some(strip_utf8_bom(buffer));
+                     } else if hook_input.as_ref().unwrap().trim().is_empty() {
+                         eprintln!("Error: --hook-input requires a value");
+-                        std::process::exit(0);
++                        std::process::exit(1);
+                     }
+                     i += 2;
+                 } else {
+                     eprintln!("Error: --hook-input requires a value or 'stdin' to read from stdin");
+-                    std::process::exit(0);
++                    std::process::exit(1);
+                 }
+             }
+             _ => {
+@@ -465,7 +465,7 @@ fn handle_checkpoint(args: &[String]) {
+     } else if crate::commands::checkpoint_agent::presets::resolve_preset(args[0].as_str()).is_err()
+     {
+         eprintln!("Usage: git-ai checkpoint <preset> [--hook-input <json|stdin>] [files...]");
+-        std::process::exit(0);
++        std::process::exit(1);
+     } else {
+         (args[0].as_str(), &args[1..])
+     };
+@@ -488,7 +488,7 @@ fn handle_checkpoint(args: &[String]) {
+         Ok(r) => r,
+         Err(e) => {
+             eprintln!("{} preset error: {}", preset_name, e);
+-            std::process::exit(0);
++            std::process::exit(1);
+         }
+     };
+ 
+@@ -509,7 +509,7 @@ fn handle_checkpoint(args: &[String]) {
+         for file in &request.files {
+             if !file.path.is_absolute() {
+                 eprintln!("Error: file path must be absolute: {}", file.path.display());
+-                std::process::exit(0);
++                std::process::exit(1);
+             }
+         }
+     }
+@@ -556,7 +556,7 @@ fn handle_checkpoint(args: &[String]) {
+         Ok(c) => c,
+         Err(e) => {
+             eprintln!("Background worker unavailable: {}", e);
+-            std::process::exit(0);
++            std::process::exit(1);
+         }
+     };
+ 
+@@ -584,7 +584,7 @@ fn handle_checkpoint(args: &[String]) {
+                     eprintln!(
+                         "Failed to send checkpoint to background worker: daemon receipt acknowledgement omitted sequence"
+                     );
+-                    std::process::exit(0);
++                    std::process::exit(1);
+                 }
+                 sent_count += 1;
+             }
+@@ -595,11 +595,11 @@ fn handle_checkpoint(args: &[String]) {
+                         .error
+                         .unwrap_or_else(|| "daemon rejected checkpoint".to_string())
+                 );
+-                std::process::exit(0);
++                std::process::exit(1);
+             }
+             Err(error) => {
+                 eprintln!("Failed to send checkpoint to background worker: {error}");
+-                std::process::exit(0);
++                std::process::exit(1);
+             }
+         }
+     }

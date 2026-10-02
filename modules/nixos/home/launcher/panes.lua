@@ -5,8 +5,6 @@ Action = "@wezterm@ cli activate-pane --pane-id %VALUE%"
 SearchName = true
 History = true
 
--- @menu-prelude@
-
 function GetEntries()
   local entries = {}
   local cmd = [[@wezterm@ cli list --format json | @jq@ -r '.[] | [

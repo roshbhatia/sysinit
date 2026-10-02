@@ -40,6 +40,8 @@ in
         ./completions
         ./changes.nix
         ./gh.nix
+        ./git-ai
+        ./hunk.nix
         ./htop.nix
         ./k9s.nix
         ./kubectl.nix

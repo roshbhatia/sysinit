@@ -1,7 +1,5 @@
 name: Build cache
 
-# Builds every custom package for each supported system.
-
 on:
   push:
     branches: [main]
@@ -42,7 +40,6 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # Linux runners lack space for the full custom-package closure.
       - name: Free disk space
         if: runner.os == 'Linux' && runner.environment != 'self-hosted'
         run: |

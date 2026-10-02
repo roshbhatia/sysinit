@@ -16,9 +16,6 @@ let
     format = "exit-code";
   };
 
-  # agy keys hooks.json by hook NAME, then by event: it unmarshals the file into
-  # map[string]JSONHookSpec and logs "loaded %d named hooks". A bare PreToolUse
-  # array at the top level fails to unmarshal, so the guard never loaded.
   agyHooks = builtins.toJSON {
     sysinit-destructive-guard = {
       PreToolUse = [
@@ -65,9 +62,6 @@ in
       force = true;
     };
 
-    # agy's global customization root is ~/.gemini/config, which is where this
-    # module already puts mcp_config and the plugins. ~/.agents is only a
-    # WORKSPACE root, so a copy in $HOME was read by nothing.
     ".gemini/config/AGENTS.md" = {
       text = kit.mkInstructionsWithStyle {
         harness = "gemini";

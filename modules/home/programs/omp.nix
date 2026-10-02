@@ -18,9 +18,7 @@ in
   programs.oh-my-posh = {
     enable = true;
     enableFishIntegration = true;
-    # This one emits `oh-my-posh init nu` with no --print and no source, so it
-    # installs no prompt and still spawns oh-my-posh on every startup. The
-    # nushell module bakes the init script instead.
+
     enableNushellIntegration = false;
     enableZshIntegration = true;
 
@@ -86,10 +84,7 @@ in
               template = "󱄅 ({{ .Type }}) ";
               type = "nix-shell";
             }
-            # Same job as the nix-shell segment: name the thing wrapping this
-            # shell. It matters more here, because zmx is a VT boundary that OSC
-            # does not cross, so wezterm's agent and cwd surfaces go quiet for
-            # any pane showing this.
+
             {
               foreground = "p:error";
               style = "plain";
@@ -99,8 +94,7 @@ in
             {
               foreground = "p:accent";
               style = "plain";
-              # ORC_SCOPE belongs to processes launched through orc. Reading it
-              # keeps prompt rendering independent of the broker lifecycle.
+
               template = "{{ if .Env.ORC_SCOPE }}|⚔| {{ end }}";
               type = "text";
             }

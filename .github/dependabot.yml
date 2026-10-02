@@ -1,7 +1,6 @@
 version: 2
 
 updates:
-  # Nix flake inputs (flake.lock).
   - package-ecosystem: "nix"
     directory: "/"
     schedule:
@@ -11,9 +10,6 @@ updates:
     labels:
       - "dependencies"
       - "automated"
-    # Dependabot's Nix updater compares these release tags incorrectly. It
-    # proposed v0.9.4 after v0.12.1 and v0.6.0 after v0.7.0. Keep the explicit
-    # release pins owner-managed instead of accepting semantic downgrades.
     ignore:
       - dependency-name: "orc"
       - dependency-name: "orc-extras"
@@ -29,7 +25,6 @@ updates:
     commit-message:
       prefix: "chore(deps)"
 
-  # GitHub Actions versions in workflow files.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

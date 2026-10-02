@@ -1,25 +1,20 @@
 name: Check
 
-# Validate source, flake checks, and every supported configuration.
-
 on:
   push:
     branches: [main]
   pull_request:
   workflow_dispatch: {}
 
-# Cache publishing has separate concurrency groups.
 concurrency:
   group: check-${{ github.ref }}
   cancel-in-progress: true
 
-# Read-only.
 permissions:
   contents: read
 
 jobs:
   verify-darwin:
-    # macos-latest is aarch64-darwin, the platform the daily-driver host targets.
     runs-on: macos-latest
     timeout-minutes: 30
     steps:
@@ -32,15 +27,11 @@ jobs:
         with:
           auth-token: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
-      # `nix fmt -- --check` is not reachable from `nix flake check`.
       - name: nix fmt -- --check
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: nix fmt -- --check
 
-      # Before `nix flake check`, so a lint failure is not masked by an
-      # evaluation failure. `hack/lint.sh` is the same list `.githooks/pre-commit`
-      # runs, over the whole tree rather than the staged paths.
       - name: Lint
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
@@ -51,9 +42,13 @@ jobs:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: nix flake check --print-build-logs
 
-  # `nix flake check` skips the systems a runner cannot build, so the macOS job
-  # never reaches checks.x86_64-linux. The Linux bodies, cua-computer-server
-  # among them, had never run anywhere.
+      - name: Codex MCP discovery in the macOS user session
+        env:
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+        run: |
+          codex_path=$(nix build --no-link --print-out-paths .#darwinConfigurations.lv426.pkgs.codex)
+          nix develop --command python3 checks/codex-mcp-capabilities.py "$codex_path/bin/codex"
+
   verify-linux:
     runs-on: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && fromJSON('["self-hosted", "Linux", "X64", "arrakis", "nix"]') || 'ubuntu-latest' }}
     timeout-minutes: 30

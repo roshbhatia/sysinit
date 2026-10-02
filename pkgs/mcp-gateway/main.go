@@ -222,7 +222,6 @@ func run(ctx context.Context, server definition, gateway, proxy string, stdin io
 			return err
 		}
 		cmd := exec.Command(gateway, "--file", path)
-		// Codex exports http/json, which agentgateway rejects at startup.
 		cmd.Env = append(env, "OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf")
 		cmd.Stdout, cmd.Stderr = stderr, stderr
 		done, err := start(cmd)

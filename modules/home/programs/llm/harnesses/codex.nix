@@ -11,7 +11,6 @@ let
   profileBin = "${config.home.profileDirectory}/bin";
   commandPath = llmLib.commandPath.renderFor pkgs.stdenv.hostPlatform.isDarwin profileBin;
 
-  # codex reads Claude-shaped hook JSON, so it runs the same gate chain.
   gateHookScript = llmLib.guards.mkGateHookScript {
     inherit pkgs;
     name = "codex-gate-hook";
@@ -25,9 +24,6 @@ let
       harness = "codex";
     };
 
-  # codex sends to the endpoint verbatim and appends no signal path, unlike
-  # every other OTLP client here. A bare 4318 makes it POST to `/`, which the
-  # collector answers with 404, so nothing codex emitted ever reached traces.
   otlpHttp = signal: {
     endpoint = "http://127.0.0.1:4318/v1/${signal}";
     protocol = "json";
@@ -52,9 +48,9 @@ let
   '';
 
   codexProfiles = {
-    default.reasoning_effort = "low";
+    default.model_reasoning_effort = "low";
     spec = {
-      reasoning_effort = "high";
+      model_reasoning_effort = "high";
       model_reasoning_summary = "detailed";
     };
   };
@@ -64,6 +60,7 @@ let
     lib.hm.mcp.transformMcpServer {
       inherit server;
       exclude = [
+        "description"
         "headers"
         "type"
       ];
@@ -76,12 +73,14 @@ let
   ) (kit.mcpServers.serversFor "codex");
 
   codexManagedFiles = [ "config.toml" ] ++ map (n: "${n}.config.toml") (lib.attrNames codexProfiles);
-  legacyHooks = import ./codex-retire-legacy-hooks.nix { inherit lib pkgs; };
+  nativeToolsPython = pkgs.python3.withPackages (ps: [ ps.tomlkit ]);
 in
 {
   home = {
     packages = [ gateHookScript ];
-    activation.codexRetireLegacyHooks = legacyHooks.activation;
+    activation.codexNativeTools = lib.hm.dag.entryBetween [ "llmManagedFiles" ] [ "writeBoundary" ] ''
+      $DRY_RUN_CMD ${lib.getExe nativeToolsPython} ${./codex-native-tools.py}
+    '';
     file = lib.genAttrs (map (f: ".codex/${f}") codexManagedFiles) (_: {
       enable = lib.mkForce false;
     });
@@ -110,26 +109,6 @@ in
             "enabled"
           ]
           [
-            "plugins"
-            "browser@openai-bundled"
-            "enabled"
-          ]
-          [
-            "mcp_servers"
-            "computer-use"
-            "enabled"
-          ]
-          [
-            "mcp_servers"
-            "cua_repl"
-            "enabled"
-          ]
-          [
-            "mcp_servers"
-            "node_repl"
-            "enabled"
-          ]
-          [
             "desktop"
             "external-agent-import-sync-enabled"
           ]
@@ -152,13 +131,8 @@ in
     settings = {
       check_for_update_on_startup = false;
       compact_prompt = compactPrompt;
-      mcp_servers = codexMcpServers // {
-        computer-use.enabled = false;
-        cua_repl.enabled = false;
-        node_repl.enabled = false;
-      };
+      mcp_servers = codexMcpServers;
       plugins."computer-use@openai-bundled".enabled = false;
-      plugins."browser@openai-bundled".enabled = false;
 
       approval_policy = "never";
 
@@ -166,17 +140,17 @@ in
 
       desktop."external-agent-import-sync-enabled" = false;
 
-      # `exporter` is a serde externally-tagged enum, so the variant name is the
-      # table key. Codex keeps a separate key per signal and does not fall back
-      # from one to another, so all three name the same collector.
+      tui = {
+        fullscreen_transcript = true;
+        alternate_screen = "always";
+      };
+
       otel = {
-        # `exporter` is the logs signal; the other two are named for theirs.
+
         exporter."otlp-http" = otlpHttp "logs";
         trace_exporter."otlp-http" = otlpHttp "traces";
         metrics_exporter."otlp-http" = otlpHttp "metrics";
 
-        # A prompt attribute reads <REDACTED> without this, so a turn row
-        # carries no text. The collector is loopback only.
         log_user_prompt = true;
       };
 
@@ -233,8 +207,7 @@ in
         ];
         PostToolUse = [
           {
-            # edit-event reads codex's apply_patch envelope for the files it
-            # wrote; the chain's own matcher picks the tool.
+
             hooks = [
               {
                 type = "command";

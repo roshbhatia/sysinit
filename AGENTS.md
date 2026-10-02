@@ -36,7 +36,7 @@ not restate any of those here.
   its theme, sources, hotkeys, and screenshot callbacks.
 - MCP declarations pass through `lib/mcp-routing.nix`. `pkgs/mcp-gateway`
   supervises per-client agentgateway processes and the Go transport adapter.
-  Existing host gateways use `gateway = true`. See `docs/mcp-routing.md`.
+  Existing host gateways use `gateway = true`.
 - The rest of `modules/home/programs/llm/` splits by role. `lib/` is
   evaluation-time helpers. `runtime/` is the agent-agnostic runtime a harness
   hook executes: notifier, state bus, gates, guard bodies. `skills/` is the
@@ -91,9 +91,10 @@ nh darwin switch                # apply config to system (use deliberately)
 
 Use the installed `nh` for routine builds and switches; use `nix develop` for
 checks. For separate build and activation steps, keep `nh darwin build .
---out-link result-system` rooted, then use the native activation recipe in
-`docs/runbooks.md`. NH's Darwin command rejects store-path installables.
-`README.md` bootstraps the first switch with `nix run nixpkgs#nh`.
+--out-link result-system` rooted. Set the system profile with
+`sudo nix-env -p /nix/var/nix/profiles/system --set "$(realpath result-system)"`,
+then run `sudo ./result-system/sw/bin/darwin-rebuild activate`.
+NH's Darwin command rejects store-path installables.
 
 `checks/default.nix` is the list of flake checks. Read it rather than a copy
 here.
@@ -112,7 +113,7 @@ Some invariants are module assertions, not flake checks. They fire on
 `modules/home/programs/llm/subagents/default.nix`,
 `modules/home/programs/llm/harnesses/codex.nix`,
 `modules/home/programs/nushell/default.nix`,
-`modules/darwin/keybindings.nix`, `modules/darwin/closed-lid-ssh.nix`, and
+`modules/darwin/keybindings.nix`, and
 `modules/nixos/home/desktop.nix`. Nothing parses `.zsh`, `.lua`, or shell
 scripts at evaluation time; `hack/lint.sh` is the only parse gate.
 
@@ -120,10 +121,6 @@ CI runs `nix fmt -- --check`, `hack/lint.sh --all`, and `nix flake check` on
 every push to `main` and every pull request. It evaluates every host and each
 standalone Home Manager profile. The explicit evaluations fire module
 assertions without building host closures that exceed hosted runner storage.
-
-`docs/runbooks.md` holds the recipes: add a package, add an overlay, add a
-host, add a module, bump sources, refresh a `vendorHash`, extend the cache set,
-and recover a failed switch.
 
 `sy`, `openspec`, and `specutil` are machine-wide. Their own skills carry the
 subcommands: `feature-based-session-manager`, `openspec-workflow`, `specutil`.
@@ -206,8 +203,7 @@ them errors; the code no longer carries a comment saying so.
 - Antigravity uses `serverUrl`, not `url`, for a remote server.
 - Copilot needs an explicit `tools` allowlist on an http server. Omitting it
   exposes no tools rather than all of them; `["*"]` opts in.
-- codex needs `experimental_use_rmcp_client = true` or every URL-based MCP entry
-  in its TOML is ignored. Its profile files are derived from the profile set,
+- Codex profile files are derived from the profile set,
   never hand-listed. `programs.codex` writes one `<name>.config.toml` per
   profile, so a hand-list breaks on the next rename.
 - devin inherits from Cursor, Windsurf, and Claude Code unless its own settings

@@ -9,8 +9,6 @@ permissions:
   contents: write
   pull-requests: write
 
-# A manual dispatch during the 6-hourly run raced it. Both force-pushed
-# automation/update-sources and both rewrote the same pull request.
 concurrency:
   group: update-sources
   cancel-in-progress: true
@@ -59,8 +57,6 @@ jobs:
         id: cpr
         uses: peter-evans/create-pull-request@v8
         with:
-          # PAT when available: a PR opened by GITHUB_TOKEN does not trigger
-          # `on: pull_request`, so the required `verify` check would never run.
           token: ${{ secrets.WORKFLOWS_PAT || secrets.GITHUB_TOKEN }}
           branch: automation/update-sources
           delete-branch: true
@@ -73,7 +69,6 @@ jobs:
             - Auto-updated Go `vendorHash` values
           labels: automated,dependencies
 
-      # Queue the automation PR behind the required checks.
       - name: Merge automation PR
         if: steps.cpr.outputs.pull-request-operation != ''
         env:

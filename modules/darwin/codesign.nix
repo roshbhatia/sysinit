@@ -15,10 +15,6 @@ let
   ];
   signedBin = "${config.users.users.${user}.home}/${paths.signedBinDir}";
 
-  # Keep everything the real package ships and redirect only the executable, so
-  # the launchd arguments nix-darwin builds from the service options stay intact.
-  # The symlink target is what macOS resolves and what TCC records, and that
-  # target does not move when the package updates.
   stable =
     name: pkg:
     pkgs.symlinkJoin {
@@ -31,9 +27,7 @@ let
     };
 in
 {
-  # Both read the screen, so both hold a Screen Recording grant, and launchd
-  # starts both straight out of the store. See modules/shared/codesign.nix for
-  # why that costs a fresh grant on every update.
+
   home-manager.users.${user}.sysinit.codesign.binaries = {
     borders = "${pkgs.jankyborders}/bin/borders";
     sketchybar = "${pkgs.sketchybar}/bin/sketchybar";

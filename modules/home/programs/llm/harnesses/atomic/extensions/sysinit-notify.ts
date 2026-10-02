@@ -23,9 +23,6 @@ function spawnQuiet(exe: string, args: string[], input?: string): void {
   } catch {}
 }
 
-// One record per agent write, through the same dispatcher every hook uses.
-// `--harness json` takes a gate envelope as is, so the tool name is the one
-// the chains match on: Edit or Write.
 function editEvent(harness: string, tool: string, file: string): void {
   spawnQuiet(
     "gate",

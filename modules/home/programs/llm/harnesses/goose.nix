@@ -39,10 +39,6 @@ let
       cmd = "${pkgs.goose-cli}/bin/goose";
     };
 
-  # Declared here rather than in mcp-servers.nix, which every harness reads: a
-  # tool that delegates coding to Codex earns its tokens from goose and is noise
-  # inside Codex itself. Absolute path because goose desktop launches with no
-  # PATH, and a bare `codex` did not resolve there.
   localExtensions = {
     codex-mcp = {
       enabled = true;
@@ -52,8 +48,6 @@ let
     };
   };
 
-  # Goose capitalizes an extension's display name and rewrites the file if it
-  # disagrees, so it is written the way goose would write it.
   gooseName = name: (lib.toUpper (builtins.substring 0 1 name)) + builtins.substring 1 (-1) name;
 
   mkLocalExtension =
@@ -93,9 +87,6 @@ let
 
   gooseMcpServers = kit.mcpServers.serversFor "goose";
 
-  # Dropped from the file rather than left disabled. `work-graph` pointed at a
-  # store path the collector had already taken, and the rest were clicked in
-  # through the Goose UI for a tool this host no longer reaches.
   retiredExtensions = [
     "cocoindex"
     "figma"
@@ -125,10 +116,6 @@ let
     GOOSE_PROVIDER = "claude-acp";
     GOOSE_MODEL = "opus";
 
-    # goose 1.28 carries two ACP bridges, `claude-acp` and `codex-acp`, and both
-    # binaries are already on PATH from `home.packages`. Declared, not enforced:
-    # `active_provider` is how the desktop switches between them, and that choice
-    # is the app's to make. GOOSE_PROVIDER above is the CLI default.
     providers = {
       claude-acp = {
         configured = true;
@@ -142,8 +129,7 @@ let
       };
     };
     GOOSE_TOOLSHIM = false;
-    # The collector on 4318 is the sink; the Rust SDK reads OTEL_EXPORTER_OTLP_ENDPOINT
-    # from the process environment, which modules/home/programs/otel-collector.nix sets.
+
     GOOSE_TELEMETRY_ENABLED = true;
 
     extensions =
@@ -156,9 +142,7 @@ let
   gooseDesktopSettings = {
     keyboardShortcuts.quickLauncher = "CommandOrControl+Alt+Enter";
   };
-  # goose's own approval file. It denies whole tools, never command globs, so it
-  # cannot carry this repo's destructive deny list. Declared to make the policy
-  # reproducible, not to tighten it.
+
   goosePermissions = {
     user = {
       always_allow = [ "shell" ];
@@ -205,11 +189,7 @@ in
       path = ".config/goose/config.yaml";
       format = "yaml";
       content = gooseSettings;
-      # Only the `enabled` leaf for a server, not the whole object: goose adds
-      # `display_name` and `available_tools` of its own, and enforcing the object
-      # would delete them on every switch.
-      # Enforcing the leaf repairs it at switch time; it does not lock it, so
-      # whatever rewrote every extension to `enabled: false` can do so again.
+
       enforce = [
         "GOOSE_MODE"
         "GOOSE_CLI_THEME"
@@ -222,11 +202,7 @@ in
             "extensions"
             name
           ])
-          # The whole object for these, not the `enabled` leaf. `codex-mcp` was
-          # added to the live file by hand with `cmd: codex`, and a bare name does
-          # not resolve under a GUI launch. Two independent additions of a
-          # different value at one path is a conflict that refuses the whole file,
-          # so Nix owns every key of an extension it defines outright.
+
           (builtins.attrNames bundledExtensions ++ builtins.attrNames localExtensions)
       ++ map (name: [
         "extensions"
@@ -250,10 +226,7 @@ in
           name
         ]) retiredExtensions;
     };
-    # goose's real approval file, which was hand-made and unmanaged until now.
-    # goose denies whole tools, never command globs, so this cannot carry the
-    # repo's destructive deny list and `guard` stays "none". Declared to keep the
-    # policy reproducible, not to tighten it: `shell` stays in always_allow.
+
     goose-permission = {
       path = ".config/goose/permission.yaml";
       format = "yaml";

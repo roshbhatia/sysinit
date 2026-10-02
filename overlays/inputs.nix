@@ -4,9 +4,7 @@
 }:
 
 let
-  # A check phase that runs a hack/ script hits its /usr/bin/env shebang, which
-  # the Darwin sandbox resolves and the Linux one does not. Drop each call once
-  # the input patches its own shebangs.
+
   patchHackShebangs =
     pkg:
     pkg.overrideAttrs (old: {
@@ -18,12 +16,18 @@ in
 
 final: _prev:
 let
+  askExtras = inputs.ask-extras.packages.${final.stdenv.hostPlatform.system}.extras;
+  askProviders = askExtras.providers // {
+    hermes = import (inputs.ask-extras + /hermes/package.nix) {
+      pkgs = final;
+      runtime = final.hermes-agent;
+    };
+  };
   tracesPackages = inputs.traces.packages.${final.stdenv.hostPlatform.system};
   tracesProviderPackages = final.lib.mapAttrs' (
     name: package: final.lib.nameValuePair (final.lib.removePrefix "provider-" name) package
   ) (final.lib.filterAttrs (name: _package: final.lib.hasPrefix "provider-" name) tracesPackages);
-  # A tool is an extra with no manifest, such as the worklog reducer a
-  # session-end hook runs. It answers no traces action, so it is not a provider.
+
   tracesToolPackages = final.lib.mapAttrs' (
     name: package: final.lib.nameValuePair (final.lib.removePrefix "tool-" name) package
   ) (final.lib.filterAttrs (name: _package: final.lib.hasPrefix "tool-" name) tracesPackages);
@@ -42,16 +46,19 @@ in
   orc-cli = inputs.orc-extras.packages.${final.stdenv.hostPlatform.system}.full;
   orc-providers = inputs.orc-extras.packages.${final.stdenv.hostPlatform.system}.all;
   ask-cli = patchHackShebangs inputs.ask.packages.${final.stdenv.hostPlatform.system}.default;
-  ask-providers = inputs.ask-extras.packages.${final.stdenv.hostPlatform.system}.extras;
+  ask-providers = final.symlinkJoin {
+    inherit (askExtras) name;
+    paths = final.lib.attrValues askProviders;
+    passthru.providers = askProviders;
+  };
   gate-cli = inputs.gate.packages.${final.stdenv.hostPlatform.system}.gate;
-  # Every provider in gate's extras plus the `review` ledger CLI. The manifests
-  # under share/gate/providers are what modules/home/programs/llm/gate.nix links
-  # into ~/.config/gate/providers.
+
   gate-providers = inputs.gate.packages.${final.stdenv.hostPlatform.system}.extras;
   sysinit-wezterm-source = inputs.sysinit-wezterm.outPath;
   sysinit-wezterm-lua = inputs.sysinit-wezterm.lib.luaSource final;
   wezspawn = inputs.sysinit-wezterm.packages.${final.stdenv.hostPlatform.system}.wezspawn;
   sysinit-nvim-source = inputs.sysinit-nvim.outPath;
+  hunk = inputs.hunk.packages.${final.stdenv.hostPlatform.system}.default;
   agent-notes = inputs.agent-notes.packages.${final.stdenv.hostPlatform.system}.default;
   agent-notes-nvim = inputs.agent-notes.packages.${final.stdenv.hostPlatform.system}.neovim-plugin;
   seshy-picker = inputs.seshy.packages.${final.stdenv.hostPlatform.system}.provider-wezterm;
@@ -82,8 +89,7 @@ in
     ];
   });
   nuvim = patchHackShebangs inputs.nuvim.packages.${final.stdenv.hostPlatform.system}.default;
-  # Upstream nu-plugin symlinks the unpatched nuvim, so overriding it reaches
-  # nothing. The symlink is rebuilt here against the patched package.
+
   nu-plugin-nuvim =
     final.runCommand "nu-plugin-nuvim-0.1.0"
       {

@@ -47,17 +47,12 @@ local function run(binary, args, callback)
   end)
 end
 
--- Everything after the part that identifies the page. A query, a fragment, or a
--- deeper path still names the same PR or run; a bare suffix is a different page
--- wearing the same prefix, so it is not ours.
 ---@param suffix string
 ---@return boolean
 local function carries(suffix)
   return suffix == "" or suffix:match("^[/#?]") ~= nil
 end
 
--- Ordered, because `actions/runs` has to be tried before anything that would
--- also accept it.
 local routes = {
   {
     kind = "pull",
@@ -70,8 +65,6 @@ local routes = {
     end,
   },
   {
-    -- Only a run, because that is what `gh enhance` takes. A link to the Actions
-    -- tab or to a workflow file names no run and goes to the browser instead.
     kind = "actions",
     match = function(path)
       local owner, repo, id, suffix = path:match("^/([%w%-]+)/([%w_.%-]+)/actions/runs/([1-9]%d*)(.*)$")
@@ -180,8 +173,6 @@ local function dispatch(config, target, url)
   end
 end
 
--- The palette the launcher already runs, so a routed link is picked in the same
--- panel as everything else rather than in a second style of list.
 local function choose(config, route)
   local settings = (config.routes or {})[route.kind] or {}
   local targets = settings.targets or {}
@@ -221,9 +212,6 @@ local function choose(config, route)
       end)
     end)
   if not ok then
-    -- The palette is the launcher's, so it can be stopped or reloading. A link
-    -- is still worth opening, and the first target is the one the picker would
-    -- have preselected.
     report("Cannot open the " .. route.kind .. " picker")
     dispatch(config, targets[1], route.url)
   end

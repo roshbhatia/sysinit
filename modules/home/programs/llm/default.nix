@@ -87,8 +87,6 @@ let
     root:
     lib.mapAttrs' (rel: src: lib.nameValuePair "${root}/${rel}" { source = src; }) astGrepSkillFiles;
 
-  # One shape for three roots. This was nine bindings over 47 lines, all reading
-  # the same three sources, and a new root meant a fourth copy.
   skillFilesFor =
     root:
     lib.mapAttrs' (
@@ -144,9 +142,7 @@ in
   );
 
   home = {
-    # All harnesses inherit the same command search path. Codex and Claude also
-    # receive the rendered value in their settings because they can sanitize
-    # the environment before a hook starts.
+
     sessionPath = llmLibForCoverage.commandPath.entriesFor pkgs.stdenv.hostPlatform.isDarwin "${config.home.profileDirectory}/bin";
 
     file =

@@ -3,6 +3,7 @@
   ...
 }:
 [
+  inputs.rust-overlay.overlays.default
   (_final: prev: {
     sunshine =
       if prev.stdenv.hostPlatform.isLinux then
@@ -47,11 +48,12 @@
   (import ./bookerly.nix)
   (import ./codex.nix)
   (import ./opencode.nix)
-  (import ./acp-amp.nix)
+  (import ./python-tools.nix { inherit inputs; })
   (import ./localias.nix)
   (import ./git-ai.nix)
   (import ./git-ai-gate.nix)
   (import ./cua-computer-server.nix)
+  (import ./cua-driver.nix)
   (import ./alerter.nix)
   (import ./sheets.nix)
   (import ./zoetrope.nix)

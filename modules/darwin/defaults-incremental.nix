@@ -58,7 +58,7 @@ in
       assertion = builtins.all (
         name:
         builtins.elem name [
-          "alf" # Removed options retained by nix-darwin for migration errors.
+          "alf"
           "NSGlobalDomain"
           ".GlobalPreferences"
           "LaunchServices"

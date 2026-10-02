@@ -8,8 +8,6 @@
 let
   inherit (pkgs) lib;
 
-  # Every check that is pure evaluation shares this. The derivation carries no
-  # build step; the assertions above it decide whether it evaluates at all.
   evalOnly = name: pkgs.runCommand name { } "touch $out";
 
   commandPath = import ../modules/shared/command-path.nix { inherit (pkgs) lib; };
@@ -58,18 +56,38 @@ in
 {
   strands = pkgs.strands-cli;
   task-commands = import ./task-commands.nix { inherit pkgs; };
+  git-ai-integration =
+    pkgs.runCommand "git-ai-integration"
+      {
+        nativeBuildInputs = [
+          pkgs.python3
+          pkgs.git
+          pkgs.changes
+          pkgs.traces
+          pkgs.traces-providers
+        ];
+      }
+      ''
+        python3 ${./git-ai-integration.py} ${pkgs.git-ai}/bin/git-ai ${pkgs.git-ai-gate}/bin/git-ai-gate \
+          ${../modules/home/programs/git-ai/changes-provider.py}
+        touch "$out"
+      '';
   task-queue = import ./task-queue.nix { inherit pkgs; };
   opencode = import ./opencode.nix { inherit pkgs; };
   utility-contracts = import ./utility-contracts.nix { inherit pkgs; };
   firefox = import ./firefox.nix { inherit pkgs darwinConfigurations nixosConfigurations; };
   editor-composition = import ./editor-composition.nix { inherit pkgs homeManagerLib; };
   slack-guard = import ./slack-guard.nix { inherit pkgs; };
-  cua-coordinates =
-    pkgs.runCommand "cua-coordinates-test" { nativeBuildInputs = [ pkgs.python3 ]; }
-      ''
-        python ${./cua-coordinates.py} ${../modules/home/programs/llm/runtime/cua-macos.py}
+  cua-driver =
+    if pkgs.stdenv.hostPlatform.isDarwin then
+      pkgs.runCommand "cua-driver-test" { } ''
+        ${lib.getExe pkgs.cua-driver} --help > help
+        grep -F 'cua-driver ${pkgs.cua-driver.version}' help
+        /usr/bin/codesign --verify --deep --strict ${pkgs.cua-driver}/Applications/CuaDriver.app
         touch "$out"
-      '';
+      ''
+    else
+      evalOnly "cua-driver-not-applicable";
   pr-workflow =
     pkgs.runCommand "pr-workflow-test"
       {
@@ -153,9 +171,7 @@ in
         touch "$out"
       '';
   github-runner-guard = import ./github-runner-guard.nix { inherit pkgs; };
-  # These assertions sat at file scope. One failure aborted the whole attrset,
-  # so every check on every system reported the same message, and the message
-  # named no invariant.
+
   command-path-order =
     assert lib.assertMsg (
       builtins.elemAt darwinPath 3 == "/opt/homebrew/bin"
@@ -177,8 +193,6 @@ in
     ) "the linux shell path drops one of ${builtins.concatStringsSep " " standardSystemPath}";
     evalOnly "command-path-order";
 
-  # Named separately. Folded into command-path-order, an MCP regression
-  # reported a path failure.
   mcp-harness-suppression =
     assert lib.assertMsg (
       ampMcpServers.kept.command == "kept"
@@ -192,11 +206,10 @@ in
     inherit pkgs;
     inherit (pkgs) lib;
   };
-  codex-legacy-hooks = import ./codex-legacy-hooks.nix {
-    inherit pkgs homeManagerLib;
+  codex-config = import ./codex-config.nix {
+    inherit pkgs darwinConfigurations;
     inherit (pkgs) lib;
   };
-  closed-lid-ssh = import ./closed-lid-ssh.nix { inherit pkgs; };
   host-access-security = import ./host-access-security.nix {
     inherit
       pkgs
@@ -237,10 +250,7 @@ in
     inherit pkgs;
     inherit (pkgs) lib;
   };
-  # modules/darwin/prune-system-generations.sh is a launchd job, and the test
-  # drives nix-env, which creates /nix/var/nix/profiles. The Linux sandbox
-  # denies that. macOS builds are unsandboxed, which is the only reason this
-  # ever passed there.
+
   system-generation-prune =
     if pkgs.stdenv.hostPlatform.isDarwin then
       import ./system-generation-prune.nix { inherit pkgs; }
@@ -255,4 +265,10 @@ in
           | jq -e 'index("icon") != null' > /dev/null
         touch $out
       '';
+}
+// lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+  codex-mcp-capabilities = pkgs.runCommand "codex-mcp-capabilities" { } ''
+    ${lib.getExe pkgs.python3} ${./codex-mcp-capabilities.py} ${lib.getExe pkgs.codex}
+    touch "$out"
+  '';
 }

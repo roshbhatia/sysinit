@@ -1,8 +1,7 @@
 { inputs }:
 final: _prev:
 let
-  # Not `gotools`. That name is taken by the nixpkgs package holding goimports
-  # and godoc, which modules/home/packages.nix installs.
+
   sysinit-gotools = final.buildGoModule {
     pname = "sysinit-gotools";
     version = "0.1.0";
@@ -120,7 +119,7 @@ in
 
   ask =
     let
-      # wrappers.txt is the one list of the names the binary answers to.
+
       wrappers = final.lib.filter (name: name != "") (
         final.lib.splitString "\n" (builtins.readFile (inputs.ask + "/wrappers.txt"))
       );

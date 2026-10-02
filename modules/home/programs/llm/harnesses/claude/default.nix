@@ -17,8 +17,6 @@ let
     skillsRoot = "~/.claude/skills";
   };
 
-  # One dispatcher call per hook event. The chain behind each is declared in
-  # llm/gate.nix, so this file names events and nothing else.
   gateHook =
     event:
     llmLib.guards.mkGateHook {
@@ -87,9 +85,6 @@ in
         CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1";
         DISABLE_AUTOUPDATER = "1";
 
-        # Traces need the beta flag on top of the telemetry switch; the switch
-        # alone emits logs and metrics only. A run with no collector listening
-        # on 4318 costs nothing measurable and prints no error, so these stay on.
         CLAUDE_CODE_ENABLE_TELEMETRY = "1";
         CLAUDE_CODE_ENHANCED_TELEMETRY_BETA = "1";
         OTEL_TRACES_EXPORTER = "otlp";
@@ -98,8 +93,6 @@ in
         OTEL_EXPORTER_OTLP_PROTOCOL = "http/json";
         OTEL_EXPORTER_OTLP_ENDPOINT = "http://127.0.0.1:4318";
 
-        # Without this, every prompt attribute reads <REDACTED> and a turn row
-        # carries no text. The collector writes to a local file only.
         OTEL_LOG_USER_PROMPTS = "1";
       };
 
@@ -136,18 +129,8 @@ in
 
       autoCompactEnabled = true;
 
-      # No autoCompactWindow. The CLI reads it as a hard token ceiling, not a
-      # headroom margin, and its schema floor is 1e5. That floor is a tenth of
-      # Opus 5's 1M window, so auto-compact fired about ten times per session.
-      # Unset is the CLI's "auto" state: it resolves the window from the model.
-      # The same value also binds every in-process subagent, so a literal 1e6
-      # here would overshoot on any Sonnet or Haiku teammate.
-
       disabledMcpServers = disabledBuiltinServers;
 
-      # The only kill switch for claude.ai connectors is all-or-nothing; the
-      # per-name list above never stopped the fetch. Linear, incident.io, and
-      # Granola stay reachable through the agentgateway targets.
       disableClaudeAiConnectors = true;
 
       extraKnownMarketplaces = {
@@ -165,23 +148,12 @@ in
         };
       };
 
-      # A language server answers "where is this defined" and "what calls this"
-      # from a real index, in one call. The alternative is a grep sweep that reads
-      # whole files to reach the same answer, so this trades a variable read bill
-      # for a fixed one.
-      #
-      # These four plugins carry no skill, agent or command: each is an
-      # `lspServers` entry and nothing else, so the always-on prompt cost is zero
-      # and the server only starts when a file with a matching extension is
-      # touched. Every binary below already comes from modules/home/packages.nix.
-      # rust-analyzer and clangd are on this machine too, but no Rust or C work
-      # runs here, so they stay off until it does.
       enabledPlugins = {
         "codex@openai-codex" = true;
-        "gopls-lsp@claude-plugins-official" = true; # gopls
-        "typescript-lsp@claude-plugins-official" = true; # typescript-language-server
-        "pyright-lsp@claude-plugins-official" = true; # pyright-langserver
-        "lua-lsp@claude-plugins-official" = true; # lua-language-server
+        "gopls-lsp@claude-plugins-official" = true;
+        "typescript-lsp@claude-plugins-official" = true;
+        "pyright-lsp@claude-plugins-official" = true;
+        "lua-lsp@claude-plugins-official" = true;
       };
 
       hooks = {
@@ -203,8 +175,7 @@ in
         ];
         PreToolUse = [
           {
-            # bash-guard, nix-guard, read-router, review-gate: the chain's own
-            # matchers pick the tool, so the harness matcher stays empty.
+
             matcher = "";
             hooks = [
               {
@@ -235,9 +206,7 @@ in
         ];
         PostToolUse = [
           {
-            # edit-event and git-ai-gate record an edit, then lint-gate checks
-            # it; prose-gate's report note and review-gate on an Agent return.
-            # A note to the caller, not a block on the teammate.
+
             matcher = "";
             hooks = [
               {
@@ -249,7 +218,7 @@ in
         ];
         SubagentStart = [
           {
-            # review-gate tells a critic which revision is under review.
+
             matcher = "";
             hooks = [
               {
@@ -270,10 +239,7 @@ in
             ];
           }
           {
-            # Not the empty matcher. `resume` and `fork` replay a transcript that
-            # already carries this injection, so matching them states the same
-            # four rules twice. `startup`, `clear` and `compact` are the three
-            # starts that genuinely have no copy of them.
+
             matcher = "startup|clear|compact";
             hooks = [
               {
@@ -321,8 +287,7 @@ in
             matcher = "";
             hooks = [
               {
-                # loop-gate holds the turn while an armed command fails;
-                # prose-gate records the tells for the next prompt's reminder.
+
                 type = "command";
                 command = gateHook "Stop";
               }

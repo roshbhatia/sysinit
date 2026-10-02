@@ -2,15 +2,6 @@
 
 set -euo pipefail
 
-# Installs this user's own CLIs (cloudTools) on a fresh cloud-agent box.
-# Called by Claude Code cloud (setup-script field), Cursor cloud
-# (.cursor/environment.json install), and Devin cloud (drs blueprint).
-# The cloudTools closure substitutes wholesale from roshbhatia.cachix.org, so
-# the box performs no source build.
-#
-# Generated from modules/shared/cloud.nix by flake/cloud-files.nix. Do not
-# edit by hand; run hack/generate-cloud.sh.
-
 CACHIX_URL="@cachixUrl@"
 CACHIX_KEY="@cachixKey@"
 NIXOS_CACHE="@nixosCacheUrl@"
@@ -18,8 +9,6 @@ INSTALLER_URL="@installerUrl@"
 FLAKE_REF="@flakeRef@"
 BIN_DIR="@binDir@"
 
-# ln/mkdir under /usr/local need root; the box runs privileged, so sudo is a
-# no-op fallback for the rare non-root shell.
 as_root() {
   if [[ ${EUID} -eq 0 ]]; then
     "$@"
@@ -34,7 +23,6 @@ install_nix() {
     return
   fi
   echo "installing Determinate Nix"
-  # Bake the substituters so the daemon trusts the key.
   curl --proto '=https' --tlsv1.2 -sSf -L "${INSTALLER_URL}" |
     sh -s -- install linux @installerFlags@ \
       --extra-conf "extra-substituters = ${CACHIX_URL} ${NIXOS_CACHE}" \

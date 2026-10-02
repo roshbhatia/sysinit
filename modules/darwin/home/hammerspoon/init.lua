@@ -21,9 +21,6 @@ local function bindHotkeys()
   require("sysinit.plugins.ui.launcher").setup()
 end
 
--- Post-reboot, Accessibility can grant a beat after Hammerspoon launches; a
--- bind attempted before that grant silently registers no hotkeys and never
--- retries. Poll until granted, then bind exactly once, so this never double-binds.
 if hs.accessibilityState() then
   bindHotkeys()
 else

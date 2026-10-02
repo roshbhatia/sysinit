@@ -45,8 +45,6 @@ let
     lib.unique (lib.concatMap (h: h.openspecTool) (lib.attrValues registry))
   );
 
-  # Filtered, not checked: openspec rejects the whole argument on one unknown
-  # name, so a stray registry entry would fail every new session's postCreate.
   openspecTools = lib.intersectLists supportedTools declaredTools;
 
   syFishCompletion = pkgs.runCommand "sy-fish-completion" { } ''

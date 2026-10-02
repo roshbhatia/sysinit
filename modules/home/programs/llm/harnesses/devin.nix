@@ -58,9 +58,6 @@ in
     enforce = [ "permissions" ];
   };
 
-  # devin reads MCP from its own mcp_config.json, not from config.json. It
-  # rewrites config.json on start and drops any mcpServers block there, so this
-  # repo's catalog silently stopped reaching devin.
   sysinit.llm.managedFiles.devin-mcp = {
     path = ".config/devin/mcp_config.json";
     format = "json";

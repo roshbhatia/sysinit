@@ -34,7 +34,7 @@
         "https://nix-community.cachix.org"
         "https://numtide.cachix.org"
         "https://devenv.cachix.org"
-        # This host runs sway. nixpkgs-wayland rebuilds the wayland tree.
+
         "https://nixpkgs-wayland.cachix.org"
       ];
       extra-trusted-public-keys = [
@@ -49,8 +49,6 @@
       cores = 0;
       connect-timeout = 10;
 
-      # The 3600 default makes a switch within an hour of a cachix push rebuild
-      # every path Nix already recorded as missing.
       narinfo-cache-negative-ttl = 60;
     };
 
@@ -60,8 +58,6 @@
       options = "--delete-old";
     };
 
-    # `auto-optimise-store` hardlinks inside the store lock on every build. Run
-    # the optimiser on a schedule instead.
     optimise = {
       automatic = true;
       dates = [ "weekly" ];
@@ -110,9 +106,7 @@
         PasswordAuthentication = false;
         PermitRootLogin = "no";
         X11Forwarding = false;
-        # Nushell does not source the POSIX profile that normally prepends the
-        # NixOS setuid wrappers. Supply the complete SSH command environment so
-        # remote tools resolve the privileged sudo wrapper, not the store copy.
+
         SetEnv = "SHELL=/run/current-system/sw/bin/zsh PATH=/run/wrappers/bin:/etc/profiles/per-user/${values.user.username}/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin";
       };
     };
