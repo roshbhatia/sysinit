@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 let
   prTracker = pkgs.fetchFromGitHub {
     owner = "sezaakgun";
@@ -18,15 +18,17 @@ let
     rev = "cf2b7562ae7b376cdcf9e2436a926aba77dc759f";
     hash = "sha256-Di/8NsOxaIkw/g4KmO0bFGqXfilXyRAapS4rY2oHyP4=";
   };
+  plugins = {
+    cc-pr-tracker = prTracker;
+    claude-mermaid = "${mods}/claude-mermaid";
+    claude-queue = "${mods}/claude-queue";
+    inherit aside;
+  };
 in
 {
-  programs.claude-code = {
-    settings.env.CLAUDE_CODE_ENABLE_FUNCTION_HOOKS = "1";
-    plugins = {
-      cc-pr-tracker = prTracker;
-      claude-mermaid = "${mods}/claude-mermaid";
-      claude-queue = "${mods}/claude-queue";
-      inherit aside;
-    };
-  };
+  programs.claude-code.settings.env.CLAUDE_CODE_ENABLE_FUNCTION_HOOKS = "1";
+  # Link whole roots because Claude rejects hooks outside a plugin's resolved directory.
+  home.file = lib.mapAttrs' (
+    name: source: lib.nameValuePair ".claude/skills/${name}" { inherit source; }
+  ) plugins;
 }
