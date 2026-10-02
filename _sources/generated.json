@@ -44,66 +44,6 @@
         },
         "version": "0.0.1789315238-g490ac9"
     },
-    "atomic-coding-agent": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "atomic-coding-agent",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-qe85/dfr98Vd5GlMV3RD6USKA9tnj0HdNnbX3RXIr88=",
-            "type": "url",
-            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.18/atomic-darwin-arm64.tar.gz"
-        },
-        "version": "0.9.18"
-    },
-    "atomic-coding-agent-aarch64-linux": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "atomic-coding-agent-aarch64-linux",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-1w4ocT553vttD3hcy6sOjSUvhBbl0wKGIvBQGNGc/Zo=",
-            "type": "url",
-            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.18/atomic-linux-arm64.tar.gz"
-        },
-        "version": "0.9.18"
-    },
-    "atomic-coding-agent-x86_64-darwin": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "atomic-coding-agent-x86_64-darwin",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-finGY0zl+D+4nWp5vvJnMhfcYAkK1sn5tCaUrsUmrDs=",
-            "type": "url",
-            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.18/atomic-darwin-x64.tar.gz"
-        },
-        "version": "0.9.18"
-    },
-    "atomic-coding-agent-x86_64-linux": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "atomic-coding-agent-x86_64-linux",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-Uconis2j/bZ05+LSgo3giR3D5w7vjny9sE9FlR/Pv6Y=",
-            "type": "url",
-            "url": "https://github.com/bastani-inc/atomic/releases/download/0.9.18/atomic-linux-x64.tar.gz"
-        },
-        "version": "0.9.18"
-    },
     "crush": {
         "cargoLock": null,
         "date": null,
@@ -583,20 +523,5 @@
             "url": "https://github.com/earendil-works/pi/releases/download/v0.85.1/pi-linux-x64.tar.gz"
         },
         "version": "0.85.1"
-    },
-    "prime-agent": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "prime-agent",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-uNdSpT0RqMmnWA4ftfwk9850zK2XnH5uaqiID8OtkLA=",
-            "type": "url",
-            "url": "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.9.4/prime-agent-0.9.4.tgz"
-        },
-        "version": "0.9.4"
     }
 }

@@ -30,38 +30,6 @@
       sha256 = "sha256-8TmwN0PfWDM7zaFFY32fg3T+xZtaOyy/vs2ye9R7D3A=";
     };
   };
-  atomic-coding-agent = {
-    pname = "atomic-coding-agent";
-    version = "0.9.18";
-    src = fetchurl {
-      url = "https://github.com/bastani-inc/atomic/releases/download/0.9.18/atomic-darwin-arm64.tar.gz";
-      sha256 = "sha256-qe85/dfr98Vd5GlMV3RD6USKA9tnj0HdNnbX3RXIr88=";
-    };
-  };
-  atomic-coding-agent-aarch64-linux = {
-    pname = "atomic-coding-agent-aarch64-linux";
-    version = "0.9.18";
-    src = fetchurl {
-      url = "https://github.com/bastani-inc/atomic/releases/download/0.9.18/atomic-linux-arm64.tar.gz";
-      sha256 = "sha256-1w4ocT553vttD3hcy6sOjSUvhBbl0wKGIvBQGNGc/Zo=";
-    };
-  };
-  atomic-coding-agent-x86_64-darwin = {
-    pname = "atomic-coding-agent-x86_64-darwin";
-    version = "0.9.18";
-    src = fetchurl {
-      url = "https://github.com/bastani-inc/atomic/releases/download/0.9.18/atomic-darwin-x64.tar.gz";
-      sha256 = "sha256-finGY0zl+D+4nWp5vvJnMhfcYAkK1sn5tCaUrsUmrDs=";
-    };
-  };
-  atomic-coding-agent-x86_64-linux = {
-    pname = "atomic-coding-agent-x86_64-linux";
-    version = "0.9.18";
-    src = fetchurl {
-      url = "https://github.com/bastani-inc/atomic/releases/download/0.9.18/atomic-linux-x64.tar.gz";
-      sha256 = "sha256-Uconis2j/bZ05+LSgo3giR3D5w7vjny9sE9FlR/Pv6Y=";
-    };
-  };
   crush = {
     pname = "crush";
     version = "0.94.1";
@@ -315,14 +283,6 @@
     src = fetchurl {
       url = "https://github.com/earendil-works/pi/releases/download/v0.85.1/pi-linux-x64.tar.gz";
       sha256 = "sha256-SU5Jj0fXTSH0CzOG9qXpIaPUlTGhacq1W72soOof4lo=";
-    };
-  };
-  prime-agent = {
-    pname = "prime-agent";
-    version = "0.9.4";
-    src = fetchurl {
-      url = "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.9.4/prime-agent-0.9.4.tgz";
-      sha256 = "sha256-uNdSpT0RqMmnWA4ftfwk9850zK2XnH5uaqiID8OtkLA=";
     };
   };
 }

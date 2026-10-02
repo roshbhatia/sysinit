@@ -93,15 +93,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    ask-extras = {
-      url = "github:roshbhatia/ask/v0.8.0?dir=extras";
-      inputs = {
-        ask.follows = "ask";
-        nixpkgs.follows = "nixpkgs";
-        runtime.follows = "hermes-agent";
-      };
-    };
-
     changes = {
       url = "github:roshbhatia/changes";
       inputs = {
@@ -212,9 +203,26 @@
       flake = false;
     };
 
-    hermes-agent = {
-      url = "github:NousResearch/hermes-agent";
-      inputs.nixpkgs.url = "github:NixOS/nixpkgs/02f5696b0e6097e589076d886b317b83ff0437d7";
+    pyproject-nix = {
+      url = "github:pyproject-nix/pyproject.nix/e3b599ca2e7fcf93d4edf65d7f19bbf6491724f3";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    uv2nix = {
+      url = "github:pyproject-nix/uv2nix/5a836d395cbf5fc22670eb98dd4aa4fc4d406977";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        pyproject-nix.follows = "pyproject-nix";
+      };
+    };
+
+    pyproject-build-systems = {
+      url = "github:pyproject-nix/build-system-pkgs/62c0d86027edb1c4f39a5facc09876348144f7c9";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        pyproject-nix.follows = "pyproject-nix";
+        uv2nix.follows = "uv2nix";
+      };
     };
 
   };
@@ -386,9 +394,6 @@
             "bookerly"
             "mise-nix"
             "zoetrope"
-            "prime-agent"
-            "atomic-coding-agent"
-            "hermes-agent"
             "sysinit-fx"
             "meat"
             "amp-cli"

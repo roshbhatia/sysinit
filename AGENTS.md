@@ -26,10 +26,9 @@ not restate any of those here.
 - `harnesses/publish.nix` renders the whole registry to
   `~/.config/sysinit/agents.json`. Publish the entry, not a chosen subset: the
   subset is what let neovim, wezterm and seshy each keep a private copy
-- Three harnesses have no destructive-command guard, recorded as `guard = "none"`:
-  crush, goose, hermes. None of the three exposes a deny mechanism this repo
-  knows how to drive. Thirteen declare `status_patterns = [ ]`, meaning the
-  deck plugin's shared default strings, which have not been observed per agent
+- A harness with `guard = "none"` exposes no deny mechanism this repo can drive.
+  Empty `status_patterns` select the deck plugin's shared default strings.
+  Those defaults have not been observed per agent
 - `agent-signals` owns the pane-state writer and shared notification fragments.
   `worker` owns pane execution and log viewing; Changes owns `ws`.
   `CommandPalette.spoon` owns the Hammerspoon launcher. This repository supplies
@@ -42,14 +41,9 @@ not restate any of those here.
   hook executes: notifier, state bus, gates, guard bodies. `skills/` is the
   scanned skill registry, and `subagents/` is the teammate definitions
 - ACP adapter commands live in one registry, `lib/acp.nix`, rendered to
-  `~/.config/acp/agents.json`. No ACP client is installed yet. Each of the ten
-  answered `initialize` at protocol version 1 over newline-delimited JSON on
-  stdio, probed 2026-08-22. `hermes-acp` took about ten seconds to answer; every
-  other server took under one
+  `~/.config/acp/agents.json`. No ACP client is installed yet
 - `harnesses/deck-patterns.nix` is how the wezterm agent-deck plugin recognises
   an agent in a pane, and it renders into `wezterm/config.json` as `agents`.
-  `ui.lua` held that table inline and covered 8 agents. hermes was never added,
-  so it declared `notify = "scrape"` and had no status on any channel.
   `harnesses/publish.nix` asserts the file covers the registry exactly
 - The harness registry is the one list of who the agents are. It renders to
   `~/.config/sysinit/agents.json`, and Neovim's `harness/launch.lua` reads that

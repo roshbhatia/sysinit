@@ -20,27 +20,6 @@
     exitHook = false;
   };
 
-  atomic = {
-    label = "Atomic";
-    module = ./atomic;
-    context = "~/.atomic/agent/AGENTS.md";
-    skillLoader = true;
-    ownIcon = false;
-    notify = "hook";
-    editBus = true;
-    bridge = ./atomic/extensions/sysinit-notify.ts;
-    package = "atomic-coding-agent";
-    glyph = "󰬛";
-    command = "atomic";
-    acp = false;
-    openspecTool = [ ];
-    guard = "globs";
-    gate = "none";
-    projectDir = ".atomic/";
-    transcriptRoot = null;
-    exitHook = true;
-  };
-
   claude = {
     label = "Claude Code";
     module = ./claude;
@@ -241,27 +220,6 @@
     exitHook = false;
   };
 
-  hermes = {
-    label = "Hermes";
-    module = ./hermes.nix;
-    context = "~/.hermes/SOUL.md";
-    skillLoader = true;
-    ownIcon = false;
-    notify = "scrape";
-    editBus = false;
-    bridge = null;
-    package = "hermes-agent";
-    glyph = "󱙺";
-    command = "hermes";
-    acp = true;
-    openspecTool = [ ];
-    guard = "none";
-    gate = "none";
-    projectDir = ".hermes/";
-    transcriptRoot = null;
-    exitHook = false;
-  };
-
   opencode = {
     label = "OpenCode";
     module = ./opencode;
@@ -281,27 +239,6 @@
     projectDir = ".opencode/";
     transcriptRoot = "~/.local/share/opencode";
     exitHook = false;
-  };
-
-  prime-agent = {
-    label = "Prime Agent";
-    module = ./prime-agent;
-    context = "~/.prime/agent/AGENTS.md";
-    skillLoader = true;
-    ownIcon = false;
-    notify = "hook";
-    editBus = false;
-    bridge = ./prime-agent/extensions/sysinit-notify.ts;
-    package = "prime-agent";
-    glyph = "󰙨";
-    command = "prime-agent";
-    acp = false;
-    openspecTool = [ ];
-    guard = "globs";
-    gate = "none";
-    projectDir = ".prime/";
-    transcriptRoot = null;
-    exitHook = true;
   };
 
   pi = {

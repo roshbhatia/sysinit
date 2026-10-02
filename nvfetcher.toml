@@ -68,42 +68,6 @@ src.github = "earendil-works/pi"
 src.prefix = "v"
 fetch.url = "https://github.com/earendil-works/pi/releases/download/v$ver/pi-linux-x64.tar.gz"
 
-# Binary release packages - atomic-coding-agent (one entry per platform asset)
-# Tags carry no `v` prefix, so no src.prefix. `src.github` tracks the latest
-# non-prerelease release; atomic publishes an `-alpha.N` prerelease before most
-# tags, and following those would move the pin on nearly every push.
-# The glibc linux assets are the ones taken, matching pi; `-musl` variants exist
-# and are unused.
-[atomic-coding-agent]
-src.github = "bastani-inc/atomic"
-fetch.url = "https://github.com/bastani-inc/atomic/releases/download/$ver/atomic-darwin-arm64.tar.gz"
-
-[atomic-coding-agent-x86_64-darwin]
-src.github = "bastani-inc/atomic"
-fetch.url = "https://github.com/bastani-inc/atomic/releases/download/$ver/atomic-darwin-x64.tar.gz"
-
-[atomic-coding-agent-aarch64-linux]
-src.github = "bastani-inc/atomic"
-fetch.url = "https://github.com/bastani-inc/atomic/releases/download/$ver/atomic-linux-arm64.tar.gz"
-
-[atomic-coding-agent-x86_64-linux]
-src.github = "bastani-inc/atomic"
-fetch.url = "https://github.com/bastani-inc/atomic/releases/download/$ver/atomic-linux-x64.tar.gz"
-
-# prime-agent (PrimeIntellect-ai/prime-agent) is a pi fork, and unlike pi and
-# atomic it publishes an npm tarball rather than a per-platform prebuilt binary,
-# so there is one entry rather than four. Tags carry a `v` prefix that the asset
-# filename does not, hence src.prefix plus the literal `v` in the path.
-#
-# The tarball is the release-packed one, which renames the package away from pi:
-# `name: prime-agent`, `bin: prime-agent`, `piConfig.configDir: .prime/agent`.
-# The source tree publishes as `@earendil-works/pi-coding-agent` with bin `pi`,
-# which would collide with pi on PATH; the release asset does not.
-[prime-agent]
-src.github = "PrimeIntellect-ai/prime-agent"
-src.prefix = "v"
-fetch.url = "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v$ver/prime-agent-$ver.tgz"
-
 # amp-cli tracks amp's own release channel rather than a git tag: amp is closed
 # source, so `https://static.ampcode.com/cli/cli-version.txt` is the only place
 # upstream states which build is current. It is the same file nixpkgs' own

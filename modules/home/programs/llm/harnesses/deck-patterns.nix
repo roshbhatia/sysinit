@@ -7,14 +7,6 @@
     status_patterns = [ ];
   };
 
-  atomic = {
-    patterns = [ "atomic" ];
-    executable_patterns = [ "/atomic$" ];
-    argv_patterns = [ "^atomic%s*$" ];
-    title_patterns = [ "atomic" ];
-    status_patterns = [ ];
-  };
-
   claude = {
     patterns = [
       ".claude%-wrapped"
@@ -126,17 +118,6 @@
     status_patterns = [ ];
   };
 
-  hermes = {
-    patterns = [ "hermes" ];
-    executable_patterns = [
-      "/hermes$"
-      "/hermes%-agent$"
-    ];
-    argv_patterns = [ "^hermes%s*$" ];
-    title_patterns = [ "hermes" ];
-    status_patterns = [ ];
-  };
-
   opencode = {
     patterns = [ "opencode" ];
     executable_patterns = [
@@ -167,14 +148,6 @@
     ];
     argv_patterns = [ "^pi%s*$" ];
     title_patterns = [ "^pi$" ];
-    status_patterns = [ ];
-  };
-
-  prime-agent = {
-    patterns = [ "prime%-agent" ];
-    executable_patterns = [ "/prime%-agent$" ];
-    argv_patterns = [ "^prime%-agent%s*$" ];
-    title_patterns = [ "prime agent" ];
     status_patterns = [ ];
   };
 

@@ -16,13 +16,8 @@ in
 
 final: _prev:
 let
-  askExtras = inputs.ask-extras.packages.${final.stdenv.hostPlatform.system}.extras;
-  askProviders = askExtras.providers // {
-    hermes = import (inputs.ask-extras + /hermes/package.nix) {
-      pkgs = final;
-      runtime = final.hermes-agent;
-    };
-  };
+  askExtras = inputs.ask.packages.${final.stdenv.hostPlatform.system}.extras;
+  askProviders = askExtras.providers;
   tracesPackages = inputs.traces.packages.${final.stdenv.hostPlatform.system};
   tracesProviderPackages = final.lib.mapAttrs' (
     name: package: final.lib.nameValuePair (final.lib.removePrefix "provider-" name) package

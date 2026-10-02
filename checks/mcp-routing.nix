@@ -32,7 +32,6 @@ let
     mcp.formatForCursor
     mcp.formatForAntigravity
     mcp.formatForGoose
-    mcp.formatForHermes
     mcp.formatForCopilot
     mcp.formatForCrush
     (mcp.formatForOpencode [ ])

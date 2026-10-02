@@ -2,7 +2,7 @@
 final: _prev:
 let
   inherit (final) lib;
-  inherit (inputs.hermes-agent.inputs) uv2nix pyproject-nix pyproject-build-systems;
+  inherit (inputs) uv2nix pyproject-nix pyproject-build-systems;
   workspace = uv2nix.lib.workspace.loadWorkspace { workspaceRoot = ../pkgs/python-tools; };
   pythonSet =
     (final.callPackage pyproject-nix.build.packages { python = final.python313; }).overrideScope

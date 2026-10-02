@@ -41,11 +41,6 @@
       args = [ "acp" ];
     };
 
-    hermes = {
-      command = "hermes-acp";
-      args = [ ];
-    };
-
     opencode = {
       command = "opencode";
       args = [ "acp" ];

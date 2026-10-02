@@ -134,24 +134,6 @@
         }
     ) mcp;
 
-  formatForHermes =
-    servers:
-    builtins.mapAttrs (
-      _name: server:
-      if (server.type or "local") == "http" then
-        {
-          inherit (server) url;
-        }
-        // lib.optionalAttrs (server.headers or null != null) { inherit (server) headers; }
-        // lib.optionalAttrs (server.timeout or null != null) { inherit (server) timeout; }
-      else
-        {
-          inherit (server) command;
-          inherit (server) args;
-        }
-        // lib.optionalAttrs (server.env or { } != { }) { inherit (server) env; }
-    ) servers;
-
   formatForCopilot =
     servers:
     builtins.mapAttrs (
