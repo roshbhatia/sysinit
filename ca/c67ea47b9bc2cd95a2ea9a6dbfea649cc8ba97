@@ -1,0 +1,23 @@
+modules/home/programs/llm/skill-tools.nix
+  s_e66529e22f60b7::t_9d2662afb5ed46 29
+flake.nix
+  s_e66529e22f60b7::t_4e0e5e51386f42 87
+flake.lock
+  s_e66529e22f60b7::t_7496b759793e13 72-73,76,82
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "cac67ea47b9bc2cd95a2ea9a6dbfea649cc8ba97",
+  "prompts": {},
+  "sessions": {
+    "s_e66529e22f60b7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0fe61-af23-7a03-8aa8-9faf706aa4eb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
