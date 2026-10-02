@@ -79,6 +79,10 @@ let
   );
 
   customExtensionFiles = {
+    ".pi/agent/extensions/sysinit-ui.ts" = {
+      source = ./extensions/sysinit-ui.ts;
+      force = true;
+    };
     ".pi/agent/extensions/sysinit-notify.ts" = {
       source = ./extensions/sysinit-notify.ts;
       force = true;
@@ -99,6 +103,13 @@ let
     ".pi/agent/extensions/pi-gemini-auth" = {
       source = piGeminiAuth;
       recursive = true;
+      force = true;
+    };
+  };
+
+  fmExtensionFiles = lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
+    ".pi/agent/extensions/fm-router.ts" = {
+      source = ./extensions/fm-router.ts;
       force = true;
     };
   };
@@ -272,7 +283,17 @@ let
 
     skills = [ "~/.claude/skills" ];
 
-    quietStartup = true;
+    quietStartup = "header";
+    tuiMode = "fullscreen";
+    fullscreenExitOutput = "resume-hint";
+    fullscreenScrollbar = "auto";
+    editorPaddingX = 1;
+    defaultTools = [
+      "+codemode"
+      "+tool_search"
+    ];
+    cacheWarming = "streaming";
+    showCacheMissNotices = true;
 
     externalEditor = "${lib.getExe nvimPi}";
     enableInstallTelemetry = false;
@@ -334,6 +355,7 @@ in
     file =
       extensionFiles
       // customExtensionFiles
+      // fmExtensionFiles
       // {
         ".pi/agent/keybindings.json" = {
           source = piKeybindings;

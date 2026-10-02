@@ -6,6 +6,13 @@
     "skills"
     "externalEditor"
     "quietStartup"
+    "tuiMode"
+    "fullscreenExitOutput"
+    "fullscreenScrollbar"
+    "editorPaddingX"
+    "defaultTools"
+    "cacheWarming"
+    "showCacheMissNotices"
   ];
 
   ownerPreference = [
