@@ -232,6 +232,7 @@ in
         ${nushellLib.sourceCompletion pkgs.tether "tether"}
         ${nushellLib.sourceCompletion pkgs.tether "tsh"}
 
+        use std/dirs
         use std/dirs shells-aliases *
 
         ${completersConfig}
