@@ -1,5 +1,5 @@
 {
-  "name": "openspec-sidebar",
+  "name": "openspec-dashboard",
   "private": true,
   "type": "module",
   "pi": {
@@ -8,7 +8,7 @@
     ]
   },
   "peerDependencies": {
-    "@earendil-works/pi-coding-agent": ">=0.74.0",
-    "@earendil-works/pi-tui": ">=0.74.0"
+    "@earendil-works/pi-coding-agent": ">=1.0.0",
+    "@earendil-works/pi-tui": ">=1.0.0"
   }
 }

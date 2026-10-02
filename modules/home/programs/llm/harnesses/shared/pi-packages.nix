@@ -59,26 +59,6 @@ let
     };
 
   packages = {
-    mermaid = pkgs.buildNpmPackage {
-      pname = "pi-mermaid";
-      passthru.npmName = "pi-mermaid";
-      version = "0.3.0";
-      src = pkgs.fetchFromGitHub {
-        owner = "Gurpartap";
-        repo = "pi-mermaid";
-        rev = "34cab3ae794422d43707f129120a73ea39f51742";
-        hash = "sha256-tXFYBlFjXUR4TF6k0FWC9T6kxWjlF/kAEt/Q9/nUCJY=";
-      };
-      npmDepsHash = "sha256-rHFkSF+v9MeXXfq8x7Vl9al7EmLgGrC1AMH+WVyxviA=";
-      npmFlags = "--ignore-scripts";
-      dontNpmBuild = true;
-      installPhase = ''
-        runHook preInstall
-        cp -r . $out
-        runHook postInstall
-      '';
-    };
-
     context =
       mkFetchedNpmPackage "pi-context" "1.1.4"
         "sha256-pdRI1D2KIOJVV164DKpzXAQneOOEypB2GXqFzGRvasc=";

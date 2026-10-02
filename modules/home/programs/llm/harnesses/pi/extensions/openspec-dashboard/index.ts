@@ -95,7 +95,7 @@ export default function (pi: ExtensionAPI): void {
     activeTools.clear();
     if (ctx.mode !== "tui") return;
     ctx.ui.setWidget(
-      "openspec-sidebar",
+      "openspec-dashboard",
       (tui, theme) => {
         redraw = () => tui.requestRender();
         return {
@@ -159,9 +159,10 @@ export default function (pi: ExtensionAPI): void {
     redraw?.();
     ctx.ui.notify(`OpenSpec dashboard ${enabled ? "on" : "off"}`, "info");
   };
-  pi.registerCommand("openspec-sidebar", {
-    description: "Toggle the dashboard: /openspec-sidebar [on|off|width 24-60]",
-    handler: (args, ctx) => {
+  const dashboardCommand = {
+    description:
+      "Toggle the dashboard: /openspec-dashboard [on|off|width 24-60]",
+    handler: (args: string, ctx: ExtensionContext) => {
       const [command, value] = args.trim().split(/\s+/);
       if (command === "width") {
         const width = Number(value);
@@ -174,9 +175,14 @@ export default function (pi: ExtensionAPI): void {
         toggle(ctx, command ? command === "on" : !enabled);
         return;
       }
-      ctx.ui.notify("Usage: /openspec-sidebar [on|off|width 24-60]", "warning");
+      ctx.ui.notify(
+        "Usage: /openspec-dashboard [on|off|width 24-60]",
+        "warning",
+      );
     },
-  });
+  };
+  pi.registerCommand("openspec-dashboard", dashboardCommand);
+  pi.registerCommand("openspec-sidebar", dashboardCommand);
   pi.registerShortcut("shift+ctrl+b", {
     description: "Toggle the OpenSpec dashboard",
     handler: (ctx) => toggle(ctx),

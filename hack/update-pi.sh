@@ -25,24 +25,19 @@ declare -a TRACKED=(
   "pi-subagents"
   "pi-readline-search"
   "pi-threads"
-  "pi-interview"
   "pi-librarian"
   "pi-ask-user"
   "pi-tool-display"
   "pi-subdir-context"
-  "pi-dcp"
   "pi-web-access"
   "pi-acp"
   "pi-btw"
   "@narumitw/pi-retry"
   "@monotykamary/pi-vcc"
-  "pi-sidebar-tui"
   "@benvargas/pi-openai-fast"
   "@benvargas/pi-openai-verbosity"
-  "taskplane"
   "@plannotator/pi-extension"
   "@gotgenes/pi-permission-system"
-  "@benvargas/pi-claude-code-use"
   "@firstpick/pi-extension-reverse-last"
   "@heyhuynhgiabuu/pi-diff"
 )
@@ -53,7 +48,7 @@ pinned_version() {
   local pkg="$1"
   local v
   v=$(grep -hE "mk(Fetched|Built)NpmPackage \"${pkg}\" \"[0-9a-z.+-]+\"" "${PIN_FILES[@]}" |
-    head -1 | sed -E 's/.*mk(Fetched|Built)NpmPackage "[^"]*" "([^"]+)".*/\2/')
+    head -1 | sed -E 's/.*mk(Fetched|Built)NpmPackage "[^"]*" "([^"]+)".*/\2/' || true)
   if [[ -n ${v} ]]; then
     echo "${v}"
     return
@@ -106,24 +101,11 @@ done
 
 echo ""
 echo "=== Orphan lock files ==="
-declare -A KNOWN_LOCKS=(
-  ["pi-subagents"]="pi-subagents"
-  ["pi-acp"]="pi-acp"
-  ["pi-dcp"]="pi-dcp"
-  ["pi-diff"]="@heyhuynhgiabuu/pi-diff"
-  ["pi-web-access"]="pi-web-access"
-  ["pi-permission-system"]="@gotgenes/pi-permission-system"
-  ["pi-claude-code-use"]="@benvargas/pi-claude-code-use"
-  ["pi-reverse-last"]="@firstpick/pi-extension-reverse-last"
-  ["plannotator"]="@plannotator/pi-extension"
-  ["taskplane"]="taskplane"
-)
 orphan_count=0
 for dir in "${LOCKS_DIRS[@]}"; do
   for lock in "${dir}"/*.lock.json; do
     base="${lock##*/}"
-    name="${base%.lock.json}"
-    if [[ -z ${KNOWN_LOCKS[${name}]+x} ]]; then
+    if ! grep -Fq "./locks/${base}" "${PIN_FILES[@]}"; then
       echo "  ORPHAN: ${lock}"
       orphan_count=$((orphan_count + 1))
     fi

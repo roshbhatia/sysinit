@@ -95,8 +95,8 @@ let
       source = ./extensions/spec-tools.ts;
       force = true;
     };
-    ".pi/agent/extensions/openspec-sidebar" = {
-      source = ./extensions/openspec-sidebar;
+    ".pi/agent/extensions/openspec-dashboard" = {
+      source = ./extensions/openspec-dashboard;
       recursive = true;
       force = true;
     };
@@ -224,7 +224,6 @@ let
     webAccess
     context
     subdirContext
-    mermaid
     readlineSearch
     threads
     librarian
