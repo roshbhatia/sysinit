@@ -124,7 +124,11 @@ let
     files = config.sysinit.llm.managedFiles;
   };
 
-  notify = import ./runtime { inherit pkgs lib; };
+  notify = import ./runtime {
+    inherit pkgs lib;
+    notificationSettings = config.sysinit.llm.notifications.settings;
+    iconOverrides = config.sysinit.llm.notifications.icons;
+  };
 in
 {
   imports = [
@@ -136,10 +140,17 @@ in
     ./harnesses
   ];
 
-  xdg.dataFile = openspecSchemaFiles;
-  xdg.configFile."sysinit/mcp-clients.json".source = pkgs.sysinit.writeJSON "llm-default.json" (
-    lib.genAttrs (builtins.attrNames (import ./harnesses/registry.nix)) mcpCatalog.serversFor
-  );
+  xdg = {
+    dataFile = openspecSchemaFiles // notify.iconFiles;
+    configFile = {
+      "agent-notify/config.json".source = notify.configFile;
+      "agent-notify/schema.json".source = notify.schema;
+      "agent-notify/assets.json".source = notify.assetManifest;
+      "sysinit/mcp-clients.json".source = pkgs.sysinit.writeJSON "llm-default.json" (
+        lib.genAttrs (builtins.attrNames (import ./harnesses/registry.nix)) mcpCatalog.serversFor
+      );
+    };
+  };
 
   home = {
 
@@ -157,8 +168,7 @@ in
           ".config/devin/skills"
           ".copilot/skills"
         ]
-      )
-      // notify.iconFiles;
+      );
 
     activation.llmManagedFiles = lib.mkIf (config.sysinit.llm.managedFiles != { }) (
       lib.hm.dag.entryBetween [ "linkGeneration" ] [ "writeBoundary" ] ''

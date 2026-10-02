@@ -1,84 +1,68 @@
 {
   pkgs,
   lib,
+  notificationSettings ? { },
+  iconOverrides ? { },
 }:
 let
   registry = import ../harnesses/registry.nix;
 
-  svgs = builtins.mapAttrs (name: _h: ./icons/${name}.svg) (
-    lib.filterAttrs (_name: h: h.ownIcon) registry
-  );
-
-  genericSvg = pkgs.writeText "agent-icon-generic.svg" ''
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-      <circle cx="12" cy="12" r="9" fill="none" stroke="#6E7781" stroke-width="2"
-              stroke-dasharray="3 2.5" stroke-linecap="round"/>
-      <circle cx="12" cy="12" r="3" fill="#6E7781"/>
-    </svg>
-  '';
-
-  labels = ''
-    agent_label() {
-      case "$1" in
-    ${lib.concatStringsSep "\n" (
-      lib.mapAttrsToList (
-        name: h: "    ${name}) printf '%s\\n' ${lib.escapeShellArg h.label} ;;"
-      ) registry
-    )}
-        *) printf '%s\n' "$1" ;;
-      esac
+  svgs =
+    (builtins.mapAttrs (name: _h: ./icons/${name}.svg) (lib.filterAttrs (_name: h: h.ownIcon) registry))
+    // {
+      agent = ./icons/agent.svg;
     }
-  '';
+    // iconOverrides;
 
   paths = builtins.readFile (pkgs.agent-signals-source + "/runtime/paths.sh");
-
-  identity = builtins.readFile (pkgs.agent-signals-source + "/runtime/agent-identity.sh");
 
   group = builtins.readFile (pkgs.agent-signals-source + "/runtime/agent-group.sh");
 
   busyPanes = builtins.readFile (pkgs.agent-signals-source + "/runtime/agent-busy-panes.sh");
-
-  classify = builtins.readFile (pkgs.agent-signals-source + "/runtime/agent-classify.sh");
 
   joinFragments = lib.concatStringsSep "\n";
 
   iconCommands = lib.concatStringsSep "\n" (
     lib.mapAttrsToList (
       name: src:
-      "rsvg-convert --width 256 --height 256 --keep-aspect-ratio --background-color '#FFFFFF' '${src}' --output \"$out/${name}.png\""
+      "rsvg-convert --width 256 --height 256 --keep-aspect-ratio --background-color '#FFFFFF' ${lib.escapeShellArg (toString src)} --output \"$out\"/${lib.escapeShellArg "${name}.png"}"
     ) svgs
   );
 
-  icons = pkgs.runCommand "agent-notify-icons" { nativeBuildInputs = [ pkgs.librsvg ]; } ''
-    mkdir -p "$out"
-    ${iconCommands}
-    rsvg-convert --width 256 --height 256 --keep-aspect-ratio \
-      --background-color '#FFFFFF' '${genericSvg}' --output "$out/agent.png"
-  '';
+  iconSources = pkgs.writeText "agent-notify-icon-sources.json" (builtins.toJSON svgs);
+  icons =
+    pkgs.runCommand "agent-notify-icons"
+      {
+        nativeBuildInputs = [
+          pkgs.librsvg
+          pkgs.python3
+        ];
+      }
+      ''
+        python3 ${./check-icons.py} ${iconSources}
+        mkdir -p "$out"
+        ${iconCommands}
+        python3 ${./check-icons.py} ${iconSources} "$out"
+      '';
 
-  script = pkgs.mkAgentNotifier { inherit pkgs labels; };
+  script = pkgs.mkAgentNotifier {
+    inherit pkgs;
+    settings = lib.recursiveUpdate {
+      defaultIcon = "${icons}/agent.png";
+      agents = lib.mapAttrs (name: h: {
+        inherit (h) label;
+        icon = "${icons}/${if builtins.hasAttr name svgs then name else "agent"}.png";
+      }) registry;
+    } notificationSettings;
+  };
 
   promptScript = pkgs.sysinit.writeShellApplication {
     name = "agent-prompt";
-    runtimeInputs = [
-      pkgs.jq
-      pkgs.git
-      pkgs.coreutils
-      pkgs.wezterm
-    ]
-    ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ pkgs.alerter ];
-    bashOptions = [ ];
-    text = joinFragments [
-      ''
-        NOTIFY_EXE=${lib.getExe script}
-      ''
-      paths
-      group
-      identity
-      labels
-      classify
-      (builtins.readFile ./agent-prompt.sh)
-    ];
+    runtimeInputs = [ script ];
+    text = ''
+      NOTIFY_EXE=${lib.getExe script}
+      ${builtins.readFile ./agent-prompt.sh}
+    '';
   };
 
   sessionsScript = pkgs.sysinit.writeShellApplication {
@@ -168,12 +152,25 @@ in
     specPreflight
     ;
 
+  inherit (script) configFile schema;
+  assetManifest = pkgs.writeText "agent-notify-assets.json" (
+    builtins.toJSON {
+      version = "agent-notify-assets/v1";
+      size = 256;
+      background = "#FFFFFF";
+      icons = lib.mapAttrs (name: source: {
+        inherit source;
+        rendered = "${icons}/${name}.png";
+      }) svgs;
+    }
+  );
+
   iconFiles = lib.listToAttrs (
     map (
       name:
-      lib.nameValuePair ".local/share/agent-notify/icons/${name}.png" {
+      lib.nameValuePair "agent-notify/icons/${name}.png" {
         source = "${icons}/${name}.png";
       }
-    ) (builtins.attrNames svgs ++ [ "agent" ])
+    ) (builtins.attrNames svgs)
   );
 }

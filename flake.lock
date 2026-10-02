@@ -48,11 +48,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789495655,
-        "narHash": "sha256-vky7/X0pmu86ScFcEW595Gge7mwDlqhDS8jM5Nfz+h4=",
+        "lastModified": 1790979893,
+        "narHash": "sha256-po6ogtoNFjNtBuFTf9MUznEzUlLN7TyLRdPN/Lz+yjc=",
         "owner": "roshbhatia",
         "repo": "agent-signals",
-        "rev": "93c3c1212b08429a807f3d789718d0c899422b61",
+        "rev": "8419e143d86adea9b513eda42aa01d86b658d399",
         "type": "github"
       },
       "original": {

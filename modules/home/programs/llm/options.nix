@@ -5,6 +5,18 @@ let
 in
 {
   options.sysinit.llm = {
+    notifications = {
+      settings = mkOption {
+        type = types.attrsOf types.anything;
+        default = { };
+        description = "Composable agent-notify/v1 policy overrides, validated against the agent-signals JSON schema during the build.";
+      };
+      icons = mkOption {
+        type = types.attrsOf types.path;
+        default = { };
+        description = "SVG overrides keyed by harness ID; agent overrides the generic fallback.";
+      };
+    };
     managedFiles = mkOption {
       type = types.attrsOf (
         types.submodule {
