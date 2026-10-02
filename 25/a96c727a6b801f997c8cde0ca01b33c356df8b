@@ -1,0 +1,34 @@
+checks/pi-extensions.nix
+  s_e66529e22f60b7::t_29608657ed7dc3 1-4,8-9
+  s_e66529e22f60b7::t_8970c88f54c08f 5-7
+modules/home/programs/llm/harnesses/pi/extensions/openspec-dashboard/package.json
+  s_e66529e22f60b7::t_bd0bb9b2f123d5 1-14
+modules/home/programs/llm/harnesses/pi/default.nix
+  s_e66529e22f60b7::t_bd0bb9b2f123d5 98-99
+hack/update-pi.sh
+  s_e66529e22f60b7::t_bd0bb9b2f123d5 51,108
+checks/pi-dashboard.test.js
+  s_e66529e22f60b7::t_aa2fe71c61fc94 1-21,23-33,35-40,42-49,51-67
+checks/pi-router.test.js
+  s_e66529e22f60b7::t_bd0bb9b2f123d5 5-9,11-13,15-17,22-26,29,31-32,37-39,41-42,44-46,48-50,53,55,57-59,61-63,66,68,70,72,75,77-78,82,87,89,91,93,96
+checks/default.nix
+  s_e66529e22f60b7::t_29608657ed7dc3 58
+modules/home/programs/llm/harnesses/pi/extensions/openspec-dashboard/index.ts
+  s_e66529e22f60b7::t_bd0bb9b2f123d5 1-179,181-190
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "25a96c727a6b801f997c8cde0ca01b33c356df8b",
+  "prompts": {},
+  "sessions": {
+    "s_e66529e22f60b7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0fe61-af23-7a03-8aa8-9faf706aa4eb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
