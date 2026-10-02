@@ -23,6 +23,9 @@ in
       final.git
     ];
     buildInputs = final.lib.optionals final.stdenv.hostPlatform.isLinux [ final.openssl ];
+    env = final.lib.optionalAttrs final.stdenv.hostPlatform.isLinux {
+      OPENSSL_NO_VENDOR = "1";
+    };
     doCheck = true;
     cargoTestFlags = [
       "--lib"
