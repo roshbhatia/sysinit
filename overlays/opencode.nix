@@ -54,7 +54,8 @@ in
       cp ${cliSchema} "$out/share/cli.json"
       runHook postInstall
     '';
-    postFixup = ''
+    postPhases = [ "installCompletionsPhase" ];
+    installCompletionsPhase = ''
       export HOME="$TMPDIR"
       installShellCompletion --cmd opencode \
         --zsh <("$out/bin/opencode" --completions zsh) \
@@ -65,6 +66,7 @@ in
     '';
     doInstallCheck = true;
     installCheckPhase = ''
+      export HOME="$TMPDIR"
       test "$("$out/bin/opencode" --version)" = "opencode v${version}"
       test "$("$out/bin/opencode2" --version)" = "opencode v${version}"
     '';

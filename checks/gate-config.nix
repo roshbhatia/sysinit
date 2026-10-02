@@ -53,7 +53,8 @@ pkgs.runCommand "gate-config"
     export HOME="$TMPDIR/home"
     export XDG_CONFIG_HOME="$TMPDIR/config"
     export XDG_STATE_HOME="$TMPDIR/state"
-    mkdir -p "$HOME" "$XDG_CONFIG_HOME/gate/providers" "$XDG_STATE_HOME"
+    mkdir -p "$HOME/.git-ai" "$XDG_CONFIG_HOME/gate/providers" "$XDG_STATE_HOME"
+    printf '%s' '{"git_path":"${pkgs.git}/bin/git","telemetry_oss":"off","prompt_storage":"local","feature_flags":{"transcript_sweep":false,"token_usage_metrics":false,"daemon_log_upload":false}}' > "$HOME/.git-ai/config.json"
     cp ${pkgs.gate-providers}/share/gate/providers/*.yaml "$XDG_CONFIG_HOME/gate/providers/"
     cp ${gitAiGate} "$XDG_CONFIG_HOME/gate/providers/git-ai-gate.yaml"
     sed -e "s|@providers@|$XDG_CONFIG_HOME/gate/providers|" -e "s|@log@|$TMPDIR/gate-decisions.jsonl|" \
@@ -100,8 +101,6 @@ pkgs.runCommand "gate-config"
     git -C "$work" -c user.name=t -c user.email=t@example.invalid -c commit.gpgsign=false add a.txt
     git -C "$work" -c user.name=t -c user.email=t@example.invalid -c commit.gpgsign=false commit --quiet -m base
     root=$(cd "$work" && pwd -P)
-    mkdir -p "$HOME/.git-ai"
-    printf '%s' '{"telemetry_oss":"off","prompt_storage":"local","feature_flags":{"transcript_sweep":false,"token_usage_metrics":false,"daemon_log_upload":false}}' > "$HOME/.git-ai/config.json"
     git-ai bg run > "$TMPDIR/git-ai.log" 2>&1 &
     git_ai_pid=$!
     trap 'if kill -0 "$git_ai_pid" 2>/dev/null; then kill "$git_ai_pid"; wait "$git_ai_pid" || true; fi' EXIT
