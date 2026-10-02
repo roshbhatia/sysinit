@@ -1,0 +1,19 @@
+checks/gate-config.nix
+  s_e884fe805a8a38::t_c9757b2027cc7d 56-57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f439dcbed8fbb120150da7c2f5a60f6804798700",
+  "prompts": {},
+  "sessions": {
+    "s_e884fe805a8a38": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0fa3e-7504-7db2-b389-ae61582015cf",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
