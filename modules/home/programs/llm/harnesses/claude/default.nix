@@ -73,6 +73,8 @@ let
   ) (kit.mcpServers.serversFor "claude");
 in
 {
+  imports = [ ./mods.nix ];
+
   programs.claude-code = {
     enable = true;
     enableMcpIntegration = false;
