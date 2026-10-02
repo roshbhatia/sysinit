@@ -4,6 +4,12 @@ let
 in
 rec {
 
+  withOrcSession = command: ''
+    if [ -n "''${ORC_SESSION_ID:-}" ] && [ -n "''${ORC_SCOPE:-}" ]; then
+      ${command}
+    fi
+  '';
+
   rulesFile =
     pkgs: pkgs.sysinit.writeJSON "destructive-deny-rules.json" allowlist.destructiveDenyRules;
 

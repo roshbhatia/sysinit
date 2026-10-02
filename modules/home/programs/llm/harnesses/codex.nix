@@ -190,7 +190,7 @@ in
             hooks = [
               {
                 type = "command";
-                command = "${profileBin}/orc session register --hook-input --bind-current --source hook --harness codex --quiet";
+                command = llmLib.guards.withOrcSession "${profileBin}/orc session register --hook-input --bind-current --source hook --harness codex --quiet";
               }
             ];
           }

@@ -234,7 +234,7 @@ in
             hooks = [
               {
                 type = "command";
-                command = "${profileBin}/orc session register --hook-input --bind-current --source hook --harness claude --quiet";
+                command = llmLib.guards.withOrcSession "${profileBin}/orc session register --hook-input --bind-current --source hook --harness claude --quiet";
               }
             ];
           }
@@ -265,7 +265,7 @@ in
               }
               {
                 type = "command";
-                command = "${profileBin}/orc session archive --hook-input --quiet";
+                command = llmLib.guards.withOrcSession "${profileBin}/orc session archive --hook-input --quiet";
               }
             ];
           }
