@@ -26,7 +26,7 @@ in
     sysinit.ask.rubrics = lib.mapAttrs (_: lib.mkDefault) (import ./evaluation-rubrics.nix);
     sysinit.ask.settings = {
       version = lib.mkDefault "ask.config/v1";
-      provider.default = lib.mkDefault "claude";
+      provider.default = lib.mkDefault (if pkgs.stdenv.hostPlatform.isDarwin then "fm" else "claude");
       evaluation = {
         provider = lib.mkDefault "cursor";
         model = lib.mkDefault "light";
