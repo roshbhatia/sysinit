@@ -25,7 +25,7 @@ let
   iconCommands = lib.concatStringsSep "\n" (
     lib.mapAttrsToList (
       name: src:
-      "rsvg-convert --width 256 --height 256 --keep-aspect-ratio --background-color '#FFFFFF' ${lib.escapeShellArg (toString src)} --output \"$out\"/${lib.escapeShellArg "${name}.png"}"
+      "rsvg-convert --width 256 --height 256 --keep-aspect-ratio --background-color '#FFFFFF' ${lib.escapeShellArg "${src}"} --output \"$out\"/${lib.escapeShellArg "${name}.png"}"
     ) svgs
   );
 
