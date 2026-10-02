@@ -1,0 +1,27 @@
+overlays/inputs.nix
+  s_e884fe805a8a38::t_61f49cb6aac049 19-20
+AGENTS.md
+  s_e884fe805a8a38::t_61f49cb6aac049 29-31,44
+flake.nix
+  s_e884fe805a8a38::t_61f49cb6aac049 206-225
+overlays/python-tools.nix
+  s_e884fe805a8a38::t_61f49cb6aac049 5
+flake.lock
+  s_e884fe805a8a38::t_14053e16ebde37 172,532,550,571,922,1050,1324,1345,1365,1372,1379-1380,1392,1595,1982
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0e12f3f8dd5db23b63dd1f0876784dea05c3dfc9",
+  "prompts": {},
+  "sessions": {
+    "s_e884fe805a8a38": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0fa3e-7504-7db2-b389-ae61582015cf",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
