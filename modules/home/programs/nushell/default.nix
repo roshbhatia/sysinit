@@ -243,6 +243,7 @@ in
         $env.POSH_SESSION_ID = (random uuid)
 
         use ${functionsFile} *
+        use ${./onepassword.nu} *
 
         ${lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
           alias nu-open = open

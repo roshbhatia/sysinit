@@ -47,6 +47,8 @@ in
 
       GIT_DISCOVERY_ACROSS_FILESYSTEM = "1";
       BUILDX_EXPERIMENTAL = "1";
+      OP_FORMAT = "json";
+      OP_ISO_TIMESTAMPS = "true";
 
       PROSE_GATE_STYLE = "${pkgs.vale-styles}/vale.ini";
     }
