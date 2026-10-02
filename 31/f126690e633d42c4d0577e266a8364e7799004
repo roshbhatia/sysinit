@@ -1,0 +1,33 @@
+modules/home/programs/llm/runtime/icons/agent.svg
+  s_e66529e22f60b7::t_879f6827c67ccc 1-4
+modules/home/programs/llm/default.nix
+  s_e66529e22f60b7::t_879f6827c67ccc 127-131,151,153,171
+modules/home/programs/llm/options.nix
+  s_e66529e22f60b7::t_e6fe4c834d3592 8-19
+modules/home/programs/llm/runtime/agent-prompt.sh
+  s_e66529e22f60b7::t_879f6827c67ccc 1-2,4
+modules/home/programs/llm/runtime/default.nix
+  s_e66529e22f60b7::t_879f6827c67ccc 4-5,10-13,15,28,48-57,61-65,171,174
+  s_e66529e22f60b7::t_4d15c568ef623c 155
+  s_e66529e22f60b7::t_700962f3951074 32-45,156-166
+modules/home/programs/llm/runtime/check-icons.py
+  s_e66529e22f60b7::t_2b3ee89135880a 1-24,26-28
+flake.lock
+  s_e66529e22f60b7::t_57defb1f838ffe 51-52,55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "31f126690e633d42c4d0577e266a8364e7799004",
+  "prompts": {},
+  "sessions": {
+    "s_e66529e22f60b7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0fe61-af23-7a03-8aa8-9faf706aa4eb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
