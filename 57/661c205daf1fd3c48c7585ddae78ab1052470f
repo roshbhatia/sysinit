@@ -1,0 +1,29 @@
+modules/home/default.nix
+  s_e66529e22f60b7::t_f67ed24bc5e491 50-51
+modules/home/programs/nushell/default.nix
+  s_e66529e22f60b7::t_f67ed24bc5e491 246
+modules/home/programs/nushell/onepassword.nu
+  s_e66529e22f60b7::t_f67ed24bc5e491 1-63
+checks/onepassword.py
+  s_e66529e22f60b7::t_f39b8399b16a54 1-116
+checks/default.nix
+  s_e66529e22f60b7::t_629b5f5cff1e51 59
+checks/onepassword.nix
+  s_e66529e22f60b7::t_629b5f5cff1e51 1-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "57661c205daf1fd3c48c7585ddae78ab1052470f",
+  "prompts": {},
+  "sessions": {
+    "s_e66529e22f60b7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0fe61-af23-7a03-8aa8-9faf706aa4eb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
