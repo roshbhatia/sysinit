@@ -42,6 +42,7 @@ function splitCommand(command: string[], cwd: string): string[] | undefined {
     return [
       "wezterm",
       "cli",
+      "--no-auto-start",
       "split-pane",
       "--right",
       "--percent",
@@ -135,6 +136,16 @@ async function open(pi: ExtensionAPI, ctx: ExtensionContext): Promise<void> {
 }
 
 export default function (pi: ExtensionAPI): void {
+  pi.registerCommand("diff", {
+    description: "Open the worktree diff in a reusable Neovim split",
+    handler: async (_args, ctx) => {
+      const result = await pi.exec("agent-diff", ["--cwd", ctx.cwd]);
+      ctx.ui.notify(
+        (result.code === 0 ? result.stdout : result.stderr).trim(),
+        result.code === 0 ? "info" : "warning",
+      );
+    },
+  });
   pi.registerShortcut("ctrl+b", {
     description: "Review the working-tree diff",
     handler: (ctx) => open(pi, ctx),

@@ -181,6 +181,7 @@ in
       pkgs.meat
       pkgs.sysinit-utils
       capture
+      (import ./runtime/diff { inherit pkgs; })
       notify.script
       notify.agentRefine
       notify.specPreflight

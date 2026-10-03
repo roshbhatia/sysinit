@@ -265,7 +265,10 @@ in
       replay = true;
       replay_limit = 200;
     };
-    plugins = [ "./sysinit-notify.js" ];
+    plugins = [
+      "./sysinit-notify.js"
+      "./sysinit-diff.js"
+    ];
 
     attention = {
       notifications = false;

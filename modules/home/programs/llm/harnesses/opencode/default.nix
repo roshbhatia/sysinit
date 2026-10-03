@@ -23,7 +23,7 @@ let
     cp -r ${./plugins} ./plugins
     chmod -R u+w ./plugins
     substituteInPlace ./plugins/sysinit-output.ts --replace-fail '@rewriter@' '${lib.getExe rewriter}'
-    bun build ./plugins/sysinit-notify.ts ./plugins/sysinit-edits.ts ./plugins/sysinit-output.ts --target=bun --outdir "$out"
+    bun build ./plugins/sysinit-notify.ts ./plugins/sysinit-edits.ts ./plugins/sysinit-output.ts ./plugins/sysinit-diff.ts --target=bun --outdir "$out"
   '';
 
   opencodeConfig = render.main // {
@@ -69,6 +69,7 @@ in
         force = true;
       };
       "opencode/plugins/sysinit-output.js".source = "${plugins}/sysinit-output.js";
+      "opencode/sysinit-diff.js".source = "${plugins}/sysinit-diff.js";
       "opencode/plugins/sysinit-edits.js".source = "${plugins}/sysinit-edits.js";
       "carapace/bridge/zsh/.zshrc".text = lib.mkAfter ''
         fpath=(${pkgs.opencode}/share/zsh/site-functions $fpath)

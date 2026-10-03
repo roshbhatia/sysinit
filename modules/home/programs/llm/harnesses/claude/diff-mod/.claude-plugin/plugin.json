@@ -1,0 +1,5 @@
+{
+  "name": "sysinit-diff",
+  "version": "1.0.0",
+  "description": "State-aware Neovim diff panes"
+}
