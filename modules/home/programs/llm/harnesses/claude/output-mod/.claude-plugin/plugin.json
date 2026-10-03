@@ -1,0 +1,5 @@
+{
+  "name": "sysinit-output",
+  "version": "1.0.0",
+  "description": "One-pass local response cleanup without agent retries"
+}

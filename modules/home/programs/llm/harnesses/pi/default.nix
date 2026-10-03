@@ -78,7 +78,11 @@ let
     ) extensions
   );
 
+  rewriter = import ../../runtime/output-rewrite { inherit pkgs lib; };
   customExtensionFiles = {
+    ".pi/agent/extensions/output-rewrite.ts".source = pkgs.replaceVars ./extensions/output-rewrite.ts {
+      rewriter = lib.getExe rewriter;
+    };
     ".pi/agent/extensions/sysinit-ui.ts" = {
       source = ./extensions/sysinit-ui.ts;
       force = true;

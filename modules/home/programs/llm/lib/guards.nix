@@ -31,6 +31,9 @@ rec {
       inherit name;
       text = ''
         ${gateStateDir}
+        ${lib.optionalString (harness == "claude") ''
+          export GATE_CONFIG="''${XDG_CONFIG_HOME:-$HOME/.config}/gate/native-output.yaml"
+        ''}
         exec ${lib.getExe pkgs.gate-cli} hook --harness ${harness} --event ${event} --format ${format} "$@"
       '';
     };

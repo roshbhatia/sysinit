@@ -108,6 +108,14 @@ in
 
     xdg.configFile = providerFiles // {
       "gate/config.yaml".source = yamlFormat.generate "gate-config.yaml" gateConfig;
+      "gate/native-output.yaml".source = yamlFormat.generate "gate-native-output.yaml" (
+        gateConfig
+        // {
+          chains = lib.mapAttrs (
+            event: steps: lib.filter (step: step.provider != "prose-gate" || event == "SessionStart") steps
+          ) gateConfig.chains;
+        }
+      );
       "gate/review.yaml".source = yamlFormat.generate "gate-review.yaml" cfg.review;
       "gate/providers/git-ai-gate.yaml".source =
         yamlFormat.generate "gate-provider-git-ai-gate.yaml" gitAiGateManifest;

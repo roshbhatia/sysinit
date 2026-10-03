@@ -18,8 +18,12 @@ let
   };
 
   render = import ./render.nix { inherit pkgs lib; };
+  rewriter = import ../../runtime/output-rewrite { inherit pkgs lib; };
   plugins = pkgs.runCommand "opencode-sysinit-plugins" { nativeBuildInputs = [ pkgs.bun ]; } ''
-    bun build ${./plugins}/sysinit-notify.ts ${./plugins}/sysinit-edits.ts --target=bun --outdir "$out"
+    cp -r ${./plugins} ./plugins
+    chmod -R u+w ./plugins
+    substituteInPlace ./plugins/sysinit-output.ts --replace-fail '@rewriter@' '${lib.getExe rewriter}'
+    bun build ./plugins/sysinit-notify.ts ./plugins/sysinit-edits.ts ./plugins/sysinit-output.ts --target=bun --outdir "$out"
   '';
 
   opencodeConfig = render.main // {
@@ -64,6 +68,7 @@ in
         source = "${plugins}/sysinit-notify.js";
         force = true;
       };
+      "opencode/plugins/sysinit-output.js".source = "${plugins}/sysinit-output.js";
       "opencode/plugins/sysinit-edits.js".source = "${plugins}/sysinit-edits.js";
       "carapace/bridge/zsh/.zshrc".text = lib.mkAfter ''
         fpath=(${pkgs.opencode}/share/zsh/site-functions $fpath)

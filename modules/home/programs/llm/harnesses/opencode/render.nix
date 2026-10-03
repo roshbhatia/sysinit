@@ -146,7 +146,10 @@ in
       };
     };
 
-    plugins = [ "./plugins/sysinit-edits.js" ];
+    plugins = [
+      "./plugins/sysinit-edits.js"
+      "./plugins/sysinit-output.js"
+    ];
 
     providers = {
       openai = {

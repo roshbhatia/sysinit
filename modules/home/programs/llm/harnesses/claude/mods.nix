@@ -1,5 +1,11 @@
 { lib, pkgs, ... }:
 let
+  rewriter = import ../../runtime/output-rewrite { inherit pkgs lib; };
+  outputMod = pkgs.runCommand "claude-sysinit-output" { } ''
+    cp -r ${./output-mod}/ "$out"
+    chmod -R u+w "$out"
+    substituteInPlace "$out/hooks/register.ts" --replace-fail '@rewriter@' '${lib.getExe rewriter}'
+  '';
   prTracker = pkgs.fetchFromGitHub {
     owner = "sezaakgun";
     repo = "cc-pr-tracker";
@@ -19,6 +25,7 @@ let
     hash = "sha256-Di/8NsOxaIkw/g4KmO0bFGqXfilXyRAapS4rY2oHyP4=";
   };
   plugins = {
+    sysinit-output = outputMod;
     cc-pr-tracker = prTracker;
     claude-mermaid = "${mods}/claude-mermaid";
     claude-queue = "${mods}/claude-queue";
