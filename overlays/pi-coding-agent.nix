@@ -21,7 +21,10 @@ in
     nativeBuildInputs = final.lib.optionals final.stdenv.hostPlatform.isLinux [
       final.autoPatchelfHook
     ];
-    buildInputs = final.lib.optionals final.stdenv.hostPlatform.isLinux [ final.stdenv.cc.cc.lib ];
+    buildInputs = final.lib.optionals final.stdenv.hostPlatform.isLinux [
+      final.stdenv.cc.cc.lib
+      final.libxcb
+    ];
     dontStrip = true;
 
     installPhase = ''
