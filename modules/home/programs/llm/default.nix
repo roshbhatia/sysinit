@@ -154,7 +154,10 @@ in
 
   home = {
 
-    sessionPath = llmLibForCoverage.commandPath.entriesFor pkgs.stdenv.hostPlatform.isDarwin "${config.home.profileDirectory}/bin";
+    sessionPath =
+      llmLibForCoverage.commandPath.homeEntriesFor pkgs.stdenv.hostPlatform.isDarwin
+        "${config.home.profileDirectory}/bin"
+        config.home.homeDirectory;
 
     file =
       skillFiles

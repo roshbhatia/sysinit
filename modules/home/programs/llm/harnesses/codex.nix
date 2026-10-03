@@ -9,7 +9,9 @@ let
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 
   profileBin = "${config.home.profileDirectory}/bin";
-  commandPath = llmLib.commandPath.renderFor pkgs.stdenv.hostPlatform.isDarwin profileBin;
+  commandPath =
+    llmLib.commandPath.renderHomeFor pkgs.stdenv.hostPlatform.isDarwin profileBin
+      config.home.homeDirectory;
 
   gateHookScript = llmLib.guards.mkGateHookScript {
     inherit pkgs;

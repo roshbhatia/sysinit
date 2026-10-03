@@ -93,7 +93,9 @@ in
   };
 
   launchd.user.envVariables = {
-    PATH = commandPath.entriesFor true "/etc/profiles/per-user/${user}/bin";
+    PATH =
+      commandPath.homeEntriesFor true "/etc/profiles/per-user/${user}/bin"
+        config.users.users.${user}.home;
     CODEX_CLI_PATH = lib.getExe pkgs.codex;
     ORC_AGENT_REGISTRY = agentRegistry;
   };

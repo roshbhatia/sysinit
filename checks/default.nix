@@ -195,6 +195,19 @@ in
     assert lib.assertMsg (builtins.all (path: builtins.elem path linuxShellPath)
       standardSystemPath
     ) "the linux shell path drops one of ${builtins.concatStringsSep " " standardSystemPath}";
+    assert lib.assertMsg (
+      commandPath.homeEntriesFor true "/etc/profiles/per-user/roshan/bin" "/Users/roshan"
+      == darwinShellPath
+      &&
+        commandPath.homeEntriesFor false "/etc/profiles/per-user/roshan/bin" "/home/roshan"
+        == linuxShellPath
+    ) "agent and shell paths must use the same entries";
+    assert lib.assertMsg (
+      builtins.elem "/Users/roshan/go/bin" darwinShellPath
+      && builtins.elem "/home/roshan/go/bin" linuxShellPath
+      && builtins.head darwinShellPath == "/etc/profiles/per-user/roshan/bin"
+      && builtins.length darwinShellPath == builtins.length (lib.unique darwinShellPath)
+    ) "user tools must be available after managed commands without duplicate paths";
     evalOnly "command-path-order";
 
   mcp-harness-suppression =
