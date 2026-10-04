@@ -1465,17 +1465,17 @@
         "roster": "roster"
       },
       "locked": {
-        "lastModified": 1789405876,
-        "narHash": "sha256-37VmoOZay08MMib1pD8GKBzAwMTTSXFrjytMiAKe2UA=",
+        "lastModified": 1791147484,
+        "narHash": "sha256-2pYQrJvfN+v6QwUc9VxeSl/YfT1hIEfJPw+bj/tLB1g=",
         "owner": "roshbhatia",
         "repo": "seshy",
-        "rev": "7689dd4552dcdac8ee017a32689e7e9165af08eb",
+        "rev": "765a2a286a801faeed9a5a55a103bee8d284846b",
         "type": "github"
       },
       "original": {
         "owner": "roshbhatia",
         "repo": "seshy",
-        "rev": "7689dd4552dcdac8ee017a32689e7e9165af08eb",
+        "rev": "765a2a286a801faeed9a5a55a103bee8d284846b",
         "type": "github"
       }
     },

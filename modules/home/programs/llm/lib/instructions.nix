@@ -61,6 +61,12 @@ let
       good = "Fix the hook failure and use a recoverable Git operation.";
     }
     {
+      rule = "Reuse the selected task worktree. Load `feature-based-session-manager` before creating or cleaning worktrees.";
+      reason = "One lifecycle owner prevents duplicate checkouts and conflicting cleanup.";
+      bad = "Create another nested checkout inside a harness-owned worktree for the same task.";
+      good = "Use the selected checkout, isolate concurrent writers, and register external worktrees by reference when grouping them.";
+    }
+    {
       rule = "Stop on an unexpected error, keep its evidence, and fix its cause.";
       reason = "Continuing from an unexplained failure makes later evidence unreliable.";
       bad = "Retry with a bypass flag after an unknown build failure.";
