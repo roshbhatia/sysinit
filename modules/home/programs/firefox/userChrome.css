@@ -9,7 +9,13 @@
   --toolbar-color: var(--fg);
   --lwt-text-color: var(--fg);
   --toolbox-border-bottom-color: transparent;
-  --tab-min-height: 28px !important;
+  --tab-min-height: 26px !important;
+  --tab-margin-block: 2px !important;
+  --tab-border-color: transparent !important;
+  --tab-border-color-hover: transparent !important;
+  --tab-border-color-selected: transparent !important;
+  --tab-background-color-hover: var(--bg-alt) !important;
+  --tab-background-color-selected: var(--bg-alt) !important;
   --urlbar-min-height: 28px !important;
   --toolbarbutton-inner-padding: 4px !important;
   --toolbarbutton-outer-padding: 2px !important;
@@ -50,7 +56,7 @@
 }
 
 .tab-background {
-  margin-block: 2px !important;
+  background-image: none !important;
   border-radius: 2px !important;
 }
 
@@ -193,4 +199,16 @@ menupopup::part(content) {
 #urlbar-input::selection {
   background-color: var(--bg-sel) !important;
   color: var(--fg) !important;
+}
+
+#tabbrowser-tabs[orient="horizontal"] .tab-content {
+  padding-inline: 8px !important;
+}
+
+#tabbrowser-tabpanels > :not(.split-view-panel) .browserContainer {
+  --content-area-start-radius: 0px !important;
+}
+
+#navigator-toolbox {
+  background-image: none !important;
 }
