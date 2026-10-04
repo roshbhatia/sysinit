@@ -1,0 +1,25 @@
+modules/darwin/home/helium.nix
+  s_e4ed06871265ed::t_438201570128d0 81-84
+checks/app-copy-state.py
+  s_e4ed06871265ed::t_fde0963b998efd 37,48,125-170
+modules/home/app-copy-state.py
+  s_e4ed06871265ed::t_528b2834fb13f7 7,44,51,58-83,106,112-113,117-119,138-140
+modules/home/codesign.nix
+  s_e4ed06871265ed::t_3461e6fa34a99c 47-57,71-76,118-121
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0acf80cb8211ddae8c047118953bc5613e3c8385",
+  "prompts": {},
+  "sessions": {
+    "s_e4ed06871265ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10455-7ba4-74e1-8b4d-13ded1579742",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
