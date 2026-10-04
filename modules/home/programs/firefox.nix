@@ -90,8 +90,9 @@ in
         "browser.startup.page" = 3;
         "browser.uidensity" = 1;
         "browser.compactmode.show" = true;
+        "font.default.x-western" = "serif";
         "font.name.serif.x-western" = themeConfig.font.serif;
-        "font.name.sans-serif.x-western" = monospaceFont;
+        "font.name.sans-serif.x-western" = themeConfig.font.serif;
         "font.name.monospace.x-western" = monospaceFont;
         "font.size.variable.x-western" = 15;
         "font.size.fixed.x-western" = 12;
