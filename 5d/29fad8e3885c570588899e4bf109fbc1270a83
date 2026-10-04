@@ -1,0 +1,24 @@
+modules/home/programs/llm/harnesses/registry.nix
+  s_e4ed06871265ed::t_898fc9191c5706 315
+  s_e4ed06871265ed::t_b974a2a7beb6ee 3-6,28-31,55-58,82-85,108-111,133-136,160-163,185-188,211-214,239-242,264-267,289-292,314,316-317
+modules/lib/shell/aliases.nix
+  s_e4ed06871265ed::t_b974a2a7beb6ee 2-4
+modules/home/programs/llm/harnesses/amp.nix
+  s_e4ed06871265ed::t_b974a2a7beb6ee 56-58
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5d29fad8e3885c570588899e4bf109fbc1270a83",
+  "prompts": {},
+  "sessions": {
+    "s_e4ed06871265ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10455-7ba4-74e1-8b4d-13ded1579742",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
