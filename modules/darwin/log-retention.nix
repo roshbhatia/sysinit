@@ -17,7 +17,6 @@ let
     /tmp/ollama.log /tmp/ollama.error.log
     /tmp/colima.log /tmp/colima.error.log
     /tmp/otel-collector.log /tmp/otel-collector.error.log
-    /tmp/cua-computer-server.log /tmp/cua-computer-server.error.log
     /tmp/clamshell-thunderbolt.log /tmp/clamshell-thunderbolt.error.log
     /tmp/sketchybar-reload.log /tmp/sketchybar-reload.error.log
   '';

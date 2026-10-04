@@ -407,7 +407,6 @@
           ];
 
           linuxCacheAttrs = [
-            "cua-computer-server"
             "sunshine"
             "sysinit-swayfx"
           ];
@@ -422,18 +421,11 @@
 
             cacheBundle = pkgs.symlinkJoin {
               name = "sysinit-cache-bundle-${system}";
-              paths =
-                map
-                  (
-                    name:
-                    pkgs.${name}
-                      or (throw "cacheAttrs names `${name}`, which the overlay set does not define on ${system}")
-                  )
-                  (
-                    cacheAttrs
-                    ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux linuxCacheAttrs
-                    ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ "cua-driver" ]
-                  );
+              paths = map (
+                name:
+                pkgs.${name}
+                  or (throw "cacheAttrs names `${name}`, which the overlay set does not define on ${system}")
+              ) (cacheAttrs ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux linuxCacheAttrs);
             };
 
             cloudTools = pkgs.symlinkJoin {

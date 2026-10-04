@@ -49,8 +49,6 @@
   (import ./localias.nix)
   (import ./git-ai.nix)
   (import ./git-ai-gate.nix)
-  (import ./cua-computer-server.nix)
-  (import ./cua-driver.nix)
   (import ./alerter.nix)
   (import ./sheets.nix)
   (import ./zoetrope.nix)

@@ -82,16 +82,6 @@ in
   firefox = import ./firefox.nix { inherit pkgs darwinConfigurations nixosConfigurations; };
   editor-composition = import ./editor-composition.nix { inherit pkgs homeManagerLib; };
   slack-guard = import ./slack-guard.nix { inherit pkgs; };
-  cua-driver =
-    if pkgs.stdenv.hostPlatform.isDarwin then
-      pkgs.runCommand "cua-driver-test" { } ''
-        ${lib.getExe pkgs.cua-driver} --help > help
-        grep -F 'cua-driver ${pkgs.cua-driver.version}' help
-        /usr/bin/codesign --verify --deep --strict ${pkgs.cua-driver}/Applications/CuaDriver.app
-        touch "$out"
-      ''
-    else
-      evalOnly "cua-driver-not-applicable";
   pr-workflow =
     pkgs.runCommand "pr-workflow-test"
       {
@@ -239,14 +229,6 @@ in
     inherit pkgs;
     inherit (pkgs) lib;
   };
-  cua-computer-server =
-    if pkgs.stdenv.hostPlatform.isLinux then
-      import ./cua-computer-server.nix {
-        inherit pkgs;
-        inherit (pkgs) lib;
-      }
-    else
-      evalOnly "cua-computer-server-not-applicable";
   go-tests = pkgs.sysinit-gotools;
   gate-config = import ./gate-config.nix {
     inherit pkgs;
