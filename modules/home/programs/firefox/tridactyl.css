@@ -37,9 +37,6 @@
   --tridactyl-hintspan-border: 1px solid var(--sysinit-base03);
 }
 
-/* Ligatures off for tridactyl overlays — hint labels and command-line text
-   must render letter-by-letter; WumpusMono ships programming ligatures
-   under `liga` (no separate calt/dlig). */
 .TridactylOwnNamespace,
 .TridactylOwnNamespace *,
 .TridactylHintHost,

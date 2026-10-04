@@ -72,7 +72,7 @@ in
     };
     browser = lib.mkOption {
       type = lib.types.str;
-      default = "net.imput.helium";
+      default = "org.mozilla.firefox";
       description = "Browser bundle identifier for other links and Dash browser actions.";
     };
     routes = lib.mkOption {
@@ -94,7 +94,7 @@ in
               ];
             }
             {
-              name = "Helium";
+              name = "Firefox";
               detail = "Open the PR on github.com";
               bundle = cfg.browser;
             }
@@ -147,7 +147,7 @@ in
               ];
             }
             {
-              name = "Helium";
+              name = "Firefox";
               detail = "Open the run on github.com";
               bundle = cfg.browser;
             }

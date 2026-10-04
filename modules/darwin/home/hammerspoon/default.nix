@@ -77,13 +77,14 @@ let
     emojiFile = "${home}/.local/state/sysinit/launcher_emoji.json";
     wezterm = "${pkgs.wezterm}/bin/wezterm";
     sy = "/etc/profiles/per-user/${config.home.username}/bin/sy";
-    browserTabs = "${config.home.profileDirectory}/bin/helium-tabs";
+    fftabs = "${pkgs.firefox-tabs}/bin/firefox-tabs";
+    firefoxProfileRoot = "${home}/Library/Application Support/Firefox/Profiles";
     bat = "${pkgs.bat}/bin/bat";
 
     emoji = "${emojiData}";
 
     shell = "${pkgs.nushell}/bin/nu";
-    browser = "Helium";
+    browser = "Firefox";
     searchURL = "https://www.google.com/search?q=%s";
     fzf = "${pkgs.fzf}/bin/fzf";
     fd = "${pkgs.fd}/bin/fd";

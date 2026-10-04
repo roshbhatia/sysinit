@@ -11,8 +11,6 @@ let
   c = themeColors;
   themeConfig = config.sysinit.theme;
   monospaceFont = themeConfig.font.monospace;
-  opacity = toString themeConfig.transparency.opacity;
-  blur = toString themeConfig.transparency.blur;
   render =
     path: replacements:
     lib.replaceStrings (lib.attrNames replacements) (map (name: replacements.${name}) (
@@ -49,8 +47,7 @@ let
       )
       // {
         "@monospace-font@" = monospaceFont;
-        "var(--sysinit-opacity)" = opacity;
-        "var(--sysinit-blur)" = "${blur}px";
+        "@sans-font@" = themeConfig.font.sansSerif;
       }
     );
   newtabHTML = renderTheme ./firefox/newtab.html;
@@ -92,6 +89,13 @@ in
         "layout.css.prefers-color-scheme.content-override" = 0;
 
         "browser.startup.page" = 3;
+        "browser.uidensity" = 1;
+        "browser.compactmode.show" = true;
+        "font.name.serif.x-western" = themeConfig.font.serif;
+        "font.name.sans-serif.x-western" = themeConfig.font.sansSerif;
+        "font.name.monospace.x-western" = monospaceFont;
+        "font.size.variable.x-western" = 15;
+        "font.size.fixed.x-western" = 12;
 
         "browser.search.suggest.enabled" = false;
         "browser.urlbar.suggest.searches" = false;

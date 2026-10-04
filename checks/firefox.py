@@ -7,7 +7,9 @@ import sys
 for fixture in json.loads(Path(sys.argv[1]).read_text()):
     for name in ("chrome", "content", "tridactyl", "newtab"):
         css = fixture[name]
-        assert not re.search(r"@(?:base\w+|opacity|blur|monospace-font)\s*@", css), name
+        assert not re.search(
+            r"@(?:base\w+|opacity|blur|monospace-font|sans-font)\s*@", css
+        ), name
         assert "var(--sysinit-" not in css, name
         assert "#" + fixture["background"] in css, name
     policies = fixture["policies"]

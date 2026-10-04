@@ -1,26 +1,7 @@
-:root {
-  --bg: var(--sysinit-base00);
-  --bg-alt: var(--sysinit-base01);
-  --fg: var(--sysinit-base05);
-  --fg-dim: var(--sysinit-base04);
-  --accent: var(--sysinit-base0D);
-  --border: var(--sysinit-base02);
-}
-
-@-moz-document url-prefix("moz-extension://")
-{
-  body {
-    background-color: var(--bg) !important;
-    color: var(--fg) !important;
-  }
-  input,
-  select,
-  button {
-    background-color: var(--bg-alt) !important;
-    color: var(--fg) !important;
-    border: 1px solid var(--border) !important;
-  }
-  button:hover {
-    background-color: var(--border) !important;
+@-moz-document url("about:blank"), url("about:newtab"), url("about:home") {
+  :root {
+    color-scheme: dark light;
+    background-color: var(--sysinit-base00);
+    color: var(--sysinit-base05);
   }
 }
