@@ -76,13 +76,17 @@ in
     providers = tracesProviderPackages;
   };
   traces-tools = tracesToolPackages;
-  slk = inputs.slk.packages.${final.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
-    ldflags = (old.ldflags or [ ]) ++ [
-      "-X=main.version=0.16.0"
-      "-X=main.commit=${inputs.slk.rev or "none"}"
-      "-X=main.date=${inputs.slk.lastModifiedDate or "unknown"}"
-    ];
-  });
+  slk = inputs.slk.packages.${final.stdenv.hostPlatform.system}.default.overrideAttrs (
+    finalAttrs: old: {
+      version = "0.22.0";
+      src = inputs.slk;
+      ldflags = (old.ldflags or [ ]) ++ [
+        "-X=main.version=${finalAttrs.version}"
+        "-X=main.commit=${inputs.slk.rev or "none"}"
+        "-X=main.date=${inputs.slk.lastModifiedDate or "unknown"}"
+      ];
+    }
+  );
   nuvim = patchHackShebangs inputs.nuvim.packages.${final.stdenv.hostPlatform.system}.default;
 
   nu-plugin-nuvim =

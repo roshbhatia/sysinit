@@ -79,6 +79,16 @@ in
   task-queue = import ./task-queue.nix { inherit pkgs; };
   opencode = import ./opencode.nix { inherit pkgs; };
   utility-contracts = import ./utility-contracts.nix { inherit pkgs; };
+  slk-config =
+    pkgs.runCommand "slk-config-test"
+      {
+        nativeBuildInputs = [ (pkgs.python3.withPackages (p: [ p.tomlkit ])) ];
+      }
+      ''
+        python ${./slk.py} ${../modules/home/programs/slk-setup.py}
+        touch $out
+      '';
+
   firefox = import ./firefox.nix { inherit pkgs darwinConfigurations nixosConfigurations; };
   editor-composition = import ./editor-composition.nix { inherit pkgs homeManagerLib; };
   slack-guard = import ./slack-guard.nix { inherit pkgs; };
