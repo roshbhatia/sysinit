@@ -1,0 +1,22 @@
+modules/home/programs/llm/harnesses/codex-plugin-hooks.py
+  s_e4ed06871265ed::t_5638cfad2c6082 1-35
+modules/home/programs/llm/harnesses/codex.nix
+  s_e4ed06871265ed::t_61a2b1a14345b5 138
+  s_e4ed06871265ed::t_5638cfad2c6082 86-88
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "06c321e745058874cad2241333c8aadfce248749",
+  "prompts": {},
+  "sessions": {
+    "s_e4ed06871265ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10455-7ba4-74e1-8b4d-13ded1579742",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
