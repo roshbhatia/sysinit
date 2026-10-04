@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import sys
 import tempfile
 
 
@@ -40,22 +41,46 @@ def snapshot(source, target, codesign):
     return result
 
 
-def sync_apps(args):
+def unchanged_apps(args):
     try:
         previous = json.loads(args.state.read_text())
     except (OSError, ValueError):
         previous = {}
     if not isinstance(previous, dict):
         previous = {}
-    excludes = []
+    unchanged = set()
     for origin in args.source.iterdir():
         try:
             current = app_snapshot(origin, args.target / origin.name, args.codesign)
         except (OSError, ValueError, subprocess.CalledProcessError):
             continue
         if current == previous.get(origin.name):
-            literal_name = re.sub(r"([\\*?\[])", r"\\\1", origin.name)
-            excludes.append(f"--exclude=/{literal_name}")
+            unchanged.add(origin.name)
+    return unchanged
+
+
+def guard_running(args, unchanged):
+    for name in args.protect_running:
+        if f"{name}.app" in unchanged:
+            continue
+        result = subprocess.run([args.pgrep, "-x", name], capture_output=True)
+        if result.returncode == 0:
+            raise ValueError(
+                f"Quit {name} before switching: its app bundle would be replaced or removed"
+            )
+        if result.returncode != 1:
+            raise ValueError(
+                f"Cannot check whether {name} is running: pgrep exited {result.returncode}"
+            )
+
+
+def sync_apps(args):
+    unchanged = unchanged_apps(args)
+    guard_running(args, unchanged)
+    excludes = []
+    for name in sorted(unchanged):
+        literal_name = re.sub(r"([\\*?\[])", r"\\\1", name)
+        excludes.append(f"--exclude=/{literal_name}")
     args.target.mkdir(parents=True, exist_ok=True)
     subprocess.run(
         [
@@ -78,15 +103,20 @@ def sync_apps(args):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("operation", choices=["check", "record", "sync"])
+    parser.add_argument("operation", choices=["check", "record", "sync", "preflight"])
     parser.add_argument("source", type=Path)
     parser.add_argument("target", type=Path)
     parser.add_argument("state", type=Path)
     parser.add_argument("--codesign", default="/usr/bin/codesign")
     parser.add_argument("--rsync", default="rsync")
+    parser.add_argument("--protect-running", action="append", default=[])
+    parser.add_argument("--pgrep", default="/usr/bin/pgrep")
     args = parser.parse_args()
     temporary = None
     try:
+        if args.operation == "preflight":
+            guard_running(args, unchanged_apps(args))
+            return 0
         if args.operation == "sync":
             sync_apps(args)
             return 0
@@ -105,7 +135,9 @@ def main():
         os.replace(temporary, args.state)
         temporary = None
         return 0
-    except (OSError, ValueError, subprocess.CalledProcessError):
+    except (OSError, ValueError, subprocess.CalledProcessError) as error:
+        if args.operation in {"preflight", "sync"}:
+            print(f"sysinit: {error}", file=sys.stderr)
         return 1
     finally:
         if temporary is not None:

@@ -44,11 +44,17 @@ let
     pathsToLink = [ "/Applications" ];
   };
   appState = "${lib.getExe pkgs.python3} ${./app-copy-state.py}";
-  appStateArgs = lib.escapeShellArgs [
-    "${applications}/Applications"
-    "${home}/${config.targets.darwin.copyApps.directory}"
-    "${config.xdg.stateHome}/sysinit/app-copy.json"
-  ];
+  appStateArgs = lib.escapeShellArgs (
+    [
+      "${applications}/Applications"
+      "${home}/${config.targets.darwin.copyApps.directory}"
+      "${config.xdg.stateHome}/sysinit/app-copy.json"
+    ]
+    ++ lib.concatMap (name: [
+      "--protect-running"
+      name
+    ]) cfg.protectRunningApps
+  );
 
   signer = pkgs.sysinit.writeShellApplication {
     name = "sysinit-codesign";
@@ -60,6 +66,12 @@ in
   options.sysinit.codesign = {
     enable = lib.mkEnableOption "a stable code-signing identity so TCC grants survive a rebuild" // {
       default = pkgs.stdenv.hostPlatform.isDarwin;
+    };
+
+    protectRunningApps = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      description = "Application process names that must be closed before their bundles change";
     };
 
     binaries = lib.mkOption {
@@ -103,6 +115,10 @@ in
             '';
       }
       (lib.mkIf config.targets.darwin.copyApps.enable {
+        home.activation.checkRunningApps = lib.hm.dag.entryBefore [ "writeBoundary" ] ''
+          ${appState} preflight ${appStateArgs}
+        '';
+
         home.activation.copyApps = lib.mkForce (
           lib.hm.dag.entryAfter [ "installPackages" "linkGeneration" ] ''
             sysinit_home_apps_validated=0

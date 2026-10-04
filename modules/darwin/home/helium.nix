@@ -69,6 +69,7 @@ let
   );
 in
 {
+  sysinit.codesign.protectRunningApps = [ "Helium" ];
   home = {
     packages = [
       applyPreferences
@@ -77,6 +78,10 @@ in
         exec /usr/bin/osascript -l JavaScript ${./helium-tabs.js} "$@"
       '')
     ];
+    activation.heliumUpdater = lib.hm.dag.entryBetween [ "copyApps" ] [ "writeBoundary" ] ''
+      run /usr/bin/defaults write net.imput.helium SUEnableAutomaticChecks -bool false
+      run /usr/bin/defaults write net.imput.helium SUAutomaticallyUpdate -bool false
+    '';
     activation.heliumPreferences = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       run ${applyPreferences}/bin/helium-settings --defer-running
     '';

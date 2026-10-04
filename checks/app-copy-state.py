@@ -34,7 +34,7 @@ class AppCopyStateTest(unittest.TestCase):
         )
         self.codesign.chmod(0o755)
 
-    def run_state(self, operation):
+    def run_state(self, operation, *extra):
         return subprocess.run(
             [
                 sys.executable,
@@ -45,6 +45,7 @@ class AppCopyStateTest(unittest.TestCase):
                 str(self.state),
                 "--codesign",
                 str(self.codesign),
+                *extra,
             ],
             check=False,
         ).returncode
@@ -120,6 +121,53 @@ class AppCopyStateTest(unittest.TestCase):
         (self.source / "Test App.app").symlink_to(updated)
         self.assertEqual(self.run_state("sync"), 0)
         self.assertEqual((self.app / "payload").read_text(), "updated")
+
+    def process_args(self, code):
+        pgrep = self.root / "pgrep"
+        pgrep.write_text(
+            "#!" + sys.executable + "\nimport sys\nsys.exit(" + str(code) + ")\n"
+        )
+        pgrep.chmod(0o755)
+        return ["--protect-running", "Test App", "--pgrep", str(pgrep)]
+
+    def test_running_changed_app_blocks_without_mutation(self):
+        self.record()
+        (self.app / "payload").write_text("changed")
+        args = self.process_args(0)
+        self.assertEqual(self.run_state("preflight", *args), 1)
+        self.assertEqual(self.run_state("sync", *args), 1)
+        self.assertEqual((self.app / "payload").read_text(), "changed")
+
+    def test_running_unchanged_app_allows_other_updates(self):
+        self.record()
+        added = self.source / "Another.app"
+        added.mkdir()
+        (added / "payload").write_text("new")
+        args = self.process_args(0)
+        self.assertEqual(self.run_state("preflight", *args), 0)
+        self.assertEqual(self.run_state("sync", *args), 0)
+        self.assertEqual((self.app / "payload").read_text(), "signed")
+
+    def test_closed_app_allows_repair(self):
+        (self.original / "payload").write_text("replacement")
+        args = self.process_args(1)
+        self.assertEqual(self.run_state("preflight", *args), 0)
+        self.assertEqual(self.run_state("sync", *args), 0)
+        self.assertEqual((self.app / "payload").read_text(), "replacement")
+
+    def test_process_check_failure_blocks_mutation(self):
+        args = self.process_args(2)
+        self.assertEqual(self.run_state("preflight", *args), 1)
+        self.assertEqual(self.run_state("sync", *args), 1)
+        self.assertEqual((self.app / "payload").read_text(), "signed")
+
+    def test_running_app_cannot_be_removed(self):
+        self.record()
+        (self.source / "Test App.app").unlink()
+        args = self.process_args(0)
+        self.assertEqual(self.run_state("preflight", *args), 1)
+        self.assertEqual(self.run_state("sync", *args), 1)
+        self.assertTrue(self.app.exists())
 
 
 if __name__ == "__main__":
