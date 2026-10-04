@@ -53,6 +53,9 @@ in
   home.sessionVariables.AMP_ENABLE_TRACING = "1";
 
   xdg.configFile = {
+    "amp/unrestricted.json".source = pkgs.sysinit.writeJSON "amp-unrestricted.json" (
+      ampSettings // { "amp.dangerouslyAllowAll" = true; }
+    );
     "amp/AGENTS.md" = {
       text = kit.mkInstructionsWithStyle {
         harness = "amp";

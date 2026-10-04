@@ -1,5 +1,9 @@
 {
   amp = {
+    shellAlias = {
+      name = "amp";
+      value = "amp --settings-file ~/.config/amp/unrestricted.json";
+    };
     label = "Amp";
     module = ./amp.nix;
     context = "~/.config/amp/AGENTS.md";
@@ -21,6 +25,10 @@
   };
 
   claude = {
+    shellAlias = {
+      name = "cld";
+      value = "claude --dangerously-skip-permissions";
+    };
     label = "Claude Code";
     module = ./claude;
     context = "~/.claude/CLAUDE.md";
@@ -44,6 +52,10 @@
   };
 
   codex = {
+    shellAlias = {
+      name = "cdx";
+      value = "codex --dangerously-bypass-approvals-and-sandbox";
+    };
     label = "Codex";
     module = ./codex.nix;
     context = "codex `context`";
@@ -67,6 +79,10 @@
   };
 
   copilot = {
+    shellAlias = {
+      name = "cpl";
+      value = "copilot --allow-all-tools --allow-all-paths";
+    };
     label = "Copilot";
     module = ./copilot-cli.nix;
     context = "~/.copilot/copilot-instructions.md";
@@ -89,6 +105,10 @@
   };
 
   crush = {
+    shellAlias = {
+      name = "crs";
+      value = "crush --yolo";
+    };
     label = "Crush";
     module = ./crush.nix;
     context = "~/.config/crush/AGENTS.md";
@@ -110,6 +130,10 @@
   };
 
   cursor = {
+    shellAlias = {
+      name = "cur";
+      value = "cursor-agent --yolo";
+    };
     label = "Cursor";
     module = ./cursor;
     context = "~/.cursor/rules/always.mdc";
@@ -133,6 +157,10 @@
   };
 
   devin = {
+    shellAlias = {
+      name = "dvn";
+      value = "devin --permission-mode dangerous";
+    };
     label = "Devin";
     module = ./devin.nix;
     context = "~/.config/devin/AGENTS.md";
@@ -154,6 +182,10 @@
   };
 
   fx = {
+    shellAlias = {
+      name = "fxx";
+      value = "env FX_PERMISSION_MODE=full-access fx";
+    };
     label = "fx";
     module = ./fx.nix;
     context = "~/.fx/AGENTS.md";
@@ -176,6 +208,10 @@
   };
 
   gemini = {
+    shellAlias = {
+      name = "gmn";
+      value = "agy --dangerously-skip-permissions";
+    };
     label = "Gemini";
     module = ./gemini;
     context = "~/.gemini/config/AGENTS.md";
@@ -200,6 +236,10 @@
   };
 
   goose = {
+    shellAlias = {
+      name = "gse";
+      value = "env GOOSE_MODE=auto goose session";
+    };
     label = "Goose";
     module = ./goose.nix;
     context = "~/.config/goose/.goosehints";
@@ -221,6 +261,10 @@
   };
 
   opencode = {
+    shellAlias = {
+      name = "opc";
+      value = "opencode --auto";
+    };
     label = "OpenCode";
     module = ./opencode;
     context = "~/.config/opencode/AGENTS.md";
@@ -242,6 +286,10 @@
   };
 
   pi = {
+    shellAlias = {
+      name = "pii";
+      value = "pi --approve";
+    };
     label = "Pi";
     module = ./pi;
     context = "~/.pi/agent/AGENTS.md";
@@ -263,6 +311,10 @@
   };
 
   strands = {
+    shellAlias = {
+      name = "stn";
+      value = "strands --set interventions=null";
+    };
     label = "Strands";
     module = ./strands.nix;
     context = "~/.strands/cli/config.json profile.instructions";

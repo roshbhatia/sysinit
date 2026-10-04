@@ -1,6 +1,7 @@
 let
-  commonAliases = {
-    c = "claude --dangerously-skip-permissions";
+  registry = import ../../home/programs/llm/harnesses/registry.nix;
+  harnessAliases = builtins.listToAttrs (map (h: h.shellAlias) (builtins.attrValues registry));
+  commonAliases = harnessAliases // {
     cat = "bat -pp";
     f = "y";
     kk = "k9s";
