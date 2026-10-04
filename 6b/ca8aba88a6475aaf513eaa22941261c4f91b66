@@ -1,0 +1,22 @@
+modules/home/programs/firefox/userChrome.css
+  s_e4ed06871265ed::t_ff547dd53ca957 20-35,164,168-196
+  s_e4ed06871265ed::t_19c994e74ddb66 12-19,37,53-54,63,76,79,82,122,127,135-163
+modules/home/programs/firefox/tridactyl.css
+  s_e4ed06871265ed::t_19c994e74ddb66 5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6bca8aba88a6475aaf513eaa22941261c4f91b66",
+  "prompts": {},
+  "sessions": {
+    "s_e4ed06871265ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10455-7ba4-74e1-8b4d-13ded1579742",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
