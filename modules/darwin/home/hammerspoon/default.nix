@@ -160,6 +160,26 @@ in
   config = {
     sysinit.hammerspoon.appExcludes = lib.mkBefore defaultAppExcludes;
 
+    launchd.agents.hammerspoon = {
+      enable = true;
+      config = {
+        ProgramArguments = [
+          "/usr/bin/open"
+          "-g"
+          "-W"
+          "-a"
+          "/Applications/Hammerspoon.app"
+        ];
+        RunAtLoad = true;
+        KeepAlive = true;
+        ThrottleInterval = 5;
+        LimitLoadToSessionType = "Aqua";
+        ProcessType = "Interactive";
+        StandardOutPath = "${home}/Library/Logs/hammerspoon-launcher.log";
+        StandardErrorPath = "${home}/Library/Logs/hammerspoon-launcher.error.log";
+      };
+    };
+
     home.file = {
       ".hammerspoon/Spoons/CommandPalette.spoon".source = pkgs.command-palette;
       ".hammerspoon/init.lua".source = ./init.lua;
