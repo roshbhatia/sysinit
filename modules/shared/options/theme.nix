@@ -63,7 +63,7 @@ in
 
       monospace = mkOption {
         type = types.str;
-        default = "Ioskeley Mono";
+        default = "TX-02";
         description = "Monospace font for terminal and editor";
       };
 
