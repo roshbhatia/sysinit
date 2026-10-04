@@ -57,13 +57,13 @@ in
 
       sansSerif = mkOption {
         type = types.str;
-        default = "Source Sans 3";
+        default = "Asta Sans";
         description = "Proportional sans-serif font for interfaces";
       };
 
       monospace = mkOption {
         type = types.str;
-        default = "TX-02";
+        default = "Ioskeley Mono";
         description = "Monospace font for terminal and editor";
       };
 

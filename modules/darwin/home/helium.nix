@@ -39,8 +39,8 @@ let
         };
       };
       webkit.webprefs = {
-        default_fixed_font_size = 13;
-        default_font_size = 16;
+        default_fixed_font_size = 12;
+        default_font_size = 15;
         fonts = {
           standard.Zyyy = config.sysinit.theme.font.serif;
           serif.Zyyy = config.sysinit.theme.font.serif;

@@ -1,8 +1,43 @@
+body {
+  --h1-font: var(--font-text);
+  --h2-font: var(--font-text);
+  --h3-font: var(--font-text);
+  --h4-font: var(--font-text);
+  --h5-font: var(--font-text);
+  --h6-font: var(--font-text);
+  --h1-weight: 600;
+  --h2-weight: 600;
+  --h3-weight: 600;
+  --h4-weight: 600;
+  --h5-weight: 600;
+  --h6-weight: 600;
+  --font-ui-small: 14px;
+  --font-ui-medium: 14px;
+  --font-ui-large: 14px;
+  --line-height-normal: 1.6;
+  --code-size: 12px;
+}
+
+button,
+input,
+select,
+textarea {
+  font-size: 14px;
+  line-height: 21px;
+}
+
+.markdown-rendered pre,
+.markdown-rendered code,
+.markdown-source-view.mod-cm6 .HyperMD-codeblock {
+  font-size: 12px;
+  line-height: 19px;
+}
+
 .markdown-source-view.mod-cm6 .cm-contentContainer,
 .markdown-reading-view .markdown-preview-section {
   max-width: 720px;
   margin: 0 auto;
-  line-height: 1.7;
+  line-height: 1.6;
 }
 
 .markdown-reading-view h1,

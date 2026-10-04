@@ -44,7 +44,7 @@ in
   fonts.packages = [
     pkgs.cm-web-fonts
     pkgs.source-serif
-    pkgs.source-sans
+    (pkgs.google-fonts.override { fonts = [ "Asta Sans" ]; })
     pkgs.nerd-fonts.symbols-only
     pkgs.wumpusMono
     pkgs.ioskeleyMono

@@ -70,7 +70,7 @@ in
           };
 
           appearance = {
-            baseFontSize = 11;
+            baseFontSize = 15;
             interfaceFontFamily = interfaceFont;
             monospaceFontFamily = config.sysinit.theme.font.monospace;
             textFontFamily = config.sysinit.theme.font.serif;
