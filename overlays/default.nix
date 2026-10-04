@@ -43,6 +43,7 @@
   (import ./ioskeleyMono.nix)
   (import ./wumpusMono.nix)
   (import ./bookerly.nix)
+  (import ./cm-web-fonts.nix)
   (import ./codex.nix)
   (import ./opencode.nix)
   (import ./python-tools.nix { inherit inputs; })

@@ -42,6 +42,7 @@ in
   };
 
   fonts.packages = [
+    pkgs.cm-web-fonts
     pkgs.nerd-fonts.symbols-only
     pkgs.wumpusMono
     pkgs.ioskeleyMono
