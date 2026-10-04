@@ -769,6 +769,26 @@
         "type": "gitlab"
       }
     },
+    "helium": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1790829646,
+        "narHash": "sha256-DElBT51c3oIxydiC/8KNScp8S/U0WV46ZnWclvb61iw=",
+        "owner": "amaanq",
+        "repo": "helium-flake",
+        "rev": "fa670d821a8b1dcbf653256e48a9387285b02748",
+        "type": "github"
+      },
+      "original": {
+        "owner": "amaanq",
+        "repo": "helium-flake",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -1362,6 +1382,7 @@
         "firefox-addons": "firefox-addons",
         "firefox-tabs": "firefox-tabs",
         "gate": "gate",
+        "helium": "helium",
         "home-manager": "home-manager",
         "hunk": "hunk",
         "hunk-commit-log": "hunk-commit-log",

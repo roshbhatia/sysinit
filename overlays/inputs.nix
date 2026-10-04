@@ -32,10 +32,17 @@ in
   agent-state = inputs.agent-signals.packages.${final.stdenv.hostPlatform.system}.default;
   mkAgentNotifier = inputs.agent-signals.lib.mkNotifier;
   firefox-tabs = inputs.firefox-tabs.packages.${final.stdenv.hostPlatform.system}.default;
+  helium = inputs.helium.packages.${final.stdenv.hostPlatform.system}.default.overrideAttrs {
+    dontFixup = final.stdenv.hostPlatform.isDarwin;
+  };
   worker = inputs.worker.packages.${final.stdenv.hostPlatform.system}.default;
   workspace-cli = inputs.changes.packages.${final.stdenv.hostPlatform.system}.ws;
   command-palette-source = inputs.command-palette.outPath;
-  command-palette = inputs.command-palette.packages.${final.stdenv.hostPlatform.system}.default;
+  command-palette =
+    inputs.command-palette.packages.${final.stdenv.hostPlatform.system}.default.overrideAttrs
+      (old: {
+        patches = (old.patches or [ ]) ++ [ ./command-palette-browser-tabs.patch ];
+      });
   firefox-addons = inputs.firefox-addons.packages.${final.stdenv.hostPlatform.system};
   claude-code = inputs.nix-claude-code.packages.${final.stdenv.hostPlatform.system}.default;
   orc-cli = inputs.orc-extras.packages.${final.stdenv.hostPlatform.system}.full;

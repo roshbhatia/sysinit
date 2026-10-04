@@ -4,10 +4,12 @@
   nixosConfigurations,
 }:
 let
-  configs = map (host: host.home-manager.users.${host.sysinit.user.username}) [
-    darwinConfigurations.lv426.config
-    nixosConfigurations.arrakis.config
-  ];
+  configs = builtins.filter (config: config.programs.firefox.enable) (
+    map (host: host.home-manager.users.${host.sysinit.user.username}) [
+      darwinConfigurations.lv426.config
+      nixosConfigurations.arrakis.config
+    ]
+  );
   fixtures = pkgs.writeText "firefox-rendered.json" (
     builtins.toJSON (
       map (config: {

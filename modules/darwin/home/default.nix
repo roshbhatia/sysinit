@@ -3,7 +3,7 @@
     ./cache-maintenance.nix
     ./colima.nix
     ./desktop.nix
-    ./firefox.nix
+    ./helium.nix
     ../../home/programs/obsidian.nix
   ];
 }

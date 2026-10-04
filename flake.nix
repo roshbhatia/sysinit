@@ -23,6 +23,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    helium = {
+      url = "github:amaanq/helium-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     stylix = {
       url = "github:danth/stylix/master";
       inputs.nixpkgs.follows = "nixpkgs";

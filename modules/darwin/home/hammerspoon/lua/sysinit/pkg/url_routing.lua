@@ -2,6 +2,7 @@ local M = {}
 local json = require("sysinit.pkg.utils.json_loader")
 local tasks = {}
 local browsers = {
+  ["net.imput.helium"] = true,
   ["org.mozilla.firefox"] = true,
   ["org.mozilla.firefoxdeveloperedition"] = true,
   ["org.mozilla.nightly"] = true,
