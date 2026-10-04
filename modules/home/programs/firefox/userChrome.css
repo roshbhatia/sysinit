@@ -9,7 +9,7 @@
   --toolbar-color: var(--fg);
   --lwt-text-color: var(--fg);
   --toolbox-border-bottom-color: transparent;
-  font-family: "@sans-font@", system-ui, sans-serif !important;
+  font-family: "@monospace-font@", monospace !important;
   font-size: 14px !important;
 }
 

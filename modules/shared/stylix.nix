@@ -23,7 +23,7 @@ in
 
     fonts = {
       monospace.name = themeConfig.font.monospace;
-      sansSerif.name = themeConfig.font.sansSerif;
+      sansSerif.name = themeConfig.font.monospace;
       serif.name = themeConfig.font.serif;
       sizes = {
         terminal = 11;
@@ -44,7 +44,6 @@ in
   fonts.packages = [
     pkgs.cm-web-fonts
     pkgs.source-serif
-    (pkgs.google-fonts.override { fonts = [ "Asta Sans" ]; })
     pkgs.nerd-fonts.symbols-only
     pkgs.wumpusMono
     pkgs.ioskeleyMono

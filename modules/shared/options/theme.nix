@@ -55,16 +55,10 @@ in
         description = "Proportional serif font for reading";
       };
 
-      sansSerif = mkOption {
-        type = types.str;
-        default = "Asta Sans";
-        description = "Proportional sans-serif font for interfaces";
-      };
-
       monospace = mkOption {
         type = types.str;
         default = "TX-02";
-        description = "Monospace font for terminal and editor";
+        description = "Monospace font for interfaces, terminals, and code";
       };
 
       size = mkOption {

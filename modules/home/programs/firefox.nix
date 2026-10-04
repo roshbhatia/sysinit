@@ -47,7 +47,6 @@ let
       )
       // {
         "@monospace-font@" = monospaceFont;
-        "@sans-font@" = themeConfig.font.sansSerif;
       }
     );
   newtabHTML = renderTheme ./firefox/newtab.html;
@@ -92,7 +91,7 @@ in
         "browser.uidensity" = 1;
         "browser.compactmode.show" = true;
         "font.name.serif.x-western" = themeConfig.font.serif;
-        "font.name.sans-serif.x-western" = themeConfig.font.sansSerif;
+        "font.name.sans-serif.x-western" = monospaceFont;
         "font.name.monospace.x-western" = monospaceFont;
         "font.size.variable.x-western" = 15;
         "font.size.fixed.x-western" = 12;

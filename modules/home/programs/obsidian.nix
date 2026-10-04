@@ -6,7 +6,7 @@
 }:
 
 let
-  interfaceFont = config.sysinit.theme.font.sansSerif;
+  interfaceFont = config.sysinit.theme.font.monospace;
 
   vimrcSupport = {
     "main.js" = pkgs.fetchurl {
