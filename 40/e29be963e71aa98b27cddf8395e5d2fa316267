@@ -1,0 +1,24 @@
+modules/home/programs/llm/lib/instructions.nix
+  s_e4ed06871265ed::t_450d8a2d97ab53 64-68
+  s_e4ed06871265ed::t_b0c23830291006 63
+flake.lock
+  s_e4ed06871265ed::t_5133659b1edae5 1468-1469,1472,1478
+modules/home/programs/llm/skills/feature-based-session-manager/SKILL.md
+  s_e4ed06871265ed::t_8bf5de3f183567 2,8,10-11,13,15-22,24,26-28,30-38,40-41,43-48,51-52,54,56-61,64-66,68-70,72,74-77,80-107,109,111-114
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "40e29be963e71aa98b27cddf8395e5d2fa316267",
+  "prompts": {},
+  "sessions": {
+    "s_e4ed06871265ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10455-7ba4-74e1-8b4d-13ded1579742",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
