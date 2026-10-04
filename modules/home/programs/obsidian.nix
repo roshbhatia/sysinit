@@ -37,17 +37,6 @@ let
     "readable-layout".source = ./obsidian/snippets/readable-layout.css;
   };
 
-  enabledSnippets = [
-    "Stylix Config"
-    "bullet-point-relationship-lines"
-    "smaller-scrollbar"
-    "enlarge-image-on-hover"
-    "nicer-checkboxes"
-    "bigger-link-popup-preview"
-    "image-cards"
-    "readable-layout"
-  ];
-
   communityPlugins = [
     "obsidian-git"
     "obsidian-importer"
@@ -74,8 +63,11 @@ in
             interfaceFontFamily = interfaceFont;
             monospaceFontFamily = config.sysinit.theme.font.monospace;
             textFontFamily = config.sysinit.theme.font.serif;
-            enabledCssSnippets = enabledSnippets;
           };
+
+          cssSnippets =
+            config.programs.obsidian.defaultSettings.cssSnippets
+            ++ lib.mapAttrsToList (name: value: { inherit name; } // value) snippets;
 
           extraFiles = {
             ".obsidian/community-plugins.json" = {
@@ -92,13 +84,7 @@ in
             ".obsidian/plugins/obsidian-vimrc-support/manifest.json" = {
               source = vimrcSupport."manifest.json";
             };
-          }
-          // builtins.listToAttrs (
-            map (name: {
-              name = ".obsidian/snippets/${name}.css";
-              value = snippets.${name};
-            }) (builtins.attrNames snippets)
-          );
+          };
         };
       };
     };
