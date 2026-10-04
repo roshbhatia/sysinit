@@ -42,9 +42,9 @@ let
         default_fixed_font_size = 13;
         default_font_size = 16;
         fonts = {
-          standard.Zyyy = "CMU Serif";
-          serif.Zyyy = "CMU Serif";
-          sansserif.Zyyy = "CMU Sans Serif";
+          standard.Zyyy = config.sysinit.theme.font.serif;
+          serif.Zyyy = config.sysinit.theme.font.serif;
+          sansserif.Zyyy = config.sysinit.theme.font.sansSerif;
           fixed.Zyyy = config.sysinit.theme.font.monospace;
           math.Zyyy = "STIX Two Math";
         };

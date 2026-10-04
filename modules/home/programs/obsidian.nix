@@ -6,7 +6,7 @@
 }:
 
 let
-  interfaceFont = config.sysinit.theme.font.monospace;
+  interfaceFont = config.sysinit.theme.font.sansSerif;
 
   vimrcSupport = {
     "main.js" = pkgs.fetchurl {
@@ -72,8 +72,8 @@ in
           appearance = {
             baseFontSize = 11;
             interfaceFontFamily = interfaceFont;
-            monospaceFontFamily = "IBM Plex Mono";
-            textFontFamily = "Bookerly";
+            monospaceFontFamily = config.sysinit.theme.font.monospace;
+            textFontFamily = config.sysinit.theme.font.serif;
             enabledCssSnippets = enabledSnippets;
           };
 

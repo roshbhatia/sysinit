@@ -49,6 +49,18 @@ in
     };
 
     font = {
+      serif = mkOption {
+        type = types.str;
+        default = "Source Serif 4";
+        description = "Proportional serif font for reading";
+      };
+
+      sansSerif = mkOption {
+        type = types.str;
+        default = "Source Sans 3";
+        description = "Proportional sans-serif font for interfaces";
+      };
+
       monospace = mkOption {
         type = types.str;
         default = "TX-02";
