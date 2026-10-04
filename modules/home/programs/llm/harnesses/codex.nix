@@ -83,6 +83,9 @@ in
     activation.codexNativeTools = lib.hm.dag.entryBetween [ "llmManagedFiles" ] [ "writeBoundary" ] ''
       $DRY_RUN_CMD ${lib.getExe nativeToolsPython} ${./codex-native-tools.py}
     '';
+    activation.codexPluginHooks = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      $DRY_RUN_CMD ${lib.getExe pkgs.python3} ${./codex-plugin-hooks.py}
+    '';
     file = lib.genAttrs (map (f: ".codex/${f}") codexManagedFiles) (_: {
       enable = lib.mkForce false;
     });
@@ -132,6 +135,7 @@ in
 
     settings = {
       check_for_update_on_startup = false;
+      suppress_unstable_features_warning = true;
       compact_prompt = compactPrompt;
       mcp_servers = codexMcpServers;
       plugins."computer-use@openai-bundled".enabled = false;
