@@ -117,6 +117,11 @@ in
         lua ${./hammerspoon-startup.lua} ${../modules/darwin/home/hammerspoon/lua/sysinit/pkg/core/startup.lua}
         touch "$out"
       '';
+  jankyborders =
+    if pkgs.stdenv.hostPlatform.isDarwin then
+      pkgs.jankyborders
+    else
+      evalOnly "jankyborders-not-applicable";
   shell-completions = import ./shell-completions.nix { inherit pkgs; };
   completion-cache =
     pkgs.runCommand "completion-cache-test"

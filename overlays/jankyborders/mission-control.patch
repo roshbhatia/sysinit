@@ -1,0 +1,427 @@
+Adapted from andrewcincotta/JankyBorders commit 0017b53b9ec8eed21dc33bdbb9d2bbe383574a54.
+Rebased onto the curated IPC safety patches; adds checked queries and regression tests.
+Includes the native 12-byte window-event decoder fix.
+
+--- a/src/border.c
++++ b/src/border.c
+@@ -6,6 +6,7 @@
+ #include <time.h>
+
+ extern struct settings g_settings;
++extern bool g_mission_control_active;
+
+ struct settings* border_get_settings(struct border* border) {
+   assert(pthread_main_np() != 0);
+@@ -198,7 +199,7 @@
+ }
+
+ void border_update_internal(struct border* border, struct settings* settings) {
+-  if (border->external_proxy_wid) return;
++  if (border->external_proxy_wid || g_mission_control_active) return;
+
+   int cid = border->cid;
+   CGRect frame;
+@@ -414,6 +415,7 @@
+ void border_unhide(struct border* border) {
+   pthread_mutex_lock(&border->mutex);
+   if (border->too_small
++      || g_mission_control_active
+       || border->external_proxy_wid
+       || (!border->sticky && !is_space_visible(border->cid, border->sid))) {
+     pthread_mutex_unlock(&border->mutex);
+--- a/src/events.c
++++ b/src/events.c
+@@ -3,6 +3,8 @@
+ #include "windows.h"
+ #include "border.h"
+ #include "misc/window.h"
++#include "misc/mission_control.h"
++#include "misc/event_payload.h"
+ #include <string.h>
+
+ extern struct table g_windows;
+@@ -24,11 +26,6 @@
+ }
+ #endif
+
+-struct window_spawn_data {
+-  uint64_t sid;
+-  uint32_t wid;
+-};
+-
+ static bool is_own_window(int cid, uint32_t wid) {
+   int wid_cid = 0;
+   SLSGetWindowOwner(cid, wid, &wid_cid);
+@@ -41,15 +38,15 @@
+                                  void* data,
+                                  size_t data_length,
+                                  int cid) {
+-  if (!data || data_length < sizeof(struct window_spawn_data)) return;
+-
+-  struct window_spawn_data spawn_data;
+-  memcpy(&spawn_data, data, sizeof(spawn_data));
++  uint64_t sid = 0;
++  uint32_t wid = 0;
++  if (!event_decode_window_spawn(data, data_length, &sid, &wid)) return;
+   struct table* windows = &g_windows;
+-  uint32_t wid = spawn_data.wid;
+-  uint64_t sid = spawn_data.sid;
+
+   if (!wid || !sid || is_own_window(cid, wid)) return;
++
++  if (event == EVENT_WINDOW_CREATE) mission_control_window_created(cid, wid);
++  else if (event == EVENT_WINDOW_DESTROY) mission_control_window_destroyed(cid, wid);
+
+   if (event == EVENT_WINDOW_CREATE) {
+     if (windows_window_create(windows, wid, sid)) {
+@@ -109,7 +106,11 @@
+   }
+ }
+
+-static void front_app_handler() {
++static void front_app_handler(uint32_t event, void* data, size_t size, int cid) {
++  (void)event;
++  (void)data;
++  (void)size;
++  mission_control_prune(cid);
+   debug("Window Focus\n");
+   DELAY_ASYNC_EXEC_ON_MAIN_THREAD(50000, {
+     windows_determine_and_focus_active_window(&g_windows);
+--- a/src/main.c
++++ b/src/main.c
+@@ -28,6 +28,7 @@
+ mach_port_t g_server_port;
+ struct table g_windows;
+ struct mach_server g_mach_server;
++bool g_mission_control_active = false;
+ struct settings g_settings = { .enabled = true,
+                                .active_window = { .stype = COLOR_STYLE_SOLID,
+                                                   .color = 0xffe1e3e4 },
+--- /dev/null
++++ b/src/misc/event_payload.h
+@@ -0,0 +1,14 @@
++#pragma once
++#include <stdbool.h>
++#include <stddef.h>
++#include <stdint.h>
++#include <string.h>
++
++static inline bool event_decode_window_spawn(const void* data, size_t size,
++                                             uint64_t* sid, uint32_t* wid) {
++  // WindowServer sends 12 bytes, without the C struct's trailing padding.
++  if (!data || size < sizeof(*sid) + sizeof(*wid)) return false;
++  memcpy(sid, data, sizeof(*sid));
++  memcpy(wid, (const char*)data + sizeof(*sid), sizeof(*wid));
++  return true;
++}
+--- /dev/null
++++ b/src/misc/mission_control.h
+@@ -0,0 +1,109 @@
++#pragma once
++#include "helpers.h"
++#include "window.h"
++#include "../windows.h"
++#include <libproc.h>
++
++// Since macOS 27 Mission Control is drawn by the WindowManager process and the
++// WindowServer no longer hides our border windows while it is shown. While
++// Mission Control is open, WindowManager places a backdrop window at this
++// level covering each display, so we hide all borders for as long as any of
++// those backdrops exist.
++#define MISSION_CONTROL_OWNER          "WindowManager"
++#define MISSION_CONTROL_BACKDROP_LEVEL 19
++#define MISSION_CONTROL_MAX_BACKDROPS  16
++
++extern struct table g_windows;
++extern bool g_mission_control_active;
++
++static uint32_t g_mission_control_backdrops[MISSION_CONTROL_MAX_BACKDROPS];
++static int g_mission_control_backdrop_count = 0;
++
++static inline bool mission_control_window_exists(int cid, uint32_t wid) {
++  int wid_cid = 0;
++  return SLSGetWindowOwner(cid, wid, &wid_cid) == kCGErrorSuccess && wid_cid;
++}
++
++static inline bool mission_control_covers_display(CGRect bounds) {
++  uint32_t count = 0;
++  if (CGGetActiveDisplayList(0, NULL, &count) != kCGErrorSuccess) return false;
++  if (!count) return false;
++
++  CGDirectDisplayID displays[count];
++  if (CGGetActiveDisplayList(count, displays, &count) != kCGErrorSuccess) return false;
++  for (int i = 0; i < count; i++) {
++    if (CGRectEqualToRect(bounds, CGDisplayBounds(displays[i]))) return true;
++  }
++  return false;
++}
++
++static inline bool mission_control_is_backdrop(int cid, uint32_t wid) {
++  if (window_level(cid, wid) != MISSION_CONTROL_BACKDROP_LEVEL) return false;
++
++  int wid_cid = 0;
++  pid_t pid = 0;
++  char name[PROC_PIDPATHINFO_MAXSIZE];
++  if (SLSGetWindowOwner(cid, wid, &wid_cid) != kCGErrorSuccess || !wid_cid) return false;
++  if (SLSConnectionGetPID(wid_cid, &pid) != kCGErrorSuccess || !pid) return false;
++  if (proc_name(pid, name, sizeof(name)) <= 0
++      || strcmp(name, MISSION_CONTROL_OWNER) != 0) {
++    return false;
++  }
++
++  CGRect bounds = CGRectZero;
++  if (SLSGetWindowBounds(cid, wid, &bounds) != kCGErrorSuccess) return false;
++  return mission_control_covers_display(bounds);
++}
++
++static inline int mission_control_find_backdrop(uint32_t wid) {
++  for (int i = 0; i < g_mission_control_backdrop_count; i++) {
++    if (g_mission_control_backdrops[i] == wid) return i;
++  }
++  return -1;
++}
++
++static inline void mission_control_exit() {
++  debug("Mission Control Exit\n");
++  g_mission_control_active = false;
++  DELAY_ASYNC_EXEC_ON_MAIN_THREAD(50000, {
++    windows_draw_borders_on_current_spaces(&g_windows);
++    windows_determine_and_focus_active_window(&g_windows);
++  });
++}
++
++static inline void mission_control_window_created(int cid, uint32_t wid) {
++  if (mission_control_find_backdrop(wid) >= 0
++      || g_mission_control_backdrop_count >= MISSION_CONTROL_MAX_BACKDROPS
++      || !mission_control_is_backdrop(cid, wid)) {
++    return;
++  }
++
++  g_mission_control_backdrops[g_mission_control_backdrop_count++] = wid;
++  if (!g_mission_control_active) {
++    debug("Mission Control Enter (backdrop %d)\n", wid);
++    g_mission_control_active = true;
++    windows_hide_all(&g_windows);
++  }
++}
++
++// Drops backdrops that no longer exist. A destroy event is also sent when a
++// backdrop merely moves between spaces, so we check the window itself.
++static inline void mission_control_prune(int cid) {
++  if (!g_mission_control_backdrop_count) return;
++
++  int count = 0;
++  for (int i = 0; i < g_mission_control_backdrop_count; i++) {
++    uint32_t wid = g_mission_control_backdrops[i];
++    if (mission_control_window_exists(cid, wid)) {
++      g_mission_control_backdrops[count++] = wid;
++    }
++  }
++  g_mission_control_backdrop_count = count;
++
++  if (!count && g_mission_control_active) mission_control_exit();
++}
++
++static inline void mission_control_window_destroyed(int cid, uint32_t wid) {
++  if (mission_control_find_backdrop(wid) < 0) return;
++  mission_control_prune(cid);
++}
+--- a/src/misc/yabai.h
++++ b/src/misc/yabai.h
+@@ -8,6 +8,8 @@
+ #include "../mach.h"
+ #include <CoreVideo/CoreVideo.h>
+ #include <pthread.h>
++
++extern bool g_mission_control_active;
+
+ // Additional border interfaces needed for the yabai integration
+ void border_init(struct border* border, int cid);
+@@ -95,7 +97,9 @@
+     border_update_internal(proxy, &info->settings);
+   }
+
+-  CFTypeRef transaction = SLSTransactionCreate(proxy->cid);
++  CFTypeRef transaction = g_mission_control_active
++                          ? NULL
++                          : SLSTransactionCreate(proxy->cid);
+   if (transaction) {
+     SLSTransactionOrderWindow(transaction,
+                               proxy->wid,
+--- a/src/windows.c
++++ b/src/windows.c
+@@ -167,6 +167,16 @@
+   }
+ }
+
++void windows_hide_all(struct table* windows) {
++  for (int i = 0; i < windows->capacity; ++i) {
++    struct bucket* bucket = windows->buckets[i];
++    while (bucket) {
++      if (bucket->value) border_hide(bucket->value);
++      bucket = bucket->next;
++    }
++  }
++}
++
+ void windows_window_update(struct table* windows, uint32_t wid) {
+   struct border* border = table_find(windows, &wid);
+   if (border) border_update(border, true);
+--- a/src/windows.h
++++ b/src/windows.h
+@@ -8,6 +8,7 @@
+ void windows_update_all(struct table* windows);
+ void windows_update_notifications(struct table* windows);
+
++void windows_hide_all(struct table* windows);
+ void windows_window_update(struct table* windows, uint32_t wid);
+ void windows_window_hide(struct table* windows, uint32_t wid);
+ void windows_window_unhide(struct table* windows, uint32_t wid);
+--- /dev/null
++++ b/tests/mission_control_test.c
+@@ -0,0 +1,145 @@
++#include "misc/helpers.h"
++#include "misc/event_payload.h"
++#include "misc/window.h"
++#include "windows.h"
++#include <assert.h>
++#include <libproc.h>
++
++struct table g_windows;
++bool g_mission_control_active;
++static bool exists[32];
++static int hidden, redrawn, focused;
++static int level = 19;
++static const char *owner = "WindowManager";
++static CGRect bounds = {{0, 0}, {1920, 1080}};
++static bool owner_failure, pid_failure, bounds_failure, display_failure;
++
++static CGError test_owner(int cid, uint32_t wid, int *out) {
++  (void)cid;
++  *out = exists[wid] ? 1 : 0;
++  return owner_failure ? kCGErrorFailure : kCGErrorSuccess;
++}
++
++static CGError test_pid(int cid, pid_t *pid) {
++  (void)cid;
++  *pid = 42;
++  return pid_failure ? kCGErrorFailure : kCGErrorSuccess;
++}
++
++static int test_name(int pid, void *name, uint32_t size) {
++  (void)pid;
++  return snprintf(name, size, "%s", owner);
++}
++
++static int test_level(int cid, uint32_t wid) {
++  (void)cid;
++  (void)wid;
++  return level;
++}
++
++static CGError test_bounds(int cid, uint32_t wid, CGRect *out) {
++  (void)cid;
++  (void)wid;
++  *out = bounds;
++  return bounds_failure ? kCGErrorFailure : kCGErrorSuccess;
++}
++
++static CGError test_displays(uint32_t size, CGDirectDisplayID *ids,
++                             uint32_t *count) {
++  *count = 1;
++  if (size)
++    ids[0] = 1;
++  return display_failure ? kCGErrorFailure : kCGErrorSuccess;
++}
++
++static CGRect test_display_bounds(CGDirectDisplayID display) {
++  (void)display;
++  return CGRectMake(0, 0, 1920, 1080);
++}
++
++void windows_hide_all(struct table *windows) {
++  (void)windows;
++  hidden++;
++}
++
++void windows_draw_borders_on_current_spaces(struct table *windows) {
++  (void)windows;
++  redrawn++;
++}
++
++void windows_determine_and_focus_active_window(struct table *windows) {
++  (void)windows;
++  focused++;
++}
++
++#undef DELAY_ASYNC_EXEC_ON_MAIN_THREAD
++#define DELAY_ASYNC_EXEC_ON_MAIN_THREAD(delay, code)                           \
++  do {                                                                         \
++    code                                                                       \
++  } while (0)
++#define SLSGetWindowOwner test_owner
++#define SLSConnectionGetPID test_pid
++#define SLSGetWindowBounds test_bounds
++#define CGGetActiveDisplayList test_displays
++#define CGDisplayBounds test_display_bounds
++#define proc_name test_name
++#define window_level test_level
++#include "misc/mission_control.h"
++
++static void test_window_payload(void) {
++  unsigned char data[17] = {0};
++  uint64_t expected_sid = 0x123456789abcdef0ULL;
++  uint32_t expected_wid = 0xdeadbeefU;
++  memcpy(data + 1, &expected_sid, sizeof(expected_sid));
++  memcpy(data + 9, &expected_wid, sizeof(expected_wid));
++  uint64_t sid = 0;
++  uint32_t wid = 0;
++  assert(!event_decode_window_spawn(NULL, 12, &sid, &wid));
++  assert(!event_decode_window_spawn(data + 1, 11, &sid, &wid));
++  assert(sid == 0 && wid == 0);
++  assert(event_decode_window_spawn(data + 1, 12, &sid, &wid));
++  assert(sid == expected_sid && wid == expected_wid);
++  assert(event_decode_window_spawn(data + 1, 16, &sid, &wid));
++  assert(sid == expected_sid && wid == expected_wid);
++}
++
++int main(void) {
++  test_window_payload();
++  exists[1] = exists[2] = true;
++  level = 18;
++  assert(!mission_control_is_backdrop(0, 1));
++  level = 19;
++  owner = "OtherApp";
++  assert(!mission_control_is_backdrop(0, 1));
++  owner = "WindowManager";
++  bounds.size.width = 100;
++  assert(!mission_control_is_backdrop(0, 1));
++  bounds.size.width = 1920;
++
++  bool *failures[] = {&owner_failure, &pid_failure, &bounds_failure,
++                      &display_failure};
++  for (size_t i = 0; i < sizeof(failures) / sizeof(failures[0]); i++) {
++    *failures[i] = true;
++    assert(!mission_control_is_backdrop(0, 1));
++    *failures[i] = false;
++  }
++
++  mission_control_window_created(0, 1);
++  mission_control_window_created(0, 1);
++  mission_control_window_created(0, 2);
++  assert(g_mission_control_active && hidden == 1);
++  assert(g_mission_control_backdrop_count == 2);
++
++  mission_control_window_destroyed(0, 1);
++  assert(g_mission_control_active && redrawn == 0);
++  exists[1] = false;
++  mission_control_window_destroyed(0, 1);
++  assert(g_mission_control_active && g_mission_control_backdrop_count == 1);
++  exists[2] = false;
++  mission_control_prune(0);
++  assert(!g_mission_control_active && redrawn == 1 && focused == 1);
++  mission_control_prune(0);
++  assert(redrawn == 1);
++  puts("Mission Control detection, query failures, and multi-display lifecycle "
++       "passed");
++}

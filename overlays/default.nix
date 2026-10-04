@@ -50,6 +50,7 @@
   (import ./git-ai.nix)
   (import ./git-ai-gate.nix)
   (import ./alerter.nix)
+  (import ./jankyborders)
   (import ./sheets.nix)
   (import ./zoetrope.nix)
   (import ./mise-nix.nix)

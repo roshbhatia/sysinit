@@ -43,6 +43,20 @@ in
     if [ "''${sysinit_system_apps_validated:-0}" != 1 ]; then
       ${appState} record ${appStateArgs} || echo "sysinit: app signatures need repair" >&2
     fi
+    ${lib.optionalString config.services.jankyborders.enable ''
+      borders_domain="gui/$(id -u ${lib.escapeShellArg user})/org.nixos.jankyborders"
+      borders_marker="/var/db/sysinit/jankyborders-package"
+      if [ "$(cat "$borders_marker" 2>/dev/null)" != "${pkgs.jankyborders}" ] &&
+        launchctl print "$borders_domain" >/dev/null 2>&1; then
+        if launchctl kickstart -k "$borders_domain"; then
+          mkdir -p /var/db/sysinit
+          printf '%s\n' "${pkgs.jankyborders}" > "$borders_marker"
+        else
+          echo "sysinit: failed to restart the signed borders binary" >&2
+          exit 1
+        fi
+      fi
+    ''}
   '';
 
   system.activationScripts.applications.text = lib.mkMerge [
