@@ -31,7 +31,7 @@
 
 .tab-background[selected] {
   background-color: var(--bg-alt) !important;
-  outline: 1px solid var(--accent) !important;
+  box-shadow: none !important;
 }
 
 .tab-label {
@@ -45,12 +45,12 @@
 }
 
 .tabbrowser-tab[selected] .tab-label {
-  font-weight: 600 !important;
+  font-weight: 500 !important;
 }
 
 #urlbar-background {
   background-color: var(--bg-alt) !important;
-  border: 1px solid var(--bg-sel) !important;
+  border: 1px solid transparent !important;
   border-radius: 4px !important;
 }
 
@@ -87,4 +87,23 @@ findbar {
   background-color: var(--bg) !important;
   color: var(--fg) !important;
   border-color: var(--bg-sel) !important;
+}
+
+#nav-bar {
+  box-shadow: none !important;
+  border-top: 0 !important;
+}
+
+#urlbar:not([focused]) #urlbar-background {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+#urlbar:hover #urlbar-background {
+  background-color: var(--bg-alt) !important;
+}
+
+.tabbrowser-tab:not([selected]):not(:hover):not(:focus-within)
+  .tab-close-button {
+  visibility: hidden !important;
 }
