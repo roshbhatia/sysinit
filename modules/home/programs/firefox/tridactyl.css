@@ -2,7 +2,7 @@
   --tridactyl-font-family: "@monospace-font@", monospace;
   --tridactyl-font-family-mono: "@monospace-font@", monospace;
   --tridactyl-font-size: 12px;
-  --tridactyl-small-font-size: 10px;
+  --tridactyl-small-font-size: 11px;
 
   /* Command line */
   --tridactyl-cmdl-bg: var(--sysinit-base01);

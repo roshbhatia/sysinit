@@ -9,8 +9,32 @@
   --toolbar-color: var(--fg);
   --lwt-text-color: var(--fg);
   --toolbox-border-bottom-color: transparent;
+  --tab-min-height: 28px !important;
+  --urlbar-min-height: 28px !important;
+  --toolbarbutton-inner-padding: 4px !important;
+  --toolbarbutton-outer-padding: 2px !important;
+  --tab-border-radius: 2px !important;
+  --toolbarbutton-border-radius: 2px !important;
+  --arrowpanel-border-radius: 2px !important;
+  --panel-border-radius: 2px !important;
+  --toolbar-field-background-color: var(--bg-alt) !important;
+  --toolbar-field-focus-background-color: var(--bg-alt) !important;
+  --toolbar-field-color: var(--fg) !important;
+  --toolbar-field-focus-color: var(--fg) !important;
+  --panel-background: var(--bg-alt) !important;
+  --panel-color: var(--fg) !important;
+  --arrowpanel-background: var(--bg-alt) !important;
+  --arrowpanel-color: var(--fg) !important;
+  --arrowpanel-border-color: var(--bg-sel) !important;
+  --arrowpanel-menuitem-padding-block: 4px !important;
+  --arrowpanel-menuitem-border-radius: 2px !important;
+  --button-background-color-hover: var(--bg-sel) !important;
+  --button-background-color-active: var(--bg-sel) !important;
+  --urlbarView-highlight-background: var(--bg-sel) !important;
+  --urlbarView-highlight-color: var(--fg) !important;
+  --urlbarview-separator-color: transparent !important;
   font-family: "@monospace-font@", monospace !important;
-  font-size: 14px !important;
+  font-size: 13px !important;
 }
 
 #navigator-toolbox,
@@ -26,7 +50,8 @@
 }
 
 .tab-background {
-  border-radius: 6px !important;
+  margin-block: 2px !important;
+  border-radius: 2px !important;
 }
 
 .tab-background[selected] {
@@ -35,7 +60,7 @@
 }
 
 .tab-label {
-  font-size: 14px !important;
+  font-size: 13px !important;
   color: var(--fg-dim) !important;
 }
 
@@ -48,13 +73,13 @@
   font-weight: 500 !important;
 }
 
-#urlbar-background {
+.urlbar-background {
   background-color: var(--bg-alt) !important;
   border: 1px solid transparent !important;
-  border-radius: 4px !important;
+  border-radius: 2px !important;
 }
 
-#urlbar:focus-within > #urlbar-background {
+#urlbar:focus-within > .urlbar-background {
   border-color: var(--accent) !important;
 }
 
@@ -94,16 +119,78 @@ findbar {
   border-top: 0 !important;
 }
 
-#urlbar:not([focused]) #urlbar-background {
+#urlbar:not([focused]) .urlbar-background {
   background-color: transparent !important;
   box-shadow: none !important;
 }
 
-#urlbar:hover #urlbar-background {
+#urlbar:hover .urlbar-background {
   background-color: var(--bg-alt) !important;
 }
 
 .tabbrowser-tab:not([selected]):not(:hover):not(:focus-within)
   .tab-close-button {
   visibility: hidden !important;
+}
+
+#urlbar,
+#urlbar-input,
+#searchbar,
+.urlbarView,
+findbar,
+panel,
+menupopup {
+  font-family: "@monospace-font@", monospace !important;
+  font-size: 13px !important;
+}
+
+.urlbarView-row-inner,
+.findbar-textbox,
+.panel-viewstack,
+menupopup::part(content) {
+  border-radius: 2px !important;
+}
+
+@media (-moz-platform: macos) {
+  .titlebar-buttonbox {
+    appearance: none !important;
+  }
+
+  .titlebar-buttonbox-container,
+  .titlebar-button,
+  .titlebar-spacer {
+    display: none !important;
+  }
+}
+
+#urlbar-container {
+  padding-block: 2px !important;
+}
+
+#nav-bar #vertical-spacer,
+#star-button-box {
+  display: none !important;
+}
+
+.urlbarView-row-inner {
+  padding-block: 4px !important;
+}
+
+.urlbarView-action,
+.urlbarView-title-separator {
+  color: var(--fg-dim) !important;
+}
+
+.urlbarView-row[selected]
+  :is(.urlbarView-title, .urlbarView-url, .urlbarView-action) {
+  color: var(--fg) !important;
+}
+
+#urlbar-input::placeholder {
+  opacity: 0 !important;
+}
+
+#urlbar-input::selection {
+  background-color: var(--bg-sel) !important;
+  color: var(--fg) !important;
 }
