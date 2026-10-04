@@ -1,0 +1,47 @@
+modules/darwin/home/hammerspoon/lua/sysinit/pkg/url_routing.lua
+  s_e4ed06871265ed::t_ee7607275142ca 5
+overlays/command-palette-browser-tabs.patch
+  s_e4ed06871265ed::t_ee265a470c24b9 1-35
+modules/darwin/home/helium-settings.py
+  s_e4ed06871265ed::t_b50dbaef23b7bf 1-76
+modules/darwin/home/helium.nix
+  s_e4ed06871265ed::t_ba07555f17372a 65-83,86
+  s_e4ed06871265ed::t_946456cf987da2 11-12,24
+  s_e4ed06871265ed::t_ee7607275142ca 7-8,51-64,84-85,87
+  s_e4ed06871265ed::t_b50dbaef23b7bf 1-6,9-10,14-23,25-50
+  s_e4ed06871265ed::t_84a9d33062011e 13
+modules/darwin/home/default.nix
+  s_e4ed06871265ed::t_ee7607275142ca 6
+overlays/inputs.nix
+  s_e4ed06871265ed::t_efe355812eae25 35-37
+  s_e4ed06871265ed::t_5b6f32f9cef631 41-45
+modules/darwin/home/hammerspoon/default.nix
+  s_e4ed06871265ed::t_ee7607275142ca 80,86
+flake.nix
+  s_e4ed06871265ed::t_efe355812eae25 26-30
+modules/darwin/home/helium-tabs.js
+  s_e4ed06871265ed::t_ee7607275142ca 1,3-25
+  s_e4ed06871265ed::t_cdd09f6d197563 2,26
+modules/darwin/home/hammerspoon/url-routing.nix
+  s_e4ed06871265ed::t_ee7607275142ca 75,97,150
+checks/firefox.nix
+  s_e4ed06871265ed::t_60bdccd486037e 7-12
+flake.lock
+  s_e4ed06871265ed::t_43ce36bdebcbf8 772-791,1385
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a57a555d6a3e685f9e06eaf37c4c59194e48d0ce",
+  "prompts": {},
+  "sessions": {
+    "s_e4ed06871265ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10455-7ba4-74e1-8b4d-13ded1579742",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
