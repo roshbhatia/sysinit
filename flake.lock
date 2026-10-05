@@ -799,11 +799,11 @@
         "systems": "systems_3"
       },
       "locked": {
-        "lastModified": 1790789581,
-        "narHash": "sha256-gboxU9eCny4fc0Ngju34DJLhUGBPqeWNuT6FxLLszJU=",
+        "lastModified": 1790965284,
+        "narHash": "sha256-97eJqu4KjT2KtXZRG6AJyBoiciKnWmEFdLLxAY7D78w=",
         "owner": "modem-dev",
         "repo": "hunk",
-        "rev": "aa23ba29ae233a480b1b3c2c20c1c25018246ee6",
+        "rev": "f4beb1650c7cab6ca8accc171383d2110f80f71c",
         "type": "github"
       },
       "original": {
