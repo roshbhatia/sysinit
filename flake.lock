@@ -1508,16 +1508,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1790335954,
-        "narHash": "sha256-GHalz2565N4s83DSQHW6uxdSnsQz+QriXOYPWXdF0qY=",
+        "lastModified": 1790947269,
+        "narHash": "sha256-bo0RqL9YB0QWPcyDO7RAueI5GtS6qioekQiBXvezR9Y=",
         "owner": "gammons",
         "repo": "slk",
-        "rev": "2b43b2936c56d557ff6482e0fce236d5613b038a",
+        "rev": "efd4720dc6dae27752a39bb88200f0f835ae6a02",
         "type": "github"
       },
       "original": {
         "owner": "gammons",
-        "ref": "v0.22.0",
+        "ref": "v0.23.0",
         "repo": "slk",
         "type": "github"
       }
