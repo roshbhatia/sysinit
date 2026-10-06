@@ -1,0 +1,31 @@
+modules/home/programs/llm/skills/skills-ecosystem-discovery.nix
+  s_de281cf8e5cd4f::t_40487729a58db9 1
+  s_de281cf8e5cd4f::t_6f14173e689ddc 4,6
+modules/home/programs/llm/skills/default.nix
+  s_de281cf8e5cd4f::t_435c9da8487c1b 1
+  s_de281cf8e5cd4f::t_40487729a58db9 58
+checks/codex-config.nix
+  s_de281cf8e5cd4f::t_6f14173e689ddc 4
+modules/home/programs/llm/skills/render.nix
+  s_de281cf8e5cd4f::t_435c9da8487c1b 8
+flake.nix
+  s_de281cf8e5cd4f::t_6f14173e689ddc 476
+checks/default.nix
+  s_de281cf8e5cd4f::t_6f14173e689ddc 4,233-234
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3db48880bd57efe3dad07a2906ce7ce95c47c173",
+  "prompts": {},
+  "sessions": {
+    "s_de281cf8e5cd4f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a11307-12eb-7480-afb6-c32a40ba7deb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
