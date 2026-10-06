@@ -1,0 +1,20 @@
+overlays/gh-dash.nix
+  s_de281cf8e5cd4f::t_435c9da8487c1b 7
+  s_de281cf8e5cd4f::t_f107ee25c12dff 8-26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "49d9a1f250f180a6ca7cc407a901bb9796e53853",
+  "prompts": {},
+  "sessions": {
+    "s_de281cf8e5cd4f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a11307-12eb-7480-afb6-c32a40ba7deb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
