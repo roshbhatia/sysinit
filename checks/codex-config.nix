@@ -1,11 +1,9 @@
 {
   lib,
   pkgs,
-  darwinConfigurations,
+  home,
 }:
 let
-  host = darwinConfigurations.lv426.config;
-  home = host.home-manager.users.${host.sysinit.user.username};
   declaredConfig = pkgs.writeText "codex-config.toml" ''
     [desktop]
     external-agent-import-sync-enabled = false

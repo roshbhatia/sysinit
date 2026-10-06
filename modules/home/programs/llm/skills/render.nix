@@ -5,7 +5,7 @@
 }:
 
 let
-  registry = import ./. { inherit pkgs lib; };
+  registry = import ./. { inherit lib; };
   vocab = import ../lib/vocab.nix { inherit lib; };
   frontmatter = import ../lib/frontmatter.nix { inherit lib; };
 

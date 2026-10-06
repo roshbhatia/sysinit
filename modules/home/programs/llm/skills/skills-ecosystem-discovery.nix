@@ -1,9 +1,9 @@
-{ pkgs, lib }:
+{ lib }:
 
 let
-  upstream = pkgs.fetchurl {
+  upstream = builtins.fetchurl {
     url = "https://raw.githubusercontent.com/vercel-labs/skills/c99a72b371b5b4da865f5afa87c5a686f3a46766/skills/find-skills/SKILL.md";
-    hash = "sha256-HoX2+WhuFFrKShJOO3BLm76pqofghRXB41Lu5w9ubno=";
+    sha256 = "sha256-HoX2+WhuFFrKShJOO3BLm76pqofghRXB41Lu5w9ubno=";
   };
 
   full = builtins.readFile upstream;

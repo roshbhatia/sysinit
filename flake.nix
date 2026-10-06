@@ -184,7 +184,7 @@
     };
 
     slk = {
-      url = "github:gammons/slk/v0.22.0";
+      url = "github:gammons/slk/v0.23.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -473,6 +473,7 @@
             nixosConfigurations
             ;
           homeManagerLib = inputs.home-manager.lib;
+          inherit (inputs.self) homeConfigurations;
           pkgs = pkgsFor.${system};
         }
       );

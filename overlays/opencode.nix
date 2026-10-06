@@ -26,7 +26,7 @@ let
   };
   cliSchema = final.fetchurl {
     url = "https://opencode.ai/v2/cli.json";
-    hash = "sha256-FrNb6tWMg3ZaVKOHVIwD5YcUhs/MQEEFdx5O+DJaYSc=";
+    hash = "sha256-7JxWgabKyPmeZUiS8GElRWf9dBm78foYzP+Zl8I2A+w=";
   };
 in
 {
