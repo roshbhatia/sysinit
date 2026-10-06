@@ -1,6 +1,7 @@
 {
   pkgs,
   homeManagerLib,
+  homeConfigurations,
   darwinConfigurations,
   nixosConfigurations,
   ...
@@ -229,7 +230,8 @@ in
     inherit (pkgs) lib;
   };
   codex-config = import ./codex-config.nix {
-    inherit pkgs darwinConfigurations;
+    inherit pkgs;
+    home = homeConfigurations.${"dev-" + pkgs.stdenv.hostPlatform.system}.config;
     inherit (pkgs) lib;
   };
   host-access-security = import ./host-access-security.nix {

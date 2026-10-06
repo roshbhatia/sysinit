@@ -473,6 +473,7 @@
             nixosConfigurations
             ;
           homeManagerLib = inputs.home-manager.lib;
+          inherit (inputs.self) homeConfigurations;
           pkgs = pkgsFor.${system};
         }
       );

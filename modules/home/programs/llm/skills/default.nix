@@ -1,4 +1,4 @@
-{ pkgs, lib }:
+{ lib }:
 
 let
   frontmatter = import ../lib/frontmatter.nix { inherit lib; };
@@ -55,7 +55,7 @@ lib.mapAttrs mkSkill skillDirs
 // {
   skills-ecosystem-discovery = {
     description = "Discovers and installs agent skills from the open skills ecosystem at skills.sh. Use when the user asks 'how do I do X', 'is there a skill for X', wants to extend agent capabilities, or wants to install something via npx skills.";
-    content = import ./skills-ecosystem-discovery.nix { inherit pkgs lib; };
+    content = import ./skills-ecosystem-discovery.nix { inherit lib; };
     allowed-tools = "Bash(npx:*) WebFetch";
   };
 }
