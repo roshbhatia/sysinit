@@ -799,11 +799,11 @@
         "systems": "systems_3"
       },
       "locked": {
-        "lastModified": 1790789581,
-        "narHash": "sha256-gboxU9eCny4fc0Ngju34DJLhUGBPqeWNuT6FxLLszJU=",
+        "lastModified": 1790965284,
+        "narHash": "sha256-97eJqu4KjT2KtXZRG6AJyBoiciKnWmEFdLLxAY7D78w=",
         "owner": "modem-dev",
         "repo": "hunk",
-        "rev": "aa23ba29ae233a480b1b3c2c20c1c25018246ee6",
+        "rev": "f4beb1650c7cab6ca8accc171383d2110f80f71c",
         "type": "github"
       },
       "original": {
@@ -1031,11 +1031,11 @@
     },
     "nixpkgs_3": {
       "locked": {
-        "lastModified": 1790652569,
-        "narHash": "sha256-641r7xrlSOHYoktL9/aArPIYNgZJ9eM5URzSEOtPJDY=",
+        "lastModified": 1790769526,
+        "narHash": "sha256-5AIVFLRcx8YAwbFTVPTs7YhwJH7JyHfAQsvXmpovcXI=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "b6c8664de9b6cc07fe5666a29f91884ba81197c4",
+        "rev": "c9fe7d12cd78d1adcd12dd15e24432dde5b155a0",
         "type": "github"
       },
       "original": {
@@ -1098,11 +1098,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790572015,
-        "narHash": "sha256-CfNfnnQ8VK51L8aA4WLGTnMH0JfTOzu34+HOBUB6xSI=",
+        "lastModified": 1790807124,
+        "narHash": "sha256-19h/GnWOwKA3ako5GI4T40CMYrkgCfUgNE5rhaonMjU=",
         "owner": "roshbhatia",
         "repo": "nu_plugin_nvim",
-        "rev": "c6fc3523c405695c6287b20f6ae3e7aef5c7ab45",
+        "rev": "f0389f009eed754fe2aed8026ea73fe13f5601cf",
         "type": "github"
       },
       "original": {
@@ -1508,16 +1508,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1790335954,
-        "narHash": "sha256-GHalz2565N4s83DSQHW6uxdSnsQz+QriXOYPWXdF0qY=",
+        "lastModified": 1790947269,
+        "narHash": "sha256-bo0RqL9YB0QWPcyDO7RAueI5GtS6qioekQiBXvezR9Y=",
         "owner": "gammons",
         "repo": "slk",
-        "rev": "2b43b2936c56d557ff6482e0fce236d5613b038a",
+        "rev": "efd4720dc6dae27752a39bb88200f0f835ae6a02",
         "type": "github"
       },
       "original": {
         "owner": "gammons",
-        "ref": "v0.22.0",
+        "ref": "v0.23.0",
         "repo": "slk",
         "type": "github"
       }
