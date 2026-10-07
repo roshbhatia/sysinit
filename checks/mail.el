@@ -1,7 +1,7 @@
 ;;; mail.el --- Mail integration checks -*- lexical-binding: t; -*-
 (require 'ert)
-(setq sysinit-mail-accounts '(("test@example.com" "/tmp/personal")
-                              ("work@example.com" "/tmp/work"))
+(setq sysinit-mail-accounts '(("test@example.com" "/tmp/personal" "personal")
+                              ("work@example.com" "/tmp/work" "work"))
       sysinit-mail-sync-command (executable-find "true"))
 (load (getenv "MAIL_CONFIG"))
 ;; Notmuch forces cwd to ~, which is absent in the Nix build sandbox.
@@ -50,7 +50,7 @@
             (should (commandp (key-binding (kbd "g1")))))
           (sysinit-mail-view "1")
           (mail-test-wait)
-          (should (commandp (key-binding (kbd "gw"))))
+          (should (commandp (key-binding (kbd "SPC a"))))
           (should (eq evil-state 'normal))
           (should (eq (key-binding (kbd "j")) #'notmuch-search-next-thread))
           (should (eq (key-binding (kbd "e")) #'sysinit-mail-archive))
@@ -88,4 +88,42 @@
 (ert-deftest mail-category-label-names ()
   (should (equal (plist-get (cl-find "Unsubscribe Success" notmuch-saved-searches
                                    :key (lambda (entry) (plist-get entry :name)) :test #'equal) :query)
-                 "path:personal/** and tag:\"Unsubscribe Success\"")))
+                 "path:personal/** and (tag:\"Unsubscribe Success\")")))
+
+(ert-deftest mail-account-switch-and-vim-keys ()
+  (let ((sysinit-mail-account (car sysinit-mail-accounts))
+        (notmuch-saved-searches nil)
+        (user-mail-address nil)
+        (notmuch-identities nil))
+    (sysinit-mail-configure-account)
+    (should (equal (sysinit-mail-scope "tag:inbox or tag:unread")
+                   "path:personal/** and (tag:inbox or tag:unread)"))
+    (cl-letf (((symbol-function 'completing-read) (lambda (&rest _) "work@example.com"))
+              ((symbol-function 'notmuch) #'ignore))
+      (sysinit-mail-switch-account))
+    (should (equal user-mail-address "work@example.com"))
+    (should (equal notmuch-identities '("work@example.com")))
+    (dolist (view notmuch-saved-searches)
+      (should (string-prefix-p "path:work/** and (" (plist-get view :query))))
+    (with-temp-buffer
+      (notmuch-search-mode)
+      (should (eq (key-binding (kbd "SPC a")) #'sysinit-mail-switch-account))
+      (should (eq (key-binding (kbd "SPC f g")) #'notmuch-search))
+      (should (eq (key-binding (kbd "G")) #'evil-goto-line))
+      (should (eq (key-binding (kbd "/")) #'evil-search-forward)))))
+
+(ert-deftest mail-remembers-selected-account ()
+  (let* ((root (make-temp-file "mail-state-" t))
+         (sysinit-mail-state-file (expand-file-name "email/account" root))
+         (sysinit-mail-account (cadr sysinit-mail-accounts))
+         (notmuch-saved-searches nil)
+         (notmuch-identities nil)
+         (user-mail-address nil))
+    (unwind-protect
+        (progn
+          (sysinit-mail-configure-account)
+          (should (equal (with-temp-buffer
+                           (insert-file-contents sysinit-mail-state-file)
+                           (buffer-string)) "work"))
+          (should (= (file-modes sysinit-mail-state-file) #o600)))
+      (delete-directory root t))))

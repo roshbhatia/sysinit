@@ -1,6 +1,7 @@
 # Email
 
-Run `email` for the terminal Emacs client. Nix installs Emacs, Evil, notmuch,
+Run `email --personal` or `email --work` for the terminal Emacs client.
+Run `email` to restore the last account. Nix installs Emacs, Evil, notmuch,
 Lieer, and the mail interface. Account addresses, tokens, mail, and sync state
 stay in local files outside Nix.
 
@@ -9,17 +10,27 @@ stay in local files outside Nix.
 | Key | Action |
 | --- | --- |
 | `1`–`5` | Personal Primary, Promotions, Social, Updates, Forums |
-| `gi`, `gw`, `ga` | Combined inbox, work inbox, all mail |
+| `Space a` | Switch account |
+| `gi`, `gu`, `ga` | Selected account: inbox, unread, all mail |
 | `j`, `k`, Enter, `q` | Move, open, return |
-| `s`, `G` | Search, sync |
+| `Space f g`, `s` | Search the selected account |
+| `Space m s`, `Space m l` | Sync, sync log |
+| `gg`, `G`, `Ctrl-u`, `Ctrl-d` | First, last, half-page up/down |
+| `/`, `n`, `N` | Find text in the view |
+| `Space f b`, `Ctrl-h/j/k/l` | Buffer picker, window navigation |
 | `V`, then `j`/`k` | Select rows |
 | `,v` | Select all results |
 | `,r`, `,u` | Mark selection read or unread |
 | `e` | Archive selection |
 | `,U` | Add the existing Unsubscribe label |
 | `c`, `r`, `R` | Compose, reply, reply all |
-| `?`, `Q` | Help, quit |
+| `Space ?`, `Q` | Help, quit |
 
+The header shows the selected account. Every saved view and search uses that
+account. Switching closes old mail views and preserves drafts. New messages use
+the selected sender. The last account is stored in `~/.local/state/email/account`.
+
+Space is the leader, and comma owns local mail actions, matching Neovim.
 Compose with Vim insert/normal modes. `C-c C-c` sends; `C-c C-k` cancels.
 Reading a message does not mark it read automatically. Use `,r` explicitly.
 Bulk actions affect matching messages, including when a thread also contains

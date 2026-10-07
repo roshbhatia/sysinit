@@ -55,27 +55,42 @@ let
     (require 'json)
     (let ((json-array-type 'list))
       (setq sysinit-mail-accounts
-        (mapcar (lambda (account) (list (alist-get 'address account) (alist-get 'path account)))
+        (mapcar (lambda (account) (list (alist-get 'address account) (alist-get 'path account) (alist-get 'name account)))
           (json-read-file ${builtins.toJSON accountFile}))))
     (setq user-mail-address (caar sysinit-mail-accounts)
       user-full-name "Roshan Bhatia"
+      sysinit-mail-state-file ${builtins.toJSON "${config.xdg.stateHome}/email/account"}
       sysinit-mail-sync-command ${builtins.toJSON (lib.getExe sync)}
       sendmail-program ${builtins.toJSON "${pkgs.lieer}/bin/gmi"})
     ${builtins.readFile ./mail.el}
   '';
-  client = pkgs.writeShellApplication {
+  client = pkgs.writeTextFile {
     name = "email";
-    runtimeInputs = [ pkgs.notmuch ];
-    text = ''
-      ${mailEnv}
-      if [[ ! -r ${lib.escapeShellArg accountFile} ]]; then
-        echo 'Mail accounts are not configured. See the email setup guide.' >&2
-        exit 1
-      fi
-      notmuch new
-      exec ${config.programs.emacs.finalPackage}/bin/emacs -nw -q --load ${init} --funcall notmuch "$@"
-    '';
+    destination = "/bin/email";
+    executable = true;
+    text =
+      "#!${pkgs.nushell}/bin/nu --no-config-file\n"
+      +
+        builtins.replaceStrings
+          (map builtins.toJSON [
+            "@accounts@"
+            "@config@"
+            "@state@"
+            "@notmuch@"
+            "@emacs@"
+            "@init@"
+          ])
+          (map builtins.toJSON [
+            accountFile
+            "${config.xdg.configHome}/notmuch/default/config"
+            "${config.xdg.stateHome}/email/account"
+            "${pkgs.notmuch}/bin/notmuch"
+            "${config.programs.emacs.finalPackage}/bin/emacs"
+            (toString init)
+          ])
+          (builtins.readFile ./email.nu);
   };
+
 in
 {
   options.sysinit.mail.enable = lib.mkEnableOption "Gmail in Emacs with notmuch and Lieer" // {

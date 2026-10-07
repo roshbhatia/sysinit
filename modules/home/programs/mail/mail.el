@@ -20,21 +20,79 @@
       message-sendmail-envelope-from 'header
       message-sendmail-f-is-evil t
       message-kill-buffer-on-exit t
-      notmuch-identities (mapcar #'car sysinit-mail-accounts)
-      notmuch-always-prompt-for-sender (> (length sysinit-mail-accounts) 1)
-      notmuch-saved-searches
-      '((:name "Primary" :query "path:personal/** and tag:inbox and tag:personal" :key "1")
-        (:name "Promotions" :query "path:personal/** and tag:inbox and tag:promotions" :key "2")
-        (:name "Social" :query "path:personal/** and tag:inbox and tag:social" :key "3")
-        (:name "Updates" :query "path:personal/** and tag:inbox and tag:updates" :key "4")
-        (:name "Forums" :query "path:personal/** and tag:inbox and tag:forums" :key "5")
-        (:name "Inbox" :query "tag:inbox" :key "i")
-        (:name "Work inbox" :query "path:work/** and tag:inbox" :key "w")
-        (:name "Unread" :query "tag:unread" :key "u")
-        (:name "All mail" :query "*" :key "a")
-        (:name "Unsubscribe" :query "path:personal/** and tag:Unsubscribe" :key "x")
-        (:name "Unsubscribe Success" :query "path:personal/** and tag:\"Unsubscribe Success\"")
-        (:name "Unsubscribe Failed" :query "path:personal/** and tag:\"Unsubscribe Failed\"")))
+      notmuch-show-only-matching-messages t
+      notmuch-always-prompt-for-sender nil)
+
+(defvar sysinit-mail-account
+  (or (cl-find (getenv "EMAIL_ACCOUNT") sysinit-mail-accounts :key #'caddr :test #'equal)
+      (car sysinit-mail-accounts)))
+(defvar sysinit-mail-state-file nil)
+(defvar sysinit-mail-view-definitions
+  '((:name "Inbox" :query "tag:inbox" :key "i")
+    (:name "Unread" :query "tag:unread" :key "u")
+    (:name "All mail" :query "*" :key "a")
+    (:name "Primary" :query "tag:inbox and tag:personal" :key "1")
+    (:name "Promotions" :query "tag:inbox and tag:promotions" :key "2")
+    (:name "Social" :query "tag:inbox and tag:social" :key "3")
+    (:name "Updates" :query "tag:inbox and tag:updates" :key "4")
+    (:name "Forums" :query "tag:inbox and tag:forums" :key "5")
+    (:name "Unsubscribe" :query "tag:Unsubscribe" :key "x")
+    (:name "Unsubscribe Success" :query "tag:\"Unsubscribe Success\"")
+    (:name "Unsubscribe Failed" :query "tag:\"Unsubscribe Failed\"")))
+
+(defun sysinit-mail-scope (query)
+  "Restrict QUERY to the selected account's mail directory."
+  (let ((scope (concat "path:" (file-name-nondirectory
+                               (directory-file-name (cadr sysinit-mail-account))) "/**")))
+    (if (string-prefix-p (concat scope " and (") query) query
+      (format "%s and (%s)" scope query))))
+
+(defun sysinit-mail-scoped-search (args)
+  "Keep native searches and dashboard searches inside the selected account."
+  (cons (sysinit-mail-scope (or (car args) "*")) (cdr args)))
+(advice-add 'notmuch-search :filter-args #'sysinit-mail-scoped-search)
+
+(defun sysinit-mail-configure-account ()
+  "Set views and sender identity for the selected account."
+  (setq user-mail-address (car sysinit-mail-account)
+        notmuch-identities (list (car sysinit-mail-account))
+        notmuch-saved-searches
+        (mapcar (lambda (view)
+                  (plist-put (copy-sequence view) :query
+                             (sysinit-mail-scope (plist-get view :query))))
+                sysinit-mail-view-definitions))
+  (when sysinit-mail-state-file
+    (make-directory (file-name-directory sysinit-mail-state-file) t)
+    (let ((temporary (make-temp-file (concat sysinit-mail-state-file "."))))
+      (unwind-protect
+          (progn
+            (with-temp-file temporary (insert (caddr sysinit-mail-account)))
+            (set-file-modes temporary #o600)
+            (rename-file temporary sysinit-mail-state-file t))
+        (when (file-exists-p temporary) (delete-file temporary))))))
+(sysinit-mail-configure-account)
+
+(defun sysinit-mail-switch-account ()
+  "Select one account and close mail views from the previous account."
+  (interactive)
+  (let* ((address (completing-read "Mail account: " (mapcar #'car sysinit-mail-accounts)
+                                   nil t nil nil (car sysinit-mail-account)))
+         (account (assoc-string address sysinit-mail-accounts t)))
+    (dolist (buffer (buffer-list))
+      (with-current-buffer buffer
+        (when (derived-mode-p 'notmuch-hello-mode 'notmuch-search-mode
+                              'notmuch-show-mode 'notmuch-tree-mode)
+          (kill-buffer buffer))))
+    (setq sysinit-mail-account account
+          notmuch-search-history nil)
+    (sysinit-mail-configure-account)
+    (notmuch)))
+
+(defun sysinit-mail-header ()
+  "Show the selected account and account switch shortcut."
+  (setq-local header-line-format
+              (format " %s   SPC a Accounts   gi Inbox   SPC m s Sync   SPC ? Help"
+                      (car sysinit-mail-account))))
 
 (defun sysinit-mail-send-account ()
   "Select the Lieer account from the composed From header."
@@ -102,12 +160,19 @@
   "Open the saved mail view identified by KEY."
   (let ((view (cl-find key notmuch-saved-searches
                        :key (lambda (entry) (plist-get entry :key)) :test #'equal)))
+    (unless view (user-error "Unknown mail view: %s" key))
     (notmuch-search (plist-get view :query))))
 (defun sysinit-mail-help ()
   "Show the mail client's keyboard controls."
   (interactive)
   (with-help-window "*Mail keys*"
-    (princ "Mail\n\n1–5: Gmail categories   gi: Inbox   ga: All mail\nj/k: move   Enter: open   q: back   s: search   G: sync\nV then j/k: select rows   ,v: select all results\n,r: mark read   ,u: mark unread   e: archive   ,U: Unsubscribe label\nc: compose   r: reply   R: reply all   f: forward\nCompose: i: insert   Escape: normal   C-c C-c: send   C-c C-k: cancel\nQ: quit Emacs   ?: this help\n\nChanges sync after each action. G fetches new mail.\nFirst login: run mail-auth personal in your shell.\n")))
+    (princ "Mail — one account at a time\n\nSPC a: switch account   gi: Inbox   ga: All mail   gu: Unread\n1–5: Gmail categories   SPC f g / s: search this account\nj/k: move   Enter: open   q: back   gg/G: first/last\nC-u/C-d: half page   / n N: find in view   SPC f b: buffers\nV then j/k: select rows   ,v: select all results\n,r: mark read   ,u: mark unread   e: archive   ,U: Unsubscribe label\nc: compose   r: reply   R: reply all   f: forward\nSPC m s: sync   SPC m l: sync log   SPC ?: help   Q: quit\nCompose: i: insert   Escape: normal   C-c C-c: send   C-c C-k: cancel\n\nAccount switching closes old mail views and preserves drafts.\n")))
+
+(defun sysinit-mail-sync-log ()
+  "Open the latest sync output."
+  (interactive)
+  (pop-to-buffer (get-buffer-create "*mail-sync*")))
+
 
 (dolist (mode '(notmuch-hello-mode notmuch-search-mode notmuch-show-mode))
   (evil-set-initial-state mode 'normal))
@@ -116,9 +181,18 @@
     (kbd "j") #'next-line (kbd "k") #'previous-line
     (kbd "q") #'notmuch-bury-or-kill-this-buffer
     (kbd "Q") #'save-buffers-kill-emacs
-    (kbd "s") #'notmuch-search (kbd "G") #'sysinit-mail-sync
-    (kbd "c") #'notmuch-mua-new-mail (kbd "?") #'sysinit-mail-help)
-  (dolist (key '("1" "2" "3" "4" "5" "i" "a" "u" "x" "w"))
+    (kbd "s") #'notmuch-search
+    (kbd "SPC") nil
+    (kbd "c") #'notmuch-mua-new-mail
+    (kbd "SPC a") #'sysinit-mail-switch-account
+    (kbd "SPC f g") #'notmuch-search
+    (kbd "SPC f b") #'switch-to-buffer
+    (kbd "SPC m s") #'sysinit-mail-sync
+    (kbd "SPC m l") #'sysinit-mail-sync-log
+    (kbd "SPC ?") #'sysinit-mail-help
+    (kbd "C-h") #'windmove-left (kbd "C-j") #'windmove-down
+    (kbd "C-k") #'windmove-up (kbd "C-l") #'windmove-right)
+  (dolist (key '("1" "2" "3" "4" "5" "i" "a" "u" "x"))
     (let ((view-key key))
       (evil-define-key* 'normal map (kbd (concat "g" key))
         (lambda () (interactive) (sysinit-mail-view view-key)))))
@@ -145,11 +219,9 @@
   (kbd "e") #'sysinit-mail-archive (kbd ",U") #'sysinit-mail-unsubscribe
   (kbd "r") #'notmuch-show-reply-sender (kbd "R") #'notmuch-show-reply
   (kbd "f") #'notmuch-show-forward-message)
-(setq notmuch-hello-sections
-      '(notmuch-hello-insert-header notmuch-hello-insert-saved-searches
-        notmuch-hello-insert-search notmuch-hello-insert-recent-searches))
-(add-hook 'notmuch-hello-mode-hook
-          (lambda () (setq-local header-line-format " Mail   1–5 Categories   gi Inbox   G Sync   c Compose   ? Help")))
+(setq notmuch-hello-sections '(notmuch-hello-insert-saved-searches))
+(dolist (hook '(notmuch-hello-mode-hook notmuch-search-mode-hook notmuch-show-mode-hook notmuch-show-hook))
+  (add-hook hook #'sysinit-mail-header))
 
 (defun sysinit-mail-sync-if-authenticated ()
   "Refresh mail only after an account has completed browser login."
