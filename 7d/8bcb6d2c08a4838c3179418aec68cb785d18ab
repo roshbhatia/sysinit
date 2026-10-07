@@ -1,0 +1,37 @@
+checks/mail.py
+  s_de281cf8e5cd4f::t_8a06f130d63c5e 1-2,4-10,12-14,20-57,59-61,66-74,76-79,81-86,90-92,97-133
+  s_de281cf8e5cd4f::t_4f2ae6b5340380 62-65,95-96
+  s_de281cf8e5cd4f::t_2da7cc78077a6d 80,87-89
+  s_de281cf8e5cd4f::t_fa518034be0699 3,15-19,75
+  s_de281cf8e5cd4f::t_b8ef266e171e5d 93-94
+  s_de281cf8e5cd4f::t_df24798220935c 11,58
+modules/home/programs/mail/keys.rc
+  s_de281cf8e5cd4f::t_8811ad431862f2 9-10
+  s_de281cf8e5cd4f::t_2bf9afe429f5b1 13
+  s_de281cf8e5cd4f::t_e40ce7e5d9c529 1-6,8,11
+  s_de281cf8e5cd4f::t_ca092556183fa6 7,12,14
+modules/home/programs/mail/default.nix
+  s_de281cf8e5cd4f::t_2c0415275ea409 9-39,71-72,93,103-108,111,113-114,116-118
+  s_de281cf8e5cd4f::t_e40ce7e5d9c529 1-8,40-70,73-92,94-102,109-110,112,115,119-125,133-137
+  s_de281cf8e5cd4f::t_f4760cb58a72ad 126-132
+checks/default.nix
+  s_de281cf8e5cd4f::t_8a06f130d63c5e 64-67
+modules/home/programs/default.nix
+  s_de281cf8e5cd4f::t_e40ce7e5d9c529 65
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7d8bcb6d2c08a4838c3179418aec68cb785d18ab",
+  "prompts": {},
+  "sessions": {
+    "s_de281cf8e5cd4f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a11307-12eb-7480-afb6-c32a40ba7deb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
