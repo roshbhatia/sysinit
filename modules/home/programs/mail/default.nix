@@ -58,9 +58,18 @@ let
     text = ''
       image="$1"
       trap 'rm -f -- "$image"' EXIT
-      chafa --format=iterm --animate=off --scale=max --clear -- "$image"
-      printf '\nPress Enter to close.\n'
-      read -r _
+      render() {
+        chafa --format=iterm --animate=off --scale=max --clear -- "$image"
+        printf '\nPress Enter to close.\n'
+      }
+      trap render WINCH
+      render
+      while true; do
+        if read -r _; then break; else
+          preview_status=$?
+          if [[ "$preview_status" -le 128 ]]; then break; fi
+        fi
+      done
     '';
   };
   init = pkgs.writeText "email-init.el" ''
@@ -78,7 +87,7 @@ let
       sysinit-mail-chafa-command ${builtins.toJSON "${pkgs.chafa}/bin/chafa"}
       sysinit-mail-image-command ${builtins.toJSON (lib.getExe imagePreview)}
       sendmail-program ${builtins.toJSON "${pkgs.lieer}/bin/gmi"})
-    ${builtins.readFile ./mail.el}
+    (load "${./emacs}/sysinit-mail.el")
   '';
   client = pkgs.writeTextFile {
     name = "email";
@@ -124,7 +133,7 @@ in
     programs.emacs = {
       enable = true;
       package = pkgs.emacs-nox;
-      extraPackages = ep: [ ep.evil ];
+      extraPackages = import ./packages.nix;
     };
   };
 }

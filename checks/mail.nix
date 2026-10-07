@@ -1,6 +1,8 @@
 { pkgs }:
 let
-  emacs = (pkgs.emacsPackagesFor pkgs.emacs-nox).emacsWithPackages (ep: [ ep.evil ]);
+  emacs = (pkgs.emacsPackagesFor pkgs.emacs-nox).emacsWithPackages (
+    import ../modules/home/programs/mail/packages.nix
+  );
 in
 pkgs.runCommand "mail-actions"
   {
@@ -12,7 +14,7 @@ pkgs.runCommand "mail-actions"
     ];
   }
   ''
-    export MAIL_CONFIG=${../modules/home/programs/mail/mail.el}
+    export MAIL_CONFIG=${../modules/home/programs/mail/emacs}/sysinit-mail.el
     emacs --batch -q -L ${pkgs.notmuch.emacs}/share/emacs/site-lisp \
       --load ${./mail.el} --funcall ert-run-tests-batch-and-exit
     touch "$out"

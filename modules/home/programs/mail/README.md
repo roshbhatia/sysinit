@@ -5,6 +5,27 @@ Run `email` to restore the last account. Nix installs Emacs, Evil, notmuch,
 Lieer, and the mail interface. Account addresses, tokens, mail, and sync state
 stay in local files outside Nix.
 
+## Navigation and menus
+
+Press Space and pause for WhichKey. `Space Space` opens the command picker.
+
+| Menu | Actions |
+| --- | --- |
+| `Space c` | Gmail categories |
+| `Space f` | Search, clear search, switch buffers |
+| `Space m` | Compose, reply, archive, read/unread, labels, sync, images |
+| `Space v` | List/tree, all mail, unread |
+| `Space q` | Quit |
+
+Escape clears Vim search highlighting. After a mail search, it also returns to
+the category you selected. `Space f c` does the same. Escape cancels a picker;
+Ctrl-j/Ctrl-k moves through its choices. Empty mail queries reset the search.
+Numeric Vim counts remain available; `g1`–`g5` are category aliases.
+
+Catppuccin follows the terminal's light/dark mode. Emacs leaves its terminal
+background unset so WezTerm controls transparency. Pickers and WhichKey use
+resizable bottom windows. Chafa redraws when its preview pane changes size.
+
 ## Daily use
 
 | Key | Action |
@@ -101,3 +122,13 @@ image protocol. Press Enter in that split to close it. Outside WezTerm, Chafa
 renders colored characters in an Emacs buffer. Preview files are private and
 are removed when the preview closes. Remote HTML images are not downloaded.
 Chafa renders images; it does not render complete HTML emails.
+
+## Configuration structure
+
+`default.nix` owns packaging and local configuration paths. `packages.nix`
+declares the shared editor packages used by the client and tests.
+
+`emacs/sysinit-mail.el` loads the feature modules: core settings, accounts,
+actions, views, images, UI, keys, and sync. The key module contains one leader
+action registry for bindings, WhichKey labels, and help. This follows the
+core/feature/context split in `sysinit.nvim` without sharing editor-specific code.
