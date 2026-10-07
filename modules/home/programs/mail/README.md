@@ -9,7 +9,12 @@ stay in local files outside Nix.
 
 | Key | Action |
 | --- | --- |
-| `1`–`5` | Personal Primary, Promotions, Social, Updates, Forums |
+| `Space cA` | All inbox categories (excludes archived mail) |
+| `Space cp` | Primary (default on launch and account switch) |
+| `Space cr` | Promotions |
+| `Space cs` | Social |
+| `Space cu` | Updates |
+| `g5` | Forums |
 | `Space a` | Switch account |
 | `gi`, `gu`, `ga` | Selected account: inbox, unread, all mail |
 | `j`, `k`, Enter, `q` | Move, open, return |
@@ -36,7 +41,7 @@ Reading a message does not mark it read automatically. Use `,r` explicitly.
 Bulk actions affect matching messages, including when a thread also contains
 messages outside the search. Archiving removes `inbox` and preserves read status.
 
-Signed-in accounts sync after tag changes and every five minutes while the
+Signed-in accounts sync at startup, after tag changes and every minute while the
 client runs. `mail-sync` also works outside Emacs. Changes stay local until a
 successful sync. Sync failures appear in `*mail-sync*`.
 

@@ -1,3 +1,4 @@
+# Open one Gmail account. With no flag, restore the last account.
 def main [
   --personal # Open personal Gmail.
   --work # Open work Gmail.
@@ -27,5 +28,5 @@ def main [
     $env.EMAIL_ACCOUNT = $selected
     ^"@notmuch@" new --quiet
     if $env.LAST_EXIT_CODE != 0 { exit $env.LAST_EXIT_CODE }
-    exec "@emacs@" -nw -q --load "@init@" --funcall notmuch ...$emacs_args
+    exec "@emacs@" -nw -q --load "@init@" --funcall sysinit-mail-open ...$emacs_args
 }

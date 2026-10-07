@@ -86,12 +86,12 @@
     (setq sysinit-mail-account account
           notmuch-search-history nil)
     (sysinit-mail-configure-account)
-    (notmuch)))
+    (sysinit-mail-open)))
 
 (defun sysinit-mail-header ()
   "Show the selected account and account switch shortcut."
   (setq-local header-line-format
-              (format " %s   SPC a Accounts   gi Inbox   SPC m s Sync   SPC ? Help"
+              (format " %s   SPC a Accounts   SPC c Categories   SPC m s Sync"
                       (car sysinit-mail-account))))
 
 (defun sysinit-mail-send-account ()
@@ -162,11 +162,16 @@
                        :key (lambda (entry) (plist-get entry :key)) :test #'equal)))
     (unless view (user-error "Unknown mail view: %s" key))
     (notmuch-search (plist-get view :query))))
+(defun sysinit-mail-open ()
+  "Open the selected account's Primary inbox."
+  (interactive)
+  (sysinit-mail-view "1"))
+
 (defun sysinit-mail-help ()
   "Show the mail client's keyboard controls."
   (interactive)
   (with-help-window "*Mail keys*"
-    (princ "Mail — one account at a time\n\nSPC a: switch account   gi: Inbox   ga: All mail   gu: Unread\n1–5: Gmail categories   SPC f g / s: search this account\nj/k: move   Enter: open   q: back   gg/G: first/last\nC-u/C-d: half page   / n N: find in view   SPC f b: buffers\nV then j/k: select rows   ,v: select all results\n,r: mark read   ,u: mark unread   e: archive   ,U: Unsubscribe label\nc: compose   r: reply   R: reply all   f: forward\nSPC m s: sync   SPC m l: sync log   SPC ?: help   Q: quit\nCompose: i: insert   Escape: normal   C-c C-c: send   C-c C-k: cancel\n\nAccount switching closes old mail views and preserves drafts.\n")))
+    (princ "Mail — one account at a time\n\nSPC a: switch account   gi: Inbox   ga: All mail   gu: Unread\nSPC cA: all inbox categories   SPC cp: Primary (default)\nSPC cr: Promotions   SPC cs: Social   SPC cu: Updates\nSPC f g / s: search this account\nj/k: move   Enter: open   q: back   gg/G: first/last\nC-u/C-d: half page   / n N: find in view   SPC f b: buffers\nV then j/k: select rows   ,v: select all results\n,r: mark read   ,u: mark unread   e: archive   ,U: Unsubscribe label\nc: compose   r: reply   R: reply all   f: forward\nSPC m s: sync   SPC m l: sync log   SPC ?: help   Q: quit\nCompose: i: insert   Escape: normal   C-c C-c: send   C-c C-k: cancel\n\nAutosync runs at startup, every minute, and after mail actions.\nAccount switching opens Primary and preserves drafts.\n")))
 
 (defun sysinit-mail-sync-log ()
   "Open the latest sync output."
@@ -192,6 +197,10 @@
     (kbd "SPC ?") #'sysinit-mail-help
     (kbd "C-h") #'windmove-left (kbd "C-j") #'windmove-down
     (kbd "C-k") #'windmove-up (kbd "C-l") #'windmove-right)
+  (dolist (entry '(("A" . "i") ("p" . "1") ("r" . "2") ("s" . "3") ("u" . "4")))
+    (let ((view-key (cdr entry)))
+      (evil-define-key* 'normal map (kbd (concat "SPC c" (car entry)))
+        (lambda () (interactive) (sysinit-mail-view view-key)))))
   (dolist (key '("1" "2" "3" "4" "5" "i" "a" "u" "x"))
     (let ((view-key key))
       (evil-define-key* 'normal map (kbd (concat "g" key))
@@ -229,5 +238,12 @@
                    (file-exists-p (expand-file-name ".credentials.gmailieer.json" (cadr account))))
                  sysinit-mail-accounts)
     (sysinit-mail-sync)))
+(defvar sysinit-mail-sync-timer nil)
+(defun sysinit-mail-start-autosync ()
+  "Maintain one timer for startup and one-minute mail synchronization."
+  (when (timerp sysinit-mail-sync-timer)
+    (cancel-timer sysinit-mail-sync-timer))
+  (setq sysinit-mail-sync-timer
+        (run-at-time 1 60 #'sysinit-mail-sync-if-authenticated)))
 (unless noninteractive
-  (run-at-time 1 300 #'sysinit-mail-sync-if-authenticated))
+  (sysinit-mail-start-autosync))
