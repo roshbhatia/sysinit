@@ -89,12 +89,14 @@ def exercise(binary, keys, action, initial_read=False, source_name="INBOX"):
                             sent = True
                     except OSError:
                         break
-            if proc.poll() is None:
+            try:
+                returncode = proc.wait(timeout=3)
+            except subprocess.TimeoutExpired:
                 proc.kill()
                 proc.wait()
                 logs = "\n".join(p.read_text() for p in root.glob("debug*"))
                 raise AssertionError(output.decode(errors="replace") + logs)
-            assert proc.wait(timeout=3) == 0, output.decode(errors="replace")
+            assert returncode == 0, output.decode(errors="replace")
         finally:
             if proc.poll() is None:
                 proc.kill()
