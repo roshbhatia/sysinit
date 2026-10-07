@@ -45,8 +45,12 @@
           (mail-test-command "new")
           (mail-test-command "tag" "+inbox" "+unread" "+personal" "--" "*")
           (mail-test-command "tag" "-personal" "+promotions" "--" "id:hidden@example.com")
+          (with-temp-buffer
+            (notmuch-hello-mode)
+            (should (commandp (key-binding (kbd "g1")))))
           (sysinit-mail-view "1")
           (mail-test-wait)
+          (should (commandp (key-binding (kbd "gw"))))
           (should (eq evil-state 'normal))
           (should (eq (key-binding (kbd "j")) #'notmuch-search-next-thread))
           (should (eq (key-binding (kbd "e")) #'sysinit-mail-archive))

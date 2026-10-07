@@ -112,7 +112,7 @@
 (dolist (mode '(notmuch-hello-mode notmuch-search-mode notmuch-show-mode))
   (evil-set-initial-state mode 'normal))
 (dolist (map (list notmuch-hello-mode-map notmuch-search-mode-map notmuch-show-mode-map))
-  (evil-define-key 'normal map
+  (evil-define-key* 'normal map
     (kbd "j") #'next-line (kbd "k") #'previous-line
     (kbd "q") #'notmuch-bury-or-kill-this-buffer
     (kbd "Q") #'save-buffers-kill-emacs
@@ -120,16 +120,16 @@
     (kbd "c") #'notmuch-mua-new-mail (kbd "?") #'sysinit-mail-help)
   (dolist (key '("1" "2" "3" "4" "5" "i" "a" "u" "x" "w"))
     (let ((view-key key))
-      (evil-define-key 'normal map (kbd (concat "g" key))
+      (evil-define-key* 'normal map (kbd (concat "g" key))
         (lambda () (interactive) (sysinit-mail-view view-key)))))
   (dolist (key '("1" "2" "3" "4" "5"))
     (let ((view-key key))
-      (evil-define-key 'normal map (kbd key)
+      (evil-define-key* 'normal map (kbd key)
         (lambda () (interactive) (sysinit-mail-view view-key))))))
-(evil-define-key 'normal notmuch-hello-mode-map
+(evil-define-key* 'normal notmuch-hello-mode-map
   (kbd "RET") #'widget-button-press
   (kbd "TAB") #'widget-forward)
-(evil-define-key 'normal notmuch-search-mode-map
+(evil-define-key* 'normal notmuch-search-mode-map
   (kbd "j") #'notmuch-search-next-thread
   (kbd "k") #'notmuch-search-previous-thread
   (kbd "RET") #'notmuch-search-show-thread
@@ -137,10 +137,10 @@
   (kbd "r") #'notmuch-search-reply-to-thread-sender
   (kbd "R") #'notmuch-search-reply-to-thread)
 (dolist (state '(normal visual))
-  (evil-define-key state notmuch-search-mode-map
+  (evil-define-key* state notmuch-search-mode-map
     (kbd ",r") #'sysinit-mail-read (kbd ",u") #'sysinit-mail-unread
     (kbd "e") #'sysinit-mail-archive (kbd ",U") #'sysinit-mail-unsubscribe))
-(evil-define-key 'normal notmuch-show-mode-map
+(evil-define-key* 'normal notmuch-show-mode-map
   (kbd ",r") #'sysinit-mail-read (kbd ",u") #'sysinit-mail-unread
   (kbd "e") #'sysinit-mail-archive (kbd ",U") #'sysinit-mail-unsubscribe
   (kbd "r") #'notmuch-show-reply-sender (kbd "R") #'notmuch-show-reply
