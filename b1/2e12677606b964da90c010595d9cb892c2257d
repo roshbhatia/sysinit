@@ -1,0 +1,27 @@
+checks/mail.el
+  s_de281cf8e5cd4f::t_58c19550353838 5,39,58-75,94,185-204
+checks/mail.nix
+  s_de281cf8e5cd4f::t_790952ceed5546 10
+modules/home/programs/mail/README.md
+  s_de281cf8e5cd4f::t_7cfcf2e89e6aa4 19-21,92-103
+modules/home/programs/mail/default.nix
+  s_de281cf8e5cd4f::t_ca52f4db91416b 52-65,78-79
+modules/home/programs/mail/mail.el
+  s_de281cf8e5cd4f::t_f9ee27650d6215 12-13,26-27,56,58,114-127,140,150-158,192-200,210,218,220,233-234,270,288-362
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b12e12677606b964da90c010595d9cb892c2257d",
+  "prompts": {},
+  "sessions": {
+    "s_de281cf8e5cd4f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a11307-12eb-7480-afb6-c32a40ba7deb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
