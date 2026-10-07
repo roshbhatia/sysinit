@@ -50,6 +50,7 @@ let
     '';
   };
   init = pkgs.writeText "email-init.el" ''
+    ;;; email-init.el --- Mail launcher -*- lexical-binding: t; -*-
     (add-to-list 'load-path "${pkgs.notmuch.emacs}/share/emacs/site-lisp")
     (require 'json)
     (let ((json-array-type 'list))
