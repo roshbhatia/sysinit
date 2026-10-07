@@ -16,6 +16,9 @@ stay in local files outside Nix.
 | `Space cu` | Updates |
 | `g5` | Forums |
 | `Space a` | Switch account |
+| `Space v t` | Thread tree for the current view |
+| Enter, Tab in tree | Message preview, fold/unfold |
+| `Space m i` in a message | Preview an attached image with Chafa |
 | `gi`, `gu`, `ga` | Selected account: inbox, unread, all mail |
 | `j`, `k`, Enter, `q` | Move, open, return |
 | `Space f g`, `s` | Search the selected account |
@@ -86,3 +89,15 @@ Lieer includes its OAuth client registration; your organization must allow it.
 Run `gmi pull --path /absolute/path/Mail/personal` for the first download, then
 `email`. Keep the account directories private: Lieer stores OAuth tokens there.
 Category synchronization must remain enabled (`ignore_remote_labels: []`).
+
+## Thread and image views
+
+The thread tree keeps the current account and category filter. Hidden messages
+from other categories or accounts stay out of the tree. Visual selection and
+read/archive actions also work in the tree.
+
+Chafa displays attached and MIME-inline images in a WezTerm split using its
+image protocol. Press Enter in that split to close it. Outside WezTerm, Chafa
+renders colored characters in an Emacs buffer. Preview files are private and
+are removed when the preview closes. Remote HTML images are not downloaded.
+Chafa renders images; it does not render complete HTML emails.

@@ -7,6 +7,7 @@ pkgs.runCommand "mail-actions"
     nativeBuildInputs = [
       emacs
       pkgs.notmuch
+      pkgs.chafa
       pkgs.coreutils
     ];
   }

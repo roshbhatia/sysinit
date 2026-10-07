@@ -2,6 +2,7 @@
 (require 'ert)
 (setq sysinit-mail-accounts '(("test@example.com" "/tmp/personal" "personal")
                               ("work@example.com" "/tmp/work" "work"))
+      sysinit-mail-chafa-command (executable-find "chafa")
       sysinit-mail-sync-command (executable-find "true"))
 (load (getenv "MAIL_CONFIG"))
 ;; Notmuch forces cwd to ~, which is absent in the Nix build sandbox.
@@ -35,7 +36,7 @@
           (dolist (entry '(("one" "personal" "")
                            ("hidden" "personal" "In-Reply-To: <one@example.com>\nReferences: <one@example.com>\n")
                            ("two" "personal" "")
-                           ("work" "work" "")))
+                           ("work" "work" "In-Reply-To: <one@example.com>\nReferences: <one@example.com>\n")))
             (let ((path (expand-file-name (format "mail/%s/mail/cur/%s" (nth 1 entry) (car entry)) root)))
               (make-directory (file-name-directory path) t)
               (with-temp-file path
@@ -54,6 +55,24 @@
           (should (eq evil-state 'normal))
           (should (eq (key-binding (kbd "j")) #'notmuch-search-next-thread))
           (should (eq (key-binding (kbd "e")) #'sysinit-mail-archive))
+          (sysinit-mail-tree)
+          (mail-test-wait)
+          (should (eq major-mode 'notmuch-tree-mode))
+          (should notmuch-tree-outline-mode)
+          (let (ids)
+            (goto-char (point-min))
+            (while (< (point) (point-max))
+              (when-let* ((id (notmuch-tree-get-message-id t))) (push id ids))
+              (forward-line 1))
+            (should (equal (sort ids #'string<) '("one@example.com" "two@example.com"))))
+          (sysinit-mail-select-all)
+          (sysinit-mail-read)
+          (should (equal "2" (mail-test-command "count" "tag:unread")))
+          (sysinit-mail-select-all)
+          (sysinit-mail-unread)
+          (should (equal "4" (mail-test-command "count" "tag:unread")))
+          (sysinit-mail-view "1")
+          (mail-test-wait)
           (sysinit-mail-select-all)
           (sysinit-mail-read)
           (should (equal "2" (mail-test-command "count" "tag:unread")))
@@ -72,7 +91,7 @@
             (when process (while (process-live-p process) (accept-process-output process 0.1)))))
       (dolist (buffer (buffer-list))
         (with-current-buffer buffer
-          (when (derived-mode-p 'notmuch-search-mode) (kill-buffer buffer))))
+          (when (derived-mode-p 'notmuch-search-mode 'notmuch-tree-mode) (kill-buffer buffer))))
       (delete-directory root t))))
 
 (ert-deftest mail-sender-routing ()
@@ -163,3 +182,23 @@
             (sysinit-mail-start-autosync)
             (should-not (memq first timer-list))))
       (cancel-timer sysinit-mail-sync-timer))))
+
+(ert-deftest mail-chafa-preview-local-image ()
+  (let ((process-environment (copy-sequence process-environment))
+        (message '(:id "image@example.com"
+                      :body ((:id 1 :content-type "multipart/mixed"
+                                  :content ((:id 2 :content-type "image/png"
+                                                 :content-binary nil)))))))
+    (setenv "WEZTERM_PANE" nil)
+    (setf (plist-get (car (sysinit-mail-image-parts (plist-get message :body))) :content-binary)
+          (base64-decode-string "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aX1sAAAAASUVORK5CYII="))
+    (unwind-protect
+        (with-temp-buffer
+          (notmuch-show-mode)
+          (cl-letf (((symbol-function 'notmuch-show-get-message-properties) (lambda () message)))
+            (sysinit-mail-preview-image))
+          (should (get-buffer "*Mail image*"))
+          (with-current-buffer "*Mail image*"
+            (should (> (buffer-size) 0))
+            (should (eq major-mode 'special-mode))))
+      (when (get-buffer "*Mail image*") (kill-buffer "*Mail image*")))))

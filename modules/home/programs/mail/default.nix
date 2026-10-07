@@ -49,6 +49,20 @@ let
       fi
     '';
   };
+  imagePreview = pkgs.writeShellApplication {
+    name = "email-image-preview";
+    runtimeInputs = [
+      pkgs.chafa
+      pkgs.coreutils
+    ];
+    text = ''
+      image="$1"
+      trap 'rm -f -- "$image"' EXIT
+      chafa --format=iterm --animate=off --scale=max --clear -- "$image"
+      printf '\nPress Enter to close.\n'
+      read -r _
+    '';
+  };
   init = pkgs.writeText "email-init.el" ''
     ;;; email-init.el --- Mail launcher -*- lexical-binding: t; -*-
     (add-to-list 'load-path "${pkgs.notmuch.emacs}/share/emacs/site-lisp")
@@ -61,6 +75,8 @@ let
       user-full-name "Roshan Bhatia"
       sysinit-mail-state-file ${builtins.toJSON "${config.xdg.stateHome}/email/account"}
       sysinit-mail-sync-command ${builtins.toJSON (lib.getExe sync)}
+      sysinit-mail-chafa-command ${builtins.toJSON "${pkgs.chafa}/bin/chafa"}
+      sysinit-mail-image-command ${builtins.toJSON (lib.getExe imagePreview)}
       sendmail-program ${builtins.toJSON "${pkgs.lieer}/bin/gmi"})
     ${builtins.readFile ./mail.el}
   '';
