@@ -1,0 +1,24 @@
+modules/home/programs/llm/harnesses/deck-patterns.nix
+  s_de281cf8e5cd4f::t_8927faf2061990 7,51,59,70,78,86,104,118,151,162
+  s_de281cf8e5cd4f::t_67ddb80527b31c 32,40,136
+modules/home/programs/llm/harnesses/publish.nix
+  s_de281cf8e5cd4f::t_67ddb80527b31c 44-60
+flake.lock
+  s_de281cf8e5cd4f::t_1d2400f4a3d7d9 51-52,55,1681-1682,1685
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b1e71340f564b80188817c504887180126036a78",
+  "prompts": {},
+  "sessions": {
+    "s_de281cf8e5cd4f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a11307-12eb-7480-afb6-c32a40ba7deb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
