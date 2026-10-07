@@ -62,6 +62,7 @@ in
 
       workstation = [
         ./fastfetch.nix
+        ./mail
         ./slk.nix
         ./wezterm
       ];
