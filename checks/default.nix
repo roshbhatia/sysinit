@@ -61,10 +61,7 @@ in
   onepassword = import ./onepassword.nix { inherit pkgs; };
   strands = pkgs.strands-cli;
   task-commands = import ./task-commands.nix { inherit pkgs; };
-  mail-actions = pkgs.runCommand "mail-actions" { nativeBuildInputs = [ pkgs.python3 ]; } ''
-    python3 ${./mail.py} ${pkgs.neomutt}/bin/neomutt ${../modules/home/programs/mail/keys.rc}
-    touch "$out"
-  '';
+  mail-actions = import ./mail.nix { inherit pkgs; };
   git-ai-integration =
     pkgs.runCommand "git-ai-integration"
       {
