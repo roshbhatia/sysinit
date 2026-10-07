@@ -4,7 +4,7 @@
     executable_patterns = [ "/amp$" ];
     argv_patterns = [ "^amp%s*$" ];
     title_patterns = [ "amp" ];
-    status_patterns = [ ];
+    status_patterns = { };
   };
 
   claude = {
@@ -29,7 +29,7 @@
       "claude"
       ".claude%-wrapped"
     ];
-    status_patterns = [ "esc to interrupt" ];
+    status_patterns.working = [ "esc to interrupt" ];
   };
 
   codex = {
@@ -37,7 +37,7 @@
     executable_patterns = [ "/codex$" ];
     argv_patterns = [ "^codex%s*$" ];
     title_patterns = [ "codex" ];
-    status_patterns = [ "esc to interrupt" ];
+    status_patterns.working = [ "esc to interrupt" ];
   };
 
   copilot = {
@@ -48,7 +48,7 @@
     ];
     argv_patterns = [ "^copilot%s*$" ];
     title_patterns = [ "copilot" ];
-    status_patterns = [ ];
+    status_patterns = { };
   };
 
   crush = {
@@ -56,7 +56,7 @@
     executable_patterns = [ "/crush$" ];
     argv_patterns = [ "^crush%s*$" ];
     title_patterns = [ "crush" ];
-    status_patterns = [ ];
+    status_patterns = { };
   };
 
   cursor = {
@@ -67,7 +67,7 @@
     executable_patterns = [ "/cursor%-agent$" ];
     argv_patterns = [ "cursor%-agent" ];
     title_patterns = [ "cursor" ];
-    status_patterns = [ ];
+    status_patterns = { };
   };
 
   devin = {
@@ -75,7 +75,7 @@
     executable_patterns = [ "/devin$" ];
     argv_patterns = [ "^devin%s*$" ];
     title_patterns = [ "devin" ];
-    status_patterns = [ ];
+    status_patterns = { };
   };
 
   fx = {
@@ -83,7 +83,7 @@
     executable_patterns = [ "/fx$" ];
     argv_patterns = [ "^fx%s*$" ];
     title_patterns = [ "^fx$" ];
-    status_patterns = [ ];
+    status_patterns = { };
   };
 
   gemini = {
@@ -101,7 +101,7 @@
       "antigravity"
       "gemini"
     ];
-    status_patterns = [ ];
+    status_patterns = { };
   };
 
   goose = {
@@ -115,7 +115,7 @@
     ];
     argv_patterns = [ "^goose%s*$" ];
     title_patterns = [ "goose" ];
-    status_patterns = [ ];
+    status_patterns = { };
   };
 
   opencode = {
@@ -133,7 +133,7 @@
       "/opencode$"
     ];
     title_patterns = [ "opencode" ];
-    status_patterns = [
+    status_patterns.waiting = [
       "enter confirm"
       "esc dismiss"
       "type your own answer"
@@ -148,7 +148,7 @@
     ];
     argv_patterns = [ "^pi%s*$" ];
     title_patterns = [ "^pi$" ];
-    status_patterns = [ ];
+    status_patterns = { };
   };
 
   strands = {
@@ -159,6 +159,6 @@
       "^strands%s*$"
     ];
     title_patterns = [ "strands" ];
-    status_patterns = [ ];
+    status_patterns = { };
   };
 }

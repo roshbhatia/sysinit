@@ -48,11 +48,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790979893,
-        "narHash": "sha256-po6ogtoNFjNtBuFTf9MUznEzUlLN7TyLRdPN/Lz+yjc=",
+        "lastModified": 1791350070,
+        "narHash": "sha256-DFZb++hTIwEYjPafRUo+avKDZ+wjopawb8SlmPmFLj0=",
         "owner": "roshbhatia",
         "repo": "agent-signals",
-        "rev": "8419e143d86adea9b513eda42aa01d86b658d399",
+        "rev": "49b8edbfc09d7377acb1b0eb4eeacd9cb960182d",
         "type": "github"
       },
       "original": {
@@ -1678,11 +1678,11 @@
         "spawn": "spawn"
       },
       "locked": {
-        "lastModified": 1790267105,
-        "narHash": "sha256-zb4zgd3PjW6zEb5mOeVmzAqUVscV3QxxXeSlhqhpaOY=",
+        "lastModified": 1791350071,
+        "narHash": "sha256-ENWw+IBDBDDNPhluHU74F0NtEGYS84nVdPg2YiYd9oU=",
         "owner": "roshbhatia",
         "repo": "sysinit.wezterm",
-        "rev": "de13e887262cb4acb0f839881b931f3945f197b6",
+        "rev": "4836d1085ce944e5c7d9e8a11e3a16446c4d9b0f",
         "type": "github"
       },
       "original": {
