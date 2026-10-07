@@ -65,7 +65,7 @@ let
       trap render WINCH
       render
       while true; do
-        if read -r _; then break; else
+        if read -r -t 0.25 _; then break; else
           preview_status=$?
           if [[ "$preview_status" -le 128 ]]; then break; fi
         fi
