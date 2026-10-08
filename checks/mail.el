@@ -55,6 +55,12 @@
           (with-temp-buffer
             (notmuch-hello-mode)
             (should (commandp (key-binding (kbd "g1")))))
+          (sysinit-mail-search "subject:one")
+          (mail-test-wait)
+          (goto-char (point-min))
+          (let ((url (sysinit-mail-gmail-url)))
+            (should (string-match-p "authuser=test%40example.com" url))
+            (should (string-match-p "rfc822msgid%3Aone%40example.com" url)))
           (sysinit-mail-view "1")
           (mail-test-wait)
           (should (commandp (key-binding (kbd "SPC a"))))
@@ -315,3 +321,23 @@
                            nil '("text/plain" "text/html"))) "text/plain"))
       (sysinit-mail-toggle-html)
       (should (equal notmuch-multipart/alternative-discouraged '("text/plain"))))))
+
+(ert-deftest mail-inline-kitty-image ()
+  (let ((process-environment (copy-sequence process-environment))
+        (kitty-graphics-async-conversion nil))
+    (setenv "TERM_PROGRAM" "WezTerm")
+    (setenv "TMUX" nil)
+    (cl-letf (((symbol-function 'send-string-to-terminal) #'ignore))
+      (unwind-protect
+          (progn
+            (kitty-graphics-mode 1)
+            (should (eq kitty-graphics--active-backend 'kitty))
+            (with-temp-buffer
+              (let ((shr-content-function
+                     (lambda (_cid)
+                       (base64-decode-string "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aX1sAAAAASUVORK5CYII=")))
+                    (shr-blocked-images "."))
+                (shr-insert-document '(html nil (body nil (img ((src . "cid:fixture") (alt . "Attached image")))))))
+              (should (cl-some (lambda (ov) (overlay-get ov 'kitty-graphics))
+                               (overlays-in (point-min) (point-max))))))
+        (kitty-graphics-mode -1)))))

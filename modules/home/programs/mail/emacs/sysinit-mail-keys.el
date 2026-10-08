@@ -100,6 +100,7 @@
     ("m s" "Sync now" sysinit-mail-sync)
     ("m l" "Sync log" sysinit-mail-sync-log)
     ("m i" "Image preview" sysinit-mail-preview-image)
+    ("m o" "Open in Firefox" sysinit-mail-open-firefox)
     ("m h" "HTML / plain text" sysinit-mail-toggle-html)
     ("v t" "Thread tree" sysinit-mail-tree)
     ("v l" "Thread list" sysinit-mail-list)
@@ -135,7 +136,8 @@
  _u_ unread       _j_ down _k_ up     _i_ image
  _T_ toggle       _s_ sync            _l_ sync log
  _c_ compose      _R_ reply           _A_ reply all
- _h_ HTML/text    _q_ close menu      _?_ all bindings
+ _h_ HTML/text    _o_ Firefox         _?_ all bindings
+ _q_ close menu
 "
   ("a" sysinit-mail-archive)
   ("r" sysinit-mail-read)
@@ -153,6 +155,7 @@
   ("l" sysinit-mail-sync-log)
   ("i" sysinit-mail-preview-image)
   ("h" sysinit-mail-toggle-html)
+  ("o" sysinit-mail-open-firefox)
   ("c" notmuch-mua-new-mail)
   ("R" sysinit-mail-reply)
   ("A" sysinit-mail-reply-all)

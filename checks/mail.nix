@@ -1,7 +1,7 @@
 { pkgs }:
 let
   emacs = (pkgs.emacsPackagesFor pkgs.emacs-nox).emacsWithPackages (
-    import ../modules/home/programs/mail/packages.nix
+    import ../modules/home/programs/mail/packages.nix { inherit pkgs; }
   );
 in
 pkgs.runCommand "mail-actions"
@@ -10,6 +10,7 @@ pkgs.runCommand "mail-actions"
       emacs
       pkgs.notmuch
       pkgs.chafa
+      pkgs.imagemagick
       pkgs.coreutils
     ];
   }

@@ -118,6 +118,19 @@ let
     (setq user-mail-address (caar sysinit-mail-accounts)
       user-full-name "Roshan Bhatia"
       sysinit-mail-state-file ${builtins.toJSON "${config.xdg.stateHome}/email/account"}
+      sysinit-mail-firefox-command '(
+        ${
+          lib.concatMapStringsSep " " builtins.toJSON (
+            if pkgs.stdenv.isDarwin then
+              [
+                "/usr/bin/open"
+                "-a"
+                "Firefox"
+              ]
+            else
+              [ (lib.getExe pkgs.firefox) ]
+          )
+        })
       sysinit-mail-sync-command ${builtins.toJSON (lib.getExe sync)}
       sysinit-mail-chafa-command ${builtins.toJSON "${pkgs.chafa}/bin/chafa"}
       sysinit-mail-image-command ${builtins.toJSON (lib.getExe imagePreview)}
@@ -163,12 +176,14 @@ in
       sync
       pkgs.notmuch
       pkgs.lieer
+      pkgs.imagemagick
+      pkgs.libsixel
       pkgs.gmailctl
     ];
     programs.emacs = {
       enable = true;
       package = pkgs.emacs-nox;
-      extraPackages = import ./packages.nix;
+      extraPackages = import ./packages.nix { inherit pkgs; };
     };
   };
 }

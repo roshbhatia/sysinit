@@ -1,5 +1,7 @@
 ;;; sysinit-mail-actions.el --- Mail actions -*- lexical-binding: t; -*-
 
+(require 'url-util)
+
 (defun sysinit-mail-send-account ()
   "Select the Lieer account from the composed From header."
   (let* ((from (cadr (mail-extract-address-components (message-field-value "From"))))
@@ -77,5 +79,36 @@
   (goto-char (point-min))
   (evil-visual-line)
   (goto-char (point-max)))
+
+(defvar sysinit-mail-firefox-command nil)
+
+(defun sysinit-mail-gmail-url ()
+  "Find the current message in Gmail using the selected account."
+  (let* ((query (cond
+                 ((derived-mode-p 'notmuch-show-mode) (notmuch-show-get-message-id))
+                 ((derived-mode-p 'notmuch-tree-mode) (notmuch-tree-get-message-id))
+                 ((derived-mode-p 'notmuch-search-mode)
+                  (when-let* ((thread (notmuch-search-find-thread-id)))
+                    (concat thread " and (" notmuch-search-query-string ")")))))
+         (id (when query
+               (car (notmuch-call-notmuch-sexp
+                     "search" "--format=sexp" "--output=messages" "--limit=1"
+                     (sysinit-mail-scope query))))))
+    (unless id (user-error "Select a message first"))
+    (concat "https://mail.google.com/mail/?authuser="
+            (url-hexify-string (car sysinit-mail-account))
+            "#search/" (url-hexify-string (concat "in:anywhere rfc822msgid:" id)))))
+
+(defun sysinit-mail-open-firefox ()
+  "Open the selected message's Gmail search in Firefox."
+  (interactive)
+  (unless sysinit-mail-firefox-command (user-error "Firefox command is not configured"))
+  (make-process
+   :name "mail-firefox" :buffer "*mail-browser-log*" :noquery t
+   :command (append sysinit-mail-firefox-command (list (sysinit-mail-gmail-url)))
+   :sentinel (lambda (process _event)
+               (when (and (memq (process-status process) '(exit signal))
+                          (/= (process-exit-status process) 0))
+                 (message "Firefox launch failed; see *mail-browser-log*")))))
 
 (provide 'sysinit-mail-actions)

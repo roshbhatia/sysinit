@@ -1,5 +1,11 @@
 ;;; sysinit-mail-images.el --- Mail images -*- lexical-binding: t; -*-
 
+(require 'kitty-graphics)
+(setq kitty-graphics-shr-scale 'fit
+      kitty-graphics-shr-fit-width 0.85
+      kitty-graphics-shr-fit-height 20)
+(unless noninteractive (kitty-graphics-setup))
+
 (defun sysinit-mail-image-parts (parts)
   "Collect locally attached images from nested MIME parts."
   (cl-mapcan (lambda (part)

@@ -63,6 +63,7 @@ Selections apply only to the current account and query. Escape cancels selection
 | `j`, `k`, Enter, `q` | Move, open, return |
 | `Space f g`, `s` | Search the selected account |
 | `Space m s`, `Space m l` | Sync, sync log |
+| `,o`, `Space m o` | Open selected message in Firefox / Gmail |
 | `gg`, `G`, `Ctrl-u`, `Ctrl-d` | First, last, half-page up/down |
 | `/`, `n`, `N` | Find text in the view |
 | `Space f b`, `Ctrl-h/j/k/l` | Buffer picker, window navigation |
@@ -152,6 +153,16 @@ Messages prefer HTML through Emacs SHR, with readable headings, lists, tables,
 and links. Sender colors are disabled to preserve the terminal theme. Press
 `,h` or `Space m h` inside a message to prefer its plain-text alternative.
 Glow is a Markdown renderer, so it is not used for HTML email.
+
+`kitty-graphics.el` is pinned in Nix and enables terminal images through SHR.
+Embedded images fit the reading window. WezTerm uses the Kitty backend; Sixel
+uses libsixel where supported. ImageMagick handles format conversion. The
+Chafa attachment preview remains available through `,i`. Remote HTML images
+remain blocked.
+
+`,o` opens Firefox with a Gmail Message-ID search for the selected account.
+It works from a message, thread list, or thread tree. Gmail may ask you to sign
+in to that account in Firefox. No email content is written to a browser file.
 
 ## Configuration structure
 
