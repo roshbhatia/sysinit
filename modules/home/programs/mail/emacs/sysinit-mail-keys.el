@@ -1,5 +1,7 @@
 ;;; sysinit-mail-keys.el --- Mail keys -*- lexical-binding: t; -*-
 
+(define-key evil-normal-state-map (kbd "q") nil)
+
 (dolist (mode '(notmuch-hello-mode notmuch-search-mode notmuch-show-mode notmuch-tree-mode))
   (evil-set-initial-state mode 'normal))
 (dolist (map (list notmuch-hello-mode-map notmuch-search-mode-map notmuch-show-mode-map notmuch-tree-mode-map))
