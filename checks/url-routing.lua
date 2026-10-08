@@ -68,6 +68,9 @@ hs = {
   task = {
     new = function(binary, callback, args)
       local task = { binary = binary, args = args, callback = callback }
+      function task:setCallback(callback)
+        self.callback = callback
+      end
       function task:start()
         return not failedStart
       end

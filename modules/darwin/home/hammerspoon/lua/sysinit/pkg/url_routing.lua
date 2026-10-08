@@ -26,6 +26,7 @@ local function run(binary, args, callback)
       timer:stop()
     end
     tasks[task] = nil
+    task:setCallback(nil)
     if not timedOut then
       callback(code, stdout, stderr)
     end
@@ -37,6 +38,7 @@ local function run(binary, args, callback)
   tasks[task] = true
   if not task:start() then
     tasks[task] = nil
+    task:setCallback(nil)
     report("Cannot start task: " .. binary)
     return
   end

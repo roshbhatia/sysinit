@@ -247,11 +247,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1791480883,
-        "narHash": "sha256-8+6jipHCbCRC6xIQz43uz1mfYsYmMh5AKKdZSoJga2g=",
+        "lastModified": 1791481604,
+        "narHash": "sha256-kTXZNqWj0SbkJ47O3rLRj1Zg5aPoUNbG14lwucoNjBM=",
         "owner": "roshbhatia",
         "repo": "CommandPalette.spoon",
-        "rev": "5d9cf4730dbb13c2960ab4b9313dec0446228a1a",
+        "rev": "c0074b3166315700dea6524137d1a0d618ab118c",
         "type": "github"
       },
       "original": {
