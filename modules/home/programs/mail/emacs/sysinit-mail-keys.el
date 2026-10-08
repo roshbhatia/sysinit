@@ -11,6 +11,7 @@
     (kbd "<escape>") #'sysinit-mail-clear-search
     (kbd "SPC") nil
     (kbd "c") #'notmuch-mua-new-mail
+    (kbd "C-u") #'evil-scroll-up (kbd "C-d") #'evil-scroll-down
     (kbd "C-h") #'windmove-left (kbd "C-j") #'windmove-down
     (kbd "C-k") #'windmove-up (kbd "C-l") #'windmove-right)
   (dolist (key '("1" "2" "3" "4" "5" "i" "a" "u" "x"))
@@ -29,9 +30,13 @@
   (kbd "R") #'notmuch-search-reply-to-thread)
 (dolist (state '(normal visual))
   (evil-define-key* state notmuch-search-mode-map
+    (kbd "C-u") #'evil-scroll-up (kbd "C-d") #'evil-scroll-down
+    (kbd "t") #'sysinit-mail-toggle-read
+    (kbd "C-a") #'sysinit-mail-select-all
     (kbd ",r") #'sysinit-mail-read (kbd ",u") #'sysinit-mail-unread
     (kbd "e") #'sysinit-mail-archive (kbd ",U") #'sysinit-mail-unsubscribe))
 (evil-define-key* 'normal notmuch-show-mode-map
+  (kbd "t") #'sysinit-mail-toggle-read
   (kbd ",r") #'sysinit-mail-read (kbd ",u") #'sysinit-mail-unread
   (kbd "e") #'sysinit-mail-archive (kbd ",U") #'sysinit-mail-unsubscribe
   (kbd "r") #'notmuch-show-reply-sender (kbd "R") #'notmuch-show-reply
@@ -44,6 +49,9 @@
   (kbd "r") #'notmuch-tree-reply-sender (kbd "R") #'notmuch-tree-reply)
 (dolist (state '(normal visual))
   (evil-define-key* state notmuch-tree-mode-map
+    (kbd "C-u") #'evil-scroll-up (kbd "C-d") #'evil-scroll-down
+    (kbd "t") #'sysinit-mail-toggle-read
+    (kbd "C-a") #'sysinit-mail-select-all
     (kbd ",r") #'sysinit-mail-read (kbd ",u") #'sysinit-mail-unread
     (kbd "e") #'sysinit-mail-archive (kbd ",U") #'sysinit-mail-unsubscribe))
 
@@ -82,6 +90,8 @@
     ("m r" "Reply to sender" sysinit-mail-reply)
     ("m A" "Reply to all" sysinit-mail-reply-all)
     ("m a" "Archive selection" sysinit-mail-archive)
+    ("m T" "Toggle read/unread" sysinit-mail-toggle-read)
+    ("m V" "Select rows" evil-visual-line)
     ("m R" "Mark read" sysinit-mail-read)
     ("m u" "Mark unread" sysinit-mail-unread)
     ("m U" "Unsubscribe label" sysinit-mail-unsubscribe)
@@ -108,6 +118,8 @@
                           (lambda () (interactive) (sysinit-mail-view view)))
                       action)))
       (evil-define-key* 'normal map (kbd key) command)
+      (when (member (car entry) '("m a" "m R" "m u" "m T" "m U" "m t" "m v" "?"))
+        (evil-define-key* 'visual map (kbd key) command))
       (which-key-add-key-based-replacements key (nth 1 entry)))))
 (which-key-add-key-based-replacements
   "SPC c" "Categories" "SPC f" "Find" "SPC m" "Mail"
@@ -120,6 +132,6 @@
     (princ "Space opens menus. Escape clears search or cancels a picker.\n\n")
     (dolist (entry sysinit-mail-leader-actions)
       (princ (format "SPC %-7s %s\n" (car entry) (nth 1 entry))))
-    (princ "\nV selects rows; ,r read; ,u unread; e archive.\ngg/G and counts use Vim navigation. q returns; Ctrl-h/j/k/l moves between windows.\n")))
+    (princ "\nV then j/k selects rows; Ctrl-a selects all; e archives; t toggles read.\n,r marks read; ,u marks unread.\ngg/G and counts use Vim navigation. q returns; Ctrl-h/j/k/l moves between windows.\n")))
 
 (provide 'sysinit-mail-keys)

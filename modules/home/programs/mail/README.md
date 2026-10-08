@@ -20,11 +20,22 @@ Press Space and pause for WhichKey. `Space Space` opens the command picker.
 Escape clears Vim search highlighting. After a mail search, it also returns to
 the category you selected. `Space f c` does the same. Escape cancels a picker;
 Ctrl-j/Ctrl-k moves through its choices. Empty mail queries reset the search.
-Numeric Vim counts remain available; `g1`–`g5` are category aliases.
+`Ctrl-u`/`Ctrl-d` scroll half a page up/down. Numeric Vim counts remain available; `g1`–`g5` are category aliases.
 
 Catppuccin follows the terminal's light/dark mode. Emacs leaves its terminal
 background unset so WezTerm controls transparency. Pickers and WhichKey use
 resizable bottom windows. Chafa redraws when its preview pane changes size.
+
+## Bulk actions
+
+Use `V`, then `j`/`k`, to select a range of rows. `Ctrl-a` selects all results
+in the current view. Press `e` to archive, or `t` to toggle read status.
+If any selected message is unread, the toggle marks the selection read;
+otherwise it marks the selection unread. `,r` always marks read; `,u` marks unread.
+
+The `Space m` menu stays available during selection. It includes select rows,
+select all, archive, toggle read/unread, and explicit read/unread actions.
+Selections apply only to the current account and query. Escape cancels selection.
 
 ## Daily use
 
