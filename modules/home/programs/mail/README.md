@@ -86,7 +86,13 @@ messages outside the search. Archiving removes `inbox` and preserves read status
 
 Signed-in accounts sync at startup, after tag changes and every minute while the
 client runs. `mail-sync` also works outside Emacs. Changes stay local until a
-successful sync. Sync failures appear in `*mail-sync*`.
+successful sync. Sync failures appear in `*mail-sync*`. A busy account does not
+block other accounts. Exit 75 means another sync holds the account lock;
+autosync retries on the next minute. No new login is needed for a busy account.
+
+Primary can be empty while other categories contain messages. Press `gi` for
+Inbox across all categories, excluding archived mail. Empty searches show
+the account inbox count.
 
 The Unsubscribe action only applies the label. Existing unsubscribe automation
 must process it; the client does not submit unsubscribe requests.
@@ -141,6 +147,11 @@ image protocol. Press Enter in that split to close it. Outside WezTerm, Chafa
 renders colored characters in an Emacs buffer. Preview files are private and
 are removed when the preview closes. Remote HTML images are not downloaded.
 Chafa renders images; it does not render complete HTML emails.
+
+Messages prefer HTML through Emacs SHR, with readable headings, lists, tables,
+and links. Sender colors are disabled to preserve the terminal theme. Press
+`,h` or `Space m h` inside a message to prefer its plain-text alternative.
+Glow is a Markdown renderer, so it is not used for HTML email.
 
 ## Configuration structure
 

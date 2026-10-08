@@ -12,9 +12,16 @@
 (require 'notmuch)
 (require 'notmuch-tree)
 (require 'ansi-color)
+(require 'shr)
 (evil-mode 1)
 (menu-bar-mode -1)
-(setq notmuch-search-oldest-first nil
+(setq mm-text-html-renderer 'shr
+      notmuch-multipart/alternative-discouraged '("text/plain")
+      notmuch-show-text/html-blocked-images "."
+      shr-use-colors nil
+      shr-use-fonts nil
+      shr-width 90
+      notmuch-search-oldest-first nil
       notmuch-show-logo nil
       notmuch-hello-auto-refresh t
       notmuch-fcc-dirs nil

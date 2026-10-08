@@ -94,4 +94,29 @@
     (notmuch-tree-insert-thread (cadr tree) depth status)))
 (advice-add 'notmuch-tree-insert-tree :around #'sysinit-mail-tree-matching)
 
+(defun sysinit-mail-explain-empty-search (process _event)
+  "Distinguish an empty category from an empty account."
+  (when (and (eq (process-status process) 'exit)
+             (= (process-exit-status process) 0)
+             (buffer-live-p (process-buffer process)))
+    (with-current-buffer (process-buffer process)
+      (unless (notmuch-search-get-result (point-min))
+        (let ((inhibit-read-only t)
+              (count (notmuch-call-notmuch-sexp "count" (sysinit-mail-scope "tag:inbox"))))
+          (goto-char (point-max))
+          (insert (format "\nNo messages match this view.\nThis account has %s inbox messages.\n\ngi opens Inbox (all categories, excluding archive).\nSPC c selects a category; Escape clears a custom search.\n,l opens the sync log.\n" count)))))))
+(advice-add 'notmuch-search-process-sentinel :after #'sysinit-mail-explain-empty-search)
+
+(defun sysinit-mail-toggle-html ()
+  "Switch between native HTML and plain-text alternatives."
+  (interactive)
+  (unless (derived-mode-p 'notmuch-show-mode)
+    (user-error "Open a message first"))
+  (setq-local notmuch-multipart/alternative-discouraged
+              (if (equal notmuch-multipart/alternative-discouraged '("text/plain"))
+                  '("text/html" "multipart/related") '("text/plain")))
+  (notmuch-show-refresh-view)
+  (message "Prefer %s" (if (equal notmuch-multipart/alternative-discouraged '("text/plain"))
+                           "HTML" "plain text")))
+
 (provide 'sysinit-mail-views)

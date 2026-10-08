@@ -27,11 +27,14 @@
      :command (list sysinit-mail-sync-command) :noquery t
      :sentinel (lambda (process _event)
                  (when (memq (process-status process) '(exit signal))
-                   (if (= (process-exit-status process) 0)
-                       (progn (sysinit-mail-refresh-buffers)
-                              (message "Mail synchronized")
-                              (when sysinit-mail-sync-pending (sysinit-mail-sync)))
-                     (message "Mail sync failed; see *mail-sync* (run mail-auth personal to sign in)")))))))
+                   (pcase (process-exit-status process)
+                     (0 (sysinit-mail-refresh-buffers)
+                        (message "Mail synchronized")
+                        (when sysinit-mail-sync-pending (sysinit-mail-sync)))
+                     (75 (sysinit-mail-refresh-buffers)
+                         (message "Mail sync already running; local views refreshed. Retry follows automatically."))
+                     (_ (message "Mail sync failed; , l opens the error log"))))))))
+
 (defun sysinit-mail-sync-if-authenticated ()
   "Refresh mail only after an account has completed browser login."
   (when (cl-some (lambda (account)

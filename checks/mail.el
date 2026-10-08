@@ -153,6 +153,7 @@
           (should (equal "2" (mail-test-command "count" "tag:inbox")))
           (goto-char (point-min))
           (should-not (notmuch-search-get-result))
+          (should (string-match-p "This account has 1 inbox messages" (buffer-string)))
           (should (equal "2" (mail-test-command "count" "tag:inbox and (id:hidden@example.com or id:work@example.com)")))
           (should (equal "4" (mail-test-command "count" "tag:unread")))
           (let ((process (get-process "mail-sync")))
@@ -291,3 +292,26 @@
       (should (eq (key-binding (kbd "C-u")) #'evil-scroll-up))
       (should (eq (key-binding (kbd "C-d")) #'evil-scroll-down))
       (should (eq (key-binding (kbd "5")) #'digit-argument)))))
+
+(ert-deftest mail-native-html-rendering ()
+  (should (libxml-available-p))
+  (should (equal (car (notmuch-multipart/alternative-choose
+                       nil '("text/plain" "text/html"))) "text/html"))
+  (with-temp-buffer
+    (insert "<html><body><h1>Reading test</h1><p>Hello <b>reader</b>.</p><ul><li>One item</li></ul><a href='https://example.com'>Example link</a></body></html>")
+    (let ((dom (libxml-parse-html-region (point-min) (point-max))))
+      (erase-buffer)
+      (shr-insert-document dom))
+    (should (string-match-p "Reading test" (buffer-string)))
+    (should (string-match-p "One item" (buffer-string)))
+    (goto-char (point-min))
+    (search-forward "Example link")
+    (should (equal (get-text-property (1- (point)) 'shr-url) "https://example.com")))
+  (with-temp-buffer
+    (notmuch-show-mode)
+    (cl-letf (((symbol-function 'notmuch-show-refresh-view) #'ignore))
+      (sysinit-mail-toggle-html)
+      (should (equal (car (notmuch-multipart/alternative-choose
+                           nil '("text/plain" "text/html"))) "text/plain"))
+      (sysinit-mail-toggle-html)
+      (should (equal notmuch-multipart/alternative-discouraged '("text/plain"))))))

@@ -72,7 +72,7 @@
               '(:eval
                 (let ((view (cl-find sysinit-mail-current-view notmuch-saved-searches
                                      :key (lambda (v) (plist-get v :key)) :test #'equal)))
-                  (format " %s   %s %s%s   ·   SPC navigation  , actions"
+                  (format " %s   %s %s%s   ·   gi Inbox  SPC navigation  , actions"
                           (capitalize (caddr sysinit-mail-account))
                           (or (plist-get view :icon) "")
                           (or (plist-get view :name) "Mail")

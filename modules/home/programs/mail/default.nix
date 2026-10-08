@@ -52,21 +52,35 @@ let
     runtimeInputs = [
       pkgs.lieer
       pkgs.jq
+      pkgs.coreutils
+      pkgs.gnugrep
     ];
     text = ''
       ${mailEnv}
       paths=$(jq -er '.[].path' ${lib.escapeShellArg accountFile})
       synced=0
+      status=0
+      output=$(mktemp)
+      trap 'rm -f -- "$output"' EXIT
       while IFS= read -r path; do
         if [[ -s "$path/.credentials.gmailieer.json" ]]; then
-          gmi sync --path "$path"
           synced=1
+          if gmi sync --path "$path" > "$output" 2>&1; then
+            cat "$output"
+          elif grep -Fxq 'lieer.local.Local.RepositoryException: failed to lock repository (probably in use by another gmi instance)' "$output"; then
+            printf 'Sync already running: %s; changes will sync on the next pass.\n' "$path"
+            if [[ "$status" == 0 ]]; then status=75; fi
+          else
+            cat "$output" >&2
+            status=1
+          fi
         fi
       done <<< "$paths"
       if [[ "$synced" == 0 ]]; then
         echo 'No account is signed in. Run mail-auth personal or mail-auth work.' >&2
         exit 1
       fi
+      exit "$status"
     '';
   };
   imagePreview = pkgs.writeShellApplication {
