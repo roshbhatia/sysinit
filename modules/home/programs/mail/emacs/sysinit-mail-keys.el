@@ -122,14 +122,51 @@
         (evil-define-key* 'visual map (kbd key) command))
       (which-key-add-key-based-replacements key (nth 1 entry)))))
 (which-key-add-key-based-replacements
-  "SPC c" "Categories" "SPC f" "Find" "SPC m" "Mail"
+  "," "Mail" "SPC c" "Categories" "SPC f" "Find" "SPC m" "Mail"
   "SPC v" "Views" "SPC q" "Quit")
+
+(require 'hydra)
+(defhydra sysinit-mail-menu (:color blue :hint nil)
+  "
+ Mail             Select              Labels
+ _a_ archive      _v_ all results     _t_ edit labels
+ _r_ read         _V_ select rows     _U_ unsubscribe
+ _u_ unread       _j_ down _k_ up     _i_ image
+ _T_ toggle       _s_ sync            _l_ sync log
+ _c_ compose      _R_ reply           _A_ reply all
+ _q_ close menu   _?_ all bindings
+"
+  ("a" sysinit-mail-archive)
+  ("r" sysinit-mail-read)
+  ("u" sysinit-mail-unread)
+  ("T" sysinit-mail-toggle-read)
+  ("t" sysinit-mail-edit-tags)
+  ("U" sysinit-mail-unsubscribe)
+  ("v" sysinit-mail-select-all :exit nil)
+  ("V" evil-visual-line :exit nil)
+  ("j" evil-next-line :exit nil)
+  ("k" evil-previous-line :exit nil)
+  ("C-u" evil-scroll-up :exit nil)
+  ("C-d" evil-scroll-down :exit nil)
+  ("s" sysinit-mail-sync)
+  ("l" sysinit-mail-sync-log)
+  ("i" sysinit-mail-preview-image)
+  ("c" notmuch-mua-new-mail)
+  ("R" sysinit-mail-reply)
+  ("A" sysinit-mail-reply-all)
+  ("?" sysinit-mail-help)
+  ("q" nil)
+  ("<escape>" nil))
+(evil-set-command-property #'sysinit-mail-menu/body :keep-visual t)
+(dolist (map (list notmuch-hello-mode-map notmuch-search-mode-map
+                   notmuch-show-mode-map notmuch-tree-mode-map))
+  (evil-define-key* '(normal visual) map (kbd ",") #'sysinit-mail-menu/body))
 
 (defun sysinit-mail-help ()
   "List leader actions from the same registry that installs the menus."
   (interactive)
   (with-help-window "*Mail keys*"
-    (princ "Space opens menus. Escape clears search or cancels a picker.\n\n")
+    (princ "Space opens navigation; comma opens mail actions. ,t edits labels (+add/-remove). Escape cancels.\n\n")
     (dolist (entry sysinit-mail-leader-actions)
       (princ (format "SPC %-7s %s\n" (car entry) (nth 1 entry))))
     (princ "\nV then j/k selects rows; Ctrl-a selects all; e archives; t toggles read.\n,r marks read; ,u marks unread.\ngg/G and counts use Vim navigation. q returns; Ctrl-h/j/k/l moves between windows.\n")))

@@ -6,6 +6,26 @@
 }:
 let
   cfg = config.sysinit.mail;
+  themeLib = import ../../../shared/theme-colors.nix { inherit lib; };
+  colors = themeLib.colorsOf config;
+  palette = lib.genAttrs (map (n: "base0${n}") [
+    "0"
+    "1"
+    "2"
+    "3"
+    "4"
+    "5"
+    "6"
+    "7"
+    "8"
+    "9"
+    "A"
+    "B"
+    "C"
+    "D"
+    "E"
+    "F"
+  ]) (name: "#${colors.${name}}");
   accountFile = "${config.xdg.configHome}/email/accounts.json";
   mailEnv = ''
     export NOTMUCH_CONFIG=${lib.escapeShellArg "${config.xdg.configHome}/notmuch/default/config"}
@@ -80,6 +100,7 @@ let
       (setq sysinit-mail-accounts
         (mapcar (lambda (account) (list (alist-get 'address account) (alist-get 'path account) (alist-get 'name account)))
           (json-read-file ${builtins.toJSON accountFile}))))
+    (setq sysinit-mail-palette (json-parse-string ${builtins.toJSON (builtins.toJSON palette)} :object-type 'alist))
     (setq user-mail-address (caar sysinit-mail-accounts)
       user-full-name "Roshan Bhatia"
       sysinit-mail-state-file ${builtins.toJSON "${config.xdg.stateHome}/email/account"}

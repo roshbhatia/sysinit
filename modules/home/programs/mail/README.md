@@ -7,6 +7,12 @@ stay in local files outside Nix.
 
 ## Navigation and menus
 
+Press Space and pause for navigation, or comma for the Hydra mail action menu.
+`,t` edits labels: enter `+Label` to add or `-Label` to remove. Completion lists
+existing labels; new labels are allowed. This works on a message or selection.
+`,a` archives, `,T` toggles read, `,r` marks read, `,u` marks unread, and `,v`
+selects all. Label changes sync back to Gmail through Lieer.
+
 Press Space and pause for WhichKey. `Space Space` opens the command picker.
 
 | Menu | Actions |
@@ -22,7 +28,8 @@ the category you selected. `Space f c` does the same. Escape cancels a picker;
 Ctrl-j/Ctrl-k moves through its choices. Empty mail queries reset the search.
 `Ctrl-u`/`Ctrl-d` scroll half a page up/down. Numeric Vim counts remain available; `g1`–`g5` are category aliases.
 
-Catppuccin follows the terminal's light/dark mode. Emacs leaves its terminal
+The standard `base16-theme` package uses the same palette as WezTerm.
+Category and label icons use the terminal's Nerd Font. Emacs leaves its terminal
 background unset so WezTerm controls transparency. Pickers and WhichKey use
 resizable bottom windows. Chafa redraws when its preview pane changes size.
 
@@ -35,6 +42,7 @@ otherwise it marks the selection unread. `,r` always marks read; `,u` marks unre
 
 The `Space m` menu stays available during selection. It includes select rows,
 select all, archive, toggle read/unread, and explicit read/unread actions.
+Actions refresh the current view immediately, then sync with Gmail.
 Selections apply only to the current account and query. Escape cancels selection.
 
 ## Daily use
@@ -140,6 +148,6 @@ Chafa renders images; it does not render complete HTML emails.
 declares the shared editor packages used by the client and tests.
 
 `emacs/sysinit-mail.el` loads the feature modules: core settings, accounts,
-actions, views, images, UI, keys, and sync. The key module contains one leader
-action registry for bindings, WhichKey labels, and help. This follows the
+actions, views, images, UI, keys, and sync. The key module uses WhichKey for
+navigation and Hydra for local mail actions. This follows the
 core/feature/context split in `sysinit.nvim` without sharing editor-specific code.

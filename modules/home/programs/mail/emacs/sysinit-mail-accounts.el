@@ -5,17 +5,17 @@
       (car sysinit-mail-accounts)))
 (defvar sysinit-mail-state-file nil)
 (defvar sysinit-mail-view-definitions
-  '((:name "Inbox" :query "tag:inbox" :key "i")
-    (:name "Unread" :query "tag:unread" :key "u")
-    (:name "All mail" :query "*" :key "a")
-    (:name "Primary" :query "tag:inbox and tag:personal" :key "1")
-    (:name "Promotions" :query "tag:inbox and tag:promotions" :key "2")
-    (:name "Social" :query "tag:inbox and tag:social" :key "3")
-    (:name "Updates" :query "tag:inbox and tag:updates" :key "4")
-    (:name "Forums" :query "tag:inbox and tag:forums" :key "5")
-    (:name "Unsubscribe" :query "tag:Unsubscribe" :key "x")
-    (:name "Unsubscribe Success" :query "tag:\"Unsubscribe Success\"")
-    (:name "Unsubscribe Failed" :query "tag:\"Unsubscribe Failed\"")))
+  '((:icon "" :name "Inbox" :query "tag:inbox" :key "i")
+    (:icon "" :name "Unread" :query "tag:unread" :key "u")
+    (:icon "" :name "All mail" :query "*" :key "a")
+    (:icon "" :name "Primary" :query "tag:inbox and tag:personal" :key "1")
+    (:icon "" :name "Promotions" :query "tag:inbox and tag:promotions" :key "2")
+    (:icon "" :name "Social" :query "tag:inbox and tag:social" :key "3")
+    (:icon "" :name "Updates" :query "tag:inbox and tag:updates" :key "4")
+    (:icon "" :name "Forums" :query "tag:inbox and tag:forums" :key "5")
+    (:icon "" :name "Unsubscribe" :query "tag:Unsubscribe" :key "x")
+    (:icon "" :name "Unsubscribe Success" :query "tag:\"Unsubscribe Success\"")
+    (:icon "" :name "Unsubscribe Failed" :query "tag:\"Unsubscribe Failed\"")))
 
 (defun sysinit-mail-scope (query)
   "Restrict QUERY to the selected account's mail directory."
@@ -67,13 +67,15 @@
     (sysinit-mail-open)))
 
 (defun sysinit-mail-header ()
-  "Show the account, selected category, and menu hint at the current width."
+  "Show account and category without duplicating the message list labels."
   (setq-local header-line-format
-              '(:eval (format " %s | %s%s | SPC menu"
-                              (car sysinit-mail-account)
-                              (or (plist-get (cl-find sysinit-mail-current-view notmuch-saved-searches
-                                                      :key (lambda (v) (plist-get v :key))
-                                                      :test #'equal) :name) "Mail")
-                              (if sysinit-mail-filtered-p " / search" "")))))
+              '(:eval
+                (let ((view (cl-find sysinit-mail-current-view notmuch-saved-searches
+                                     :key (lambda (v) (plist-get v :key)) :test #'equal)))
+                  (format " %s   %s %s%s   ·   SPC navigation  , actions"
+                          (capitalize (caddr sysinit-mail-account))
+                          (or (plist-get view :icon) "")
+                          (or (plist-get view :name) "Mail")
+                          (if sysinit-mail-filtered-p " / search" ""))))))
 
 (provide 'sysinit-mail-accounts)

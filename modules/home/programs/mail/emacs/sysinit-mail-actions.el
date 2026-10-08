@@ -27,6 +27,7 @@
     (notmuch-show-tag-message changes))
    (t (user-error "Open a mail view first")))
   (when (evil-visual-state-p) (evil-exit-visual-state))
+  (sysinit-mail-refresh-buffers (list (current-buffer)))
   (sysinit-mail-sync))
 
 (defun sysinit-mail-read ()
