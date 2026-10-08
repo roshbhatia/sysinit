@@ -1,0 +1,33 @@
+checks/mail.el
+  s_de281cf8e5cd4f::t_6da5121bf9d203 58-63,324-343
+checks/mail.nix
+  s_de281cf8e5cd4f::t_def81c5ff8a78d 4,13
+modules/home/programs/mail/README.md
+  s_de281cf8e5cd4f::t_163b6cbcc3150a 66,157-166
+modules/home/programs/mail/default.nix
+  s_de281cf8e5cd4f::t_02c8acf6a5509e 121-133,179-180,186
+modules/home/programs/mail/emacs/sysinit-mail-actions.el
+  s_de281cf8e5cd4f::t_17cda5d914e6b7 3-4,83-113
+modules/home/programs/mail/emacs/sysinit-mail-images.el
+  s_de281cf8e5cd4f::t_1ecc6d0f7ab0ac 3-8
+modules/home/programs/mail/emacs/sysinit-mail-keys.el
+  s_de281cf8e5cd4f::t_d4b71c896251b5 103,139-140,158
+modules/home/programs/mail/packages.nix
+  s_de281cf8e5cd4f::t_d1b997558455eb 1-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1b3449e81574c2aad715d0e245aee9f309024508",
+  "prompts": {},
+  "sessions": {
+    "s_de281cf8e5cd4f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a11307-12eb-7480-afb6-c32a40ba7deb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
