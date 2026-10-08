@@ -209,7 +209,7 @@
     };
 
     uv2nix = {
-      url = "github:pyproject-nix/uv2nix/5a836d395cbf5fc22670eb98dd4aa4fc4d406977";
+      url = "github:pyproject-nix/uv2nix/4b59abb2ae1896d2a0e1abfc47fbc9bf985ea730";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         pyproject-nix.follows = "pyproject-nix";

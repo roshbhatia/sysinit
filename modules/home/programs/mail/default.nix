@@ -121,7 +121,7 @@ let
       sysinit-mail-firefox-command '(
         ${
           lib.concatMapStringsSep " " builtins.toJSON (
-            if pkgs.stdenv.isDarwin then
+            if pkgs.stdenv.hostPlatform.isDarwin then
               [
                 "/usr/bin/open"
                 "-a"
