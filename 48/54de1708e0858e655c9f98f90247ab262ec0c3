@@ -1,0 +1,19 @@
+modules/home/programs/mail/emacs/sysinit-mail-keys.el
+  s_de281cf8e5cd4f::t_6bd5909d0b38fb 3-4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4854de1708e0858e655c9f98f90247ab262ec0c3",
+  "prompts": {},
+  "sessions": {
+    "s_de281cf8e5cd4f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a11307-12eb-7480-afb6-c32a40ba7deb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
