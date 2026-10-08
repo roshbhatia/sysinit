@@ -80,6 +80,9 @@ local routes = {
 ---@param url string
 ---@return table|nil
 function M.route(url)
+  if type(url) ~= "string" then
+    return nil
+  end
   local scheme, authority, path = url:match("^([%a]+)://([^/]+)(/.*)$")
   if not scheme or (scheme:lower() ~= "https" and scheme:lower() ~= "http") then
     return nil
@@ -202,7 +205,8 @@ local function choose(config, route)
     showStatus = false,
     historyKey = "github." .. route.kind,
   }
-  local palette = hs.loadSpoon("CommandPalette")
+  local loaded = rawget(_G, "spoon") or {}
+  local palette = loaded.CommandPalette or hs.loadSpoon("CommandPalette")
   local ok = palette ~= nil
     and pcall(function()
       palette:pick(spec, function(row)
@@ -223,8 +227,15 @@ function M.setup(config)
     return
   end
   hs.urlevent.httpCallback = function(_, _, _, url, senderPID)
-    local app = senderPID and senderPID > 0 and hs.application.applicationForPID(senderPID)
-    local sender = app and app:bundleID()
+    local sender
+    if type(senderPID) == "number" and senderPID > 0 then
+      for _, app in ipairs(hs.application.runningApplications()) do
+        if app:pid() == senderPID then
+          sender = app:bundleID()
+          break
+        end
+      end
+    end
     if browsers[sender] then
       openBrowser(url, sender)
       return

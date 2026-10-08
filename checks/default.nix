@@ -126,6 +126,7 @@ in
   hammerspoon-startup =
     pkgs.runCommand "hammerspoon-startup-test" { nativeBuildInputs = [ pkgs.lua5_4 ]; }
       ''
+        lua ${./hammerspoon-switcher.lua} ${../modules/darwin/home/hammerspoon/lua/sysinit/pkg/core/init.lua}
         lua ${./hammerspoon-startup.lua} ${../modules/darwin/home/hammerspoon/lua/sysinit/pkg/core/startup.lua}
         touch "$out"
       '';

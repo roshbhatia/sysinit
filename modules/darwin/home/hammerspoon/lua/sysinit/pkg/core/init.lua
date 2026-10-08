@@ -7,6 +7,7 @@ local windowSwitcher = nil
 local tapCmdTab = nil
 
 local function initWindowSwitcher()
+  hs.window.filter.ignoreAlways.loginwindow = true
   switcherUIPrefs = theme.getWindowSwitcherPrefs()
   windowSwitcher =
     hs.window.switcher.new(hs.window.filter.new():setCurrentSpace(true):setDefaultFilter({}), switcherUIPrefs)
@@ -23,14 +24,26 @@ local function mapCmdTab(event)
 
   if flags.cmd and not flags.shift and not flags.alt and not flags.ctrl then
     if windowSwitcher then
-      windowSwitcher:next()
+      local ok, err = pcall(function()
+        windowSwitcher:next()
+      end)
+      if not ok then
+        hs.printf("Window switcher failed: %s", tostring(err))
+        return false
+      end
     end
     return true
   end
 
   if flags.cmd and flags.shift and not flags.alt and not flags.ctrl then
     if windowSwitcher then
-      windowSwitcher:previous()
+      local ok, err = pcall(function()
+        windowSwitcher:previous()
+      end)
+      if not ok then
+        hs.printf("Window switcher failed: %s", tostring(err))
+        return false
+      end
     end
     return true
   end

@@ -34,14 +34,19 @@ hs = {
     return palette
   end,
   application = {
-    applicationForPID = function(pid)
-      if apps[pid] then
-        return {
+    runningApplications = function()
+      local running = {}
+      for pid, bundle in pairs(apps) do
+        running[#running + 1] = {
+          pid = function()
+            return pid
+          end,
           bundleID = function()
-            return apps[pid]
+            return bundle
           end,
         }
       end
+      return running
     end,
     launchOrFocusByBundleID = function(bundle)
       focused = bundle
@@ -350,3 +355,13 @@ assert(#tasks == 19 and opened[#opened][2] == config.browser, "disable lost link
 print(
   "URL routing: browser origins, pull and run matching, picker rows, verbs, each row, dismiss, cold start, failures, palette fallback, single target, and disable passed"
 )
+
+local prior = #opened
+hs.urlevent.httpCallback(nil, nil, nil, "https://example.com", 999999)
+assert(#opened == prior + 1, "a departed sender must fall back to the configured browser")
+assert(router.route(nil) == nil)
+spoon = { CommandPalette = started }
+hs.loadSpoon = function()
+  error("already loaded spoon must be reused")
+end
+hs.urlevent.httpCallback(nil, nil, nil, "https://github.com/test/repo/pull/1", 999999)
