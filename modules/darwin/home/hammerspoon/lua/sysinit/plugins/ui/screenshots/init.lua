@@ -42,6 +42,16 @@ local function run(args, paths)
   end
   local task = hs.task.new(tool, function(code)
     if code == 0 then
+      local captured = false
+      for _, path in ipairs(paths) do
+        if hs.fs.attributes(path) ~= nil then
+          captured = true
+          break
+        end
+      end
+      if not captured then
+        return
+      end
       copy(paths)
     end
   end, args)

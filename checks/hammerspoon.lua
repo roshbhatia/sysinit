@@ -22,6 +22,8 @@ local alerts = {}
 local bindings = {}
 local copied = {}
 local tasks = {}
+local files = {}
+local cancelled = false
 
 function view:windowStyle()
   return self
@@ -81,8 +83,8 @@ _G.hs = {
   configdir = root,
   drawing = { windowLevels = { modalPanel = 1 } },
   fs = {
-    attributes = function()
-      return nil
+    attributes = function(path)
+      return files[path]
     end,
   },
   hotkey = {
@@ -134,6 +136,13 @@ _G.hs = {
       local task = { tool = tool, args = args, started = false }
       function task:start()
         self.started = true
+        if not cancelled then
+          for _, path in ipairs(args) do
+            if path:match("%.png$") then
+              files[path] = { mode = "file" }
+            end
+          end
+        end
         callback_work(0, "", "")
       end
       tasks[#tasks + 1] = task
@@ -173,3 +182,10 @@ screenshots.capture(" window ")
 assert(table.concat(tasks[2].args, " "):match("^%-i %-W %-o "), "window capture used the wrong flags")
 screenshots.capture("area")
 assert(table.concat(tasks[3].args, " "):match("^%-i %-s "), "area capture used the wrong flags")
+
+cancelled = true
+local alertCount = #alerts
+local previousCopy = copied
+screenshots.area()
+assert(#alerts == alertCount, "cancelled capture reported an error")
+assert(copied == previousCopy, "cancelled capture changed the clipboard")

@@ -26,6 +26,9 @@ rec {
     "12" = "q";
     "15" = "r";
     "18" = "1";
+    "20" = "3";
+    "21" = "4";
+    "23" = "5";
     "36" = "enter";
     "44" = "slash";
     "46" = "m";
@@ -110,6 +113,8 @@ rec {
     "25" = disabled;
     "26" = disabled;
     "27" = hotkey false 96 50 1048576;
+    "28" = hotkey false 51 20 1179648;
+    "30" = hotkey false 52 21 1179648;
     "32" = hotkey false 65535 126 8650752;
     "33" = hotkey false 65535 125 8650752;
     "36" = hotkey false 65535 103 8388608;
@@ -132,6 +137,7 @@ rec {
     "162" = hotkey false 65535 96 9961472;
     "164" = hotkey false 65535 65535 0;
     "175" = hotkey false 65535 65535 0;
+    "184" = hotkey false 53 23 1179648;
     "190" = hotkey false 113 12 8388608;
     "215" = hotkey false 65535 65535 0;
     "216" = hotkey false 65535 65535 0;
