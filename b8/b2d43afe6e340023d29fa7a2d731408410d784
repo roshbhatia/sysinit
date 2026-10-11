@@ -1,0 +1,23 @@
+checks/hammerspoon.lua
+  s_754645f0704a88::t_258f468a6d3b94 25-26,86-87,139-145,185-191
+modules/darwin/home/hammerspoon/lua/sysinit/plugins/ui/screenshots/init.lua
+  s_754645f0704a88::t_9943104f10df4d 45-54
+modules/darwin/lib/chords.nix
+  s_754645f0704a88::t_9943104f10df4d 29-31,116-117,140
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b8b2d43afe6e340023d29fa7a2d731408410d784",
+  "prompts": {},
+  "sessions": {
+    "s_754645f0704a88": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12c3d-00b6-7e63-929a-134b55dffc54",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
