@@ -96,6 +96,7 @@ class WorkflowTests(unittest.TestCase):
         for tool, overview, action in [
             ("nvim", False, f"PRReview {url}"),
             ("nvim", True, f"PRReview! {url}"),
+            ("atlas", False, f"Atlas review {url}"),
             ("diffview", False, f"DiffviewOpen {base}..{head}"),
         ]:
             self.assertEqual(

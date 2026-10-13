@@ -107,6 +107,15 @@ in
               ];
             }
             {
+              name = "Neovim (Atlas)";
+              detail = "Review pull requests, threads, and notes";
+              command = [
+                "${config.home.profileDirectory}/bin/gh-pr-diff"
+                "--tool"
+                "atlas"
+              ];
+            }
+            {
               name = "Neovim (Diff)";
               detail = "Read the patch in Diffview";
               command = [

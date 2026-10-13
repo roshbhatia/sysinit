@@ -1655,11 +1655,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790204626,
-        "narHash": "sha256-pdSPhIGnq+hEfocZf+0X1h2DHQWsn9JK8+KD5Z0wUMQ=",
+        "lastModified": 1791912900,
+        "narHash": "sha256-2ZrqO4qcFIIydvn57HBT7hSnmCNiq8stGKzgIuGbsK8=",
         "owner": "roshbhatia",
         "repo": "sysinit.nvim",
-        "rev": "226981e9e9337c3832c861c748fd4384f1fd7712",
+        "rev": "2156f9b9d88c387b809024ea20176a63a4de13ce",
         "type": "github"
       },
       "original": {

@@ -35,6 +35,8 @@ def review(
     git("read-tree", head)
     if tool == "changes":
         command = ["changes", "interactive", "--staged"]
+    elif tool == "atlas":
+        command = ["nvim", "-n", "-c", f"Atlas review {url}"]
     elif tool == "nvim" and not history:
         action = "PRReview!" if overview else "PRReview"
         command = ["nvim", "-n", "-c", f"{action} {url}"]
@@ -100,7 +102,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("url")
     parser.add_argument(
-        "--tool", choices=["nvim", "diffview", "changes", "hunk"], default="nvim"
+        "--tool",
+        choices=["nvim", "atlas", "diffview", "changes", "hunk"],
+        default="nvim",
     )
     parser.add_argument("--history", action="store_true")
     parser.add_argument("--overview", action="store_true")
