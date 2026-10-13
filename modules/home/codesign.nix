@@ -61,6 +61,22 @@ let
     runtimeInputs = [ pkgs.openssl ];
     text = signerScript;
   };
+  appManagementCheck = pkgs.sysinit.writeShellApplication {
+    name = "sysinit-check-app-management";
+    text = ''
+      if ${appState} check ${appStateArgs}; then
+        exit 0
+      fi
+
+      for appBundle in ${lib.escapeShellArg "${home}/${config.targets.darwin.copyApps.directory}"}/*.app; do
+        if [[ -d "$appBundle" ]] && ! /usr/bin/touch "$appBundle/.DS_Store"; then
+          printf 'sysinit: cannot update application %s\n' "$appBundle" >&2
+          printf 'Run activation from a terminal with App Management permission.\n' >&2
+          exit 1
+        fi
+      done
+    '';
+  };
 in
 {
   options.sysinit.codesign = {
@@ -115,20 +131,30 @@ in
             '';
       }
       (lib.mkIf config.targets.darwin.copyApps.enable {
-        home.activation.checkRunningApps = lib.hm.dag.entryBefore [ "writeBoundary" ] ''
-          ${appState} preflight ${appStateArgs}
-        '';
+        home.activation = {
+          checkAppManagementPermission = lib.mkIf config.targets.darwin.copyApps.enableChecks (
+            lib.mkForce (
+              lib.hm.dag.entryBefore [ "copyApps" ] ''
+                run ${lib.getExe appManagementCheck}
+              ''
+            )
+          );
 
-        home.activation.copyApps = lib.mkForce (
-          lib.hm.dag.entryAfter [ "installPackages" "linkGeneration" ] ''
-            sysinit_home_apps_validated=0
-            if ${appState} check ${appStateArgs}; then
-              sysinit_home_apps_validated=1
-            else
-              run ${appState} sync ${appStateArgs} --rsync ${lib.getExe pkgs.rsync}
-            fi
-          ''
-        );
+          checkRunningApps = lib.hm.dag.entryBefore [ "writeBoundary" ] ''
+            ${appState} preflight ${appStateArgs}
+          '';
+
+          copyApps = lib.mkForce (
+            lib.hm.dag.entryAfter [ "installPackages" "linkGeneration" ] ''
+              sysinit_home_apps_validated=0
+              if ${appState} check ${appStateArgs}; then
+                sysinit_home_apps_validated=1
+              else
+                run ${appState} sync ${appStateArgs} --rsync ${lib.getExe pkgs.rsync}
+              fi
+            ''
+          );
+        };
       })
     ]
   );
