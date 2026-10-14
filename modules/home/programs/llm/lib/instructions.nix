@@ -86,30 +86,6 @@ let
     }
   ];
 
-  orcReporting = ''
-    ## Orc Session Checkpoints
-
-    Check `ORC_SESSION_ID` and `ORC_SCOPE` in the local environment once.
-    If either value is missing or empty, skip Orc discovery, session lookup,
-    registration, and reporting. Do not call Orc to determine whether this is
-    an Orc session. Use Orc outside a session only when the user explicitly
-    requests an Orc operation.
-
-    When both values are nonempty, call
-    `orc_current_session` before reporting. Continue only when it confirms the
-    active Orc session identified by those values. If its role is
-    `orchestrator`, call `orc_session_report` after each material milestone and
-    before the final response. A hook that blocks the Stop event continues the
-    turn, so that turn has not reached its final response and owes no
-    checkpoint yet.
-
-    Treat `output` as a compact, machine-readable Checkpoint with `status`,
-    `summary`, `verification`, `artifacts`, and `remaining_work`.
-    Transcript providers supply visible assistant prose to Orc Output.
-    Orc Activity owns reasoning, tool, and event records.
-    Do not copy either stream into the Checkpoint.
-  '';
-
   makeInstructions =
     {
       harness,
@@ -135,7 +111,6 @@ let
       base = ''
         ${contextRules}
         ${loaderNote}
-        ${orcReporting}
 
         ## Shared tasks
 

@@ -14,7 +14,6 @@ let
   shellGuardScript = pkgs.sysinit.writeShellApplication {
     name = "cursor-gate-shell-guard";
     text = ''
-      ${llmLib.guards.gateStateDir}
       exec ${lib.getExe pkgs.gate-cli} hook --harness cursor --format cursor
     '';
   };
@@ -22,7 +21,6 @@ let
   gateHookScript = pkgs.sysinit.writeShellApplication {
     name = "cursor-gate-hook";
     text = ''
-      ${llmLib.guards.gateStateDir}
       exec ${lib.getExe pkgs.gate-cli} hook --harness cursor --format cursor
     '';
   };

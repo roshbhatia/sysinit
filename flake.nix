@@ -64,25 +64,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    orc = {
-      url = "github:roshbhatia/orc/f9e485693b03d9d938e5ebe659c1b1bb2f452a88";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        systems.follows = "systems";
-      };
-    };
-
-    orc-extras = {
-      url = "github:roshbhatia/orc/f9e485693b03d9d938e5ebe659c1b1bb2f452a88?dir=extras";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        systems.follows = "systems";
-        orc.follows = "orc";
-        changes.follows = "changes";
-        traces.follows = "traces";
-      };
-    };
-
     ask = {
       url = "github:roshbhatia/ask/2fcb918626d4fdffada93587e3f1dc1628ea2f51";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -385,8 +366,6 @@
             "tether"
             "citelock"
             "sysinit-utils"
-            "orc-cli"
-            "orc-providers"
             "nuvim"
             "slk"
             "ioskeleyMono"
@@ -447,8 +426,6 @@
                 "changes-providers"
                 "traces"
                 "traces-providers"
-                "orc-cli"
-                "orc-providers"
                 "seshy"
                 "specutil"
                 "calldiff"

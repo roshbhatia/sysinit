@@ -4,20 +4,8 @@ let
 in
 rec {
 
-  withOrcSession = command: ''
-    if [ -n "''${ORC_SESSION_ID:-}" ] && [ -n "''${ORC_SCOPE:-}" ]; then
-      ${command}
-    fi
-  '';
-
   rulesFile =
     pkgs: pkgs.sysinit.writeJSON "destructive-deny-rules.json" allowlist.destructiveDenyRules;
-
-  gateStateDir = ''
-    if [ -n "''${ORC_SESSION_ID:-}" ]; then
-      export GATE_STATE_DIR=".gate/orc/''${ORC_SESSION_ID}"
-    fi
-  '';
 
   mkGateHookScript =
     {
@@ -30,7 +18,6 @@ rec {
     pkgs.sysinit.writeShellApplication {
       inherit name;
       text = ''
-        ${gateStateDir}
         ${lib.optionalString (harness == "claude") ''
           export GATE_CONFIG="''${XDG_CONFIG_HOME:-$HOME/.config}/gate/native-output.yaml"
         ''}

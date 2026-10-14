@@ -1133,65 +1133,6 @@
         "type": "github"
       }
     },
-    "orc": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "systems": [
-          "systems"
-        ]
-      },
-      "locked": {
-        "lastModified": 1789412898,
-        "narHash": "sha256-OwPfa5TwhU9qlkOajQy+tgwNlM7qzm9KAnxzTuDOs3Q=",
-        "owner": "roshbhatia",
-        "repo": "orc",
-        "rev": "f9e485693b03d9d938e5ebe659c1b1bb2f452a88",
-        "type": "github"
-      },
-      "original": {
-        "owner": "roshbhatia",
-        "repo": "orc",
-        "rev": "f9e485693b03d9d938e5ebe659c1b1bb2f452a88",
-        "type": "github"
-      }
-    },
-    "orc-extras": {
-      "inputs": {
-        "changes": [
-          "changes"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "orc": [
-          "orc"
-        ],
-        "systems": [
-          "systems"
-        ],
-        "traces": [
-          "traces"
-        ]
-      },
-      "locked": {
-        "dir": "extras",
-        "lastModified": 1789412898,
-        "narHash": "sha256-OwPfa5TwhU9qlkOajQy+tgwNlM7qzm9KAnxzTuDOs3Q=",
-        "owner": "roshbhatia",
-        "repo": "orc",
-        "rev": "f9e485693b03d9d938e5ebe659c1b1bb2f452a88",
-        "type": "github"
-      },
-      "original": {
-        "dir": "extras",
-        "owner": "roshbhatia",
-        "repo": "orc",
-        "rev": "f9e485693b03d9d938e5ebe659c1b1bb2f452a88",
-        "type": "github"
-      }
-    },
     "prose-style": {
       "inputs": {
         "nixpkgs": [
@@ -1373,8 +1314,6 @@
         "nur": "nur",
         "nuvim": "nuvim",
         "onepassword-shell-plugins": "onepassword-shell-plugins",
-        "orc": "orc",
-        "orc-extras": "orc-extras",
         "prose-style": "prose-style",
         "pyproject-build-systems": "pyproject-build-systems",
         "pyproject-nix": "pyproject-nix",

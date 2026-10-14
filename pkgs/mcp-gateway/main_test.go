@@ -43,7 +43,7 @@ func TestBackend(t *testing.T) {
 			result = `{"tools":[{"name":"context","description":"Return fixture context","inputSchema":{"type":"object","properties":{}}}]}`
 		case "tools/call":
 			cwd, _ := os.Getwd()
-			text, _ := json.Marshal(cwd + "|" + os.Getenv("ORC_SESSION_ID"))
+			text, _ := json.Marshal(cwd + "|" + os.Getenv("SYSINIT_TEST_SESSION"))
 			result = fmt.Sprintf(`{"content":[{"type":"text","text":%s}]}`, text)
 		case "resources/list":
 			result = `{"resources":[{"uri":"fixture://context","name":"context"}]}`
@@ -89,8 +89,8 @@ func TestGatewayRoundTrip(t *testing.T) {
 					Command: executable,
 					Args:    []string{"-test.run=^TestBackend$"},
 					Env: map[string]string{
-						"SYSINIT_MCP_FIXTURE": "1",
-						"ORC_SESSION_ID":      session,
+						"SYSINIT_MCP_FIXTURE":  "1",
+						"SYSINIT_TEST_SESSION": session,
 					},
 				}, gateway, proxy, input, output, log)
 				_ = output.Close()

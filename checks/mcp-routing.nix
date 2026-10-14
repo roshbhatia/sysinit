@@ -12,7 +12,7 @@ let
       workspace = {
         command = "fixture";
         args = [ "argument with spaces" ];
-        env.ORC_SESSION_ID = "fixture-session";
+        env.SYSINIT_TEST_SESSION = "fixture-session";
       };
       remote = {
         type = "http";
@@ -51,5 +51,5 @@ assert builtins.all (server: !(server ? url) && !(server ? serverUrl) && !(serve
 assert builtins.all (server: lib.hasSuffix "sysinit-mcp-gateway" server.command) (
   builtins.attrValues catalog.servers
 );
-assert catalog.servers.workspace.env.ORC_SESSION_ID == "fixture-session";
+assert catalog.servers.workspace.env.SYSINIT_TEST_SESSION == "fixture-session";
 pkgs.runCommand "mcp-client-routing" { } "touch $out"

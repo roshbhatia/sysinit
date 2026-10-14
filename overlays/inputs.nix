@@ -38,8 +38,6 @@ in
   command-palette = inputs.command-palette.packages.${final.stdenv.hostPlatform.system}.default;
   firefox-addons = inputs.firefox-addons.packages.${final.stdenv.hostPlatform.system};
   claude-code = inputs.nix-claude-code.packages.${final.stdenv.hostPlatform.system}.default;
-  orc-cli = inputs.orc-extras.packages.${final.stdenv.hostPlatform.system}.full;
-  orc-providers = inputs.orc-extras.packages.${final.stdenv.hostPlatform.system}.all;
   ask-cli = patchHackShebangs inputs.ask.packages.${final.stdenv.hostPlatform.system}.default;
   ask-providers = final.symlinkJoin {
     inherit (askExtras) name;

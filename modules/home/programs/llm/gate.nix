@@ -51,10 +51,6 @@ let
     version = "gate.config/v1";
     log = "${config.xdg.stateHome}/gate/decisions.jsonl";
 
-    log_fields = {
-      orc_session = "ORC_SESSION_ID";
-      orc_scope = "ORC_SCOPE";
-    };
     providers.directory = "${config.xdg.configHome}/gate/providers";
     defaults = {
       timeout = "2s";

@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   pkgs,
   ...
@@ -32,12 +31,6 @@
       description = "Shared cross-harness memory — Markdown note store readable by all agents";
     };
 
-    orc = {
-      command = "${lib.getExe pkgs.orc-cli}";
-      args = [ "mcp" ];
-      env.ORC_AGENT_REGISTRY = "${config.xdg.configHome}/sysinit/agents.json";
-      description = "Optional local agent orchestration, with tools only inside an active Orc workspace";
-    };
   };
 
 }

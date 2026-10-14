@@ -98,10 +98,6 @@ pkgs.runCommand "llm-composition"
   ''
     yq -o=json '.' ${gateConfig} > config.json
 
-    # A gate decision joins an orc checkpoint only through these two names.
-    jq -e '.log_fields.orc_session == "ORC_SESSION_ID"
-      and .log_fields.orc_scope == "ORC_SCOPE"' config.json > /dev/null
-
     # Every provider that denies a whole-file read prints the same sentence, so
     # they must name one reader. read-router and bash-guard both do; a third
     # that forgets the arg falls back to gate's default and disagrees silently.

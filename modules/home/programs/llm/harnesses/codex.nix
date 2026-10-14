@@ -164,7 +164,6 @@ in
         experimental_use_profile = true;
         set = {
           PATH = commandPath;
-          ORC_AGENT_REGISTRY = "${config.xdg.configHome}/sysinit/agents.json";
         };
       };
 
@@ -191,16 +190,6 @@ in
       };
 
       hooks = {
-        SessionStart = [
-          {
-            hooks = [
-              {
-                type = "command";
-                command = llmLib.guards.withOrcSession "${profileBin}/orc session register --hook-input --bind-current --source hook --harness codex --quiet";
-              }
-            ];
-          }
-        ];
         PreToolUse = [
           {
             hooks = [

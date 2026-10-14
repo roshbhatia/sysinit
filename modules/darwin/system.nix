@@ -10,7 +10,6 @@ let
   commandPath = import ../shared/command-path.nix { inherit lib; };
   systemPath = commandPath.systemEntriesFor true;
   user = config.sysinit.user.username;
-  agentRegistry = "/Users/${user}/.config/sysinit/agents.json";
   systemGenerationPruner = pkgs.sysinit.writeShellScript "sysinit-prune-system-generations" (
     builtins.readFile ./prune-system-generations.sh
   );
@@ -96,7 +95,6 @@ in
     PATH =
       commandPath.homeEntriesFor true "/etc/profiles/per-user/${user}/bin"
         config.users.users.${user}.home;
-    ORC_AGENT_REGISTRY = agentRegistry;
   };
 
   documentation.enable = false;

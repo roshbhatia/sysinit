@@ -85,7 +85,6 @@ in
     settings = {
       env = {
         PATH = commandPath;
-        ORC_AGENT_REGISTRY = "${config.xdg.configHome}/sysinit/agents.json";
         CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1";
         DISABLE_AUTOUPDATER = "1";
 
@@ -234,15 +233,6 @@ in
         ];
         SessionStart = [
           {
-            matcher = "";
-            hooks = [
-              {
-                type = "command";
-                command = llmLib.guards.withOrcSession "${profileBin}/orc session register --hook-input --bind-current --source hook --harness claude --quiet";
-              }
-            ];
-          }
-          {
 
             matcher = "startup|clear|compact";
             hooks = [
@@ -266,10 +256,6 @@ in
                 type = "command";
                 command = "${profileBin}/agent-state claude exit";
                 async = true;
-              }
-              {
-                type = "command";
-                command = llmLib.guards.withOrcSession "${profileBin}/orc session archive --hook-input --quiet";
               }
             ];
           }

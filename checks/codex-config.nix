@@ -42,7 +42,6 @@ let
 in
 assert home.programs.codex.settings.features.hooks;
 assert builtins.all (event: home.programs.codex.settings.hooks.${event} != [ ]) [
-  "SessionStart"
   "PreToolUse"
   "PostToolUse"
   "UserPromptSubmit"

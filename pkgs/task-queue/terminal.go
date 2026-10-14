@@ -85,7 +85,7 @@ func execute(a attempt, dir string, terminal bool) (int, error) {
 		defer func() { _ = guard.Close() }()
 	}
 	c := exec.Command(a.Argv[0], a.Argv[1:]...)
-	c.Env = envWithout("ORC_SESSION_ID", "ORC_SCOPE", "CODEX_THREAD_ID", "CLAUDECODE", "WEZTERM_PANE")
+	c.Env = envWithout("CODEX_THREAD_ID", "CLAUDECODE", "WEZTERM_PANE")
 	c.Stdin = os.Stdin
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
@@ -195,7 +195,7 @@ func terminalRun(a attempt, dir string) (int, error) {
 	}
 	c := exec.Command("zmx", "run", a.Terminal, self, "--state", dir, "terminal-child", a.ID)
 	c.Dir = a.Cwd
-	c.Env = envWithout("ZMX_SESSION", "ZMX_SESSION_PREFIX", "ORC_SESSION_ID", "ORC_SCOPE", "CODEX_THREAD_ID", "CLAUDECODE", "WEZTERM_PANE")
+	c.Env = envWithout("ZMX_SESSION", "ZMX_SESSION_PREFIX", "CODEX_THREAD_ID", "CLAUDECODE", "WEZTERM_PANE")
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
 	if e = c.Start(); e != nil {

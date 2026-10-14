@@ -91,13 +91,6 @@ in
               template = "{{ if .Env.ZMX_SESSION }}zmx({{ trimPrefix .Env.ZMX_SESSION_PREFIX .Env.ZMX_SESSION }}) {{ end }}";
               type = "text";
             }
-            {
-              foreground = "p:accent";
-              style = "plain";
-
-              template = "{{ if .Env.ORC_SCOPE }}|⚔| {{ end }}";
-              type = "text";
-            }
           ];
           type = "prompt";
         }

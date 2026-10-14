@@ -257,13 +257,6 @@ in
     inherit pkgs;
     inherit (pkgs) lib;
   };
-  orc-no-startup-units = pkgs.runCommand "orc-no-startup-units" { } ''
-    test ! -e ${pkgs.orc-cli}/etc/systemd
-    test ! -e ${pkgs.orc-cli}/lib/systemd
-    test ! -e ${pkgs.orc-cli}/Library/LaunchAgents
-    test ! -e ${pkgs.orc-cli}/Library/LaunchDaemons
-    touch $out
-  '';
   nushell-managed-tools = import ./nushell-managed-tools.nix {
     inherit pkgs;
     inherit (pkgs) lib;
