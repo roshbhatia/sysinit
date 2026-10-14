@@ -83,7 +83,7 @@
 (defvar sysinit-mail-firefox-command nil)
 
 (defun sysinit-mail-gmail-url ()
-  "Find the current message in Gmail using the selected account."
+  "Find the current message in Gmail using its account."
   (let* ((query (cond
                  ((derived-mode-p 'notmuch-show-mode) (notmuch-show-get-message-id))
                  ((derived-mode-p 'notmuch-tree-mode) (notmuch-tree-get-message-id))
@@ -93,11 +93,18 @@
          (id (when query
                (car (notmuch-call-notmuch-sexp
                      "search" "--format=sexp" "--output=messages" "--limit=1"
-                     (sysinit-mail-scope query))))))
+                     query)))))
     (unless id (user-error "Select a message first"))
-    (concat "https://mail.google.com/mail/?authuser="
-            (url-hexify-string (car sysinit-mail-account))
-            "#search/" (url-hexify-string (concat "in:anywhere rfc822msgid:" id)))))
+    (let ((account (cl-find-if
+                    (lambda (account)
+                      (let ((sysinit-mail-account account))
+                        (> (notmuch-call-notmuch-sexp "count"
+                             (sysinit-mail-scope (concat "id:" id))) 0)))
+                    sysinit-mail-accounts)))
+      (unless account (user-error "No configured account contains this message"))
+      (concat "https://mail.google.com/mail/?authuser="
+              (url-hexify-string (car account))
+              "#search/" (url-hexify-string (concat "in:anywhere rfc822msgid:" id))))))
 
 (defun sysinit-mail-open-firefox ()
   "Open the selected message's Gmail search in Firefox."

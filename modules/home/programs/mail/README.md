@@ -1,7 +1,9 @@
 # Email
 
 Run `email --personal` or `email --work` for the terminal Emacs client.
-Run `email` to restore the last account. Nix installs Emacs, Evil, notmuch,
+Run `email` to restore the sending account and open both inboxes, including read and unread mail.
+`gb` or `Space v b` opens both inboxes; `gi` opens the selected account's inbox.
+Nix installs Emacs, Evil, notmuch,
 Lieer, and the mail interface. Account addresses, tokens, mail, and sync state
 stay in local files outside Nix.
 
@@ -85,11 +87,12 @@ Reading a message does not mark it read automatically. Use `,r` explicitly.
 Bulk actions affect matching messages, including when a thread also contains
 messages outside the search. Archiving removes `inbox` and preserves read status.
 
-Signed-in accounts sync at startup, after tag changes and every minute while the
+Signed-in accounts sync at startup, after tag changes and every 15 seconds while the
 client runs. `mail-sync` also works outside Emacs. Changes stay local until a
 successful sync. Sync failures appear in `*mail-sync*`. A busy account does not
 block other accounts. Exit 75 means another sync holds the account lock;
-autosync retries on the next minute. No new login is needed for a busy account.
+Autosync retries on the next interval and keeps successful syncs quiet.
+No new login is needed for a busy account.
 
 Primary can be empty while other categories contain messages. Press `gi` for
 Inbox across all categories, excluding archived mail. Empty searches show

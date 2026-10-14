@@ -6,6 +6,7 @@
 (defvar sysinit-mail-state-file nil)
 (defvar sysinit-mail-view-definitions
   '((:icon "" :name "Inbox" :query "tag:inbox" :key "i")
+    (:name "Both inboxes" :query "tag:inbox" :key "b")
     (:icon "" :name "Unread" :query "tag:unread" :key "u")
     (:icon "" :name "All mail" :query "*" :key "a")
     (:icon "" :name "Primary" :query "tag:inbox and tag:personal" :key "1")
@@ -17,11 +18,18 @@
     (:icon "" :name "Unsubscribe Success" :query "tag:\"Unsubscribe Success\"")
     (:icon "" :name "Unsubscribe Failed" :query "tag:\"Unsubscribe Failed\"")))
 
+(defun sysinit-mail-combined-scope ()
+  (concat "(" (mapconcat (lambda (account)
+                            (concat "path:" (file-name-nondirectory
+                                              (directory-file-name (cadr account))) "/**"))
+                          sysinit-mail-accounts " or ") ")"))
+
 (defun sysinit-mail-scope (query)
   "Restrict QUERY to the selected account's mail directory."
   (let ((scope (concat "path:" (file-name-nondirectory
                                (directory-file-name (cadr sysinit-mail-account))) "/**")))
-    (if (string-prefix-p (concat scope " and (") query) query
+    (if (or (string-prefix-p (concat scope " and (") query)
+            (string-prefix-p (concat (sysinit-mail-combined-scope) " and (") query)) query
       (format "%s and (%s)" scope query))))
 
 (defun sysinit-mail-scoped-search (args)
@@ -37,7 +45,9 @@
         notmuch-saved-searches
         (mapcar (lambda (view)
                   (plist-put (copy-sequence view) :query
-                             (sysinit-mail-scope (plist-get view :query))))
+                             (if (equal (plist-get view :key) "b")
+                                 (format "%s and (tag:inbox)" (sysinit-mail-combined-scope))
+                               (sysinit-mail-scope (plist-get view :query)))))
                 sysinit-mail-view-definitions))
   (when sysinit-mail-state-file
     (make-directory (file-name-directory sysinit-mail-state-file) t)
@@ -73,7 +83,8 @@
                 (let ((view (cl-find sysinit-mail-current-view notmuch-saved-searches
                                      :key (lambda (v) (plist-get v :key)) :test #'equal)))
                   (format " %s   %s %s%s   ·   gi Inbox  SPC navigation  , actions"
-                          (capitalize (caddr sysinit-mail-account))
+                          (if (equal sysinit-mail-current-view "b") "All accounts"
+                            (capitalize (caddr sysinit-mail-account)))
                           (or (plist-get view :icon) "")
                           (or (plist-get view :name) "Mail")
                           (if sysinit-mail-filtered-p " / search" ""))))))

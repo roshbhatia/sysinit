@@ -1,6 +1,6 @@
 ;;; sysinit-mail-views.el --- Mail views -*- lexical-binding: t; -*-
 
-(defvar-local sysinit-mail-current-view "1")
+(defvar-local sysinit-mail-current-view "b")
 (defvar-local sysinit-mail-filtered-p nil)
 
 (defun sysinit-mail-run-query (query)
@@ -25,9 +25,9 @@
                 sysinit-mail-filtered-p nil)))
 
 (defun sysinit-mail-open ()
-  "Open the selected account's Primary inbox."
+  "Open all accounts' inboxes."
   (interactive)
-  (sysinit-mail-view "1"))
+  (sysinit-mail-view "b"))
 
 (defun sysinit-mail-sync-log ()
   "Open the latest sync output."

@@ -16,7 +16,7 @@
     (when pending
       (run-at-time 0.25 nil #'sysinit-mail-refresh-buffers pending))))
 
-(defun sysinit-mail-sync ()
+(defun sysinit-mail-sync (&optional quiet)
   "Synchronize signed-in accounts without blocking the mail view."
   (interactive)
   (if (process-live-p (get-process "mail-sync"))
@@ -29,10 +29,11 @@
                  (when (memq (process-status process) '(exit signal))
                    (pcase (process-exit-status process)
                      (0 (sysinit-mail-refresh-buffers)
-                        (message "Mail synchronized")
-                        (when sysinit-mail-sync-pending (sysinit-mail-sync)))
+                        (unless quiet (message "Mail synchronized"))
+                        (when sysinit-mail-sync-pending (sysinit-mail-sync quiet)))
                      (75 (sysinit-mail-refresh-buffers)
-                         (message "Mail sync already running; local views refreshed. Retry follows automatically."))
+                         (unless quiet
+                           (message "Mail sync already running; local views refreshed. Retry follows automatically.")))
                      (_ (message "Mail sync failed; , l opens the error log"))))))))
 
 (defun sysinit-mail-sync-if-authenticated ()
@@ -40,14 +41,14 @@
   (when (cl-some (lambda (account)
                    (file-exists-p (expand-file-name ".credentials.gmailieer.json" (cadr account))))
                  sysinit-mail-accounts)
-    (sysinit-mail-sync)))
+    (sysinit-mail-sync t)))
 (defvar sysinit-mail-sync-timer nil)
 (defun sysinit-mail-start-autosync ()
-  "Maintain one timer for startup and one-minute mail synchronization."
+  "Maintain one timer for startup and frequent mail synchronization."
   (when (timerp sysinit-mail-sync-timer)
     (cancel-timer sysinit-mail-sync-timer))
   (setq sysinit-mail-sync-timer
-        (run-at-time 1 60 #'sysinit-mail-sync-if-authenticated)))
+        (run-at-time 1 15 #'sysinit-mail-sync-if-authenticated)))
 (unless noninteractive
   (sysinit-mail-start-autosync))
 

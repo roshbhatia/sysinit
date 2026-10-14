@@ -16,7 +16,7 @@
     (kbd "C-u") #'evil-scroll-up (kbd "C-d") #'evil-scroll-down
     (kbd "C-h") #'windmove-left (kbd "C-j") #'windmove-down
     (kbd "C-k") #'windmove-up (kbd "C-l") #'windmove-right)
-  (dolist (key '("1" "2" "3" "4" "5" "i" "a" "u" "x"))
+  (dolist (key '("1" "2" "3" "4" "5" "i" "b" "a" "u" "x"))
     (let ((view-key key))
       (evil-define-key* 'normal map (kbd (concat "g" key))
         (lambda () (interactive) (sysinit-mail-view view-key))))))
@@ -106,6 +106,7 @@
     ("m h" "HTML / plain text" sysinit-mail-toggle-html)
     ("v t" "Thread tree" sysinit-mail-tree)
     ("v l" "Thread list" sysinit-mail-list)
+    ("v b" "Both inboxes" (:view "b"))
     ("v a" "All mail including archive" (:view "a"))
     ("v u" "Unread" (:view "u"))
     ("w" "Close view" notmuch-bury-or-kill-this-buffer)
