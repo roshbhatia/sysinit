@@ -1,5 +1,7 @@
 local source = assert(arg[1])
 local tasks, timers, opened, alerts, registered, picks = {}, {}, {}, {}, {}, {}
+local resolverTasks = {}
+local resolvedTargets = {}
 local default = "org.mozilla.firefox"
 local clients = {}
 local focused = nil
@@ -25,6 +27,9 @@ hs = {
   },
   json = {
     decode = function(text)
+      if resolvedTargets[text] then
+        return resolvedTargets[text]
+      end
       assert(text == "clients", "invalid JSON")
       return clients
     end,
@@ -77,7 +82,11 @@ hs = {
       function task:terminate()
         self.terminated = true
       end
-      tasks[#tasks + 1] = task
+      if binary == "/resolver" then
+        resolverTasks[#resolverTasks + 1] = task
+      else
+        tasks[#tasks + 1] = task
+      end
       return task
     end,
   },
@@ -105,6 +114,8 @@ local editor = "/nix/store/runner/open-github-pull-neovim"
 local enhance = "/nix/store/runner/open-github-actions-gh-enhance"
 local config = {
   enable = true,
+  resolver = "/resolver",
+  providerDirectory = "/providers",
   browser = "org.mozilla.firefox",
   wezterm = "/nix/store/wezterm/bin/wezterm",
   weztermApp = "/nix/store/wezterm/Applications/WezTerm.app",
@@ -112,6 +123,7 @@ local config = {
   routes = {
     pull = {
       verb = "Review",
+      providers = { "dash", "editor", "browser" },
       targets = {
         { name = "gh dash", detail = "Dashboard", command = dash },
         { name = "Neovim", detail = "Octo overview", command = editor },
@@ -120,6 +132,7 @@ local config = {
     },
     actions = {
       verb = "Watch",
+      providers = { "enhance", "browser" },
       targets = {
         { name = "gh enhance", detail = "Jobs and logs", command = enhance },
         { name = "Firefox", detail = "github.com", bundle = "org.mozilla.firefox" },
@@ -127,6 +140,8 @@ local config = {
     },
   },
 }
+resolvedTargets.pull = config.routes.pull.targets
+resolvedTargets.actions = config.routes.actions.targets
 local pr = "https://github.com/owner/repo/pull/123"
 local runUrl = "https://github.com/owner/repo/actions/runs/456"
 router.setup(config)
@@ -176,7 +191,13 @@ for _, url in ipairs({
 end
 
 local function click(url, pid)
+  local before = #resolverTasks
   hs.urlevent.httpCallback("https", "github.com", {}, url, pid)
+  if #resolverTasks > before and not failedStart then
+    local task = resolverTasks[#resolverTasks]
+    assert(task.args[1] == "resolve" and task.args[2] == "/providers")
+    task.callback(0, task.args[3], "")
+  end
 end
 local function pick(index)
   local entry = assert(picks[#picks], "no picker was shown")
@@ -332,29 +353,28 @@ palette = started
 
 failedStart = true
 click(pr, 1)
-pick(1)
 assert(alerts[#alerts]:match("Cannot start task"))
-assert(#tasks == 17)
+assert(#tasks == 16)
 failedStart = false
 
 local single = #picks
-config.routes.pull.targets = { { name = "gh dash", command = dash } }
+resolvedTargets.pull = { { name = "gh dash", command = dash } }
 click(pr, 1)
 assert(#picks == single, "a single target still prompted")
-assert(#tasks == 18, "a single target dropped the link")
-tasks[18].callback(0, "clients", "")
-tasks[19].callback(0, "", "")
+assert(#tasks == 17, "a single target dropped the link")
+tasks[17].callback(0, "clients", "")
+tasks[18].callback(0, "", "")
 
-config.routes.pull.targets = {}
+resolvedTargets.pull = {}
 click(pr, 1)
 assert(alerts[#alerts]:match("No target is configured for a pull link"))
-assert(#tasks == 19, "an empty route opened a terminal")
+assert(#tasks == 18, "an empty route opened a terminal")
 
 config.enable = false
 router.setup(config)
 assert(default == config.browser)
 click(pr, 1)
-assert(#tasks == 19 and opened[#opened][2] == config.browser, "disable lost links during handler restoration")
+assert(#tasks == 18 and opened[#opened][2] == config.browser, "disable lost links during handler restoration")
 print(
   "URL routing: browser origins, pull and run matching, picker rows, verbs, each row, dismiss, cold start, failures, palette fallback, single target, and disable passed"
 )
@@ -368,3 +388,26 @@ hs.loadSpoon = function()
   error("already loaded spoon must be reused")
 end
 hs.urlevent.httpCallback(nil, nil, nil, "https://github.com/test/repo/pull/1", 999999)
+
+config.enable = true
+resolvedTargets.pull = {
+  {
+    id = "devin",
+    name = "Devin Review",
+    bundle = config.browser,
+    url = "https://app.devin.ai/review/pinginc/configuration-service/pull/1424",
+  },
+}
+click("https://github.com/pinginc/configuration-service/pull/1424/files", 1)
+assert(opened[#opened][1] == resolvedTargets.pull[1].url, "Devin opened the original GitHub URL")
+assert(opened[#opened][2] == config.browser, "Devin did not use the configured browser")
+
+local beforeFailure = #opened
+hs.urlevent.httpCallback("https", "github.com", {}, pr, 1)
+resolverTasks[#resolverTasks].callback(1, "", "provider failed")
+assert(alerts[#alerts]:match("provider failed"), "provider failure was hidden")
+assert(#opened == beforeFailure, "a failed provider opened a link")
+hs.urlevent.httpCallback("https", "github.com", {}, pr, 1)
+resolverTasks[#resolverTasks].callback(0, "not JSON", "")
+assert(alerts[#alerts]:match("invalid JSON"), "malformed provider output was accepted")
+print("URL providers: transformed browser URLs and resolver failures passed")

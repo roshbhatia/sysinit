@@ -36,6 +36,21 @@ let
         default = null;
         description = "Second line shown under the row label.";
       };
+      kinds = lib.mkOption {
+        type = lib.types.listOf (
+          lib.types.enum [
+            "pull"
+            "actions"
+          ]
+        );
+        default = [ "pull" ];
+        description = "Link kinds this provider supports.";
+      };
+      urlTemplate = lib.mkOption {
+        type = lib.types.str;
+        default = "{{ .URL }}";
+        description = "Provider URL template with URL, Owner, Repo, and Number fields.";
+      };
       command = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [ ];
@@ -55,10 +70,10 @@ let
         default = "Open";
         description = "What the picker says choosing a row does.";
       };
-      targets = lib.mkOption {
-        type = lib.types.listOf targetType;
+      providers = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
         default = [ ];
-        description = "Targets offered for this link kind. Unused targets keep this order; selections rank by scoped frecency.";
+        description = "Provider names offered for this link kind, in initial picker order.";
       };
     };
   };
@@ -75,110 +90,117 @@ in
       default = "org.mozilla.firefox";
       description = "Browser bundle identifier for other links and Dash browser actions.";
     };
+    providers = lib.mkOption {
+      type = lib.types.attrsOf targetType;
+      default = { };
+      description = "URL providers rendered as provider/v1 manifests; downstream flakes can add providers.";
+    };
+    manifests = lib.mkOption {
+      type = lib.types.attrsOf lib.types.path;
+      default = { };
+      description = "provider/v1 JSON manifests implementing url.pull or url.actions and returning a URL target.";
+    };
     routes = lib.mkOption {
       type = lib.types.attrsOf routeType;
       description = ''
         Targets per link kind the router recognises. The keys are the kinds
         `url_routing.lua` matches: `pull` and `actions`.
       '';
-      default = {
-        pull = {
-          verb = "Review";
-          targets = [
-            {
-              name = "gh dash";
-              detail = "Dashboard, checks, and review actions";
-              command = [
-                "${config.home.profileDirectory}/bin/gh"
-                "dash"
-              ];
-            }
-            {
-              name = "Firefox";
-              detail = "Open the PR on github.com";
-              bundle = cfg.browser;
-            }
-            {
-              name = "Neovim (Octo)";
-              detail = "GitHub overview, comments, and reviews";
-              command = [
-                "${config.home.profileDirectory}/bin/gh-pr-diff"
-                "--overview"
-              ];
-            }
-            {
-              name = "Neovim (Atlas)";
-              detail = "Review pull requests, threads, and notes";
-              command = [
-                "${config.home.profileDirectory}/bin/gh-pr-diff"
-                "--tool"
-                "atlas"
-              ];
-            }
-            {
-              name = "Neovim (Diff)";
-              detail = "Read the patch in Diffview";
-              command = [
-                "${config.home.profileDirectory}/bin/gh-pr-diff"
-                "--tool"
-                "diffview"
-              ];
-            }
-            {
-              name = "Changes";
-              detail = "Browse the patch and authorship in Changes";
-              command = [
-                "${config.home.profileDirectory}/bin/gh-pr-diff"
-                "--tool"
-                "changes"
-              ];
-            }
-            {
-              name = "Hunk";
-              detail = "Review the PR in Hunk";
-              command = [
-                "${config.home.profileDirectory}/bin/gh-pr-diff"
-                "--tool"
-                "hunk"
-              ];
-            }
-          ];
-        };
-        actions = {
-          verb = "Watch";
-          targets = [
-            {
-              name = "gh enhance";
-              detail = "Watch the run's jobs and logs";
-              command = [
-                "${config.home.profileDirectory}/bin/gh"
-                "enhance"
-              ];
-            }
-            {
-              name = "Firefox";
-              detail = "Open the run on github.com";
-              bundle = cfg.browser;
-            }
-          ];
-        };
-      };
+      default = { };
     };
   };
 
   config =
     let
-      targets = lib.concatMap (route: route.targets) (lib.attrValues cfg.routes);
+      targets = lib.attrValues cfg.providers;
+      selected = lib.unique (lib.concatMap (route: route.providers) (lib.attrValues cfg.routes));
+      manifests = lib.mapAttrs (
+        name: target:
+        pkgs.sysinit.writeJSON "url-provider-${name}.json" {
+          version = "provider/v1";
+          inherit name;
+          description = target.name;
+          command = [
+            "${pkgs.sysinit-gotools}/bin/url-route"
+            "emit"
+          ];
+          actions = lib.genAttrs (map (kind: "url.${kind}") target.kinds) (_: {
+            description = if target.detail != null then target.detail else target.name;
+            argv = [
+              (builtins.toJSON (
+                {
+                  inherit (target) name;
+                  url = target.urlTemplate;
+                }
+                // lib.optionalAttrs (target.detail != null) { inherit (target) detail; }
+                // (
+                  if target.bundle != null then
+                    { inherit (target) bundle; }
+                  else
+                    { command = targetScript name target; }
+                )
+              ))
+            ];
+          });
+        }
+      ) cfg.providers;
+      providerDirectory = pkgs.linkFarm "url-providers" (
+        lib.mapAttrsToList (name: path: {
+          name = "${name}.json";
+          inherit path;
+        }) cfg.manifests
+      );
     in
     {
+      sysinit.hammerspoon.urlRouting = {
+        inherit manifests;
+        providers = import ./url-providers {
+          inherit config;
+          inherit (cfg) browser;
+        };
+        routes = {
+          pull = {
+            verb = "Review";
+            providers = [
+              "gh-dash"
+              "browser"
+              "octo"
+              "atlas"
+              "diffview"
+              "changes"
+              "hunk"
+            ];
+          };
+          actions = {
+            verb = "Watch";
+            providers = [
+              "gh-enhance"
+              "browser"
+            ];
+          };
+        };
+      };
       assertions = [
         {
           assertion = cfg.browser != "org.hammerspoon.Hammerspoon";
           message = "The URL fallback browser must not route back to Hammerspoon.";
         }
         {
-          assertion = lib.all (route: route.targets != [ ]) (lib.attrValues cfg.routes);
-          message = "Each URL route must offer at least one target.";
+          assertion = lib.all (route: route.providers != [ ]) (lib.attrValues cfg.routes);
+          message = "Each URL route must offer at least one provider.";
+        }
+        {
+          assertion = lib.all (name: builtins.hasAttr name cfg.manifests) selected;
+          message = "Each URL route must reference an installed provider.";
+        }
+        {
+          assertion = lib.all (
+            kind:
+            lib.all (
+              name: !builtins.hasAttr name cfg.providers || lib.elem kind cfg.providers.${name}.kinds
+            ) cfg.routes.${kind}.providers
+          ) (builtins.attrNames cfg.routes);
+          message = "Each URL provider must support its configured route kind.";
         }
         {
           assertion = lib.all (target: (target.command != [ ]) != (target.bundle != null)) targets;
@@ -197,22 +219,9 @@ in
       ];
       xdg.configFile."sysinit/url_routing.json".source = pkgs.sysinit.writeJSON "url-routing.json" {
         inherit (cfg) enable browser;
-        routes = lib.mapAttrs (kind: route: {
-          inherit (route) verb;
-          targets = map (
-            target:
-            {
-              inherit (target) name;
-            }
-            // lib.optionalAttrs (target.detail != null) { inherit (target) detail; }
-            // (
-              if target.bundle != null then
-                { inherit (target) bundle; }
-              else
-                { command = targetScript kind target; }
-            )
-          ) route.targets;
-        }) cfg.routes;
+        inherit (cfg) routes;
+        providerDirectory = "${providerDirectory}";
+        resolver = "${pkgs.sysinit-gotools}/bin/url-route";
         home = config.home.homeDirectory;
         wezterm = "${pkgs.wezterm}/bin/wezterm";
         weztermApp = "${config.home.homeDirectory}/${config.targets.darwin.copyApps.directory}/WezTerm.app";

@@ -171,6 +171,7 @@ local function launch(config, command, url)
 end
 
 local function dispatch(config, target, url)
+  url = target.url or url
   if target.bundle then
     openBrowser(url, target.bundle)
   else
@@ -178,9 +179,8 @@ local function dispatch(config, target, url)
   end
 end
 
-local function choose(config, route)
+local function choose(config, route, targets)
   local settings = (config.routes or {})[route.kind] or {}
-  local targets = settings.targets or {}
   if #targets == 0 then
     report("No target is configured for a " .. route.kind .. " link")
     return
@@ -223,6 +223,26 @@ local function choose(config, route)
   end
 end
 
+local function resolve(config, route)
+  local settings = (config.routes or {})[route.kind] or {}
+  local args = { "resolve", config.providerDirectory, route.kind, route.url }
+  for _, name in ipairs(settings.providers or {}) do
+    args[#args + 1] = name
+  end
+  run(config.resolver, args, function(code, stdout, stderr)
+    if code ~= 0 then
+      report("Cannot resolve URL providers: " .. stderr)
+      return
+    end
+    local ok, targets = pcall(hs.json.decode, stdout)
+    if not ok or type(targets) ~= "table" then
+      report("URL providers returned invalid JSON")
+      return
+    end
+    choose(config, route, targets)
+  end)
+end
+
 function M.setup(config)
   config = config or json.load_json_file(json.get_config_path("url_routing.json"))
   if not config then
@@ -244,7 +264,7 @@ function M.setup(config)
     end
     local route = config.enable and M.route(url)
     if route then
-      choose(config, route)
+      resolve(config, route)
     else
       openBrowser(url, config.browser)
     end
