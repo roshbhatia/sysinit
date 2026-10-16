@@ -65,7 +65,7 @@
     };
 
     ask = {
-      url = "github:roshbhatia/ask/55dfb9169ead5fd890931a0b87e78c65b8ff3803";
+      url = "github:roshbhatia/ask/817b7daaf09c8e9807d2438a0b8e830270662282";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -98,7 +98,7 @@
     };
 
     traces = {
-      url = "github:roshbhatia/traces/28c7dda487a9b71d0ff22f28f7d541bb888044c2";
+      url = "github:roshbhatia/traces/d5030ba1a673f69bd305f1d13a9857177e7878a8";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         systems.follows = "systems";
