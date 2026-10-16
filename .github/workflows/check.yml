@@ -40,6 +40,11 @@ jobs:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: nix develop --command bash hack/lint.sh --all
 
+      - name: Release policy tests
+        env:
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+        run: nix develop .#release --command node --test checks/releases.mjs
+
       - name: nix flake check
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
@@ -99,3 +104,23 @@ jobs:
         env:
           RESULTS: ${{ toJSON(needs.*.result) }}
         run: jq -e 'all(.[]; . == "success")' <<< "$RESULTS"
+
+  release:
+    needs: verify
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: DeterminateSystems/nix-installer-action@v23
+        with:
+          extra-conf: |
+            fallback = true
+      - name: Publish semantic version and release notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+        run: nix develop .#release --command semantic-release

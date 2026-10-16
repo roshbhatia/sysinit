@@ -501,6 +501,17 @@
             ];
           };
         }
+        // lib.optionalAttrs (system != "aarch64-linux") {
+          release = pkgs.mkShellNoCC {
+            name = "sysinit-release";
+            SEMANTIC_RELEASE_ROOT = "${pkgs.semantic-release}/lib/node_modules/semantic-release";
+            packages = [
+              pkgs.git
+              pkgs.nodejs
+              pkgs.semantic-release
+            ];
+          };
+        }
       );
 
       templates = {
