@@ -17,4 +17,6 @@ require("sysinit.pkg.widgets.battery").setup()
 require("sysinit.pkg.widgets.volume").setup()
 require("sysinit.pkg.widgets.music").setup()
 
+require("sysinit.pkg.core.health").setup()
+
 sbar.event_loop()

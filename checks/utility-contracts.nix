@@ -18,5 +18,6 @@ pkgs.runCommand "utility-contracts"
     python3 ${./utility-contracts.py} ${../.}
     lua ${./desktop-contracts.lua} ${../.}
     python3 ${./log-retention.py}
+    python3 ${./sketchybar-health.py} ${../.}
     touch "$out"
   ''
