@@ -27,14 +27,31 @@ pkgs.runCommand "system-generation-prune"
     ];
   }
   ''
-    test_root="$TMPDIR/system-generation-prune"
+    test_root="$(realpath "$TMPDIR")/system-generation-prune"
+    mkdir -p "$test_root/config"
+    export NIX_CONF_DIR="$test_root/config"
+    export NIX_USER_CONF_FILES=/dev/null
+    export NIX_CONFIG=""
+    export NIX_REMOTE="local?root=$test_root/store"
+
+    fixture() {
+      local name="$1"
+      local input="$test_root/inputs/$name"
+      mkdir -p "$input"
+      printf '%s\n' "$name" > "$input/marker"
+      nix-store --add "$input"
+    }
+    first=$(fixture first)
+    second=$(fixture second)
+    third=$(fixture third)
+
     profiles="$test_root/nix/var/nix/profiles"
     current="$test_root/run/current-system"
     mkdir -p "$profiles" "$(dirname "$current")"
 
-    nix-env --profile "$profiles/system" --set ${pkgs.hello}
-    nix-env --profile "$profiles/system" --set ${pkgs.jq}
-    nix-env --profile "$profiles/system" --set ${pkgs.coreutils}
+    nix-env --profile "$profiles/system" --set "$first"
+    nix-env --profile "$profiles/system" --set "$second"
+    nix-env --profile "$profiles/system" --set "$third"
     ln -s "$(readlink "$profiles/system-3-link")" "$current"
 
     bash ${../modules/darwin/prune-system-generations.sh} \
@@ -48,10 +65,10 @@ pkgs.runCommand "system-generation-prune"
 
     test "$(readlink "$profiles/system")" = system-3-link
     test "$(readlink "$profiles/system-3-link")" = "$(readlink "$current")"
-    test ! -e "$profiles/system-1-link"
-    test ! -e "$profiles/system-2-link"
+    test ! -L "$profiles/system-1-link"
+    test ! -L "$profiles/system-2-link"
 
-    nix-env --profile "$profiles/system" --set ${pkgs.hello}
+    nix-env --profile "$profiles/system" --set "$first"
     previous_target=$(readlink "$profiles/system-3-link")
     rm "$current"
     ln -s "$previous_target" "$current"
