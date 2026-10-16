@@ -85,17 +85,9 @@ in
       ];
     }
   );
-  nuvim = patchHackShebangs inputs.nuvim.packages.${final.stdenv.hostPlatform.system}.default;
+  nuvim = inputs.nuvim.packages.${final.stdenv.hostPlatform.system}.default;
 
-  nu-plugin-nuvim =
-    final.runCommand "nu-plugin-nuvim-0.1.0"
-      {
-        meta.mainProgram = "nu_plugin_nuvim";
-      }
-      ''
-        mkdir -p "$out/bin"
-        ln -s ${final.nuvim}/bin/nu_plugin_nuvim "$out/bin/nu_plugin_nuvim"
-      '';
+  nu-plugin-nuvim = final.nuvim;
   nur = {
     repos = {
       rycee = {

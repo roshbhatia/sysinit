@@ -261,6 +261,19 @@ in
     inherit pkgs;
     inherit (pkgs) lib;
   };
+  nushell-plugin-registration = pkgs.runCommand "nushell-plugin-registration" { } ''
+    export HOME="$TMPDIR/home"
+    export XDG_CONFIG_HOME="$HOME/.config"
+    export XDG_DATA_HOME="$HOME/.local/share"
+    export XDG_RUNTIME_DIR="$TMPDIR/runtime"
+    mkdir -p "$HOME" "$XDG_RUNTIME_DIR"
+    touch "$TMPDIR/plugin.msgpackz"
+    ${lib.getExe pkgs.nushell} --plugin-config "$TMPDIR/plugin.msgpackz" \
+      --commands 'plugin add ${lib.getExe pkgs.nu-plugin-nuvim}'
+    ${lib.getExe pkgs.nushell} --plugin-config "$TMPDIR/plugin.msgpackz" \
+      --commands 'plugin use nuvim; nuvim servers | ignore'
+    touch "$out"
+  '';
 
   system-generation-prune =
     if pkgs.stdenv.hostPlatform.isDarwin then
