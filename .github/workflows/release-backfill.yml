@@ -1,0 +1,63 @@
+name: Historical releases
+
+on:
+  workflow_dispatch: {}
+
+concurrency:
+  group: historical-release-backfill
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  HISTORICAL_HEAD: af6633e808586412530da091a0dc327d62a52382
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+    strategy:
+      max-parallel: 1
+      fail-fast: true
+      matrix:
+        batch: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: DeterminateSystems/nix-installer-action@v23
+      - name: Validate publisher
+        env:
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+        run: nix develop .#release --command node --test checks/release-publishing.mjs
+      - name: Reconstruct release manifest
+        env:
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+        run: nix develop .#release --command node hack/reconstruct-releases.mjs "$HISTORICAL_HEAD" "$RUNNER_TEMP/history"
+      - name: Publish missing releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BATCH: ${{ matrix.batch }}
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+        run: nix develop .#release --command node hack/publish-releases.mjs "$RUNNER_TEMP/history/releases.json" --batch "$BATCH"
+
+  verify:
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: DeterminateSystems/nix-installer-action@v23
+      - name: Verify every historical release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+        run: |
+          nix develop .#release --command node hack/reconstruct-releases.mjs "$HISTORICAL_HEAD" "$RUNNER_TEMP/history"
+          nix develop .#release --command node hack/publish-releases.mjs "$RUNNER_TEMP/history/releases.json" --verify

@@ -86,3 +86,20 @@ Unclassified messages appear in notes but do not independently cause releases.
 nix develop .#release --command node --test checks/releases.mjs
 nix develop .#release --command node hack/reconstruct-releases.mjs af6633e808586412530da091a0dc327d62a52382 .sysinit/historical-releases
 ```
+
+The manual **Historical releases** workflow publishes a GitHub Release for each reconstructed tag.
+It reuses the generated notes and records the original commit date in each body.
+GitHub publication timestamps record the backfill date.
+The workflow keeps the latest-release marker on the current release.
+
+Eight sequential batches publish at most 450 releases per hour, with eight seconds between writes.
+The full backfill takes about eight hours under GitHub's content-creation limits.
+Rerunning the workflow validates and skips existing releases, then continues missing releases.
+The final job verifies every historical release and its notes.
+
+Preview a batch before publishing:
+
+```sh
+nix develop .#release --command node --test checks/releases.mjs checks/release-publishing.mjs
+nix develop .#release --command node hack/publish-releases.mjs .sysinit/historical-releases/releases.json --plan 0
+```

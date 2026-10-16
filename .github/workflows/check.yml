@@ -43,7 +43,7 @@ jobs:
       - name: Release policy tests
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
-        run: nix develop .#release --command node --test checks/releases.mjs
+        run: nix develop .#release --command node --test checks/releases.mjs checks/release-publishing.mjs
 
       - name: nix flake check
         env:
