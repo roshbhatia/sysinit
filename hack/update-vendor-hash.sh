@@ -11,7 +11,9 @@ backups=()
 restore() {
   local b
   for b in "${backups[@]:-}"; do
-    [[ -f ${b} ]] && mv -f "${b}" "${b%.bak}"
+    if [[ -f ${b} ]]; then
+      mv -f "${b}" "${b%.bak}"
+    fi
   done
 }
 trap restore EXIT INT TERM
@@ -53,12 +55,22 @@ for pkg in "${packages[@]}"; do
   rc=0
   build_output=$(nix build --no-link --impure --expr "
     let
-      flake = builtins.getFlake \"path:${REPO_ROOT}\";
-      pkgs = import flake.inputs.nixpkgs {
+      flake = builtins.getFlake \"git+file://${REPO_ROOT}\";
+      builders = import (flake.outPath + \"/lib/builders/pkgs.nix\") {
+        lib = flake.inputs.nixpkgs.lib;
+        nixpkgs = flake.inputs.nixpkgs;
+        inputs = flake.inputs;
+      };
+      pkgs = builders.mkPkgs {
         system = builtins.currentSystem;
         overlays = [ flake.overlays.default ];
       };
-    in pkgs.${pkg}
+      packageNames = {
+        agentgateway = \"mcp-remote-go\";
+        gh-dash = \"sysinit-gh-dash\";
+      };
+      packageName = packageNames.\"${pkg}\" or \"${pkg}\";
+    in pkgs.\${packageName}
   " 2>&1) || rc=$?
 
   mv -f "${overlay_file}.bak" "${overlay_file}"

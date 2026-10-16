@@ -7,7 +7,7 @@ FAKE_HASH="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
 build_openspec() {
   nix build --no-link --impure --expr "
     let
-      flake = builtins.getFlake \"path:${PWD}\";
+      flake = builtins.getFlake \"git+file://${PWD}\";
       pkgs = import flake.inputs.nixpkgs {
         system = builtins.currentSystem;
         overlays = [ flake.overlays.default ];

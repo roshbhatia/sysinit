@@ -22,6 +22,9 @@ jobs:
 
       - uses: DeterminateSystems/nix-installer-action@v23
         if: runner.environment != 'self-hosted'
+        with:
+          extra-conf: |
+            fallback = true
 
       - uses: ./.github/actions/cachix
         with:
@@ -51,7 +54,7 @@ jobs:
 
   verify-linux:
     runs-on: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && fromJSON('["self-hosted", "Linux", "X64", "arrakis", "nix"]') || 'ubuntu-latest' }}
-    timeout-minutes: 30
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v7
 

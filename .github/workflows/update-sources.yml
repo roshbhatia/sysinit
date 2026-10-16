@@ -34,7 +34,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: |
-          nix run nixpkgs#nvfetcher -- -c nvfetcher.toml -o _sources --keep-going
+          set -euo pipefail
+          nvfetcher_keyfile="$(mktemp)"
+          trap 'rm -f "${nvfetcher_keyfile}"' EXIT
+          printf '[keys]\ngithub = "%s"\n' "${GITHUB_TOKEN}" > "${nvfetcher_keyfile}"
+          nix run nixpkgs#nvfetcher -- -k "${nvfetcher_keyfile}" -c nvfetcher.toml -o _sources --keep-going
 
       - name: Update flake inputs
         env:
@@ -50,6 +54,8 @@ jobs:
           ./hack/update-vendor-hash.sh
 
       - name: Update openspec
+        env:
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: |
           ./hack/update-openspec.sh
 
