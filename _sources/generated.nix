@@ -8,26 +8,26 @@
 {
   amp-cli = {
     pname = "amp-cli";
-    version = "0.0.1792123242-g03edc7";
+    version = "0.0.1792152053-g57ff9b";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1792123242-g03edc7/amp-darwin-arm64.gz";
-      sha256 = "sha256-G/BG3jEPuOY5g2W4C1uVAOQDIJIz0/1CMB3rE4TNWa8=";
+      url = "https://static.ampcode.com/cli/0.0.1792152053-g57ff9b/amp-darwin-arm64.gz";
+      sha256 = "sha256-iKfpwsYdbnlJBxVpJ2JiUzyRojRA6dN9h4+lLxRuH5s=";
     };
   };
   amp-cli-aarch64-linux = {
     pname = "amp-cli-aarch64-linux";
-    version = "0.0.1792123242-g03edc7";
+    version = "0.0.1792152053-g57ff9b";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1792123242-g03edc7/amp-linux-arm64.gz";
-      sha256 = "sha256-0O79mkQVELbhlEn9wNoEF8WjvB1ixo7HXyibsEKZrEQ=";
+      url = "https://static.ampcode.com/cli/0.0.1792152053-g57ff9b/amp-linux-arm64.gz";
+      sha256 = "sha256-wu/BY9nIy2CMJCNybSXz87yLsYrcHBRKgxqBBfjrLtY=";
     };
   };
   amp-cli-x86_64-linux = {
     pname = "amp-cli-x86_64-linux";
-    version = "0.0.1792123242-g03edc7";
+    version = "0.0.1792152053-g57ff9b";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1792123242-g03edc7/amp-linux-x64-baseline.gz";
-      sha256 = "sha256-0go/ClNkFPMlrp3S+y5X1SmuLOze/sc/ci5ObukSQyY=";
+      url = "https://static.ampcode.com/cli/0.0.1792152053-g57ff9b/amp-linux-x64-baseline.gz";
+      sha256 = "sha256-PjCzssT7TA+jlWRhpPxfTAsKwDWJBroAUSyrmSrwIlc=";
     };
   };
   crush = {
