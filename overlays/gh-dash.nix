@@ -1,7 +1,7 @@
 final: prev:
 let
   revision = "15f86d17b1a3f7217d97817b008176df8d3b7968";
-  version = "4.25.2-roshbhatia-2026-09-21";
+  version = "4.26.1-roshbhatia-2026-10-15";
 in
 {
   sysinit-gh-dash = prev.gh-dash.overrideAttrs (old: {
@@ -13,6 +13,7 @@ in
       hash = "sha256-KN4AkWFdJQ7Q5/R22zlypnMhDhoR8LFa1NS8jkE8tYA=";
     };
     vendorHash = "sha256-edFzZpM1DIwFnMLQlOuh5c8CFzYm3X2YheGFDgOLZ0I=";
+    patches = (old.patches or [ ]) ++ [ ./patches/gh-dash-4.26.1.patch ];
     ldflags = [
       "-s"
       "-w"

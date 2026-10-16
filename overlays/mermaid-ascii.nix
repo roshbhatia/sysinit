@@ -9,7 +9,7 @@ in
 
     inherit (sources) src;
 
-    vendorHash = "sha256-aB9sbTtlHbptM2995jizGFtSmEIg3i8zWkXz1zzbIek=";
+    vendorHash = "sha256-S/K6W8KC6YzwZPioucoiwOMd29LPv0J22T3MS0X+W5g=";
 
     meta = with final.lib; {
       description = "Render mermaid diagrams as ASCII";

@@ -1,0 +1,35 @@
+Upstream: https://github.com/dlvhdr/gh-dash/commit/1b14dd961ea47e2ad53eae5fed7fc942219bcc01
+Upstream: https://github.com/dlvhdr/gh-dash/commit/b1376625b2e4d50f2b2d761bf2fa9ec543e79380
+
+diff --git a/README.md b/README.md
+--- a/README.md
++++ b/README.md
+@@ -57 +56,0 @@
+-<a href="https://github.com/Brend-Smits?utm_source=dlvhdr&utm_medium=sponsor&utm_campaign=homepage&utm_content=github" target="_blank" rel="noopener sponsored" ><img src="https://avatars.githubusercontent.com/u/15904543?s=50&u=47f907dfd09a9fa143c8d813a2299ea82df88b42&v=4" alt="Brend Smits" width="50"/></a>&nbsp;&nbsp;
+diff --git a/internal/tui/common/styles.go b/internal/tui/common/styles.go
+--- a/internal/tui/common/styles.go
++++ b/internal/tui/common/styles.go
+@@ -20 +20 @@
+-	TabsContentHeight  = 2
++	TabsContentHeight  = 1
+diff --git a/internal/tui/ui.go b/internal/tui/ui.go
+--- a/internal/tui/ui.go
++++ b/internal/tui/ui.go
+@@ -1127 +1127 @@
+-			y := common.HeaderHeight + common.SearchHeight + 1
++			y := common.HeaderHeight + common.SearchHeight
+diff --git a/internal/tui/ui_test.go b/internal/tui/ui_test.go
+--- a/internal/tui/ui_test.go
++++ b/internal/tui/ui_test.go
+@@ -1043 +1043 @@
+-			expectedMainHeight:    21,
++			expectedMainHeight:    22,
+@@ -1053 +1053 @@
+-			expectedMainHeight:    36,
++			expectedMainHeight:    37,
+@@ -1063 +1063 @@
+-			expectedMainHeight:    25,
++			expectedMainHeight:    26,
+@@ -1104 +1104 @@
+-				baseHeight := tc.screenHeight - 4 // TabsHeight=3 + FooterHeight=1
++				baseHeight := tc.screenHeight - 3 // TabsHeight=2 + FooterHeight=1

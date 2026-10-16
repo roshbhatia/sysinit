@@ -6,7 +6,7 @@
     enableBashIntegration = true;
     enableNushellIntegration = true;
 
-    enableMutableConfig = true;
+    mutableSettings = true;
     globalConfig = {
       plugins.nix = "${pkgs.mise-nix}";
 

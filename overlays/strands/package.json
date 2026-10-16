@@ -1,9 +1,9 @@
 {
   "name": "sysinit-strands",
-  "version": "0.1.2",
+  "version": "0.2.1",
   "private": true,
   "dependencies": {
-    "@strands-agents/cli": "0.1.2",
+    "@strands-agents/cli": "0.2.1",
     "@strands-agents/harness": "0.1.1"
   }
 }

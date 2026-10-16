@@ -1,11 +1,11 @@
 final: prev:
 let
-  rev = "e33f086d3b5bcec9f28632e4bd9c348b02bb2278";
+  rev = "e234ab73c2992f03c36db04fd55ebb90abca9c45"; # autoupdate:rev
   src = prev.fetchFromGitHub {
     owner = "imxv";
     repo = "Pretty-mermaid-skills";
     inherit rev;
-    hash = "sha256-AwffzL8lbYLJ6KNXJr2PBLGhd2Wv0cOjziU8fNENEMQ=";
+    hash = "sha256-1s35du3Ms+DDwaMVsKiRU4gE0nenC8TWRE7nrXF0PvY="; # autoupdate:src-hash
   };
 
   lock = ./pretty-mermaid-package-lock.json;
@@ -26,7 +26,7 @@ in
       postPatch = ''
         cp ${lock} package-lock.json
       '';
-      hash = "sha256-FsXptq/nC82o854MoVszQPjzBYvNuh1WxF4+OiA2SPk=";
+      hash = "sha256-NhPPp507jseWggWMvYOfll7visYEMQDuljGtk/LuoA4="; # autoupdate:npm-deps-hash
     };
 
     dontNpmBuild = true;

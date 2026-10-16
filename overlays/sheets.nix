@@ -1,16 +1,16 @@
 final: _prev: {
   sheets = final.buildGoModule {
     pname = "sheets";
-    version = "0.2.0";
+    version = "0.3.0";
 
     src = final.fetchFromGitHub {
       owner = "maaslalani";
       repo = "sheets";
-      rev = "v0.2.0";
-      hash = "sha256-sRJ1rqtxc4axAkVavxSR2afdvxCAjJdK2mBWnt+nzW0=";
+      rev = "v0.3.0";
+      hash = "sha256-xDu+jbWH7ubXC6ImvkRVgPI0OHAaUQ60sELDJN8hY1M=";
     };
 
-    vendorHash = "sha256-WWtAt0+W/ewLNuNgrqrgho5emntw3rZL9JTTbNo4GsI=";
+    vendorHash = "sha256-X7bfALH9mM15HP6SM60CFIG1rm4Ma6LEh2p7z5LNW64=";
 
     doCheck = false;
 

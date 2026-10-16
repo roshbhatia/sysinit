@@ -1,13 +1,13 @@
 final: _prev: {
   wumpusMono = final.stdenvNoCC.mkDerivation {
     pname = "wumpusMono";
-    version = "0-unstable-2025-03-24";
+    version = "0-unstable-2026-04-22";
 
     src = final.fetchFromGitHub {
       owner = "vaughantype";
       repo = "wumpus-mono";
-      rev = "aaf431bbcf0221792cfa17742bc1d2e81412f5df";
-      hash = "sha256-udUrOherol4aXYozkcRcMarNuPbJMHgO/b18MbVN45M=";
+      rev = "7ff8e034ec253854b16bc3e65d9f47a687703cb5";
+      hash = "sha256-eeYIKAuoRwgLm20v2PTr0DPGp8k5Co8+4/u+wklHlsc=";
     };
 
     installPhase = ''

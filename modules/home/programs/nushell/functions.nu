@@ -238,7 +238,7 @@ export def --env nuvim [] {
 }
 
 export-env {
-$env.config.hooks.env_change.PWD = (
+    $env.config.hooks.env_change.PWD = (
   $env.config.hooks.env_change.PWD?
   | default []
   | append {||
@@ -251,8 +251,8 @@ $env.config.hooks.env_change.PWD = (
   }
 )
 
-# `pre_execution` only marks work, so interactive readers never race a terminal capture.
-$env.config.hooks.pre_execution = (
+    # `pre_execution` only marks work, so interactive readers never race a terminal capture.
+    $env.config.hooks.pre_execution = (
   $env.config.hooks.pre_execution?
   | default []
   | append {||
@@ -263,7 +263,7 @@ $env.config.hooks.pre_execution = (
   }
 )
 
-$env.config.hooks.pre_prompt = (
+    $env.config.hooks.pre_prompt = (
   $env.config.hooks.pre_prompt?
   | default []
   | append {||

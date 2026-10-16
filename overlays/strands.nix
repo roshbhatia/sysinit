@@ -1,9 +1,9 @@
 final: prev: {
   strands-cli = prev.buildNpmPackage {
     pname = "strands-cli";
-    version = "0.1.2";
+    version = "0.2.1";
     src = ./strands;
-    npmDepsHash = "sha256-qwj8XfpV/PlzqZYs2Gq+9DkVX5Jjy77nLcBeeZ9zAuI=";
+    npmDepsHash = "sha256-7jen3YdeX7bJlJ+c/TEZ1WVMv/bVFgnJftWf1d41u08=";
     npmFlags = [ "--ignore-scripts" ];
     dontNpmBuild = true;
 
@@ -28,7 +28,7 @@ final: prev: {
       runHook preInstallCheck
       export HOME="$TMPDIR/home"
       mkdir -p "$HOME"
-      test "$($out/bin/strands --version)" = "0.1.2"
+      test "$($out/bin/strands --version)" = "0.2.1"
       $out/bin/strands --help | grep -F -- --acp-server
       cd $out/lib/strands
       ${prev.nodejs}/bin/node --input-type=module -e \

@@ -50,7 +50,11 @@ export def op-copy [
     let reference = (op-ref $query --field $field --vault $vault --account $account)
     let args = (account-args $account)
     let result = (^op read $reference --no-newline ...$args | complete)
-    if $result.exit_code != 0 { error make {msg: "1Password could not read the selected field; check the field name and sign-in"} }
+    if $result.exit_code != 0 {
+        error make {
+            msg: "1Password could not read the selected field; check the field name and sign-in"
+        }
+    }
     let copied = $result.stdout | ^($clipboard | first) ...($clipboard | skip 1) | complete
     if $copied.exit_code != 0 { error make {msg: "Clipboard write failed"} }
     print "Copied to clipboard."
