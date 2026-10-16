@@ -1,0 +1,33 @@
+.github/workflows/release-backfill.yml
+  s_c4706d5f7b8e30::t_bb28dbb2671c04 34-35
+  s_c4706d5f7b8e30::t_81fcd251e6e23c 1-33,36-63
+checks/release-publishing.mjs
+  s_c4706d5f7b8e30::t_b2f343ffea43a7 56-59,66-72,78-81,86-89,92-98,103-105,108-115,147-152,162-168,181,183
+  s_c4706d5f7b8e30::t_65d09baa2cc17e 146,154,178-180
+  s_c4706d5f7b8e30::t_bb28dbb2671c04 1-55,60-65,73-77,82-85,90-91,99-102,106-107,116-145,153,155-161,169-177,184-188
+hack/publish-releases.mjs
+  s_c4706d5f7b8e30::t_81fcd251e6e23c 1,3,5-15,19-46,50-54,57-71,73-90,94-103,107-117,122-126,129-132,143-144,148,156-182,186-190,194-200,204-214,218-221,227,237-238,249-250,255-257,262-263
+  s_c4706d5f7b8e30::t_65d09baa2cc17e 2,4,55-56,72
+  s_c4706d5f7b8e30::t_b2f343ffea43a7 47-49,91-93,104-106,118-121,127-128,133-142,145-147,149-155,183-185,191-193,201-203,215-217,222-226,228-236,239-248,251-254,258-261
+  s_c4706d5f7b8e30::t_bb28dbb2671c04 16-18
+README.md
+  s_c4706d5f7b8e30::t_bb28dbb2671c04 89-105
+.github/workflows/check.yml
+  s_c4706d5f7b8e30::t_81fcd251e6e23c 46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e79b7a515bf32c8bc4889f770aa04948b8eb8726",
+  "prompts": {},
+  "sessions": {
+    "s_c4706d5f7b8e30": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14114-b1c5-7eb2-8ccd-594dc57f7c79",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
