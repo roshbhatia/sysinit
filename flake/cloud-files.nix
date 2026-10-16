@@ -46,10 +46,6 @@ in
 
   all = pkgs.linkFarm "sysinit-cloud-files" [
     {
-      name = ".cursor/environment.json";
-      path = environmentJson;
-    }
-    {
       name = facts.setupScript;
       path = setupScript;
     }
