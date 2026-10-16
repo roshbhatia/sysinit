@@ -90,8 +90,8 @@ in
           )' "${pkgs.opencode}/share/$f.json" > "$out/$f.json"
     done
 
-    jq -e '.["$defs"].Config.additionalProperties == false' "$out/config.json" > /dev/null \
-      || { echo "opencode schema localization lost Config.additionalProperties" >&2; exit 1; }
+    jq -e '.additionalProperties == false' "$out/config.json" > /dev/null \
+      || { echo "opencode schema localization lost the config additionalProperties" >&2; exit 1; }
     jq -e '.additionalProperties == false' "$out/cli.json" > /dev/null \
       || { echo "opencode schema localization lost the cli additionalProperties" >&2; exit 1; }
   '';

@@ -9,6 +9,12 @@ let
   bridge = pkgs.writeText "opencode-bridge.zsh" files."carapace/bridge/zsh/.zshrc".text.content;
   spec = pkgs.writeText "opencode.yaml" files."carapace/specs/opencode.yaml".text;
   aliasSpec = pkgs.writeText "opencode2.yaml" files."carapace/specs/opencode2.yaml".text;
+  render = import ../modules/home/programs/llm/harnesses/opencode/render.nix {
+    inherit pkgs;
+    inherit (pkgs) lib;
+  };
+  mainConfig = pkgs.writeText "opencode-main.json" (builtins.toJSON render.main);
+  tuiConfig = pkgs.writeText "opencode-cli.json" (builtins.toJSON render.tui);
 in
 pkgs.runCommand "opencode-v2-plugins"
   {
@@ -18,9 +24,29 @@ pkgs.runCommand "opencode-v2-plugins"
       pkgs.zsh
       pkgs.nushell
       pkgs.opencode
+      (pkgs.python3.withPackages (ps: [ ps.jsonschema ]))
     ];
   }
   ''
+    python3 - ${render.schemas} ${mainConfig} ${tuiConfig} <<'PY'
+    import json
+    import pathlib
+    import sys
+
+    import jsonschema
+
+    for name, config_path in zip(["config", "cli"], sys.argv[2:], strict=True):
+        schema = json.loads((pathlib.Path(sys.argv[1]) / f"{name}.json").read_text())
+        config = json.loads(pathlib.Path(config_path).read_text())
+        validator = jsonschema.validators.validator_for(schema)(schema)
+        validator.validate(config)
+        try:
+            validator.validate(config | {"sysinit_unknown_key": True})
+        except jsonschema.ValidationError:
+            pass
+        else:
+            raise AssertionError(f"{name} schema accepted an unknown root key")
+    PY
     export HOME="$TMPDIR/home"
     export OPENCODE_PLUGIN_DIR="$TMPDIR/opencode"
     mkdir -p "$HOME" "$OPENCODE_PLUGIN_DIR/plugins"
