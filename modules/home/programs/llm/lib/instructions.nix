@@ -31,22 +31,22 @@ let
 
   contextRules = renderRules [
     {
-      rule = "Read the repository context before you edit: `AGENTS.md`, active changes, and local lessons.";
-      reason = "Repository facts have priority over general habits.";
+      rule = "Read the applicable `AGENTS.md`, active changes, and relevant local lessons before editing.";
+      reason = "Search narrowly, then read the needed sections; repository facts have priority over general habits.";
       bad = "Assume the build command from another repository.";
       good = "Read `AGENTS.md`, then use the command it defines.";
     }
     {
       rule = "Load a skill when its domain matches the task.";
-      reason = "Skills provide detailed rules only when the task needs them.";
+      reason = "Keep global instructions for shared decisions; load domain workflows and repository details only when needed.";
       bad = "Carry every commit, review, and documentation rule in global context.";
       good = "Load `writing-commit-message` before you create a commit.";
     }
     {
-      rule = "Keep the user in control of decisions, artifacts, and external changes.";
-      reason = "Model output is a draft until evidence or the user accepts it.";
-      bad = "State that the user approved an option they did not choose.";
-      good = "State the verified result and leave the decision with the user.";
+      rule = "Make the smallest complete change that meets the request, using existing patterns.";
+      reason = "Add abstractions, dependencies, and adjacent refactors only when the requested behavior needs them.";
+      bad = "Build a generic framework to fix one call site.";
+      good = "Fix the affected path and its callers; leave unrelated cleanup for its own task.";
     }
     {
       rule = "Use the repository's Nix shell for dependencies, and edit the Nix source for managed configuration.";
@@ -67,14 +67,14 @@ let
       good = "Use the selected checkout, isolate concurrent writers, and register external worktrees by reference when grouping them.";
     }
     {
-      rule = "Stop on an unexpected error, keep its evidence, and fix its cause.";
-      reason = "Continuing from an unexplained failure makes later evidence unreliable.";
+      rule = "On an unexpected error, preserve the evidence and investigate before the next dependent step.";
+      reason = "Change the approach when evidence changes; repeated retries or bypasses do not fix the cause.";
       bad = "Retry with a bypass flag after an unknown build failure.";
       good = "Read the failing log, fix the cause, then rerun the same check.";
     }
     {
-      rule = "Inspect the complete diff and run checks that prove the changed behavior.";
-      reason = "A successful edit or build does not prove the user flow.";
+      rule = "Inspect the complete diff and verify the changed behavior with checks proportionate to its risk.";
+      reason = "Run required repository gates, then test the affected flow and relevant failure cases; report checks not run.";
       bad = "Report success after the compiler exits zero.";
       good = "Inspect the diff, run the suite, and test the changed command.";
     }
@@ -84,7 +84,30 @@ let
       bad = "Add `any` to silence a type error or refresh a vendor tree incidentally.";
       good = "Fix the type and leave upstream vendor drift for its sync command.";
     }
+    {
+      rule = "Distinguish observations, inferences, and unverified claims.";
+      reason = "Report the result with its evidence and limits; never claim a test, deployment, or approval that did not happen.";
+      bad = "Call a deployment complete because its build passed.";
+      good = "State that the build passed and activation remains unverified.";
+    }
   ];
+
+  autonomyRules = ''
+    ## Decisions and approval
+
+    Take reversible steps within the request, then show the result. Use inspection or a bounded check to resolve factual uncertainty.
+    Ask before irreversible or hard-to-reverse effects unless the user already authorized that action and scope.
+    Reversibility alone does not authorize unrelated work or external messages.
+
+    Reserve questions for missing decisions that materially change the outcome, including taste and product choices.
+    Ask one decision at a time, give a recommendation, and use the harness's question tool when available.
+    State a supported objection when the requested approach would cause a problem.
+
+    Keep approval valid for the work it covers; do not ask again at each step.
+    When delegating, include the user's exact authorization and its scope for the {{agent}}.
+    Revisit approval only when new evidence changes the action, scope, or consequences; explain what changed.
+    Investigate failed checks and fix them within the approved scope before proceeding.
+  '';
 
   makeInstructions =
     {
@@ -109,6 +132,10 @@ let
       '';
       extras = builtins.concatStringsSep "\n" (map extraText extraSections);
       base = ''
+        ${autonomyRules}
+
+        ## Working rules
+
         ${contextRules}
         ${loaderNote}
 
