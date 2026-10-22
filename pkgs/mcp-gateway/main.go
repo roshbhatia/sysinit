@@ -120,13 +120,14 @@ func makeConfig(server definition, port int, token string) (gatewayConfig, error
 	}, nil
 }
 
-func stop(cmd *exec.Cmd, done <-chan error) {
+func stop(cmd *exec.Cmd, done <-chan error) error {
 	_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGTERM)
 	select {
-	case <-done:
+	case err := <-done:
+		return err
 	case <-time.After(3 * time.Second):
 		_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
-		<-done
+		return <-done
 	}
 }
 
@@ -228,7 +229,7 @@ func run(ctx context.Context, server definition, gateway, proxy string, stdin io
 		if err != nil {
 			return err
 		}
-		defer stop(cmd, done)
+		defer func() { _ = stop(cmd, done) }()
 		if err := awaitGateway(ctx, address, done); err != nil {
 			return err
 		}
@@ -243,7 +244,7 @@ func run(ctx context.Context, server definition, gateway, proxy string, stdin io
 	if err != nil {
 		return err
 	}
-	defer stop(cmd, done)
+	defer func() { _ = stop(cmd, done) }()
 	select {
 	case err := <-done:
 		return err

@@ -65,7 +65,7 @@
     };
 
     ask = {
-      url = "github:roshbhatia/ask/bc7f0feba537538b3f1f4f9bc460a5fc72e63613";
+      url = "github:roshbhatia/ask/64203b750480af9a1185f14c3bf5ee9e5eeb603b";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -98,7 +98,7 @@
     };
 
     traces = {
-      url = "github:roshbhatia/traces/d5030ba1a673f69bd305f1d13a9857177e7878a8";
+      url = "github:roshbhatia/traces/8b24aada5697dd6a6d68b6328fc63ef127eb5589";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         systems.follows = "systems";
@@ -165,7 +165,7 @@
     };
 
     slk = {
-      url = "github:gammons/slk/v0.26.2";
+      url = "github:gammons/slk/v0.27.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -198,7 +198,7 @@
     };
 
     pyproject-build-systems = {
-      url = "github:pyproject-nix/build-system-pkgs/953d35d03a51dbecaf3feb3fb679eb63e90ebeb4";
+      url = "github:pyproject-nix/build-system-pkgs/a17819c85163988e063806ffc4f6d2716bc8ead8";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         pyproject-nix.follows = "pyproject-nix";

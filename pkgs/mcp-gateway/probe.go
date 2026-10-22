@@ -39,7 +39,8 @@ func probe(parent context.Context, server definition, gateway, proxy string) err
 		cancel()
 		_ = writer.Close()
 		_ = reader.Close()
-		<-done
+		for range done {
+		}
 	}()
 	go func() {
 		<-ctx.Done()

@@ -110,16 +110,15 @@ func execute(a attempt, dir string, terminal bool) (int, error) {
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGINT)
 	defer signal.Stop(signals)
-	stop := func() {
+	stop := func() error {
 		_ = syscall.Kill(-c.Process.Pid, syscall.SIGKILL)
-		<-done
+		return <-done
 	}
 	var supervisor struct {
 		PID int `json:"pid"`
 	}
 	if e = read(filepath.Join(dir, a.ID+".supervisor"), &supervisor); e != nil {
-		stop()
-		return 1, e
+		return 1, errors.Join(e, stop())
 	}
 	ticker := time.NewTicker(200 * time.Millisecond)
 	defer ticker.Stop()
@@ -133,12 +132,10 @@ func execute(a attempt, dir string, terminal bool) (int, error) {
 			}
 			return code, e
 		case s := <-signals:
-			stop()
-			return 128 + int(s.(syscall.Signal)), fmt.Errorf("terminal interrupted: %s", s)
+			return 128 + int(s.(syscall.Signal)), errors.Join(fmt.Errorf("terminal interrupted: %s", s), stop())
 		case <-ticker.C:
 			if e := syscall.Kill(supervisor.PID, 0); e != nil {
-				stop()
-				return 1, errors.New("queue supervisor disappeared")
+				return 1, errors.Join(errors.New("queue supervisor disappeared"), stop())
 			}
 			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 			b, queryErr := exec.CommandContext(ctx, "pueue", "status", "--json", "label=task-queue:"+a.ID).Output()
@@ -147,17 +144,14 @@ func execute(a attempt, dir string, terminal bool) (int, error) {
 				Tasks map[string]job `json:"tasks"`
 			}
 			if queryErr != nil {
-				stop()
-				return 1, fmt.Errorf("queue unavailable: %w", queryErr)
+				return 1, errors.Join(fmt.Errorf("queue unavailable: %w", queryErr), stop())
 			}
 			if e := json.Unmarshal(b, &snapshot); e != nil {
-				stop()
-				return 1, e
+				return 1, errors.Join(e, stop())
 			}
 			j, exists := snapshot.Tasks[strconv.Itoa(*a.PueueID)]
 			if !exists || state(j.Status) == "Done" {
-				stop()
-				return 1, errors.New("queue job no longer running")
+				return 1, errors.Join(errors.New("queue job no longer running"), stop())
 			}
 			stopped := state(j.Status) == "Paused"
 			if stopped != paused {
@@ -166,8 +160,7 @@ func execute(a attempt, dir string, terminal bool) (int, error) {
 					sig = syscall.SIGSTOP
 				}
 				if e = syscall.Kill(-c.Process.Pid, sig); e != nil && !errors.Is(e, syscall.ESRCH) {
-					stop()
-					return 1, e
+					return 1, errors.Join(e, stop())
 				}
 				paused = stopped
 			}
@@ -207,13 +200,15 @@ func terminalRun(a attempt, dir string) (int, error) {
 	signal.Notify(signals, syscall.SIGTERM, syscall.SIGINT)
 	defer signal.Stop(signals)
 	select {
-	case <-done:
+	case waitErr := <-done:
+		if waitErr != nil {
+			return exitCode(waitErr), fmt.Errorf("terminal client failed: %w", waitErr)
+		}
 	case s := <-signals:
 		k := exec.Command("zmx", "kill", a.Terminal, "--force")
 		k.Env = c.Env
 		_ = k.Run()
-		<-done
-		return 128 + int(s.(syscall.Signal)), errors.New("queue job cancelled")
+		return 128 + int(s.(syscall.Signal)), errors.Join(errors.New("queue job cancelled"), <-done)
 	}
 	var result struct {
 		Code int `json:"code"`

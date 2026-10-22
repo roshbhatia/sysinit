@@ -22,7 +22,7 @@ let
   target = targets.${final.stdenv.hostPlatform.system};
   configSchema = final.fetchurl {
     url = "https://opencode.ai/config.json";
-    hash = "sha256-J/8JCy5zl1EP01crbSwrcmIPfUk13g7frPi9bL1ReBQ=";
+    hash = "sha256-pYLvqyhe3rsyDS+m0uR1DsT+DliOivDkE9Yw5bzhxbk=";
   };
   cliSchema = final.fetchurl {
     url = "https://opencode.ai/v2/cli.json";
