@@ -1,0 +1,19 @@
+overlays/inputs.nix
+  s_53657dab218e96::t_43829b509589ce 79
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "929bef7434f32e31e6683488ab6c2809967ab81f",
+  "prompts": {},
+  "sessions": {
+    "s_53657dab218e96": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a16136-326f-7622-b77f-5e554338efc6",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
