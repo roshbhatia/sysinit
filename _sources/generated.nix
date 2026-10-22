@@ -8,26 +8,26 @@
 {
   amp-cli = {
     pname = "amp-cli";
-    version = "0.0.1792615268-g38c005";
+    version = "0.0.1792656060-g6af3d5";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1792615268-g38c005/amp-darwin-arm64.gz";
-      sha256 = "sha256-nJU50mECbyrwCPjFCPfHlTf1TclhdfQjg5002XSoYzQ=";
+      url = "https://static.ampcode.com/cli/0.0.1792656060-g6af3d5/amp-darwin-arm64.gz";
+      sha256 = "sha256-iXZEqxYhFNU9gdEWb3WewAiM6a7yKhcJCZpN80RBLw8=";
     };
   };
   amp-cli-aarch64-linux = {
     pname = "amp-cli-aarch64-linux";
-    version = "0.0.1792615268-g38c005";
+    version = "0.0.1792656060-g6af3d5";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1792615268-g38c005/amp-linux-arm64.gz";
-      sha256 = "sha256-la3Ei8rB/vAtzd8fGLGa6Fx/0t/JPhAQzARQqe0DTUs=";
+      url = "https://static.ampcode.com/cli/0.0.1792656060-g6af3d5/amp-linux-arm64.gz";
+      sha256 = "sha256-GzkGPp5ucWHRdP/0CTfBeiloeuHkHPUrCLLFzF2hlFg=";
     };
   };
   amp-cli-x86_64-linux = {
     pname = "amp-cli-x86_64-linux";
-    version = "0.0.1792615268-g38c005";
+    version = "0.0.1792656060-g6af3d5";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1792615268-g38c005/amp-linux-x64-baseline.gz";
-      sha256 = "sha256-IbMATrpUgXqS4Jf3Z+bDpmIFq67j+JeTFibirIYuxx8=";
+      url = "https://static.ampcode.com/cli/0.0.1792656060-g6af3d5/amp-linux-x64-baseline.gz";
+      sha256 = "sha256-jjYv33n4tmcGp5y2pAOiHCI9I7+uWQqwUJzOcPkwgWA=";
     };
   };
   crush = {
@@ -244,34 +244,34 @@
   };
   pi-coding-agent = {
     pname = "pi-coding-agent";
-    version = "1.3.0";
+    version = "1.4.0";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v1.3.0/pi-darwin-arm64.tar.gz";
-      sha256 = "sha256-H5rmHN6uBN1oyvGh6KuOybKSBi9syzJS4KnL6TtbFvE=";
+      url = "https://github.com/earendil-works/pi/releases/download/v1.4.0/pi-darwin-arm64.tar.gz";
+      sha256 = "sha256-edmXnXaipa23wo4n6bRGKZKMzQ3J+7aucheGC9Xovl0=";
     };
   };
   pi-coding-agent-aarch64-linux = {
     pname = "pi-coding-agent-aarch64-linux";
-    version = "1.3.0";
+    version = "1.4.0";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v1.3.0/pi-linux-arm64.tar.gz";
-      sha256 = "sha256-f9LqFPyjkOv59HQ4uq7wfEs9E9t8yORZgxEYORt+pls=";
+      url = "https://github.com/earendil-works/pi/releases/download/v1.4.0/pi-linux-arm64.tar.gz";
+      sha256 = "sha256-+lgpx++D/+rrugFXFcgwYiD4myqooAFU77upjdVEAVY=";
     };
   };
   pi-coding-agent-x86_64-darwin = {
     pname = "pi-coding-agent-x86_64-darwin";
-    version = "1.3.0";
+    version = "1.4.0";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v1.3.0/pi-darwin-x64.tar.gz";
-      sha256 = "sha256-n/Vi4uQ59Qlxsfa9m2KzCUZgDZ6bqk6hljXPYwpVMGY=";
+      url = "https://github.com/earendil-works/pi/releases/download/v1.4.0/pi-darwin-x64.tar.gz";
+      sha256 = "sha256-G978nhB0wd5Fjqny5D5gE85JzQUyYAmz3hRANwNlheI=";
     };
   };
   pi-coding-agent-x86_64-linux = {
     pname = "pi-coding-agent-x86_64-linux";
-    version = "1.3.0";
+    version = "1.4.0";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v1.3.0/pi-linux-x64.tar.gz";
-      sha256 = "sha256-JPW+Motm1No2h2KWmJUBl09Dq4Q0+7V8NcUjo+pQXe0=";
+      url = "https://github.com/earendil-works/pi/releases/download/v1.4.0/pi-linux-x64.tar.gz";
+      sha256 = "sha256-8uTkMpYDIj0DJgzbi9UDPb3B9zuliriTnbLlZUbhFdI=";
     };
   };
 }

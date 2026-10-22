@@ -65,7 +65,7 @@
     };
 
     ask = {
-      url = "github:roshbhatia/ask/64203b750480af9a1185f14c3bf5ee9e5eeb603b";
+      url = "github:roshbhatia/ask/3ac4e8e9259999692373df3d9639311a1396786e";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -190,7 +190,7 @@
     };
 
     uv2nix = {
-      url = "github:pyproject-nix/uv2nix/7aba73a3d85454f1118f8cf9de97979b4d26bcac";
+      url = "github:pyproject-nix/uv2nix/0fdaa03ea3c3c16dbb1fe4d69108f07227a4b42d";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         pyproject-nix.follows = "pyproject-nix";
