@@ -1,0 +1,31 @@
+modules/lib/paths.nix
+  s_e66529e22f60b7::t_b18269adf7de76 6-7
+modules/home/programs/llm/harnesses/claude/default.nix
+  s_e66529e22f60b7::t_b18269adf7de76 12-14
+modules/shared/command-path.nix
+  s_e66529e22f60b7::t_b18269adf7de76 27-58,61-64
+modules/darwin/system.nix
+  s_e66529e22f60b7::t_eff0b272783509 96-98
+modules/home/programs/llm/harnesses/codex.nix
+  s_e66529e22f60b7::t_b18269adf7de76 12-14
+modules/home/programs/llm/default.nix
+  s_e66529e22f60b7::t_b18269adf7de76 157-160
+checks/default.nix
+  s_e66529e22f60b7::t_823b915ab098fd 198-210
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b61cada3efc12cc261cff82cc3c5591781313ce7",
+  "prompts": {},
+  "sessions": {
+    "s_e66529e22f60b7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0fe61-af23-7a03-8aa8-9faf706aa4eb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

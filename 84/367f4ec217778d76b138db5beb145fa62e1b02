@@ -1,0 +1,19 @@
+modules/home/programs/wezterm/lua/sysinit/pkg/ui/sessions.lua
+  s_13647505584f5d::t_dc74bf06aa56f4 21-23,33,160-164
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "84367f4ec217778d76b138db5beb145fa62e1b02",
+  "prompts": {},
+  "sessions": {
+    "s_13647505584f5d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-aroster-wire-287a6ac61fc12aa8",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

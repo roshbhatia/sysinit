@@ -1,0 +1,38 @@
+overlays/openspec/default.nix
+  s_53657dab218e96::t_ece50840ac4a58 3,17,31
+_sources/generated.json
+  s_53657dab218e96::t_ece50840ac4a58 11,13,15,26,28,30,41,43,45,257,259,261,272,274,276,287,289,291,302,304,306
+pkgs/task-queue/terminal.go
+  s_53657dab218e96::t_1328e52b835266 203-206
+  s_53657dab218e96::t_0cd53a08e0c9f6 113,115,121,135,138,147,150,154,163,211
+overlays/opencode.nix
+  s_53657dab218e96::t_1328e52b835266 25
+flake.nix
+  s_53657dab218e96::t_ece50840ac4a58 68,101,168,201
+_sources/generated.nix
+  s_53657dab218e96::t_ece50840ac4a58 11,13-14,19,21-22,27,29-30,142,144-145,150,152-153,158,160-161,166,168-169
+pkgs/mcp-gateway/probe.go
+  s_53657dab218e96::t_0cd53a08e0c9f6 42-43
+pkgs/mcp-gateway/main.go
+  s_53657dab218e96::t_0cd53a08e0c9f6 123,126-127,130,232,247
+flake.lock
+  s_53657dab218e96::t_1c81cf0a0ef272 72-73,76,82,327-328,331,350-353,355,365,367,371,377,379,383,389,391,395,428-429,432,796-797,800,819-820,823,905-908,910,924-925,928,947-948,951,1052-1053,1056,1074-1075,1078,1119-1120,1123,1141-1142,1145,1273-1274,1277,1283,1377-1378,1381,1468-1469,1472,1477,1883-1884,1887,1893
+templates/discrete/flake.lock
+  s_53657dab218e96::t_c61aba4fa536ee 76-77,80,86,1080-1081,1084,1103-1104,1107,1688-1689,1692,2038-2039,2042,2048
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "323561036992089e143dba0dc13fc1af58868f16",
+  "prompts": {},
+  "sessions": {
+    "s_53657dab218e96": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a16136-326f-7622-b77f-5e554338efc6",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

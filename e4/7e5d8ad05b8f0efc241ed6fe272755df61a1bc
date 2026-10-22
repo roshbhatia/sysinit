@@ -1,0 +1,19 @@
+modules/home/programs/firefox/userChrome.css
+  s_e4ed06871265ed::t_ac0435052c22d8 12-18,59,203-214
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e47e5d8ad05b8f0efc241ed6fe272755df61a1bc",
+  "prompts": {},
+  "sessions": {
+    "s_e4ed06871265ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10455-7ba4-74e1-8b4d-13ded1579742",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

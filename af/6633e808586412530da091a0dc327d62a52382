@@ -1,0 +1,46 @@
+pkgs/url-route/main_test.go
+  s_c4706d5f7b8e30::t_dc4376c9886db2 1-72
+pkgs/go.mod
+  s_c4706d5f7b8e30::t_8f50768e0ce2d7 6-14
+modules/darwin/home/hammerspoon/url-routing.nix
+  s_c4706d5f7b8e30::t_46829e9c1d8edf 155-159,161-180
+  s_c4706d5f7b8e30::t_8f50768e0ce2d7 95,100,109,160,181-182
+  s_c4706d5f7b8e30::t_3ee01d9f2bb9ba 40-45,117-118,123-126,129-143,148-151,197-202
+  s_c4706d5f7b8e30::t_9813c5c1384f8f 39,46-53,73-74,76,93-94,96-97,102,115-116,120-122,127,145,147,152,189-192,194-196,203,222-224
+modules/darwin/home/hammerspoon/url-providers/default.nix
+  s_c4706d5f7b8e30::t_184cba3f7bcb21 15
+  s_c4706d5f7b8e30::t_3ee01d9f2bb9ba 6-10,18-21,26-29,34-37,43-46
+  s_c4706d5f7b8e30::t_95c093494253d3 1-5,11-14,16-17,22-25,30-33,38-42,47-52
+pkgs/url-route/main.go
+  s_c4706d5f7b8e30::t_1dfd6dcc0046ed 107
+  s_c4706d5f7b8e30::t_51c0143e20bda3 11,73,75-77
+  s_c4706d5f7b8e30::t_aaf7c9b6864072 9,74
+  s_c4706d5f7b8e30::t_a763a55aaa1b37 1-8,10,12-42,47-52,54-55,57-72,78-106,108-123
+  s_c4706d5f7b8e30::t_84303442db92bc 43-46,53
+  s_c4706d5f7b8e30::t_3ee01d9f2bb9ba 56
+checks/url-routing.lua
+  s_c4706d5f7b8e30::t_84303442db92bc 391-413
+  s_c4706d5f7b8e30::t_8f50768e0ce2d7 3-4,30-32,85-89,117-118,126,135,143-144,194,196-200,357,361,364-366,368,371,377
+overlays/sysinit-gotools.nix
+  s_c4706d5f7b8e30::t_6b347ca5b67967 11
+modules/darwin/home/hammerspoon/lua/sysinit/pkg/url_routing.lua
+  s_c4706d5f7b8e30::t_080c763d059a37 174,182,226-245,267
+pkgs/go.sum
+  s_c4706d5f7b8e30::t_58a8633aae0225 1-12,15-22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "af6633e808586412530da091a0dc327d62a52382",
+  "prompts": {},
+  "sessions": {
+    "s_c4706d5f7b8e30": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14114-b1c5-7eb2-8ccd-594dc57f7c79",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

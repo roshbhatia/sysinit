@@ -1,0 +1,75 @@
+AGENTS.md
+  s_895ab6f768032e::t_3255b5be483c6f 82,100
+checks/agent-sessions.nix
+  s_895ab6f768032e::t_d9a331de9655f5 1-14
+checks/agent-sessions.py
+  s_895ab6f768032e::t_fc04b0146c9ae8 5,7-113
+checks/default.nix
+  s_895ab6f768032e::t_e148d1142754dd 59-66
+docs/runbooks.md
+  s_895ab6f768032e::t_a0a4c94b7ea47e 272-317
+modules/darwin/home/sketchybar/lua/sysinit/pkg/widgets/agent_sessions.lua
+  s_895ab6f768032e::t_7f31e0c220e9b8 41,43-44,62
+modules/home/programs/ere.nix
+  s_895ab6f768032e::t_38561c64341a30 9,45,53,69,82,91-110,112-178,181-201,203-206,208-209
+modules/home/programs/fd.nix
+  s_895ab6f768032e::t_69aa01f285bd06 4
+modules/home/programs/fzf.nix
+  s_895ab6f768032e::t_5d8f038831adb5 43-44
+modules/home/programs/llm/runtime/agent-sessions.jq
+  s_895ab6f768032e::t_bd6c708bd3f470 1-36
+modules/home/programs/llm/runtime/agent-sessions.sh
+  s_895ab6f768032e::t_c7e675592ac431 12,17-20,64-66,68-73,75-76
+modules/home/programs/llm/runtime/default.nix
+  s_895ab6f768032e::t_2e920f2c1cb4cb 61,84,95-97,101,117,131,145
+modules/home/programs/llm/skills/taskwarrior/SKILL.md
+  s_895ab6f768032e::t_d4a771235bd7fb 12,59-66
+modules/home/programs/nushell/functions.nu
+  s_895ab6f768032e::t_7b1002dc31e66c 8-14,18-29,40-41,47-51,55-65,69-79,86-99,103,107-111,117-120,124,128-131,135,141,145,149-156,163-165,167-170,172-177,179-180
+modules/home/programs/seshy/default.nix
+  s_895ab6f768032e::t_0a58b0369c0a75 62-67,73-81
+modules/home/programs/taskwarrior.nix
+  s_895ab6f768032e::t_86bac2a411ee33 8-13,77-92,94-97,99-121,123-126,128-152,154-225,227-235,237-242,244,246-247
+modules/home/programs/yazi/default.nix
+  s_895ab6f768032e::t_306b401753ea3b 28-57
+modules/home/programs/zoxide.nix
+  s_895ab6f768032e::t_ac844ad1aa0dc9 1,8-16
+modules/home/programs/zsh/default.nix
+  s_895ab6f768032e::t_c11fed3587f782 23-25,32-44,47
+modules/home/programs/zsh/integrations/completions.zsh
+  s_895ab6f768032e::t_478a0af09cd889 5
+modules/home/programs/zsh/integrations/seshy-wezterm.zsh
+  s_895ab6f768032e::t_a43af0e5e1d81f 17
+modules/lib/shell/aliases.nix
+  s_895ab6f768032e::t_6c206ffae262de 5
+modules/nixos/home/desktop/waybar-agent-sessions.jq
+  s_895ab6f768032e::t_d25065dd67f83a 8,21-22
+modules/shared/options/paths.nix
+  s_895ab6f768032e::t_03bc94500f4fdb 16-19
+overlays/sysinit-gotools.nix
+  s_895ab6f768032e::t_f1609a02cf284a 14-17
+pkgs/ere-setup/main.go
+  s_895ab6f768032e::t_870f629a2e8c9f 1-169
+pkgs/ere-setup/main_test.go
+  s_895ab6f768032e::t_058164b3bb1238 1-27
+pkgs/task-context/main.go
+  s_895ab6f768032e::t_15613f6f384c01 1-245
+pkgs/task-context/main_test.go
+  s_895ab6f768032e::t_5b754bcbf0dbfc 1-78
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4e5d2b77dead471de44df1fdfe3847ac57fcd97f",
+  "prompts": {},
+  "sessions": {
+    "s_895ab6f768032e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a0ca-05c9-7e31-8c65-9dfb547dce39",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

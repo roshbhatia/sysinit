@@ -1,0 +1,19 @@
+modules/home/programs/gh.nix
+  s_881d178d72dce1::t_a56e6780bb9b31 11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "4471ddd41319367b02fac07d0d0cca946eb3b9ec",
+  "prompts": {},
+  "sessions": {
+    "s_881d178d72dce1": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a086cf-b5ce-7d53-b4e1-41e7a429e120",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

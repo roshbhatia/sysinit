@@ -1,0 +1,25 @@
+modules/darwin/home/helium.nix
+  s_e4ed06871265ed::t_4bd1ef15a4e01c 45-47
+modules/home/programs/obsidian.nix
+  s_e4ed06871265ed::t_a59dbf50900860 9,75-76
+modules/shared/options/theme.nix
+  s_e4ed06871265ed::t_4bd1ef15a4e01c 52-63
+modules/shared/stylix.nix
+  s_e4ed06871265ed::t_4bd1ef15a4e01c 26-27,46-47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "325578008dad627e0d15b4ae776c66ab990a5144",
+  "prompts": {},
+  "sessions": {
+    "s_e4ed06871265ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10455-7ba4-74e1-8b4d-13ded1579742",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

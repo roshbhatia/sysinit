@@ -1,0 +1,26 @@
+modules/home/programs/mail/emacs/sysinit-mail-actions.el
+  s_de281cf8e5cd4f::t_012a2a2e0571b6 74-75
+modules/home/programs/mail/emacs/sysinit-mail-keys.el
+  s_de281cf8e5cd4f::t_48fab98f5d8b3c 14,33-35,39,52
+checks/mail.el
+  s_de281cf8e5cd4f::t_012a2a2e0571b6 102-106,115-125,136
+  s_de281cf8e5cd4f::t_48fab98f5d8b3c 270-271
+modules/home/programs/mail/README.md
+  s_de281cf8e5cd4f::t_48fab98f5d8b3c 23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "bb7a21241e0f37daafa7888586c0af25ce7226cf",
+  "prompts": {},
+  "sessions": {
+    "s_de281cf8e5cd4f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a11307-12eb-7480-afb6-c32a40ba7deb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

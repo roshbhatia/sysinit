@@ -1,0 +1,21 @@
+checks/agent-sessions.py
+  s_895ab6f768032e::t_49e946236426df 106-107
+modules/home/programs/llm/runtime/agent-sessions.sh
+  s_895ab6f768032e::t_9c60e61ec67e96 73-77
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "77be4525f9e66fcd0bf4de4b59256f95c85c3097",
+  "prompts": {},
+  "sessions": {
+    "s_895ab6f768032e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a0ca-05c9-7e31-8c65-9dfb547dce39",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

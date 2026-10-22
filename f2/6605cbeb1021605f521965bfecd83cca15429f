@@ -1,0 +1,19 @@
+flake.lock
+  s_13647505584f5d::t_5ffba296b75c3c 1315-1316,1319
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "f26605cbeb1021605f521965bfecd83cca15429f",
+  "prompts": {},
+  "sessions": {
+    "s_13647505584f5d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-aroster-wire-287a6ac61fc12aa8",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

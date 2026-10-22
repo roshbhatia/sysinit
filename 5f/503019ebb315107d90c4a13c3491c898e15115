@@ -1,0 +1,31 @@
+flake.lock
+  s_26d23fecd28e64::t_1422cb8031c970 190-191,194,199,1063-1064,1067,1072,1097-1098,1101,1107,1525-1526,1529
+flake.nix
+  s_26d23fecd28e64::t_fbcdd0f9e82223 65,73,103
+modules/home/programs/changes.nix
+  s_881d178d72dce1::t_8a8f1690359d36 12,20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "5f503019ebb315107d90c4a13c3491c898e15115",
+  "prompts": {},
+  "sessions": {
+    "s_26d23fecd28e64": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a091db-21fc-7023-9478-a2e21d77d4db",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_881d178d72dce1": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a086cf-b5ce-7d53-b4e1-41e7a429e120",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

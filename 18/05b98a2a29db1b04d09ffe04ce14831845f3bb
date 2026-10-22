@@ -1,0 +1,38 @@
+modules/darwin/home/hammerspoon/default.nix
+  s_e4ed06871265ed::t_638e35fdd6e2bf 80-81,87
+modules/home/programs/firefox/userChrome.css
+  s_e4ed06871265ed::t_fa534c27de305c 8-13,16-19,24-25,28-29,32-34,38,42-43,47-48,52,61,64,67,71-72,80,86
+modules/darwin/home/default.nix
+  s_e4ed06871265ed::t_638e35fdd6e2bf 6
+modules/home/programs/firefox.nix
+  s_e4ed06871265ed::t_638e35fdd6e2bf 50,94-98
+  s_e4ed06871265ed::t_746056dd8d8c39 92-93
+modules/darwin/home/hammerspoon/url-routing.nix
+  s_e4ed06871265ed::t_638e35fdd6e2bf 75,97,150
+modules/darwin/homebrew.nix
+  s_e4ed06871265ed::t_638e35fdd6e2bf 84
+overlays/inputs.nix
+  s_e4ed06871265ed::t_638e35fdd6e2bf 38
+checks/firefox.py
+  s_e4ed06871265ed::t_746056dd8d8c39 10-12
+modules/darwin/home/firefox.nix
+  s_e4ed06871265ed::t_638e35fdd6e2bf 1-30
+modules/home/programs/firefox/userContent.css
+  s_e4ed06871265ed::t_fa534c27de305c 1-5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1805b98a2a29db1b04d09ffe04ce14831845f3bb",
+  "prompts": {},
+  "sessions": {
+    "s_e4ed06871265ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10455-7ba4-74e1-8b4d-13ded1579742",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

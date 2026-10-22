@@ -1,0 +1,25 @@
+pkgs/task-queue/terminal.go
+  s_7e387877deaaf0::t_a7202c18496c57 88,198
+checks/mcp-routing.nix
+  s_7e387877deaaf0::t_a7202c18496c57 15,54
+checks/harness-instructions.nix
+  s_7e387877deaaf0::t_a7202c18496c57 13,15-17
+pkgs/mcp-gateway/main_test.go
+  s_7e387877deaaf0::t_a7202c18496c57 46,92-93
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7bf3751a5201825fd56a9905a6d46c7466231cb0",
+  "prompts": {},
+  "sessions": {
+    "s_7e387877deaaf0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13b22-00ff-7a22-b54f-7e8aa24d9f47",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

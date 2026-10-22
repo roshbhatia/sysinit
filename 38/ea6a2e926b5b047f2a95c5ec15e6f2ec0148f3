@@ -1,0 +1,20 @@
+modules/home/programs/llm/harnesses/claude/mods.nix
+  s_e66529e22f60b7::t_7ddc96a9b5adcc 30
+  s_e66529e22f60b7::t_fca6a8828626a0 1,21-26,29,31-33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "38ea6a2e926b5b047f2a95c5ec15e6f2ec0148f3",
+  "prompts": {},
+  "sessions": {
+    "s_e66529e22f60b7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0fe61-af23-7a03-8aa8-9faf706aa4eb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

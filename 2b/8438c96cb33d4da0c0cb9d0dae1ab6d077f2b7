@@ -1,0 +1,19 @@
+checks/roster-sources.nix
+  s_13647505584f5d::t_c00f312f5b7308 25-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "2b8438c96cb33d4da0c0cb9d0dae1ab6d077f2b7",
+  "prompts": {},
+  "sessions": {
+    "s_13647505584f5d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-aroster-wire-287a6ac61fc12aa8",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

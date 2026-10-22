@@ -1,0 +1,21 @@
+checks/roster-sources.nix
+  s_d9b398cc38b8f6::t_5a4f7eef87520e 59,85,88,99
+modules/home/programs/wezterm/sources.nix
+  s_d9b398cc38b8f6::t_b51da1333d40a8 3,76-82,97-107,121,123-126,128
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "d4e01973ab89b289a6d960d03571af8c8dbf5d43",
+  "prompts": {},
+  "sessions": {
+    "s_d9b398cc38b8f6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7c221cfd-6a57-49f0-beeb-2761f999fde3",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+modules/darwin/clamshell.nix
+  s_895ab6f768032e::t_367871081a9df9 1,3
+modules/darwin/home/colima.nix
+  s_895ab6f768032e::t_5c0d3358f9f3c0 3,37
+modules/darwin/macos-tools.nix
+  s_895ab6f768032e::t_7564598f9662b8 27-29
+modules/darwin/ollama.nix
+  s_895ab6f768032e::t_343bca187f52d2 10-13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c906d9525ef33a160cc6d8224c550128e6e1bec1",
+  "prompts": {},
+  "sessions": {
+    "s_895ab6f768032e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a0ca-05c9-7e31-8c65-9dfb547dce39",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

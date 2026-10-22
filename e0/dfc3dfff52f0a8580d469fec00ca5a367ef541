@@ -1,0 +1,41 @@
+AGENTS.md
+  s_895ab6f768032e::t_465b33d2a884f2 33-36
+checks/editor-config.nix
+  s_895ab6f768032e::t_c2577fcda55866 42-47
+flake.lock
+  s_895ab6f768032e::t_f33641188a8eb1 44-63,210-211,214,244-263,442-461,1356,1362,1368,1392-1393,1949-1968
+flake.nix
+  s_895ab6f768032e::t_588c490111677c 106,136-151
+modules/darwin/home/hammerspoon/default.nix
+  s_895ab6f768032e::t_8d1c20156e0687 77-80,83,173
+modules/home/programs/llm/runtime/default.nix
+  s_895ab6f768032e::t_b2b4ccc726d76b 33,35,37,39,41,59,155
+overlays/inputs.nix
+  s_895ab6f768032e::t_472aa2b4dcf17f 32-39
+overlays/sysinit-gotools.nix
+  s_895ab6f768032e::t_595cbca1f22c94 12,160-166,185-189,193-199
+pkgs/AGENTS.md
+  s_895ab6f768032e::t_3d3f034be14d5c 40-42,55-59
+pkgs/utils/internal/forward/forward.go
+  s_895ab6f768032e::t_dbd24ad97504b0 1,5,7,10-15,17-21
+pkgs/utils/internal/forward/forward_test.go
+  s_895ab6f768032e::t_770c75a0e3a698 1,5,9-11,15-16,20-25,29-34,38-41
+pkgs/utils/main.go
+  s_895ab6f768032e::t_79ef316517dfbc 9,21-22,24,26-27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e0dfc3dfff52f0a8580d469fec00ca5a367ef541",
+  "prompts": {},
+  "sessions": {
+    "s_895ab6f768032e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a0ca-05c9-7e31-8c65-9dfb547dce39",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

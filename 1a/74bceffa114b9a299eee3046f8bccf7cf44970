@@ -1,0 +1,33 @@
+modules/darwin/home/hammerspoon/lua/sysinit/pkg/url_routing.lua
+  s_de281cf8e5cd4f::t_2aec5f6a20235c 208-209
+  s_de281cf8e5cd4f::t_a245f6f3688c2b 83-85,230-238
+checks/url-routing.lua
+  s_de281cf8e5cd4f::t_a245f6f3688c2b 37-43,45,49,358-367
+modules/darwin/home/hammerspoon/lua/sysinit/pkg/core/init.lua
+  s_de281cf8e5cd4f::t_a245f6f3688c2b 10,27-33,40-46
+modules/darwin/home/hammerspoon/lua/sysinit/plugins/ui/launcher/init.lua
+  s_de281cf8e5cd4f::t_2aec5f6a20235c 5-6
+  s_de281cf8e5cd4f::t_a245f6f3688c2b 7-10
+checks/default.nix
+  s_de281cf8e5cd4f::t_ddc7a06f800d6b 129
+checks/hammerspoon-switcher.lua
+  s_de281cf8e5cd4f::t_6fc358673a7516 1-78
+flake.lock
+  s_de281cf8e5cd4f::t_1e18b2d997606c 250-251,254
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1a74bceffa114b9a299eee3046f8bccf7cf44970",
+  "prompts": {},
+  "sessions": {
+    "s_de281cf8e5cd4f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a11307-12eb-7480-afb6-c32a40ba7deb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

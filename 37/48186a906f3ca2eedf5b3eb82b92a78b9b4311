@@ -1,0 +1,23 @@
+modules/home/programs/wezterm/default.nix
+  s_3424e215dff181::t_acb4a2dfdda4a0 18-20,196-198
+modules/home/programs/wezterm/scripts/roster-provider-remote-seshy.sh
+  s_3424e215dff181::t_66b0094291c1b3 5-6
+modules/home/programs/wezterm/sources.nix
+  s_3424e215dff181::t_63b909f5edbec1 125
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "3748186a906f3ca2eedf5b3eb82b92a78b9b4311",
+  "prompts": {},
+  "sessions": {
+    "s_3424e215dff181": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-awezterm-cutover-841fa38a91b3b960",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

@@ -1,0 +1,27 @@
+checks/pr-workflow.py
+  s_0f879b3de094f3::t_6d90a73ea3a43f 99
+modules/home/programs/gh-pr-diff.py
+  s_0f879b3de094f3::t_6d90a73ea3a43f 38-39
+  s_0f879b3de094f3::t_d60eb3acacbf71 105-107
+modules/darwin/home/hammerspoon/url-routing.nix
+  s_0f879b3de094f3::t_6d90a73ea3a43f 110-117
+  s_0f879b3de094f3::t_f427d5563484c2 109
+flake.lock
+  s_0f879b3de094f3::t_53e0a182545f2c 1658-1659,1662
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "be2285a9575641f4c795a9b39de59353216d6388",
+  "prompts": {},
+  "sessions": {
+    "s_0f879b3de094f3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1364e-f050-7b02-a092-9790835e2b3c",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+flake.lock
+  s_f52082fa0dacfc::t_acffdaccc3c578 1502-1503,1506,1511
+flake.nix
+  s_f52082fa0dacfc::t_a7c698c08726bb 129
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "c7802ccf0fcc1355529e3f0d89c0be4dcf4027de",
+  "prompts": {},
+  "sessions": {
+    "s_f52082fa0dacfc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-aseshy-v42-a6a0ed6930215487",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

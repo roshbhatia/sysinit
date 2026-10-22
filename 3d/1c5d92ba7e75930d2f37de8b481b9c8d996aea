@@ -1,0 +1,27 @@
+modules/home/programs/firefox.nix
+  s_e4ed06871265ed::t_175c98b9f96224 94
+modules/home/programs/firefox/userChrome.css
+  s_e4ed06871265ed::t_3102eed4563cbb 12
+modules/home/programs/obsidian.nix
+  s_e4ed06871265ed::t_a407030db9f717 9
+modules/shared/options/theme.nix
+  s_e4ed06871265ed::t_4d39557bae7ed5 61
+modules/shared/stylix.nix
+  s_e4ed06871265ed::t_72d8137181e9d3 26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3d1c5d92ba7e75930d2f37de8b481b9c8d996aea",
+  "prompts": {},
+  "sessions": {
+    "s_e4ed06871265ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10455-7ba4-74e1-8b4d-13ded1579742",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

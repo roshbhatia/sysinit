@@ -1,0 +1,19 @@
+checks/system-generation-prune.nix
+  s_c4706d5f7b8e30::t_4c2224b2c1bb3f 30-47,52-54,68-69,71
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "cf59a52ab2d9329fd600324e8f92d7cbd2ef5588",
+  "prompts": {},
+  "sessions": {
+    "s_c4706d5f7b8e30": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14114-b1c5-7eb2-8ccd-594dc57f7c79",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

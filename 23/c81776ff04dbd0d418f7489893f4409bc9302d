@@ -1,0 +1,20 @@
+overlays/opencode.nix
+  s_e884fe805a8a38::t_cef1244c17f346 69
+  s_e884fe805a8a38::t_c488c7ec2aa981 57-58
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "23c81776ff04dbd0d418f7489893f4409bc9302d",
+  "prompts": {},
+  "sessions": {
+    "s_e884fe805a8a38": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0fa3e-7504-7db2-b389-ae61582015cf",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+modules/home/programs/wezterm/lua/sysinit/pkg/ui/session_tree.lua
+  s_d9b398cc38b8f6::t_3146b34ea0375f 8-9,22-111,125,207,217
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "86a3c5f60a6b022bf3ffb808967af5420fa93d53",
+  "prompts": {},
+  "sessions": {
+    "s_d9b398cc38b8f6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7c221cfd-6a57-49f0-beeb-2761f999fde3",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

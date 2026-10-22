@@ -1,0 +1,35 @@
+modules/home/programs/llm/harnesses/shared/locks/pi-subagents.lock.json
+  s_e884fe805a8a38::t_61f49cb6aac049 1-91
+checks/default.nix
+  s_e884fe805a8a38::t_61f49cb6aac049 57
+_sources/generated.json
+  s_e884fe805a8a38::t_61f49cb6aac049 476,478,480,491,493,495,506,508,510,521,523,525
+hack/update-pi.sh
+  s_e884fe805a8a38::t_61f49cb6aac049 110
+_sources/generated.nix
+  s_e884fe805a8a38::t_61f49cb6aac049 258,260-261,266,268-269,274,276-277,282,284-285
+overlays/pi-coding-agent.nix
+  s_e884fe805a8a38::t_61f49cb6aac049 21-25,35-42
+  s_e884fe805a8a38::t_8c4075798e3bd6 43-44
+modules/home/programs/llm/harnesses/shared/pi-packages.nix
+  s_e884fe805a8a38::t_61f49cb6aac049 86-95
+modules/home/programs/llm/harnesses/pi/default.nix
+  s_e884fe805a8a38::t_61f49cb6aac049 311-318
+  s_e884fe805a8a38::t_3dcc51a60d3cc5 319-320
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "95f06aff7a6639f597c3e5d76bad947fc6917c9f",
+  "prompts": {},
+  "sessions": {
+    "s_e884fe805a8a38": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0fa3e-7504-7db2-b389-ae61582015cf",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

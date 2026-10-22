@@ -1,0 +1,39 @@
+checks/default.nix
+  s_7bd22515963f31::t_5bf4c40e9751eb 59-74
+checks/gate-config.nix
+  s_7bd22515963f31::t_6d0595a5eab564 15,48,103-116,120,122-125
+checks/git-ai-integration.py
+  s_7bd22515963f31::t_fbd6a5391267b9 1-301
+modules/home/programs/default.nix
+  s_7bd22515963f31::t_1d1939fc4893f3 43
+modules/home/programs/git-ai/changes-provider.py
+  s_7bd22515963f31::t_74173b1f06d74d 1-219
+modules/home/programs/git-ai/default.nix
+  s_7bd22515963f31::t_8fda21afff4df6 1-77
+modules/home/programs/llm/gate-defaults.nix
+  s_7bd22515963f31::t_7821bfe9d4a68f 71-75,85-86
+modules/home/programs/llm/gate.nix
+  s_7bd22515963f31::t_1ae1875c12c1c6 69,72
+overlays/git-ai-codex-pre-edit.patch
+  s_7bd22515963f31::t_4cf30ea01d979f 1-169
+overlays/git-ai-gate.nix
+  s_7bd22515963f31::t_3973010aa69e3c 38-41,44,46
+overlays/git-ai.nix
+  s_7bd22515963f31::t_e5c032159c4d6e 3-6,10,12-30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5f37889952d96d8ba1a15de218e9f82cf1b1a29c",
+  "prompts": {},
+  "sessions": {
+    "s_7bd22515963f31": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0f092-cea8-7f71-a088-11b5e44b5418",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

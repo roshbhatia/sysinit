@@ -1,0 +1,25 @@
+checks/mail.el
+  s_de281cf8e5cd4f::t_87ce039120e46c 102,130-165
+modules/home/programs/mail/README.md
+  s_de281cf8e5cd4f::t_dbe1a04127978f 12-17,44
+modules/home/programs/mail/email.nu
+  s_de281cf8e5cd4f::t_29aa596ef14617 1,31
+modules/home/programs/mail/mail.el
+  s_de281cf8e5cd4f::t_25eec3d60e98be 89,94,165-169,174,200-203,241-247,249
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7fda799da799c0560dbc5354c54933728d1c3f52",
+  "prompts": {},
+  "sessions": {
+    "s_de281cf8e5cd4f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a11307-12eb-7480-afb6-c32a40ba7deb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

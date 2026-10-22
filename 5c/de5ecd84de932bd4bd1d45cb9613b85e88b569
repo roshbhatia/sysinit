@@ -1,0 +1,25 @@
+checks/default.nix
+  s_e4ed06871265ed::t_79ac3d8091bda5 82-91
+modules/home/programs/slk.nix
+  s_e4ed06871265ed::t_e6f402bd9bdf7b 9-11,16,18-20,22-51,53,55-83
+checks/slk.py
+  s_e4ed06871265ed::t_79ac3d8091bda5 1-52
+modules/home/programs/slk-setup.py
+  s_e4ed06871265ed::t_08e2d73aa857e6 1-43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5cde5ecd84de932bd4bd1d45cb9613b85e88b569",
+  "prompts": {},
+  "sessions": {
+    "s_e4ed06871265ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10455-7ba4-74e1-8b4d-13ded1579742",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

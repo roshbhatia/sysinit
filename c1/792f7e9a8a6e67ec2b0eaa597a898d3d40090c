@@ -1,0 +1,51 @@
+modules/home/programs/llm/harnesses/claude/output-mod/hooks/register.ts
+  s_e66529e22f60b7::t_36096abd70de33 1-12,14-16,21-22,24,26-59,61-67
+modules/home/programs/llm/harnesses/claude/output-mod/hooks/hooks.json
+  s_e66529e22f60b7::t_36096abd70de33 1
+modules/home/programs/llm/harnesses/claude/output-mod/.claude-plugin/plugin.json
+  s_e66529e22f60b7::t_36096abd70de33 1-5
+modules/home/programs/llm/harnesses/claude/mods.nix
+  s_e66529e22f60b7::t_92d899f6435dcf 3-8,28
+modules/home/programs/llm/harnesses/opencode/plugins/sysinit-output.ts
+  s_e66529e22f60b7::t_4cdd3138f5e4b5 1-19,21-24,26-38,40-44,46-50,54-65,127-161,163-171,179-241,243-261,263-266
+  s_e66529e22f60b7::t_e9fa81e9e4d20e 45,66-126,172-178
+modules/home/programs/llm/harnesses/opencode/default.nix
+  s_e66529e22f60b7::t_4cdd3138f5e4b5 21,23-25,71
+  s_e66529e22f60b7::t_af889b89bc94b5 26
+modules/home/programs/llm/lib/guards.nix
+  s_e66529e22f60b7::t_92d899f6435dcf 34-36
+modules/home/programs/llm/runtime/output-rewrite/default.nix
+  s_e66529e22f60b7::t_36096abd70de33 1-11
+modules/home/programs/llm/runtime/output-rewrite/rewrite.py
+  s_e66529e22f60b7::t_36096abd70de33 1-89,91-109,112-119,121-127,129-130,132-158
+modules/home/programs/llm/gate.nix
+  s_e66529e22f60b7::t_92d899f6435dcf 111-118
+modules/home/programs/llm/harnesses/opencode/render.nix
+  s_e66529e22f60b7::t_4cdd3138f5e4b5 149-152
+checks/default.nix
+  s_e66529e22f60b7::t_4ae6db12636929 58
+checks/native-output.test.js
+  s_e66529e22f60b7::t_513cce772bb467 1-140
+checks/output-rewrite.py
+  s_e66529e22f60b7::t_c8b36215821e51 1-41
+modules/home/programs/llm/harnesses/pi/default.nix
+  s_e66529e22f60b7::t_5cac97db8f36ab 81,83-85
+modules/home/programs/llm/harnesses/pi/extensions/output-rewrite.ts
+  s_e66529e22f60b7::t_4070d586762874 1-49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c1792f7e9a8a6e67ec2b0eaa597a898d3d40090c",
+  "prompts": {},
+  "sessions": {
+    "s_e66529e22f60b7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0fe61-af23-7a03-8aa8-9faf706aa4eb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

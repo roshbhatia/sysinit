@@ -1,0 +1,48 @@
+checks/diff-pane.py
+  s_e66529e22f60b7::t_5f638f027897cf 1-61
+modules/home/programs/llm/runtime/diff/open.py
+  s_e66529e22f60b7::t_2e3f899cb54728 72-82,101-104,107-117,148-158
+  s_e66529e22f60b7::t_86afa57746460f 159-160
+  s_e66529e22f60b7::t_f2d97b3f9ceb0e 1-71,84-100,105-106,118-147,161-179
+  s_e66529e22f60b7::t_8245a4cd116ed8 83
+modules/home/programs/llm/harnesses/pi/extensions/diff-review.ts
+  s_e66529e22f60b7::t_f2d97b3f9ceb0e 45,139-148
+modules/home/programs/llm/harnesses/opencode/plugins/sysinit-diff.ts
+  s_e66529e22f60b7::t_4cdd3138f5e4b5 1-50
+modules/home/programs/llm/runtime/diff/default.nix
+  s_e66529e22f60b7::t_f2d97b3f9ceb0e 1-12
+modules/home/programs/llm/default.nix
+  s_e66529e22f60b7::t_f2d97b3f9ceb0e 184
+checks/native-output.nix
+  s_e66529e22f60b7::t_5db268962ad595 15
+modules/home/programs/llm/harnesses/claude/diff-mod/.claude-plugin/plugin.json
+  s_e66529e22f60b7::t_580a84846f7935 1-5
+modules/home/programs/llm/harnesses/claude/diff-mod/hooks/hooks.json
+  s_e66529e22f60b7::t_b83815dde42aec 1
+modules/home/programs/llm/harnesses/claude/diff-mod/hooks/register.ts
+  s_e66529e22f60b7::t_89eaff52992017 1-19
+modules/home/programs/llm/harnesses/claude/mods.nix
+  s_e66529e22f60b7::t_e455a4c50aff9d 29
+modules/home/programs/llm/harnesses/opencode/default.nix
+  s_e66529e22f60b7::t_db13a345e81b25 26,72
+modules/home/programs/llm/harnesses/opencode/render.nix
+  s_e66529e22f60b7::t_c1528fd4b369b8 268-271
+modules/home/programs/llm/skills/diff/SKILL.md
+  s_e66529e22f60b7::t_429cb8de7f28a0 1-10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "69e8627522d401c7723935bf454972de7b20b680",
+  "prompts": {},
+  "sessions": {
+    "s_e66529e22f60b7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0fe61-af23-7a03-8aa8-9faf706aa4eb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

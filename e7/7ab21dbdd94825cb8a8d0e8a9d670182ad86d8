@@ -1,0 +1,23 @@
+checks/completion-cache.py
+  s_895ab6f768032e::t_7c5bc58ce744dd 1-35
+checks/default.nix
+  s_895ab6f768032e::t_60439bceea5910 65-76
+modules/home/programs/zsh/core/compinit.zsh
+  s_895ab6f768032e::t_8c6ec9517bce6a 21-26,28-35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e77ab21dbdd94825cb8a8d0e8a9d670182ad86d8",
+  "prompts": {},
+  "sessions": {
+    "s_895ab6f768032e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a0ca-05c9-7e31-8c65-9dfb547dce39",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

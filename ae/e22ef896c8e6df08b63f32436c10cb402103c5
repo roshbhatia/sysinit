@@ -1,0 +1,24 @@
+modules/shared/stylix.nix
+  s_e4ed06871265ed::t_946456cf987da2 45
+overlays/default.nix
+  s_e4ed06871265ed::t_946456cf987da2 46
+overlays/cm-web-fonts.nix
+  s_e4ed06871265ed::t_93388fbbefbd02 4
+  s_e4ed06871265ed::t_946456cf987da2 1-3,5-25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "aee22ef896c8e6df08b63f32436c10cb402103c5",
+  "prompts": {},
+  "sessions": {
+    "s_e4ed06871265ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10455-7ba4-74e1-8b4d-13ded1579742",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

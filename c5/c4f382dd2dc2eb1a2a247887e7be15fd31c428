@@ -1,0 +1,27 @@
+.github/dependabot.yml
+  s_13647505584f5d::t_fe054730facbc6 26
+flake.lock
+  s_13647505584f5d::t_de12170c16a8f0 1138-1154,1228,1240-1261,1625
+flake.nix
+  s_13647505584f5d::t_08c0bab0591b57 133-137,306
+modules/home/tools.toml
+  s_13647505584f5d::t_4e37e7b3482724 161-166
+overlays/inputs.nix
+  s_13647505584f5d::t_c9d928780f81cf 44
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "c5c4f382dd2dc2eb1a2a247887e7be15fd31c428",
+  "prompts": {},
+  "sessions": {
+    "s_13647505584f5d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-aroster-wire-287a6ac61fc12aa8",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

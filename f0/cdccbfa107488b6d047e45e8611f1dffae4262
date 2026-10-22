@@ -1,0 +1,29 @@
+modules/home/programs/llm/harnesses/claude/default.nix
+  s_cc692aeacdac98::t_b86a4754379b77 237,268
+modules/home/programs/llm/harnesses/codex.nix
+  s_cc692aeacdac98::t_b86a4754379b77 193
+checks/harness-instructions.nix
+  s_cc692aeacdac98::t_b86a4754379b77 4,10,51-67
+  s_cc692aeacdac98::t_d6b26906407662 24-28
+  s_cc692aeacdac98::t_f80f5107bc1385 5-9,11
+modules/home/programs/llm/lib/instructions.nix
+  s_cc692aeacdac98::t_d6b26906407662 86-92
+modules/home/programs/llm/lib/guards.nix
+  s_cc692aeacdac98::t_b86a4754379b77 7-12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f0cdccbfa107488b6d047e45e8611f1dffae4262",
+  "prompts": {},
+  "sessions": {
+    "s_cc692aeacdac98": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0fd7e-4800-7082-adb1-e6ee32d1f463",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
