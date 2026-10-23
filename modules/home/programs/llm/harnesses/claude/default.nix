@@ -48,14 +48,7 @@ let
 
   slackToolMatcher = lib.concatStringsSep "|" llmLib.allowlist.slackSendTools;
 
-  steOutputStyle = ''
-    ---
-    name: sysinit-ste
-    description: Simplified Technical English, ADHD-shaped output
-    ---
-
-    ${kit.llmLib.instructions.outputStyleRules}
-  '';
+  steOutputStyle = kit.llmLib.instructions.outputStyle.claude;
 
   subagents = kit.llmLib.instructions.subagentDefs;
 
@@ -119,7 +112,7 @@ in
       effortLevel = "high";
       alwaysThinkingEnabled = true;
       autoMemoryEnabled = true;
-      outputStyle = "sysinit-ste";
+      outputStyle = kit.llmLib.instructions.outputStyle.name;
 
       editorMode = "vim";
 

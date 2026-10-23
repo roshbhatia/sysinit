@@ -1,25 +1,14 @@
 { rulesFile, styleFile }:
 let
   bulkRead = import ./bulk-read.nix;
+  outputStyle = import ./lib/output-style.nix;
 
   prose = {
     style = styleFile;
 
     block_on = [ "Sysinit.CitationMarkup" ];
 
-    shape = ''
-      Send the whole reply again in ASD-STE100, in this shape and nothing else:
-
-        1. What changed, in one sentence per change.
-        2. Why, only where the change is not self-explaining.
-        3. The next concrete action.
-
-      One instruction per sentence, active voice, one term per concept. Numbers, not
-      adjectives. Keep a sentence under 25 words. Use a list or a table when it
-      carries the answer better than a sentence.
-    '';
-
-    reminder = "The sysinit-ste output style is active. Follow it. Answer shape: what changed, why, next action. One sentence under 25 words per instruction. No em-dash, no preamble, no plan announcement, no closing summary. Keep an error, a failing test, or a destructive-action confirmation whole.";
+    inherit (outputStyle) shape reminder;
 
     session = ''
       IMPORTANT: context is the budget that runs out first. YOU MUST spend it on purpose.

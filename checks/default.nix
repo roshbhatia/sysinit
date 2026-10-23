@@ -230,6 +230,7 @@ in
   editor-config = import ./editor-config.nix { inherit pkgs; };
   harness-instructions = import ./harness-instructions.nix {
     inherit pkgs;
+    home = homeConfigurations.${"dev-" + pkgs.stdenv.hostPlatform.system}.config;
     inherit (pkgs) lib;
   };
   codex-config = import ./codex-config.nix {

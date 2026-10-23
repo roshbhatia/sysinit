@@ -10,6 +10,8 @@ A style guide for longer-form prose written in Roshan's name. Preserve the
 thesis, decisions, and beliefs that Roshan supplied. Never invent a position or
 claim personal experience on his behalf.
 
+Use the shared `sysinit-ste` output style as the baseline. This skill adds document-specific structure without restoring filler or repeated summaries.
+
 The anti-pattern is the *rhetorical* register, not long-form docs as such. A doc can be long, structured, and table-heavy and still be in voice. What puts it out of voice is reaching for effect: aphorisms, named rhetorical devices, and bolded labels doing work that a plain sentence should do. See "What to avoid".
 
 When the prompt supplies no thesis, ask for one or produce an outline that
@@ -74,7 +76,7 @@ When a document asks for a decision, frame each ask as an ownable contract, not 
 *Done when:* <observable that closes it>
 ```
 
-Close with `**Bottom line:**` or a one-line restatement of what must happen. Do not close with a rhetorical flourish.
+End with the required decision or next action when work remains. Stop when the document is complete; do not add a closing summary label.
 
 ## Corrections go in a log, not in the body
 
@@ -98,7 +100,7 @@ sentence, then move on.
 ## Prose mechanics
 
 - Declarative, and compound where the clauses genuinely connect. Join with `so`, `because`, `since`, `whereas`, or `but` when one clause causes or qualifies the next. The enemy is hedging and preamble, not sentence length. Chopping every thought into its own five-word sentence reads as clipped rather than terse, and Roshan has called that out directly.
-- Cut hedges ("I think", "it seems", "perhaps", "arguably").
+- Remove hedges that add no information. Preserve qualifiers for uncertainty, estimates, and unverified claims.
 - Enforcement- and flag-driven framing: "enforce", "gate", "fail closed", "in scope", "count = 0", "defaults to true but is hardcoded off". Concrete mechanism over abstraction.
 - Emphasis via bold and italics on the operative word, not via sentence construction. `**Confirmed directly**`, `*Owner:*`.
 - Backtick every identifier, flag, config key, module name, resource count.
@@ -163,7 +165,7 @@ These are the markers of the polished-RFC voice that is NOT Roshan's. Suppress t
 - THEN use story/subtask items each carrying `Output:`, Acceptance Criteria, Testing/Validation, Notes. Do not collapse to a flat bullet list of activities.
 
 - WHEN asking for a decision
-- THEN frame it as `*Owner:* / *By:* / *Done when:*` and close with `**Bottom line:**`, not with an open question or a flourish.
+- THEN frame it as `*Owner:* / *By:* / *Done when:*` and end with the required decision, without a repeated summary or flourish.
 
 - WHEN a claim has no stated validation
 - THEN either add how it's checked, or name the gap explicitly. Do not leave a bare assertion.

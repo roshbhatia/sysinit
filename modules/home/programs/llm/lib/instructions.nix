@@ -2,6 +2,7 @@
 let
   subagents = import ../subagents { inherit lib; };
   vocab = import ./vocab.nix { inherit lib; };
+  outputStyle = import ./output-style.nix;
 
   renderRule = item: ''
     - ${item.rule} ${item.reason}
@@ -104,7 +105,7 @@ let
     }
     {
       rule = "Distinguish observations, inferences, and unverified claims.";
-      reason = "Report the result with its evidence and limits; never claim a test, deployment, or approval that did not happen.";
+      reason = "Report evidence, material conditions, exceptions, and limits; never claim a test, deployment, or approval that did not happen.";
       bad = "Call a deployment complete because its build passed.";
       good = "State that the build passed and activation remains unverified.";
     }
@@ -170,47 +171,7 @@ let
     in
     vocab.applyVocab harness (base + lib.optionalString (extraSections != [ ]) "\n${extras}");
 
-  outputStyleRules = ''
-    Use Simplified Technical English for chat, reviews, and documents.
-
-    ${renderRules [
-      {
-        rule = "Use active voice, one term per concept, sentences under 25 words, and paragraphs under 7 sentences.";
-        reason = "Short literal text reduces rereading.";
-        bad = "It should be noted that the configuration may potentially be changed by the command.";
-        good = "The command can change the configuration.";
-      }
-      {
-        rule = "Lead with the answer or action, then include only evidence that changes the next step.";
-        reason = "The reader must find the result without reading narration.";
-        bad = "I will inspect the files, run tests, and then share what I find.";
-        good = "The test fails because `config.nix:12` shadows `utils`.";
-      }
-      {
-        rule = "Use the smallest structure that makes the answer clear.";
-        reason = "Extra headings, repeated summaries, filler, and marketing words add noise.";
-        bad = ''
-          ## Result
-
-          - Status: successful
-          - Outcome: all three tests passed
-        '';
-        good = "All 3 tests passed.";
-      }
-      {
-        rule = "Keep complete errors, security findings, destructive-action confirmations, and requested explanations.";
-        reason = "Correctness and user control have priority over brevity.";
-        bad = "The command failed. I omitted the error for brevity.";
-        good = "The command failed with exit 2: `unknown option: --force`.";
-      }
-      {
-        rule = "Load the matching writing skill for commits, code comments, documents, PRs, or prose in the user's name.";
-        reason = "Those formats need rules that do not belong in every request.";
-        bad = "Apply every PR-writing rule to a one-line status answer.";
-        good = "Load `writing-pr-description` only when drafting a PR description.";
-      }
-    ]}
-  '';
+  outputStyleRules = outputStyle.rules;
 
   makeInstructionsWithStyle = args: ''
     ${makeInstructions args}
@@ -220,7 +181,12 @@ let
   '';
 in
 {
-  inherit makeInstructions makeInstructionsWithStyle outputStyleRules;
+  inherit
+    makeInstructions
+    makeInstructionsWithStyle
+    outputStyleRules
+    outputStyle
+    ;
   inherit (subagents) formatSubagentAsMarkdown;
   subagentDefs = builtins.removeAttrs subagents [ "formatSubagentAsMarkdown" ];
 }
