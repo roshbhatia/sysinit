@@ -1,0 +1,17 @@
+diff --git a/crates/nh-darwin/src/darwin.rs b/crates/nh-darwin/src/darwin.rs
+--- a/crates/nh-darwin/src/darwin.rs
++++ b/crates/nh-darwin/src/darwin.rs
+@@ -147 +147,4 @@ impl DarwinRebuildArgs {
++    let out_path = out_path
++      .canonicalize()
++      .wrap_err("Failed to resolve Darwin output path")?;
+     let target_profile = out_path.clone();
+diff --git a/crates/nh-core/src/command.rs b/crates/nh-core/src/command.rs
+--- a/crates/nh-core/src/command.rs
++++ b/crates/nh-core/src/command.rs
+@@ -546 +546 @@ impl Command {
+-    // INFO: Setting HOME to "" for macos
++    // INFO: Set HOME to proper root-owned directory for macos
+@@ -551 +551 @@ impl Command {
+-        .insert("HOME".to_string(), EnvAction::Set(String::new()));
++        .insert("HOME".to_string(), EnvAction::Set("/var/root".to_string()));

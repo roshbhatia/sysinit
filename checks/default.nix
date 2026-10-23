@@ -59,6 +59,7 @@ in
   native-output = import ./native-output.nix { inherit pkgs; };
   pi-extensions = import ./pi-extensions.nix { inherit pkgs; };
   onepassword = import ./onepassword.nix { inherit pkgs; };
+  nh = import ./nh.nix { inherit pkgs; };
   strands = pkgs.strands-cli;
   task-commands = import ./task-commands.nix { inherit pkgs; };
   mail-actions = import ./mail.nix { inherit pkgs; };

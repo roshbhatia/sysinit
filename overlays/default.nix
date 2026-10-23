@@ -31,6 +31,7 @@
   (import ./kubernetes-zeitgeist.nix)
   (import ./gomvp.nix)
   (import ./gh-dash.nix)
+  (import ./nh.nix)
   (import ./mermaid-ascii.nix)
   (import ./pretty-mermaid.nix)
   (import ./hererocks.nix)
