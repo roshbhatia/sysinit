@@ -49,6 +49,24 @@ let
       good = "Fix the affected path and its callers; leave unrelated cleanup for its own task.";
     }
     {
+      rule = "Validate unknown input at its owning boundary; pass validated values inward.";
+      reason = "Do not repeat checks already guaranteed by schemas or types.";
+      bad = "Repeat property-existence checks in every internal function after schema validation.";
+      good = "Validate external input once, then pass the typed result to internal functions.";
+    }
+    {
+      rule = "Extract helpers when they enable reuse, isolate a complex boundary, or name a clear concept that improves readability.";
+      reason = "Do not extract single-use helpers preemptively.";
+      bad = "Split a simple expression into several single-use helpers.";
+      good = "Keep simple logic inline; extract a helper when it gives a complex operation a clear name.";
+    }
+    {
+      rule = "Test the actual implementation; do not reproduce its logic in tests.";
+      reason = "Prefer real components and dependencies when practical.";
+      bad = "Copy a routing algorithm into a test and check the copy.";
+      good = "Call the production router and assert its observable result.";
+    }
+    {
       rule = "Use the repository's Nix shell for dependencies, and edit the Nix source for managed configuration.";
       reason = "Global installs and generated files bypass the declared system.";
       bad = "Install a missing linter globally or edit its store symlink.";
@@ -98,6 +116,9 @@ let
     Take reversible steps within the request, then show the result. Use inspection or a bounded check to resolve factual uncertainty.
     Ask before irreversible or hard-to-reverse effects unless the user already authorized that action and scope.
     Reversibility alone does not authorize unrelated work or external messages.
+
+    Before adding complexity for a speculative or vanishingly unlikely race or security edge case, explain the concrete failure mode, likelihood, and complexity cost to the user and get their buy-in.
+    Do not silently expand scope for theoretical robustness.
 
     Reserve questions for missing decisions that materially change the outcome, including taste and product choices.
     Ask one decision at a time, give a recommendation, and use the harness's question tool when available.
