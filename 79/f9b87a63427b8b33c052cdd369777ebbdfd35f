@@ -1,0 +1,38 @@
+checks/default.nix
+  s_df142d9d9da5a3::t_784b16f619e1f8 266-269
+overlays/fzf.nix
+  s_df142d9d9da5a3::t_15a990be636172 1-12
+modules/home/programs/nushell/lib.nix
+  s_df142d9d9da5a3::t_aac30c3821f04e 7-8
+  s_df142d9d9da5a3::t_784b16f619e1f8 9-12
+modules/home/programs/nushell/default.nix
+  s_df142d9d9da5a3::t_784b16f619e1f8 110
+modules/home/programs/nushell/completers.nu.tmpl
+  s_df142d9d9da5a3::t_15a990be636172 62-63
+overlays/default.nix
+  s_df142d9d9da5a3::t_15a990be636172 43
+checks/nushell-completions.nix
+  s_df142d9d9da5a3::t_beccd8c1ae67cd 55-58
+  s_df142d9d9da5a3::t_aac30c3821f04e 42-54,59-64
+  s_df142d9d9da5a3::t_784b16f619e1f8 1-19,21,25-28,32,39-41
+  s_df142d9d9da5a3::t_97dd9c0d840c34 20,23-24,29-31,33-38
+  s_df142d9d9da5a3::t_9fa0c06dd563fb 22
+flake.nix
+  s_df142d9d9da5a3::t_665b10b680f625 342
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "79f9b87a63427b8b33c052cdd369777ebbdfd35f",
+  "prompts": {},
+  "sessions": {
+    "s_df142d9d9da5a3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a16643-3c4e-7a42-bf10-32b8d3ca1f79",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
