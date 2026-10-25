@@ -32,6 +32,7 @@
     label = "Claude Code";
     module = ./claude;
     context = "~/.claude/CLAUDE.md";
+    contextStyle = "~/.claude/output-styles/${(import ../lib/output-style.nix).name}.md";
     skillLoader = true;
     ownIcon = true;
     notify = "hook";
@@ -58,7 +59,7 @@
     };
     label = "Codex";
     module = ./codex.nix;
-    context = "codex `context`";
+    context = "~/.codex/AGENTS.md";
     skillLoader = false;
     ownIcon = true;
     notify = "hook";
@@ -317,7 +318,11 @@
     };
     label = "Strands";
     module = ./strands.nix;
-    context = "~/.strands/cli/config.json profile.instructions";
+    context = "~/.strands/cli/config.json";
+    contextKey = [
+      "profile"
+      "instructions"
+    ];
     skillLoader = true;
     ownIcon = false;
     notify = "scrape";

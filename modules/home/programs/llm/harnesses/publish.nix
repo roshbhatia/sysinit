@@ -25,9 +25,17 @@ let
         ;
     }
     // {
+      contextKey = h.contextKey or [ ];
+      contextStyle = h.contextStyle or null;
       deck = deck.${name};
       launch = h.launch or { };
     }
+  ) registry;
+  instructionRows = lib.mapAttrsToList (
+    _name: h:
+    "| ${h.label} | `${h.context}`"
+    + lib.optionalString ((h.contextKey or [ ]) != [ ]) " at `${lib.concatStringsSep "." h.contextKey}`"
+    + " | ${if h ? contextStyle then "`${h.contextStyle}`" else "Included in instructions"} |"
   ) registry;
 in
 {
@@ -64,4 +72,18 @@ in
     version = 2;
     agents = lib.sort (a: b: a.name < b.name) agents;
   };
+
+  xdg.configFile."sysinit/instructions.md".text = ''
+    # Agent instruction locations
+
+    Shared working rules: `modules/home/programs/llm/lib/instructions.nix`.
+    Shared output style: `modules/home/programs/llm/lib/output-style.nix`.
+    Edit these Nix sources in sysinit; activation generates the harness files below.
+    Claude loads its output style separately. Other harnesses receive it in their instructions.
+    This table is generated from the harness registry.
+
+    | Harness | Instructions | Output style |
+    | --- | --- | --- |
+    ${lib.concatStringsSep "\n" instructionRows}
+  '';
 }
