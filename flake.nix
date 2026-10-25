@@ -339,6 +339,7 @@
             "pretty-mermaid"
             "pi-coding-agent"
             "crush"
+            "fzf"
             "contextive"
             "codex"
             "opencode"

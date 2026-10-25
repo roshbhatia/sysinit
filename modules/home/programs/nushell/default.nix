@@ -10,8 +10,6 @@ let
   nushellLib = import ./lib.nix { inherit lib; };
 
   pathsList = paths_lib.getAllPaths config.home.username config.home.homeDirectory;
-  carapaceBin = "${pkgs.carapace}/bin/carapace";
-  fishBin = "${pkgs.fish}/bin/fish";
 
   sessionVarsRaw = builtins.mapAttrs (_name: toString) config.home.sessionVariables;
 
@@ -109,19 +107,7 @@ let
       (builtins.readFile ./functions.nu)
   );
 
-  completersConfig =
-    builtins.replaceStrings
-      [
-        "@timeout@"
-        "@fish@"
-        "@carapace@"
-      ]
-      [
-        "${pkgs.coreutils}/bin/timeout"
-        fishBin
-        carapaceBin
-      ]
-      (builtins.readFile ./completers.nu.tmpl);
+  completersConfig = nushellLib.completers pkgs;
 in
 {
   assertions = [

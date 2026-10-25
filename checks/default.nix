@@ -263,6 +263,10 @@ in
     inherit pkgs;
     inherit (pkgs) lib;
   };
+  nushell-completions = import ./nushell-completions.nix {
+    inherit pkgs;
+    inherit (pkgs) lib;
+  };
   nushell-plugin-registration = pkgs.runCommand "nushell-plugin-registration" { } ''
     export HOME="$TMPDIR/home"
     export XDG_CONFIG_HOME="$HOME/.config"

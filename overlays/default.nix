@@ -40,6 +40,7 @@
   (import ./amp-cli.nix)
   (import ./crush.nix)
   (import ./fx.nix)
+  (import ./fzf.nix)
   (import ./contextive.nix)
   (import ./ioskeleyMono.nix)
   (import ./wumpusMono.nix)

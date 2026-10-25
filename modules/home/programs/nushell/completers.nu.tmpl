@@ -59,7 +59,8 @@ let carapace_completer = {|spans: list<string>|
   try { $result.stdout | from json } catch { null }
 }
 
-let external_completer = {|spans: list<string>|
+let external_completer = {|place: record|
+  let spans = $place.command
   let expanded_alias = (
     scope aliases
     | where name == $spans.0
