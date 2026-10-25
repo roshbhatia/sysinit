@@ -13,6 +13,7 @@ in
 {
   programs.fzf = {
     enable = true;
+    package = pkgs.fzf-nushell;
     enableFishIntegration = true;
     enableZshIntegration = false;
 

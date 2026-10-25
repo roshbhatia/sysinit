@@ -266,6 +266,7 @@ in
   nushell-completions = import ./nushell-completions.nix {
     inherit pkgs;
     inherit (pkgs) lib;
+    fzf = homeConfigurations.${"dev-" + pkgs.stdenv.hostPlatform.system}.config.programs.fzf.package;
   };
   nushell-plugin-registration = pkgs.runCommand "nushell-plugin-registration" { } ''
     export HOME="$TMPDIR/home"

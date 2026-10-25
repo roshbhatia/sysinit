@@ -1,5 +1,5 @@
 _final: prev: {
-  fzf = prev.fzf.overrideAttrs (old: {
+  fzf-nushell = prev.fzf.overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ [
       # Backport #4934 until an fzf release supports Nushell 0.116 completion.
       (prev.fetchpatch {

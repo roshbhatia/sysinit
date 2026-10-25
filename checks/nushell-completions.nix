@@ -1,4 +1,8 @@
-{ lib, pkgs }:
+{
+  lib,
+  pkgs,
+  fzf,
+}:
 let
   nushellLib = import ../modules/home/programs/nushell/lib.nix { inherit lib; };
   config = pkgs.writeText "completion-check-config.nu" ''
@@ -17,7 +21,7 @@ let
     if not ($path | any {|value| $value | str contains 'completion-target.txt'}) {
       error make {msg: $"path fallback failed: ($path)"}
     }
-    source ${pkgs.fzf}/share/fzf/completion.nu
+    source ${fzf}/share/fzf/completion.nu
     $env.FZF_DEFAULT_OPTS = '--filter=completion-target.txt'
     $env.FZF_COMPLETERS = {cat: {|prefix, spans| glob 'completion-*.txt'}}
     let fuzzy_place = ('cat **' | commandline complete --input | get place)
@@ -25,7 +29,7 @@ let
     if not ($fuzzy | any {|value| $value | str contains 'completion-target.txt'}) {
       error make {msg: $"fzf completion failed: ($fuzzy)"}
     }
-    source ${pkgs.fzf}/share/fzf/completion.nu
+    source ${fzf}/share/fzf/completion.nu
     let git_place = ('git --ver' | commandline complete --input | get place)
     let repeated = (do $env.config.completions.external.completer $git_place)
     if not ($repeated | any {|item| $item.value == '--version'}) {
@@ -43,7 +47,7 @@ pkgs.runCommand "nushell-completions"
   {
     nativeBuildInputs = [
       pkgs.nushell
-      pkgs.fzf
+      fzf
       pkgs.git
     ];
   }
