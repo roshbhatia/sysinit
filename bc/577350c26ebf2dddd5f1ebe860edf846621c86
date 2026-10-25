@@ -1,0 +1,25 @@
+modules/home/programs/llm/harnesses/registry.nix
+  s_df142d9d9da5a3::t_15a990be636172 35,62,321-325
+checks/harness-instructions.nix
+  s_df142d9d9da5a3::t_f639b8efefca06 54-59,74-75,86
+  s_df142d9d9da5a3::t_aac30c3821f04e 24-25,27-29,36-42,44-50
+  s_df142d9d9da5a3::t_1c56d334669d9d 8-10,23,26,30-35,43,51-53,68-73,76-85,87-90
+modules/home/programs/llm/harnesses/publish.nix
+  s_df142d9d9da5a3::t_15a990be636172 28-29,34-39,75-88
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "bc577350c26ebf2dddd5f1ebe860edf846621c86",
+  "prompts": {},
+  "sessions": {
+    "s_df142d9d9da5a3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a16643-3c4e-7a42-bf10-32b8d3ca1f79",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
