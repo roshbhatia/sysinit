@@ -1,0 +1,28 @@
+flake.nix
+  s_df142d9d9da5a3::t_92159349da7629 342
+overlays/fzf.nix
+  s_df142d9d9da5a3::t_92159349da7629 2
+checks/nushell-completions.nix
+  s_df142d9d9da5a3::t_3ce3bcad45b806 24,32,50
+  s_df142d9d9da5a3::t_0ea405ed6b398f 1-5
+modules/home/programs/fzf.nix
+  s_df142d9d9da5a3::t_92159349da7629 16
+checks/default.nix
+  s_df142d9d9da5a3::t_92159349da7629 269
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "335f4991f27894b6f57ed13f1531bc19b94b38f4",
+  "prompts": {},
+  "sessions": {
+    "s_df142d9d9da5a3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a16643-3c4e-7a42-bf10-32b8d3ca1f79",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
