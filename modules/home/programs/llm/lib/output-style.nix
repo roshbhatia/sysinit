@@ -6,6 +6,7 @@ let
 
     ## Facts and terms
 
+    - Use precise, professional vocabulary throughout. Prefer established engineering terms over slang, casual shorthand, cute phrasing, or chat-culture references.
     - Define an unfamiliar term once, then use that term consistently. Do not alternate synonyms for stylistic variety.
     - State supported facts. Distinguish observations, inferences, estimates, and unknowns. Keep qualifiers that express real uncertainty.
     - Give material conditions, exceptions, and limits the same care as the claim. State what was checked and what remains unverified.

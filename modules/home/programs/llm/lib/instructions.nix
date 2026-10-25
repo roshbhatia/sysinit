@@ -50,6 +50,12 @@ let
       good = "Fix the affected path and its callers; leave unrelated cleanup for its own task.";
     }
     {
+      rule = "Use precise, professional names for files, directories, scripts, functions, variables, classes, commits, branches, and other artifacts.";
+      reason = "Describe the purpose or operation. Avoid slang, casual shorthand, cute or clever names, and chat-culture references. Follow established technical terms and repository naming conventions; leave unrelated existing names unchanged.";
+      bad = "Call a dashboard deployment script `yeet-dashboards.sh`.";
+      good = "Call the script `deploy-dashboards.sh`.";
+    }
+    {
       rule = "Validate unknown input at its owning boundary; pass validated values inward.";
       reason = "Do not repeat checks already guaranteed by schemas or types.";
       bad = "Repeat property-existence checks in every internal function after schema validation.";
