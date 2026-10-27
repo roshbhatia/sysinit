@@ -11,6 +11,7 @@ import time
 
 def main():
     ai, gate, provider = map(os.path.abspath, sys.argv[1:4])
+    attribution, storage = map(os.path.abspath, sys.argv[4:6])
     git = shutil.which("git")
     with tempfile.TemporaryDirectory(prefix="gitai-", dir="/tmp") as temporary:
         root = pathlib.Path(temporary)
@@ -267,6 +268,68 @@ def main():
                     "jsonl",
                 ).stdout
                 assert "Native attribution fixture" in traced, traced
+                nu = f"use {json.dumps(attribution)} *; use {json.dumps(storage)} *; "
+                summary = json.loads(
+                    run(
+                        "nu",
+                        "--no-config-file",
+                        "-c",
+                        nu + "attribution stats | to json --raw",
+                    ).stdout
+                )
+                assert summary["ai_additions"] == 1, summary
+                sessions = json.loads(
+                    run(
+                        "nu",
+                        "--no-config-file",
+                        "-c",
+                        nu + "attribution sessions --commit HEAD | to json --raw",
+                    ).stdout
+                )
+                assert sessions == ["native-codex-test"], sessions
+                state = json.loads(
+                    run(
+                        "nu",
+                        "--no-config-file",
+                        "-c",
+                        nu
+                        + "attribution status | select repository_status | to json --raw",
+                    ).stdout
+                )
+                assert state["repository_status"]["last_error"] is None, state
+                sizes = json.loads(
+                    run(
+                        "nu",
+                        "--no-config-file",
+                        "-c",
+                        nu + "storage usage . --depth 0 | to json --raw",
+                    ).stdout
+                )
+                assert len(sizes) == 1 and sizes[0]["allocated"] > 0, sizes
+                failed = run(
+                    "nu",
+                    "--no-config-file",
+                    "-c",
+                    nu + "attribution stats missing-revision",
+                    check=False,
+                )
+                assert failed.returncode != 0, failed
+                failed = run(
+                    "nu",
+                    "--no-config-file",
+                    "-c",
+                    nu + "storage usage missing-directory",
+                    check=False,
+                )
+                assert failed.returncode != 0, failed
+                failed = run(
+                    "nu",
+                    "--no-config-file",
+                    "-c",
+                    nu + "attribution notes --commit HEAD --staged",
+                    check=False,
+                )
+                assert failed.returncode != 0, failed
                 bad = {"requestId": "bad", "input": {"event": {"harness": "codex"}}}
                 failed = run(gate, "serve", data=json.dumps(bad), check=False)
                 assert (

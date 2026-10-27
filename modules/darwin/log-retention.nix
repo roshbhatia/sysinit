@@ -19,6 +19,7 @@ let
     /tmp/otel-collector.log /tmp/otel-collector.error.log
     /tmp/clamshell-thunderbolt.log /tmp/clamshell-thunderbolt.error.log
     /tmp/sketchybar-reload.log /tmp/sketchybar-reload.error.log
+    ${userHome}/Library/Logs/git-ai.log ${userHome}/Library/Logs/git-ai.error.log
   '';
 in
 {

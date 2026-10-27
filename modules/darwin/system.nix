@@ -30,6 +30,7 @@ in
     max-jobs = 2;
     cores = 6;
     connect-timeout = 10;
+    auto-optimise-store = true;
 
     builders = "ssh-ng://nix-builder@arrakis.stork-eel.ts.net x86_64-linux /var/root/.ssh/sysinit-builder 8 2 nixos-test,benchmark,big-parallel,kvm - -";
     builders-use-substitutes = true;
@@ -58,12 +59,9 @@ in
       "1"
     ];
     ProcessType = "Background";
+    # Watching the system symlinks pins old closures through UserEventAgent.
     RunAtLoad = true;
     StartInterval = 300;
-    WatchPaths = [
-      "/nix/var/nix/profiles/system"
-      "/run/current-system"
-    ];
   };
 
   networking.hostName = lib.mkDefault hostname;

@@ -119,6 +119,8 @@ assertions without building host closures that exceed hosted runner storage.
 
 `sy`, `openspec`, and `specutil` are machine-wide. Their own skills carry the
 subcommands: `feature-based-session-manager`, `openspec-workflow`, `specutil`.
+Nushell's `storage` and `attribution` subcommands return structured diagnostics;
+see [docs/storage.md](docs/storage.md) for usage and retention boundaries.
 
 ## Gotchas
 
@@ -158,6 +160,9 @@ subcommands: `feature-based-session-manager`, `openspec-workflow`, `specutil`.
   session start.
   A `path:` flake reference includes these ignored diagnostics. Use a local
   `git+file://` reference for checkout overrides to keep them out of the store.
+  Build-result symlinks are GC roots. Reuse the task's output link, then remove
+  temporary check/package roots after verification. Keep the deployment rooted
+  through activation; do not age out another task's prepared deployment.
 - `~/.config/git/ignore` already excludes `**/.claude/` and `**/.agents/`. Do
   not repeat those in a per-project `.gitignore`.
 - This machine's `spec-driven` is a local override. It installs to

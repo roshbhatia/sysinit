@@ -32,6 +32,13 @@ let
     docker.builder.gc = {
       enabled = true;
       defaultKeepStorage = "4GB";
+      policy = [
+        {
+          reservedSpace = "1GB";
+          maxUsedSpace = "4GB";
+          all = true;
+        }
+      ];
     };
     provision = [
       {

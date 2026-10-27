@@ -24,11 +24,13 @@ type policy struct {
 }
 
 type result struct {
-	Name   string `json:"name"`
-	Before int64  `json:"before_bytes"`
-	After  int64  `json:"after_bytes"`
-	Status string `json:"status"`
-	Error  string `json:"error,omitempty"`
+	Name      string `json:"name"`
+	Directory string `json:"directory"`
+	MaxBytes  int64  `json:"max_bytes"`
+	Before    int64  `json:"before_bytes"`
+	After     int64  `json:"after_bytes"`
+	Status    string `json:"status"`
+	Error     string `json:"error,omitempty"`
 }
 
 type boundedOutput struct {
@@ -103,7 +105,7 @@ func execute(p policy) error {
 }
 
 func maintain(p policy, apply bool, run func(policy) error) result {
-	r := result{Name: p.Name, Status: "error"}
+	r := result{Name: p.Name, Directory: p.Directory, MaxBytes: p.MaxBytes, Status: "error"}
 	if p.Name == "" || !filepath.IsAbs(p.Directory) || p.MaxBytes <= 0 || len(p.Command) == 0 || !filepath.IsAbs(p.Command[0]) {
 		r.Error = "invalid cache policy"
 		return r

@@ -20,12 +20,17 @@ let
       exec ${pkgs.python3}/bin/python3 ${./changes-provider.py} "$@"
     '';
   };
+  maintenance = pkgs.writeShellApplication {
+    name = "git-ai-maintain";
+    text = ''exec ${pkgs.python3}/bin/python3 ${./maintain-metrics.py} "$@"'';
+  };
   yamlFormat = pkgs.formats.yaml { };
 in
 {
   home.packages = [
     pkgs.git-ai
     provider
+    maintenance
   ];
 
   xdg.configFile."changes/providers/git-ai/provider.yaml".source =
@@ -65,13 +70,45 @@ in
     };
   };
 
-  systemd.user.services.git-ai = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
-    Unit.Description = "Git AI attribution daemon";
-    Service = {
-      ExecStart = lib.escapeShellArgs command;
-      Restart = "always";
-      RestartSec = 10;
+  launchd.agents.git-ai-maintenance = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
+    enable = true;
+    config = {
+      ProgramArguments = [
+        "${maintenance}/bin/git-ai-maintain"
+        "--apply"
+      ];
+      RunAtLoad = true;
+      StartInterval = 3600;
+      ProcessType = "Background";
+      LowPriorityIO = true;
     };
-    Install.WantedBy = [ "default.target" ];
+  };
+
+  systemd.user = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
+    services = {
+      git-ai = {
+        Unit.Description = "Git AI attribution daemon";
+        Service = {
+          ExecStart = lib.escapeShellArgs command;
+          Restart = "always";
+          RestartSec = 10;
+        };
+        Install.WantedBy = [ "default.target" ];
+      };
+      git-ai-maintenance = {
+        Unit.Description = "Bound duplicated Git AI session metrics";
+        Service = {
+          Type = "oneshot";
+          ExecStart = "${maintenance}/bin/git-ai-maintain --apply";
+        };
+      };
+    };
+    timers.git-ai-maintenance = {
+      Timer = {
+        OnStartupSec = "5m";
+        OnUnitInactiveSec = "1h";
+      };
+      Install.WantedBy = [ "timers.target" ];
+    };
   };
 }

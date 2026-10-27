@@ -85,11 +85,21 @@ in
           pkgs.changes
           pkgs.traces
           pkgs.traces-providers
+          pkgs.git-ai
+          pkgs.nushell
+          pkgs.coreutils
         ];
       }
       ''
         python3 ${./git-ai-integration.py} ${pkgs.git-ai}/bin/git-ai ${pkgs.git-ai-gate}/bin/git-ai-gate \
-          ${../modules/home/programs/git-ai/changes-provider.py}
+          ${../modules/home/programs/git-ai/changes-provider.py} \
+          ${../modules/home/programs/nushell/attribution.nu} ${../modules/home/programs/nushell/storage.nu}
+        touch "$out"
+      '';
+  git-ai-maintenance =
+    pkgs.runCommand "git-ai-maintenance" { nativeBuildInputs = [ pkgs.python3 ]; }
+      ''
+        python3 ${./git-ai-maintenance.py} ${../modules/home/programs/git-ai/maintain-metrics.py}
         touch "$out"
       '';
   task-queue = import ./task-queue.nix { inherit pkgs; };

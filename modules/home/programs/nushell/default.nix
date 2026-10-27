@@ -231,6 +231,8 @@ in
 
         use ${functionsFile} *
         use ${./onepassword.nu} *
+        use ${./storage.nu} *
+        use ${./attribution.nu} *
 
         ${lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
           alias nu-open = open
