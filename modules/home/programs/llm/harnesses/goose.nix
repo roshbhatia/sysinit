@@ -114,7 +114,7 @@ let
     GOOSE_CLI_THEME = "ansi";
     GOOSE_SEARCH_PATHS = llmLib.commandPath.entriesFor pkgs.stdenv.hostPlatform.isDarwin "${config.home.profileDirectory}/bin";
     GOOSE_MODE = "auto";
-    active_provider = "claude-acp";
+    active_provider = "codex-acp";
 
     providers = llmLib.acp.gooseProviders // {
       ollama = {
