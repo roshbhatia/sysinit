@@ -378,6 +378,7 @@
             "amp-cli"
             "amp-acp"
             "acp-amp"
+            "conductor-cli"
             "git-ai-gate"
             "agent-notes"
             "seshy-picker"
@@ -472,6 +473,7 @@
               pkgs.treefmt
               pkgs.ruff
               pkgs.python3
+              pkgs.uv
               pkgs.nufmt
               pkgs.actionlint
               pkgs.clang

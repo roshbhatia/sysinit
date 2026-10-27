@@ -125,6 +125,7 @@ in
         claude-agent-acp
         codex-acp
         copilot-language-server
+        conductor-cli
         lsp-ai
         openspec
         traces

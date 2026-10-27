@@ -56,6 +56,7 @@ let
 in
 {
   pi = pkgs.pi-coding-agent;
+  conductor = pkgs.conductor-cli;
   native-output = import ./native-output.nix { inherit pkgs; };
   pi-extensions = import ./pi-extensions.nix { inherit pkgs; };
   onepassword = import ./onepassword.nix { inherit pkgs; };

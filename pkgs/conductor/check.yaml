@@ -1,0 +1,15 @@
+workflow:
+  name: sysinit-conductor-check
+  version: "1.0.0"
+  entry_point: emit_result
+
+agents:
+  - name: emit_result
+    type: script
+    command: printf
+    args: ["%s", "conductor-ready"]
+    routes:
+      - to: $end
+
+output:
+  message: "{{ emit_result.output.stdout }}"
