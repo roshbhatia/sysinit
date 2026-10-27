@@ -131,6 +131,7 @@ in
   programs = {
     nushell = {
       enable = true;
+      loadSessionVariables = false;
       plugins = [ pkgs.nu-plugin-nuvim ];
 
       extraEnv = "# Environment values are generated in config.nu.\n";

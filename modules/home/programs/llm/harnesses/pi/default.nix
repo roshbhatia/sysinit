@@ -261,16 +261,16 @@ let
 
   piAcp = pkgs.buildNpmPackage {
     pname = "pi-acp";
-    version = "0.0.26";
+    version = "0.0.34";
     src = fetchNpmPkg {
       name = "pi-acp";
-      version = "0.0.26";
-      hash = "sha256-37n4i+JY8I63xdXIL+BCFPohWYgugeW4ASB06y/+tjI=";
+      version = "0.0.34";
+      hash = "sha256-efytfQsLFGDLw6Jony7fHLkRq0GHbmSvOVLBSPlzoAY=";
     };
     postPatch = ''
       cp ${./locks/pi-acp.lock.json} package-lock.json
     '';
-    npmDepsHash = "sha256-IChKY574YL+/YeJben7ZrIsa0Y3ZPWDPDhEVNMwGDr4=";
+    npmDepsHash = "sha256-wWqtoxvfUr5AiSvChZnTdRnwa/SNKWfQ6y/P6VfpPK0=";
     npmFlags = "--ignore-scripts";
     dontNpmBuild = true;
   };

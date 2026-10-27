@@ -73,17 +73,17 @@
         "provider-spec": "provider-spec"
       },
       "locked": {
-        "lastModified": 1792688498,
-        "narHash": "sha256-3nSDLeHo92SgkZCGEBrP+c1ifTIzbUL4QPDV1dyjK2E=",
+        "lastModified": 1792704972,
+        "narHash": "sha256-QUFsYCFYsySzTWKrlB5QVyvvQc+3N7UOE1oT0c932W4=",
         "owner": "roshbhatia",
         "repo": "ask",
-        "rev": "2582ef55fd529976afd44e306026ea1a7257a98d",
+        "rev": "49715c4d3ebfe75c04870e842149d2890a2a9d49",
         "type": "github"
       },
       "original": {
         "owner": "roshbhatia",
         "repo": "ask",
-        "rev": "2582ef55fd529976afd44e306026ea1a7257a98d",
+        "rev": "49715c4d3ebfe75c04870e842149d2890a2a9d49",
         "type": "github"
       }
     },
@@ -337,11 +337,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792667976,
-        "narHash": "sha256-qlW9xfM0TFDIU6wGTXfTZ2xSgvgOlV89YHdvfjQ+e0Q=",
+        "lastModified": 1792711136,
+        "narHash": "sha256-oOLdhjuKdtHwpdQEwAARsmt+r22ttjBNvVjhDlwleNk=",
         "owner": "nix-darwin",
         "repo": "nix-darwin",
-        "rev": "38cf0abb072c30fff68da0e3f516fc8a7cfb8fc0",
+        "rev": "1d92c5612cdc32ca0848995162e74a9c85343455",
         "type": "github"
       },
       "original": {
@@ -1100,11 +1100,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792702540,
-        "narHash": "sha256-aXi5CCaR2nGbpkJd6qZdlqZio8ROAFAjyhl2RPXSVFU=",
+        "lastModified": 1792724174,
+        "narHash": "sha256-qfQ08wb55r7m+7+nkVMgLbyjr6aRhgN3ztehw5f2Dxo=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "5e61a2455f2b2150dae25cd1c753ffcd0e6b7cbf",
+        "rev": "526244d81f67a6fcd585a00591cd7f837ebb1b2b",
         "type": "github"
       },
       "original": {
@@ -1685,11 +1685,11 @@
         "worker": "worker"
       },
       "locked": {
-        "lastModified": 1792718218,
-        "narHash": "sha256-LLhqEHmLZtfWpINm74vf5Wh9gRhezlQhckNauk4Q21w=",
+        "lastModified": 1792971910,
+        "narHash": "sha256-4GLu91q3mJn8+Py31AcnDDRj4RVnjYgiWmdhtyFC9K8=",
         "owner": "roshbhatia",
         "repo": "sysinit",
-        "rev": "8a372c8ce12446dcd2ccd60820a95e6b3fe7f4a7",
+        "rev": "335f4991f27894b6f57ed13f1531bc19b94b38f4",
         "type": "github"
       },
       "original": {

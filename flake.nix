@@ -65,7 +65,7 @@
     };
 
     ask = {
-      url = "github:roshbhatia/ask/49715c4d3ebfe75c04870e842149d2890a2a9d49";
+      url = "github:roshbhatia/ask/0c4c92155995bd6e334e755e21d4e0981ebe5caa";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -165,7 +165,7 @@
     };
 
     slk = {
-      url = "github:gammons/slk/v0.27.0";
+      url = "github:gammons/slk/v0.29.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -495,6 +495,8 @@
               pkgs.cue
               pkgs.taplo
               pkgs.typescript
+              pkgs.nodejs_24
+              pkgs.prefetch-npm-deps
               pkgs.eslint
               pkgs.prettier
               pkgs.yamllint

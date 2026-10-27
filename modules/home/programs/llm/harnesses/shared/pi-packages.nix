@@ -60,11 +60,11 @@ let
 
   packages = {
     context =
-      mkFetchedNpmPackage "pi-context" "1.1.4"
-        "sha256-pdRI1D2KIOJVV164DKpzXAQneOOEypB2GXqFzGRvasc=";
+      mkFetchedNpmPackage "pi-context" "2.3.0"
+        "sha256-jhzTPMVHFoVQfXghRq1ap/8Z+iNoYyH2tnAzuO1Ev/g=";
     subagents =
-      (mkBuiltNpmPackage "pi-subagents" "0.74.0" "sha256-NCTn+mi7wnmF0rLhfSX4GtQ+8Rp96gHuIn1spSpb4ns="
-        "sha256-snXEIjTT4cyH+8JD4O5QyA4xjTPOoD8HJMuGis+mfxM="
+      (mkBuiltNpmPackage "pi-subagents" "0.83.0" "sha256-3eQP8L6QoYPrTjlH3e7lyr5+xVNJudfXRdUJH4UgUvs="
+        "sha256-4nLUfr9DMGk7z8tJmwN5NLOX2tEF7h0KNlShabGgtKI="
         ./locks/pi-subagents.lock.json
       ).overrideAttrs
         {
@@ -83,11 +83,11 @@ let
       mkFetchedNpmPackage "pi-librarian" "1.3.7"
         "sha256-Obn+DyQD1WCptZO5t0YgUOdpGULNYfPxUA7NeGT7GfQ=";
     askUser =
-      mkFetchedNpmPackage "pi-ask-user" "0.11.0"
-        "sha256-R1TN2GWrwv3UhlAC0Ym1nMZABi/IrLxtD6EYxbDEfm8=";
+      mkFetchedNpmPackage "pi-ask-user" "0.17.0"
+        "sha256-VVdGQq9YARn3t971kMFtbXF+azP/mMsX8rqGq4lsLDA=";
     toolDisplay =
-      mkFetchedNpmPackage "pi-tool-display" "0.3.6"
-        "sha256-6ykaEl8IlwH667YQ+CBO/I/0rTDlIues4fYZDKJg2JE=";
+      mkFetchedNpmPackage "pi-tool-display" "0.5.0"
+        "sha256-HP4Hb57+0BoVv4YJ4TjW7tzEXgvR3SZaVSE6lWmmSFg=";
     subdirContext =
       mkFetchedNpmPackage "pi-subdir-context" "1.1.7"
         "sha256-nPHuANl4j5Ank2ccLUQFLxRIxTPJCLF3G73NpU8xHnI=";
@@ -95,16 +95,16 @@ let
     webAccess = pkgs.buildNpmPackage {
       pname = "pi-web-access";
       passthru.npmName = "pi-web-access";
-      version = "0.13.0";
+      version = "0.45.0";
       src = fetchNpmPkg {
         name = "pi-web-access";
-        version = "0.13.0";
-        hash = "sha256-6d/cX9OYHIxZ81fJgEu4L7DzMF/o63AL2/n/3zHs0DU=";
+        version = "0.45.0";
+        hash = "sha256-Z1T4u1Qb1cnNC3ieVsp+AHEdYQH+/udtaT4dLueSw1I=";
       };
       postPatch = ''
         cp ${./locks/pi-web-access.lock.json} package-lock.json
       '';
-      npmDepsHash = "sha256-8onTvv7nUrTXMGvwkMkPEYc+mtpxolzF6Z9EuuB9pbs=";
+      npmDepsHash = "sha256-XO5eW0ilnlkC7CIAD9lU3a+0pRuhUaeGVzDrHUyzSUE=";
       npmFlags = [
         "--ignore-scripts"
         "--legacy-peer-deps"
@@ -117,54 +117,61 @@ let
       '';
     };
 
-    btw = mkFetchedNpmPackage "pi-btw" "0.4.0" "sha256-8iAnayDUtK/BGl0ldJ9klOpItdCyV8qniSO+pXGslNo=";
+    btw = mkFetchedNpmPackage "pi-btw" "0.8.0" "sha256-rY16r38X528qPOrFq7Xtca8jn/RZuB1KjJJCYMNkL9w=";
 
     piRetry =
-      mkFetchedNpmPackage "@narumitw/pi-retry" "0.22.0"
-        "sha256-TwMvcJLe4ldgRw8k6/bsQpJbkePKYww20CqZVQfvsAc=";
+      mkFetchedNpmPackage "@narumitw/pi-retry" "0.31.0"
+        "sha256-ZsuEnt7D7chVVNqZmMkwglkbIVe67BbcVS9I3iaNuaI=";
 
     piVcc =
-      mkFetchedNpmPackage "@monotykamary/pi-vcc" "0.8.1"
-        "sha256-hsk/cwirBtfYK77aMoCoFncYhMsCff+HyBnpZD0GJKU=";
+      mkFetchedNpmPackage "@monotykamary/pi-vcc" "0.8.15"
+        "sha256-Vc+SM+EtSRy4sSzmQKWi1rmHXRtLKJ3spEyWH/W62yQ=";
 
     piPermissionSystem =
-      mkBuiltNpmPackage "@gotgenes/pi-permission-system" "5.14.1"
-        "sha256-/qNC6erD+Rl12JpLlFwe2N2PgaekpfMHHprnKozN1rk="
-        "sha256-Dvu/wuGdwjBQsJCU0N8oI+a1EysJpHFkwLwUpgjJfso="
-        ./locks/pi-permission-system.lock.json;
+      (mkBuiltNpmPackage "@gotgenes/pi-permission-system" "41.0.0"
+        "sha256-JzkkxWi/fsoLRuVYYpG3MBB7JWCUwOvOow8uJs9jDDg="
+        "sha256-hmXxECmgpzQuSCaiQSOP1NTFu2gV1A2dLiVc9A7OZSY="
+        ./locks/pi-permission-system.lock.json
+      ).overrideAttrs
+        {
+          npmFlags = [
+            "--ignore-scripts"
+            "--omit=dev"
+          ];
+        };
 
     openaiFast =
-      mkFetchedNpmPackage "@benvargas/pi-openai-fast" "1.0.2"
-        "sha256-cUY9RGofE+zMlB1qcgkM55KJhEiVHnan9bWSXtvpQ4E=";
+      mkFetchedNpmPackage "@benvargas/pi-openai-fast" "1.1.2"
+        "sha256-aRywGZq0Ml7vtBFn8YoCNevmDZgJ2TRZpNwRwPtDWlE=";
 
     openaiVerbosity =
-      mkFetchedNpmPackage "@benvargas/pi-openai-verbosity" "1.0.0"
-        "sha256-FXjeNW4UVe5PwNjjr2pL6DrLcYkdNtr7yP4jTzQvyPw=";
+      mkFetchedNpmPackage "@benvargas/pi-openai-verbosity" "1.2.0"
+        "sha256-S5bqq5L6rr08OQ3S8UMru8uagRmMhEWYs1Emwaa5r/o=";
 
     plannotator =
-      mkBuiltNpmPackage "@plannotator/pi-extension" "0.19.14"
-        "sha256-kyiItKnuYMxp43+5wlC6BUDftp+mTxXG7PB3aEq9Qbg="
-        "sha256-oiiZsd1UG1nIa7xhnOcUKpyr2J2qWbghXildxE036Ok="
+      mkBuiltNpmPackage "@plannotator/pi-extension" "0.28.33"
+        "sha256-paPZE4pg4vYRkeONzVgH1Jq685QgZN5cxqRxT5q8Lio="
+        "sha256-XYD4Rf+dPryeoi2LkTuRQCHLZJaLPEFzEeNf3s+z/o0="
         ./locks/plannotator.lock.json;
 
     piReverseLast =
-      mkBuiltNpmPackage "@firstpick/pi-extension-reverse-last" "0.1.4"
-        "sha256-+NtvjE1W8roNwgR55hzzcJWM4xhSqtk9mKDEWCoEUUE="
-        "sha256-k0e9qvB9tvt6qstrYnoH7tyOoB5qRwStzE+cBdRm7CQ="
+      mkBuiltNpmPackage "@firstpick/pi-extension-reverse-last" "0.2.2"
+        "sha256-HHfLaCw2UCRkDRGK19tJlojiROXxx49vF1Kf5Cn/BYM="
+        "sha256-FGPkUpAyfzD9VKfKgbepUUtVJbILiByEWiLfojh21PI="
         ./locks/pi-reverse-last.lock.json;
 
     diff = pkgs.buildNpmPackage {
       pname = "pi-diff";
       passthru.npmName = "@heyhuynhgiabuu/pi-diff";
-      version = "0.3.0";
+      version = "0.9.3";
       src = pkgs.fetchurl {
-        url = "https://registry.npmjs.org/@heyhuynhgiabuu/pi-diff/-/pi-diff-0.3.0.tgz";
-        hash = "sha256-lQ9V8DvaHCj7hG9q+SJwy7M9hDCOPXRfWTqBh9kjS9A=";
+        url = "https://registry.npmjs.org/@heyhuynhgiabuu/pi-diff/-/pi-diff-0.9.3.tgz";
+        hash = "sha256-FmRaccPvV0IpRNsLavrG29dPjfpVnbDn96wVDJlRh9g=";
       };
       postPatch = ''
         cp ${./locks/pi-diff.lock.json} package-lock.json
       '';
-      npmDepsHash = "sha256-DPZfPc5njMabDdo5UwX7UoWvHPwC261LhT8BsAm7U00=";
+      npmDepsHash = "sha256-pEAEa18G7jduRCiWrb3qd1ggPSJkKgopoHBsplVgx1M=";
       npmFlags = "--ignore-scripts";
       dontNpmBuild = true;
       installPhase = ''

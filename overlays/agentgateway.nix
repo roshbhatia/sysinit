@@ -3,15 +3,15 @@ let
   assets = {
     aarch64-darwin = {
       name = "darwin-arm64";
-      hash = "sha256:6cebe8bd57262edce23a65a376d2f5a27b97cdfef609740642edbe75e1e9c685";
+      hash = "sha256:34bfc961d0e459d0f89103100e61730d4b5d8e2151c851d33cd034a126eb2bfe";
     };
     aarch64-linux = {
       name = "linux-arm64";
-      hash = "sha256:b59ecac31103bb317d1377fd42b0cb25cd9a21f8c3f1d9ee14c3ff05f3f91abf";
+      hash = "sha256:85724a15dc9f5179fb6e2fd85b0ba2d4fea56dd289abb8bf8fefadc3bea8b89e";
     };
     x86_64-linux = {
       name = "linux-amd64";
-      hash = "sha256:496ed27e6a96b55a9ad7cabe5c2be7172511f44a3cb113e533d22bf93a7f079d";
+      hash = "sha256:1b2fc01a2de29ca113bbb6258b5cae7b1eb3c724071c09d687a449132f2f42f8";
     };
   };
   asset = assets.${final.stdenv.hostPlatform.system};
@@ -43,9 +43,9 @@ in
   };
   agentgateway = final.stdenvNoCC.mkDerivation {
     pname = "agentgateway";
-    version = "1.6.0";
+    version = "1.7.0";
     src = final.fetchurl {
-      url = "https://github.com/agentgateway/agentgateway/releases/download/v1.6.0/agentgateway-${asset.name}";
+      url = "https://github.com/agentgateway/agentgateway/releases/download/v1.7.0/agentgateway-${asset.name}";
       inherit (asset) hash;
     };
     dontUnpack = true;

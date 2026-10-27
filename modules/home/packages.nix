@@ -69,7 +69,7 @@ in
         cargo-watch
         zig
 
-        nodejs_22
+        nodejs_24
         bun
         typescript
         yarn

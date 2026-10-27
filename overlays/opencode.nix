@@ -1,32 +1,32 @@
 final: _prev:
 let
-  version = "2.0.30";
+  version = "2.2.0";
   targets = {
     aarch64-darwin = {
       name = "darwin-arm64";
-      hash = "sha512-pXiRPtYr8BERCcx4/dUzCUra3vxsQffTa/8l6rjODNBgWAoxLlWJaXxrGmQ907uRPaUY0OT7HQvTmUzRTnkj9g==";
+      hash = "sha512-y3q/sghk/xCengTlv1pH2+5t9j0cuxXcEAY9yvyM7loKLQIYE1eSLEkDacCAVNyfnATd3D2JpueFSEB/i6A0Qg==";
     };
     x86_64-darwin = {
       name = "darwin-x64";
-      hash = "sha512-jUcKqt0bAqFix5nlLOAvVcwS1bLHicmYG6CxeMWPtNfIADu17GwcJt7HRL86VoXXykRAy9pk7mHYWsPyQYfcFQ==";
+      hash = "sha512-oK46aktdkYIAlkFs72I4JNgFS+cEgrks/HAykoKXwcZTW3XlGY1GlhTfdp55XRw9XTfTCqHvtCtvD9IgCnGhQA==";
     };
     aarch64-linux = {
       name = "linux-arm64";
-      hash = "sha512-EQzVA40jWkbYMQGdqC3y7I7DOUnw5zYhPPwCa2vFb/MK/BuBkHZqPcsDABD82ECaNVGJo43kz8s0Ckodb8EA4w==";
+      hash = "sha512-NCCltb8h/8WL30X9o2KTm3UFX0lmfk48lG8tglXJN9moscxeB7w2qOmfHVa32iFngk0iVAKH4xRPlBc88Y0qlw==";
     };
     x86_64-linux = {
       name = "linux-x64";
-      hash = "sha512-oBw8dtg9BWiKkhyPOxA6GN+o78zmQfjgVi7Hz9de1pJZJVyGBMLlkYk1EwPeS+vWyOCSaty2FxCAsYH1bMdS2g==";
+      hash = "sha512-XTGFTiZTgugps6rgTXp4mPjOM8klsa5uHn/Shcms2o3k1bjSA3Sgl6O4yJ48y18WWxn9My5Pxt7JKcLID7LOHg==";
     };
   };
   target = targets.${final.stdenv.hostPlatform.system};
   configSchema = final.fetchurl {
     url = "https://opencode.ai/config.json";
-    hash = "sha256-pYLvqyhe3rsyDS+m0uR1DsT+DliOivDkE9Yw5bzhxbk=";
+    hash = "sha256-Je31ImNRxXtM3t4rTbRYVL8Ed3KukadkbHtfiVbf0zA=";
   };
   cliSchema = final.fetchurl {
     url = "https://opencode.ai/v2/cli.json";
-    hash = "sha256-GZ2aDEQIR7peaJdl/uN9hzCOP38F3Po2j5l/LTbffo4=";
+    hash = "sha256-eNJsLl7gtqpBXqbdVjCFNk+TURkQ9u+B1H5Sm0w0ipY=";
   };
 in
 {
