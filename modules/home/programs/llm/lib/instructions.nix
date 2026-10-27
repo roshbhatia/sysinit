@@ -165,12 +165,14 @@ let
         ## Working rules
 
         ${contextRules}
+
         ${loaderNote}
 
         ## Shared tasks
 
         Taskwarrior is the durable todo context shared by agents on this machine.
-        Before multi-step work, read the `taskwarrior` skill and check relevant tasks.
+        Before multi-step work, read `local-workflows` for composing `sy`, task execution,
+        and terminals, then read `taskwarrior` and check relevant tasks.
         Record agreed work, blockers, and verified completion there. Use UUIDs across sessions.
         Follow host-specific instructions for imported tasks and external synchronization.
 
