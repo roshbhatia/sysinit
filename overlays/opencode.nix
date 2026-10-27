@@ -20,14 +20,8 @@ let
     };
   };
   target = targets.${final.stdenv.hostPlatform.system};
-  configSchema = final.fetchurl {
-    url = "https://opencode.ai/config.json";
-    hash = "sha256-Je31ImNRxXtM3t4rTbRYVL8Ed3KukadkbHtfiVbf0zA=";
-  };
-  cliSchema = final.fetchurl {
-    url = "https://opencode.ai/v2/cli.json";
-    hash = "sha256-eNJsLl7gtqpBXqbdVjCFNk+TURkQ9u+B1H5Sm0w0ipY=";
-  };
+  # The website schemas change independently of the pinned CLI release.
+  schemaDirectory = ./opencode-schemas + "/${version}";
 in
 {
   opencode = final.stdenv.mkDerivation {
@@ -50,8 +44,9 @@ in
       install -Dm755 bin/opencode "$out/bin/opencode"
       ln -s opencode "$out/bin/opencode2"
       mkdir -p "$out/share"
-      cp ${configSchema} "$out/share/config.json"
-      cp ${cliSchema} "$out/share/cli.json"
+      cp ${schemaDirectory}/config.json "$out/share/config.json"
+      cp ${schemaDirectory}/cli.json "$out/share/cli.json"
+      install -Dm644 ${schemaDirectory}/LICENSE "$out/share/licenses/opencode/LICENSE"
       runHook postInstall
     '';
     postPhases = [ "installCompletionsPhase" ];
