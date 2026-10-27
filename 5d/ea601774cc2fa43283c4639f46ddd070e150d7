@@ -1,0 +1,24 @@
+modules/home/programs/llm/lib/instructions.nix
+  s_cccc57401e3d8c::t_d36b489c26263b 168
+  s_cccc57401e3d8c::t_abf98ac7af5229 174-175
+modules/home/programs/llm/skills/local-workflows/SKILL.md
+  s_cccc57401e3d8c::t_1d11db61736107 88-89
+  s_cccc57401e3d8c::t_10cd8f89300020 60-61,68-69
+  s_cccc57401e3d8c::t_abf98ac7af5229 1-59,62-67,70-87,90-99
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5dea601774cc2fa43283c4639f46ddd070e150d7",
+  "prompts": {},
+  "sessions": {
+    "s_cccc57401e3d8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a17e4b-b712-7e82-993b-13c0fa9fac0e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
