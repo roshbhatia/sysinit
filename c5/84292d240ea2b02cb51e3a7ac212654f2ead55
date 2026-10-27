@@ -1,0 +1,46 @@
+flake.nix
+  s_cccc57401e3d8c::t_367583049bf5c2 381
+  s_cccc57401e3d8c::t_5a7aa8c889534e 476
+modules/home/packages.nix
+  s_cccc57401e3d8c::t_367583049bf5c2 128
+checks/default.nix
+  s_cccc57401e3d8c::t_4ae2b2ff56d1d0 59
+pkgs/conductor/pyproject.toml
+  s_cccc57401e3d8c::t_842a6d4e59e5a6 1-4,6-11
+  s_cccc57401e3d8c::t_a5bd7229fd6566 5
+overlays/python-tools.nix
+  s_cccc57401e3d8c::t_a5bd7229fd6566 42
+  s_cccc57401e3d8c::t_4274624ea6080e 48-50
+  s_cccc57401e3d8c::t_37469744aa3a7c 64-66
+  s_cccc57401e3d8c::t_367583049bf5c2 6-27,30,32,37-41,43-47,51-63,67-73
+modules/home/programs/llm/skills/conductor/SKILL.md
+  s_cccc57401e3d8c::t_8e5e5450053eac 1-85
+pkgs/conductor/check.yaml
+  s_cccc57401e3d8c::t_37469744aa3a7c 1-15
+pkgs/conductor/uv.lock
+  s_4739e15c332336::t_f0b3d27b375f41 1-1386
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c584292d240ea2b02cb51e3a7ac212654f2ead55",
+  "prompts": {},
+  "sessions": {
+    "s_4739e15c332336": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1794d-ace0-74e2-8924-c9a64b78418e",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_cccc57401e3d8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a17e4b-b712-7e82-993b-13c0fa9fac0e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
