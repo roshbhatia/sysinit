@@ -1,0 +1,22 @@
+modules/home/programs/llm/skills/taskwarrior/SKILL.md
+  s_cccc57401e3d8c::t_2b1ffc5f2417d4 3,36-84
+  s_cccc57401e3d8c::t_401d0362076f87 85
+modules/home/programs/llm/lib/instructions.nix
+  s_cccc57401e3d8c::t_2b1ffc5f2417d4 176-182
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "885fe570f4b6404c96886595c7cb293fa147d1f4",
+  "prompts": {},
+  "sessions": {
+    "s_cccc57401e3d8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a17e4b-b712-7e82-993b-13c0fa9fac0e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
