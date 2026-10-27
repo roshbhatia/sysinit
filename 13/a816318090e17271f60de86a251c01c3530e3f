@@ -1,0 +1,56 @@
+modules/home/packages.nix
+  s_cccc57401e3d8c::t_e4b457b68decad 122,169-170
+  s_cccc57401e3d8c::t_d25da3973a6b16 171
+AGENTS.md
+  s_cccc57401e3d8c::t_473d08d4201581 44
+  s_cccc57401e3d8c::t_f75a76ce6a2158 159-160
+  s_cccc57401e3d8c::t_d25da3973a6b16 45
+pkgs/python-tools/pyproject.toml
+  s_cccc57401e3d8c::t_561cc1e64c8ff1 5
+modules/home/programs/llm/lib/acp.nix
+  s_cccc57401e3d8c::t_1041f94cfd4268 2,12-15,21-24,30-33,39-42,48-51,72-75,83-94
+flake.nix
+  s_cccc57401e3d8c::t_ad23c1cf514a13 379,416-417
+nvfetcher.toml
+  s_cccc57401e3d8c::t_ad23c1cf514a13 142-152,155-156
+  s_cccc57401e3d8c::t_392058f87199b0 153-154
+overlays/goose.nix
+  s_cccc57401e3d8c::t_ad23c1cf514a13 1-2,4,6-73
+  s_cccc57401e3d8c::t_8644dfa4a01b6f 3,5
+overlays/amp-acp.nix
+  s_cccc57401e3d8c::t_ad23c1cf514a13 1-23
+overlays/default.nix
+  s_cccc57401e3d8c::t_ad23c1cf514a13 41-42
+modules/home/programs/llm/harnesses/goose.nix
+  s_cccc57401e3d8c::t_2874f1a14afdc6 76
+  s_cccc57401e3d8c::t_893f0d1d710e4e 96
+  s_cccc57401e3d8c::t_1041f94cfd4268 119-121,192-196,226,228
+  s_cccc57401e3d8c::t_8e956fcab308e3 115
+  s_cccc57401e3d8c::t_561cc1e64c8ff1 22
+  s_cccc57401e3d8c::t_38ef0b5f0f4696 117,190,210-214
+  s_cccc57401e3d8c::t_47338cff186b1a 227,229
+modules/home/programs/llm/mcp-servers.nix
+  s_cccc57401e3d8c::t_4002eab6cc359a 7-8
+_sources/generated.json
+  s_cccc57401e3d8c::t_e76896b43bcad1 2-16,323-352,551
+_sources/generated.nix
+  s_cccc57401e3d8c::t_2d14c599c63d58 9-16,180-195
+pkgs/python-tools/uv.lock
+  s_cccc57401e3d8c::t_d5236f62517374 2,128,133-173,177-178,180,182,186-187,190-191,193,195,199-200,203-205,207,209,211,215-216,218,220,224-225,227,229,233-234,237-240,242,244,248-249,252,254,256,260-261,264,266,268,272-273,276,278-279,281-282,284-285,287-289,291,293,296-299,303-304,306-313,316-317,319,321,325-326,331,333,337-338,340,342,346-347,350-353,355,357,361-362,365,367,369-383,387-388,390,392,396-397,399,401-406,410-411,413,415,483,485,487-501,525,531,533,538,543,545,565,567,569,574,582,584
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "13a816318090e17271f60de86a251c01c3530e3f",
+  "prompts": {},
+  "sessions": {
+    "s_cccc57401e3d8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a17e4b-b712-7e82-993b-13c0fa9fac0e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
