@@ -6,11 +6,9 @@ let
   root = ./.;
   sharedDir = root + "/_shared";
 
-  notSkills = [ "worker" ];
-
-  skillDirs = lib.filterAttrs (
-    n: type: type == "directory" && !(lib.hasPrefix "_" n) && !(builtins.elem n notSkills)
-  ) (builtins.readDir root);
+  skillDirs = lib.filterAttrs (n: type: type == "directory" && !(lib.hasPrefix "_" n)) (
+    builtins.readDir root
+  );
 
   extraFiles =
     name:
@@ -52,10 +50,3 @@ let
     // lib.optionalAttrs (files != { }) { inherit files; };
 in
 lib.mapAttrs mkSkill skillDirs
-// {
-  skills-ecosystem-discovery = {
-    description = "Discovers and installs agent skills from the open skills ecosystem at skills.sh. Use when the user asks 'how do I do X', 'is there a skill for X', wants to extend agent capabilities, or wants to install something via npx skills.";
-    content = import ./skills-ecosystem-discovery.nix { inherit lib; };
-    allowed-tools = "Bash(npx:*) WebFetch";
-  };
-}

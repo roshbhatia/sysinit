@@ -8,6 +8,18 @@ record and the `review-gate` hook enforces it: a critic cannot spawn outside an
 open pass, past the tier's count, or as an agent type that can write. The
 method and its citations are in `references/adversarial-review-methodology.md`.
 
+## Harness requirements
+
+This workflow needs native read-only critics, the `review-mediator` role, and the
+review ledger's hook integration in the current harness. Check the available
+roles and gate policy before opening a pass. An agent type from another harness
+is not automatically available here.
+
+When those requirements are unavailable, report that the judged pass was not run
+and keep deterministic validation separate. A separately authorized harness run
+can own the pass when it supplies the required integration; do not bypass the
+ledger or relabel an ordinary code review as a judged pass.
+
 ## Recursion guard
 
 If your own instructions carry `ADVERSARIAL-CRITIC-ROLE`, you are a critic:

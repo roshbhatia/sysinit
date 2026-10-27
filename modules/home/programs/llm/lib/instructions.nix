@@ -171,8 +171,13 @@ let
         ## Shared tasks
 
         Taskwarrior is the durable todo context shared by agents on this machine.
-        Before multi-step work, read `local-workflows` for composing `sy`, task execution,
+        Before coordinating multi-step work, read `local-workflows` for composing `sy`, task execution,
         and terminals, then read `taskwarrior` and check relevant tasks.
+        Identify whether the current assignment is a bounded delegate's scope or a
+        coordinator's work. Choose native {{agents}} or separate harness executions
+        from the task's needs and available tools; neither choice grants delegation permission.
+        Bounded delegates use the supplied task context and report evidence to their
+        coordinator; they do not create duplicate tasks or take over the parent's lifecycle.
         Record agreed work, blockers, and verified completion there. Use UUIDs across sessions.
         Follow host-specific instructions for imported tasks and external synchronization.
 

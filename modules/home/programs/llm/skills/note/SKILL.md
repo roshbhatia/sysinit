@@ -53,8 +53,8 @@ Rules:
   write it as one.
 - `--rationale` carries the why and keeps its newlines. This is the field that
   makes the note worth writing.
-- `--author` SHOULD be your own agent or teammate name. It defaults to `agent`,
-  which is useless when more than one teammate touched a file.
+- `--author` SHOULD identify the current execution or session. It defaults to
+  `agent`, which cannot distinguish concurrent contributors.
 - `--replace` drops any existing note with the same file, line, and author
   before appending. Always pass it when re-noting a line you already noted, or
   repeated passes stack.

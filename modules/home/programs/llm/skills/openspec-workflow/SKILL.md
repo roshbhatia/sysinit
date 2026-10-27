@@ -1,5 +1,5 @@
 ---
-description: Uses the global OpenSpec workflow for spec-driven repositories without relying on per-project openspec init scaffolding. Use when a task mentions OpenSpec, proposals, designs, specs, tasks, or named changes, and prefer the Explore planning {{agent}} for discovery before implementation.
+description: Use OpenSpec in repositories that already use it, or when the user explicitly requests an OpenSpec change. Owns workflow routing and schema context; generic task planning does not require OpenSpec.
 allowed-tools: Bash(openspec:*) Bash(specutil:*) Read Glob
 ---
 
@@ -22,7 +22,11 @@ Use OpenSpec as a managed workflow, not as a project-local install step.
 
 ## Explore
 
-Use the Explore planning {{agent}} for discovery and planning work. Explore is read-only by default: it can inspect code, map options, and surface tradeoffs, but it should not implement application code.
+Choose the coordination mode through `local-workflows`. When delegation is permitted
+and useful, give a native read-only planning helper a bounded discovery question.
+Use the current harness's available roles rather than assuming another harness's
+agent types exist. Otherwise perform discovery here. Planning helpers inspect code
+and tradeoffs; they do not implement application code.
 
 When there is no active change, explore freely and offer to create a proposal once the problem is clear. Do not run `openspec init` just to make commands or skills available; this sysinit configuration provides the global OpenSpec workflow. Use `openspec init` only when the user wants to initialize OpenSpec artifacts in a repository that does not already have them.
 

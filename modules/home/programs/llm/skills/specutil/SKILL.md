@@ -68,8 +68,10 @@ specutil graph --as mermaid | mermaid-ascii
 
 - `ready` is what to do now. Every dependency of every listed subtask is done.
 - `runnable concurrently` appears only for a `graph` phase with more than one
-  ready subtask that is neither an owner gate nor an adversarial review. That is
-  the signal to fan out to parallel subagents. A `loop` phase never says it,
+  ready subtask that is neither an owner gate nor an adversarial review. This names
+  independent work; it does not grant delegation permission. When delegation is
+  permitted, choose native helpers or separate harness runs through
+  `local-workflows`. A `loop` phase never says it,
   because its next iteration reads what the current one wrote.
 - `blocked` names the unmet dependency per subtask, so a stall has a reason.
 - `stop` is printed verbatim for a loop phase and is NOT turned into a

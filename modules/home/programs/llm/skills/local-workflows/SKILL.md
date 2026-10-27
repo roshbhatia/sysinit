@@ -1,12 +1,54 @@
 ---
 name: local-workflows
-description: Choose and compose local task, workspace, queue, and terminal tools. Use at multi-step task intake and for sy/seshy, Taskwarrior, task-queue/Pueue, zmx, worker, wezspawn, or WezTerm operations.
+description: Choose the execution role and compose native helpers, separate harnesses, workspaces, queues, and terminals. Use at multi-step intake and for sy/seshy, Taskwarrior, task-queue/Pueue, zmx, worker, wezspawn, or WezTerm operations.
 ---
 
 # Local workflows
 
-Compose existing commands around the same task UUID and selected checkout. A task,
+Keep task UUIDs and selected checkouts explicit across existing commands. A task,
 workspace, execution attempt, and terminal pane describe different things.
+
+## Choose the execution role
+
+First identify the current harness's actual tools and the assignment's scope.
+A bounded delegate carries out its assigned work and returns evidence to its
+coordinator. It does not take over the parent task, mark that task complete, or
+start a new orchestration tree unless its assignment covers that responsibility.
+
+A coordinator owns integration and verification. Choose the execution mode per
+task; mode selection does not override delegation restrictions or expand scope.
+Continue directly when a helper would add no useful independence or capability.
+
+| Mode | Choose it when | Mechanism |
+| --- | --- | --- |
+| Native coordination | Bounded research, implementation, or review fits the current harness's helper tools | Native helpers and the roles actually available in this session |
+| Cross-harness coordination | Work needs another harness's tools or authentication, an independent process, or a durable queued run | Published harness registry and an explicit `task-queue` attempt |
+
+For native coordination, use the current harness's helper API. Names and
+capabilities differ between harnesses; check the available tools rather than
+assuming a particular agent type. A native helper does not require another CLI,
+Pueue job, workspace, or terminal pane merely to exist.
+
+For cross-harness coordination, inspect `~/.config/sysinit/agents.json` for the
+installed command and context file. Verify its noninteractive flags with installed
+help. Pass the task UUID, exact authorization, relevant instructions, selected
+checkout, bounded ownership, expected result, and acceptance criteria explicitly.
+Read `taskwarrior` for submission and review. The ACP capability is a transport
+capability; it does not establish native helper support or delegation permission.
+Selecting a Goose ACP provider alone does not create a multi-harness workflow.
+
+Native helpers can refer to their coordinator's task UUID without creating another
+task. Separately queued concurrent units need distinct agreed task UUIDs, linked
+back to the coordinator through annotations. Do not submit simultaneous attempts
+for the same UUID; task-queue rejects them. Read `taskwarrior` for retry semantics.
+
+For either mode, give read-only helpers access to the selected checkout; isolate
+concurrent writers through the workspace owner's supported worktree lifecycle.
+Collect each result and verify the integrated outcome before completing the task.
+Use Conductor when reusable workflow steps and routing are needed; read
+`conductor` for that interface.
+
+## Choose the owning command
 
 | Need | Entry point | Owns |
 | --- | --- | --- |
@@ -37,24 +79,18 @@ do not turn every command into a task, attempt, or pane.
 5. Inspect the attempt's output and verify its result. Record completion through
    Taskwarrior or the imported task's owning workflow. Exit zero is not acceptance.
 
-For example, after preparing the scoped prompt described in `taskwarrior`:
-
-```sh
-task-queue submit --task <uuid> --cwd /absolute/selected-worktree -- \
-  codex exec 'Read /absolute/task-prompt.md and carry out its authorized task.'
-```
-
-Goose, Claude, other installed harnesses, and foreground Conductor workflows use
-the same submission boundary with their own argv. Read `conductor` for workflow
-composition; detached dashboard/MCP launches do not signal queued completion.
+Use the submission examples and prompt contract in `taskwarrior`. Goose, Claude,
+Codex, other installed harnesses, and foreground Conductor workflows use the same
+boundary with their own argv. Detached dashboard/MCP launches do not signal queued
+completion.
 
 ## Inspect and control the right execution
 
 Start with `task-queue status`. Keep the Taskwarrior UUID, attempt UUID, and Pueue
-job ID distinct. Use `pueue status` and `pueue log <job-id>` to inspect scheduling
-and output. Use `task-queue cancel <attempt-uuid>` or `resume <attempt-uuid>` for
-task-queue attempts so their state remains coordinated. Read the existing result
-before submitting `--retry`. Do not use global queue controls for one task.
+job ID distinct. The `taskwarrior` skill documents submission, inspection,
+cancellation, and retry through `task-queue`; Pueue supplies scheduling and output
+underneath it. Native helper
+results stay with their coordinator unless an explicit queued attempt is needed.
 
 `--terminal` supplies an attachable zmx session. Inspect the returned attempt's
 terminal identity and `zmx help` before attaching. Check `zmx list` first because

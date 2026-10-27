@@ -11,9 +11,13 @@ Use the installed `taskwarrior` CLI and its managed configuration. All agents on
 machine share one Taskwarrior database. Shell access is the integration; no MCP
 server is required. Do not create a task database inside a repository.
 
-Before starting multi-step work, inspect `taskwarrior rc.context:none \( +PENDING or +WAITING \) export` and filter
+Before owning or resuming multi-step work, inspect `taskwarrior rc.context:none \( +PENDING or +WAITING \) export` and filter
 by repository or project. Reuse an existing task when it
 matches the requested outcome. Use UUIDs, since numeric IDs can change.
+
+As a bounded delegate, use the coordinator's supplied UUID, scope, and relevant
+annotations. Return evidence to that coordinator. Ask it for missing task context
+when needed; do not create a duplicate task or mark the parent's task complete.
 
 Create tasks only for agreed work. Store the repository path in `repo` and use
 `agent` for the current session identifier. A session marker records ownership;
@@ -35,8 +39,12 @@ Taskwarrior holds durable outcomes and unfinished work.
 
 ## Submit agent work
 
+Use `local-workflows` to distinguish native helpers from separate harness runs.
+Native helpers use their harness's API and return results to their coordinator;
+they do not need a Pueue attempt for every delegated question.
+
 At task intake, consider queued execution for agreed work that benefits from a
-separate agent, scheduling, or an attachable terminal. Continue work already owned
+separate harness process, scheduling, or an attachable terminal. Continue work already owned
 by the current session here unless a separate execution is useful. A queue is an
 execution mechanism; it does not expand authorization or approve external actions.
 

@@ -1,12 +1,8 @@
----
-description: Owner documentation for `worker`. This is NOT a rendered skill; skills/default.nix excludes this directory from the registry.
----
+# Worker command
 
-> `worker` is an owner command, not an agent skill. It is on the owner's PATH
-> through `skill-tools.nix`, which wraps `utils worker`. Nothing renders this
-> file into a harness skill directory, and there is no `allowed-tools` grant.
-> An agent that types `worker` gets its allowlist default, not a pre-approval.
-> The defect this removes was never the pane. It was an agent opening one.
+`worker` is an owner-facing command installed with `sysinit-utils`. This reference
+is not an agent skill and grants no tool permission. An agent invoking `worker`
+still uses its current tool policy.
 
 `worker` sends a command to ONE reusable WezTerm pane and reports the result.
 It exists for two reasons. A long or noisy command belongs somewhere other
