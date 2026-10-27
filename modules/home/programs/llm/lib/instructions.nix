@@ -173,6 +173,13 @@ let
         Before multi-step work, read the `taskwarrior` skill and check relevant tasks.
         Record agreed work, blockers, and verified completion there. Use UUIDs across sessions.
         Follow host-specific instructions for imported tasks and external synchronization.
+
+        At task intake, consider whether agreed work should run as an explicit queued attempt.
+        When `task-queue` is installed, it submits work to Pueue for any installed harness.
+        Read the `taskwarrior` skill for submission and review. Inspect existing attempts before
+        submitting; keep the current session's work here unless a separate execution is useful.
+        A queued agent inherits only the authorization and scope stated in its task prompt.
+        A successful command still needs result verification before the task is complete.
       '';
     in
     vocab.applyVocab harness (base + lib.optionalString (extraSections != [ ]) "\n${extras}");

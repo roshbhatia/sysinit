@@ -1,6 +1,6 @@
 ---
 name: taskwarrior
-description: Read and maintain shared Taskwarrior todos across agents and sessions. Use before multi-step work, when resuming work, or when recording blockers and completion.
+description: Track shared Taskwarrior work and submit explicit agent executions through task-queue and Pueue. Use at task intake, when resuming work, or when recording blockers and completion.
 ---
 
 # Shared task context
@@ -32,6 +32,56 @@ taskwarrior rc.context:none <uuid> done
 Use annotations for handoffs and blockers. Mark completion only after the
 requested outcome is verified. Keep agent-local plans for short execution steps;
 Taskwarrior holds durable outcomes and unfinished work.
+
+## Submit agent work
+
+At task intake, consider queued execution for agreed work that benefits from a
+separate agent, scheduling, or an attachable terminal. Continue work already owned
+by the current session here unless a separate execution is useful. A queue is an
+execution mechanism; it does not expand authorization or approve external actions.
+
+When installed, `task-queue` records explicit attempts and runs them through Pueue.
+Use it instead of a direct `pueue add` for Taskwarrior-linked work. The task must be
+pending, unblocked, and have completed dependencies. The queue rechecks this when
+execution starts. It rejects duplicate attempts and concurrent task-linked runs
+in the same working directory.
+
+1. Read `taskwarrior rc.context:none <uuid> info` and `task-queue status`. Check
+   ownership, prior attempts, dependencies, repository, and annotations.
+2. Prepare a bounded prompt containing the full UUID, description, relevant
+   project and annotations, repository, exact authorization, acceptance criteria,
+   and verification requirements. Save it outside disposable temporary storage
+   when the attempt must survive a restart. Do not embed credentials.
+3. Choose an installed harness and an existing working directory or seshy session.
+   Use that harness's supported noninteractive command. Verify flags with `--help`
+   when uncertain; do not copy interactive aliases or add permission bypasses.
+4. Submit explicit arguments. `--task` uses the task's `repo` by default;
+   `--cwd` overrides it and `--session` resolves an existing seshy workspace.
+   Choose one of the examples below, not all three for the same task.
+
+```sh
+task-queue submit --task <uuid> --cwd /absolute/repository -- \
+  goose run --instructions /absolute/task-prompt.md
+task-queue submit --task <uuid> --cwd /absolute/repository -- \
+  claude --print 'Read /absolute/task-prompt.md and carry out its authorized task.'
+task-queue submit --task <uuid> --cwd /absolute/repository -- \
+  codex exec 'Read /absolute/task-prompt.md and carry out its authorized task.'
+```
+
+Other installed harnesses use the same queue with their own explicit command.
+Add `--terminal` before `--` for an attachable zmx session. Queue output includes
+the attempt UUID and Pueue job ID; retain both with the Taskwarrior UUID. A
+Taskwarrior session ownership marker remains coordination metadata, not a lock.
+
+Inspect `task-queue status`, `pueue status`, and `pueue log <job-id>`. Use
+`task-queue cancel <attempt-uuid>` for cancellation and
+`task-queue resume <attempt-uuid>` for an interrupted submission. After a completed
+attempt, inspect its result before submitting a new one with `--retry`.
+
+Successful execution sets `review: true` in the attempt record and leaves the
+Taskwarrior task pending. Inspect the actual diff, artifacts, and checks; record
+verified completion through the task's owning workflow. Imported Linear tasks
+still require their authorized Linear completion workflow followed by sync.
 
 `taskwarrior` shows actionable work. Use `taskwarrior working`, `taskwarrior stalled`, and `taskwarrior review`
 for active, blocked, and all unfinished work. The focus view excludes waiting,
