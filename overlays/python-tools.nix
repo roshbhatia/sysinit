@@ -21,7 +21,6 @@ let
     };
 in
 {
-  basic-memory = application "basic-memory";
   ast-grep-mcp = application "sg-mcp";
   acp-amp = application "acp-amp";
 }

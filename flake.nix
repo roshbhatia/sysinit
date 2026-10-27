@@ -330,7 +330,6 @@
             "hunk"
             "openspec"
             "calldiff"
-            "basic-memory"
             "ast-grep-mcp"
             "strands-cli"
             "localias"
@@ -377,6 +376,7 @@
             "sysinit-fx"
             "meat"
             "amp-cli"
+            "amp-acp"
             "acp-amp"
             "git-ai-gate"
             "agent-notes"
@@ -413,6 +413,8 @@
                     ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux linuxCacheAttrs
                     ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
                       "jankyborders"
+                      "goose-cli"
+                      "goose-desktop"
                     ]
                   );
             };

@@ -38,6 +38,8 @@
   (import ./openspec)
   (import ./pi-coding-agent.nix)
   (import ./amp-cli.nix)
+  (import ./amp-acp.nix)
+  (import ./goose.nix)
   (import ./crush.nix)
   (import ./fx.nix)
   (import ./fzf.nix)

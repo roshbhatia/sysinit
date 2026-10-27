@@ -41,7 +41,8 @@ not restate any of those here.
   hook executes: notifier, state bus, gates, guard bodies. `skills/` is the
   scanned skill registry, and `subagents/` is the teammate definitions
 - ACP adapter commands live in one registry, `lib/acp.nix`, rendered to
-  `~/.config/acp/agents.json`. No ACP client is installed yet
+  `~/.config/acp/agents.json`. Goose provider settings derive from the supported
+  provider mappings in that registry; Goose Desktop is installed on supported workstations
 - `harnesses/deck-patterns.nix` is how the wezterm agent-deck plugin recognises
   an agent in a pane, and it renders into `wezterm/config.json` as `agents`.
   `harnesses/publish.nix` asserts the file covers the registry exactly
@@ -155,6 +156,8 @@ subcommands: `feature-based-session-manager`, `openspec-workflow`, `specutil`.
   it, so the override costs nothing and can stay.
 - `.sysinit/` is gitignored scratch space. Check `.sysinit/lessons.md` at
   session start.
+  A `path:` flake reference includes these ignored diagnostics. Use a local
+  `git+file://` reference for checkout overrides to keep them out of the store.
 - `~/.config/git/ignore` already excludes `**/.claude/` and `**/.agents/`. Do
   not repeat those in a per-project `.gitignore`.
 - This machine's `spec-driven` is a local override. It installs to

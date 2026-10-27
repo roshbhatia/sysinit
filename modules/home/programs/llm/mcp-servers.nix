@@ -4,6 +4,8 @@
   ...
 }:
 {
+  sysinit.llm.mcp.suppressedServers = [ "basic-memory" ];
+
   sysinit.llm.mcp.additionalServers = {
     ast-grep = {
       command = "${pkgs.ast-grep-mcp}/bin/ast-grep-server";
@@ -23,12 +25,6 @@
         "--headless"
       ];
       description = "Browser automation and end-to-end testing via Playwright";
-    };
-
-    basic-memory = {
-      command = "${pkgs.basic-memory}/bin/basic-memory";
-      args = [ "mcp" ];
-      description = "Shared cross-harness memory — Markdown note store readable by all agents";
     };
 
   };

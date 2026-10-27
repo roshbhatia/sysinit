@@ -19,7 +19,7 @@ let
       description = "Render charts and diagrams from data in the transcript";
     };
     memory = {
-      enabled = false;
+      enabled = true;
       description = "Goose-local categorized memory store";
     };
     tutorial = {
@@ -73,10 +73,9 @@ let
     analyze = true;
     apps = true;
     chatrecall = true;
-    code_execution = false;
+    code_execution = true;
     developer = true;
     extensionmanager = false;
-    orchestrator = false;
     scheduler = true;
     skills = true;
     summarize = true;
@@ -94,6 +93,7 @@ let
     "launchdarkly-ai-configs"
     "laurel-ask"
     "lucidchart"
+    "orchestrator"
     "supabase"
     "wiz"
     "work-graph"
@@ -112,20 +112,14 @@ let
     EDIT_MODE = "vi";
     GOOSE_CLI_MIN_PRIORITY = 0.2;
     GOOSE_CLI_THEME = "ansi";
+    GOOSE_SEARCH_PATHS = llmLib.commandPath.entriesFor pkgs.stdenv.hostPlatform.isDarwin "${config.home.profileDirectory}/bin";
     GOOSE_MODE = "auto";
-    GOOSE_PROVIDER = "claude-acp";
-    GOOSE_MODEL = "opus";
+    active_provider = "claude-acp";
 
-    providers = {
-      claude-acp = {
-        configured = true;
+    providers = llmLib.acp.gooseProviders // {
+      ollama = {
+        configured = false;
         enabled = true;
-        model = "opus";
-      };
-      codex-acp = {
-        configured = true;
-        enabled = true;
-        model = "gpt-5.2-codex";
       };
     };
     GOOSE_TOOLSHIM = false;
@@ -193,9 +187,13 @@ in
       enforce = [
         "GOOSE_MODE"
         "GOOSE_CLI_THEME"
-        "GOOSE_PROVIDER"
-        "GOOSE_MODEL"
+        "active_provider"
       ]
+      ++ map (name: [
+        "providers"
+        name
+        "enabled"
+      ]) (builtins.attrNames llmLib.acp.gooseProviders ++ [ "ollama" ])
       ++
         map
           (name: [
@@ -209,7 +207,11 @@ in
         name
         "enabled"
       ]) (builtins.attrNames gooseMcpServers ++ builtins.attrNames platformExtensions);
-      retire =
+      retire = [
+        "GOOSE_PROVIDER"
+        "GOOSE_MODEL"
+      ]
+      ++
         map
           (name: [
             "extensions"
@@ -221,10 +223,10 @@ in
               ++ (config.sysinit.llm.mcp.harnessSuppressedServers.goose or [ ])
             )
           )
-        ++ map (name: [
-          "extensions"
-          name
-        ]) retiredExtensions;
+      ++ map (name: [
+        "extensions"
+        name
+      ]) retiredExtensions;
     };
 
     goose-permission = {

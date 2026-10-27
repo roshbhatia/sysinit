@@ -1,4 +1,19 @@
 {
+    "amp-acp": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "amp-acp",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-QQdzU/q8XGm8atWsOoC8OcpbXhhZG+bQOGY/uNACEJs=",
+            "type": "url",
+            "url": "https://registry.npmjs.org/amp-acp/-/amp-acp-0.10.0.tgz"
+        },
+        "version": "0.10.0"
+    },
     "amp-cli": {
         "cargoLock": null,
         "date": null,
@@ -302,6 +317,36 @@
             "sha256": "sha256-IlqSmzW1Ew+2ker9tQviNvLAoVABm1OXN3WTj48ZwoE=",
             "type": "url",
             "url": "https://github.com/block/goose/releases/download/v1.56.0/goose-x86_64-unknown-linux-gnu.tar.gz"
+        },
+        "version": "1.56.0"
+    },
+    "goose-desktop": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "goose-desktop",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-OpOJ8BYiUcjt+M52dc7oheDcXuACNIfS4eNNv/Ls7Ew=",
+            "type": "url",
+            "url": "https://github.com/block/goose/releases/download/v1.56.0/Goose-darwin-arm64.zip"
+        },
+        "version": "1.56.0"
+    },
+    "goose-desktop-x86_64-darwin": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "goose-desktop-x86_64-darwin",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-7rMjkVjt1sXPSJoWW/xsaZgUyOPCTH/0r+2/EFzqAW4=",
+            "type": "url",
+            "url": "https://github.com/block/goose/releases/download/v1.56.0/Goose-darwin-x64.zip"
         },
         "version": "1.56.0"
     },

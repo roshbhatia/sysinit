@@ -119,6 +119,7 @@ in
         upbound
 
         acp-amp
+        amp-acp
         changes
         git-ai
         claude-agent-acp
@@ -165,6 +166,8 @@ in
         )
       );
 
-      workstation = lib.optionals pkgs.stdenv.hostPlatform.isLinux [ hyprpicker ];
+      workstation =
+        lib.optionals pkgs.stdenv.hostPlatform.isLinux [ hyprpicker ]
+        ++ lib.optionals (lib.meta.availableOn pkgs.stdenv.hostPlatform goose-desktop) [ goose-desktop ];
     };
 }

@@ -6,6 +6,14 @@
   dockerTools,
 }:
 {
+  amp-acp = {
+    pname = "amp-acp";
+    version = "0.10.0";
+    src = fetchurl {
+      url = "https://registry.npmjs.org/amp-acp/-/amp-acp-0.10.0.tgz";
+      sha256 = "sha256-QQdzU/q8XGm8atWsOoC8OcpbXhhZG+bQOGY/uNACEJs=";
+    };
+  };
   amp-cli = {
     pname = "amp-cli";
     version = "0.0.1793119929-g574f34";
@@ -167,6 +175,22 @@
     src = fetchurl {
       url = "https://github.com/block/goose/releases/download/v1.56.0/goose-x86_64-unknown-linux-gnu.tar.gz";
       sha256 = "sha256-IlqSmzW1Ew+2ker9tQviNvLAoVABm1OXN3WTj48ZwoE=";
+    };
+  };
+  goose-desktop = {
+    pname = "goose-desktop";
+    version = "1.56.0";
+    src = fetchurl {
+      url = "https://github.com/block/goose/releases/download/v1.56.0/Goose-darwin-arm64.zip";
+      sha256 = "sha256-OpOJ8BYiUcjt+M52dc7oheDcXuACNIfS4eNNv/Ls7Ew=";
+    };
+  };
+  goose-desktop-x86_64-darwin = {
+    pname = "goose-desktop-x86_64-darwin";
+    version = "1.56.0";
+    src = fetchurl {
+      url = "https://github.com/block/goose/releases/download/v1.56.0/Goose-darwin-x64.zip";
+      sha256 = "sha256-7rMjkVjt1sXPSJoWW/xsaZgUyOPCTH/0r+2/EFzqAW4=";
     };
   };
   hererocks = {

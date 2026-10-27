@@ -139,6 +139,21 @@ src.github = "block/goose"
 src.prefix = "v"
 fetch.url = "https://github.com/block/goose/releases/download/v$ver/goose-x86_64-unknown-linux-gnu.tar.gz"
 
+[goose-desktop]
+src.github = "block/goose"
+src.prefix = "v"
+fetch.url = "https://github.com/block/goose/releases/download/v$ver/Goose-darwin-arm64.zip"
+
+[goose-desktop-x86_64-darwin]
+src.github = "block/goose"
+src.prefix = "v"
+fetch.url = "https://github.com/block/goose/releases/download/v$ver/Goose-darwin-x64.zip"
+
+[amp-acp]
+src.webpage = "https://registry.npmjs.org/amp-acp/latest"
+src.regex = '(?<="version":")[0-9]+\.[0-9]+\.[0-9]+'
+fetch.url = "https://registry.npmjs.org/amp-acp/-/amp-acp-$ver.tgz"
+
 # Binary release packages - fx (one entry per platform asset)
 # Asset names carry no version, so every URL is the same shape per platform.
 # Git tags run ahead of releases (v0.4.5 exists as a tag, v0.0.5 is the latest
