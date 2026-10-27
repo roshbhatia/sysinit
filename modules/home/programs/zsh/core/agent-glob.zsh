@@ -1,10 +1,11 @@
 #!/usr/bin/env zsh
 # shellcheck disable=all
 
-# Every non-interactive zsh, not just Claude Code's. This used to test CLAUDECODE
-# and CLAUDE_CODE_ENTRYPOINT, so thirteen of the fourteen agents still died on an
-# unmatched glob. No other harness sets a comparable variable, so the shell's own
-# non-interactive flag is the only harness-agnostic signal there is.
+# Keep unmatched globs literal even for harnesses without an agent marker.
 if [[ ! -o interactive ]]; then
   unsetopt nomatch
+  # Limit the other Bash-like expansions to detected or opted-in agents.
+  if [[ -n ${CLAUDECODE:-} || -n ${CODEX_THREAD_ID:-} || ${SYSINIT_AGENT_SHELL:-0} == 1 ]]; then
+    setopt sh_word_split no_equals
+  fi
 fi

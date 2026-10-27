@@ -57,6 +57,18 @@ in
 {
   pi = pkgs.pi-coding-agent;
   conductor = pkgs.conductor-cli;
+  zsh-agent-shell =
+    pkgs.runCommand "zsh-agent-shell"
+      {
+        nativeBuildInputs = [
+          pkgs.python3
+          pkgs.zsh
+        ];
+      }
+      ''
+        python ${./zsh-agent-shell.py} ${lib.getExe pkgs.zsh} ${../modules/home/programs/zsh/core/agent-glob.zsh}
+        touch "$out"
+      '';
   native-output = import ./native-output.nix { inherit pkgs; };
   pi-extensions = import ./pi-extensions.nix { inherit pkgs; };
   onepassword = import ./onepassword.nix { inherit pkgs; };
