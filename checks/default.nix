@@ -57,6 +57,13 @@ in
 {
   pi = pkgs.pi-coding-agent;
   conductor = pkgs.conductor-cli;
+  codex-daemon =
+    pkgs.runCommand "codex-daemon"
+      { nativeBuildInputs = [ (pkgs.python3.withPackages (ps: [ ps.websockets ])) ]; }
+      ''
+        python3 ${./codex-daemon.py} ${lib.getExe pkgs.codex}
+        touch "$out"
+      '';
   zsh-agent-shell =
     pkgs.runCommand "zsh-agent-shell"
       {

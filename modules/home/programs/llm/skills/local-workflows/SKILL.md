@@ -133,3 +133,13 @@ sessions enable unquoted field splitting and literal leading `=` arguments.
 Other harnesses can opt in with `SYSINIT_AGENT_SHELL=1 zsh -c '...'`. Interactive
 zsh retains its normal rules. These options do not make zsh a Bash interpreter;
 quote paths and arguments normally.
+
+## Shared Codex server
+
+Nix runs the local Codex app-server as a user service. Interactive `codex` clients
+reuse it; `codex agents` inspects its chats and `codex app-server daemon version`
+checks the connection. The desktop app retains its own process lifecycle.
+Keep Taskwarrior/Pueue submissions on the existing bounded `codex exec` workflow.
+Service restarts can interrupt shared turns. Nix and the platform service manager
+own this server; native daemon bootstrap/update commands manage a separate package
+installation and do not replace that ownership.

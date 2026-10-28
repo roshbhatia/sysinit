@@ -20,6 +20,7 @@ let
     /tmp/clamshell-thunderbolt.log /tmp/clamshell-thunderbolt.error.log
     /tmp/sketchybar-reload.log /tmp/sketchybar-reload.error.log
     ${userHome}/Library/Logs/git-ai.log ${userHome}/Library/Logs/git-ai.error.log
+    ${userHome}/Library/Logs/codex-app-server.log ${userHome}/Library/Logs/codex-app-server.error.log
   '';
 in
 {

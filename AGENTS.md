@@ -19,6 +19,8 @@ not restate any of those here.
   one named eleven of fifteen and called the `claude` attr `claude-code`.
   A harness owning assets is a directory holding its `default.nix` beside them;
   one with no asset is a single file
+- Codex's shared app-server uses the Nix-pinned CLI through a user service.
+  See [docs/codex-daemon.md](docs/codex-daemon.md) for its socket, ownership, and checks
 - `registry.nix` carries what each harness can do, not just who it is: `guard`,
   `notify`, `editBus`, `acp`, `exitHook`, `projectDir`, `transcriptRoot`.
   `harnesses/default.nix` rejects a null on the ones that must be answered,

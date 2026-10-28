@@ -76,8 +76,46 @@ let
 
   codexManagedFiles = [ "config.toml" ] ++ map (n: "${n}.config.toml") (lib.attrNames codexProfiles);
   nativeToolsPython = pkgs.python3.withPackages (ps: [ ps.tomlkit ]);
+  daemonCommand = [
+    "${config.programs.codex.package}/bin/codex"
+    "app-server"
+    "--listen"
+    "unix://"
+    "--managed-daemon"
+  ];
 in
 {
+  launchd.agents.codex-app-server =
+    lib.mkIf (pkgs.stdenv.hostPlatform.isDarwin && config.programs.codex.enable)
+      {
+        enable = true;
+        config = {
+          ProgramArguments = daemonCommand;
+          WorkingDirectory = config.home.homeDirectory;
+          RunAtLoad = true;
+          KeepAlive = true;
+          ThrottleInterval = 10;
+          ExitTimeOut = 300;
+          ProcessType = "Background";
+          StandardOutPath = "${config.home.homeDirectory}/Library/Logs/codex-app-server.log";
+          StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/codex-app-server.error.log";
+        };
+      };
+
+  systemd.user.services.codex-app-server =
+    lib.mkIf (pkgs.stdenv.hostPlatform.isLinux && config.programs.codex.enable)
+      {
+        Unit.Description = "Shared local Codex app-server";
+        Service = {
+          ExecStart = lib.escapeShellArgs daemonCommand;
+          WorkingDirectory = config.home.homeDirectory;
+          Restart = "always";
+          RestartSec = 10;
+          TimeoutStopSec = 300;
+        };
+        Install.WantedBy = [ "default.target" ];
+      };
+
   home = {
     packages = [ gateHookScript ];
     activation.codexNativeTools = lib.hm.dag.entryBetween [ "llmManagedFiles" ] [ "writeBoundary" ] ''
@@ -174,6 +212,8 @@ in
       features = {
         hooks = true;
         multi_agent = true;
+        # The service owns startup; clients still reuse its running server.
+        daemon_auto_start = false;
       };
 
       agents = {
