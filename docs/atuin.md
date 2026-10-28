@@ -10,14 +10,16 @@ automatic sync and update checks are disabled. No account is required.
 The previous `modules/home/programs/atuin.nix`, removed in `3a6f645f8`, enabled
 zsh integration and a compact 13-row picker with preview, help, and tabs hidden.
 It returned the selected command for editing instead of executing it. The
-restored module retains those settings, validated against the pinned Atuin
-18.24.2, and adds all four shell integrations.
+restored module keeps the compact, editable selection behavior, validated against
+the pinned Atuin 18.24.2, and adds all four shell integrations. The owner-selected
+layout caps both pickers at eight rows and places the search bar at the top.
 
 | Behavior | Configuration |
 | --- | --- |
 | Fuzzy history search | `search_mode = "fuzzy"` |
 | Commands from every local shell | `search.shells = "all"`, `filter_mode = "global"` |
-| Compact, editable selection | `inline_height = 13`, `enter_accept = false` |
+| Compact, editable selection | `inline_height = 8`, `enter_accept = false` |
+| Search bar and row details | `invert = true`; duration, time, and command columns |
 | Shell editing mode | `keymap_mode = "auto"`; Nushell covers Emacs and both Vi modes |
 | Ctrl-R ownership | fzf history binding disabled; native Atuin integration loaded afterward |
 | zsh-vi-mode | Atuin loads after its lazy fzf callback; Ctrl-R also works in Vi normal mode |
@@ -48,8 +50,8 @@ atuin resume <id> --in codex --print
 ```
 
 The picker starts in the current workspace and falls back to all threads when
-that workspace has none. It uses a 20-row inline view. `--print` reviews a resume
-command without starting a harness. Resuming does not change Taskwarrior task
+that workspace has none. It inherits the eight-row inline height. `--print`
+reviews a resume command without starting a harness. Resuming does not change Taskwarrior task
 ownership, select a new `sy` workspace, or create a Pueue attempt. The
 `local-workflows` skill describes those execution boundaries.
 

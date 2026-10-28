@@ -30,7 +30,8 @@ in
         auto_sync = false;
         update_check = false;
         style = "compact";
-        inline_height = 13;
+        inline_height = 8;
+        invert = true;
         show_preview = false;
         show_help = false;
         show_tabs = false;
@@ -46,7 +47,6 @@ in
           capture = true;
           capture_tools = true;
           filter_mode = "workspace";
-          inline_height = 20;
         };
       };
     };
