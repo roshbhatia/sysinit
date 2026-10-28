@@ -12,8 +12,16 @@ let
     banner = "never";
     renderMarkdown = true;
     screenReader = false;
-    theme = "auto";
+    theme = "default";
     autoUpdate = false;
+    hooks.PreToolUse = [
+      {
+        type = "command";
+        command = lib.getExe exitCodeGuardScript;
+        matcher = "Bash";
+        timeoutSec = 15;
+      }
+    ];
   };
 
   copilotMcpConfig = builtins.toJSON {
@@ -28,13 +36,6 @@ let
     format = "exit-code";
   };
 
-  copilotGuardExtension =
-    builtins.replaceStrings
-      [ "@guard@" ]
-      [
-        (lib.getExe exitCodeGuardScript)
-      ]
-      (builtins.readFile ./copilot/extensions/sysinit-guard/extension.mjs);
 in
 {
 
@@ -43,15 +44,16 @@ in
     format = "json";
     content = copilotSettings;
 
-    enforce = [ "autoUpdate" ];
+    enforce = [
+      "autoUpdate"
+      [
+        "hooks"
+        "PreToolUse"
+      ]
+    ];
   };
 
   home.file = {
-
-    ".copilot/extensions/sysinit-guard/extension.mjs" = {
-      text = copilotGuardExtension;
-      force = true;
-    };
 
     ".copilot/mcp-config.json" = {
       text = copilotMcpConfig;

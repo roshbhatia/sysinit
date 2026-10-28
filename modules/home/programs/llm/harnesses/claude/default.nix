@@ -94,13 +94,12 @@ in
 
       teammateMode = "in-process";
 
-      dangerouslySkipPermissions = true;
-
       sandbox = {
         enabled = false;
       };
 
       permissions = {
+        defaultMode = "bypassPermissions";
         allow =
           llmLib.allowlist.formatForClaude llmLib.allowlist.tierA
           ++ llmLib.allowlist.formatForClaude llmLib.allowlist.tierB
@@ -110,7 +109,6 @@ in
 
       fileCheckpointingEnabled = true;
       effortLevel = "high";
-      alwaysThinkingEnabled = true;
       autoMemoryEnabled = true;
       outputStyle = kit.llmLib.instructions.outputStyle.name;
 
@@ -124,8 +122,6 @@ in
       tui = "fullscreen";
 
       autoCompactEnabled = true;
-
-      disabledMcpServers = disabledBuiltinServers;
 
       disableClaudeAiConnectors = true;
 

@@ -17,6 +17,7 @@ rec {
     }:
     pkgs.sysinit.writeShellApplication {
       inherit name;
+      runtimeInputs = [ pkgs.gate-providers ];
       text = ''
         ${lib.optionalString (harness == "claude") ''
           export GATE_CONFIG="''${XDG_CONFIG_HOME:-$HOME/.config}/gate/native-output.yaml"

@@ -56,6 +56,16 @@ let
   };
 in
 {
+  sysinit.llm.managedFiles.antigravity-cli = {
+    path = ".gemini/antigravity-cli/settings.json";
+    format = "json";
+    content = {
+      editorMode = "vim";
+      altScreenMode = "always";
+      colorScheme = "terminal";
+    };
+  };
+
   home.file = {
     ".gemini/config/mcp_config.json" = {
       text = mcpConfigJson;

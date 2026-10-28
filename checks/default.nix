@@ -268,6 +268,10 @@ in
     home = homeConfigurations.${"dev-" + pkgs.stdenv.hostPlatform.system}.config;
     inherit (pkgs) lib;
   };
+  harness-settings = import ./harness-settings.nix {
+    inherit pkgs darwinConfigurations nixosConfigurations;
+    home = homeConfigurations.${"dev-" + pkgs.stdenv.hostPlatform.system}.config;
+  };
   host-access-security = import ./host-access-security.nix {
     inherit
       pkgs

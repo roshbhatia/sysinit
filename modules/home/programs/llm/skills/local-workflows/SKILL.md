@@ -143,3 +143,8 @@ Keep Taskwarrior/Pueue submissions on the existing bounded `codex exec` workflow
 Service restarts can interrupt shared turns. Nix and the platform service manager
 own this server; native daemon bootstrap/update commands manage a separate package
 installation and do not replace that ownership.
+
+On NixOS and nix-darwin, Nix-owned Codex lifecycle hooks come from
+`/etc/codex/hooks.json` and are trusted by native system policy. Plugin and project
+hooks retain their own review flow. Hook commands resolve through the stable user
+profile; source changes belong in sysinit rather than the generated hook file.

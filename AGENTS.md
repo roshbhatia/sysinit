@@ -21,6 +21,9 @@ not restate any of those here.
   one with no asset is a single file
 - Codex's shared app-server uses the Nix-pinned CLI through a user service.
   See [docs/codex-daemon.md](docs/codex-daemon.md) for its socket, ownership, and checks
+- Nix-owned Codex hooks live in `/etc/codex/hooks.json` and are trusted by native
+  system policy. [docs/harness-settings.md](docs/harness-settings.md) records the
+  installed-version settings audit and standalone Home Manager behavior
 - `registry.nix` carries what each harness can do, not just who it is: `guard`,
   `notify`, `editBus`, `acp`, `exitHook`, `projectDir`, `transcriptRoot`.
   `harnesses/default.nix` rejects a null on the ones that must be answered,

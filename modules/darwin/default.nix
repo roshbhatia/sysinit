@@ -4,6 +4,7 @@
   imports = [
     ../shared/options/user.nix
     ../shared/options/theme.nix
+    ../shared/codex-hooks.nix
     ./options.nix
     ../home/programs/git/options.nix
 

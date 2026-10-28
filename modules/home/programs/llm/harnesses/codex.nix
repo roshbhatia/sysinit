@@ -2,6 +2,7 @@
   lib,
   pkgs,
   config,
+  osConfig ? { },
   ...
 }:
 let
@@ -13,18 +14,10 @@ let
     llmLib.commandPath.renderHomeFor pkgs.stdenv.hostPlatform.isDarwin profileBin
       config.home.homeDirectory;
 
-  gateHookScript = llmLib.guards.mkGateHookScript {
-    inherit pkgs;
-    name = "codex-gate-hook";
-    harness = "codex";
-    event = "PreToolUse";
+  nativeHooks = import ../lib/codex-hooks.nix {
+    inherit lib pkgs profileBin;
   };
-  gateHook =
-    event:
-    llmLib.guards.mkGateHook {
-      inherit pkgs event;
-      harness = "codex";
-    };
+  systemHooks = osConfig.sysinit.codex.systemHooks.enable or false;
 
   otlpHttp = signal: {
     endpoint = "http://127.0.0.1:4318/v1/${signal}";
@@ -117,7 +110,7 @@ in
       };
 
   home = {
-    packages = [ gateHookScript ];
+    inherit (nativeHooks) packages;
     activation.codexNativeTools = lib.hm.dag.entryBetween [ "llmManagedFiles" ] [ "writeBoundary" ] ''
       $DRY_RUN_CMD ${lib.getExe nativeToolsPython} ${./codex-native-tools.py}
     '';
@@ -143,6 +136,12 @@ in
         path = ".codex/${f}";
         format = "toml";
         contentFile = config.home.file.".codex/${f}".source;
+        retire = lib.optionals (f == "config.toml") [
+          [
+            "tools"
+            "web_search"
+          ]
+        ];
         enforce = lib.optionals (f == "config.toml") [
           "approval_policy"
           "sandbox_mode"
@@ -205,9 +204,7 @@ in
         };
       };
 
-      tools = {
-        web_search = true;
-      };
+      web_search = "live";
 
       features = {
         hooks = true;
@@ -229,57 +226,7 @@ in
         };
       };
 
-      hooks = {
-        PreToolUse = [
-          {
-            hooks = [
-              {
-                type = "command";
-                command = "${lib.getExe gateHookScript}";
-              }
-            ];
-          }
-        ];
-        PostToolUse = [
-          {
-
-            hooks = [
-              {
-                type = "command";
-                command = gateHook "PostToolUse";
-              }
-            ];
-          }
-        ];
-        UserPromptSubmit = [
-          {
-            hooks = [
-              {
-                type = "command";
-                command = "${profileBin}/agent-state codex working submit";
-              }
-              {
-                type = "command";
-                command = gateHook "UserPromptSubmit";
-              }
-            ];
-          }
-        ];
-        Stop = [
-          {
-            hooks = [
-              {
-                type = "command";
-                command = "${profileBin}/agent-notify codex done ${profileBin}/agent-focus";
-              }
-              {
-                type = "command";
-                command = "${profileBin}/agent-state codex done \"your move\"";
-              }
-            ];
-          }
-        ];
-      };
+      hooks = lib.mkIf (!systemHooks) nativeHooks.hooks;
     };
   };
 }

@@ -14,6 +14,10 @@ codex --no-daemon
 `--no-daemon` selects a separate CLI session when needed. Existing ChatGPT desktop
 app-server processes retain their own lifecycle and bundled executable.
 
+Nix-owned lifecycle hooks are installed in the native system config layer and use
+stable profile commands. Codex trusts those system hooks automatically. See the
+[harness settings audit](harness-settings.md#hook-ownership-and-trust) for scope.
+
 ## Service ownership
 
 | Platform | Inspect | Logs |
