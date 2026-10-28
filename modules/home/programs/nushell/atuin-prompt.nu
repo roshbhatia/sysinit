@@ -1,18 +1,9 @@
-def atuin-preserve-prompt [mode: string] {
-    let primary = $env.PROMPT_COMMAND? | default ''
-    let indicator = match $mode {
-        vi_insert => ($env.PROMPT_INDICATOR_VI_INSERT? | default ': ')
-        vi_normal => ($env.PROMPT_INDICATOR_VI_NORMAL? | default '> ')
-        _ => ($env.PROMPT_INDICATOR? | default '> ')
-    }
-    for part in [$primary $indicator] {
-        print -n (if ($part | describe) == closure { do $part } else { $part })
-    }
-    print (commandline)
+def atuin-preserve-prompt [_mode: string] {
+    print ''
 }
 
-# ExecuteHostCommand clears the editing line before handing the terminal over.
-# Retain the configured prompt above Atuin, then let its native widget edit the buffer.
+# ExecuteHostCommand leaves the rendered editing line on screen. Start Atuin on
+# the following line without printing another copy of the prompt or input.
 $env.config.keybindings = ($env.config.keybindings | each {|binding|
     if $binding.name == atuin {
         $binding.mode | each {|mode|

@@ -12,7 +12,7 @@ zsh integration and a compact 13-row picker with preview, help, and tabs hidden.
 It returned the selected command for editing instead of executing it. The
 restored module keeps the compact, editable selection behavior, validated against
 the pinned Atuin 18.24.2, and adds all four shell integrations. The owner-selected
-layout caps both pickers at eight rows and places the search bar at the top.
+layout caps both pickers at eight rows and places the search bar below the results.
 Long commands have a preview capped at two rows within that height. The native
 theme uses the same shared foreground and accent palette as fzf, retaining the
 terminal background. Help and tabs remain hidden.
@@ -24,7 +24,7 @@ eight rows; the upstream default otherwise selects its ultracompact layout.
 | Fuzzy history search | `search_mode = "fuzzy"` |
 | Commands from every local shell | `search.shells = "all"`, `filter_mode = "global"` |
 | Compact, editable selection | `inline_height = 8`, `enter_accept = false` |
-| Search bar and row details | `invert = true`; duration, time, and command columns |
+| Search bar and row details | `invert = false`; duration, time, and command columns |
 | Picker editing mode | `keymap_mode = "vim-insert"`; type immediately, Tab/Shift-Tab move next/previous, Esc enables j/k, and i resumes typing |
 | Ctrl-R ownership | fzf history binding disabled; native Atuin integration loaded afterward |
 | zsh-vi-mode | Atuin loads after its lazy fzf callback; Ctrl-R also works in Vi normal mode |

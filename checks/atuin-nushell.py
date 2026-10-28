@@ -117,6 +117,9 @@ with tempfile.TemporaryDirectory() as directory:
         terminal.send("\x12")
         terminal.wait(lambda: any("GLOBAL" in row for row in terminal.screen.display))
         rows = terminal.screen.display
+        assert sum(row.count("original-prompt") for row in rows) == 1, (
+            "Opening the picker duplicated the prompt"
+        )
         prompt_row = next(
             index
             for index, row in enumerate(rows)
@@ -126,6 +129,13 @@ with tempfile.TemporaryDirectory() as directory:
             index for index, row in enumerate(rows) if "GLOBAL" in row and token in row
         )
         assert prompt_row < query_row, "Original prompt was overwritten by the picker"
+        assert rows[prompt_row].count(token) == 1, (
+            "Opening the picker duplicated the input"
+        )
+        selected_row = next(
+            index for index, row in enumerate(rows) if re.match(r"\s*>", row)
+        )
+        assert selected_row < query_row, "The search field is not below the results"
         for keys, selected in [("\t", "older"), ("\x1b[Z", "newer"), ("\t", "older")]:
             terminal.send(keys)
             terminal.read()

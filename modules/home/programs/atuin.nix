@@ -49,7 +49,7 @@ in
         style = "compact";
         inline_height = 8;
         auto_hide_height = 0;
-        invert = true;
+        invert = false;
         show_preview = true;
         max_preview_height = 2;
         show_help = false;
@@ -60,8 +60,8 @@ in
         search.shells = "all";
         keymap_mode = "vim-insert";
         keymap.vim-insert = {
-          tab = "select-next";
-          shift-tab = "select-previous";
+          tab = "select-previous";
+          shift-tab = "select-next";
         };
         theme.name = lib.mkIf themeEnabled "sysinit";
         daemon.autostart = false;
