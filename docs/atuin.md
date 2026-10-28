@@ -13,6 +13,9 @@ It returned the selected command for editing instead of executing it. The
 restored module keeps the compact, editable selection behavior, validated against
 the pinned Atuin 18.24.2, and adds all four shell integrations. The owner-selected
 layout caps both pickers at eight rows and places the search bar at the top.
+Long commands have a preview capped at two rows within that height. The native
+theme uses the same shared foreground and accent palette as fzf, retaining the
+terminal background. Help and tabs remain hidden.
 
 | Behavior | Configuration |
 | --- | --- |
@@ -20,7 +23,7 @@ layout caps both pickers at eight rows and places the search bar at the top.
 | Commands from every local shell | `search.shells = "all"`, `filter_mode = "global"` |
 | Compact, editable selection | `inline_height = 8`, `enter_accept = false` |
 | Search bar and row details | `invert = true`; duration, time, and command columns |
-| Shell editing mode | `keymap_mode = "auto"`; Nushell covers Emacs and both Vi modes |
+| Picker editing mode | `keymap_mode = "vim-insert"`; type immediately, then Esc for j/k navigation and i to resume typing |
 | Ctrl-R ownership | fzf history binding disabled; native Atuin integration loaded afterward |
 | zsh-vi-mode | Atuin loads after its lazy fzf callback; Ctrl-R also works in Vi normal mode |
 | Local service | Home Manager owns launchd on macOS and the systemd user service/socket on Linux |
