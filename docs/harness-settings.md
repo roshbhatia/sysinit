@@ -11,14 +11,14 @@ schema check does not establish that an authenticated model turn succeeds.
 
 | Harness | Installed version | Evidence and decision |
 | --- | --- | --- |
-| Amp | `0.0.1793119929-g574f34` | Current settings pass Amp's official JSON schema; native help still supports the declared permission, update, remote-execution, and skill settings. Retain. |
-| Claude Code | `2.1.311` | Native `doctor` finds no installation issues. Replace the ignored `dangerouslySkipPermissions` setting with `permissions.defaultMode = "bypassPermissions"`. Remove the redundant thinking-on default and the `disabledMcpServers` copy in settings; its existing `.claude.json` declaration remains. |
+| Amp | `0.0.1793145649-gaedc46` | Current settings pass Amp's official JSON schema; native help still supports the declared permission, update, remote-execution, and skill settings. Retain. |
+| Claude Code | `2.1.312` | Native `doctor` finds no installation issues. Replace the ignored `dangerouslySkipPermissions` setting with `permissions.defaultMode = "bypassPermissions"`. Remove the redundant thinking-on default and the `disabledMcpServers` copy in settings; its existing `.claude.json` declaration remains. |
 | Codex | `0.164.0` | Native strict startup configuration parsing succeeds. The pinned parser accepts but discards boolean `tools.web_search`; replace it with `web_search = "live"`. Install Nix-owned hooks through the native system config layer. |
 | Copilot | `1.0.98` | Native settings reference rejects `theme = "auto"`; use `default`. The installed native parser accepts PascalCase command hooks. Replace the JavaScript extension shim with a native `PreToolUse` hook. |
 | Crush | `0.98.2` | Current JSON configuration passes the schema from its installed release tag. Retain; upstream documents `crushrc`, but JSON remains supported. A format migration has no required behavior change here. |
 | Cursor | `2026.10.01-e373342` | The installed loader honors `XDG_CONFIG_HOME/cursor/cli-config.json` on this machine, including macOS. Its native settings support our Vim, permission, and HTTP/1 settings. Retain the current path. |
 | Devin | `3000.11.92` | Native `doctor --json` returns `ok: true`. It reports ignored metadata fields in user-created shared agent profiles. Retain the managed configuration and preserve those profiles. |
-| fx | `0.0.14` | Native `status --json` reads the intended provider, model, and permission mode. Add `auto_upgrade = false` so Nix owns updates. |
+| fx | `0.0.15` | Native `status --json` reads the intended provider, model, and permission mode. Add `auto_upgrade = false` so Nix owns updates. |
 | Antigravity (`agy`) | `1.4.1` | Native help and Google's settings schema support the current interface. Add managed CLI preferences for Vim editing, full-screen rendering, and terminal colors in `~/.gemini/antigravity-cli/settings.json`; preserve workspace trust and permission decisions. |
 | Goose | `1.56.0` | Native `info` confirms the managed config and data paths. Retain the ACP provider registry, Codex ACP default, local memory, and code-execution extension configuration validated during the preceding update. |
 | OpenCode | `2.2.0` | Retain the existing v2 settings renderer. Its repository check validates the main/CLI configurations against the schemas shipped with the installed package and checks unknown-key rejection. |
@@ -59,9 +59,10 @@ checks remain the required validation gates.
 
 ## Limits and follow-up conditions
 
-Claude's native doctor reports missing usable subscription credentials. That
-limits authenticated runtime verification; configuration changes do not sign in
-or reset credentials. Devin's ignored shared-agent metadata is nonfatal and is
+Claude's native doctor reports missing usable subscription credentials, and fx's
+status reports that its selected Codex provider needs a login. Those findings limit
+authenticated runtime verification; configuration changes do not sign in or reset
+credentials. Devin's ignored shared-agent metadata is nonfatal and is
 not rewritten by this audit. No active harness is restarted to adopt settings;
 each client applies configuration through its supported reload or next-session
 behavior.
