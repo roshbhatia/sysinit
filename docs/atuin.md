@@ -54,7 +54,23 @@ atuin resume <id> --print
 atuin resume <id> --in codex --print
 ```
 
-The picker starts in the current workspace and falls back to all threads when
+Nushell's `threads` command opens compact fzf pickers for the action and captured
+thread: resume in its original harness, continue in another installed harness,
+fork a new session, or inspect the conversation. Conversion offers the installed
+entries in the shared harness registry that Atuin supports: Claude, Codex,
+OpenCode, Pi, and Omp. The thread picker searches all captured local threads.
+Canceling any picker leaves the session alone.
+Original-harness resume uses `--as-is`, matching the local-only setup and avoiding
+sync catch-up checks against a service this machine does not use.
+
+`threads --print` prints the selected resume command instead of launching it.
+Atuin still creates a new session when forking or converting with `--print`.
+Arguments pass through to the native interface, so `threads list --style json |
+from json` and `threads resume <id> --print` compose with other Nushell commands.
+The launcher uses Atuin's resume operation directly; it does not evaluate a
+printed shell command or create a `sy` workspace, Pueue job, or terminal pane.
+
+The native `atuin resume` picker starts in the current workspace and falls back to all threads when
 that workspace has none. It inherits the eight-row inline height. `--print`
 reviews a resume command without starting a harness. Resuming does not change Taskwarrior task
 ownership, select a new `sy` workspace, or create a Pueue attempt. The

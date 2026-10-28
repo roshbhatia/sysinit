@@ -37,7 +37,7 @@ pkgs.runCommand "atuin-local-history-and-threads"
     ];
   }
   ''
-    python3 ${./atuin.py} ${settings}
+    python3 ${./atuin.py} ${settings} ${../modules/home/programs/nushell/agent-threads.nu}
     export HOME="$TMPDIR/nu-home"
     export XDG_CONFIG_HOME="$HOME/.config"
     mkdir -p "$HOME"

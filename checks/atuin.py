@@ -211,6 +211,20 @@ with tempfile.TemporaryDirectory() as directory:
             ]:
                 assert value in captured, captured
             assert "codex" in run("resume", session, "--print")
+            listed = subprocess.check_output(
+                [
+                    "nu",
+                    "--no-config-file",
+                    "-c",
+                    f"use {sys.argv[2]} *; threads list --style json | from json | to json --raw",
+                ],
+                env=environment,
+                text=True,
+                timeout=20,
+            )
+            assert json.loads(listed) == json.loads(
+                run("threads", "list", "--style", "json")
+            )
 
             mcp = subprocess.Popen(
                 ["atuin", "mcp"],
