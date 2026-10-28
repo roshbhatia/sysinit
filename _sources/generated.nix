@@ -16,26 +16,26 @@
   };
   amp-cli = {
     pname = "amp-cli";
-    version = "0.0.1793119929-g574f34";
+    version = "0.0.1793145649-gaedc46";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1793119929-g574f34/amp-darwin-arm64.gz";
-      sha256 = "sha256-kr/DFV6O9sBROrZANopN5N7XNJVA7Ga9O/z7NaHC6qE=";
+      url = "https://static.ampcode.com/cli/0.0.1793145649-gaedc46/amp-darwin-arm64.gz";
+      sha256 = "sha256-RU/7qbRUIlKOV+ViOacwzkz7CNL2wAQxJtpMBgXjPhk=";
     };
   };
   amp-cli-aarch64-linux = {
     pname = "amp-cli-aarch64-linux";
-    version = "0.0.1793119929-g574f34";
+    version = "0.0.1793145649-gaedc46";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1793119929-g574f34/amp-linux-arm64.gz";
-      sha256 = "sha256-uRIKcOVz+UBnKMR+BoVU917A+P2wzczAwPrheVXPd78=";
+      url = "https://static.ampcode.com/cli/0.0.1793145649-gaedc46/amp-linux-arm64.gz";
+      sha256 = "sha256-3dTuBuDvJExhvlsXqeeuFi/Vmeg9KNTYczHcpt1vF64=";
     };
   };
   amp-cli-x86_64-linux = {
     pname = "amp-cli-x86_64-linux";
-    version = "0.0.1793119929-g574f34";
+    version = "0.0.1793145649-gaedc46";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1793119929-g574f34/amp-linux-x64-baseline.gz";
-      sha256 = "sha256-8J6yY3E5Bm/yY8eQEtAD6S0PKWF81GC6nj1bGr+kRhI=";
+      url = "https://static.ampcode.com/cli/0.0.1793145649-gaedc46/amp-linux-x64-baseline.gz";
+      sha256 = "sha256-UvXtZCtfTpPZDkS+yGV7C/0yzWDkfgkDb/8nLcNGKGY=";
     };
   };
   crush = {
@@ -72,34 +72,34 @@
   };
   fx = {
     pname = "fx";
-    version = "0.0.14";
+    version = "0.0.15";
     src = fetchurl {
-      url = "https://github.com/vercel-labs/fx/releases/download/v0.0.14/fx-macos-aarch64.tar.gz";
-      sha256 = "sha256-YZxtzPTozWKQ7EoFLSnIcksqSxUNiTQ1s96QhsIft7E=";
+      url = "https://github.com/vercel-labs/fx/releases/download/v0.0.15/fx-macos-aarch64.tar.gz";
+      sha256 = "sha256-n33K4fQggNimaP+P7BctkNBxpSVAJVd2R5v5c7xaNJs=";
     };
   };
   fx-aarch64-linux = {
     pname = "fx-aarch64-linux";
-    version = "0.0.14";
+    version = "0.0.15";
     src = fetchurl {
-      url = "https://github.com/vercel-labs/fx/releases/download/v0.0.14/fx-linux-aarch64.tar.gz";
-      sha256 = "sha256-n1z7rBco//3cLV2HTR9/6NNPF54byG+y5npudQdOU/M=";
+      url = "https://github.com/vercel-labs/fx/releases/download/v0.0.15/fx-linux-aarch64.tar.gz";
+      sha256 = "sha256-HAbncKqH45xqSAfWpC/FUI0FHko4H7LDXgco/B9B1GE=";
     };
   };
   fx-x86_64-darwin = {
     pname = "fx-x86_64-darwin";
-    version = "0.0.14";
+    version = "0.0.15";
     src = fetchurl {
-      url = "https://github.com/vercel-labs/fx/releases/download/v0.0.14/fx-macos-x86_64.tar.gz";
-      sha256 = "sha256-ZzUQH5SxITJ4reYQmYjxckk7hj6AYLUVKQPSFGe5UhM=";
+      url = "https://github.com/vercel-labs/fx/releases/download/v0.0.15/fx-macos-x86_64.tar.gz";
+      sha256 = "sha256-36UZmQgVDBmpyK3JD3K8zvvhfWdA7d0CQPO5Q8za9hA=";
     };
   };
   fx-x86_64-linux = {
     pname = "fx-x86_64-linux";
-    version = "0.0.14";
+    version = "0.0.15";
     src = fetchurl {
-      url = "https://github.com/vercel-labs/fx/releases/download/v0.0.14/fx-linux-x86_64.tar.gz";
-      sha256 = "sha256-cxwZFPwtSXoQWD9EFvg4LBkuSJfWoLT3E9YZRFWoVIs=";
+      url = "https://github.com/vercel-labs/fx/releases/download/v0.0.15/fx-linux-x86_64.tar.gz";
+      sha256 = "sha256-Ut75VzIdxILGNe1hOk//NIkgKwN0tszG3II+ZXNrvyY=";
     };
   };
   git-ai = {
