@@ -25,7 +25,7 @@ eight rows; the upstream default otherwise selects its ultracompact layout.
 | Commands from every local shell | `search.shells = "all"`, `filter_mode = "global"` |
 | Compact, editable selection | `inline_height = 8`, `enter_accept = false` |
 | Search bar and row details | `invert = true`; duration, time, and command columns |
-| Picker editing mode | `keymap_mode = "vim-insert"`; type immediately, then Esc for j/k navigation and i to resume typing |
+| Picker editing mode | `keymap_mode = "vim-insert"`; type immediately, Tab/Shift-Tab move next/previous, Esc enables j/k, and i resumes typing |
 | Ctrl-R ownership | fzf history binding disabled; native Atuin integration loaded afterward |
 | zsh-vi-mode | Atuin loads after its lazy fzf callback; Ctrl-R also works in Vi normal mode |
 | Local service | Home Manager owns launchd on macOS and the systemd user service/socket on Linux |
@@ -34,6 +34,12 @@ Nix writes `~/.config/atuin/config.toml`. `ATUIN_CONFIG_DIR` points shells, the
 daemon, and the MCP server at that file, independently of Atuin's newer
 `~/.atuin` default. Data lives in `~/.local/share/atuin`. Original shell-history
 files remain available; Atuin does not replace or truncate them.
+
+Nushell retains its configured prompt and original input above the inline picker.
+Enter returns the selection to the editable command buffer; cancellation retains
+the original buffer. The native Atuin widget still owns command insertion and
+history hooks. To load the prompt wrapper in an already running Nushell, run
+`source ~/.config/atuin/nushell.nu`; new shells load it automatically.
 
 ## Agent Threads
 

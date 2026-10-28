@@ -16,6 +16,19 @@ let
     source ${home.programs.fzf.package}/share/fzf/key-bindings.nu
     source ${home.programs.fzf.package}/share/fzf/completion.nu
     source ${nushellInit}
+    source ${../modules/home/programs/nushell/atuin-prompt.nu}
+    $env.PROMPT_COMMAND = {|| "original-prompt " }
+    $env.PROMPT_INDICATOR_VI_INSERT = ": "
+    $env.PROMPT_COMMAND_RIGHT = ""
+    $env.config.edit_mode = "vi"
+    $env.config.show_banner = false
+    $env.config.keybindings = ($env.config.keybindings | append {
+      name: capture_buffer
+      modifier: control
+      keycode: char_x
+      mode: [emacs vi_normal vi_insert]
+      event: {send: executehostcommand, cmd: 'commandline | save --force $env.ATUIN_TEST_BUFFER'}
+    })
   '';
 in
 assert home.programs.atuin.enable;
@@ -33,11 +46,15 @@ pkgs.runCommand "atuin-local-history-and-threads"
       pkgs.codex
       pkgs.nushell
       pkgs.git
-      (pkgs.python3.withPackages (ps: [ ps.tomlkit ]))
+      (pkgs.python3.withPackages (ps: [
+        ps.tomlkit
+        ps.pyte
+      ]))
     ];
   }
   ''
     python3 ${./atuin.py} ${settings} ${../modules/home/programs/nushell/agent-threads.nu}
+    python3 ${./atuin-nushell.py} ${settings} ${nushellConfig}
     export HOME="$TMPDIR/nu-home"
     export XDG_CONFIG_HOME="$HOME/.config"
     mkdir -p "$HOME"
@@ -45,7 +62,7 @@ pkgs.runCommand "atuin-local-history-and-threads"
       let history = ($env.config.keybindings | where modifier == control and keycode == char_r)
       for mode in [emacs vi_normal vi_insert] {
         let binding = ($history | where {|binding| $mode in $binding.mode} | last)
-        if $binding.name != atuin {
+        if $binding.name != $"atuin-($mode)" {
           error make {msg: $"Atuin does not own Ctrl-R in ($mode): ($binding)"}
         }
       }

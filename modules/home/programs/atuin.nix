@@ -59,6 +59,10 @@ in
         filter_mode = "global";
         search.shells = "all";
         keymap_mode = "vim-insert";
+        keymap.vim-insert = {
+          tab = "select-next";
+          shift-tab = "select-previous";
+        };
         theme.name = lib.mkIf themeEnabled "sysinit";
         daemon.autostart = false;
         output.enabled = false;
@@ -73,6 +77,10 @@ in
 
     fzf.historyWidget.command = "";
 
+    nushell.extraConfig = lib.mkOrder 2100 ''
+      source ${./nushell/atuin-prompt.nu}
+    '';
+
     zsh.initContent = lib.mkOrder 610 ''
       __setup_atuin() {
         source ${zshInit}
@@ -84,6 +92,7 @@ in
   };
 
   home.sessionVariables.ATUIN_CONFIG_DIR = configDirectory;
+  xdg.configFile."atuin/nushell.nu".source = ./nushell/atuin-prompt.nu;
   launchd.agents.atuin-daemon.config = {
     EnvironmentVariables.ATUIN_CONFIG_DIR = configDirectory;
     RunAtLoad = true;
