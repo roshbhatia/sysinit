@@ -11,6 +11,7 @@ in
   imports =
     profiles.forProfile profile {
       minimal = [
+        ./atuin.nix
         ./bash.nix
         ./bat.nix
         ./direnv.nix

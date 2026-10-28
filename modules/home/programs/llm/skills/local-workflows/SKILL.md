@@ -1,6 +1,6 @@
 ---
 name: local-workflows
-description: Choose the execution role and compose native helpers, separate harnesses, workspaces, queues, and terminals. Use at multi-step intake and for sy/seshy, Taskwarrior, task-queue/Pueue, zmx, worker, wezspawn, or WezTerm operations.
+description: Choose the execution role and compose native helpers, separate harnesses, workspaces, queues, and terminals. Use at multi-step intake and for sy/seshy, Taskwarrior, task-queue/Pueue, zmx, worker, wezspawn, WezTerm, or command/session recovery with Atuin.
 ---
 
 # Local workflows
@@ -47,6 +47,23 @@ concurrent writers through the workspace owner's supported worktree lifecycle.
 Collect each result and verify the integrated outcome before completing the task.
 Use Conductor when reusable workflow steps and routing are needed; read
 `conductor` for that interface.
+
+## Recover prior command and session context
+
+Atuin keeps shell history and captured agent Threads local to this machine;
+automatic sync is disabled. Use the Atuin MCP history/thread search tools for
+prior commands and conversations, or `atuin threads list --style json`,
+`atuin threads search --help`, and `atuin threads show <id>` from the shell.
+Threads capture full tool inputs and outputs for the harnesses Atuin supports.
+Native harness transcripts remain the source when capture has no matching entry.
+
+`atuin resume` selects a session to resume or continue in another supported
+harness. Inspect `atuin resume --help` and use `--print` to review the command
+before launching it. A resume does not grant new authorization or replace the
+Taskwarrior UUID, selected checkout, queue attempt, or terminal owner. Keep
+current work here unless a separate execution is useful and authorized.
+Nix owns Atuin settings and its daemon; change sysinit source rather than running
+`atuin config enable`, `atuin mcp install`, or native daemon autostart setup.
 
 ## Choose the owning command
 

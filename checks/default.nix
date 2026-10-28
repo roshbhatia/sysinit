@@ -183,6 +183,10 @@ in
   agent-sessions = import ./agent-sessions.nix { inherit pkgs; };
   mcp-client-routing = import ./mcp-routing.nix { inherit pkgs; };
   managed-file-cache = import ./managed-file-cache.nix { inherit pkgs; };
+  atuin = import ./atuin.nix {
+    inherit lib pkgs;
+    home = homeConfigurations.${"dev-" + pkgs.stdenv.hostPlatform.system}.config;
+  };
   incremental-defaults =
     pkgs.runCommand "incremental-defaults-test" { nativeBuildInputs = [ pkgs.python3 ]; }
       ''
