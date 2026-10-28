@@ -17,7 +17,11 @@ def merge3($path; $base; $live; $declared):
         | if $base_has_key and $live_has_key and $declared_has_key then
             .[$key] = merge3($next_path; $base[$key]; $live[$key]; $declared[$key])
           elif $base_has_key and $live_has_key and ($declared_has_key | not) then
-            if $live[$key] == $base[$key] then . else .[$key] = $live[$key] end
+            if $live[$key] == $base[$key] then .
+            elif (($base[$key] | type) == "object") and (($live[$key] | type) == "object") then
+              merge3($next_path; $base[$key]; $live[$key]; {}) as $remaining
+              | if $remaining == {} then . else .[$key] = $remaining end
+            else .[$key] = $live[$key] end
           elif $base_has_key and ($live_has_key | not) and $declared_has_key then
             if $declared[$key] == $base[$key] then .
             else error("conflict at ." + ($next_path | join(".")) + ": the live file deleted this key and the Nix content changed it.\n  base: " + show($base[$key]) + "\n  live: (absent)\n  nix:  " + show($declared[$key])) end

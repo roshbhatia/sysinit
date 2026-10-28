@@ -35,6 +35,21 @@ class CacheTest(unittest.TestCase):
                 json.loads(target.read_text()), {"owned": True, "custom": 7}
             )
             self.assertEqual(other.stat().st_mtime_ns, other_stamp)
+            previous = json.loads(base.read_text())
+            previous["hooks"] = {"PreToolUse": ["managed"], "Stop": ["managed"]}
+            base.write_text(json.dumps(previous))
+            live = json.loads(target.read_text())
+            live["hooks"] = {
+                "PreToolUse": ["managed"],
+                "Stop": ["custom"],
+                "state": {"trusted": True},
+            }
+            target.write_text(json.dumps(live))
+            self.assertEqual(run(), 0)
+            self.assertEqual(
+                json.loads(target.read_text())["hooks"],
+                {"Stop": ["custom"], "state": {"trusted": True}},
+            )
             previous_cache = cache.read_bytes()
             target.write_text("invalid")
             self.assertNotEqual(run(), 0)
