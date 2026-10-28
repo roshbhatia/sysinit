@@ -16,6 +16,8 @@ layout caps both pickers at eight rows and places the search bar at the top.
 Long commands have a preview capped at two rows within that height. The native
 theme uses the same shared foreground and accent palette as fzf, retaining the
 terminal background. Help and tabs remain hidden.
+`auto_hide_height = 0` keeps the search field, cursor, and preview visible at
+eight rows; the upstream default otherwise selects its ultracompact layout.
 
 | Behavior | Configuration |
 | --- | --- |

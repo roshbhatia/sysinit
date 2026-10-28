@@ -48,6 +48,7 @@ in
         update_check = false;
         style = "compact";
         inline_height = 8;
+        auto_hide_height = 0;
         invert = true;
         show_preview = true;
         max_preview_height = 2;

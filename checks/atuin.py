@@ -1,15 +1,73 @@
 import datetime
+import fcntl
 import json
 import os
 from pathlib import Path
+import pty
+import re
+import select
 import selectors
+import signal
+import struct
 import subprocess
 import sys
 import tempfile
+import termios
 import time
 import uuid
 
 import tomlkit
+
+
+def verify_search_input(environment, root):
+    child, terminal = pty.fork()
+    if child == 0:
+        os.execvpe(
+            "atuin",
+            [
+                "atuin",
+                "search",
+                "--interactive",
+                "--result-file",
+                str(root / "selection"),
+                "--",
+                "atuin-visible-query",
+            ],
+            dict(environment, TERM="xterm-256color"),
+        )
+    fcntl.ioctl(terminal, termios.TIOCSWINSZ, struct.pack("HHHH", 40, 120, 0, 0))
+    output = bytearray()
+    try:
+        deadline = time.monotonic() + 5
+        while time.monotonic() < deadline:
+            if select.select([terminal], [], [], 0.05)[0]:
+                data = os.read(terminal, 65536)
+                output.extend(data)
+                if b"\x1b[6n" in data:
+                    os.write(terminal, b"\x1b[10;1R")
+                visible = re.sub(rb"\x1b\[[0-?]*[ -/]*[@-~]", b"", output)
+                if (
+                    re.search(rb"\[\s*GLOBAL\s*\]\s*atuin-visible-query", visible)
+                    and b"\x1b[?25h" in output
+                ):
+                    break
+        else:
+            raise AssertionError(
+                f"Eight-row picker did not render its search field and cursor: {bytes(output[-2000:])!r}"
+            )
+        assert b"\x1b[?1049h" not in output, (
+            "Inline picker entered the alternate screen"
+        )
+        os.write(terminal, b"\x03")
+    finally:
+        os.close(terminal)
+        for _ in range(20):
+            if os.waitpid(child, os.WNOHANG)[0]:
+                break
+            time.sleep(0.05)
+        else:
+            os.kill(child, signal.SIGKILL)
+            os.waitpid(child, 0)
 
 
 with tempfile.TemporaryDirectory() as directory:
@@ -73,6 +131,7 @@ with tempfile.TemporaryDirectory() as directory:
             assert "printf atuin-history-fixture" in run(
                 "search", "--cmd-only", "atuin-history-fixture"
             )
+            verify_search_input(environment, root)
 
             session = str(uuid.uuid4())
             timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
