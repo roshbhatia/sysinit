@@ -60,7 +60,7 @@ atuin resume <id> --print
 atuin resume <id> --in codex --print
 ```
 
-The shell-independent Go `threads` command opens an eight-row fzf picker for a
+The shell-independent Go `threads` command opens an eight-row Bubble Tea picker for a
 captured thread, then offers `Resume`, `Resume (Switch)`, `Fork`, `Fork (Switch)`,
 and `Inspect`, in that order. The two Switch actions open a harness picker.
 Conversion offers the installed entries in the shared harness registry that
@@ -73,6 +73,11 @@ When the selected harness differs from the original, both Switch actions use
 Atuin's native conversion, which always creates a new session in that harness.
 Selecting the original harness resumes its existing session for `Resume (Switch)`
 and creates a new session for `Fork (Switch)`.
+The picker uses Bubbles text input and fuzzy matching, Lip Gloss rendering, and
+the shared Go terminal palette. It starts in insert mode; Tab/Shift-Tab and arrow
+keys move through matches. Esc enables j/k navigation, i or / returns to search,
+and Ctrl-C cancels. It renders inline on stderr and leaves stdout for native
+Atuin output.
 
 `threads --print` prints the selected resume command instead of launching it.
 Atuin still creates a new session when forking or converting with `--print`.
@@ -95,6 +100,20 @@ when Atuin cannot capture that harness's own transcript format.
 
 Standalone shell-output capture, PTY wrapping, and the `?` Atuin AI binding remain
 disabled. They are separate features and are not needed for Threads.
+
+### WezTerm composition
+
+The live session tree represents workspaces, tabs, and panes. Captured Threads
+outlive those terminals, and a workspace can contain several conversations.
+The current picker provider contract opens a workspace for each selected item;
+using it for individual Threads would make conversation identity own workspace
+identity. A working directory also does not uniquely identify a running agent.
+
+The recommended integration is an explicit workspace-scoped launcher that opens
+this picker in a new tab of the current workspace. It would reuse the same Go
+command and Atuin data, without adding conversations to the live session tree.
+That launcher is a proposed follow-up; the current command resumes in its own
+terminal and adds no WezTerm dependency.
 
 ## Import existing history
 

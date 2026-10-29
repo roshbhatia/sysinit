@@ -1,14 +1,11 @@
 package threads
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 	"os/exec"
-	"strconv"
-	"strings"
 	"syscall"
 
 	"github.com/roshbhatia/go-utils/agents"
@@ -43,7 +40,7 @@ func Run(args []string) int {
 		fmt.Print(help)
 		return 0
 	}
-	argv, err := prepare(args)
+	argv, err := prepare(args, pick)
 	if err == nil && len(argv) > 0 {
 		var binary string
 		binary, err = exec.LookPath("atuin")
@@ -58,7 +55,7 @@ func Run(args []string) int {
 	return 0
 }
 
-func prepare(args []string) ([]string, error) {
+func prepare(args []string, choose func([]string, string) (int, error)) ([]string, error) {
 	printCommand := len(args) == 1 && args[0] == "--print"
 	if len(args) > 0 && !printCommand {
 		return append([]string{"threads"}, args...), nil
@@ -85,12 +82,12 @@ func prepare(args []string) ([]string, error) {
 		}
 		labels[i] = fmt.Sprintf("[%s] %s  %s", thread.Harness, string(preview), thread.Cwd)
 	}
-	index, err := pick(labels, "thread> ")
+	index, err := choose(labels, "thread> ")
 	if err != nil || index < 0 {
 		return nil, err
 	}
 	thread := sessions[index]
-	action, err := pick([]string{"Resume", "Resume (Switch)", "Fork", "Fork (Switch)", "Inspect"}, "action> ")
+	action, err := choose([]string{"Resume", "Resume (Switch)", "Fork", "Fork (Switch)", "Inspect"}, "action> ")
 	if err != nil || action < 0 {
 		return nil, err
 	}
@@ -120,7 +117,7 @@ func prepare(args []string) ([]string, error) {
 		if len(harnesses) == 0 {
 			return nil, errors.New("no installed harness supports Atuin thread conversion")
 		}
-		target, err := pick(labels, "harness> ")
+		target, err := choose(labels, "harness> ")
 		if err != nil || target < 0 {
 			return nil, err
 		}
@@ -136,35 +133,4 @@ func prepare(args []string) ([]string, error) {
 		return append(argv, "--fork"), nil
 	}
 	return append(argv, "--as-is"), nil
-}
-
-func pick(labels []string, prompt string) (int, error) {
-	var input strings.Builder
-	for i, label := range labels {
-		label = strings.Map(func(r rune) rune {
-			if r < 32 || r == 127 {
-				return ' '
-			}
-			return r
-		}, label)
-		fmt.Fprintf(&input, "%d\t%s\n", i, label)
-	}
-	cmd := exec.Command("fzf", "--height=8", "--layout=reverse", "--no-preview", "--no-multi", "--delimiter=\t", "--with-nth=2..", "--prompt", prompt)
-	cmd.Stdin = strings.NewReader(input.String())
-	cmd.Stderr = os.Stderr
-	var output bytes.Buffer
-	cmd.Stdout = &output
-	if err := cmd.Run(); err != nil {
-		var exit *exec.ExitError
-		if errors.As(err, &exit) && (exit.ExitCode() == 1 || exit.ExitCode() == 130) {
-			return -1, nil
-		}
-		return -1, fmt.Errorf("%s picker: %w", strings.TrimSpace(prompt), err)
-	}
-	value, _, _ := strings.Cut(strings.TrimSpace(output.String()), "\t")
-	index, err := strconv.Atoi(value)
-	if err != nil || index < 0 || index >= len(labels) {
-		return -1, fmt.Errorf("%s picker returned an invalid selection", strings.TrimSpace(prompt))
-	}
-	return index, nil
 }

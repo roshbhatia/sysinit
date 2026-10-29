@@ -8,7 +8,7 @@ let
 
     src = ../pkgs;
 
-    vendorHash = "sha256-leQVypcmFkXv7u9LW96GNVcdnA+rmAzKpEA5hjIJUaQ=";
+    vendorHash = "sha256-7ywkgl/3KX+RzkqAyxpy3MirDZHkFQOOnVkI9Yjl02c=";
 
     nativeCheckInputs = [
       final.git
@@ -178,7 +178,6 @@ in
         final.git
         final.curl
         final.atuin
-        final.fzf
       ];
     in
     final.runCommand "utils-${sysinit-gotools.version}"

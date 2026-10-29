@@ -5,33 +5,30 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 )
 
-func TestThreadsProcess(t *testing.T) {
-	if os.Getenv("THREADS_TEST_CHILD") == "1" {
-		os.Exit(Run(strings.Fields(os.Getenv("THREADS_TEST_ARGS"))))
-	}
-}
-
 func TestThreadActions(t *testing.T) {
 	for _, tc := range []struct {
-		name, action, target, cancel, arguments, want, prompts string
+		name    string
+		choices []int
+		print   bool
+		want    []string
 	}{
-		{"resume", "1", "", "", "", "resume\nthread-b\n--as-is\n", "thread> action> "},
-		{"resume-switch", "2", "1", "", "--print", "resume\nthread-b\n--print\n--in\nclaude\n", "thread> action> harness> "},
-		{"resume-original", "2", "2", "", "", "resume\nthread-b\n--as-is\n", "thread> action> harness> "},
-		{"fork", "3", "", "", "--print", "resume\nthread-b\n--print\n--fork\n", "thread> action> "},
-		{"fork-switch", "4", "1", "", "", "resume\nthread-b\n--in\nclaude\n", "thread> action> harness> "},
-		{"fork-original", "4", "2", "", "", "resume\nthread-b\n--fork\n", "thread> action> harness> "},
-		{"claude-resume-original", "2", "1", "", "", "resume\nthread-b\n--as-is\n", "thread> action> harness> "},
-		{"claude-fork-original", "4", "1", "", "", "resume\nthread-b\n--fork\n", "thread> action> harness> "},
-		{"inspect", "5", "", "", "--print", "threads\nshow\nthread-b\n", "thread> action> "},
-		{"cancel-thread", "", "", "thread> ", "", "", "thread> "},
-		{"cancel-action", "", "", "action> ", "", "", "thread> action> "},
-		{"cancel-harness", "2", "", "harness> ", "", "", "thread> action> harness> "},
-		{"passthrough", "", "", "", "list --style json", "", ""},
+		{"resume", []int{1, 0}, false, []string{"resume", "thread-b", "--as-is"}},
+		{"resume-switch", []int{1, 1, 0}, true, []string{"resume", "thread-b", "--print", "--in", "claude"}},
+		{"resume-original", []int{1, 1, 1}, false, []string{"resume", "thread-b", "--as-is"}},
+		{"fork", []int{1, 2}, true, []string{"resume", "thread-b", "--print", "--fork"}},
+		{"fork-switch", []int{1, 3, 0}, false, []string{"resume", "thread-b", "--in", "claude"}},
+		{"fork-original", []int{1, 3, 1}, false, []string{"resume", "thread-b", "--fork"}},
+		{"claude-resume-original", []int{0, 1, 0}, false, []string{"resume", "thread-a", "--as-is"}},
+		{"claude-fork-original", []int{0, 3, 0}, false, []string{"resume", "thread-a", "--fork"}},
+		{"inspect", []int{1, 4}, true, []string{"threads", "show", "thread-b"}},
+		{"cancel-thread", []int{-1}, false, nil},
+		{"cancel-action", []int{1, -1}, false, nil},
+		{"cancel-harness", []int{1, 1, -1}, false, nil},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			root := t.TempDir()
@@ -41,93 +38,68 @@ func TestThreadActions(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
-			write("atuin", `#!/bin/sh
-set -eu
-if [ "$*" = 'threads list --style json' ]; then
-  cat "$THREADS_TEST_ROOT/sessions.json"
-else
-  printf '%s\n' "$@"
-  exit 23
-fi
-`, 0o700)
-			write("fzf", `#!/bin/sh
-set -eu
-while [ "$#" -gt 0 ]; do
-  if [ "$1" = --prompt ]; then shift; prompt="$1"; fi
-  shift
-done
-printf '%s' "$prompt" >> "$THREADS_TEST_ROOT/prompts"
-stage="${prompt%%>*}"
-cat > "$THREADS_TEST_ROOT/$stage"
-if [ "$prompt" = "$THREADS_TEST_CANCEL" ]; then exit 130; fi
-case "$stage" in
-  thread) row=2 ;;
-  action) row="$THREADS_TEST_ACTION" ;;
-  harness) row="$THREADS_TEST_TARGET" ;;
-esac
-sed -n "${row}p" "$THREADS_TEST_ROOT/$stage"
-`, 0o700)
+			write("atuin", "#!/bin/sh\nprintf '%s' '[{\"atuin_id\":\"thread-a\",\"harness\":\"claude-code\",\"preview\":\"first\"},{\"atuin_id\":\"thread-b\",\"harness\":\"codex\",\"preview\":\"second\",\"cwd\":\"/repo with spaces\"}]'\n", 0o700)
 			write("claude", "#!/bin/sh\nexit 0\n", 0o700)
 			write("codex", "#!/bin/sh\nexit 0\n", 0o700)
-			sessions := `[{"atuin_id":"thread-a","harness":"claude-code","preview":"first"},{"atuin_id":"thread-b","harness":"codex","preview":"second\nline\u001b","cwd":"/repo with spaces"}]`
-			if strings.HasPrefix(tc.name, "claude-") {
-				sessions = strings.ReplaceAll(sessions, `"harness":"codex"`, `"harness":"claude-code"`)
-			}
-			write("sessions.json", sessions, 0o600)
-			config := filepath.Join(root, "sysinit")
-			if err := os.Mkdir(config, 0o700); err != nil {
+			if err := os.Mkdir(filepath.Join(root, "sysinit"), 0o700); err != nil {
 				t.Fatal(err)
 			}
 			registry := `{"version":1,"agents":[{"name":"claude","label":"Claude Code","command":"` + root + `/claude"},{"name":"codex","label":"Codex","command":"` + root + `/codex"},{"name":"goose","label":"Goose","command":"` + root + `/codex"},{"name":"pi","label":"Pi","command":"` + root + `/missing"}]}`
-			if err := os.WriteFile(filepath.Join(config, "agents.json"), []byte(registry), 0o600); err != nil {
-				t.Fatal(err)
-			}
-			cmd := exec.Command(os.Args[0], "-test.run=^TestThreadsProcess$")
-			cmd.Env = append(os.Environ(),
-				"THREADS_TEST_CHILD=1", "THREADS_TEST_ROOT="+root,
-				"THREADS_TEST_ACTION="+tc.action, "THREADS_TEST_TARGET="+tc.target,
-				"THREADS_TEST_CANCEL="+tc.cancel, "THREADS_TEST_ARGS="+tc.arguments,
-				"XDG_CONFIG_HOME="+root, "PATH="+root+string(os.PathListSeparator)+os.Getenv("PATH"))
-			output, err := cmd.CombinedOutput()
-			wantCode := 0
-			if tc.want != "" {
-				wantCode = 23
-			}
-			code := 0
-			if err != nil {
-				if exit, ok := err.(*exec.ExitError); ok {
-					code = exit.ExitCode()
-				} else {
-					t.Fatal(err)
+			write("sysinit/agents.json", registry, 0o600)
+			t.Setenv("XDG_CONFIG_HOME", root)
+			t.Setenv("PATH", root+string(os.PathListSeparator)+os.Getenv("PATH"))
+			step := 0
+			choose := func(labels []string, prompt string) (int, error) {
+				t.Helper()
+				if step >= len(tc.choices) {
+					t.Fatal("unexpected picker", prompt)
 				}
-			}
-			if code != wantCode {
-				t.Fatalf("exit %d, want %d: %s", code, wantCode, output)
-			}
-			if tc.name == "passthrough" {
-				var sessions []session
-				if err := json.Unmarshal(output, &sessions); err != nil || len(sessions) != 2 {
-					t.Fatalf("native JSON output changed: %s (%v)", output, err)
+				wantPrompt := []string{"thread> ", "action> ", "harness> "}[step]
+				if prompt != wantPrompt {
+					t.Fatalf("picker order: %q, want %q", prompt, wantPrompt)
 				}
-			} else if string(output) != tc.want {
-				t.Fatalf("native arguments = %q, want %q", output, tc.want)
-			}
-			prompts, _ := os.ReadFile(filepath.Join(root, "prompts"))
-			if string(prompts) != tc.prompts {
-				t.Fatalf("picker order = %q, want %q", prompts, tc.prompts)
-			}
-			if strings.Contains(tc.prompts, "action>") {
-				choices, _ := os.ReadFile(filepath.Join(root, "action"))
-				if string(choices) != "0\tResume\n1\tResume (Switch)\n2\tFork\n3\tFork (Switch)\n4\tInspect\n" {
-					t.Fatalf("action menu = %q", choices)
+				if step == 1 && !reflect.DeepEqual(labels, []string{"Resume", "Resume (Switch)", "Fork", "Fork (Switch)", "Inspect"}) {
+					t.Fatalf("actions: %q", labels)
 				}
-			}
-			if strings.Contains(tc.prompts, "harness>") {
-				choices, _ := os.ReadFile(filepath.Join(root, "harness"))
-				if string(choices) != "0\tClaude Code\n1\tCodex\n" {
-					t.Fatalf("unsupported or missing harness in menu: %q", choices)
+				if step == 2 && !reflect.DeepEqual(labels, []string{"Claude Code", "Codex"}) {
+					t.Fatalf("harnesses: %q", labels)
 				}
+				choice := tc.choices[step]
+				step++
+				return choice, nil
+			}
+			var args []string
+			if tc.print {
+				args = []string{"--print"}
+			}
+			got, err := prepare(args, choose)
+			if err != nil || !reflect.DeepEqual(got, tc.want) || step != len(tc.choices) {
+				t.Fatalf("argv=%q err=%v steps=%d, want %q", got, err, step, tc.want)
 			}
 		})
+	}
+}
+
+func TestThreadsProcess(t *testing.T) {
+	if os.Getenv("THREADS_TEST_CHILD") == "1" {
+		var args []string
+		if err := json.Unmarshal([]byte(os.Getenv("THREADS_TEST_ARGS")), &args); err != nil {
+			t.Fatal(err)
+		}
+		os.Exit(Run(args))
+	}
+}
+
+func TestNativePassthrough(t *testing.T) {
+	root := t.TempDir()
+	if err := os.WriteFile(filepath.Join(root, "atuin"), []byte("#!/bin/sh\nprintf '%s\\n' \"$@\"\nexit 23\n"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	cmd := exec.Command(os.Args[0], "-test.run=^TestThreadsProcess$")
+	cmd.Env = append(os.Environ(), "THREADS_TEST_CHILD=1", `THREADS_TEST_ARGS=["show","thread with spaces"]`, "PATH="+root+string(os.PathListSeparator)+os.Getenv("PATH"))
+	output, err := cmd.CombinedOutput()
+	exit, ok := err.(*exec.ExitError)
+	if !ok || exit.ExitCode() != 23 || strings.TrimSpace(string(output)) != "threads\nshow\nthread with spaces" {
+		t.Fatalf("output=%q err=%v", output, err)
 	}
 }

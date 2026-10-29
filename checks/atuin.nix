@@ -57,6 +57,7 @@ pkgs.runCommand "atuin-local-history-and-threads"
   ''
     python3 ${./atuin.py} ${settings}
     python3 ${./atuin-nushell.py} ${settings} ${nushellConfig}
+    python3 ${./threads-picker.py} ${pkgs.sysinit-gotools}/bin/utils
     export HOME="$TMPDIR/nu-home"
     export XDG_CONFIG_HOME="$HOME/.config"
     mkdir -p "$HOME"
