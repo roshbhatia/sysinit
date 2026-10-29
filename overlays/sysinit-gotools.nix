@@ -197,6 +197,9 @@ in
           --set SYSINIT_FIREFOX_TABS "${external.firefox-tabs}" \
           --set SYSINIT_WORKER "${external.worker}" \
           --set SYSINIT_WORKSPACE "${external.ws}" \
+          --set SYSINIT_TERMSESH_SY "${final.seshy-cli}/bin/sy" \
+          --set SYSINIT_TERMSESH_WEZTERM "${final.wezterm}/bin/wezterm" \
+          --set SYSINIT_TERMSESH_ENV "${final.coreutils}/bin/env" \
           --set SYSINIT_WEZSPAWN "${final.wezspawn}/bin/wezspawn" \
           --prefix PATH : "${runtimePath}"
         ln -s "${final.wezspawn}/bin/wezspawn" "$out/bin/wezspawn"
@@ -209,5 +212,11 @@ in
             ln -s "${binary}" "$out/bin/${name}"
           '') external
         )}
+        makeWrapper "${sysinit-gotools}/bin/utils" "$out/bin/termsesh" \
+          --add-flags termsesh \
+          --set SYSINIT_TERMSESH_SY "${final.seshy-cli}/bin/sy" \
+          --set SYSINIT_TERMSESH_WEZTERM "${final.wezterm}/bin/wezterm" \
+          --set SYSINIT_TERMSESH_ENV "${final.coreutils}/bin/env" \
+          --prefix PATH : "${runtimePath}"
       '';
 }

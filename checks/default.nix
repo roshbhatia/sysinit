@@ -112,6 +112,18 @@ in
   task-queue = import ./task-queue.nix { inherit pkgs; };
   opencode = import ./opencode.nix { inherit pkgs; };
   utility-contracts = import ./utility-contracts.nix { inherit pkgs; };
+  termsesh =
+    pkgs.runCommand "termsesh-cli"
+      {
+        nativeBuildInputs = [
+          pkgs.sysinit-utils
+          pkgs.gnugrep
+        ];
+      }
+      ''
+        ${pkgs.sysinit-utils}/bin/termsesh --help | grep -F 'termsesh catalog'
+        touch "$out"
+      '';
   slk-config =
     pkgs.runCommand "slk-config-test"
       {
