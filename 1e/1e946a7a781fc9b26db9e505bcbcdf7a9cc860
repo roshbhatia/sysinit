@@ -1,0 +1,42 @@
+checks/atuin.py
+  s_cccc57401e3d8c::t_19328b979ad942 221
+  s_cccc57401e3d8c::t_6445a879b4818f 214-215
+checks/atuin.nix
+  s_cccc57401e3d8c::t_8a32db26e5c426 47
+  s_cccc57401e3d8c::t_19328b979ad942 50,58
+pkgs/utils/internal/threads/threads_test.go
+  s_cccc57401e3d8c::t_4099165e356097 28-29,76-80
+  s_cccc57401e3d8c::t_5b7701abe7a806 1-27,30-71,75,81-133
+  s_cccc57401e3d8c::t_4b815f4fd3b3b5 72-74
+pkgs/utils/internal/threads/threads.go
+  s_cccc57401e3d8c::t_19328b979ad942 1-126,136-170
+  s_cccc57401e3d8c::t_4099165e356097 128-135
+  s_cccc57401e3d8c::t_09710d4a7acb02 127
+pkgs/utils/main.go
+  s_cccc57401e3d8c::t_19328b979ad942 11
+  s_cccc57401e3d8c::t_99f6c4f338cd20 37-41,74
+overlays/sysinit-gotools.nix
+  s_cccc57401e3d8c::t_6bf1af24ec8ce6 207
+  s_cccc57401e3d8c::t_d798cdcd698ac2 11
+  s_cccc57401e3d8c::t_19328b979ad942 180-181,206
+docs/atuin.md
+  s_cccc57401e3d8c::t_19328b979ad942 63-65,72-74
+  s_cccc57401e3d8c::t_4099165e356097 66-67
+  s_cccc57401e3d8c::t_a24380c241b956 75
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1e1e946a7a781fc9b26db9e505bcbcdf7a9cc860",
+  "prompts": {},
+  "sessions": {
+    "s_cccc57401e3d8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a17e4b-b712-7e82-993b-13c0fa9fac0e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
