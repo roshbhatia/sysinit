@@ -1,0 +1,37 @@
+pkgs/utils/main.go
+  s_cccc57401e3d8c::t_19328b979ad942 11
+  s_cccc57401e3d8c::t_0e19a8ac1f6e99 22-26,70
+docs/atuin.md
+  s_cccc57401e3d8c::t_19328b979ad942 63-65,72-74
+  s_cccc57401e3d8c::t_4099165e356097 66
+  s_cccc57401e3d8c::t_a24380c241b956 75
+pkgs/utils/internal/threads/threads.go
+  s_cccc57401e3d8c::t_19328b979ad942 1-126,132-166
+  s_cccc57401e3d8c::t_4099165e356097 127-131
+checks/atuin.nix
+  s_cccc57401e3d8c::t_19328b979ad942 49,57
+overlays/sysinit-gotools.nix
+  s_cccc57401e3d8c::t_19328b979ad942 180-181,206
+  s_cccc57401e3d8c::t_6bf1af24ec8ce6 207
+pkgs/utils/internal/threads/threads_test.go
+  s_cccc57401e3d8c::t_5b7701abe7a806 1-69,75-127
+  s_cccc57401e3d8c::t_4099165e356097 70-74
+checks/atuin.py
+  s_cccc57401e3d8c::t_19328b979ad942 219
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d7b44ad47f0368e22aa229fdcab63d2e81c50211",
+  "prompts": {},
+  "sessions": {
+    "s_cccc57401e3d8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a17e4b-b712-7e82-993b-13c0fa9fac0e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
