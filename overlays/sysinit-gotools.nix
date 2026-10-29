@@ -8,7 +8,7 @@ let
 
     src = ../pkgs;
 
-    vendorHash = "sha256-wrUrjdGEibLU6+6I+t/haqQyhZr/SMDXRMIn2MJxbkI=";
+    vendorHash = "sha256-leQVypcmFkXv7u9LW96GNVcdnA+rmAzKpEA5hjIJUaQ=";
 
     nativeCheckInputs = [
       final.git
@@ -177,6 +177,8 @@ in
       runtimePath = final.lib.makeBinPath [
         final.git
         final.curl
+        final.atuin
+        final.fzf
       ];
     in
     final.runCommand "utils-${sysinit-gotools.version}"
@@ -201,6 +203,8 @@ in
         ln -s "${final.wezspawn}/bin/wezspawn" "$out/bin/wezspawn"
         makeWrapper "${sysinit-gotools}/bin/utils" "$out/bin/agent-statusline" \
           --argv0 agent-statusline --prefix PATH : "${runtimePath}"
+        makeWrapper "${sysinit-gotools}/bin/utils" "$out/bin/threads" \
+          --argv0 threads --prefix PATH : "${runtimePath}"
         ${final.lib.concatStringsSep "\n" (
           final.lib.mapAttrsToList (name: binary: ''
             ln -s "${binary}" "$out/bin/${name}"

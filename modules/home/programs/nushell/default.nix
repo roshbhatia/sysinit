@@ -233,7 +233,6 @@ in
         use ${./onepassword.nu} *
         use ${./storage.nu} *
         use ${./attribution.nu} *
-        use ${./agent-threads.nu} *
 
         ${lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
           alias nu-open = open

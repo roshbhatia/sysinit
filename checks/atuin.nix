@@ -44,8 +44,10 @@ pkgs.runCommand "atuin-local-history-and-threads"
     nativeBuildInputs = [
       pkgs.atuin
       pkgs.codex
+      pkgs.claude-code
       pkgs.nushell
       pkgs.git
+      pkgs.sysinit-utils
       (pkgs.python3.withPackages (ps: [
         ps.tomlkit
         ps.pyte
@@ -53,7 +55,7 @@ pkgs.runCommand "atuin-local-history-and-threads"
     ];
   }
   ''
-    python3 ${./atuin.py} ${settings} ${../modules/home/programs/nushell/agent-threads.nu}
+    python3 ${./atuin.py} ${settings}
     python3 ${./atuin-nushell.py} ${settings} ${nushellConfig}
     export HOME="$TMPDIR/nu-home"
     export XDG_CONFIG_HOME="$HOME/.config"

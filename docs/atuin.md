@@ -60,14 +60,19 @@ atuin resume <id> --print
 atuin resume <id> --in codex --print
 ```
 
-Nushell's `threads` command opens compact fzf pickers for the action and captured
-thread: resume in its original harness, continue in another installed harness,
-fork a new session, or inspect the conversation. Conversion offers the installed
-entries in the shared harness registry that Atuin supports: Claude, Codex,
+The shell-independent Go `threads` command opens an eight-row fzf picker for a
+captured thread, then offers `Resume`, `Resume (Switch)`, `Fork`, `Fork (Switch)`,
+and `Inspect`, in that order. The two Switch actions open a harness picker.
+Conversion offers the installed entries in the shared harness registry that
+Atuin supports: Claude, Codex,
 OpenCode, Pi, and Omp. The thread picker searches all captured local threads.
 Canceling any picker leaves the session alone.
 Original-harness resume uses `--as-is`, matching the local-only setup and avoiding
 sync catch-up checks against a service this machine does not use.
+When the selected harness differs from the original, both Switch actions use
+Atuin's native conversion, which always creates a new session in that harness.
+Selecting the original harness resumes its existing session for `Resume (Switch)`
+and creates a new session for `Fork (Switch)`.
 
 `threads --print` prints the selected resume command instead of launching it.
 Atuin still creates a new session when forking or converting with `--print`.

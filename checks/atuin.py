@@ -211,12 +211,14 @@ with tempfile.TemporaryDirectory() as directory:
             ]:
                 assert value in captured, captured
             assert "codex" in run("resume", session, "--print")
+            assert "codex" in run("resume", session, "--fork", "--print")
+            assert "claude" in run("resume", session, "--in", "claude", "--print")
             listed = subprocess.check_output(
                 [
                     "nu",
                     "--no-config-file",
                     "-c",
-                    f"use {sys.argv[2]} *; threads list --style json | from json | to json --raw",
+                    "threads list --style json | from json | to json --raw",
                 ],
                 env=environment,
                 text=True,

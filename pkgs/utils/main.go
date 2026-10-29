@@ -8,6 +8,7 @@ import (
 
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/forward"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/statusline"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/threads"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/wezspawn"
 )
 
@@ -32,6 +33,11 @@ var commands = map[string]command{
 		name:    "statusline",
 		summary: statusline.Summary,
 		run:     statusline.Run,
+	},
+	"threads": {
+		name:    "threads",
+		summary: threads.Summary,
+		run:     threads.Run,
 	},
 	"watch": {
 		name:    "watch",
@@ -65,6 +71,7 @@ var links = map[string]link{
 	"agent-statusline": {command: "statusline"},
 	"agent-watch":      {command: "watch"},
 	"firefox-tabs":     {command: "firefox-tabs"},
+	"threads":          {command: "threads"},
 	"wezspawn":         {command: "wezspawn"},
 	"worker":           {command: "worker"},
 	"ws":               {command: "workspace"},
