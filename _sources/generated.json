@@ -23,11 +23,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-jMNhdNyHHua3xELbKEN8tTk/0GUTHcgn4Y9bUJPSWdc=",
+            "sha256": "sha256-Ew8sdMJa2I7bb8/T96Dw3lGM+uJLxeKGnjV2IG2KF4k=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1793275344-g17bf52/amp-darwin-arm64.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1793304039-g62d85d/amp-darwin-arm64.gz"
         },
-        "version": "0.0.1793275344-g17bf52"
+        "version": "0.0.1793304039-g62d85d"
     },
     "amp-cli-aarch64-linux": {
         "cargoLock": null,
@@ -38,11 +38,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-GcqIkrzxAeoxtknHcLPQV00sVIJcG5GaPFtZq3nbzMc=",
+            "sha256": "sha256-RGNK6UE69CB+FQM67oeTmlJ0EGjZP0xwIrcmrTwIT+U=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1793275344-g17bf52/amp-linux-arm64.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1793304039-g62d85d/amp-linux-arm64.gz"
         },
-        "version": "0.0.1793275344-g17bf52"
+        "version": "0.0.1793304039-g62d85d"
     },
     "amp-cli-x86_64-linux": {
         "cargoLock": null,
@@ -53,11 +53,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-YPjcPf4p9IvQoFDWw8y1U0aESI5KsyjXwhxkH4mgwlo=",
+            "sha256": "sha256-UWRyB0Sl8+1AAo4xsaoGCpff3NAlohpunsFeCfVk4OQ=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1793275344-g17bf52/amp-linux-x64-baseline.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1793304039-g62d85d/amp-linux-x64-baseline.gz"
         },
-        "version": "0.0.1793275344-g17bf52"
+        "version": "0.0.1793304039-g62d85d"
     },
     "crush": {
         "cargoLock": null,
@@ -128,11 +128,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-n33K4fQggNimaP+P7BctkNBxpSVAJVd2R5v5c7xaNJs=",
+            "sha256": "sha256-IVio1C53RXp3RADSJdmAK7bA5goLsGdKERa8MSUkkNY=",
             "type": "url",
-            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.15/fx-macos-aarch64.tar.gz"
+            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.16/fx-macos-aarch64.tar.gz"
         },
-        "version": "0.0.15"
+        "version": "0.0.16"
     },
     "fx-aarch64-linux": {
         "cargoLock": null,
@@ -143,11 +143,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-HAbncKqH45xqSAfWpC/FUI0FHko4H7LDXgco/B9B1GE=",
+            "sha256": "sha256-ypRBsQQ1fiEFA52/1MLq8NbuZahAhfI/UeiAyVy/Rq8=",
             "type": "url",
-            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.15/fx-linux-aarch64.tar.gz"
+            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.16/fx-linux-aarch64.tar.gz"
         },
-        "version": "0.0.15"
+        "version": "0.0.16"
     },
     "fx-x86_64-darwin": {
         "cargoLock": null,
@@ -158,11 +158,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-36UZmQgVDBmpyK3JD3K8zvvhfWdA7d0CQPO5Q8za9hA=",
+            "sha256": "sha256-soeXT5egh59QtEOcRlN/zUS4MybBGiMNh/WWBz+NjZs=",
             "type": "url",
-            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.15/fx-macos-x86_64.tar.gz"
+            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.16/fx-macos-x86_64.tar.gz"
         },
-        "version": "0.0.15"
+        "version": "0.0.16"
     },
     "fx-x86_64-linux": {
         "cargoLock": null,
@@ -173,11 +173,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-Ut75VzIdxILGNe1hOk//NIkgKwN0tszG3II+ZXNrvyY=",
+            "sha256": "sha256-8PuCLHvlRsgLzInVBSG8FFRDXgxvWG6EIMTiuE+oBZk=",
             "type": "url",
-            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.15/fx-linux-x86_64.tar.gz"
+            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.16/fx-linux-x86_64.tar.gz"
         },
-        "version": "0.0.15"
+        "version": "0.0.16"
     },
     "git-ai": {
         "cargoLock": null,

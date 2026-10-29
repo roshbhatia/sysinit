@@ -198,7 +198,7 @@
     };
 
     pyproject-build-systems = {
-      url = "github:pyproject-nix/build-system-pkgs/a17819c85163988e063806ffc4f6d2716bc8ead8";
+      url = "github:pyproject-nix/build-system-pkgs/6171a3484937e14cdf2316ed9a60f1c27b6cb71e";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         pyproject-nix.follows = "pyproject-nix";
