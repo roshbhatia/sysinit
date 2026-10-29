@@ -112,8 +112,8 @@ in
   task-queue = import ./task-queue.nix { inherit pkgs; };
   opencode = import ./opencode.nix { inherit pkgs; };
   utility-contracts = import ./utility-contracts.nix { inherit pkgs; };
-  termsesh =
-    pkgs.runCommand "termsesh-cli"
+  ty =
+    pkgs.runCommand "ty-cli"
       {
         nativeBuildInputs = [
           pkgs.sysinit-utils
@@ -121,7 +121,7 @@ in
         ];
       }
       ''
-        ${pkgs.sysinit-utils}/bin/termsesh --help | grep -F 'termsesh catalog'
+        ${pkgs.sysinit-utils}/bin/ty --help | grep -F 'ty catalog'
         touch "$out"
       '';
   slk-config =

@@ -1,4 +1,4 @@
-package termsesh
+package ty
 
 import (
 	"context"
@@ -16,22 +16,22 @@ import (
 	"time"
 )
 
-const protocolVersion = "sysinit.termsesh/v1"
+const protocolVersion = "sysinit.ty/v1"
 
-const usage = `termsesh: inspect and control seshy sessions in WezTerm
+const usage = `ty: inspect and control seshy sessions in WezTerm
 
 Usage:
-  termsesh catalog
-  termsesh sessions
-  termsesh panes
-  termsesh session open <session-id-or-name>
-  termsesh session switch <session-id-or-name>
-  termsesh pane split <pane-id> --direction right|down [--cwd PATH]
-  termsesh pane spawn <pane-id> --direction right|down [--cwd PATH] -- <command> [args...]
-  termsesh pane read <pane-id>
-  termsesh pane send [--submit] <pane-id> [text...]
-  termsesh pane focus <pane-id>
-  termsesh pane close <pane-id>
+  ty catalog
+  ty sessions
+  ty panes
+  ty session open <session-id-or-name>
+  ty session switch <session-id-or-name>
+  ty pane split <pane-id> --direction right|down [--cwd PATH]
+  ty pane spawn <pane-id> --direction right|down [--cwd PATH] -- <command> [args...]
+  ty pane read <pane-id>
+  ty pane send [--submit] <pane-id> [text...]
+  ty pane focus <pane-id>
+  ty pane close <pane-id>
 
 Catalog and action results use JSON. Pane read writes terminal text directly.
 Pane send reads text from stdin when no text argument is supplied.
@@ -109,7 +109,7 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer, runner comman
 		err = invalidUsage("unknown command %q", args[0])
 	}
 	if err != nil {
-		_, _ = fmt.Fprintf(stderr, "termsesh: %v\n", err)
+		_, _ = fmt.Fprintf(stderr, "ty: %v\n", err)
 		var usage usageError
 		if errors.As(err, &usage) {
 			return 2
@@ -187,7 +187,7 @@ func listPanes(ctx context.Context, runner commandRunner) ([]json.RawMessage, er
 
 func runSession(args []string, stdout io.Writer, runner commandRunner) error {
 	if len(args) != 2 || (args[0] != "open" && args[0] != "switch") {
-		return invalidUsage("usage: termsesh session open|switch <session-id-or-name>")
+		return invalidUsage("usage: ty session open|switch <session-id-or-name>")
 	}
 	action := args[0]
 	target := strings.TrimSpace(args[1])
@@ -400,7 +400,7 @@ func runSplit(args []string, spawn bool, stdout io.Writer, runner commandRunner)
 
 func runRead(args []string, stdout io.Writer, runner commandRunner) error {
 	if len(args) != 1 {
-		return invalidUsage("usage: termsesh pane read <pane-id>")
+		return invalidUsage("usage: ty pane read <pane-id>")
 	}
 	if _, err := parsePaneID(args[0]); err != nil {
 		return err
@@ -420,7 +420,7 @@ func runSend(args []string, stdin io.Reader, stdout io.Writer, runner commandRun
 		args = args[1:]
 	}
 	if len(args) == 0 {
-		return invalidUsage("usage: termsesh pane send [--submit] <pane-id> [text...]")
+		return invalidUsage("usage: ty pane send [--submit] <pane-id> [text...]")
 	}
 	paneID := args[0]
 	if _, err := parsePaneID(paneID); err != nil {
@@ -454,7 +454,7 @@ func runSend(args []string, stdin io.Reader, stdout io.Writer, runner commandRun
 
 func runPaneAction(args []string, action string, stdout io.Writer, runner commandRunner) error {
 	if len(args) != 1 {
-		return invalidUsage("usage: termsesh pane %s <pane-id>", action)
+		return invalidUsage("usage: ty pane %s <pane-id>", action)
 	}
 	paneID := args[0]
 	if _, err := parsePaneID(paneID); err != nil {
@@ -479,9 +479,9 @@ func call(runner commandRunner, name string, args []string, stdin io.Reader) ([]
 func execRunner(ctx context.Context, name string, args []string, stdin io.Reader) ([]byte, error) {
 	switch name {
 	case "sy":
-		name = commandPath("SYSINIT_TERMSESH_SY", "sy")
+		name = commandPath("SYSINIT_TY_SY", "sy")
 	case "wezterm":
-		name = commandPath("SYSINIT_TERMSESH_WEZTERM", "wezterm")
+		name = commandPath("SYSINIT_TY_WEZTERM", "wezterm")
 	}
 	cmd := exec.CommandContext(ctx, name, args...)
 	cmd.Stdin = stdin
@@ -536,7 +536,7 @@ func environmentCommand(environment map[string]string) []string {
 		keys = append(keys, key)
 	}
 	sort.Strings(keys)
-	args := []string{commandPath("SYSINIT_TERMSESH_ENV", "env")}
+	args := []string{commandPath("SYSINIT_TY_ENV", "env")}
 	for _, key := range keys {
 		args = append(args, key+"="+environment[key])
 	}

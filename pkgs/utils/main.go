@@ -8,8 +8,8 @@ import (
 
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/forward"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/statusline"
-	"github.com/roshbhatia/sysinit/pkgs/utils/internal/termsesh"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/threads"
+	"github.com/roshbhatia/sysinit/pkgs/utils/internal/ty"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/wezspawn"
 )
 
@@ -45,10 +45,10 @@ var commands = map[string]command{
 		summary: "view worker logs and pane status",
 		run:     forward.Command("SYSINIT_AGENT_WATCH", "agent-watch"),
 	},
-	"termsesh": {
-		name:    "termsesh",
-		summary: termsesh.Summary(),
-		run:     termsesh.Run,
+	"ty": {
+		name:    "ty",
+		summary: ty.Summary(),
+		run:     ty.Run,
 	},
 	"wezspawn": {
 		name:    "wezspawn",
@@ -81,7 +81,7 @@ var links = map[string]link{
 	"wezspawn":         {command: "wezspawn"},
 	"worker":           {command: "worker"},
 	"ws":               {command: "workspace"},
-	"termsesh":         {command: "termsesh"},
+	"ty":               {command: "ty"},
 }
 
 const usageHeader = `utils: the commands that used to be shell scripts

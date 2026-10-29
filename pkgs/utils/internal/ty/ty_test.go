@@ -1,4 +1,4 @@
-package termsesh
+package ty
 
 import (
 	"bytes"

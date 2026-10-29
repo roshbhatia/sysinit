@@ -1,24 +1,24 @@
 ---
-name: termsesh
-description: Inspect and control seshy sessions and WezTerm panes through the structured termsesh CLI. Use when an owner requests visible terminal work or pane inspection.
+name: ty
+description: Inspect and control seshy sessions and WezTerm panes through the structured ty CLI. Use when an owner requests visible terminal work or pane inspection.
 ---
 
 # WezTerm session API
 
-`termsesh` composes seshy's session catalog and open plans with WezTerm's mux
+`ty` composes seshy's session catalog and open plans with WezTerm's mux
 CLI. It is a local command API, not a daemon. Catalog and action responses are
-single-line JSON using `sysinit.termsesh/v1`; pane reads write terminal text
+single-line JSON using `sysinit.ty/v1`; pane reads write terminal text
 directly so they can be piped to other tools.
 
 ## Inspect
 
 ```sh
-termsesh sessions
-termsesh panes
-termsesh catalog
-termsesh sessions | jq '.sessions'
-termsesh panes | jq '.panes[] | {pane_id, workspace, cwd, title}'
-termsesh pane read <pane-id>
+ty sessions
+ty panes
+ty catalog
+ty sessions | jq '.sessions'
+ty panes | jq '.panes[] | {pane_id, workspace, cwd, title}'
+ty pane read <pane-id>
 ```
 
 `sessions` and `panes` each return a versioned JSON document. `catalog` combines
@@ -30,14 +30,14 @@ WezTerm, so a missing GUI/mux is an error rather than a headless server launch.
 ## Act
 
 ```sh
-termsesh session switch <session-id-or-name>
-termsesh session open <session-id-or-name>
-termsesh pane split <pane-id> --direction right
-termsesh pane spawn <pane-id> --direction right -- codex
-termsesh pane send <pane-id> 'text to paste'
-termsesh pane send --submit <pane-id> 'text to paste and submit'
-termsesh pane focus <pane-id>
-termsesh pane close <pane-id>
+ty session switch <session-id-or-name>
+ty session open <session-id-or-name>
+ty pane split <pane-id> --direction right
+ty pane spawn <pane-id> --direction right -- codex
+ty pane send <pane-id> 'text to paste'
+ty pane send --submit <pane-id> 'text to paste and submit'
+ty pane focus <pane-id>
+ty pane close <pane-id>
 ```
 
 `session open` resolves `sy open --format json` and creates a WezTerm window
@@ -53,9 +53,9 @@ actions return JSON.
 ## Boundaries
 
 - Use `sy` and `feature-based-session-manager` for creating, grouping, archiving,
-  or deleting seshy sessions and their worktrees. `termsesh` does not own that
+  or deleting seshy sessions and their worktrees. `ty` does not own that
   lifecycle.
-- Use `termsesh` for visible pane work only when the owner requests it. Use
+- Use `ty` for visible pane work only when the owner requests it. Use
   `task-queue` for durable task-linked execution and `worker` for a requested
   long-running visible command in the current workspace.
 - Before sending text, confirm the pane ID belongs to the intended task. Sending

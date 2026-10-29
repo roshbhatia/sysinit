@@ -71,7 +71,7 @@ Nix owns Atuin settings and its daemon; change sysinit source rather than runnin
 | --- | --- | --- |
 | Durable work and acceptance criteria | `taskwarrior`; read the `taskwarrior` skill | Task UUID, dependencies, annotations, verified completion |
 | Workspace and worktree lifecycle | `sy`; read `feature-based-session-manager` | Session membership and lifecycle of seshy-owned worktrees |
-| Structured local session and pane API | `termsesh`; read `termsesh` | Compose seshy catalogs/open plans with explicit WezTerm pane operations |
+| Structured local session and pane API | `ty`; read `ty` | Compose seshy catalogs/open plans with explicit WezTerm pane operations |
 | Explicit queued execution | `task-queue`; read the submission section of `taskwarrior` | Attempt UUID, exact argv/cwd, Taskwarrior linkage and review state |
 | Queue scheduling and output inspection | Pueue underneath `task-queue` | Job ID, scheduling, process output and exit status |
 | Attachable queued terminal | `task-queue submit --terminal` | A zmx-backed execution, not a new WezTerm window |
@@ -82,8 +82,8 @@ This guidance does not grant permission to open panes or bypass its tool policy.
 Keep short commands inline. Use a queued attempt when separate execution is useful;
 do not turn every command into a task, attempt, or pane.
 
-`termsesh sessions` and `termsesh panes` return separate versioned JSON
-documents. `termsesh catalog` combines them. Read `termsesh` before
+`ty sessions` and `ty panes` return separate versioned JSON
+documents. `ty catalog` combines them. Read `ty` before
 using pane or session actions. Session and worktree lifecycle remains with
 `sy`; task-linked execution remains with `task-queue`; use `worker` when the
 owner requests a long-running visible command in the current workspace.
