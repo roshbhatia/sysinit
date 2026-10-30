@@ -1,0 +1,21 @@
+pkgs/utils/internal/threads/threads_test.go
+  s_054ded0b315d9c::t_56c51ae2c78ddc 41,75
+pkgs/utils/internal/threads/threads.go
+  s_054ded0b315d9c::t_8ea94d14ba93ff 66-73
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b5922536e2cdfdfbbc8530ecfdba586b17bcbb4a",
+  "prompts": {},
+  "sessions": {
+    "s_054ded0b315d9c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a18dfe-b616-7fd1-8e18-451e06339323",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
