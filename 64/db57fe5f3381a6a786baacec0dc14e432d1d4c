@@ -1,0 +1,35 @@
+modules/home/programs/atuin.nix
+  s_cccc57401e3d8c::t_44c0b397001e5f 80-83
+  s_cccc57401e3d8c::t_143270fd3fa58b 95
+  s_cccc57401e3d8c::t_28e140496051a7 62-65
+checks/atuin.nix
+  s_cccc57401e3d8c::t_5d9f23c5cc0baf 49-52
+  s_cccc57401e3d8c::t_1a0610d9ee3e53 65
+  s_cccc57401e3d8c::t_ca0fe12cce87ac 19-31,57
+checks/atuin-nushell.py
+  s_cccc57401e3d8c::t_5d9f23c5cc0baf 47-49,67-69,101-102,104-108,112-114,120-127,132-134,140-142,146-151,160-162,166-171
+  s_cccc57401e3d8c::t_6088355a3f3f1e 129,135-138
+  s_cccc57401e3d8c::t_ca0fe12cce87ac 1-46,50-66,70-100,103,109-111,115-119,128,130-131,139,143-145,152-159,163-165,172-173
+docs/atuin.md
+  s_cccc57401e3d8c::t_143270fd3fa58b 28,38-42
+  s_cccc57401e3d8c::t_6ea9df5796bb59 43
+modules/home/programs/nushell/atuin-prompt.nu
+  s_cccc57401e3d8c::t_44c0b397001e5f 1-19,21-25
+  s_cccc57401e3d8c::t_1a0610d9ee3e53 20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "64db57fe5f3381a6a786baacec0dc14e432d1d4c",
+  "prompts": {},
+  "sessions": {
+    "s_cccc57401e3d8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a17e4b-b712-7e82-993b-13c0fa9fac0e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+AGENTS.md
+  s_cccc57401e3d8c::t_1f66f8d497aa0c 22-23
+docs/codex-daemon.md
+  s_cccc57401e3d8c::t_c27695e99b86fa 1-47
+modules/darwin/log-retention.nix
+  s_cccc57401e3d8c::t_b1e3048f7b0dfe 23
+modules/home/programs/llm/skills/local-workflows/SKILL.md
+  s_cccc57401e3d8c::t_574d827948b7af 136-145
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "35cb00749dc7d9bf2b3ecaab031be078ff6f41bb",
+  "prompts": {},
+  "sessions": {
+    "s_cccc57401e3d8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a17e4b-b712-7e82-993b-13c0fa9fac0e",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

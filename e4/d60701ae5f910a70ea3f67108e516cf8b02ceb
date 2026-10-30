@@ -1,0 +1,25 @@
+checks/default.nix
+  s_cccc57401e3d8c::t_5df0b09689dee1 60-71
+checks/zsh-agent-shell.py
+  s_cccc57401e3d8c::t_9a00af15884bb0 44-45,47,49
+  s_cccc57401e3d8c::t_03e10805d949e4 1-43,46,48,50-57
+modules/home/programs/zsh/core/agent-glob.zsh
+  s_cccc57401e3d8c::t_03e10805d949e4 8-10
+  s_cccc57401e3d8c::t_91133ad23e122f 4,7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e4d60701ae5f910a70ea3f67108e516cf8b02ceb",
+  "prompts": {},
+  "sessions": {
+    "s_cccc57401e3d8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a17e4b-b712-7e82-993b-13c0fa9fac0e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

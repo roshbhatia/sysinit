@@ -1,0 +1,48 @@
+pkgs/utils/internal/threads/picker.go
+  s_cccc57401e3d8c::t_76f4129b148294 171
+  s_cccc57401e3d8c::t_4139cc4a0f857d 1-4,6-71,84-152,154-170,172-184
+  s_cccc57401e3d8c::t_357554d4ce9859 72-83
+  s_cccc57401e3d8c::t_19bf83da28d7e7 5,153
+pkgs/utils/internal/threads/threads_test.go
+  s_cccc57401e3d8c::t_353af2d48f260f 8,15-18,20-31,41,44,48-55,57-59,61-62,64-65,67-77,83
+  s_cccc57401e3d8c::t_43fa6707362f8c 82
+  s_cccc57401e3d8c::t_3dcf62c842199e 84-86
+  s_cccc57401e3d8c::t_ce918a7320af0b 87-105
+pkgs/go.mod
+  s_cccc57401e3d8c::t_c0c5b4ffdae715 5-10,13-14,17-24,26-32,34-36,39-40
+docs/atuin.md
+  s_cccc57401e3d8c::t_19bf83da28d7e7 63,76-80
+  s_cccc57401e3d8c::t_82fd11f16fad0b 104-116
+  s_cccc57401e3d8c::t_0c3e67d4b208e1 117
+pkgs/utils/internal/threads/threads.go
+  s_cccc57401e3d8c::t_4139cc4a0f857d 43,58,85,90,120
+overlays/sysinit-gotools.nix
+  s_cccc57401e3d8c::t_0f53dc41e3b1dd 11
+checks/threads-picker.py
+  s_cccc57401e3d8c::t_7c1871b47969c7 1-42,44-45,47-75,78,82-87,89-99,101-104,106-112,114-120,122-128,130-132,134,136-138,140-143,145-146,148,150,153,155-160,162-170,172,174,176-179,181-189
+  s_cccc57401e3d8c::t_5028ea16077736 79-81,147,149
+  s_cccc57401e3d8c::t_22d72f49271028 171,173
+pkgs/utils/internal/threads/picker_test.go
+  s_cccc57401e3d8c::t_357554d4ce9859 69-81
+  s_cccc57401e3d8c::t_353af2d48f260f 1-68,82-102
+checks/atuin.nix
+  s_cccc57401e3d8c::t_07171abe4b0471 60
+pkgs/go.sum
+  s_cccc57401e3d8c::t_009af4b1ace684 1-6,11-32,35-36,39-54,59-60,63-64,67-68,73-82
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2df9983bec66b4820858d2f3a97e84a9cafee2ca",
+  "prompts": {},
+  "sessions": {
+    "s_cccc57401e3d8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a17e4b-b712-7e82-993b-13c0fa9fac0e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

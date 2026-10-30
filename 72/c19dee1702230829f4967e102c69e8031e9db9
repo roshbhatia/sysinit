@@ -1,0 +1,31 @@
+pkgs/utils/internal/ty/ty.go
+  s_817045bf8103d7::t_2c6d96b06ce7c3 1-554
+overlays/sysinit-gotools.nix
+  s_817045bf8103d7::t_2c6d96b06ce7c3 200-202,215-219
+pkgs/utils/main.go
+  s_817045bf8103d7::t_2c6d96b06ce7c3 12,48-51,84
+pkgs/utils/internal/ty/ty_test.go
+  s_817045bf8103d7::t_2c6d96b06ce7c3 1-274
+checks/default.nix
+  s_817045bf8103d7::t_2c6d96b06ce7c3 115-116,124
+modules/home/programs/llm/skills/local-workflows/SKILL.md
+  s_817045bf8103d7::t_2c6d96b06ce7c3 74,85-86
+modules/home/programs/llm/skills/ty/SKILL.md
+  s_817045bf8103d7::t_2c6d96b06ce7c3 1-68
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "72c19dee1702230829f4967e102c69e8031e9db9",
+  "prompts": {},
+  "sessions": {
+    "s_817045bf8103d7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a18887-bda2-7671-b2c7-c628d85e2947",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

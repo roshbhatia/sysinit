@@ -1,0 +1,32 @@
+docs/atuin.md
+  s_cccc57401e3d8c::t_d3ecdda869529d 63-64
+  s_cccc57401e3d8c::t_1e80754d3df315 73
+  s_cccc57401e3d8c::t_be5ed204818611 57-62,65-72
+checks/atuin.nix
+  s_cccc57401e3d8c::t_40c52053a305ce 40
+checks/atuin.py
+  s_cccc57401e3d8c::t_40c52053a305ce 214-227
+modules/home/programs/nushell/default.nix
+  s_cccc57401e3d8c::t_d3ecdda869529d 236
+modules/home/programs/nushell/agent-threads.nu
+  s_cccc57401e3d8c::t_ffe301e8dccd02 26-34,36-45,47-49,70,72
+  s_cccc57401e3d8c::t_d3ecdda869529d 1-25,35,46,73-74
+  s_cccc57401e3d8c::t_3650d187492091 59-61
+  s_cccc57401e3d8c::t_b1974cb42b2211 50-58,62-69,71
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8d14a2cea971842a9ef6b875f7660db30b13c938",
+  "prompts": {},
+  "sessions": {
+    "s_cccc57401e3d8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a17e4b-b712-7e82-993b-13c0fa9fac0e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

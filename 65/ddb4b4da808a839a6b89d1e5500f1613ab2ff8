@@ -1,0 +1,25 @@
+docs/atuin.md
+  s_cccc57401e3d8c::t_4e54654f61ec55 19-20
+modules/home/programs/atuin.nix
+  s_cccc57401e3d8c::t_4e54654f61ec55 51
+checks/atuin.py
+  s_cccc57401e3d8c::t_8e4e7cfaef5edd 2,6-8,10-11,15,22-33,35-48,51,53-55,57,59-72,134
+  s_cccc57401e3d8c::t_be2580b45d4579 50
+  s_cccc57401e3d8c::t_d4a340854d38c4 56
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "65ddb4b4da808a839a6b89d1e5500f1613ab2ff8",
+  "prompts": {},
+  "sessions": {
+    "s_cccc57401e3d8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a17e4b-b712-7e82-993b-13c0fa9fac0e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

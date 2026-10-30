@@ -1,0 +1,35 @@
+modules/home/programs/llm/lib/instructions.nix
+  s_df142d9d9da5a3::t_6bd265d9d0a11a 5,108,174
+  s_df142d9d9da5a3::t_a55d4174dc1a4b 184-189
+checks/harness-instructions.nix
+  s_df142d9d9da5a3::t_6bd265d9d0a11a 18-20,24-28
+  s_df142d9d9da5a3::t_a55d4174dc1a4b 1-5
+modules/home/programs/llm/gate-defaults.nix
+  s_df142d9d9da5a3::t_6bd265d9d0a11a 4,11
+checks/default.nix
+  s_df142d9d9da5a3::t_6bd265d9d0a11a 233
+modules/home/programs/llm/lib/output-style.nix
+  s_df142d9d9da5a3::t_6bd265d9d0a11a 1-4,6-53,55-80
+  s_df142d9d9da5a3::t_637ee57e32f996 5,54
+modules/home/programs/llm/harnesses/claude/default.nix
+  s_df142d9d9da5a3::t_6bd265d9d0a11a 51,115
+modules/home/programs/llm/skills/writing-tone/SKILL.md
+  s_df142d9d9da5a3::t_6bd265d9d0a11a 79,168
+  s_df142d9d9da5a3::t_43e39844f7f2b4 13-14,103
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1816ee4ed31b05bade17116022ef2faa53ccc114",
+  "prompts": {},
+  "sessions": {
+    "s_df142d9d9da5a3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a16643-3c4e-7a42-bf10-32b8d3ca1f79",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

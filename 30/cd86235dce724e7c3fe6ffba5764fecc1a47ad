@@ -1,0 +1,57 @@
+docs/harness-settings.md
+  s_cccc57401e3d8c::t_9deb0b23686d79 1-79
+modules/nixos/common/default.nix
+  s_cccc57401e3d8c::t_c1aefa78c44d93 21
+docs/codex-daemon.md
+  s_cccc57401e3d8c::t_9deb0b23686d79 17-20
+modules/home/programs/llm/lib/codex-hooks.nix
+  s_cccc57401e3d8c::t_4dbbedf2519f89 1-52
+AGENTS.md
+  s_cccc57401e3d8c::t_9deb0b23686d79 24-26
+checks/harness-settings.nix
+  s_cccc57401e3d8c::t_e78f3ee583e42c 79
+  s_cccc57401e3d8c::t_b210de9e345224 21
+  s_cccc57401e3d8c::t_0ba24de34831db 1-4,6-20,22-52,55-78,80-87
+modules/home/programs/llm/skills/local-workflows/SKILL.md
+  s_cccc57401e3d8c::t_db9b26602fc2e6 146-150
+modules/home/programs/llm/lib/guards.nix
+  s_cccc57401e3d8c::t_987d8cb870ecfa 20
+modules/home/programs/llm/harnesses/codex.nix
+  s_cccc57401e3d8c::t_987d8cb870ecfa 113
+  s_cccc57401e3d8c::t_c1aefa78c44d93 5,18,20
+  s_cccc57401e3d8c::t_4dbbedf2519f89 17
+  s_cccc57401e3d8c::t_82a22bd101f540 139-144,207
+modules/shared/codex-hooks.nix
+  s_cccc57401e3d8c::t_c1aefa78c44d93 1-9,11-25
+  s_cccc57401e3d8c::t_4dbbedf2519f89 10
+modules/darwin/default.nix
+  s_cccc57401e3d8c::t_c1aefa78c44d93 7
+modules/home/programs/llm/harnesses/copilot-cli.nix
+  s_cccc57401e3d8c::t_9706de77364046 47-53
+  s_cccc57401e3d8c::t_c1aefa78c44d93 15
+  s_cccc57401e3d8c::t_b507c797ee283f 17-24
+modules/home/programs/llm/harnesses/claude/default.nix
+  s_cccc57401e3d8c::t_c1aefa78c44d93 102
+modules/home/programs/llm/harnesses/fx.nix
+  s_cccc57401e3d8c::t_c1aefa78c44d93 39,45
+modules/home/programs/llm/harnesses/gemini/default.nix
+  s_cccc57401e3d8c::t_9c7eabea220f41 59-68
+checks/default.nix
+  s_cccc57401e3d8c::t_0ba24de34831db 271-274
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "30cd86235dce724e7c3fe6ffba5764fecc1a47ad",
+  "prompts": {},
+  "sessions": {
+    "s_cccc57401e3d8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a17e4b-b712-7e82-993b-13c0fa9fac0e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

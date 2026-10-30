@@ -1,0 +1,45 @@
+modules/home/programs/llm/skills/openspec-workflow/SKILL.md
+  s_cccc57401e3d8c::t_d0f535a9523a22 26
+  s_cccc57401e3d8c::t_fd990fa9af276a 2,25,27-29
+modules/home/programs/llm/skills/taskwarrior/SKILL.md
+  s_cccc57401e3d8c::t_c98195503cf47c 43-45,47
+  s_cccc57401e3d8c::t_d0f535a9523a22 14,18-21,42
+modules/home/programs/llm/skills/local-workflows/SKILL.md
+  s_cccc57401e3d8c::t_c98195503cf47c 3,11-23,25-38,44-52,82-85,93
+  s_cccc57401e3d8c::t_1631fed4c42fc3 90-92
+  s_cccc57401e3d8c::t_d0f535a9523a22 8,24,39-43
+modules/home/programs/llm/lib/instructions.nix
+  s_cccc57401e3d8c::t_d0f535a9523a22 174,179-180
+  s_cccc57401e3d8c::t_fd990fa9af276a 176-178
+modules/home/programs/llm/skills/note/SKILL.md
+  s_cccc57401e3d8c::t_d1af61123c2e3b 56-57
+modules/home/programs/llm/skills/specutil/SKILL.md
+  s_cccc57401e3d8c::t_fd990fa9af276a 71-72,74
+  s_cccc57401e3d8c::t_d0f535a9523a22 73
+modules/home/programs/llm/skills/default.nix
+  s_cccc57401e3d8c::t_fd990fa9af276a 10
+  s_cccc57401e3d8c::t_9b72389a431e64 9
+  s_cccc57401e3d8c::t_478b1056424f1c 11
+modules/home/programs/llm/skills/adversarial-review/SKILL.md
+  s_cccc57401e3d8c::t_d1af61123c2e3b 11-22
+modules/home/programs/llm/skills/skills-ecosystem-discovery/SKILL.md
+  s_cccc57401e3d8c::t_fd990fa9af276a 1-21
+docs/worker.md
+  s_cccc57401e3d8c::t_c98195503cf47c 1-5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ae323a40f31bd40a91a6f93e6cd8590dec7279c8",
+  "prompts": {},
+  "sessions": {
+    "s_cccc57401e3d8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a17e4b-b712-7e82-993b-13c0fa9fac0e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

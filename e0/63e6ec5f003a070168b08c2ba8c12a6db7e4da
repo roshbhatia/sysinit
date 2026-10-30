@@ -1,0 +1,29 @@
+docs/harness-settings.md
+  s_cccc57401e3d8c::t_fef4e701f7c6d9 14-15,21
+_sources/generated.json
+  s_cccc57401e3d8c::t_35674bf2770504 26,28,30,41,43,45,56,58,60,131,133,135,146,148,150,161,163,165,176,178,180
+_sources/generated.nix
+  s_cccc57401e3d8c::t_2e0aae0bf5bbd5 19,21-22,27,29-30,35,37-38,75,77-78,83,85-86,91,93-94,99,101-102
+flake.lock
+  s_cccc57401e3d8c::t_bd8bcea7c6eba4 72-73,76,82,796-797,800,924-925,928,1074-1075,1078,1141-1142,1145
+flake.nix
+  s_cccc57401e3d8c::t_ab19f7d5a3e6ab 68
+templates/discrete/flake.lock
+  s_cccc57401e3d8c::t_5812da59f490b2 76-77,80,86,177-178,181,186,340-341,344,363-366,368,378,380,384,390,392,396,402,404,408,443-444,447,758-759,762,821-822,825,845-846,849,931-934,936,951-952,955,975-976,979,990-993,995,999,1066-1069,1071,1080-1081,1084,1103-1104,1107,1151-1152,1155,1174-1175,1178,1408-1409,1412,1504-1505,1508,1513,1605-1606,1609,1688-1689,1692
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e063e6ec5f003a070168b08c2ba8c12a6db7e4da",
+  "prompts": {},
+  "sessions": {
+    "s_cccc57401e3d8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a17e4b-b712-7e82-993b-13c0fa9fac0e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

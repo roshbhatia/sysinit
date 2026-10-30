@@ -1,0 +1,36 @@
+checks/default.nix
+  s_817045bf8103d7::t_4da53fd53029c8 115-116,124
+  s_817045bf8103d7::t_7dd0276d4d7b22 117-123,125-126
+pkgs/utils/main.go
+  s_817045bf8103d7::t_b99bb562393e1f 52
+  s_817045bf8103d7::t_4da53fd53029c8 11,48-51,84
+pkgs/utils/internal/termsesh/termsesh.go
+  s_817045bf8103d7::t_4da53fd53029c8 1-554
+overlays/sysinit-gotools.nix
+  s_817045bf8103d7::t_4da53fd53029c8 200-202,215-219
+  s_817045bf8103d7::t_b5aea29f22aa7b 220
+modules/home/programs/llm/skills/termsesh/SKILL.md
+  s_817045bf8103d7::t_4da53fd53029c8 1-68
+pkgs/utils/internal/termsesh/termsesh_test.go
+  s_817045bf8103d7::t_4da53fd53029c8 1-274
+modules/home/programs/llm/skills/local-workflows/SKILL.md
+  s_817045bf8103d7::t_4da53fd53029c8 74,85-86
+  s_817045bf8103d7::t_3c24cef540c3de 87-89
+  s_817045bf8103d7::t_e5fe462950d066 90
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "770bd649bb39226a568992a87a70e4eafac809dc",
+  "prompts": {},
+  "sessions": {
+    "s_817045bf8103d7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a18887-bda2-7671-b2c7-c628d85e2947",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

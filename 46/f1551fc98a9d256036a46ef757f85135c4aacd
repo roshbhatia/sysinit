@@ -1,0 +1,21 @@
+modules/home/programs/llm/lib/managed-file-merge3.jq
+  s_cccc57401e3d8c::t_1d537dc77e1c29 20-24
+checks/managed-file-cache.py
+  s_cccc57401e3d8c::t_1d537dc77e1c29 38-52
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "46f1551fc98a9d256036a46ef757f85135c4aacd",
+  "prompts": {},
+  "sessions": {
+    "s_cccc57401e3d8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a17e4b-b712-7e82-993b-13c0fa9fac0e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

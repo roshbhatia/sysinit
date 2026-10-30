@@ -1,0 +1,73 @@
+modules/darwin/home/colima.nix
+  s_cccc57401e3d8c::t_1a92928e4c834c 35-41
+modules/home/programs/git-ai/default.nix
+  s_cccc57401e3d8c::t_ad2c2ed390875d 23-26,33,73-75,80-83,85
+  s_cccc57401e3d8c::t_835f1fccf7173c 76-79
+  s_cccc57401e3d8c::t_d2d6ff0272b3cd 87-111
+  s_cccc57401e3d8c::t_74f81133d8e869 84,86
+AGENTS.md
+  s_cccc57401e3d8c::t_60074b93b830a5 122-123
+  s_cccc57401e3d8c::t_71606d0f226383 163-165
+pkgs/cache-maintain/main.go
+  s_cccc57401e3d8c::t_835f1fccf7173c 27,29-33
+  s_cccc57401e3d8c::t_1a92928e4c834c 28,108
+modules/darwin/log-retention.nix
+  s_cccc57401e3d8c::t_1a92928e4c834c 22
+docs/storage.md
+  s_cccc57401e3d8c::t_6ad7eb1a755715 1-58,62-73
+  s_cccc57401e3d8c::t_bc2522ee36bd8b 59-61
+modules/home/programs/git-ai/maintain-metrics.py
+  s_cccc57401e3d8c::t_71606d0f226383 37,41
+  s_cccc57401e3d8c::t_ad2c2ed390875d 1-8,15-22,31-36,40,42-48,57-62,65-88,90-93,100-104,111-119
+  s_cccc57401e3d8c::t_b0f6870e63a68a 9,13-14,89
+  s_cccc57401e3d8c::t_835f1fccf7173c 10-12,23-30,38-39,49-56,63-64,94-99,105-110
+modules/home/programs/nushell/storage.nu
+  s_cccc57401e3d8c::t_50c4b159ae9dbd 22-26
+  s_cccc57401e3d8c::t_835f1fccf7173c 38-40
+  s_cccc57401e3d8c::t_afd9df6abde9d9 1-9,11-16,31-37,41-44
+  s_cccc57401e3d8c::t_71606d0f226383 10,17-21,27-30
+checks/default.nix
+  s_cccc57401e3d8c::t_71606d0f226383 89-90,95-96
+  s_cccc57401e3d8c::t_6ad7eb1a755715 88
+  s_cccc57401e3d8c::t_835f1fccf7173c 99-102
+  s_4739e15c332336::t_3786ea8abdf4e2 97-98
+modules/darwin/system.nix
+  s_cccc57401e3d8c::t_1a92928e4c834c 33
+  s_cccc57401e3d8c::t_bc2522ee36bd8b 62
+modules/home/programs/nushell/default.nix
+  s_cccc57401e3d8c::t_afd9df6abde9d9 234-235
+checks/git-ai-integration.py
+  s_cccc57401e3d8c::t_71606d0f226383 14,271-276,278-285,287-295,297-304,306-313,315-321,323-329,331-332
+checks/git-ai-maintenance.py
+  s_cccc57401e3d8c::t_835f1fccf7173c 15-17,21-23,39-41,43-46,66-68
+  s_cccc57401e3d8c::t_188fe71bfef516 1-14,18-20,24-38,42,47-65
+modules/home/programs/nushell/attribution.nu
+  s_cccc57401e3d8c::t_71606d0f226383 41-43,49-51
+  s_cccc57401e3d8c::t_50c4b159ae9dbd 44-48
+  s_cccc57401e3d8c::t_afd9df6abde9d9 1-9,15,27-40,52-68,73
+  s_cccc57401e3d8c::t_835f1fccf7173c 10-14,16-26,69-72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9e44d646c5a0f35a94e6f23058cb29287e8ef695",
+  "prompts": {},
+  "sessions": {
+    "s_4739e15c332336": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1794d-ace0-74e2-8924-c9a64b78418e",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_cccc57401e3d8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a17e4b-b712-7e82-993b-13c0fa9fac0e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
