@@ -63,6 +63,14 @@ func Run(args []string) int {
 }
 
 func prepare(args []string, choose func([]string, string) (int, error)) ([]string, error) {
+	root, err := os.Getwd()
+	if err != nil {
+		return nil, fmt.Errorf("get current folder: %w", err)
+	}
+	return prepareInFolder(args, choose, root)
+}
+
+func prepareInFolder(args []string, choose func([]string, string) (int, error), root string) ([]string, error) {
 	all, printCommand := false, false
 	var passthrough []string
 	for _, arg := range args {
@@ -87,10 +95,6 @@ func prepare(args []string, choose func([]string, string) (int, error)) ([]strin
 	var sessions []session
 	if err := json.Unmarshal(data, &sessions); err != nil {
 		return nil, fmt.Errorf("decode captured threads: %w", err)
-	}
-	root, err := os.Getwd()
-	if err != nil {
-		return nil, fmt.Errorf("get current folder: %w", err)
 	}
 	root, err = filepath.Abs(root)
 	if err != nil {

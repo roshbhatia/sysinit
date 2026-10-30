@@ -38,7 +38,7 @@ func TestThreadActions(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
-			write("atuin", "#!/bin/sh\nprintf '%s' '[{\"atuin_id\":\"thread-a\",\"harness\":\"claude-code\",\"preview\":\"first\"},{\"atuin_id\":\"thread-b\",\"harness\":\"codex\",\"preview\":\"second\",\"cwd\":\"/repo with spaces\"}]'\n", 0o700)
+			write("atuin", "#!/bin/sh\nprintf '%s' '[{\"atuin_id\":\"thread-a\",\"harness\":\"claude-code\",\"preview\":\"first\",\"cwd\":\"/repo with spaces\"},{\"atuin_id\":\"thread-b\",\"harness\":\"codex\",\"preview\":\"second\",\"cwd\":\"/repo with spaces\"}]'\n", 0o700)
 			write("claude", "#!/bin/sh\nexit 0\n", 0o700)
 			write("codex", "#!/bin/sh\nexit 0\n", 0o700)
 			if err := os.Mkdir(filepath.Join(root, "sysinit"), 0o700); err != nil {
@@ -72,7 +72,7 @@ func TestThreadActions(t *testing.T) {
 			if tc.print {
 				args = []string{"--print"}
 			}
-			got, err := prepare(args, choose)
+			got, err := prepareInFolder(args, choose, "/repo with spaces")
 			if err != nil || !reflect.DeepEqual(got, tc.want) || step != len(tc.choices) {
 				t.Fatalf("argv=%q err=%v steps=%d, want %q", got, err, step, tc.want)
 			}
