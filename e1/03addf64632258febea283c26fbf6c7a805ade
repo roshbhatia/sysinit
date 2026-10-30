@@ -1,0 +1,19 @@
+pkgs/utils/internal/threads/threads.go
+  s_a01486201883df::t_32d841c7313e81 9-10,12,19,32-33,37-42,66-78,91-107,109-113,122-142,196-207
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e103addf64632258febea283c26fbf6c7a805ade",
+  "prompts": {},
+  "sessions": {
+    "s_a01486201883df": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a17e7f-8039-7ab1-8f10-537950986ba8",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
