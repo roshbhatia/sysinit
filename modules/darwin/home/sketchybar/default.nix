@@ -15,7 +15,7 @@ let
     inherit (themeConfig) base16Scheme;
     inherit (themeConfig) appearance;
     inherit (themeConfig) transparency;
-    komorebic_bin = "${config.sysinit.codesign.signedBinDir}/komorebic";
+    aerospace_bin = "${pkgs.aerospace}/bin/aerospace";
     base16 = {
       base00 = "#${c.base00}";
       base01 = "#${c.base01}";

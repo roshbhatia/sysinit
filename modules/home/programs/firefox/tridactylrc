@@ -48,7 +48,7 @@ bind <Space>ti pin
 bind <Space>tm mute toggle
 bind <Space>? help
 
-" Komorebi owns these chords; use the tab prefix in Firefox.
+" AeroSpace owns these chords; use the tab prefix in Firefox.
 unbind <A-p>
 unbind <A-m>
 

@@ -8,7 +8,7 @@
     ./options.nix
     ../home/programs/git/options.nix
 
-    ./komorebi.nix
+    ./aerospace.nix
     ./clamshell.nix
     ./borders.nix
     ./codesign.nix

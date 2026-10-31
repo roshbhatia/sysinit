@@ -1,14 +1,6 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ lib, pkgs, ... }:
 
 let
-  signedBin = "${
-    config.users.users.${config.sysinit.user.username}.home
-  }/${(import ../shared/codesign.nix).signedBinDir}";
   menus = pkgs.stdenv.mkDerivation {
     name = "menus";
     src = ./home/sketchybar/helpers/menus;
@@ -23,7 +15,7 @@ let
     set -euo pipefail
     exec ${lib.getExe pkgs.python3} ${./sketchybar-health.py} \
       --sketchybar ${pkgs.sketchybar}/bin/sketchybar \
-      --komorebic ${signedBin}/komorebic
+      --aerospace ${pkgs.aerospace}/bin/aerospace
   '';
 in
 {
@@ -49,7 +41,7 @@ in
       StandardErrorPath = "/tmp/sketchybar-reload.error.log";
       EnvironmentVariables.PATH = "${
         lib.makeBinPath [
-          pkgs.komorebi
+          pkgs.aerospace
           pkgs.sketchybar
           pkgs.coreutils
           pkgs.gnused
