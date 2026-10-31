@@ -1,0 +1,19 @@
+modules/darwin/home/sketchybar/lua/sysinit/pkg/widgets/workspaces.lua
+  s_00f0f53292bea7::t_830cccfd22fd6f 31-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "38f3a71c1c81c8f00d13fe41516b6ef398e7e023",
+  "prompts": {},
+  "sessions": {
+    "s_00f0f53292bea7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1933c-a6e8-7442-97c4-87ca5f511b94",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
