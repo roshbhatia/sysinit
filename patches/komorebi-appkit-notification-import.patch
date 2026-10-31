@@ -1,0 +1,8 @@
+--- a/komorebi/src/process_event.rs
++++ b/komorebi/src/process_event.rs
+@@ -1,4 +1,5 @@
+ use crate::AccessibilityUiElement;
++use crate::app_kit_notification_constants::AppKitWorkspaceNotification;
+ use crate::FLOATING_APPLICATIONS;
+ use crate::Notification;
+ use crate::NotificationEvent;

@@ -31,9 +31,9 @@ local function update_mode(mode)
 end
 
 function M.setup()
-  sbar.add("event", "aerospace_mode_changed")
+  sbar.add("event", "komorebi_mode_changed")
 
-  mode_item = sbar.add("item", "aerospace_mode", {
+  mode_item = sbar.add("item", "komorebi_mode", {
     position = "left",
     icon = { drawing = false },
     label = {
@@ -48,7 +48,7 @@ function M.setup()
 
   utils.separator("mode_separator", "left")
 
-  mode_item:subscribe("aerospace_mode_changed", function(env)
+  mode_item:subscribe("komorebi_mode_changed", function(env)
     update_mode(env.MODE)
   end)
 

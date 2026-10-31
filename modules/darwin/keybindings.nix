@@ -37,16 +37,53 @@ let
 
   reservedHits = lib.filter (entry: builtins.hasAttr entry.chord cfg.reservedChords) enabledHotkeys;
 
-  aerospaceModes = lib.attrByPath [ "services" "aerospace" "settings" "mode" ] { } config;
-  aerospaceChords = lib.unique (
-    lib.concatMap (mode: map chords.chordOfBindingName (builtins.attrNames (mode.binding or { }))) (
-      builtins.attrValues aerospaceModes
-    )
-  );
-  aerospaceHits = lib.filter (
+  komorebiBindings = [
+    "alt-enter"
+    "alt-t"
+    "alt-a"
+    "alt-s"
+    "alt-w"
+    "alt-e"
+    "alt-shift-space"
+    "alt-x"
+    "alt-g"
+    "alt-r"
+    "alt-h"
+    "alt-j"
+    "alt-k"
+    "alt-l"
+    "alt-shift-h"
+    "alt-shift-j"
+    "alt-shift-k"
+    "alt-shift-l"
+    "alt-1"
+    "alt-2"
+    "alt-3"
+    "alt-c"
+    "alt-m"
+    "alt-shift-1"
+    "alt-shift-2"
+    "alt-shift-3"
+    "alt-shift-c"
+    "alt-shift-m"
+    "alt-tab"
+    "alt-shift-tab"
+    "alt-p"
+    "alt-f"
+    "alt-shift-f"
+    "alt-escape"
+    "escape"
+    "enter"
+    "h"
+    "j"
+    "k"
+    "l"
+  ];
+  komorebiChords = lib.unique (map chords.chordOfBindingName komorebiBindings);
+  komorebiHits = lib.filter (
     chord:
     builtins.hasAttr chord cfg.reservedChords || lib.any (entry: entry.chord == chord) enabledHotkeys
-  ) aerospaceChords;
+  ) komorebiChords;
 
   describeHotkeys = lib.concatMapStringsSep ", " (entry: "${entry.chord} (ID ${entry.id})");
 in
@@ -70,8 +107,8 @@ in
       message = "sysinit.darwin.keybindings: enabled symbolic hotkey collides with a reserved chord: ${describeHotkeys reservedHits}";
     }
     {
-      assertion = aerospaceHits == [ ];
-      message = "sysinit.darwin.keybindings: aerospace binding collides with a reserved or symbolic chord: ${lib.concatStringsSep ", " aerospaceHits}";
+      assertion = komorebiHits == [ ];
+      message = "sysinit.darwin.keybindings: komorebi binding collides with a reserved or symbolic chord: ${lib.concatStringsSep ", " komorebiHits}";
     }
   ];
 

@@ -28,7 +28,7 @@ class HealthTests(unittest.TestCase):
                 " print(json.dumps({'items': ['logo', 'front_app', 'clock', 'battery', 'sysinit_health']}))\n"
                 "elif sys.argv[-1] == 'sysinit_health':\n"
                 " print(json.dumps({'label': {'value': '0'}}))\n"
-                "elif sys.argv[-1] == 'list-monitors':\n"
+                "elif sys.argv[-1] == 'monitor-information':\n"
                 " print('1 | Display')\n"
                 "elif sys.argv[-1] == '--reload':\n"
                 f" pathlib.Path({str(marker)!r}).write_text('reload')\n"
@@ -45,7 +45,7 @@ class HealthTests(unittest.TestCase):
                 spec.origin,
                 "--sketchybar",
                 str(binary),
-                "--aerospace",
+                "--komorebic",
                 str(binary),
             ]
             env = {**os.environ, "XDG_CACHE_HOME": directory}

@@ -30,11 +30,17 @@ in
 
   home-manager.users.${user}.sysinit.codesign.binaries = {
     borders = "${pkgs.jankyborders}/bin/borders";
+    komorebi = "${pkgs.komorebi}/bin/komorebi";
+    komorebic = "${pkgs.komorebi}/bin/komorebic";
+    skhd = "${pkgs.skhd}/bin/skhd";
     sketchybar = "${pkgs.sketchybar}/bin/sketchybar";
   };
 
-  services.jankyborders.package = lib.mkForce (stable "borders" pkgs.jankyborders);
-  services.sketchybar.package = lib.mkForce (stable "sketchybar" pkgs.sketchybar);
+  services = {
+    jankyborders.package = lib.mkForce (stable "borders" pkgs.jankyborders);
+    komorebi.package = lib.mkForce (stable "komorebi" pkgs.komorebi);
+    sketchybar.package = lib.mkForce (stable "sketchybar" pkgs.sketchybar);
+  };
 
   system.activationScripts.postActivation.text = ''
     SYSINIT_APPS_VALIDATED="''${sysinit_system_apps_validated:-0}" ${

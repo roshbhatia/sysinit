@@ -64,6 +64,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    komorebi = {
+      url = "github:LGUG2Z/komorebi-for-mac";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.rust-overlay.follows = "rust-overlay";
+    };
+
     ask = {
       url = "github:roshbhatia/ask/70e09e3ebdcffe08f736bfdd3a59c9657f2b47ec";
       inputs.nixpkgs.follows = "nixpkgs";

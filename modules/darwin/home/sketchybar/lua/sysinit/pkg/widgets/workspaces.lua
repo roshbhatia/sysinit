@@ -3,11 +3,13 @@ local settings = require("sysinit.pkg.settings")
 local colors = require("sysinit.pkg.colors")
 local utils = require("sysinit.pkg.utils")
 local config = require("sysinit.pkg.config")
+local cjson = require("cjson")
 
 local M = {}
 
 local spaces = {}
-local aerospace = config.aerospace_bin or "aerospace"
+local komorebic = config.komorebic_bin or "komorebic"
+local workspace_names = { "1", "2", "3", "C", "M" }
 
 local function make_label(workspace, is_focused)
   return {
@@ -18,82 +20,60 @@ local function make_label(workspace, is_focused)
 end
 
 function M.setup()
-  sbar.exec(aerospace .. " list-workspaces --all", function(workspaces_output, exit_code)
-    if exit_code ~= 0 then
-      return
-    end
+  local function refresh()
+    sbar.exec(komorebic .. " state", function(state_output, exit_code)
+      if exit_code ~= 0 then
+        return
+      end
+      local ok, state = pcall(cjson.decode, state_output)
+      if not ok or type(state) ~= "table" then
+        return
+      end
 
-    local workspace_group = {}
-    for workspace in workspaces_output:gmatch("%S+") do
-      table.insert(workspace_group, workspace)
-    end
+      local monitors = state.monitors and state.monitors.elements
+      local focused_monitor = state.monitors and state.monitors.focused
+      local monitor = monitors and monitors[focused_monitor + 1]
+      local workspaces = monitor and monitor.workspaces
+      local elements = workspaces and workspaces.elements
+      local focused_index = workspaces and workspaces.focused
+      local focused_workspace = elements and elements[focused_index + 1]
+      if not focused_workspace then
+        return
+      end
+      focused_workspace = focused_workspace.name
 
-    sbar.add("event", "aerospace_workspace_change")
-
-    utils.separator("workspace_left_sep", "center")
-
-    for _, workspace in ipairs(workspace_group) do
-      local item_name = "space." .. workspace
-
-      local space = sbar.add("item", item_name, {
-        position = "center",
-        icon = { drawing = false },
-        label = make_label(workspace, false),
-        background = { drawing = false },
-        padding_left = settings.spacing.widget_spacing,
-        padding_right = settings.spacing.widget_spacing,
-        click_script = string.format("%s workspace %s", aerospace, workspace),
-      })
-
-      space:subscribe("aerospace_workspace_change", function(env)
-        local focused_workspace = env.FOCUSED
-        local is_focused = (workspace == focused_workspace)
-        local label_config = make_label(workspace, is_focused)
-
-        if is_focused then
-          utils.animate(function()
-            space:set({
-              label = label_config,
-              icon = { highlight = true },
-            })
-          end)
-        else
-          space:set({
-            label = label_config,
-            icon = { highlight = false },
-          })
-        end
-      end)
-
-      spaces[workspace] = space
-    end
-
-    utils.separator("workspace_right_sep", "center")
-
-    sbar.exec(aerospace .. " list-workspaces --focused", function(focused_output, initial_exit_code)
-      if initial_exit_code == 0 then
-        local focused_workspace = utils.trim(focused_output)
-
-        for ws, space_item in pairs(spaces) do
-          local is_focused = (ws == focused_workspace)
-          local label_config = make_label(ws, is_focused)
-          if is_focused then
-            utils.animate(function()
-              space_item:set({
-                label = label_config,
-                icon = { highlight = true },
-              })
-            end)
-          else
-            space_item:set({
-              label = label_config,
-              icon = { highlight = false },
-            })
-          end
-        end
+      for name, item in pairs(spaces) do
+        local is_focused = name == focused_workspace
+        item:set({
+          label = make_label(name, is_focused),
+          icon = { highlight = is_focused },
+        })
       end
     end)
-  end)
+  end
+
+  utils.separator("workspace_left_sep", "center")
+  for index, workspace in ipairs(workspace_names) do
+    spaces[workspace] = sbar.add("item", "space." .. workspace, {
+      position = "center",
+      icon = { drawing = false },
+      label = make_label(workspace, false),
+      background = { drawing = false },
+      padding_left = settings.spacing.widget_spacing,
+      padding_right = settings.spacing.widget_spacing,
+      click_script = string.format("%s focus-workspaces %d", komorebic, index - 1),
+    })
+  end
+  utils.separator("workspace_right_sep", "center")
+
+  local updater = sbar.add("item", "komorebi_workspace_updater", {
+    position = "center",
+    drawing = false,
+    update_freq = 1,
+  })
+  updater:subscribe("routine", refresh)
+  updater:subscribe("komorebi_workspace_change", refresh)
+  refresh()
 end
 
 return M

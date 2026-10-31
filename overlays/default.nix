@@ -4,6 +4,8 @@
 }:
 [
   inputs.rust-overlay.overlays.default
+  inputs.komorebi.overlays.default
+  (import ./komorebi.nix)
   (_final: prev: {
     sunshine =
       if prev.stdenv.hostPlatform.isLinux then

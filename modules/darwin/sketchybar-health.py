@@ -74,7 +74,7 @@ def save(path, state):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--sketchybar", required=True)
-    parser.add_argument("--aerospace", required=True)
+    parser.add_argument("--komorebic", required=True)
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
     now = int(time.time())
@@ -92,7 +92,9 @@ def main():
     except (FileNotFoundError, ValueError):
         state = {}
     try:
-        monitors = sorted(run(args.aerospace, "list-monitors").splitlines()) or None
+        monitors = (
+            sorted(run(args.komorebic, "monitor-information").splitlines()) or None
+        )
     except subprocess.SubprocessError as error:
         print(f"Monitor query failed: {error}", flush=True)
         monitors = None
