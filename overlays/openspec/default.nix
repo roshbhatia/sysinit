@@ -1,6 +1,6 @@
 final: _prev:
 let
-  version = "1.15.0";
+  version = "1.16.0";
 
   pnpm22 = final.pnpm_10.override { nodejs-slim = final.nodejs-slim_22; };
 in
@@ -14,7 +14,7 @@ in
       owner = "Fission-AI";
       repo = "OpenSpec";
       tag = "v${version}";
-      hash = "sha256-knAHLCUbZ/GVrlhiq1F0C7tq6/Uj6dp1haxIliAQEUI="; # autoupdate:src-hash
+      hash = "sha256-T/mlLUIyJRDjXsbLDpf6kYYWH/q7pH0lPtlHkRlF8PI="; # autoupdate:src-hash
     };
 
     nativeBuildInputs = [
@@ -28,7 +28,7 @@ in
       inherit (finalAttrs) pname version src;
       pnpm = pnpm22;
       fetcherVersion = 4;
-      hash = "sha256-T02CCNDZg9lsIgpEGmkEqptN/kPiT4uXX68LTNd7XW0="; # autoupdate:pnpm-deps-hash
+      hash = "sha256-dBYtxkQeV/29+p9xPHRvLhCfKihlNh8O3Aekk4oP/H0="; # autoupdate:pnpm-deps-hash
     };
 
     buildPhase = ''
