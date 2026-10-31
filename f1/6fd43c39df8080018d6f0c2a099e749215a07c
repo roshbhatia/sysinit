@@ -1,0 +1,28 @@
+modules/darwin/home/neovim-file-opener.swift
+  s_b86f85c0d4f5ab::t_040277961545a0 1-16,19-29,32-38,58-68,71-116
+  s_b86f85c0d4f5ab::t_4169addc3f450a 17-18,30-31,69-70
+  s_b86f85c0d4f5ab::t_9c3ed8d561b4e7 40-54
+  s_b86f85c0d4f5ab::t_fbb0b1073a8590 39,55-57
+modules/darwin/home/default.nix
+  s_b86f85c0d4f5ab::t_040277961545a0 6
+modules/darwin/home/default-apps.nix
+  s_b86f85c0d4f5ab::t_040277961545a0 1-10,120,124-158,162-163,166,168-169
+  s_b86f85c0d4f5ab::t_b61ecda537c1a6 159-161,164-165,167
+  s_b86f85c0d4f5ab::t_6dcdc68e9aee50 11-119,121-123
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f16fd43c39df8080018d6f0c2a099e749215a07c",
+  "prompts": {},
+  "sessions": {
+    "s_b86f85c0d4f5ab": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a18e2e-98b4-78f3-abdd-b3bda1606466",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
