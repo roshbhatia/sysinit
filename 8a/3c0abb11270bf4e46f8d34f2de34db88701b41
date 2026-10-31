@@ -1,0 +1,57 @@
+modules/darwin/home/sketchybar/lua/sysinit/init.lua
+  s_00f0f53292bea7::t_2fac25c8775a10 5-6,9
+modules/darwin/home/sketchybar/lua/sysinit/pkg/widgets/rift_mode.lua
+  s_00f0f53292bea7::t_cc8fa602b3b62d 34-51
+modules/darwin/home/sketchybar/lua/sysinit/pkg/widgets/workspaces.lua
+  s_00f0f53292bea7::t_7135ebe57f83ef 31,37-38
+  s_00f0f53292bea7::t_26e04513b15fc9 32-36
+  s_00f0f53292bea7::t_2fac25c8775a10 5,11,22,27-30,41,46-48,53,57,60,62-63,80,85-100,102
+modules/home/programs/fastfetch/probes/darwin-wm.sh
+  s_00f0f53292bea7::t_7135ebe57f83ef 4-6
+modules/darwin/default.nix
+  s_00f0f53292bea7::t_4c7cc6fe295b4a 11
+modules/darwin/rift.nix
+  s_00f0f53292bea7::t_c415886cb52d46 9,304,308,324
+  s_00f0f53292bea7::t_26e04513b15fc9 63-82,84-88,92-140,145-146,151-152,157-158,163-164,169,173-175,209,257-258,260-261,263-267,277-300
+  s_00f0f53292bea7::t_c3144eee070ac8 318-321,323
+  s_00f0f53292bea7::t_17857c6229c459 219,221-222,225-226,229-230,233-234,237-238,241-243,245-249
+  s_00f0f53292bea7::t_7135ebe57f83ef 11,325-326,329
+  s_00f0f53292bea7::t_cda3639a95429f 141-144,147-150,153-156,159-162,165-168,170-172
+  s_00f0f53292bea7::t_ed56b1ba7c9dd9 13-62,83,89-91,176-180,182-208,216-218,250,252-256,269-276,301-303,305-307,309-311,313-314,316-317,327-328,330-333
+  s_00f0f53292bea7::t_b4b030f166f0ed 251
+modules/darwin/keybindings.nix
+  s_00f0f53292bea7::t_5a168b70b74db1 40,45-59,63-64,66,69,93-94
+  s_00f0f53292bea7::t_26e04513b15fc9 41-44,60-62
+modules/darwin/sketchybar-health.py
+  s_00f0f53292bea7::t_501e7a72aa3f74 97
+  s_00f0f53292bea7::t_cc8fa602b3b62d 77,95-96
+overlays/default.nix
+  s_00f0f53292bea7::t_4c7cc6fe295b4a 26
+modules/darwin/home/sketchybar/default.nix
+  s_00f0f53292bea7::t_2fac25c8775a10 18
+overlays/rift.nix
+  s_00f0f53292bea7::t_4c7cc6fe295b4a 2-32
+  s_00f0f53292bea7::t_26e04513b15fc9 1
+modules/home/programs/firefox/tridactylrc
+  s_00f0f53292bea7::t_7135ebe57f83ef 51
+checks/sketchybar-health.py
+  s_00f0f53292bea7::t_7135ebe57f83ef 31-32,48
+modules/darwin/sketchybar.nix
+  s_00f0f53292bea7::t_cc8fa602b3b62d 18,44
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8a3c0abb11270bf4e46f8d34f2de34db88701b41",
+  "prompts": {},
+  "sessions": {
+    "s_00f0f53292bea7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1933c-a6e8-7442-97c4-87ca5f511b94",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
