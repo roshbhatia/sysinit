@@ -2,12 +2,13 @@ local sbar = require("sketchybar")
 local settings = require("sysinit.pkg.settings")
 local colors = require("sysinit.pkg.colors")
 local utils = require("sysinit.pkg.utils")
+local cjson = require("cjson")
 local config = require("sysinit.pkg.config")
 
 local M = {}
 
 local spaces = {}
-local aerospace = config.aerospace_bin or "aerospace"
+local rift_cli = config.rift_cli_bin or "rift-cli"
 
 local function make_label(workspace, is_focused)
   return {
@@ -18,37 +19,48 @@ local function make_label(workspace, is_focused)
 end
 
 function M.setup()
-  sbar.exec(aerospace .. " list-workspaces --all", function(workspaces_output, exit_code)
+  sbar.exec(rift_cli .. " query workspaces", function(workspaces_output, exit_code)
     if exit_code ~= 0 then
       return
     end
 
-    local workspace_group = {}
-    for workspace in workspaces_output:gmatch("%S+") do
-      table.insert(workspace_group, workspace)
+    local ok, workspace_group = pcall(cjson.decode, workspaces_output)
+    if not ok or type(workspace_group) ~= "table" then
+      return
+    end
+    for _, workspace in ipairs(workspace_group) do
+      if
+        type(workspace.name) ~= "string"
+        or type(workspace.index) ~= "number"
+        or type(workspace.is_focused) ~= "boolean"
+      then
+        return
+      end
     end
 
-    sbar.add("event", "aerospace_workspace_change")
+    sbar.add("event", "rift_workspace_changed")
 
     utils.separator("workspace_left_sep", "center")
 
     for _, workspace in ipairs(workspace_group) do
-      local item_name = "space." .. workspace
+      local name = workspace.name
+      local index = workspace.index
+      local item_name = "space." .. name
 
       local space = sbar.add("item", item_name, {
         position = "center",
         icon = { drawing = false },
-        label = make_label(workspace, false),
+        label = make_label(name, workspace.is_focused),
         background = { drawing = false },
         padding_left = settings.spacing.widget_spacing,
         padding_right = settings.spacing.widget_spacing,
-        click_script = string.format("%s workspace %s", aerospace, workspace),
+        click_script = string.format("%s execute workspace switch %d", rift_cli, index),
       })
 
-      space:subscribe("aerospace_workspace_change", function(env)
+      space:subscribe("rift_workspace_changed", function(env)
         local focused_workspace = env.FOCUSED
-        local is_focused = (workspace == focused_workspace)
-        local label_config = make_label(workspace, is_focused)
+        local is_focused = (name == focused_workspace)
+        local label_config = make_label(name, is_focused)
 
         if is_focused then
           utils.animate(function()
@@ -65,34 +77,29 @@ function M.setup()
         end
       end)
 
-      spaces[workspace] = space
+      spaces[name] = space
     end
 
     utils.separator("workspace_right_sep", "center")
 
-    sbar.exec(aerospace .. " list-workspaces --focused", function(focused_output, initial_exit_code)
-      if initial_exit_code == 0 then
-        local focused_workspace = utils.trim(focused_output)
-
-        for ws, space_item in pairs(spaces) do
-          local is_focused = (ws == focused_workspace)
-          local label_config = make_label(ws, is_focused)
-          if is_focused then
-            utils.animate(function()
-              space_item:set({
-                label = label_config,
-                icon = { highlight = true },
-              })
-            end)
-          else
-            space_item:set({
-              label = label_config,
-              icon = { highlight = false },
-            })
-          end
-        end
+    for _, workspace in ipairs(workspace_group) do
+      local space_item = spaces[workspace.name]
+      local is_focused = workspace.is_focused
+      local label_config = make_label(workspace.name, is_focused)
+      if is_focused then
+        utils.animate(function()
+          space_item:set({
+            label = label_config,
+            icon = { highlight = true },
+          })
+        end)
+      else
+        space_item:set({
+          label = label_config,
+          icon = { highlight = false },
+        })
       end
-    end)
+    end
   end)
 end
 

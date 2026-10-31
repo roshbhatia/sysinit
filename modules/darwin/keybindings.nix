@@ -37,16 +37,36 @@ let
 
   reservedHits = lib.filter (entry: builtins.hasAttr entry.chord cfg.reservedChords) enabledHotkeys;
 
-  aerospaceModes = lib.attrByPath [ "services" "aerospace" "settings" "mode" ] { } config;
-  aerospaceChords = lib.unique (
-    lib.concatMap (mode: map chords.chordOfBindingName (builtins.attrNames (mode.binding or { }))) (
-      builtins.attrValues aerospaceModes
-    )
+  riftSettings = lib.attrByPath [ "sysinit" "darwin" "rift" "settings" ] { } config;
+  riftMaps = [
+    (riftSettings.keys or { })
+  ]
+  ++ builtins.attrValues (riftSettings.binding_modes or { });
+  riftChordOfBindingName =
+    name:
+    let
+      parts = map lib.toLower (lib.splitString " + " name);
+      modifiers = {
+        alt = "alt";
+        cmd = "cmd";
+        command = "cmd";
+        control = "ctrl";
+        ctrl = "ctrl";
+        meta = "cmd";
+        shift = "shift";
+      };
+      present = lib.filter (part: builtins.hasAttr part modifiers) parts;
+    in
+    lib.concatStringsSep "+" (
+      (map (part: modifiers.${part}) present) ++ [ (chords.canonicalKey (lib.last parts)) ]
+    );
+  riftChords = lib.unique (
+    lib.concatMap (bindings: map riftChordOfBindingName (builtins.attrNames bindings)) riftMaps
   );
-  aerospaceHits = lib.filter (
+  riftHits = lib.filter (
     chord:
     builtins.hasAttr chord cfg.reservedChords || lib.any (entry: entry.chord == chord) enabledHotkeys
-  ) aerospaceChords;
+  ) riftChords;
 
   describeHotkeys = lib.concatMapStringsSep ", " (entry: "${entry.chord} (ID ${entry.id})");
 in
@@ -70,8 +90,8 @@ in
       message = "sysinit.darwin.keybindings: enabled symbolic hotkey collides with a reserved chord: ${describeHotkeys reservedHits}";
     }
     {
-      assertion = aerospaceHits == [ ];
-      message = "sysinit.darwin.keybindings: aerospace binding collides with a reserved or symbolic chord: ${lib.concatStringsSep ", " aerospaceHits}";
+      assertion = riftHits == [ ];
+      message = "sysinit.darwin.keybindings: Rift binding collides with a reserved or symbolic chord: ${lib.concatStringsSep ", " riftHits}";
     }
   ];
 

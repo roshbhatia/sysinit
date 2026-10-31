@@ -15,7 +15,7 @@ let
     set -euo pipefail
     exec ${lib.getExe pkgs.python3} ${./sketchybar-health.py} \
       --sketchybar ${pkgs.sketchybar}/bin/sketchybar \
-      --aerospace ${pkgs.aerospace}/bin/aerospace
+      --rift-cli ${pkgs.rift}/bin/rift-cli
   '';
 in
 {
@@ -41,7 +41,7 @@ in
       StandardErrorPath = "/tmp/sketchybar-reload.error.log";
       EnvironmentVariables.PATH = "${
         lib.makeBinPath [
-          pkgs.aerospace
+          pkgs.rift
           pkgs.sketchybar
           pkgs.coreutils
           pkgs.gnused

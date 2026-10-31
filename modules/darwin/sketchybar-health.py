@@ -74,7 +74,7 @@ def save(path, state):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--sketchybar", required=True)
-    parser.add_argument("--aerospace", required=True)
+    parser.add_argument("--rift-cli", required=True)
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
     now = int(time.time())
@@ -92,8 +92,9 @@ def main():
     except (FileNotFoundError, ValueError):
         state = {}
     try:
-        monitors = sorted(run(args.aerospace, "list-monitors").splitlines()) or None
-    except subprocess.SubprocessError as error:
+        displays = json.loads(run(args.rift_cli, "query", "displays"))
+        monitors = sorted(display["uuid"] for display in displays) or None
+    except (subprocess.SubprocessError, KeyError, TypeError) as error:
         print(f"Monitor query failed: {error}", flush=True)
         monitors = None
     action = decide(state, now, reason, monitors)

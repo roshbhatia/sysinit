@@ -23,6 +23,7 @@
   (import ./inputs.nix { inherit inputs; })
   (import ./meat.nix { inherit inputs; })
   (import ./sysinit-swayfx.nix { inherit inputs; })
+  (import ./rift.nix)
   (import ./sysinit-gotools.nix { inherit inputs; })
   (import ./calldiff.nix)
   (import ./strands.nix)
