@@ -2,7 +2,6 @@ local sbar = require("sketchybar")
 local settings = require("sysinit.pkg.settings")
 local colors = require("sysinit.pkg.colors")
 local utils = require("sysinit.pkg.utils")
-local cjson = require("cjson")
 local config = require("sysinit.pkg.config")
 
 local M = {}
@@ -29,8 +28,8 @@ local function setup(retries)
       return
     end
 
-    local ok, workspace_group = pcall(cjson.decode, workspaces_output)
-    if not ok or type(workspace_group) ~= "table" then
+    local workspace_group = workspaces_output
+    if type(workspace_group) ~= "table" then
       if retries > 0 then
         sbar.exec("sleep 1", function()
           setup(retries - 1)
