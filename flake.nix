@@ -71,7 +71,7 @@
     };
 
     ask = {
-      url = "github:roshbhatia/ask/70e09e3ebdcffe08f736bfdd3a59c9657f2b47ec";
+      url = "github:roshbhatia/ask/978d222143a0a45f012b591db9712a604b4f6a79";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
