@@ -18,14 +18,24 @@ local function make_label(workspace, is_focused)
   }
 end
 
-function M.setup()
+local function setup(retries)
   sbar.exec(rift_cli .. " query workspaces", function(workspaces_output, exit_code)
     if exit_code ~= 0 then
+      if retries > 0 then
+        sbar.exec("sleep 1", function()
+          setup(retries - 1)
+        end)
+      end
       return
     end
 
     local ok, workspace_group = pcall(cjson.decode, workspaces_output)
     if not ok or type(workspace_group) ~= "table" then
+      if retries > 0 then
+        sbar.exec("sleep 1", function()
+          setup(retries - 1)
+        end)
+      end
       return
     end
     for _, workspace in ipairs(workspace_group) do
@@ -34,6 +44,11 @@ function M.setup()
         or type(workspace.index) ~= "number"
         or type(workspace.is_focused) ~= "boolean"
       then
+        if retries > 0 then
+          sbar.exec("sleep 1", function()
+            setup(retries - 1)
+          end)
+        end
         return
       end
     end
@@ -101,6 +116,10 @@ function M.setup()
       end
     end
   end)
+end
+
+function M.setup()
+  setup(10)
 end
 
 return M
