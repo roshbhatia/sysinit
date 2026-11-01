@@ -1,6 +1,6 @@
 #!/usr/bin/env nu
 
 def main [session: string] {
-    ^wezterm connect $session
+    ^ssh -t $session tmux new-session -A -s main
     exit $env.LAST_EXIT_CODE
 }

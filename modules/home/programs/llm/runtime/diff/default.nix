@@ -4,7 +4,8 @@ pkgs.writeShellApplication {
   runtimeInputs = [
     pkgs.python3
     pkgs.git
-    pkgs.wezterm
+    pkgs.tmux
+    pkgs.sysinit-utils
   ];
   text = ''
     exec python3 ${./open.py} "$@"

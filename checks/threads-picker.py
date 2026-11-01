@@ -17,9 +17,9 @@ binary = sys.argv[1]
 with tempfile.TemporaryDirectory() as directory:
     root = Path(directory)
     fixture = root / "atuin"
-    fixture.write_text("""#!/bin/sh
+    fixture.write_text(f"""#!/bin/sh
 if [ "$*" = 'threads list --style json' ]; then
-  printf '%s' '[{"atuin_id":"thread-a","harness":"claude-code","preview":"alpha","cwd":"/fixture"},{"atuin_id":"thread-b","harness":"codex","preview":"beta","cwd":"/fixture"}]'
+  printf '%s' '[{{"atuin_id":"thread-a","harness":"claude-code","preview":"alpha","cwd":{json.dumps(os.getcwd())}}},{{"atuin_id":"thread-b","harness":"codex","preview":"beta","cwd":{json.dumps(os.getcwd())}}}]'
 else
   printf '\\nNATIVE:'
   printf ' <%s>' "$@"

@@ -38,13 +38,15 @@ function notify(
 }
 
 function splitCommand(command: string[], cwd: string): string[] | undefined {
-  if (process.env["WEZTERM_PANE"]) {
+  const pane = process.env["TMUX_PANE"];
+  if (pane) {
     return [
-      "wezterm",
-      "cli",
-      "--no-auto-start",
-      "split-pane",
-      "--right",
+      "ty",
+      "pane",
+      "spawn",
+      pane,
+      "--direction",
+      "right",
       "--percent",
       SPLIT_PERCENT,
       "--cwd",
@@ -112,7 +114,7 @@ async function open(pi: ExtensionAPI, ctx: ExtensionContext): Promise<void> {
   if (!split) {
     notify(
       ctx,
-      `diff review: no WezTerm pane. Run: ${VIEWER_COMMAND.join(" ")}`,
+      `diff review: no tmux pane. Run: ${VIEWER_COMMAND.join(" ")}`,
       "warning",
     );
     return;
@@ -146,7 +148,7 @@ export default function (pi: ExtensionAPI): void {
       );
     },
   });
-  pi.registerShortcut("ctrl+b", {
+  pi.registerShortcut("ctrl+shift+d", {
     description: "Review the working-tree diff",
     handler: (ctx) => open(pi, ctx),
   });

@@ -109,12 +109,12 @@ if [ "$examined" -eq 0 ]; then
   exit 2
 fi
 
-wz=$(command -v wezterm 2> /dev/null || true)
+tmux=$(command -v tmux 2> /dev/null || true)
 
-if [ -z "$wz" ]; then
-  printf '  agents: skipped, the live pane set is unknown outside WezTerm\n'
+if [ -z "$tmux" ]; then
+  printf '  agents: skipped, tmux is not available\n'
 else
-  live=$("$wz" cli list --format json 2> /dev/null | jq -r '.[].pane_id' 2> /dev/null) || live=""
+  live=$("$tmux" list-panes -a -F '#{pane_id}' 2> /dev/null) || live=""
   if [ -z "$live" ]; then
     printf '  agents: skipped, the live pane set could not be read\n'
   else

@@ -7,6 +7,7 @@
 let
   bundleIdentifier = "org.sysinit.neovim-file-opener";
   app = "${config.home.homeDirectory}/Applications/Sysinit Neovim.app";
+  weztermApp = "${config.home.homeDirectory}/${config.targets.darwin.copyApps.directory}/WezTerm.app";
   extensions = [
     "gitattributes"
     "gitconfig"
@@ -143,10 +144,11 @@ let
   '';
   source = pkgs.writeText "sysinit-neovim-file-opener.swift" (
     builtins.replaceStrings
-      [ "@WEZTERM@" "@NVIM@" "@BUNDLE_ID@" "@EXTENSIONS@" ]
+      [ "@TMUX@" "@NVIM@" "@WEZTERM_APP@" "@BUNDLE_ID@" "@EXTENSIONS@" ]
       [
-        "${config.home.profileDirectory}/bin/wezterm"
+        "${pkgs.tmux}/bin/tmux"
         "${config.home.profileDirectory}/bin/nvim"
+        weztermApp
         bundleIdentifier
         (lib.concatStringsSep " " extensions)
       ]

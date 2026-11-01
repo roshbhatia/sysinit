@@ -30,7 +30,6 @@ def attention_rank:
 | ($names - ($active | map(.name)) | map({name: ., status: null, rank: 0,
     repo: "", panes: 0, blocked: 0, attention: 0, attention_rank: 0,
     attention_status: null, since: null})) as $idle
-| {selected: (if $selected == null then null else
-      ([$records[] | select($panes[.pane].is_active == true) | .session] | first // $selected) end),
+| {selected: $selected,
     selection_state: $selstate, discovery_state: "fresh",
     sessions: (($active + $idle) | sort_by(-.rank, .name))}

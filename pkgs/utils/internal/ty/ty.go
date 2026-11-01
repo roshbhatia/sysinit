@@ -18,7 +18,7 @@ import (
 
 const protocolVersion = "sysinit.ty/v1"
 
-const usage = `ty: inspect and control seshy sessions in WezTerm
+const usage = `ty: inspect and control seshy sessions and tmux panes
 
 Usage:
   ty catalog
@@ -26,8 +26,8 @@ Usage:
   ty panes
   ty session open <session-id-or-name>
   ty session switch <session-id-or-name>
-  ty pane split <pane-id> --direction right|down [--cwd PATH]
-  ty pane spawn <pane-id> --direction right|down [--cwd PATH] -- <command> [args...]
+  ty pane split <pane-id> --direction right|down|left|up [--cwd PATH]
+  ty pane spawn <pane-id> --direction right|down|left|up [--percent N] [--cwd PATH] -- <command> [args...]
   ty pane read <pane-id>
   ty pane send [--submit] <pane-id> [text...]
   ty pane focus <pane-id>
@@ -81,7 +81,7 @@ type actionResult struct {
 	Opened    *bool  `json:"opened,omitempty"`
 }
 
-func Summary() string { return "compose seshy sessions and WezTerm panes" }
+func Summary() string { return "compose seshy sessions and tmux panes" }
 
 func Run(args []string) int {
 	return run(args, os.Stdin, os.Stdout, os.Stderr, execRunner)
@@ -105,6 +105,12 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer, runner comman
 		err = runSession(args[1:], stdout, runner)
 	case "pane":
 		err = runPane(args[1:], stdin, stdout, runner)
+	case "picker":
+		if len(args) != 1 {
+			err = invalidUsage("usage: ty picker")
+		} else {
+			err = runPicker(stdout, runner)
+		}
 	default:
 		err = invalidUsage("unknown command %q", args[0])
 	}
@@ -171,16 +177,28 @@ func listSessions(ctx context.Context, runner commandRunner) ([]json.RawMessage,
 }
 
 func listPanes(ctx context.Context, runner commandRunner) ([]json.RawMessage, error) {
-	panesJSON, err := runner(ctx, "wezterm", []string{"cli", "--no-auto-start", "list", "--format", "json"}, nil)
+	panesText, err := runner(ctx, "tmux", []string{"list-panes", "-a", "-F", "#{pane_id}\t#{session_name}\t#{window_index}\t#{pane_index}\t#{pane_active}"}, nil)
 	if err != nil {
-		return nil, fmt.Errorf("list WezTerm panes: %w", err)
+		return nil, fmt.Errorf("list tmux panes: %w", err)
 	}
-	var panes []json.RawMessage
-	if err := json.Unmarshal(panesJSON, &panes); err != nil {
-		return nil, fmt.Errorf("decode WezTerm pane list: %w", err)
-	}
-	if panes == nil {
-		panes = []json.RawMessage{}
+	panes := make([]json.RawMessage, 0)
+	for _, line := range strings.Split(strings.TrimSpace(string(panesText)), "\n") {
+		if line == "" {
+			continue
+		}
+		fields := strings.Split(line, "\t")
+		if len(fields) != 5 {
+			return nil, fmt.Errorf("decode tmux pane row: expected 5 fields, got %d", len(fields))
+		}
+		active := fields[4] == "1"
+		row, err := json.Marshal(map[string]any{
+			"pane_id": fields[0], "session_name": fields[1], "window_index": fields[2],
+			"workspace": fields[1], "pane_index": fields[3], "pane_active": active,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("encode tmux pane row: %w", err)
+		}
+		panes = append(panes, row)
 	}
 	return panes, nil
 }
@@ -226,18 +244,21 @@ func runSession(args []string, stdout io.Writer, runner commandRunner) error {
 	}
 
 	workspace := strings.TrimPrefix(plan.ID, "seshy:")
+	if !validSessionName(workspace) {
+		return fmt.Errorf("seshy session id is not safe for tmux: %q", workspace)
+	}
 	if action == "switch" {
-		panes, err := listPanes(ctx, runner)
-		if err != nil {
-			return err
-		}
-		paneID, err := findWorkspacePane(panes, workspace)
-		if err != nil {
-			return err
-		}
-		if paneID != "" {
-			if _, err := runner(ctx, "wezterm", []string{"cli", "--no-auto-start", "activate-pane", "--pane-id", paneID}, nil); err != nil {
-				return fmt.Errorf("switch to WezTerm session %q: %w", plan.ID, err)
+		if _, err := runner(ctx, "tmux", []string{"has-session", "-t", workspace}, nil); err == nil {
+			if _, err := runner(ctx, "tmux", []string{"switch-client", "-t", workspace}, nil); err != nil {
+				return fmt.Errorf("switch to tmux session %q: %w", plan.ID, err)
+			}
+			panes, listErr := listPanes(ctx, runner)
+			if listErr != nil {
+				return listErr
+			}
+			paneID, findErr := findWorkspacePane(panes, workspace)
+			if findErr != nil {
+				return findErr
 			}
 			opened := false
 			return writeJSON(stdout, actionResult{
@@ -246,36 +267,38 @@ func runSession(args []string, stdout io.Writer, runner commandRunner) error {
 			})
 		}
 	}
-	weztermArgs := []string{
-		"cli", "--no-auto-start", "spawn", "--new-window",
-		"--workspace", workspace, "--cwd", plan.CWD,
-	}
 	command := plan.Command
-	if len(plan.Environment) > 0 {
-		command = environmentCommand(plan.Environment)
-		if len(plan.Command) > 0 {
-			command = append(command, plan.Command...)
-		} else {
-			command = append(command, loginShell())
-			if runtime.GOOS != "windows" {
-				command = append(command, "-l")
+	if len(command) == 0 {
+		command = []string{loginShell(), "-l"}
+	}
+	created := false
+	if _, err := runner(ctx, "tmux", []string{"has-session", "-t", workspace}, nil); err != nil {
+		newArgs := []string{"new-session", "-d", "-P", "-F", "#{pane_id}", "-s", workspace, "-c", plan.CWD}
+		for _, key := range sortedKeys(plan.Environment) {
+			newArgs = append(newArgs, "-e", key+"="+plan.Environment[key])
+		}
+		newArgs = append(newArgs, shellCommand(command))
+		if _, err := runner(ctx, "tmux", newArgs, nil); err != nil {
+			if _, checkErr := runner(ctx, "tmux", []string{"has-session", "-t", workspace}, nil); checkErr != nil {
+				return fmt.Errorf("open tmux session %q: %w", plan.ID, err)
 			}
+		} else {
+			created = true
 		}
 	}
-	if len(command) > 0 {
-		weztermArgs = append(weztermArgs, "--")
-		weztermArgs = append(weztermArgs, command...)
+	if _, err := runner(ctx, "tmux", []string{"switch-client", "-t", workspace}, nil); err != nil {
+		return fmt.Errorf("select tmux session %q: %w", plan.ID, err)
 	}
-	paneID, err := runner(ctx, "wezterm", weztermArgs, nil)
+	panes, err := listPanes(ctx, runner)
 	if err != nil {
-		return fmt.Errorf("open WezTerm session %q: %w", plan.ID, err)
+		return err
 	}
-	paneID = []byte(strings.TrimSpace(string(paneID)))
-	if _, err := parsePaneID(string(paneID)); err != nil {
-		return fmt.Errorf("WezTerm returned invalid pane id: %w", err)
+	paneID, err := findWorkspacePane(panes, workspace)
+	if err != nil {
+		return err
 	}
 	resultAction := "session.open"
-	opened := true
+	opened := created
 	if action == "switch" {
 		resultAction = "session.switch"
 	}
@@ -288,17 +311,24 @@ func runSession(args []string, stdout io.Writer, runner commandRunner) error {
 func findWorkspacePane(panes []json.RawMessage, workspace string) (string, error) {
 	for _, raw := range panes {
 		var pane struct {
-			PaneID    int    `json:"pane_id"`
-			Workspace string `json:"workspace"`
+			PaneID    string `json:"pane_id"`
+			Workspace string `json:"session_name"`
 		}
 		if err := json.Unmarshal(raw, &pane); err != nil {
 			return "", fmt.Errorf("decode WezTerm pane: %w", err)
 		}
 		if pane.Workspace == workspace {
-			return strconv.Itoa(pane.PaneID), nil
+			return pane.PaneID, nil
 		}
 	}
 	return "", nil
+}
+
+func validSessionName(value string) bool {
+	if value == "" || strings.HasPrefix(value, "-") || strings.ContainsAny(value, ":\t\r\n") {
+		return false
+	}
+	return true
 }
 
 func runPane(args []string, stdin io.Reader, stdout io.Writer, runner commandRunner) error {
@@ -325,6 +355,7 @@ func runPane(args []string, stdin io.Reader, stdout io.Writer, runner commandRun
 
 func runSplit(args []string, spawn bool, stdout io.Writer, runner commandRunner) error {
 	var paneID, direction, cwd string
+	percent := 0
 	var command []string
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -340,6 +371,16 @@ func runSplit(args []string, spawn bool, stdout io.Writer, runner commandRunner)
 				return invalidUsage("--cwd requires a path")
 			}
 			cwd = args[i]
+		case "--percent":
+			i++
+			if i >= len(args) {
+				return invalidUsage("--percent requires a value from 1 to 99")
+			}
+			value, err := strconv.Atoi(args[i])
+			if err != nil || value < 1 || value > 99 {
+				return invalidUsage("--percent must be between 1 and 99")
+			}
+			percent = value
 		case "--":
 			command = append([]string(nil), args[i+1:]...)
 			i = len(args)
@@ -353,8 +394,8 @@ func runSplit(args []string, spawn bool, stdout io.Writer, runner commandRunner)
 	if _, err := parsePaneID(paneID); err != nil {
 		return err
 	}
-	if direction != "right" && direction != "down" {
-		return invalidUsage("--direction must be right or down")
+	if direction != "right" && direction != "down" && direction != "left" && direction != "up" {
+		return invalidUsage("--direction must be right, down, left, or up")
 	}
 	if cwd != "" && !filepath.IsAbs(cwd) {
 		return invalidUsage("--cwd must be an absolute path")
@@ -370,26 +411,31 @@ func runSplit(args []string, spawn bool, stdout io.Writer, runner commandRunner)
 			return invalidUsage("command contains a null byte")
 		}
 	}
-	argsOut := []string{"cli", "--no-auto-start", "split-pane", "--pane-id", paneID}
-	if direction == "right" {
-		argsOut = append(argsOut, "--right")
+	argsOut := []string{"split-window", "-P", "-F", "#{pane_id}", "-t", paneID}
+	if direction == "right" || direction == "left" {
+		argsOut = append(argsOut, "-h")
 	} else {
-		argsOut = append(argsOut, "--bottom")
+		argsOut = append(argsOut, "-v")
+	}
+	if direction == "left" || direction == "up" {
+		argsOut = append(argsOut, "-b")
 	}
 	if cwd != "" {
-		argsOut = append(argsOut, "--cwd", cwd)
+		argsOut = append(argsOut, "-c", cwd)
+	}
+	if percent > 0 {
+		argsOut = append(argsOut, "-p", strconv.Itoa(percent))
 	}
 	if len(command) > 0 {
-		argsOut = append(argsOut, "--")
-		argsOut = append(argsOut, command...)
+		argsOut = append(argsOut, shellCommand(command))
 	}
-	newPane, err := call(runner, "wezterm", argsOut, nil)
+	newPane, err := call(runner, "tmux", argsOut, nil)
 	if err != nil {
 		return fmt.Errorf("split pane %s: %w", paneID, err)
 	}
 	newPane = []byte(strings.TrimSpace(string(newPane)))
 	if _, err := parsePaneID(string(newPane)); err != nil {
-		return fmt.Errorf("WezTerm returned invalid pane id: %w", err)
+		return fmt.Errorf("tmux returned invalid pane id: %w", err)
 	}
 	action := "pane.split"
 	if spawn {
@@ -405,7 +451,7 @@ func runRead(args []string, stdout io.Writer, runner commandRunner) error {
 	if _, err := parsePaneID(args[0]); err != nil {
 		return err
 	}
-	text, err := call(runner, "wezterm", []string{"cli", "--no-auto-start", "get-text", "--pane-id", args[0]}, nil)
+	text, err := call(runner, "tmux", []string{"capture-pane", "-p", "-S", "-", "-t", args[0]}, nil)
 	if err != nil {
 		return fmt.Errorf("read pane %s: %w", args[0], err)
 	}
@@ -439,13 +485,15 @@ func runSend(args []string, stdin io.Reader, stdout io.Writer, runner commandRun
 	if len(text) == 0 {
 		return invalidUsage("text is empty")
 	}
-	if _, err := call(runner, "wezterm", []string{"cli", "--no-auto-start", "send-text", "--pane-id", paneID}, strings.NewReader(string(text))); err != nil {
+	buffer := fmt.Sprintf("sysinit-%d", os.Getpid())
+	if _, err := call(runner, "tmux", []string{"load-buffer", "-b", buffer, "-"}, strings.NewReader(string(text))); err != nil {
 		return fmt.Errorf("send text to pane %s: %w", paneID, err)
 	}
+	if _, err := call(runner, "tmux", []string{"paste-buffer", "-p", "-d", "-b", buffer, "-t", paneID}, nil); err != nil {
+		return fmt.Errorf("paste text to pane %s: %w", paneID, err)
+	}
 	if submit {
-		if _, err := call(runner, "wezterm", []string{
-			"cli", "--no-auto-start", "send-text", "--no-paste", "--pane-id", paneID, "\r",
-		}, nil); err != nil {
+		if _, err := call(runner, "tmux", []string{"send-keys", "-t", paneID, "Enter"}, nil); err != nil {
 			return fmt.Errorf("submit text to pane %s: %w", paneID, err)
 		}
 	}
@@ -460,11 +508,33 @@ func runPaneAction(args []string, action string, stdout io.Writer, runner comman
 	if _, err := parsePaneID(paneID); err != nil {
 		return err
 	}
-	command := "activate-pane"
+	command := "select-pane"
 	if action == "close" {
 		command = "kill-pane"
 	}
-	if _, err := call(runner, "wezterm", []string{"cli", "--no-auto-start", command, "--pane-id", paneID}, nil); err != nil {
+	if action == "focus" {
+		panes, err := listPanes(context.Background(), runner)
+		if err != nil {
+			return err
+		}
+		for _, raw := range panes {
+			var pane struct {
+				PaneID  string `json:"pane_id"`
+				Session string `json:"session_name"`
+				Window  string `json:"window_index"`
+			}
+			if err := json.Unmarshal(raw, &pane); err != nil {
+				return fmt.Errorf("decode tmux pane: %w", err)
+			}
+			if pane.PaneID == paneID {
+				if _, err := call(runner, "tmux", []string{"switch-client", "-t", pane.Session + ":" + pane.Window}, nil); err != nil {
+					return fmt.Errorf("switch to tmux window: %w", err)
+				}
+				break
+			}
+		}
+	}
+	if _, err := call(runner, "tmux", []string{command, "-t", paneID}, nil); err != nil {
 		return fmt.Errorf("%s pane %s: %w", action, paneID, err)
 	}
 	return writeJSON(stdout, actionResult{Version: protocolVersion, Action: "pane." + action, PaneID: paneID})
@@ -480,8 +550,8 @@ func execRunner(ctx context.Context, name string, args []string, stdin io.Reader
 	switch name {
 	case "sy":
 		name = commandPath("SYSINIT_TY_SY", "sy")
-	case "wezterm":
-		name = commandPath("SYSINIT_TY_WEZTERM", "wezterm")
+	case "tmux":
+		name = commandPath("SYSINIT_TY_TMUX", "tmux")
 	}
 	cmd := exec.CommandContext(ctx, name, args...)
 	cmd.Stdin = stdin
@@ -509,12 +579,33 @@ func writeJSON(w io.Writer, value any) error {
 	return json.NewEncoder(w).Encode(value)
 }
 
-func parsePaneID(value string) (int, error) {
-	id, err := strconv.Atoi(value)
-	if err != nil || id < 0 {
-		return 0, invalidUsage("pane id must be a non-negative integer: %q", value)
+func parsePaneID(value string) (string, error) {
+	if len(value) < 2 || value[0] != '%' {
+		return "", invalidUsage("pane id must be a tmux pane id such as %%3: %q", value)
 	}
-	return id, nil
+	for _, r := range value[1:] {
+		if r < '0' || r > '9' {
+			return "", invalidUsage("pane id must be a tmux pane id such as %%3: %q", value)
+		}
+	}
+	return value, nil
+}
+
+func shellCommand(argv []string) string {
+	quoted := make([]string, 0, len(argv))
+	for _, arg := range argv {
+		quoted = append(quoted, "'"+strings.ReplaceAll(arg, "'", "'\\''")+"'")
+	}
+	return strings.Join(quoted, " ")
+}
+
+func sortedKeys(values map[string]string) []string {
+	keys := make([]string, 0, len(values))
+	for key := range values {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	return keys
 }
 
 func validEnvironmentKey(key string) bool {
@@ -528,19 +619,6 @@ func validEnvironmentKey(key string) bool {
 		return false
 	}
 	return true
-}
-
-func environmentCommand(environment map[string]string) []string {
-	keys := make([]string, 0, len(environment))
-	for key := range environment {
-		keys = append(keys, key)
-	}
-	sort.Strings(keys)
-	args := []string{commandPath("SYSINIT_TY_ENV", "env")}
-	for _, key := range keys {
-		args = append(args, key+"="+environment[key])
-	}
-	return args
 }
 
 func loginShell() string {

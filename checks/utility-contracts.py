@@ -25,7 +25,7 @@ with tempfile.TemporaryDirectory() as temporary:
             args, env=env, capture_output=True, text=True, timeout=4, **kwargs
         )
 
-    stub("wezterm", 'printf "fixture failure\\n" >&2\nexit 23')
+    stub("ssh", 'printf "fixture failure\\n" >&2\nexit 23')
     result = run(
         [
             "nu",

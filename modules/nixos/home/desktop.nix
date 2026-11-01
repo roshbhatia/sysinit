@@ -217,7 +217,7 @@ in
         ];
 
         keybindings = lib.mkForce {
-          "${mod}+Return" = "exec ${pkgs.sysinit-utils}/bin/wezspawn --wezterm ${pkgs.wezterm}/bin/wezterm";
+          "${mod}+Return" = "exec ${pkgs.wezterm}/bin/wezterm start";
 
           "Mod4+space" = "exec ${pkgs.walker}/bin/walker";
 

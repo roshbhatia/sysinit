@@ -36,14 +36,9 @@ in
 
       bin = "${config.home.profileDirectory}/bin";
       shell = [
-        (lib.getExe pkgs.nushell)
-        "--config"
-        "${config.xdg.configHome}/nushell/config.nu"
-        "--env-config"
-        "${config.xdg.configHome}/nushell/env.nu"
-        "--plugin-config"
-        "${config.xdg.configHome}/nushell/plugin.msgpackz"
+        "${config.home.profileDirectory}/bin/tmux-client"
       ];
+      terminalMode = "tmux";
       ssh = lib.optionalAttrs sshCfg.use1PasswordAgent { agent_socket = sshAgentSocket; };
       font = {
         inherit (themeConfig.font) monospace;

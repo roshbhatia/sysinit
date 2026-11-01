@@ -13,25 +13,34 @@ def run(argv, **kwargs):
     return subprocess.run(argv, text=True, capture_output=True, timeout=8, **kwargs)
 
 
-def wez(*args):
-    result = run(["wezterm", "cli", "--no-auto-start", *args])
+def tmux(*args):
+    result = run(["tmux", *args])
     if result.returncode:
-        raise RuntimeError(result.stderr.strip() or "WezTerm command failed")
+        raise RuntimeError(result.stderr.strip() or "tmux command failed")
     return result.stdout.strip()
 
 
 def open_diff(cwd):
-    parent = os.environ.get("WEZTERM_PANE", "")
-    if not parent.isdecimal():
-        raise RuntimeError("No WezTerm pane. Run agent-diff from a WezTerm session.")
+    parent = os.environ.get("TMUX_PANE", "")
+    if not parent.startswith("%") or not parent[1:].isdecimal():
+        raise RuntimeError("No tmux pane. Run agent-diff from a tmux session.")
     root = run(["git", "-C", cwd, "rev-parse", "--show-toplevel"])
     if root.returncode:
         raise RuntimeError("The current directory is not a Git worktree.")
     root = str(Path(root.stdout.strip()).resolve())
-    if not json.loads(wez("list-clients", "--format", "json")):
-        raise RuntimeError("No attached WezTerm client.")
-    panes = json.loads(wez("list", "--format", "json"))
-    owner = next((pane for pane in panes if str(pane["pane_id"]) == parent), None)
+    owner_text = tmux(
+        "display-message", "-p", "-t", parent, "#{session_name}\t#{window_id}\t#{pid}"
+    )
+    owner_session, owner_window, mux = owner_text.split("\t")
+    panes = tmux("list-panes", "-a", "-F", "#{pane_id}\t#{session_name}\t#{window_id}")
+    owner = next(
+        (
+            line.split("\t")
+            for line in panes.splitlines()
+            if line.split("\t", 1)[0] == parent
+        ),
+        None,
+    )
     if owner is None:
         raise RuntimeError("The invoking pane is no longer live.")
     state = (
@@ -39,9 +48,7 @@ def open_diff(cwd):
         / "agent-diff"
     )
     state.mkdir(parents=True, exist_ok=True, mode=0o700)
-    key = hashlib.sha256(
-        f"{root}|{parent}|{os.environ.get('WEZTERM_UNIX_SOCKET', '')}".encode()
-    ).hexdigest()[:20]
+    key = hashlib.sha256(f"{root}|{parent}|{mux}".encode()).hexdigest()[:20]
     record = state / f"{key}.json"
     # Keep the socket below the Unix-domain path limit, even with a long XDG path.
     socket_dir = Path("/tmp") / f"sysinit-diff-{os.getuid()}"
@@ -62,9 +69,10 @@ def open_diff(cwd):
         live = next(
             (
                 pane
-                for pane in json.loads(wez("list", "--format", "json"))
-                if pane["pane_id"] == saved.get("pane")
-                and pane["tab_id"] == owner["tab_id"]
+                for pane in (line.split("\t") for line in panes.splitlines())
+                if pane[0] == saved.get("pane")
+                and pane[1] == owner_session
+                and pane[2] == owner_window
             ),
             None,
         )
@@ -96,7 +104,8 @@ def open_diff(cwd):
                     ]
                 )
                 if refresh.returncode == 0:
-                    wez("activate-pane", "--pane-id", str(live["pane_id"]))
+                    tmux("switch-client", "-t", f"{live[1]}:{live[2]}")
+                    tmux("select-pane", "-t", live[0])
                     return "Reused the Neovim diff pane."
                 raise RuntimeError(
                     refresh.stderr.strip()
@@ -123,25 +132,34 @@ def open_diff(cwd):
         has_head = (
             run(["git", "-C", root, "rev-parse", "--verify", "HEAD"]).returncode == 0
         )
-        pane = wez(
-            "split-pane",
-            "--pane-id",
-            parent,
-            "--right",
-            "--percent",
-            "45",
-            "--cwd",
-            root,
-            "--",
-            "nvim",
-            "--listen",
-            str(socket),
-            "--cmd",
-            f"let g:harness_pane = '{parent}'",
-            "-c",
-            "DiffviewOpen HEAD" if has_head else "DiffviewOpen",
+        result = run(
+            [
+                "ty",
+                "pane",
+                "spawn",
+                parent,
+                "--direction",
+                "right",
+                "--percent",
+                "45",
+                "--cwd",
+                root,
+                "--",
+                "nvim",
+                "--listen",
+                str(socket),
+                "--cmd",
+                f"let g:harness_pane = '{parent}'",
+                "-c",
+                "DiffviewOpen HEAD" if has_head else "DiffviewOpen",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=8,
         )
-        record.write_text(json.dumps({"pane": int(pane), "root": root}))
+        pane = json.loads(result.stdout)["pane_id"]
+        record.write_text(json.dumps({"pane": pane, "root": root}))
         deadline = time.monotonic() + 4
         while time.monotonic() < deadline:
             if socket.exists():

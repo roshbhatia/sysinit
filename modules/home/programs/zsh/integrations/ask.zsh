@@ -6,11 +6,11 @@ _ask_capture() {
   local snapshot
 
   [[ ${ASK_CAPTURE:-1} == 1 ]] || return 0
-  [[ -n $WEZTERM_PANE ]] || return 0
-  export ASK_CAPTURE_ID="$WEZTERM_PANE"
+  [[ -n $TMUX_PANE ]] || return 0
+  export ASK_CAPTURE_ID="$TMUX_PANE"
   command -v ask > /dev/null 2>&1 || return 0
-  command -v wezterm > /dev/null 2>&1 || return 0
-  snapshot=$(@timeout@ 0.25 wezterm cli --no-auto-start get-text --pane-id "$WEZTERM_PANE" 2> /dev/null) || return 0
+  command -v ty > /dev/null 2>&1 || return 0
+  snapshot=$(@timeout@ 0.25 ty pane read "$TMUX_PANE" 2> /dev/null) || return 0
   print -rn -- "$snapshot" | @timeout@ --kill-after=0.1 0.25 ask --capture 2> /dev/null || return 0
 }
 
