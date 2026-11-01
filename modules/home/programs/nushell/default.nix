@@ -205,6 +205,8 @@ in
 
         load-env (r###'${sessionVarsJson}'### | from json)
 
+        $env.SHELL = "${lib.getExe pkgs.nushell}"
+
         ${selfAppendLines}
 
         # source resolves at parse time, so the file cannot be optional in the

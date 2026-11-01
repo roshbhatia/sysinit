@@ -88,7 +88,7 @@ in
             {
               foreground = "p:error";
               style = "plain";
-              template = "{{ if .Env.ZMX_SESSION }}zmx({{ trimPrefix .Env.ZMX_SESSION_PREFIX .Env.ZMX_SESSION }}) {{ end }}";
+              template = "{{ if .Env.ZMX_SESSION }}{{ $session := trimPrefix .Env.ZMX_SESSION_PREFIX .Env.ZMX_SESSION }}{{ if $session }}zmx({{ $session }}){{ else }}zmx{{ end }} {{ end }}";
               type = "text";
             }
           ];
