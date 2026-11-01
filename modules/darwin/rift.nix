@@ -188,8 +188,15 @@ let
   };
   settings = {
     settings = {
+      animate = true;
+      animation_duration = 0.2;
+      animation_fps = 100.0;
       default_disable = false;
       hot_reload = true;
+      ui.menu_bar = {
+        enabled = true;
+        show_empty = false;
+      };
       run_on_start = [
         "${riftCli} subscribe cli --event workspace_changed --command ${notifyScript}"
         "${riftCli} subscribe cli --event binding_mode_changed --command ${notifyScript}"
