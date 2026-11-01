@@ -1,0 +1,132 @@
+modules/home/programs/llm/runtime/agent-sessions.sh
+  s_00f0f53292bea7::t_c24aafc29533d9 44
+  s_00f0f53292bea7::t_433865ef6732e3 43,45-47,50-51,54
+modules/home/programs/llm/runtime/agent-sessions.jq
+  s_00f0f53292bea7::t_62b15e9dc7bd6f 33
+modules/home/programs/utils/dev/connect.nu
+  s_00f0f53292bea7::t_832615f3657e9e 4
+modules/home/programs/llm/runtime/default.nix
+  s_00f0f53292bea7::t_0ec64aedce29fb 73,92,132
+checks/agent-sessions.py
+  s_00f0f53292bea7::t_9b41d905bf9ca3 64
+  s_00f0f53292bea7::t_e2161c2e0ac5cc 24,34-35,56,65,90
+  s_00f0f53292bea7::t_fd43a69933ad22 99
+modules/home/programs/llm/runtime/diff/default.nix
+  s_00f0f53292bea7::t_9ef02b3407ac82 7-8
+modules/nixos/home/desktop.nix
+  s_00f0f53292bea7::t_65ed1df8660d53 220
+modules/nixos/home/launcher/sessions.lua
+  s_00f0f53292bea7::t_035f8d07efd16a 4
+pkgs/task-queue/terminal.go
+  s_00f0f53292bea7::t_65ed1df8660d53 88,191
+modules/nixos/home/launcher/panes.lua
+  s_00f0f53292bea7::t_035f8d07efd16a 2,4,10,12-14
+modules/darwin/home/hammerspoon/url-routing.nix
+  s_00f0f53292bea7::t_5d76e0e4bc6f4f 57,226
+modules/home/programs/llm/runtime/diff/open.py
+  s_00f0f53292bea7::t_cdc8bd248d89ec 16-17,19,24-26,34-35,72-75,107-108,135-136,155-159,161-162
+  s_00f0f53292bea7::t_7fa5d6046f289a 31-33,36-43,51,137-154
+modules/home/programs/llm/harnesses/pi/extensions/diff-review.ts
+  s_00f0f53292bea7::t_b9d35b074287b2 41-42,44-49,117,151
+modules/home/programs/llm/runtime/agent-prompt.sh
+  s_00f0f53292bea7::t_04c5fc71ed13c4 1
+modules/home/programs/default.nix
+  s_00f0f53292bea7::t_5f8bdf76768cbb 31
+modules/nixos/home/launcher.nix
+  s_00f0f53292bea7::t_0ec64aedce29fb 12,57,64
+modules/home/programs/llm/skills/local-workflows/SKILL.md
+  s_00f0f53292bea7::t_25f2812d45a594 124,128,134,137-140,143-146
+checks/url-routing.lua
+  s_00f0f53292bea7::t_c39ca3b862fbd7 120,206,208-211,213,246-247,249-250,256,280,295-301
+  s_00f0f53292bea7::t_cdae38cc90400c 309
+  s_00f0f53292bea7::t_ce6b286af3acc3 313,317-320,325
+  s_00f0f53292bea7::t_9f526e7ace95f1 302-304
+  s_00f0f53292bea7::t_7fa5d6046f289a 257-260,281-284,331-334,336
+pkgs/utils/internal/ty/ty.go
+  s_00f0f53292bea7::t_4cc3b175c35d61 522,524
+  s_00f0f53292bea7::t_1e7dcfd3ac9881 254,358,374-383,426-427,515-521,523,525-535
+  s_00f0f53292bea7::t_875c004b7776ef 113
+  s_00f0f53292bea7::t_5ec867e3f25b8b 29-30,397-398,415,419-421
+  s_00f0f53292bea7::t_d4907a6e0d9571 21,84,180,182,184-195,197-201,252-253,271-272,289-290,314-315,321
+  s_00f0f53292bea7::t_330d9e602aca9e 416,418,424,430,432,438,454,488-489,492-494,496,511,537,553-554,582-584,586-599
+  s_00f0f53292bea7::t_deefd89eca9c31 196,247-249,251,255-261,273-283,285-286,292,294,296-298,301,327-332,425,536,600-608
+  s_00f0f53292bea7::t_0e5f23f8807414 414
+  s_00f0f53292bea7::t_381f56244d94f0 108-112
+  s_00f0f53292bea7::t_0bf43ee4a4fada 333
+checks/threads-picker.py
+  s_00f0f53292bea7::t_7b609fbd5d1810 20,22
+checks/mail.el
+  s_00f0f53292bea7::t_65ed1df8660d53 308
+modules/home/programs/zsh/integrations/seshy-wezterm.zsh
+  s_00f0f53292bea7::t_25f2812d45a594 65-66
+  s_00f0f53292bea7::t_55aaa3883df22b 111,116-127
+checks/utility-contracts.py
+  s_00f0f53292bea7::t_832615f3657e9e 28
+modules/home/programs/wezterm/default.nix
+  s_00f0f53292bea7::t_6601b105f7c7ca 39,41
+modules/home/programs/tmux/default.nix
+  s_00f0f53292bea7::t_0fc2ab03e7cc4f 1-11,16-18,20-30,59-67,97-98,101-117,119-121,123,125-129,133-142,145,151-152,158
+  s_00f0f53292bea7::t_7b3f25c0e1393e 146-150
+  s_00f0f53292bea7::t_7564df50e730b9 68-72,77-96,122,124
+  s_00f0f53292bea7::t_832615f3657e9e 38-39,43-46,143
+  s_00f0f53292bea7::t_0093f223bb9e1b 31-32,37,40-42,47-58,130-132
+  s_00f0f53292bea7::t_f9d80f38758df0 19,118,144
+  s_00f0f53292bea7::t_72e69291330a69 99-100
+  s_00f0f53292bea7::t_7fa5d6046f289a 12-15,33-36,73-76,153-157
+pkgs/utils/internal/ty/picker.go
+  s_00f0f53292bea7::t_04a54e2b0de01f 86,341-357,359-360,394-401
+  s_00f0f53292bea7::t_7cf345516be73d 476,478,480,503-528
+  s_00f0f53292bea7::t_14ec876cf0bb91 1-11,13-37,39-85,87-337,339-340,361-393,402-469,471-475,481,483,486-502,529-642
+  s_00f0f53292bea7::t_4080bb67f1ca8f 470,477,479,482,484-485
+  s_00f0f53292bea7::t_4cc3b175c35d61 358
+  s_00f0f53292bea7::t_b240a8a36695dc 38,338
+  s_00f0f53292bea7::t_5188c90d601caa 12
+modules/home/programs/mail/emacs/sysinit-mail-images.el
+  s_00f0f53292bea7::t_65ed1df8660d53 19
+  s_00f0f53292bea7::t_ee5f3c7dfc7d40 39,41-43,45
+modules/home/programs/llm/runtime/agent-review.sh
+  s_00f0f53292bea7::t_f9d9c6e0129b74 112,114-115,117
+modules/darwin/rift.nix
+  s_00f0f53292bea7::t_ee5f3c7dfc7d40 74-75
+modules/home/programs/nushell/functions.nu
+  s_00f0f53292bea7::t_25f2812d45a594 141
+  s_00f0f53292bea7::t_7fa5d6046f289a 181
+  s_00f0f53292bea7::t_903b9a5f3385fe 182-187,265-266,276-277,284,288
+modules/darwin/home/default-apps.nix
+  s_00f0f53292bea7::t_e8c4e2726dc4ad 10,147,149,151
+modules/darwin/home/neovim-file-opener.swift
+  s_00f0f53292bea7::t_e8c4e2726dc4ad 9-21,103-111,113-114
+  s_00f0f53292bea7::t_ae4703aecc7ac8 112
+modules/home/programs/utils/default.nix
+  s_00f0f53292bea7::t_832615f3657e9e 53
+modules/home/programs/zsh/integrations/ask.zsh
+  s_00f0f53292bea7::t_dd49b36421f6d6 9-10,12-13
+checks/diff-pane.py
+  s_00f0f53292bea7::t_bfb4fc69882a8e 15,19-26,34-37,40-42,53,58-59
+  s_00f0f53292bea7::t_7fa5d6046f289a 27-33
+pkgs/utils/internal/ty/ty_test.go
+  s_00f0f53292bea7::t_64632a3286b904 19,24,26,37-39,49-50,53-54,58,63,65,69,72-73,77-78,80,84,88-90,93,100-101,105-107,114
+modules/darwin/home/hammerspoon/lua/sysinit/pkg/url_routing.lua
+  s_00f0f53292bea7::t_ae4703aecc7ac8 123
+  s_00f0f53292bea7::t_dacccb7a8d4e28 111-118,121-122,124-127,130-138,140-143,146-159
+overlays/sysinit-gotools.nix
+  s_00f0f53292bea7::t_79cef2684666dd 201,218
+flake.lock
+  s_00f0f53292bea7::t_6a6e795f31ad03 51-52,55,1615-1616,1619,1638-1639,1642,1950-1951,1954
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "54d212c83f48165f88fe00ce7e4e0ae061c36050",
+  "prompts": {},
+  "sessions": {
+    "s_00f0f53292bea7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1933c-a6e8-7442-97c4-87ca5f511b94",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
