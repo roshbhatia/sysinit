@@ -16,7 +16,7 @@
              parts))
 
 (defun sysinit-mail-preview-image ()
-  "Preview an attached image with Chafa in tmux or an Emacs text buffer."
+  "Preview an attached image with Chafa in WezTerm or an Emacs text buffer."
   (interactive)
   (unless (derived-mode-p 'notmuch-show-mode)
     (user-error "Open a message first, then press SPC m i"))
@@ -36,13 +36,13 @@
             (let ((coding-system-for-write 'no-conversion))
               (write-region (notmuch-get-bodypart-binary msg part notmuch-show-process-crypto)
                             nil file nil 'silent))
-            (if (and (getenv "TMUX_PANE") (executable-find "tmux"))
+            (if (and (getenv "WEZTERM_PANE") (executable-find "wezterm"))
                 (progn
-                  (unless (= 0 (call-process "tmux" nil "*mail-image-log*" nil
-                                             "split-window" "-h" "-p" "40"
-                                             "-t" (getenv "TMUX_PANE") "--"
+                  (unless (= 0 (call-process "wezterm" nil "*mail-image-log*" nil
+                                             "cli" "--no-auto-start" "split-pane"
+                                             "--right" "--percent" "40" "--"
                                              sysinit-mail-image-command file))
-                    (error "Tmux preview failed; see *mail-image-log*"))
+                    (error "WezTerm preview failed; see *mail-image-log*"))
                   (setq handed-off t))
               (with-current-buffer (get-buffer-create "*Mail image*")
                 (let ((inhibit-read-only t))

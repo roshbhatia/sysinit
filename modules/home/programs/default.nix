@@ -28,7 +28,6 @@ in
         ./omp.nix
         ./ssh.nix
         ./taskwarrior.nix
-        ./tmux
         ./utils
         ./vivid.nix
         ./zmx

@@ -198,7 +198,7 @@ in
           --set SYSINIT_WORKER "${external.worker}" \
           --set SYSINIT_WORKSPACE "${external.ws}" \
           --set SYSINIT_TY_SY "${final.seshy-cli}/bin/sy" \
-          --set SYSINIT_TY_TMUX "${final.tmux}/bin/tmux" \
+          --set SYSINIT_TY_WEZTERM "${final.wezterm}/bin/wezterm" \
           --set SYSINIT_TY_ENV "${final.coreutils}/bin/env" \
           --set SYSINIT_WEZSPAWN "${final.wezspawn}/bin/wezspawn" \
           --prefix PATH : "${runtimePath}"
@@ -215,7 +215,7 @@ in
         makeWrapper "${sysinit-gotools}/bin/utils" "$out/bin/ty" \
           --add-flags ty \
           --set SYSINIT_TY_SY "${final.seshy-cli}/bin/sy" \
-          --set SYSINIT_TY_TMUX "${final.tmux}/bin/tmux" \
+          --set SYSINIT_TY_WEZTERM "${final.wezterm}/bin/wezterm" \
           --set SYSINIT_TY_ENV "${final.coreutils}/bin/env" \
           --prefix PATH : "${runtimePath}"
       '';

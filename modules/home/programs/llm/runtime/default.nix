@@ -70,7 +70,7 @@ let
     runtimeInputs = [
       pkgs.jq
       pkgs.coreutils
-      pkgs.tmux
+      pkgs.wezterm
       pkgs.seshy
     ];
     bashOptions = [ ];
@@ -89,7 +89,7 @@ let
       pkgs.jq
       pkgs.coreutils
       pkgs.gnugrep
-      pkgs.tmux
+      pkgs.wezterm
     ];
     text = joinFragments [
       paths
@@ -129,7 +129,7 @@ let
   focusScript = pkgs.sysinit.writeShellApplication {
     name = "agent-focus";
     runtimeInputs = [
-      pkgs.tmux
+      pkgs.wezterm
       pkgs.jq
     ]
     ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ pkgs.alerter ];

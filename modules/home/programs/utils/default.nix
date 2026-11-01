@@ -50,7 +50,7 @@ in
     ])
   ]
   ++ lib.optionals (profile == "workstation") [
-    (script "connect" ./dev/connect.nu [ pkgs.openssh ])
+    (script "connect" ./dev/connect.nu [ pkgs.wezterm ])
     (script "set-background" ./system/set-background.nu (
       [
         pkgs.fzf

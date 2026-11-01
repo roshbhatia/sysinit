@@ -4,6 +4,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 
 
@@ -21,7 +22,7 @@ class SessionTests(unittest.TestCase):
         bins = self.root / "bin"
         bins.mkdir()
         for name, code in {
-            "tmux": "if sys.argv[1:3] == ['list-panes','-a']:\n print(os.environ['LIVE'])\nelif sys.argv[1:2] == ['list-clients']:\n print(os.environ.get('CLIENTS',''))\nelse:\n raise SystemExit('unexpected tmux command: ' + repr(sys.argv[1:]))\nsys.exit(int(os.environ.get('PROBE_EXIT','0')))\n",
+            "wezterm": "assert sys.argv[1:] == ['cli','--no-auto-start','list','--format','json']\nprint(os.environ['LIVE'])\nsys.exit(int(os.environ.get('PROBE_EXIT','0')))\n",
             "sy": "assert sys.argv[1:] == ['list','--names']\nprint('session with spaces\\nidle session')\n",
         }.items():
             path = bins / name
@@ -31,13 +32,17 @@ class SessionTests(unittest.TestCase):
             os.environ,
             PATH=f"{bins}:{os.environ['PATH']}",
             FIXTURE=str(self.root),
-            LIVE="",
-            CLIENTS="",
+            LIVE="[]",
         )
         self.script = self.root / "run.sh"
         self.script.write_text(
             'sysinit_path() { if [ "$1" = agentPanes ]; then echo "$FIXTURE/panes"; else echo "$FIXTURE"; fi; }\n'
             + SCRIPT.read_text().replace("@agentSessionsReducer@", str(REDUCER))
+        )
+        (self.root / "selected.json").write_text(
+            json.dumps(
+                {"selected": "session with spaces", "heartbeat": int(time.time())}
+            )
         )
 
     def run_status(self):
@@ -53,7 +58,7 @@ class SessionTests(unittest.TestCase):
             (self.panes / f"{pane}.json").write_text(
                 json.dumps(
                     {
-                        "pane": f"%{pane}",
+                        "pane": pane,
                         "status": status,
                         "repo": "/repo with spaces",
                         "since": 1,
@@ -61,8 +66,14 @@ class SessionTests(unittest.TestCase):
                 )
                 + "\n"
             )
-            live.append(f"%{index}\tsession with spaces\t{1 if index == 0 else 0}")
-        self.env["LIVE"] = "\n".join(live)
+            live.append(
+                {
+                    "pane_id": index,
+                    "workspace": "session with spaces",
+                    "is_active": index == 0,
+                }
+            )
+        self.env["LIVE"] = json.dumps(live)
 
     def test_mixed_status(self):
         self.seed(["working", "done"])
@@ -87,7 +98,7 @@ class SessionTests(unittest.TestCase):
         self.assertEqual(payload["discovery_state"], "unavailable")
         self.assertEqual(payload["selection_state"], "stale")
         self.env["PROBE_EXIT"] = "0"
-        self.env["LIVE"] = ""
+        self.env["LIVE"] = "[]"
         self.assertTrue(all(row["panes"] == 0 for row in self.run_status()["sessions"]))
 
     def test_malformed_records(self):
@@ -96,7 +107,7 @@ class SessionTests(unittest.TestCase):
         valid.write_text(json.dumps(json.loads(valid.read_text()), indent=2))
         (self.panes / "bad.json").write_text("interrupted write\n")
         self.assertEqual(self.run_status()["sessions"][0]["panes"], 1)
-        self.env["LIVE"] = "not-a-pane\tsession\t1"
+        self.env["LIVE"] = "invalid"
         self.assertEqual(self.run_status()["discovery_state"], "unavailable")
 
 

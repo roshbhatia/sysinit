@@ -71,8 +71,10 @@ let
   commands = {
     "Alt + Enter" = {
       exec = [
-        "/usr/bin/open"
-        "-na"
+        "${pkgs.sysinit-utils}/bin/wezspawn"
+        "--wezterm"
+        "${pkgs.wezterm}/bin/wezterm"
+        "--gui-app"
         weztermApp
       ];
     };

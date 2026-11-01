@@ -138,7 +138,7 @@ export def --env s [name?: string] {
 
 # zmx holds terminal state in libghostty-vt and hands the client a grid snapshot,
 # so OSC never crosses it. A wrapped pane loses OSC 7 and OSC 1337 SetUserVar,
-# which can be used with each tmux pane. Attaching stays deliberate.
+# which is every wezterm surface this config drives. Attaching stays deliberate.
 export def sz [] {
     if (which zmx | is-empty) {
         print -e "seshy: zmx not found on PATH"
@@ -178,13 +178,7 @@ export def --env si [] {
 }
 
 def sysinit-set-user-var [name: string, value: string] {
-    let encoded = $value | encode base64
-    let sequence = $"(char esc)]($name)=($encoded)(char bel)"
-    if ($env.TMUX_PANE? | is-not-empty) {
-        print -n $"(char esc)Ptmux;(char esc)(char esc)]($name)=($encoded)(char bel)(char esc)\\"
-    } else {
-        print -n $sequence
-    }
+    print -n $"(ansi -o $'($name)=($value | encode base64)')(char bel)"
 }
 
 export def wezcopy [...args: string] {
@@ -262,8 +256,8 @@ export-env {
   $env.config.hooks.pre_execution?
   | default []
   | append {||
-    if ($env.ASK_CAPTURE? | default "1") == "1" and ($env.TMUX_PANE? | is-not-empty) {
-      $env.ASK_CAPTURE_ID = ($env.TMUX_PANE | into string)
+    if ($env.ASK_CAPTURE? | default "1") == "1" and ($env.WEZTERM_PANE? | is-not-empty) {
+      $env.ASK_CAPTURE_ID = ($env.WEZTERM_PANE | into string)
       $env.ASK_CAPTURE_PENDING = "1"
     }
   }
@@ -273,19 +267,19 @@ export-env {
   $env.config.hooks.pre_prompt?
   | default []
   | append {||
-    if ($env.ASK_CAPTURE? | default "1") == "1" and ($env.TMUX_PANE? | is-not-empty) {
-      $env.ASK_CAPTURE_ID = ($env.TMUX_PANE | into string)
+    if ($env.ASK_CAPTURE? | default "1") == "1" and ($env.WEZTERM_PANE? | is-not-empty) {
+      $env.ASK_CAPTURE_ID = ($env.WEZTERM_PANE | into string)
       let initialized = ($env.ASK_CAPTURE_INITIALIZED? | default "0") == "1"
       let command_finished = ($env.ASK_CAPTURE_PENDING? | default "0") == "1"
 
       if (
         (not $initialized or $command_finished)
         and (which ask | is-not-empty)
-        and (which ty | is-not-empty)
+        and (which wezterm | is-not-empty)
       ) {
         do --ignore-errors {
           let snapshot = (
-            ^@timeout@ 0.25 ty pane read $env.TMUX_PANE
+            ^@timeout@ 0.25 wezterm cli --no-auto-start get-text --pane-id $env.WEZTERM_PANE
             | complete
           )
           if $snapshot.exit_code == 0 {

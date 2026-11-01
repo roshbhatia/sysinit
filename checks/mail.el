@@ -305,7 +305,7 @@
                       :body ((:id 1 :content-type "multipart/mixed"
                                   :content ((:id 2 :content-type "image/png"
                                                  :content-binary nil)))))))
-    (setenv "TMUX_PANE" nil)
+    (setenv "WEZTERM_PANE" nil)
     (setf (plist-get (car (sysinit-mail-image-parts (plist-get message :body))) :content-binary)
           (base64-decode-string "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aX1sAAAAASUVORK5CYII="))
     (unwind-protect

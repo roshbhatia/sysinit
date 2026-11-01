@@ -1,8 +1,10 @@
 state_dir=$(sysinit_path agents) || state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/agents"
 panes_dir=$(sysinit_path agentPanes) || panes_dir="$state_dir/panes"
+selected_file="$state_dir/selected.json"
 cache_file="$state_dir/sessions.json"
 lock_dir="$state_dir/sessions.lock"
 
+STALE_AFTER=${AGENT_SESSIONS_STALE_AFTER:-10}
 PROBE_TIMEOUT=${AGENT_SESSIONS_PROBE_TIMEOUT:-2}
 LOCK_STALE_AFTER=${AGENT_SESSIONS_LOCK_STALE_AFTER:-30}
 
@@ -40,19 +42,28 @@ mkdir "$lock_dir" 2> /dev/null || emit_cached
 printf '%s\n' "$now" > "$lock_dir/born" 2> /dev/null || true
 trap 'rm -rf "$lock_dir" 2> /dev/null || true' EXIT INT TERM
 
-if ! live_rows=$(timeout "$PROBE_TIMEOUT" tmux list-panes -a -F '#{pane_id}\t#{session_name}\t#{pane_active}' 2> /dev/null) ||
-  ! live=$(printf '%s\n' "$live_rows" | jq -Rn '[inputs | select(length > 0) | split("\t") | select(length == 3) | {pane_id: .[0], workspace: .[1], session_name: .[1], is_active: (.[2] == "1")}]') ||
-  ! printf '%s' "$live" | jq -e 'type == "array" and all(.[]; type == "object" and has("pane_id") and (.pane_id | startswith("%")))' > /dev/null 2>&1; then
-  emit_cached
-fi
 selected=null
 selection_state=absent
-if clients=$(timeout "$PROBE_TIMEOUT" tmux list-clients -F '#{client_activity}\t#{session_name}' 2> /dev/null) && [ -n "$clients" ]; then
-  sel=$(printf '%s\n' "$clients" | sort -rn | head -1 | cut -f2-)
+if [ -f "$selected_file" ]; then
+  sel=$(jq -r '.selected // ""' "$selected_file" 2> /dev/null)
+  beat=$(jq -r '.heartbeat // 0' "$selected_file" 2> /dev/null)
+  case "$beat" in
+    '' | *[!0-9]*) beat=0 ;;
+  esac
   if [ -n "$sel" ]; then
     selected=$(jq -cn --arg s "$sel" '$s')
-    selection_state=fresh
+    age=$((now - beat))
+    if [ "$beat" -gt 0 ] && [ "$age" -le "$STALE_AFTER" ]; then
+      selection_state=fresh
+    else
+      selection_state=stale
+    fi
   fi
+fi
+
+if ! live=$(timeout "$PROBE_TIMEOUT" wezterm cli --no-auto-start list --format json 2> /dev/null) ||
+  ! printf '%s' "$live" | jq -e 'type == "array" and all(.[]; type == "object" and has("pane_id"))' > /dev/null 2>&1; then
+  emit_cached
 fi
 known=$(timeout "$PROBE_TIMEOUT" sy list --names 2> /dev/null) || known=""
 shopt -s nullglob

@@ -121,29 +121,34 @@ terminal identity and `zmx help` before attaching. Check `zmx list` first becaus
 `zmx attach` creates a session when the name is absent. Closing a GUI view and ending
 the queued process are different actions; inspect the attempt state afterwards.
 
-## Tmux and visible panes
+## WezTerm and visible panes
 
 Use `worker` for a long visible command when the owner requests that workflow.
 Its cwd is the caller's checkout; `worker --status` inspects that workspace's pane.
-It requires the caller to be inside tmux; a desktop agent should use its normal
+It requires the caller to be inside WezTerm; a desktop agent should use its normal
 execution tool or task-queue rather than creating a pane to satisfy that condition.
 Waiting can time out while the command continues. Inspect the recorded result,
 not the pane's existence, before claiming completion. Do not replace task-queue
 with a pane when task-linked execution and review records are required.
 
-Use `ty` for pane inspection and control after identifying the intended pane:
+`wezspawn` opens a window in the GUI's focused workspace and directory. It is a
+launcher for that focused context, not a way to select an arbitrary task checkout.
+It handles the missing-GUI case. Prefer it over raw `wezterm cli spawn` when the
+owner requests another window.
+
+Use raw WezTerm CLI for specific pane inspection or control after identifying the
+intended pane. Every call passes `--no-auto-start`:
 
 ```sh
-ty catalog
-ty panes
-ty pane read %3
-ty pane focus %3
+wezterm cli --no-auto-start list-clients
+wezterm cli --no-auto-start list --format json
+wezterm cli --no-auto-start get-text --pane-id <pane-id>
 ```
 
-Tmux pane IDs have the form `%N`. A pane can remain available to an SSH client
-when no GUI is attached. Verify the target session and running process before
-sending text, interrupting, or closing it. `Ctrl-B s` opens the provider and
-session picker; `Ctrl-B d` explicitly detaches and preserves the session.
+A pane ID does not prove a visible GUI exists. Without an attached GUI, a raw
+CLI call can create a headless mux and return an ID without drawing a window.
+Sending text types into a live terminal; verify its target and running process
+before sending, interrupting, or closing it. Preserve unrelated panes and sessions.
 
 ## Agent shells
 
