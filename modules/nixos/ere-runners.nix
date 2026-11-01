@@ -14,6 +14,7 @@ let
     url = "https://github.com/kubevirt/containerized-data-importer/releases/download/v1.66.1/cdi-operator.yaml";
     hash = "sha256-x9kr0bLuGjlSpZkAAEN8CNWBCfMcC9SKthiOwnoT4iQ=";
   };
+  python = pkgs.python3.withPackages (ps: [ ps.pyyaml ]);
   resources = (pkgs.formats.json { }).generate "ere-cluster.json" {
     apiVersion = "v1";
     kind = "List";
@@ -82,10 +83,8 @@ in
       script = ''
         test -c /dev/kvm
         kubectl wait node/${hostname} --for=condition=Ready --timeout=180s
-        ${
-          pkgs.python3.withPackages (ps: [ ps.pyyaml ])
-        }/bin/python ${./runner-operator.py} ${kubevirtOperator}
-        ${pkgs.python3.withPackages (ps: [ ps.pyyaml ])}/bin/python ${./runner-operator.py} ${cdiOperator}
+        ${python}/bin/python ${./runner-operator.py} ${kubevirtOperator}
+        ${python}/bin/python ${./runner-operator.py} ${cdiOperator}
         kubectl wait crd/kubevirts.kubevirt.io crd/cdis.cdi.kubevirt.io --for=condition=Established --timeout=180s
         kubectl -n kubevirt rollout status deployment/virt-operator --timeout=180s
         kubectl -n cdi rollout status deployment/cdi-operator --timeout=180s
