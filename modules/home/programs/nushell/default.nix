@@ -134,7 +134,9 @@ in
       loadSessionVariables = false;
       plugins = [ pkgs.nu-plugin-nuvim ];
 
-      extraEnv = "# Environment values are generated in config.nu.\n";
+      extraEnv = ''
+        $env.SHELL = "${lib.getExe pkgs.nushell}"
+      '';
 
       shellAliases = lib.mkForce (builtins.removeAttrs shell.commonAliases [ "ll" ]);
 
@@ -204,8 +206,6 @@ in
         use std/util "path add"
 
         load-env (r###'${sessionVarsJson}'### | from json)
-
-        $env.SHELL = "${lib.getExe pkgs.nushell}"
 
         ${selfAppendLines}
 
