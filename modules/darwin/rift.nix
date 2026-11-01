@@ -12,20 +12,38 @@ let
   weztermApp = "${home.home.homeDirectory}/${home.targets.darwin.copyApps.directory}/WezTerm.app";
   sketchybar = "${pkgs.sketchybar}/bin/sketchybar";
   riftCli = "${pkgs.rift}/bin/rift-cli";
+  toggleScrolling = pkgs.writeShellScript "rift-toggle-scrolling" ''
+    set -euo pipefail
+    layout="$(${riftCli} query workspace-layout | ${pkgs.jq}/bin/jq -er 'map(select(.is_active)) | first | .layout_mode')"
+    if [ "$layout" = scrolling ]; then
+      exec ${riftCli} execute workspace set-layout traditional
+    fi
+    exec ${riftCli} execute workspace set-layout scrolling
+  '';
   notifyScript = pkgs.writeShellScript "rift-sketchybar-event" ''
     set -euo pipefail
-    case "''${RIFT_EVENT_TYPE:-}" in
-      workspace_changed)
-        exec ${sketchybar} --trigger rift_workspace_changed FOCUSED="''${RIFT_WORKSPACE_NAME:-}"
-        ;;
-      binding_mode_changed)
-        mode="''${RIFT_BINDING_MODE:-default}"
-        if [ "$mode" = default ]; then
+    notify_mode() {
+      local layout binding_mode mode
+      layout="$(${riftCli} query workspace-layout | ${pkgs.jq}/bin/jq -er 'map(select(.is_active)) | first | .layout_mode')"
+      if [ "$layout" = scrolling ]; then
+        mode=SCROLL
+      else
+        binding_mode="$(${riftCli} query binding-mode | ${pkgs.jq}/bin/jq -r '.')"
+        if [ "$binding_mode" = default ]; then
           mode=MAIN
         else
-          mode="''${mode^^}"
+          mode="''${binding_mode^^}"
         fi
-        exec ${sketchybar} --trigger rift_mode_changed MODE="$mode"
+      fi
+      ${sketchybar} --trigger rift_mode_changed MODE="$mode"
+    }
+    case "''${RIFT_EVENT_TYPE:-}" in
+      workspace_changed)
+        ${sketchybar} --trigger rift_workspace_changed FOCUSED="''${RIFT_WORKSPACE_NAME:-}"
+        notify_mode
+        ;;
+      binding_mode_changed|layout_changed)
+        notify_mode
         ;;
     esac
   '';
@@ -84,6 +102,9 @@ let
       }
       "toggle_orientation"
     ];
+    "Alt + N" = {
+      exec = [ "${toggleScrolling}" ];
+    };
     "Alt + S" = {
       set_workspace_layout = {
         mode = "stack";
@@ -189,8 +210,8 @@ let
   settings = {
     settings = {
       animate = true;
-      animation_duration = 0.2;
-      animation_fps = 100.0;
+      animation_duration = 0.12;
+      animation_fps = 0.0;
       default_disable = false;
       hot_reload = true;
       ui.menu_bar = {
@@ -200,6 +221,7 @@ let
       run_on_start = [
         "${riftCli} subscribe cli --event workspace_changed --command ${notifyScript}"
         "${riftCli} subscribe cli --event binding_mode_changed --command ${notifyScript}"
+        "${riftCli} subscribe cli --event layout_changed --command ${notifyScript}"
       ];
       layout = {
         mode = "traditional";
@@ -233,6 +255,11 @@ let
       workspace_auto_back_and_forth = true;
       prevent_wrapping = false;
       app_rules = [
+        {
+          app_id = "com.github.wez.wezterm";
+          floating = false;
+          focus = true;
+        }
         {
           app_id = "com.hnc.Discord";
           workspace = "C";
