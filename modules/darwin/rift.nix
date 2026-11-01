@@ -211,7 +211,7 @@ let
     settings = {
       animate = true;
       animation_duration = 0.12;
-      animation_fps = 0.0;
+      animation_fps = 120.0;
       default_disable = false;
       hot_reload = true;
       ui.menu_bar = {
