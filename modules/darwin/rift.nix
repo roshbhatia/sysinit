@@ -60,21 +60,30 @@ let
         weztermApp
       ];
     };
-    "Alt + T" = {
-      set_workspace_layout = {
-        mode = "traditional";
-      };
-    };
-    "Alt + E" = {
-      set_workspace_layout = {
-        mode = "traditional";
-      };
-    };
-    "Alt + A" = {
-      set_workspace_layout = {
-        mode = "stack";
-      };
-    };
+    "Alt + T" = [
+      {
+        set_workspace_layout = {
+          mode = "traditional";
+        };
+      }
+      "toggle_orientation"
+    ];
+    "Alt + E" = [
+      {
+        set_workspace_layout = {
+          mode = "traditional";
+        };
+      }
+      "toggle_orientation"
+    ];
+    "Alt + A" = [
+      {
+        set_workspace_layout = {
+          mode = "stack";
+        };
+      }
+      "toggle_orientation"
+    ];
     "Alt + S" = {
       set_workspace_layout = {
         mode = "stack";
@@ -174,8 +183,8 @@ let
       prev_workspace = false;
     };
     "Alt + P" = "switch_to_last_workspace";
-    "Alt + F" = "toggle_fullscreen";
-    "Alt + Shift + F" = "toggle_fullscreen_within_gaps";
+    "Alt + F" = "toggle_fullscreen_within_gaps";
+    "Alt + Shift + F" = "toggle_fullscreen";
   };
   settings = {
     settings = {
