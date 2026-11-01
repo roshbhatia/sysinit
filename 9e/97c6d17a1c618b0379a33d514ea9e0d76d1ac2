@@ -1,0 +1,21 @@
+modules/darwin/rift.nix
+  s_00f0f53292bea7::t_2f204be4436e33 186-187
+  s_00f0f53292bea7::t_3d9be71569a89c 63,70-71,78-79,86
+  s_00f0f53292bea7::t_05c479acb84045 64-69,72-77,80-85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9e97c6d17a1c618b0379a33d514ea9e0d76d1ac2",
+  "prompts": {},
+  "sessions": {
+    "s_00f0f53292bea7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1933c-a6e8-7442-97c4-87ca5f511b94",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
