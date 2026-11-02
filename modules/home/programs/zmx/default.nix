@@ -9,6 +9,6 @@ in
   home.sessionVariables = {
     ZMX_DIR = paths.zmxSessions;
 
-    ZMX_SESSION_PREFIX = "seshy-";
+    ZMX_SESSION_PREFIX = "";
   };
 }
