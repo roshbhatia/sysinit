@@ -9,7 +9,6 @@ local mode_item
 
 local mode_colors = {
   MAIN = colors.foreground_primary,
-  SCROLL = colors.accent_primary,
   MOVE = colors.semantic_warning,
   RESIZE = colors.semantic_warning,
   LOCKED = colors.semantic_error,

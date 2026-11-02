@@ -12,28 +12,15 @@ let
   weztermApp = "${home.home.homeDirectory}/${home.targets.darwin.copyApps.directory}/WezTerm.app";
   sketchybar = "${pkgs.sketchybar}/bin/sketchybar";
   riftCli = "${pkgs.rift}/bin/rift-cli";
-  toggleScrolling = pkgs.writeShellScript "rift-toggle-scrolling" ''
-    set -euo pipefail
-    layout="$(${riftCli} query workspace-layout | ${pkgs.jq}/bin/jq -er 'map(select(.is_active)) | first | .layout_mode')"
-    if [ "$layout" = scrolling ]; then
-      exec ${riftCli} execute workspace set-layout traditional
-    fi
-    exec ${riftCli} execute workspace set-layout scrolling
-  '';
   notifyScript = pkgs.writeShellScript "rift-sketchybar-event" ''
     set -euo pipefail
     notify_mode() {
-      local layout binding_mode mode
-      layout="$(${riftCli} query workspace-layout | ${pkgs.jq}/bin/jq -er 'map(select(.is_active)) | first | .layout_mode')"
-      if [ "$layout" = scrolling ]; then
-        mode=SCROLL
+      local binding_mode mode
+      binding_mode="$(${riftCli} query binding-mode | ${pkgs.jq}/bin/jq -r '.')"
+      if [ "$binding_mode" = default ]; then
+        mode=MAIN
       else
-        binding_mode="$(${riftCli} query binding-mode | ${pkgs.jq}/bin/jq -r '.')"
-        if [ "$binding_mode" = default ]; then
-          mode=MAIN
-        else
-          mode="''${binding_mode^^}"
-        fi
+        mode="''${binding_mode^^}"
       fi
       ${sketchybar} --trigger rift_mode_changed MODE="$mode"
     }
@@ -42,7 +29,7 @@ let
         ${sketchybar} --trigger rift_workspace_changed FOCUSED="''${RIFT_WORKSPACE_NAME:-}"
         notify_mode
         ;;
-      binding_mode_changed|layout_changed)
+      binding_mode_changed)
         notify_mode
         ;;
     esac
@@ -102,9 +89,6 @@ let
       }
       "toggle_orientation"
     ];
-    "Alt + N" = {
-      exec = [ "${toggleScrolling}" ];
-    };
     "Alt + S" = {
       set_workspace_layout = {
         mode = "stack";
@@ -221,7 +205,6 @@ let
       run_on_start = [
         "${riftCli} subscribe cli --event workspace_changed --command ${notifyScript}"
         "${riftCli} subscribe cli --event binding_mode_changed --command ${notifyScript}"
-        "${riftCli} subscribe cli --event layout_changed --command ${notifyScript}"
       ];
       layout = {
         mode = "traditional";
