@@ -157,19 +157,19 @@ export def sz [] {
 }
 
 # Attach this pane to the same persistent identity shown by WezTerm's pane badge.
-export def wezattach [] {
+export def persist [] {
     if ($env.WEZTERM_PANE? | is-empty) {
-        print -e "wezattach: run inside a WezTerm pane, or use zmx attach <session>"
+        print -e "persist: run inside a WezTerm pane, or use zmx attach <session>"
         return
     }
     let resolved = wezterm-pane-name | complete
     if $resolved.exit_code != 0 {
-        print -e $"wezattach: could not resolve this pane's name: ($resolved.stderr | str trim)"
+        print -e $"persist: could not resolve this pane's name: ($resolved.stderr | str trim)"
         return
     }
     let session = $resolved.stdout | str trim
     if ($session | is-empty) {
-        print -e "wezattach: pane name resolved to an empty session"
+        print -e "persist: pane name resolved to an empty session"
         return
     }
     let prefix = $env.ZMX_SESSION_PREFIX? | default ""

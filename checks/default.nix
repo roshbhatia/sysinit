@@ -370,12 +370,12 @@ in
         export WEZTERM_PANE=18
         export ZMX_SESSION_PREFIX=
 
-        nu --no-config-file -c 'use ${nuFunctions} *; wezattach'
+        nu --no-config-file -c 'use ${nuFunctions} *; persist'
         grep -Fx 'attach quiet-falcon' "$ZMX_TEST_LOG"
 
         : > "$ZMX_TEST_LOG"
         export ZMX_SESSION=quiet-falcon
-        nu --no-config-file -c 'use ${nuFunctions} *; wezattach'
+        nu --no-config-file -c 'use ${nuFunctions} *; persist'
         test ! -s "$ZMX_TEST_LOG"
 
         unset ZMX_SESSION
