@@ -1,0 +1,20 @@
+modules/darwin/rift.nix
+  s_00f0f53292bea7::t_424bb696ed16ce 199
+  s_00f0f53292bea7::t_762fec31f80013 202
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "550c33d9410210df77b726e8d9aaffecc626603c",
+  "prompts": {},
+  "sessions": {
+    "s_00f0f53292bea7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1933c-a6e8-7442-97c4-87ca5f511b94",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
