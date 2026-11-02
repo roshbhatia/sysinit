@@ -12,11 +12,32 @@ let
   weztermApp = "${home.home.homeDirectory}/${home.targets.darwin.copyApps.directory}/WezTerm.app";
   sketchybar = "${pkgs.sketchybar}/bin/sketchybar";
   riftCli = "${pkgs.rift}/bin/rift-cli";
+  toggleScrolling = pkgs.writeShellScript "rift-toggle-scrolling" ''
+    set -euo pipefail
+    layout="$(${riftCli} query workspace-layout | ${pkgs.jq}/bin/jq -er 'map(select(.is_active)) | first | .layout_mode')"
+    if [ "$layout" = scrolling ]; then
+      exec ${riftCli} execute workspace set-layout traditional
+    fi
+    exec ${riftCli} execute workspace set-layout scrolling
+  '';
   notifyScript = pkgs.writeShellScript "rift-sketchybar-event" ''
     set -euo pipefail
     notify_mode() {
-      local binding_mode mode
+      local binding_mode layout target_mode mode
       binding_mode="$(${riftCli} query binding-mode | ${pkgs.jq}/bin/jq -r '.')"
+      case "$binding_mode" in
+        default|scroll)
+          layout="$(${riftCli} query workspace-layout | ${pkgs.jq}/bin/jq -er 'map(select(.is_active)) | first | .layout_mode')"
+          target_mode=default
+          if [ "$layout" = scrolling ]; then
+            target_mode=scroll
+          fi
+          if [ "$binding_mode" != "$target_mode" ]; then
+            ${riftCli} execute binding-mode "$target_mode"
+            binding_mode="$target_mode"
+          fi
+          ;;
+      esac
       if [ "$binding_mode" = default ]; then
         mode=MAIN
       else
@@ -29,7 +50,7 @@ let
         ${sketchybar} --trigger rift_workspace_changed FOCUSED="''${RIFT_WORKSPACE_NAME:-}"
         notify_mode
         ;;
-      binding_mode_changed)
+      binding_mode_changed|layout_changed|config_changed|"")
         notify_mode
         ;;
     esac
@@ -56,6 +77,13 @@ let
   ];
   exitMode = [ { binding_mode = "default"; } ];
   commands = {
+    "Alt + N" = {
+      exec = [ "${toggleScrolling}" ];
+    };
+    "Alt + B" = "balance";
+    "Alt + Up" = "ascend";
+    "Alt + Down" = "descend";
+    "Alt + Space" = "toggle_focus_floating";
     "Alt + Enter" = {
       exec = [
         "${pkgs.sysinit-utils}/bin/wezspawn"
@@ -207,9 +235,28 @@ let
       run_on_start = [
         "${riftCli} subscribe cli --event workspace_changed --command ${notifyScript}"
         "${riftCli} subscribe cli --event binding_mode_changed --command ${notifyScript}"
+        "${riftCli} subscribe cli --event layout_changed --command ${notifyScript}"
+        "${riftCli} subscribe cli --event config_changed --command ${notifyScript}"
+        "${notifyScript}"
       ];
       layout = {
         mode = "traditional";
+        window_insertion_point = "next_to_selection";
+        traditional.equalize_nodes = true;
+        scrolling = {
+          column_width_ratio = 0.5;
+          preserve_window_sizes = false;
+          expand_single_column = true;
+          min_column_width_ratio = 0.3;
+          max_column_width_ratio = 1.0;
+          preset_column_widths = [
+            (1.0 / 3.0)
+            0.5
+            (2.0 / 3.0)
+            1.0
+          ];
+          focus_navigation_style = "niri";
+        };
         stack.default_orientation = "vertical";
         gaps = {
           inner = {
@@ -278,6 +325,19 @@ let
     };
     keys = commands;
     binding_modes = {
+      scroll = commands // {
+        "Alt + Comma" = {
+          switch_preset_column_width.backwards = true;
+        };
+        "Alt + Period" = "switch_preset_column_width";
+        "Alt + I" = {
+          consume_or_expel_window = "left";
+        };
+        "Alt + O" = {
+          consume_or_expel_window = "right";
+        };
+        "Alt + U" = "center_selection";
+      };
       move = {
         Escape = exitMode;
         Enter = exitMode;
