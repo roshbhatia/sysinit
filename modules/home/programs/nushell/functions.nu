@@ -157,30 +157,26 @@ export def sz [] {
 }
 
 # Attach this pane to the same persistent identity shown by WezTerm's pane badge.
-export def --wrapped zmx [...args: string] {
-    if (($args | length) == 1) and ($args.0 in ["a", "attach"]) {
-        if ($env.WEZTERM_PANE? | is-empty) {
-            print -e "zmx a: run inside a WezTerm pane, or provide a session name"
-            return
-        }
-        let resolved = wezterm-pane-name | complete
-        if $resolved.exit_code != 0 {
-            print -e $"zmx a: could not resolve this pane's name: ($resolved.stderr | str trim)"
-            return
-        }
-        let session = $resolved.stdout | str trim
-        if ($session | is-empty) {
-            print -e "zmx a: pane name resolved to an empty session"
-            return
-        }
-        let prefix = $env.ZMX_SESSION_PREFIX? | default ""
-        if ($env.ZMX_SESSION? | default "") == $"($prefix)($session)" {
-            return
-        }
-        ^zmx attach $session
-    } else {
-        ^zmx ...$args
+export def wezattach [] {
+    if ($env.WEZTERM_PANE? | is-empty) {
+        print -e "wezattach: run inside a WezTerm pane, or use zmx attach <session>"
+        return
     }
+    let resolved = wezterm-pane-name | complete
+    if $resolved.exit_code != 0 {
+        print -e $"wezattach: could not resolve this pane's name: ($resolved.stderr | str trim)"
+        return
+    }
+    let session = $resolved.stdout | str trim
+    if ($session | is-empty) {
+        print -e "wezattach: pane name resolved to an empty session"
+        return
+    }
+    let prefix = $env.ZMX_SESSION_PREFIX? | default ""
+    if ($env.ZMX_SESSION? | default "") == $"($prefix)($session)" {
+        return
+    }
+    ^zmx attach $session
 }
 
 export def sl [] {

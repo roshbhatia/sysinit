@@ -370,16 +370,16 @@ in
         export WEZTERM_PANE=18
         export ZMX_SESSION_PREFIX=
 
-        nu --no-config-file -c 'use ${nuFunctions} zmx; zmx a'
+        nu --no-config-file -c 'use ${nuFunctions} *; wezattach'
         grep -Fx 'attach quiet-falcon' "$ZMX_TEST_LOG"
 
         : > "$ZMX_TEST_LOG"
         export ZMX_SESSION=quiet-falcon
-        nu --no-config-file -c 'use ${nuFunctions} zmx; zmx a'
+        nu --no-config-file -c 'use ${nuFunctions} *; wezattach'
         test ! -s "$ZMX_TEST_LOG"
 
         unset ZMX_SESSION
-        nu --no-config-file -c 'use ${nuFunctions} zmx; zmx list --short'
+        nu --no-config-file -c 'use ${nuFunctions} *; if ((scope commands | where name == "zmx" | length) != 0) { error make {msg: "zmx must remain an external command"} }; zmx list --short'
         grep -Fx 'list --short' "$ZMX_TEST_LOG"
         touch "$out"
       '';
