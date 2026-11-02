@@ -1,0 +1,21 @@
+checks/default.nix
+  s_00f0f53292bea7::t_e92a1778580055 373,378,382
+modules/home/programs/nushell/functions.nu
+  s_00f0f53292bea7::t_e92a1778580055 160-168,170-179
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "10ebd68099f5817d25dd197800561e35cbaa4c1e",
+  "prompts": {},
+  "sessions": {
+    "s_00f0f53292bea7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1933c-a6e8-7442-97c4-87ca5f511b94",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
