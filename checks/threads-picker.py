@@ -16,10 +16,26 @@ import pyte
 binary = sys.argv[1]
 with tempfile.TemporaryDirectory() as directory:
     root = Path(directory)
+    (root / "threads.json").write_text(
+        json.dumps(
+            [
+                {
+                    "atuin_id": identifier,
+                    "harness": harness,
+                    "preview": preview,
+                    "cwd": str(root.resolve()),
+                }
+                for identifier, harness, preview in (
+                    ("thread-a", "claude-code", "alpha"),
+                    ("thread-b", "codex", "beta"),
+                )
+            ]
+        )
+    )
     fixture = root / "atuin"
     fixture.write_text("""#!/bin/sh
 if [ "$*" = 'threads list --style json' ]; then
-  printf '%s' '[{"atuin_id":"thread-a","harness":"claude-code","preview":"alpha","cwd":"/fixture"},{"atuin_id":"thread-b","harness":"codex","preview":"beta","cwd":"/fixture"}]'
+  cat "$XDG_CONFIG_HOME/threads.json"
 else
   printf '\\nNATIVE:'
   printf ' <%s>' "$@"
@@ -65,6 +81,7 @@ fi
     for name, action, target, cancel, expected in cases:
         child, master = pty.fork()
         if child == 0:
+            os.chdir(root)
             os.write(1, b"original prompt > threads\r\n")
             os.execvpe(
                 binary,
