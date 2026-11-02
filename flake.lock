@@ -1635,11 +1635,11 @@
         "spawn": "spawn"
       },
       "locked": {
-        "lastModified": 1791350071,
-        "narHash": "sha256-ENWw+IBDBDDNPhluHU74F0NtEGYS84nVdPg2YiYd9oU=",
+        "lastModified": 1793592047,
+        "narHash": "sha256-Sa5Z9UF0bXkwCUT43HFdihZ0EEZy/k2gb+HFgQm3KHo=",
         "owner": "roshbhatia",
         "repo": "sysinit.wezterm",
-        "rev": "4836d1085ce944e5c7d9e8a11e3a16446c4d9b0f",
+        "rev": "14f13f390b931c0cb36971fdcdc3488d08aa17c3",
         "type": "github"
       },
       "original": {

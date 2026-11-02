@@ -12,6 +12,28 @@ let
   paths = import ../../../lib/paths.nix { inherit lib; };
   themeConfig = config.sysinit.theme;
   c = themeColors;
+  luaSource = inputs.sysinit-wezterm.lib.luaSource pkgs;
+
+  paneName = pkgs.writeShellApplication {
+    name = "wezterm-pane-name";
+    runtimeInputs = [ pkgs.lua5_4 ];
+    text = ''
+      if [[ -z ''${WEZTERM_PANE:-} ]]; then
+        echo "wezterm-pane-name: must run inside a WezTerm pane" >&2
+        exit 2
+      fi
+
+      lua - ${luaSource}/sysinit/pkg/ui/badges.lua "$WEZTERM_PANE" <<'LUA'
+      local badges = dofile(arg[1])
+      local pane_id = tonumber(arg[2])
+      if not pane_id then
+        io.stderr:write("wezterm-pane-name: invalid WEZTERM_PANE value\n")
+        os.exit(2)
+      end
+      print(badges.name(pane_id))
+      LUA
+    '';
+  };
 
   sshCfg = config.sysinit.git.ssh;
   sshAgentSocket =
@@ -24,6 +46,7 @@ in
 {
 
   imports = [ inputs.sysinit-wezterm.homeManagerModules.default ];
+  home.packages = [ paneName ];
   programs.sysinit-wezterm = {
     enable = true;
     settings = {
