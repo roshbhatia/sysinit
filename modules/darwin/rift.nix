@@ -196,8 +196,10 @@ let
       animate = true;
       animation_duration = 0.12;
       animation_fps = 120.0;
+      focus_follows_mouse = false;
       default_disable = false;
       hot_reload = true;
+      ui.stack_line.enabled = false;
       ui.menu_bar = {
         enabled = true;
         show_empty = false;
