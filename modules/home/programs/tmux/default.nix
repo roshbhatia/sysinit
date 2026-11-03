@@ -224,7 +224,7 @@ let
             {
               name = "Copy working directory";
               key = "y";
-              command = "set-buffer -w '#{pane_current_path}'";
+              command = "send-keys -K C-b Y";
             }
             {
               name = "Search history";
@@ -455,7 +455,7 @@ in
       set -g status-style 'bg=#${c.base01},fg=#${c.base05}'
       set -g status-left-length 220
       set -g status-right-length 80
-      set -g status-left '#{?@sysinit_locked,#[fg=#${c.base08},bold] LOCKED (Ctrl-G) #[default],}#[fg=#${c.base0D},bold] #S #[default]| #(${lib.getExe sessionChips} #{q:session_name}) '
+      set -g status-left '#{?@sysinit_locked,#[fg=#${c.base08}]#[bold] LOCKED (Ctrl-G) #[default],}#[fg=#${c.base0D},bold] #S #[default]| #(${lib.getExe sessionChips} #{q:session_name}) '
       set -g status-right '#[fg=#${c.base04}]#{window_index}:#{window_name}  #{pane_current_path} '
       setw -g window-status-format ' #[fg=#${c.base04}]#I:#W '
       setw -g window-status-current-format ' #[fg=#${c.base05},bg=#${c.base02},bold]#I:#W#[default] '
@@ -467,7 +467,7 @@ in
 
       bind-key s display-popup -E -w 92% -h 86% '${pkgs.sysinit-utils}/bin/ty tmux picker'
       bind-key f ${floatingCommand}
-      bind-key Y set-buffer -w '#{pane_current_path}'
+      bind-key Y run-shell '${lib.getExe pkgs.tmux} -S #{q:socket_path} set-buffer -w -t #{q:client_name} #{q:pane_current_path}'
       bind-key d set-option @sysinit_manual_detach 1 \; detach-client
       bind-key c ${spawn "window" false}
       bind-key C ${spawn "window" true}

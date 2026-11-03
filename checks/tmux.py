@@ -236,6 +236,13 @@ class LifecycleTests(unittest.TestCase):
                 base64.b64decode(value).strip() == b"TMUX_YANK_CHECK"
                 for value in values
             ):
+                os.write(client[1], b"\x02Y")
+                self.wait_for(
+                    lambda: (
+                        self.command("show-buffer")
+                        == self.command("display-message", "-p", "#{pane_current_path}")
+                    )
+                )
                 return
         selected = self.command("show-buffer", check=False)
         caps = [line for line in self.command("info").splitlines() if "Ms:" in line]
@@ -264,6 +271,9 @@ class LifecycleTests(unittest.TestCase):
                 self.command("list-clients", "-F", "#{client_key_table}")
                 == "sysinit-locked"
             )
+        )
+        self.assertIn(
+            "LOCKED (Ctrl-G)", self.command("display-message", "-p", "#{E:status-left}")
         )
         application_keys = b"\x02s\x08\x0cpi keys\x1b[13;2u"
         self.command("source-file", CONFIG)
