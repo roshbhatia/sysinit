@@ -185,18 +185,9 @@ in
             };
           }
         ];
-        hooks = {
-          env_change = {
-            PWD = lib.hm.nushell.mkNushellInline ''
-              [
-                {||
-                  if (which wezterm | is-not-empty) {
-                    try { wezterm set-working-directory } catch { }
-                  }
-                }
-              ]
-            '';
-          };
+        shell_integration = {
+          osc7 = true;
+          osc133 = true;
         };
       };
 
