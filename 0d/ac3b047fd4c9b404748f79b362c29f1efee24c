@@ -1,0 +1,21 @@
+checks/tmux.py
+  s_b6baf4162ed3c9::t_e86d14575e0854 239-245,275-277
+modules/home/programs/tmux/default.nix
+  s_b6baf4162ed3c9::t_94de88202f9b12 227,458,470
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0dac3b047fd4c9b404748f79b362c29f1efee24c",
+  "prompts": {},
+  "sessions": {
+    "s_b6baf4162ed3c9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a19cf6-a9c0-7161-abce-266a87939179",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
