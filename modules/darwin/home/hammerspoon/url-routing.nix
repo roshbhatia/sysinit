@@ -223,7 +223,7 @@ in
         providerDirectory = "${providerDirectory}";
         resolver = "${pkgs.sysinit-gotools}/bin/url-route";
         home = config.home.homeDirectory;
-        ty = "${pkgs.sysinit-gotools}/bin/ty";
+        ty = "${pkgs.sysinit-utils}/bin/ty";
       };
     };
 }

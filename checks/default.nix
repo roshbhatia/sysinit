@@ -350,6 +350,18 @@ in
 
 }
 // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
+  hammerspoon-terminal-launcher =
+    let
+      host = darwinConfigurations.lv426.config;
+      home = host.home-manager.users.${host.sysinit.user.username};
+    in
+    pkgs.runCommand "hammerspoon-terminal-launcher" { nativeBuildInputs = [ pkgs.jq ]; } ''
+      terminal=$(jq -r .ty ${home.home.file.".config/sysinit/launcher_config.json".source})
+      test -x "$terminal"
+      "$terminal" --help | ${pkgs.gnugrep}/bin/grep -F 'ty terminal'
+      test "$(jq -r .ty ${home.xdg.configFile."sysinit/url_routing.json".source})" = "$terminal"
+      touch "$out"
+    '';
   tmux-lifecycle =
     let
       host = darwinConfigurations.lv426.config;

@@ -222,9 +222,13 @@ func runTerminal(args []string, stdin io.Reader, stdout io.Writer, runner comman
 			if err != nil {
 				return err
 			}
+			session := ""
 			for _, r := range p.Rows {
+				if strings.HasPrefix(r.ID, "ws:") {
+					session = strings.TrimPrefix(r.ID, "ws:")
+				}
 				if strings.HasPrefix(r.ID, "pane:") {
-					rows = append(rows, terminalRow{strings.TrimPrefix(r.ID, "pane:"), strings.TrimSpace(r.Text), "tmux"})
+					rows = append(rows, terminalRow{strings.TrimPrefix(r.ID, "pane:"), session + ": " + strings.TrimSpace(r.Text), "tmux"})
 				}
 			}
 		}
