@@ -125,6 +125,8 @@
       url = "github:roshbhatia/agent-notes";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # Keep the fork's dependency lock so consumers match its CI cache paths.
+    wezterm-fork.url = "github:roshbhatia/wezterm?dir=nix";
     sysinit-wezterm = {
       url = "github:roshbhatia/sysinit.wezterm";
       inputs.nixpkgs.follows = "nixpkgs";

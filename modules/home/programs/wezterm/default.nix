@@ -51,6 +51,18 @@ in
     enable = true;
     settings = {
 
+      customShaders = [
+        {
+          format = "Ghostty";
+          path = toString (
+            pkgs.fetchurl {
+              url = "https://raw.githubusercontent.com/sahaj-b/cursor-shaders/9ad9158a93c0de0c045e1c6b27df37da698bc8af/ghostty/cursor_tail.glsl";
+              hash = "sha256-CEEjiRG9USeW8i9c+FbFgt8Rzcrc11KFNHOfvH0soxI=";
+            }
+          );
+        }
+      ];
+
       agents = import ../llm/harnesses/deck-patterns.nix;
 
       agentIdentity = lib.mapAttrs (_n: h: {

@@ -47,6 +47,7 @@ in
   gate-cli = inputs.gate.packages.${final.stdenv.hostPlatform.system}.gate;
 
   gate-providers = inputs.gate.packages.${final.stdenv.hostPlatform.system}.extras;
+  wezterm = inputs.wezterm-fork.packages.${final.stdenv.hostPlatform.system}.default;
   sysinit-wezterm-source = inputs.sysinit-wezterm.outPath;
   sysinit-wezterm-lua = inputs.sysinit-wezterm.lib.luaSource final;
   wezspawn = inputs.sysinit-wezterm.packages.${final.stdenv.hostPlatform.system}.wezspawn;
