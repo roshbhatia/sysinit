@@ -119,7 +119,16 @@ class LifecycleTests(unittest.TestCase):
         client = self.attach()
         self.command("set-option", "-g", "default-command", "/bin/sh")
         self.command("set-option", "-g", "default-shell", "/bin/sh")
-        os.write(client[1], b"\x02f")
+        os.write(client[1], b"\x02 ")
+        menu = bytearray()
+
+        def menu_shown():
+            if select.select([client[1]], [], [], 0)[0]:
+                menu.extend(os.read(client[1], 65536))
+            return b"Floating terminal" in menu
+
+        self.wait_for(menu_shown)
+        os.write(client[1], b"f")
         floating = "_sysinit_float_0"
         self.wait_for(
             lambda: (

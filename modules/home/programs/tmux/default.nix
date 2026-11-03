@@ -82,7 +82,7 @@ let
         {
           name = "Floating terminal";
           key = "f";
-          command = floatingCommand;
+          command = "send-keys -K C-b f";
         }
         {
           name = "Sessions and providers";
@@ -338,6 +338,9 @@ let
       if [ -n "''${TMUX:-}" ]; then
         tmux new-session -Ad -s "$session" -c "$PWD"
         exec tmux switch-client -t "=$session"
+      fi
+      if [ -n "''${WEZTERM_PANE:-}" ]; then
+        export TERM=wezterm
       fi
       exec tmux -f ${config.xdg.configFile."tmux/tmux.conf".source} new-session -A -s "$session" -c "$PWD"
     '';
