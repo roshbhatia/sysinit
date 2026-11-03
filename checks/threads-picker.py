@@ -180,6 +180,8 @@ fi
                 if found:
                     child = None
                     break
+                # A closed PTY returns immediately, before the child is necessarily reaped.
+                time.sleep(0.05)
             else:
                 raise AssertionError((name, "did not exit", screen.display))
             assert os.waitstatus_to_exitcode(status) == 0, (name, bytes(output[-1500:]))

@@ -261,6 +261,26 @@ export def --env nuvim [] {
 }
 
 export-env {
+    if (($env.TERM_PROGRAM? | default "" | str lowercase) == "wezterm") or ($env.WEZTERM_PANE? | is-not-empty) {
+        $env.config.hooks.pre_execution = (
+            $env.config.hooks.pre_execution?
+            | default []
+            | append {||
+                sysinit-set-user-var "1337;SetUserVar=WEZTERM_PROG" (commandline)
+            }
+        )
+        $env.config.hooks.pre_prompt = (
+            $env.config.hooks.pre_prompt?
+            | default []
+            | append {||
+                sysinit-set-user-var "1337;SetUserVar=WEZTERM_PROG" ""
+                sysinit-set-user-var "1337;SetUserVar=WEZTERM_USER" ($env.USER? | default "")
+                sysinit-set-user-var "1337;SetUserVar=WEZTERM_HOST" ($env.WEZTERM_HOSTNAME? | default (sys host | get hostname))
+                sysinit-set-user-var "1337;SetUserVar=WEZTERM_IN_TMUX" (if ($env.TMUX? | is-empty) { "0" } else { "1" })
+            }
+        )
+    }
+
     $env.config.hooks.env_change.PWD = (
   $env.config.hooks.env_change.PWD?
   | default []
