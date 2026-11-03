@@ -7,6 +7,40 @@
 let
   themeLib = import ../../../shared/theme-colors.nix { inherit lib; };
   c = themeLib.colorsOf config;
+  smoothScroll = pkgs.tmuxPlugins.mkTmuxPlugin {
+    pluginName = "smooth-scroll";
+    version = "0-unstable-2d686bc";
+    rtpFilePath = "smooth-scroll.tmux";
+    src = pkgs.fetchFromGitHub {
+      owner = "azorng";
+      repo = "tmux-smooth-scroll";
+      rev = "2d686bc5b696c0e66173997e5141b14c8bedd973";
+      hash = "sha256-+DtK0hMO1TAPYR/0jF12I5mqGOAz8PiMzhvGQDbwm3k=";
+    };
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postInstall = ''
+      for entry in init scroll; do
+        wrapProgram "$out/share/tmux-plugins/smooth-scroll/src/$entry.sh" \
+          --prefix PATH : ${
+            lib.makeBinPath [
+              pkgs.tmux
+              pkgs.coreutils
+              pkgs.gawk
+              pkgs.perl
+            ]
+          }
+      done
+    '';
+  };
+  floatingTerminal = pkgs.writeShellApplication {
+    name = "tmux-floating-terminal";
+    runtimeInputs = [
+      pkgs.coreutils
+      pkgs.tmux
+    ];
+    text = builtins.readFile ./floating-terminal.sh;
+  };
+  floatingCommand = "run-shell '${lib.getExe floatingTerminal} toggle #{q:socket_path} #{q:session_id} #{q:client_name} #{q:pane_current_path}'";
   lock = "set-option key-table sysinit-locked ; set-option prefix None ; set-option @sysinit_locked 1 ; switch-client -T sysinit-locked";
   unlock = "set-option key-table root ; set-option prefix C-b ; set-option @sysinit_locked 0 ; switch-client -T root";
   action = command: "run-shell '${pkgs.sysinit-utils}/bin/ty tmux ${command} #{pane_id}'";
@@ -40,6 +74,16 @@ let
         y = "C";
       };
       items = map menuItem [
+        {
+          name = "Reload configuration";
+          key = "R";
+          command = "source-file '${config.xdg.configHome}/tmux/tmux.conf'";
+        }
+        {
+          name = "Floating terminal";
+          key = "f";
+          command = floatingCommand;
+        }
         {
           name = "Sessions and providers";
           key = "s";
@@ -178,6 +222,11 @@ let
               command = "copy-mode";
             }
             {
+              name = "Copy working directory";
+              key = "y";
+              command = "set-buffer -w '#{pane_current_path}'";
+            }
+            {
               name = "Search history";
               key = "/";
               command = "copy-mode ; send-keys -X search-backward";
@@ -260,6 +309,7 @@ let
   );
   whichKey = pkgs.runCommand "tmux-which-key-config" { } ''
     ${pkgs.tmuxPlugins.tmux-which-key}/share/tmux-plugins/tmux-which-key/plugin/build.py ${whichKeyConfig} $out
+    ${pkgs.gnused}/bin/sed -i '/^display -p /d' "$out"
   '';
   tmuxClient = pkgs.writeShellApplication {
     name = "tmux-client";
@@ -408,11 +458,13 @@ in
       setw -g window-status-current-format ' #[fg=#${c.base05},bg=#${c.base02},bold]#I:#W#[default] '
       set -g pane-border-style 'fg=#${c.base02}'
       set -g pane-active-border-style 'fg=#${c.base0D}'
-      set -as terminal-features ',wezterm*:RGB,wezterm*:sixel,wezterm*:extkeys'
+      set -as terminal-features ',wezterm*:RGB,wezterm*:sixel,wezterm*:extkeys,wezterm*:clipboard'
       set -g set-titles on
       set -g set-titles-string '#S'
 
       bind-key s display-popup -E -w 92% -h 86% '${pkgs.sysinit-utils}/bin/ty tmux picker'
+      bind-key f ${floatingCommand}
+      bind-key Y set-buffer -w '#{pane_current_path}'
       bind-key d set-option @sysinit_manual_detach 1 \; detach-client
       bind-key c ${spawn "window" false}
       bind-key C ${spawn "window" true}
@@ -445,12 +497,24 @@ in
       bind-key -T copy-mode-vi Escape send-keys -X cancel
       source-file ${whichKey}
       bind-key '?' show-wk-menu-root
+      set -g @smooth-scroll-speed 50
+      set -g @smooth-scroll-easing sine
+      set -g @smooth-scroll-mouse true
+      run-shell ${smoothScroll}/share/tmux-plugins/smooth-scroll/smooth-scroll.tmux
       set-hook -g client-detached 'run-shell "${lib.getExe tmuxLifecycle} detached #{q:socket_path} #{q:session_id} #{q:hook_client} #{session_attached}"'
       set-hook -g client-session-changed 'run-shell "${lib.getExe tmuxLifecycle} attached #{q:socket_path} #{q:session_id} #{q:client_name} #{q:client_termname}"'
+      set-hook -g client-session-changed[1] 'if-shell -F "#{&&:#{@sysinit_float_parent},#{m:wezterm*,#{client_termname}}}" { run-shell -b "${lib.getExe floatingTerminal} redirect #{q:socket_path} #{q:session_id} #{q:client_name} #{q:pane_current_path}"; }'
+      set-hook -g session-closed 'run-shell "${lib.getExe floatingTerminal} cleanup #{q:socket_path} #{q:hook_session}"'
     '';
   };
 
   xdg.configFile."sysinit/tmux-providers.json".source = providersFile;
+
+  home.activation.sysinitTmux = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+    if ${lib.getExe pkgs.tmux} has-session 2> /dev/null; then
+      run ${lib.getExe pkgs.tmux} source-file ${config.xdg.configFile."tmux/tmux.conf".source}
+    fi
+  '';
 
   home.packages = [
     tmuxClient

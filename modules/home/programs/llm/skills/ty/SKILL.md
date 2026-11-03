@@ -67,6 +67,12 @@ actions return JSON.
 - `Ctrl-G` toggles the session's application key lock. The status bar shows
   `LOCKED (Ctrl-G)`. While locked, all other keys, including `Ctrl-B`, reach
   the application. `Ctrl-G` remains reserved for unlocking.
+- `Ctrl-B f` toggles the session's floating terminal. Hiding it preserves its
+  shell and jobs; closing the parent session ends the floating terminal too.
+  Focusing an agent in that terminal reopens the popup.
+- Copy mode uses `v` to select and `y` to copy to the terminal clipboard.
+  `Ctrl-B Y` copies the pane's working directory. Mouse and copy-mode page
+  scrolling use the pinned smooth-scroll plugin.
 - Unlocked `Ctrl-H/J/K/L` navigate panes and pass through to editors, Traces,
   and Orc. Shift resizes panes or passes through to editors. `Ctrl-B |`,
   `Ctrl-B -`, and `Ctrl-B c` open a right split, down split, or window on the

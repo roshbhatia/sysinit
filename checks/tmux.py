@@ -1,6 +1,8 @@
+import base64
 import fcntl
 import os
 import pty
+import re
 import select
 import shlex
 import signal
@@ -35,6 +37,7 @@ class LifecycleTests(unittest.TestCase):
             capture_output=True,
             text=True,
             check=check,
+            timeout=10,
         ).stdout.strip()
 
     def exists(self):
@@ -112,6 +115,126 @@ class LifecycleTests(unittest.TestCase):
         self.close_client(client)
         self.wait_for(lambda: not self.exists())
 
+    def test_floating_terminal_persists_until_parent_closes(self):
+        client = self.attach()
+        self.command("set-option", "-g", "default-command", "/bin/sh")
+        self.command("set-option", "-g", "default-shell", "/bin/sh")
+        os.write(client[1], b"\x02f")
+        floating = "_sysinit_float_0"
+        self.wait_for(
+            lambda: (
+                set(self.command("list-sessions", "-F", "#{session_name}").splitlines())
+                == {floating, "test"}
+            )
+        )
+
+        def attached(expected):
+            while select.select([client[1]], [], [], 0)[0]:
+                os.read(client[1], 65536)
+            return (
+                self.command(
+                    "display-message",
+                    "-p",
+                    "-t",
+                    "=" + floating + ":",
+                    "#{session_attached}",
+                )
+                == expected
+            )
+
+        self.wait_for(lambda: attached("1"))
+        pid = self.command(
+            "display-message", "-p", "-t", "=" + floating + ":", "#{pane_pid}"
+        )
+        os.write(client[1], b"\x02f")
+        self.wait_for(lambda: attached("0"))
+        desktop = self.command("list-clients", "-F", "#{client_name}")
+        self.command("switch-client", "-c", desktop, "-t", "=" + floating)
+        self.wait_for(
+            lambda: (
+                attached("1")
+                and "wezterm\ttest"
+                in self.command(
+                    "list-clients", "-F", "#{client_termname}\t#{session_name}"
+                ).splitlines()
+            )
+        )
+        self.assertEqual(
+            self.command(
+                "display-message", "-p", "-t", "=" + floating + ":", "#{pane_pid}"
+            ),
+            pid,
+        )
+        self.assertIn(
+            "wezterm\ttest",
+            self.command("list-clients", "-F", "#{client_termname}\t#{session_name}"),
+        )
+        self.close_client(client)
+        self.wait_for(lambda: not self.exists())
+
+    def test_smooth_scroll_moves_and_exits_copy_mode_at_bottom(self):
+        client = self.attach()
+        writer = "import os,time; os.write(1,('\\n'.join(map(str,range(1,201)))+'\\n').encode()); time.sleep(30)"
+        self.command("respawn-pane", "-k", shlex.join([sys.executable, "-c", writer]))
+        until = time.monotonic() + 0.5
+        while time.monotonic() < until:
+            if select.select([client[1]], [], [], 0.05)[0]:
+                os.read(client[1], 65536)
+        self.wait_for(lambda: "200" in self.command("capture-pane", "-p"))
+        self.command("copy-mode")
+        os.write(client[1], b"\x15")
+        halfpage = int(self.command("display-message", "-p", "#{pane_height}")) // 2
+        self.wait_for(
+            lambda: (
+                self.command("display-message", "-p", "#{scroll_position}")
+                == str(halfpage)
+            )
+        )
+        os.write(client[1], b"\x04")
+        self.wait_for(
+            lambda: self.command("display-message", "-p", "#{pane_in_mode}") == "0"
+        )
+
+    def test_yank_sends_selection_to_client_clipboard(self):
+        client = self.attach()
+        writer = "import os,time; os.write(1,b'\\x1b[2J\\x1b[HTMUX_YANK_CHECK\\n'); time.sleep(30)"
+        self.command("respawn-pane", "-k", shlex.join([sys.executable, "-c", writer]))
+        self.wait_for(
+            lambda: self.command("capture-pane", "-p").startswith("TMUX_YANK_CHECK")
+        )
+        self.command("clear-history")
+        self.command("copy-mode")
+        self.command("send-keys", "-X", "history-top")
+        self.command("send-keys", "-X", "select-line")
+        until = time.monotonic() + 0.2
+        while time.monotonic() < until:
+            if select.select([client[1]], [], [], 0.05)[0]:
+                os.read(client[1], 65536)
+        os.write(client[1], b"y")
+        output = b""
+        until = time.monotonic() + 2
+        while time.monotonic() < until:
+            if select.select([client[1]], [], [], 0.05)[0]:
+                output += os.read(client[1], 65536)
+            values = re.findall(
+                rb"\x1b\]52;[^;]*;([A-Za-z0-9+/=]+)(?:\x07|\x1b\\)", output
+            )
+            if any(
+                base64.b64decode(value).strip() == b"TMUX_YANK_CHECK"
+                for value in values
+            ):
+                return
+        selected = self.command("show-buffer", check=False)
+        caps = [line for line in self.command("info").splitlines() if "Ms:" in line]
+        flag = self.command("show-options", "-s", "set-clipboard")
+        candidates = [
+            output[max(0, m.start() - 8) : m.start() + 100]
+            for m in re.finditer(b"52", output)
+        ]
+        self.fail(
+            f"clipboard buffer={selected!r}, capabilities={caps!r}, flag={flag}, candidates={candidates!r}"
+        )
+
     def test_locked_mode_forwards_application_keys_and_prefix(self):
         client = self.attach()
         output = Path(self.directory.name) / "keys"
@@ -130,6 +253,7 @@ class LifecycleTests(unittest.TestCase):
             )
         )
         application_keys = b"\x02s\x08\x0cpi keys\x1b[13;2u"
+        self.command("source-file", CONFIG)
         os.write(client[1], application_keys)
         try:
             self.wait_for(lambda: output.read_bytes() == application_keys)
