@@ -18,10 +18,11 @@ import (
 
 const protocolVersion = "sysinit.ty/v1"
 
-const usage = `ty: inspect and control seshy sessions in WezTerm
+const usage = `ty: inspect and control seshy sessions and terminal panes
 
 Usage:
   ty catalog
+  ty tmux catalog|sessions|panes|session|pane|picker
   ty sessions
   ty panes
   ty session open <session-id-or-name>
@@ -81,7 +82,7 @@ type actionResult struct {
 	Opened    *bool  `json:"opened,omitempty"`
 }
 
-func Summary() string { return "compose seshy sessions and WezTerm panes" }
+func Summary() string { return "compose seshy sessions and terminal panes" }
 
 func Run(args []string) int {
 	return run(args, os.Stdin, os.Stdout, os.Stderr, execRunner)
@@ -93,8 +94,14 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer, runner comman
 		return 0
 	}
 
+	if args[0] != "tmux" && useTmux(args) {
+		args = append([]string{"tmux"}, args...)
+	}
+
 	var err error
 	switch args[0] {
+	case "tmux":
+		err = runTmux(args[1:], stdin, stdout, runner)
 	case "catalog":
 		err = runCatalog(stdout, runner)
 	case "sessions":
@@ -117,6 +124,24 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer, runner comman
 		return 1
 	}
 	return 0
+}
+
+func useTmux(args []string) bool {
+	if len(args) > 2 && args[0] == "pane" {
+		index := 2
+		if args[index] == "--submit" {
+			index++
+		}
+		if index < len(args) {
+			if _, err := parseTmuxPaneID(args[index]); err == nil {
+				return true
+			}
+			if _, err := parsePaneID(args[index]); err == nil {
+				return false
+			}
+		}
+	}
+	return os.Getenv("TMUX") != "" || (os.Getenv("WEZTERM_PANE") == "" && os.Getenv("SYSINIT_TY_BACKEND") == "tmux")
 }
 
 func runCatalog(stdout io.Writer, runner commandRunner) error {
@@ -480,6 +505,8 @@ func execRunner(ctx context.Context, name string, args []string, stdin io.Reader
 	switch name {
 	case "sy":
 		name = commandPath("SYSINIT_TY_SY", "sy")
+	case "tmux":
+		name = commandPath("SYSINIT_TY_TMUX", "tmux")
 	case "wezterm":
 		name = commandPath("SYSINIT_TY_WEZTERM", "wezterm")
 	}

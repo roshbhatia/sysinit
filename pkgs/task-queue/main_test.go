@@ -146,12 +146,11 @@ func fixtureFor(t *testing.T) *fixture {
 		t.Fatal(e)
 	}
 	f.env = append(
-		envWithout("ZMX_SESSION", "ZMX_SESSION_PREFIX", "PUEUE_CONFIG_PATH", "TASKRC", "TASKDATA", "SESHY_CONFIG"),
+		envWithout("TMUX", "TMUX_PANE", "TMUX_TMPDIR", "PUEUE_CONFIG_PATH", "TASKRC", "TASKDATA", "SESHY_CONFIG"),
 		"PUEUE_CONFIG_PATH="+config,
 		"TASKRC="+rc,
 		"TASKDATA="+filepath.Join(root, "tasks"),
-		"ZMX_DIR="+filepath.Join(root, "z"),
-		"ZMX_SESSION_PREFIX=",
+		"TMUX_TMPDIR="+root,
 		"SHELL="+shell,
 	)
 	log, e := os.Create(filepath.Join(root, "daemon.log"))
@@ -170,9 +169,9 @@ func fixtureFor(t *testing.T) *fixture {
 			b, _ := f.command("pueue", "log", "--all")
 			t.Log(string(b))
 		}
-		b, _ := f.command("zmx", "list", "--short")
+		b, _ := f.command("tmux", "list-sessions", "-F", "#{session_name}")
 		for _, name := range strings.Fields(string(b)) {
-			_, _ = f.command("zmx", "kill", name, "--force")
+			_, _ = f.command("tmux", "kill-session", "-t", "="+name)
 		}
 		_ = f.daemon.Process.Signal(syscall.SIGTERM)
 		_ = f.daemon.Wait()
@@ -197,7 +196,7 @@ func (f *fixture) task() string {
 }
 
 func (f *fixture) terminalExists(a attempt) bool {
-	b, _ := f.command("zmx", "list", "--short")
+	b, _ := f.command("tmux", "list-sessions", "-F", "#{session_name}")
 	return strings.Contains(string(b), a.Terminal)
 }
 
@@ -284,7 +283,7 @@ func TestTerminalInputAndFailure(t *testing.T) {
 	a := f.submit("--terminal", "--", executable(t, "bash"), "-c", `read -r value </dev/tty; test "$value" = hello || exit 8; exit 7`)
 	waitFor(t, func() bool { return f.terminalExists(a) })
 	time.Sleep(300 * time.Millisecond)
-	f.must("zmx", "send", a.Terminal, "hello\r")
+	f.must("tmux", "send-keys", "-t", a.Terminal, "hello", "Enter")
 	r := f.finished(a)
 	if !strings.Contains(string(r.Result), `"Failed":7`) && !strings.Contains(string(r.Result), `"Failed": 7`) {
 		t.Fatalf("wrong exit: %s", r.Result)
@@ -298,7 +297,7 @@ func TestLostTerminalCannotSucceed(t *testing.T) {
 	f := fixtureFor(t)
 	a := f.submit("--terminal", "--", executable(t, "sleep"), "60")
 	waitFor(t, func() bool { return f.terminalExists(a) })
-	f.must("zmx", "kill", a.Terminal, "--force")
+	f.must("tmux", "kill-session", "-t", "="+a.Terminal)
 	if f.finished(a).Review {
 		t.Fatal("lost terminal succeeded")
 	}

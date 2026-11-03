@@ -15,7 +15,7 @@ let
       final.taskwarrior3
       final.taskwarrior-cli
       final.pueue
-      final.zmx
+      final.tmux
       final.seshy
     ];
     TASK_QUEUE_TESTS = "1";
@@ -199,6 +199,8 @@ in
           --set SYSINIT_WORKSPACE "${external.ws}" \
           --set SYSINIT_TY_SY "${final.seshy-cli}/bin/sy" \
           --set SYSINIT_TY_WEZTERM "${final.wezterm}/bin/wezterm" \
+          --set SYSINIT_TY_TMUX "${final.tmux}/bin/tmux" \
+          --set SYSINIT_TY_BACKEND tmux \
           --set SYSINIT_TY_ENV "${final.coreutils}/bin/env" \
           --set SYSINIT_WEZSPAWN "${final.wezspawn}/bin/wezspawn" \
           --prefix PATH : "${runtimePath}"
@@ -216,6 +218,8 @@ in
           --add-flags ty \
           --set SYSINIT_TY_SY "${final.seshy-cli}/bin/sy" \
           --set SYSINIT_TY_WEZTERM "${final.wezterm}/bin/wezterm" \
+          --set SYSINIT_TY_TMUX "${final.tmux}/bin/tmux" \
+          --set SYSINIT_TY_BACKEND tmux \
           --set SYSINIT_TY_ENV "${final.coreutils}/bin/env" \
           --prefix PATH : "${runtimePath}"
       '';

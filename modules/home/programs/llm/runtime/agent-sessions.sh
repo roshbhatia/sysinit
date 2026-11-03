@@ -61,8 +61,19 @@ if [ -f "$selected_file" ]; then
   fi
 fi
 
-if ! live=$(timeout "$PROBE_TIMEOUT" wezterm cli --no-auto-start list --format json 2> /dev/null) ||
-  ! printf '%s' "$live" | jq -e 'type == "array" and all(.[]; type == "object" and has("pane_id"))' > /dev/null 2>&1; then
+available=0
+if live=$(timeout "$PROBE_TIMEOUT" wezterm cli --no-auto-start list --format json 2> /dev/null) &&
+  printf '%s' "$live" | jq -e 'type == "array" and all(.[]; type == "object" and has("pane_id"))' > /dev/null 2>&1; then
+  available=1
+else
+  live='[]'
+fi
+if tmux_live=$(timeout "$PROBE_TIMEOUT" tmux list-panes -a -F '#{pane_id}	#{session_name}	#{pane_active}' 2> /dev/null); then
+  available=1
+  tmux_live=$(printf '%s\n' "$tmux_live" | jq -Rs 'split("\n") | map(select(length > 0) | split("\t") | {pane_id: .[0], workspace: .[1], is_active: (.[2] == "1")})')
+  live=$(jq -cn --argjson native "$live" --argjson tmux "$tmux_live" '$native + $tmux')
+fi
+if [ "$available" = 0 ]; then
   emit_cached
 fi
 known=$(timeout "$PROBE_TIMEOUT" sy list --names 2> /dev/null) || known=""
@@ -75,6 +86,9 @@ if [ "${#pane_files[@]}" -gt 0 ]; then
       printf '%s\0' "$(< "$pane_file")"
     done | jq -Rs 'split("\u0000") | map(fromjson? | select(type == "object"))'
   ) || emit_cached
+fi
+if [ -n "${tmux_live:-}" ] && inferred=$(timeout "$PROBE_TIMEOUT" @tmuxStatusCommand@/bin/tmux-agent-status "$panes_dir" "$state_dir/tmux-inference.json" 2> /dev/null); then
+  records=$(jq -cn --argjson records "$records" --argjson inferred "$inferred" '$records | map(select((.pane | tostring | startswith("%")) | not)) | . + $inferred') || emit_cached
 fi
 out=$(printf '%s' "$records" | jq --argjson live "$live" --argjson selected "$selected" \
   --arg selstate "$selection_state" --arg known "$known" -f @agentSessionsReducer@) || emit_cached

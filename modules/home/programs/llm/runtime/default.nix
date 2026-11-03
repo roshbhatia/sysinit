@@ -70,17 +70,39 @@ let
     runtimeInputs = [
       pkgs.jq
       pkgs.coreutils
+      pkgs.tmux
       pkgs.wezterm
       pkgs.seshy
+      pkgs.sysinit-utils
+      (pkgs.lua5_4.withPackages (ps: [ ps.dkjson ]))
     ];
     bashOptions = [ ];
     text = joinFragments [
       paths
-      (builtins.replaceStrings [ "@agentSessionsReducer@" ] [ "${./agent-sessions.jq}" ] (
-        builtins.readFile ./agent-sessions.sh
-      ))
+      (builtins.replaceStrings
+        [ "@agentSessionsReducer@" "@tmuxStatusCommand@" ]
+        [ "${./agent-sessions.jq}" "${tmuxStatusCommand}" ]
+        (builtins.readFile ./agent-sessions.sh)
+      )
     ];
   };
+  tmuxStatusCommand =
+    let
+      agents = pkgs.writeText "tmux-agent-patterns.json" (
+        builtins.toJSON (import ../harnesses/deck-patterns.nix)
+      );
+      plugins = import (pkgs.sysinit-wezterm-source + "/plugins.nix") { inherit pkgs; };
+    in
+    pkgs.writeShellApplication {
+      name = "tmux-agent-status";
+      runtimeInputs = [
+        pkgs.sysinit-utils
+        (pkgs.lua5_4.withPackages (ps: [ ps.dkjson ]))
+      ];
+      text = ''
+        ty tmux snapshot | lua ${./tmux-status.lua} ${pkgs.sysinit-wezterm-lua} ${plugins.agent-deck} ${agents} "$1" "$2"
+      '';
+    };
 
   reviewScript = pkgs.sysinit.writeShellApplication {
     name = "agent-review";
@@ -89,6 +111,7 @@ let
       pkgs.jq
       pkgs.coreutils
       pkgs.gnugrep
+      pkgs.tmux
       pkgs.wezterm
     ];
     text = joinFragments [
@@ -129,6 +152,7 @@ let
   focusScript = pkgs.sysinit.writeShellApplication {
     name = "agent-focus";
     runtimeInputs = [
+      pkgs.tmux
       pkgs.wezterm
       pkgs.jq
     ]

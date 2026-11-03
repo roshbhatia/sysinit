@@ -14,6 +14,52 @@ def run(argv, **kwargs):
 
 
 def wez(*args):
+    if os.environ.get("TMUX_PANE"):
+        if args[0] == "list-clients":
+            result = run(["tmux", "list-clients", "-F", "#{client_name}"])
+            return json.dumps(
+                [{}] if result.returncode == 0 and result.stdout.strip() else []
+            )
+        if args[0] == "list":
+            result = run(["tmux", "list-panes", "-a", "-F", "#{pane_id}\t#{window_id}"])
+            if result.returncode:
+                raise RuntimeError(result.stderr.strip())
+            return json.dumps(
+                [
+                    dict(zip(["pane_id", "tab_id"], line.split("\t")))
+                    for line in result.stdout.splitlines()
+                ]
+            )
+        if args[0] == "activate-pane":
+            result = run(["ty", "pane", "focus", args[2]])
+        elif args[0] == "split-pane":
+            argv = list(args)
+            target = argv[argv.index("--pane-id") + 1]
+            cwd = argv[argv.index("--cwd") + 1]
+            percent = argv[argv.index("--percent") + 1]
+            result = run(
+                [
+                    "ty",
+                    "pane",
+                    "spawn",
+                    target,
+                    "--direction",
+                    "right",
+                    "--percent",
+                    percent,
+                    "--cwd",
+                    cwd,
+                    "--",
+                    *argv[argv.index("--") + 1 :],
+                ]
+            )
+            if result.returncode == 0:
+                return json.loads(result.stdout)["pane_id"]
+        else:
+            raise RuntimeError("Unsupported tmux pane operation: " + args[0])
+        if result.returncode:
+            raise RuntimeError(result.stderr.strip())
+        return result.stdout.strip()
     result = run(["wezterm", "cli", "--no-auto-start", *args])
     if result.returncode:
         raise RuntimeError(result.stderr.strip() or "WezTerm command failed")
@@ -21,8 +67,8 @@ def wez(*args):
 
 
 def open_diff(cwd):
-    parent = os.environ.get("WEZTERM_PANE", "")
-    if not parent.isdecimal():
+    parent = os.environ.get("TMUX_PANE") or os.environ.get("WEZTERM_PANE", "")
+    if not parent.removeprefix("%").isdecimal():
         raise RuntimeError("No WezTerm pane. Run agent-diff from a WezTerm session.")
     root = run(["git", "-C", cwd, "rev-parse", "--show-toplevel"])
     if root.returncode:
@@ -40,7 +86,7 @@ def open_diff(cwd):
     )
     state.mkdir(parents=True, exist_ok=True, mode=0o700)
     key = hashlib.sha256(
-        f"{root}|{parent}|{os.environ.get('WEZTERM_UNIX_SOCKET', '')}".encode()
+        f"{root}|{parent}|{os.environ.get('TMUX') or os.environ.get('WEZTERM_UNIX_SOCKET', '')}".encode()
     ).hexdigest()[:20]
     record = state / f"{key}.json"
     # Keep the socket below the Unix-domain path limit, even with a long XDG path.
@@ -141,7 +187,11 @@ def open_diff(cwd):
             "-c",
             "DiffviewOpen HEAD" if has_head else "DiffviewOpen",
         )
-        record.write_text(json.dumps({"pane": int(pane), "root": root}))
+        record.write_text(
+            json.dumps(
+                {"pane": pane if pane.startswith("%") else int(pane), "root": root}
+            )
+        )
         deadline = time.monotonic() + 4
         while time.monotonic() < deadline:
             if socket.exists():

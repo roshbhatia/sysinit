@@ -1,7 +1,7 @@
 Name = "sessions"
 NamePretty = "Sessions"
 Icon = "utilities-terminal"
-Action = "@wezterm@ cli spawn --new-window --workspace %VALUE%"
+Action = "@ty@ session open %VALUE%"
 SearchName = true
 History = true
 

@@ -17,7 +17,7 @@ func submit(args []string, dir string, records []attempt) (int, error) {
 	session := f.String("session", "", "Existing seshy session")
 	cwd := f.String("cwd", "", "Working directory")
 	group := f.String("group", "agents", "Pueue group")
-	terminal := f.Bool("terminal", false, "Attachable zmx session")
+	terminal := f.Bool("terminal", false, "Attachable tmux session")
 	retry := f.Bool("retry", false, "New attempt after completion")
 	if e = f.Parse(args); e != nil {
 		return 1, e

@@ -86,6 +86,9 @@ func execute(a attempt, dir string, terminal bool) (int, error) {
 	}
 	c := exec.Command(a.Argv[0], a.Argv[1:]...)
 	c.Env = envWithout("CODEX_THREAD_ID", "CLAUDECODE", "WEZTERM_PANE")
+	if !terminal {
+		c.Env = envWithout("CODEX_THREAD_ID", "CLAUDECODE", "WEZTERM_PANE", "TMUX_PANE", "TMUX")
+	}
 	c.Stdin = os.Stdin
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
@@ -186,35 +189,55 @@ func terminalRun(a attempt, dir string) (int, error) {
 	if e != nil {
 		return 1, e
 	}
-	c := exec.Command("zmx", "run", a.Terminal, self, "--state", dir, "terminal-child", a.ID)
-	c.Dir = a.Cwd
-	c.Env = envWithout("ZMX_SESSION", "ZMX_SESSION_PREFIX", "CODEX_THREAD_ID", "CLAUDECODE", "WEZTERM_PANE")
-	c.Stdout = os.Stdout
-	c.Stderr = os.Stderr
-	if e = c.Start(); e != nil {
+	// Configure retention before starting commands that can exit immediately.
+	c := terminalCommand("new-session", "-d", "-P", "-F", "#{pane_id}", "-s", a.Terminal, "-c", a.Cwd, "/bin/sh")
+	output, e := c.Output()
+	if e != nil {
+		return exitCode(e), fmt.Errorf("create tmux terminal: %w", e)
+	}
+	pane := strings.TrimSpace(string(output))
+	finished := false
+	defer func() {
+		if !finished {
+			_ = terminalCommand("kill-session", "-t", "="+a.Terminal).Run()
+		}
+	}()
+	if e = terminalCommand("set-option", "-w", "-t", pane, "remain-on-exit", "on").Run(); e != nil {
 		return 1, e
 	}
-	done := make(chan error, 1)
-	go func() { done <- c.Wait() }()
+	command := shellQuote(self) + " --state " + shellQuote(dir) + " terminal-child " + shellQuote(a.ID)
+	if e = terminalCommand("respawn-pane", "-k", "-t", pane, command).Run(); e != nil {
+		return 1, e
+	}
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGTERM, syscall.SIGINT)
 	defer signal.Stop(signals)
-	select {
-	case waitErr := <-done:
-		if waitErr != nil {
-			return exitCode(waitErr), fmt.Errorf("terminal client failed: %w", waitErr)
+	ticker := time.NewTicker(200 * time.Millisecond)
+	defer ticker.Stop()
+	for {
+		select {
+		case sig := <-signals:
+			return 128 + int(sig.(syscall.Signal)), errors.New("queue job cancelled")
+		case <-ticker.C:
+			live := terminalCommand("has-session", "-t", "="+a.Terminal).Run()
+			var result struct {
+				Code int `json:"code"`
+			}
+			if err := read(filepath.Join(dir, a.ID+".exit"), &result); err == nil {
+				finished = true
+				return result.Code, nil
+			} else if !errors.Is(err, os.ErrNotExist) {
+				return 1, err
+			}
+			if live != nil {
+				return 1, errors.New("terminal session disappeared without command exit record")
+			}
 		}
-	case s := <-signals:
-		k := exec.Command("zmx", "kill", a.Terminal, "--force")
-		k.Env = c.Env
-		_ = k.Run()
-		return 128 + int(s.(syscall.Signal)), errors.Join(errors.New("queue job cancelled"), <-done)
 	}
-	var result struct {
-		Code int `json:"code"`
-	}
-	if e = read(filepath.Join(dir, a.ID+".exit"), &result); e != nil {
-		return 1, fmt.Errorf("terminal disconnected without command exit record: %w", e)
-	}
-	return result.Code, nil
+}
+
+func terminalCommand(args ...string) *exec.Cmd {
+	command := exec.Command("tmux", args...)
+	command.Env = envWithout("TMUX", "TMUX_PANE", "WEZTERM_PANE", "CODEX_THREAD_ID", "CLAUDECODE")
+	return command
 }

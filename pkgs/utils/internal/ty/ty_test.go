@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
@@ -271,4 +272,11 @@ func TestOperationalErrorsUseExitCodeOne(t *testing.T) {
 	if got := run([]string{"sessions"}, strings.NewReader(""), &stdout, &stderr, runner); got != 1 {
 		t.Fatalf("run() = %d, want operational error exit 1", got)
 	}
+}
+
+func TestMain(m *testing.M) {
+	for _, key := range []string{"TMUX", "TMUX_PANE", "WEZTERM_PANE", "SYSINIT_TY_BACKEND"} {
+		_ = os.Unsetenv(key)
+	}
+	os.Exit(m.Run())
 }

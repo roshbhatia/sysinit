@@ -1,12 +1,11 @@
 import json
 import os
-from pathlib import Path
 import subprocess
 import sys
 import tempfile
 import time
 import unittest
-
+from pathlib import Path
 
 SCRIPT = Path(sys.argv.pop(1)).resolve()
 REDUCER = Path(sys.argv.pop(1)).resolve()
@@ -23,6 +22,7 @@ class SessionTests(unittest.TestCase):
         bins.mkdir()
         for name, code in {
             "wezterm": "assert sys.argv[1:] == ['cli','--no-auto-start','list','--format','json']\nprint(os.environ['LIVE'])\nsys.exit(int(os.environ.get('PROBE_EXIT','0')))\n",
+            "tmux": "print(os.environ.get('TMUX_LIVE',''))\nsys.exit(int(os.environ.get('TMUX_PROBE_EXIT','1')))\n",
             "sy": "assert sys.argv[1:] == ['list','--names']\nprint('session with spaces\\nidle session')\n",
         }.items():
             path = bins / name
@@ -100,6 +100,26 @@ class SessionTests(unittest.TestCase):
         self.env["PROBE_EXIT"] = "0"
         self.env["LIVE"] = "[]"
         self.assertTrue(all(row["panes"] == 0 for row in self.run_status()["sessions"]))
+
+    def test_tmux_and_native_panes_share_the_bus(self):
+        self.seed(["working"])
+        (self.panes / "%2.json").write_text(
+            json.dumps(
+                {
+                    "pane": "%2",
+                    "session": "tmux-session",
+                    "status": "waiting",
+                    "since": 2,
+                }
+            )
+        )
+        self.env["TMUX_LIVE"] = "%2\ttmux-session\t1"
+        self.env["TMUX_PROBE_EXIT"] = "0"
+        rows = self.run_status()["sessions"]
+        self.assertEqual(
+            {row["name"]: row["status"] for row in rows if row["panes"]},
+            {"session with spaces": "working", "tmux-session": "waiting"},
+        )
 
     def test_malformed_records(self):
         self.seed(["working"])

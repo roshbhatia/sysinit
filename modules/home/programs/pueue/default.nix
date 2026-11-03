@@ -12,7 +12,7 @@ let
       pkgs.pueue
       pkgs.taskwarrior-cli
       pkgs.seshy
-      pkgs.zmx
+      pkgs.tmux
     ];
     text = ''exec ${pkgs.sysinit-gotools}/bin/task-queue "$@"'';
   };

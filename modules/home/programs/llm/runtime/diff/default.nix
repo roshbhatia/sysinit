@@ -4,6 +4,8 @@ pkgs.writeShellApplication {
   runtimeInputs = [
     pkgs.python3
     pkgs.git
+    pkgs.tmux
+    pkgs.sysinit-utils
     pkgs.wezterm
   ];
   text = ''

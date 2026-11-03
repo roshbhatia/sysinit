@@ -30,7 +30,6 @@ in
         ./taskwarrior.nix
         ./utils
         ./vivid.nix
-        ./zmx
         ./zoxide.nix
         ./zsh
       ];
@@ -65,6 +64,7 @@ in
         ./mail
         ./slk.nix
         ./wezterm
+        ./tmux
       ];
     }
     ++ lib.optional theme ../stylix-targets.nix;

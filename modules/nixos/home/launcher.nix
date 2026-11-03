@@ -9,7 +9,7 @@ let
   themeLib = import ../../shared/theme-colors.nix { inherit lib; };
   c = themeLib.colorsOf config;
 
-  wezterm = "${pkgs.wezterm}/bin/wezterm";
+  ty = "${pkgs.sysinit-utils}/bin/ty";
   swaymsg = "${pkgs.sway}/bin/swaymsg";
   jq = "${pkgs.jq}/bin/jq";
   fftabs = "${pkgs.sysinit-utils}/bin/firefox-tabs";
@@ -54,14 +54,14 @@ in
     "elephant/menus/panes.lua".text = render ./launcher/panes.lua {
       "@jq@" = jq;
       "-- @menu-prelude@" = menuPrelude;
-      "@wezterm@" = wezterm;
+      "@ty@" = ty;
     };
 
     "elephant/menus/sessions.lua".text = render ./launcher/sessions.lua {
       "@jq@" = jq;
       "-- @menu-prelude@" = menuPrelude;
       "@sy@" = sy;
-      "@wezterm@" = wezterm;
+      "@ty@" = ty;
     };
 
     "elephant/menus/tabs.lua".text = render ./launcher/tabs.lua {
