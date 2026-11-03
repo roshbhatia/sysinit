@@ -455,7 +455,7 @@ in
       set -g status-style 'bg=#${c.base01},fg=#${c.base05}'
       set -g status-left-length 220
       set -g status-right-length 80
-      set -g status-left '#{?@sysinit_locked,#[fg=#${c.base08},bold] LOCKED (Ctrl-G) #[default],}#(${lib.getExe sessionChips} #{q:session_name}) #[fg=#${c.base0D},bold] #S #[default]| '
+      set -g status-left '#{?@sysinit_locked,#[fg=#${c.base08},bold] LOCKED (Ctrl-G) #[default],}#[fg=#${c.base0D},bold] #S #[default]| #(${lib.getExe sessionChips} #{q:session_name}) '
       set -g status-right '#[fg=#${c.base04}]#{window_index}:#{window_name}  #{pane_current_path} '
       setw -g window-status-format ' #[fg=#${c.base04}]#I:#W '
       setw -g window-status-current-format ' #[fg=#${c.base05},bg=#${c.base02},bold]#I:#W#[default] '

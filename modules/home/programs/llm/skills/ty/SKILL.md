@@ -69,7 +69,7 @@ actions return JSON.
   the application. `Ctrl-G` remains reserved for unlocking.
 - `Ctrl-B f` toggles the session's floating terminal. Hiding it preserves its
   shell and jobs; closing the parent session ends the floating terminal too.
-  Focusing an agent in that terminal reopens the popup.
+  Focusing an agent in that terminal reveals the native floating pane.
 - Copy mode uses `v` to select and `y` to copy to the terminal clipboard.
   `Ctrl-B Y` copies the pane's working directory. Mouse and copy-mode page
   scrolling use the pinned smooth-scroll plugin.

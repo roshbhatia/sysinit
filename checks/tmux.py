@@ -130,53 +130,57 @@ class LifecycleTests(unittest.TestCase):
         self.wait_for(menu_shown)
         os.write(client[1], b"f")
         floating = "_sysinit_float_0"
-        self.wait_for(
-            lambda: (
-                set(self.command("list-sessions", "-F", "#{session_name}").splitlines())
-                == {floating, "test"}
-            )
-        )
+        pane = ""
 
-        def attached(expected):
+        def visible():
+            nonlocal pane
             while select.select([client[1]], [], [], 0)[0]:
                 os.read(client[1], 65536)
+            pane = self.command(
+                "show-option", "-qv", "-t", "test", "@sysinit_float_pane"
+            )
             return (
-                self.command(
+                bool(pane)
+                and self.command(
                     "display-message",
                     "-p",
                     "-t",
-                    "=" + floating + ":",
-                    "#{session_attached}",
+                    pane,
+                    "#{session_name}:#{pane_floating_flag}",
                 )
-                == expected
+                == "test:1"
             )
 
-        self.wait_for(lambda: attached("1"))
-        pid = self.command(
-            "display-message", "-p", "-t", "=" + floating + ":", "#{pane_pid}"
-        )
+        self.wait_for(visible)
+        pid = self.command("display-message", "-p", "-t", pane, "#{pane_pid}")
         os.write(client[1], b"\x02f")
-        self.wait_for(lambda: attached("0"))
-        desktop = self.command("list-clients", "-F", "#{client_name}")
-        self.command("switch-client", "-c", desktop, "-t", "=" + floating)
         self.wait_for(
             lambda: (
-                attached("1")
-                and "wezterm\ttest"
-                in self.command(
-                    "list-clients", "-F", "#{client_termname}\t#{session_name}"
-                ).splitlines()
+                self.command("display-message", "-p", "-t", pane, "#{session_name}")
+                == floating
             )
         )
+        desktop = self.command("list-clients", "-F", "#{client_name}")
+        self.command("switch-client", "-c", desktop, "-t", "=" + floating)
+        self.wait_for(visible)
         self.assertEqual(
-            self.command(
-                "display-message", "-p", "-t", "=" + floating + ":", "#{pane_pid}"
-            ),
-            pid,
+            self.command("display-message", "-p", "-t", pane, "#{pane_pid}"), pid
         )
-        self.assertIn(
-            "wezterm\ttest",
+        self.assertEqual(
             self.command("list-clients", "-F", "#{client_termname}\t#{session_name}"),
+            "wezterm\ttest",
+        )
+        previous = pane
+        self.command("kill-pane", "-t", pane)
+        os.write(client[1], b"\x02f")
+        self.wait_for(visible)
+        self.assertNotEqual(pane, previous)
+        os.write(client[1], b"\x02f")
+        self.wait_for(
+            lambda: (
+                self.command("display-message", "-p", "-t", pane, "#{session_name}")
+                == floating
+            )
         )
         self.close_client(client)
         self.wait_for(lambda: not self.exists())
