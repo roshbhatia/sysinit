@@ -58,7 +58,15 @@ in
       }) (import ../llm/harnesses/registry.nix);
 
       bin = "${config.home.profileDirectory}/bin";
-      shell = [ "${config.home.profileDirectory}/bin/tmux-client" ];
+      shell = [
+        (lib.getExe pkgs.nushell)
+        "--config"
+        "${config.xdg.configHome}/nushell/config.nu"
+        "--env-config"
+        "${config.xdg.configHome}/nushell/env.nu"
+        "--plugin-config"
+        "${config.xdg.configHome}/nushell/plugin.msgpackz"
+      ];
       ssh = lib.optionalAttrs sshCfg.use1PasswordAgent { agent_socket = sshAgentSocket; };
       font = {
         inherit (themeConfig.font) monospace;
@@ -131,7 +139,11 @@ in
           key = "@";
           manifest = "${pkgs.tether-picker}/share/wezterm/providers/tether.json";
         }
-
+        {
+          name = "zmx";
+          key = "#";
+          manifest = "${pkgs.zmx-picker}/share/wezterm/providers/zmx.json";
+        }
         {
           name = "seshy";
           key = "$";
@@ -145,6 +157,7 @@ in
       ];
       cwd_aliases.sy = config.sysinit.paths.resolved.seshySessions;
       passthrough_procs = [
+        "zmx"
         "caffeinate"
       ];
     };

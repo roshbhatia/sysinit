@@ -38,22 +38,6 @@ function notify(
 }
 
 function splitCommand(command: string[], cwd: string): string[] | undefined {
-  if (process.env["TMUX_PANE"]) {
-    return [
-      "ty",
-      "pane",
-      "spawn",
-      process.env["TMUX_PANE"],
-      "--direction",
-      "right",
-      "--percent",
-      SPLIT_PERCENT,
-      "--cwd",
-      cwd,
-      "--",
-      ...command,
-    ];
-  }
   if (process.env["WEZTERM_PANE"]) {
     return [
       "wezterm",

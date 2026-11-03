@@ -136,13 +136,47 @@ export def --env s [name?: string] {
     cd $target
 }
 
-export def persist [] {
-    if ($env.TMUX_PANE? | is-not-empty) {
-        ^tmux set-option @sysinit_manual_detach 1
-        ^tmux detach-client
+# zmx holds terminal state in libghostty-vt and hands the client a grid snapshot,
+# so OSC never crosses it. A wrapped pane loses OSC 7 and OSC 1337 SetUserVar,
+# which is every wezterm surface this config drives. Attaching stays deliberate.
+export def sz [] {
+    if (which zmx | is-empty) {
+        print -e "seshy: zmx not found on PATH"
         return
     }
-    print -e "persist: run inside tmux; Ctrl-B d also detaches the client"
+    let session = (sysinit-seshy-session $env.PWD)
+    if ($session | is-empty) {
+        print -e $"seshy: ($env.PWD) is not inside a seshy session"
+        return
+    }
+    let prefix = $env.ZMX_SESSION_PREFIX? | default ""
+    if ($env.ZMX_SESSION? | default "") == $"($prefix)($session)" {
+        return
+    }
+    ^zmx attach $session
+}
+
+# Attach this pane to the same persistent identity shown by WezTerm's pane badge.
+export def persist [] {
+    if ($env.WEZTERM_PANE? | is-empty) {
+        print -e "persist: run inside a WezTerm pane, or use zmx attach <session>"
+        return
+    }
+    let resolved = wezterm-pane-name | complete
+    if $resolved.exit_code != 0 {
+        print -e $"persist: could not resolve this pane's name: ($resolved.stderr | str trim)"
+        return
+    }
+    let session = $resolved.stdout | str trim
+    if ($session | is-empty) {
+        print -e "persist: pane name resolved to an empty session"
+        return
+    }
+    let prefix = $env.ZMX_SESSION_PREFIX? | default ""
+    if ($env.ZMX_SESSION? | default "") == $"($prefix)($session)" {
+        return
+    }
+    ^zmx attach $session
 }
 
 export def sl [] {
@@ -245,8 +279,8 @@ export-env {
   $env.config.hooks.pre_execution?
   | default []
   | append {||
-    if ($env.ASK_CAPTURE? | default "1") == "1" and (($env.TMUX_PANE? | default $env.WEZTERM_PANE?) | is-not-empty) {
-      $env.ASK_CAPTURE_ID = ($env.TMUX_PANE? | default $env.WEZTERM_PANE? | into string)
+    if ($env.ASK_CAPTURE? | default "1") == "1" and ($env.WEZTERM_PANE? | is-not-empty) {
+      $env.ASK_CAPTURE_ID = ($env.WEZTERM_PANE | into string)
       $env.ASK_CAPTURE_PENDING = "1"
     }
   }
@@ -256,23 +290,20 @@ export-env {
   $env.config.hooks.pre_prompt?
   | default []
   | append {||
-    if ($env.ASK_CAPTURE? | default "1") == "1" and (($env.TMUX_PANE? | default $env.WEZTERM_PANE?) | is-not-empty) {
-      $env.ASK_CAPTURE_ID = ($env.TMUX_PANE? | default $env.WEZTERM_PANE? | into string)
+    if ($env.ASK_CAPTURE? | default "1") == "1" and ($env.WEZTERM_PANE? | is-not-empty) {
+      $env.ASK_CAPTURE_ID = ($env.WEZTERM_PANE | into string)
       let initialized = ($env.ASK_CAPTURE_INITIALIZED? | default "0") == "1"
       let command_finished = ($env.ASK_CAPTURE_PENDING? | default "0") == "1"
 
       if (
         (not $initialized or $command_finished)
         and (which ask | is-not-empty)
-        and ((which (if ($env.TMUX_PANE? | is-not-empty) { "tmux" } else { "wezterm" })) | is-not-empty)
+        and (which wezterm | is-not-empty)
       ) {
         do --ignore-errors {
           let snapshot = (
-            if ($env.TMUX_PANE? | is-not-empty) {
-                ^@timeout@ 0.25 tmux capture-pane -p -S - -t $env.TMUX_PANE | complete
-            } else {
-                ^@timeout@ 0.25 wezterm cli --no-auto-start get-text --pane-id $env.WEZTERM_PANE | complete
-            }
+            ^@timeout@ 0.25 wezterm cli --no-auto-start get-text --pane-id $env.WEZTERM_PANE
+            | complete
           )
           if $snapshot.exit_code == 0 {
             $snapshot.stdout | ^ask --capture

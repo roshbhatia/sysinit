@@ -18,12 +18,10 @@ import (
 
 const protocolVersion = "sysinit.ty/v1"
 
-const usage = `ty: inspect and control seshy sessions and terminal panes
+const usage = `ty: inspect and control seshy sessions in WezTerm
 
 Usage:
   ty catalog
-  ty terminal catalog|focus|open|run
-  ty tmux catalog|sessions|panes|session|pane|picker
   ty sessions
   ty panes
   ty session open <session-id-or-name>
@@ -83,7 +81,7 @@ type actionResult struct {
 	Opened    *bool  `json:"opened,omitempty"`
 }
 
-func Summary() string { return "compose seshy sessions and terminal panes" }
+func Summary() string { return "compose seshy sessions and WezTerm panes" }
 
 func Run(args []string) int {
 	return run(args, os.Stdin, os.Stdout, os.Stderr, execRunner)
@@ -95,16 +93,8 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer, runner comman
 		return 0
 	}
 
-	if args[0] != "tmux" && args[0] != "terminal" && useTmux(args) {
-		args = append([]string{"tmux"}, args...)
-	}
-
 	var err error
 	switch args[0] {
-	case "terminal":
-		err = runTerminal(args[1:], stdin, stdout, runner)
-	case "tmux":
-		err = runTmux(args[1:], stdin, stdout, runner)
 	case "catalog":
 		err = runCatalog(stdout, runner)
 	case "sessions":
@@ -127,24 +117,6 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer, runner comman
 		return 1
 	}
 	return 0
-}
-
-func useTmux(args []string) bool {
-	if len(args) > 2 && args[0] == "pane" {
-		index := 2
-		if args[index] == "--submit" {
-			index++
-		}
-		if index < len(args) {
-			if _, err := parseTmuxPaneID(args[index]); err == nil {
-				return true
-			}
-			if _, err := parsePaneID(args[index]); err == nil {
-				return false
-			}
-		}
-	}
-	return os.Getenv("TMUX") != "" || (os.Getenv("WEZTERM_PANE") == "" && os.Getenv("SYSINIT_TY_BACKEND") == "tmux")
 }
 
 func runCatalog(stdout io.Writer, runner commandRunner) error {
@@ -505,26 +477,13 @@ func call(runner commandRunner, name string, args []string, stdin io.Reader) ([]
 }
 
 func execRunner(ctx context.Context, name string, args []string, stdin io.Reader) ([]byte, error) {
-	cfg, _ := terminalSettings()
-	tmuxBinary, sessionizer := "tmux", "sy"
-	if cfg.Tmux != "" {
-		tmuxBinary = cfg.Tmux
-	}
-	if cfg.Sessionizer != "" {
-		sessionizer = cfg.Sessionizer
-	}
 	switch name {
 	case "sy":
-		name = commandPath("SYSINIT_TY_SY", sessionizer)
-	case "tmux":
-		name = commandPath("SYSINIT_TY_TMUX", tmuxBinary)
+		name = commandPath("SYSINIT_TY_SY", "sy")
 	case "wezterm":
 		name = commandPath("SYSINIT_TY_WEZTERM", "wezterm")
 	}
 	cmd := exec.CommandContext(ctx, name, args...)
-	if cfg.RuntimePath != "" {
-		cmd.Env = append(os.Environ(), "PATH="+cfg.RuntimePath)
-	}
 	cmd.Stdin = stdin
 	var stderr strings.Builder
 	cmd.Stderr = &stderr

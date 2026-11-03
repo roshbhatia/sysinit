@@ -6,19 +6,6 @@ import UniformTypeIdentifiers
 let bundleIdentifier = "@BUNDLE_ID@"
 let extensions = "@EXTENSIONS@".split(separator: " ").map(String.init)
 
-func run(_ executable: String, _ arguments: [String]) throws -> Int32 {
-  let process = Process()
-  process.executableURL = URL(fileURLWithPath: executable)
-  process.arguments = arguments
-  try process.run()
-  process.waitUntilExit()
-  return process.terminationStatus
-}
-
-func shellQuote(_ value: String) -> String {
-  "'" + value.replacingOccurrences(of: "'", with: "'\\''") + "'"
-}
-
 if CommandLine.arguments.contains("--set-defaults") {
   for ext in extensions {
     guard let type = UTType(filenameExtension: ext) else {
@@ -99,19 +86,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     let workingDirectory = URL(fileURLWithPath: first).deletingLastPathComponent().path
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "@WEZTERM@")
+    process.arguments = [
+      "start",
+      "--new-tab",
+      "--cwd",
+      workingDirectory,
+      "--",
+      "@NVIM@",
+      "--",
+    ] + filenames
+
     do {
-      if try run("@TMUX@", ["has-session", "-t", "main"]) != 0 {
-        guard try run("@TMUX@", ["new-session", "-d", "-s", "main", "-c", workingDirectory]) == 0 else {
-          throw NSError(domain: "sysinit file opener", code: 1)
-        }
-      }
-      let command = (["exec", shellQuote("@NVIM@"), "--"] + filenames.map(shellQuote)).joined(separator: " ")
-      guard try run("@TMUX@", ["new-window", "-t", "main", "-c", workingDirectory, command]) == 0 else {
-        throw NSError(domain: "sysinit file opener", code: 2)
-      }
-      guard try run("/usr/bin/open", ["-na", "@WEZTERM_APP@"]) == 0 else {
-        throw NSError(domain: "sysinit file opener", code: 3)
-      }
+      try process.run()
       sender.reply(toOpenOrPrint: .success)
     } catch {
       fputs("sysinit file opener: \(error.localizedDescription)\n", stderr)

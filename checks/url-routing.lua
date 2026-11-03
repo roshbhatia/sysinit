@@ -117,7 +117,7 @@ local config = {
   resolver = "/resolver",
   providerDirectory = "/providers",
   browser = "org.mozilla.firefox",
-  ty = "/nix/store/gotools/bin/ty",
+  wezterm = "/nix/store/wezterm/bin/wezterm",
   weztermApp = "/nix/store/wezterm/Applications/WezTerm.app",
   home = "/Users/test user",
   routes = {
@@ -203,8 +203,22 @@ local function pick(index)
   local entry = assert(picks[#picks], "no picker was shown")
   entry.callback(index and assert(entry.spec.rows[index]) or nil)
 end
-local function openedWindow(command, url)
-  return table.concat({ "terminal", "run", "--", command, url }, "\n")
+local function spawned(command, url)
+  return table.concat({
+    "cli",
+    "--no-auto-start",
+    "spawn",
+    "--new-window",
+    "--domain-name",
+    "local",
+    "--workspace",
+    "active session",
+    "--cwd",
+    config.home,
+    "--",
+    command,
+    url,
+  }, "\n")
 end
 
 for pid = 2, 4 do
@@ -236,68 +250,133 @@ assert(spec.rows[2].text == "Neovim")
 assert(spec.rows[3].text == "Firefox")
 
 pick(1)
-assert(tasks[1].binary == config.ty)
-assert(table.concat(tasks[1].args, "\n") == openedWindow(dash, pr))
-tasks[1].callback(0, "", "")
+assert(tasks[1].args[2] == "--no-auto-start")
+tasks[1].callback(0, "clients", "")
 assert(timers[1].stopped)
+assert(table.concat(tasks[2].args, "\n") == spawned(dash, pr))
+tasks[2].callback(0, "42", "")
+assert(focused == "com.github.wez.wezterm")
 assert(#alerts == 0)
+
 click(pr, 1)
 pick(2)
-assert(table.concat(tasks[2].args, "\n") == openedWindow(editor, pr))
-tasks[2].callback(0, "", "")
+tasks[3].callback(0, "clients", "")
+assert(table.concat(tasks[4].args, "\n") == spawned(editor, pr), "the editor row reused another command")
+tasks[4].callback(0, "", "")
+
 click(pr, 1)
 pick(3)
 assert(opened[#opened][1] == pr and opened[#opened][2] == "org.mozilla.firefox")
-assert(#tasks == 2)
+assert(#tasks == 4, "the browser row opened a terminal")
+
 local quiet = #opened
 click(pr, 1)
 pick(nil)
-assert(#tasks == 2 and #opened == quiet)
+assert(#tasks == 4 and #opened == quiet, "dismissing the picker launched a review")
+
 click(runUrl .. "/job/789", 1)
 local actions = picks[#picks].spec
-assert(actions.placeholder == "owner/repo run 456")
-assert(actions.verb == "Watch" and actions.historyKey == "github.actions")
+assert(actions.placeholder == "owner/repo run 456", "the run picker hid which run it watches")
+assert(actions.verb == "Watch", "the actions picker lost its verb")
+assert(actions.historyKey == "github.actions", "action history shares PR ranking")
+assert(#actions.rows == 2 and actions.rows[1].text == "gh enhance")
 pick(1)
-assert(table.concat(tasks[3].args, "\n") == openedWindow(enhance, runUrl))
-tasks[3].callback(0, "", "")
+tasks[5].callback(0, "clients", "")
+assert(table.concat(tasks[6].args, "\n") == spawned(enhance, runUrl), "a job link did not open its run in enhance")
+tasks[6].callback(0, "", "")
+
 click(runUrl, 1)
 pick(2)
-assert(opened[#opened][1] == runUrl and #tasks == 3)
+assert(opened[#opened][1] == runUrl and opened[#opened][2] == "org.mozilla.firefox")
+assert(#tasks == 6, "the run browser row opened a terminal")
+
+clients = {}
 click(pr, 1)
 pick(1)
-tasks[4].callback(1, "", "renderer unavailable")
-assert(alerts[#alerts]:match("renderer unavailable"))
+tasks[7].callback(0, "clients", "")
+assert(tasks[8].binary == "/usr/bin/open")
+local expected = {
+  "-n",
+  "-a",
+  config.weztermApp,
+  "--args",
+  "start",
+  "--domain",
+  "local",
+  "--cwd",
+  config.home,
+  "--",
+  dash,
+  pr,
+}
+assert(table.concat(tasks[8].args, "\n") == table.concat(expected, "\n"), "cold start lost the command")
+tasks[8].callback(0, "", "")
+
+click(pr, 999)
+pick(1)
+tasks[9].callback(1, "", "no mux")
+assert(tasks[10].binary == "/usr/bin/open")
+tasks[10].callback(1, "", "launch failure")
+assert(alerts[#alerts]:match("launch failure"))
+
+click(pr, 1)
+pick(1)
+tasks[11].callback(0, "not JSON", "")
+assert(#tasks == 11)
+assert(alerts[#alerts]:match("invalid client list"))
+
+click(pr, 1)
+pick(1)
+timers[#timers].callback()
+assert(tasks[12].terminated)
+tasks[12].callback(15, "", "terminated")
+assert(#tasks == 12, "timeout started another GUI")
+
+palette = nil
+click(pr, 1)
+assert(alerts[#alerts]:match("Cannot open the pull picker"))
+assert(#tasks == 13, "a missing palette dropped the link")
+tasks[13].callback(0, "clients", "")
+tasks[14].callback(0, "", "")
+
+palette = {
+  pick = function()
+    error("palette is stopped")
+  end,
+}
+click(runUrl, 1)
+assert(alerts[#alerts]:match("Cannot open the actions picker"))
+assert(#tasks == 15, "a stopped palette dropped the link")
+tasks[15].callback(0, "clients", "")
+tasks[16].callback(0, "", "")
+palette = started
 
 failedStart = true
 click(pr, 1)
 assert(alerts[#alerts]:match("Cannot start task"))
-assert(#resolverTasks > 0)
+assert(#tasks == 16)
 failedStart = false
 
 local single = #picks
-local beforeSingleTasks = #tasks
 resolvedTargets.pull = { { name = "gh dash", command = dash } }
 click(pr, 1)
 assert(#picks == single, "a single target still prompted")
-assert(#tasks > beforeSingleTasks, "a single target dropped the link")
-tasks[beforeSingleTasks + 1].callback(0, "", "")
-local afterSingleTasks = #tasks
+assert(#tasks == 17, "a single target dropped the link")
+tasks[17].callback(0, "clients", "")
+tasks[18].callback(0, "", "")
 
 resolvedTargets.pull = {}
 click(pr, 1)
 assert(alerts[#alerts]:match("No target is configured for a pull link"))
-assert(#tasks == afterSingleTasks, "an empty route opened a terminal")
+assert(#tasks == 18, "an empty route opened a terminal")
 
 config.enable = false
 router.setup(config)
 assert(default == config.browser)
 click(pr, 1)
-assert(
-  #tasks == afterSingleTasks and opened[#opened][2] == config.browser,
-  "disable lost links during handler restoration"
-)
+assert(#tasks == 18 and opened[#opened][2] == config.browser, "disable lost links during handler restoration")
 print(
-  "URL routing: browser origins, pull and run matching, shared terminal dispatch, single target, and disable passed"
+  "URL routing: browser origins, pull and run matching, picker rows, verbs, each row, dismiss, cold start, failures, palette fallback, single target, and disable passed"
 )
 
 local prior = #opened

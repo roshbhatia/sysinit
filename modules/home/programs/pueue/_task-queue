@@ -14,7 +14,7 @@ _task-queue() {
         '--session[Existing seshy session]:session:' \
         '--cwd[Working directory]:directory:_directories' \
         '--group[Pueue group]:group:(agents builds default)' \
-        '--terminal[Create an attachable tmux session]' \
+        '--terminal[Create an attachable zmx session]' \
         '--retry[Create another attempt after completion]' \
         '*:command:_command_names'
       ;;

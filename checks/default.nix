@@ -193,7 +193,6 @@ in
       '';
   generated-format = import ./generated-format.nix { inherit pkgs; };
   agent-sessions = import ./agent-sessions.nix { inherit pkgs; };
-  tmux-socket = import ./tmux-socket.nix { inherit pkgs lib homeConfigurations; };
   mcp-client-routing = import ./mcp-routing.nix { inherit pkgs; };
   managed-file-cache = import ./managed-file-cache.nix { inherit pkgs; };
   atuin = import ./atuin.nix {
@@ -347,36 +346,41 @@ in
           | jq -e 'index("icon") != null' > /dev/null
         touch $out
       '';
-
-}
-// lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
-  hammerspoon-terminal-launcher =
-    let
-      host = darwinConfigurations.lv426.config;
-      home = host.home-manager.users.${host.sysinit.user.username};
-    in
-    pkgs.runCommand "hammerspoon-terminal-launcher" { nativeBuildInputs = [ pkgs.jq ]; } ''
-      terminal=$(jq -r .ty ${home.home.file.".config/sysinit/launcher_config.json".source})
-      test -x "$terminal"
-      "$terminal" --help | ${pkgs.gnugrep}/bin/grep -F 'ty terminal'
-      test "$(jq -r .ty ${home.xdg.configFile."sysinit/url_routing.json".source})" = "$terminal"
-      touch "$out"
-    '';
-  tmux-lifecycle =
-    let
-      host = darwinConfigurations.lv426.config;
-      home = host.home-manager.users.${host.sysinit.user.username};
-    in
-    pkgs.runCommand "tmux-lifecycle"
+  zmx-nushell =
+    pkgs.runCommand "zmx-nushell"
       {
         nativeBuildInputs = [
-          pkgs.python3
-          pkgs.tmux
+          pkgs.nushell
+          pkgs.gnugrep
         ];
       }
       ''
-        python3 ${./tmux.py} ${lib.getExe pkgs.tmux} ${home.xdg.configFile."tmux/tmux.conf".source}
-        python3 ${./tmux-presentation.py} ${home.xdg.configFile."sysinit/tmux-providers.json".source}
+        mkdir -p fake-bin
+        cat > fake-bin/wezterm-pane-name <<'SH'
+        #!/bin/sh
+        printf '%s\n' quiet-falcon
+        SH
+        cat > fake-bin/zmx <<'SH'
+        #!/bin/sh
+        printf '%s\n' "$*" >> "$ZMX_TEST_LOG"
+        SH
+        chmod +x fake-bin/wezterm-pane-name fake-bin/zmx
+        export PATH="$PWD/fake-bin:$PATH"
+        export ZMX_TEST_LOG="$TMPDIR/zmx-args"
+        export WEZTERM_PANE=18
+        export ZMX_SESSION_PREFIX=
+
+        nu --no-config-file -c 'use ${nuFunctions} *; persist'
+        grep -Fx 'attach quiet-falcon' "$ZMX_TEST_LOG"
+
+        : > "$ZMX_TEST_LOG"
+        export ZMX_SESSION=quiet-falcon
+        nu --no-config-file -c 'use ${nuFunctions} *; persist'
+        test ! -s "$ZMX_TEST_LOG"
+
+        unset ZMX_SESSION
+        nu --no-config-file -c 'use ${nuFunctions} *; if ((scope commands | where name == "zmx" | length) != 0) { error make {msg: "zmx must remain an external command"} }; zmx list --short'
+        grep -Fx 'list --short' "$ZMX_TEST_LOG"
         touch "$out"
       '';
 }

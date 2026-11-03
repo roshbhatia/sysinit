@@ -1,17 +1,17 @@
 Name = "panes"
-NamePretty = "Tmux Panes"
+NamePretty = "WezTerm Panes"
 Icon = "utilities-terminal"
-Action = "@ty@ pane focus %VALUE%"
+Action = "@wezterm@ cli activate-pane --pane-id %VALUE%"
 SearchName = true
 History = true
 
 function GetEntries()
   local entries = {}
-  local cmd = [[@ty@ panes | @jq@ -r '.panes[] | [
+  local cmd = [[@wezterm@ cli list --format json | @jq@ -r '.[] | [
     .pane_id,
-    (.session_name // "default"),
-    ("window " + (.window_index // "0") + ", pane " + (.pane_index // "0")),
-    ""
+    (.workspace // "default"),
+    (.title // .tab_title // "pane"),
+    (.cwd // "")
   ] | @tsv']]
   for _, row in ipairs(lines(cmd)) do
     if row[1] ~= nil and row[1] ~= "" then

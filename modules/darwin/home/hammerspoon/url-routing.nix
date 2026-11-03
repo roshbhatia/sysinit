@@ -54,7 +54,7 @@ let
       command = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [ ];
-        description = "Command prefix opened in a tmux window; the URL is appended as one argument.";
+        description = "Command prefix opened in WezTerm; the URL is appended as one argument.";
       };
       bundle = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
@@ -223,7 +223,8 @@ in
         providerDirectory = "${providerDirectory}";
         resolver = "${pkgs.sysinit-gotools}/bin/url-route";
         home = config.home.homeDirectory;
-        ty = "${pkgs.sysinit-utils}/bin/ty";
+        wezterm = "${pkgs.wezterm}/bin/wezterm";
+        weztermApp = "${config.home.homeDirectory}/${config.targets.darwin.copyApps.directory}/WezTerm.app";
       };
     };
 }

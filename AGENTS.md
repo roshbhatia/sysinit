@@ -53,11 +53,11 @@ not restate any of those here.
   `harnesses/publish.nix` asserts the file covers the registry exactly
 - The harness registry is the one list of who the agents are. It renders to
   `~/.config/sysinit/agents.json`, and Neovim's `harness/launch.lua` reads that
-  rather than keeping its own copy. Neovim starts agents in separate multiplexer
-  panes. Tmux uses the shared `ty` API; native WezTerm panes retain their
-  compatibility path. It never runs an agent in an editor terminal, and it holds
-  no per-agent code. Either half works alone: with no pane the editor is still a
-  diff viewer, with no editor the agent is still an agent
+  rather than keeping its own copy. Neovim starts an agent in a wezterm split and
+  talks to it with `wezterm cli send-text`; it never runs one in an editor
+  terminal, and it holds no per-agent code. Either half works alone: with no
+  pane the editor is still a diff viewer, with no editor the agent is still an
+  agent
 - `hack/` scripts are bash with `set -euo pipefail`, formatted by
   `shfmt -i 2 -ci -sr -s`
 - Nix formatter is `nixfmt-rfc-style`

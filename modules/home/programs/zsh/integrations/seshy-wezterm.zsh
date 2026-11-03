@@ -61,6 +61,32 @@ function s() {
   cd "$target" || return
 }
 
+# zmx holds terminal state in libghostty-vt and hands the client a grid snapshot,
+# so OSC never crosses it. Measured: a wrapped pane loses OSC 7 (wezterm reads
+# zmx's own cwd) and OSC 1337 SetUserVar (agent_state, IS_NVIM, wezcopy). `s`
+# used to attach on every switch, which put every agent behind that boundary.
+# Attaching is deliberate now, and `sz` is where you say so.
+function sz() {
+  if ! command -v zmx > /dev/null 2>&1; then
+    _seshy_err "zmx not found on PATH"
+    return 1
+  fi
+
+  local session
+  session=$(_seshy_session_name "$PWD")
+  if [[ -z $session ]]; then
+    _seshy_err "$PWD is not inside a seshy session"
+    return 1
+  fi
+
+  if [[ ${ZMX_SESSION:-} == "${ZMX_SESSION_PREFIX:-}${session}" ]]; then
+    _seshy_debug "already attached to $ZMX_SESSION"
+    return 0
+  fi
+
+  zmx attach "$session"
+}
+
 function sl() {
   _seshy_names
 }
@@ -82,23 +108,12 @@ function wezcopy() {
   else
     data="$(cat)"
   fi
-  _wezterm_user_var wez_copy "$data"
+  printf "\033]1337;SetUserVar=%s=%s\007" wez_copy "$(printf '%s' "$data" | base64 | tr -d '\n')"
 }
 
 function weznot() {
   [[ -t 2 ]] || return 0
-  _wezterm_user_var wez_not "$1" >&2
-}
-
-function _wezterm_user_var() {
-  local name=$1 value=$2 encoded sequence
-  encoded=$(printf '%s' "$value" | base64 | tr -d '\n')
-  sequence=$(printf '\033]1337;SetUserVar=%s=%s\007' "$name" "$encoded")
-  if [[ -n ${TMUX_PANE:-} ]]; then
-    printf '\033Ptmux;\033\033%s\033\\' "${sequence#$'\033'}"
-  else
-    printf '%s' "$sequence"
-  fi
+  printf "\033]1337;SetUserVar=%s=%s\007" wez_not "$(printf '%s' "$1" | base64 | tr -d '\n')" >&2
 }
 
 function wezmon() {

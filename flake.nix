@@ -384,6 +384,7 @@
             "seshy-picker"
             "tether-picker"
             "zoxide-picker"
+            "zmx-picker"
           ];
 
           linuxCacheAttrs = [
@@ -478,7 +479,6 @@
               pkgs.clang
               pkgs.clang-tools
               pkgs.go
-              pkgs.tmux
               pkgs.golangci-lint
               pkgs.shfmt
               pkgs.shellcheck

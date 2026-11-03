@@ -19,7 +19,7 @@ pkgs.runCommand "task-queue-test"
       pkgs.pueue
       pkgs.taskwarrior-cli
       pkgs.seshy
-      pkgs.tmux
+      pkgs.zmx
       pkgs.bash
       pkgs.zsh
       pkgs.carapace

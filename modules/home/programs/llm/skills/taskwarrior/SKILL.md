@@ -77,7 +77,7 @@ task-queue submit --task <uuid> --cwd /absolute/repository -- \
 ```
 
 Other installed harnesses use the same queue with their own explicit command.
-Add `--terminal` before `--` for an attachable tmux session. Queue output includes
+Add `--terminal` before `--` for an attachable zmx session. Queue output includes
 the attempt UUID and Pueue job ID; retain both with the Taskwarrior UUID. A
 Taskwarrior session ownership marker remains coordination metadata, not a lock.
 
