@@ -43,7 +43,14 @@ let
     builtins.mapAttrs splitSelfAppend sessionVarsExpanded
   );
 
-  sessionVarsCarried = builtins.removeAttrs sessionVarsExpanded (lib.attrNames selfAppendVars);
+  tmuxRuntimeSocket =
+    config.programs.tmux.enable
+    && config.programs.tmux.secureSocket
+    && (sessionVarsExpanded.TMUX_TMPDIR or "") == ''''${XDG_RUNTIME_DIR:-"/run/user/$(id -u)"}'';
+
+  sessionVarsCarried = builtins.removeAttrs sessionVarsExpanded (
+    lib.attrNames selfAppendVars ++ lib.optional tmuxRuntimeSocket "TMUX_TMPDIR"
+  );
 
   sessionVarsUnexpanded = lib.filterAttrs (
     _name: value: builtins.match ".*[$].*" value != null
@@ -204,6 +211,9 @@ in
         use std/util "path add"
 
         load-env (r###'${sessionVarsJson}'### | from json)
+        ${lib.optionalString tmuxRuntimeSocket ''
+          $env.TMUX_TMPDIR = ($env.XDG_RUNTIME_DIR? | default $"/run/user/(^${pkgs.coreutils}/bin/id -u | str trim)")
+        ''}
 
         $env.SHELL = "${lib.getExe pkgs.nushell}"
 

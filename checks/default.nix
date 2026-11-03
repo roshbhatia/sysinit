@@ -193,6 +193,7 @@ in
       '';
   generated-format = import ./generated-format.nix { inherit pkgs; };
   agent-sessions = import ./agent-sessions.nix { inherit pkgs; };
+  tmux-socket = import ./tmux-socket.nix { inherit pkgs lib homeConfigurations; };
   mcp-client-routing = import ./mcp-routing.nix { inherit pkgs; };
   managed-file-cache = import ./managed-file-cache.nix { inherit pkgs; };
   atuin = import ./atuin.nix {
