@@ -1,0 +1,50 @@
+modules/home/programs/tmux/default.nix
+  s_b6baf4162ed3c9::t_71f37f1d00e1d7 77-82,86,513-517
+  s_b6baf4162ed3c9::t_7d8caa0178719f 12
+  s_b6baf4162ed3c9::t_fb8695efc92ebf 506
+  s_b6baf4162ed3c9::t_8df9994f2628aa 312
+  s_b6baf4162ed3c9::t_8d764f9a7be769 10-11,13-43,466-467,500-503,507
+  s_b6baf4162ed3c9::t_611e553f001081 461
+modules/home/programs/tmux/floating-terminal.sh
+  s_b6baf4162ed3c9::t_7d8caa0178719f 4,6,8-11
+  s_b6baf4162ed3c9::t_fb8695efc92ebf 5,31,33-34
+  s_b6baf4162ed3c9::t_225b17fc286e78 20,22,39-40
+  s_b6baf4162ed3c9::t_8d764f9a7be769 1-3,12-18,21,23-30,35-38,41-42,45
+  s_b6baf4162ed3c9::t_7b9db375f103c0 43
+  s_b6baf4162ed3c9::t_f0861a62ad7c72 7,44
+modules/home/programs/llm/skills/ty/SKILL.md
+  s_b6baf4162ed3c9::t_3d1c601fc79cc3 70-75
+checks/tmux.py
+  s_b6baf4162ed3c9::t_fef293247cb0ff 130,134-143,146-148,163-165
+  s_b6baf4162ed3c9::t_fb8695efc92ebf 126-127,168-169,171
+  s_b6baf4162ed3c9::t_7b9db375f103c0 177-178
+  s_b6baf4162ed3c9::t_611e553f001081 1,5,197-208,213-218,222-226
+  s_b6baf4162ed3c9::t_7d8caa0178719f 118-120,122-124,129,162,167,172-176,183-187,189,191-196,237
+  s_b6baf4162ed3c9::t_06b0c407f3797e 128,219-221
+  s_b6baf4162ed3c9::t_2bc38feb509a73 121
+  s_b6baf4162ed3c9::t_8df9994f2628aa 209-212
+  s_b6baf4162ed3c9::t_32a94d72a04fb1 40,179-182
+  s_b6baf4162ed3c9::t_fa7892f534804d 153,161
+  s_b6baf4162ed3c9::t_05e6db359721c2 229
+  s_b6baf4162ed3c9::t_b06607adba31f1 227-228
+  s_b6baf4162ed3c9::t_4ea4828300e942 154-160
+  s_b6baf4162ed3c9::t_3ff6aa492ebccb 230-236
+  s_b6baf4162ed3c9::t_71f37f1d00e1d7 256
+  s_b6baf4162ed3c9::t_01931192f1ae76 149,151-152
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b8ac5919f2ceba2400a061ee822905c1d19e8b4e",
+  "prompts": {},
+  "sessions": {
+    "s_b6baf4162ed3c9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a19cf6-a9c0-7161-abce-266a87939179",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
