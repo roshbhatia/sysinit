@@ -1586,11 +1586,11 @@
         "systems": "systems_8"
       },
       "locked": {
-        "lastModified": 1791889682,
-        "narHash": "sha256-WvUqH+mQcJtaWHLYUGnGzvDOg0jL16GPThmMnGjjPeo=",
+        "lastModified": 1792419596,
+        "narHash": "sha256-BkC73yJd4tIs05FwQqn2W3PiZ48xng7+mpEo5o9GJ+8=",
         "owner": "WillPower3309",
         "repo": "swayfx",
-        "rev": "4d341dbb39952ae95f1d8be161359e9316cd6ab8",
+        "rev": "e8e6ea73852a6cacc60e9842239c14ebef0ce098",
         "type": "github"
       },
       "original": {
