@@ -1,0 +1,19 @@
+.github/workflows/check.yml
+  s_6a59011b119c6f::t_9e1bbd3183ebf1 18,83
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5ee88153852c1761a2ae7e38a7a2191972d4c807",
+  "prompts": {},
+  "sessions": {
+    "s_6a59011b119c6f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1a32a-8f2d-7b71-a53f-f90208b124f1",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
