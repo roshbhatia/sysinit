@@ -32,6 +32,8 @@ func runTmux(args []string, stdin io.Reader, stdout io.Writer, runner commandRun
 		return runTmuxSession(args[1:], stdout, runner)
 	case "pane":
 		return runTmuxPane(args[1:], stdin, stdout, runner)
+	case "ui":
+		return runTmuxUI(args[1:], stdout, runner)
 	case "picker":
 		if len(args) != 1 {
 			return invalidUsage("usage: ty tmux picker")
@@ -404,26 +406,10 @@ func runTmuxPaneAction(args []string, action string, stdout io.Writer, runner co
 		command = "kill-pane"
 	}
 	if action == "focus" {
-		panes, err := listTmuxPanes(context.Background(), runner)
-		if err != nil {
+		if err := terminalFocus(context.Background(), runner, paneID); err != nil {
 			return err
 		}
-		for _, raw := range panes {
-			var pane struct {
-				PaneID  string `json:"pane_id"`
-				Session string `json:"session_name"`
-				Window  string `json:"window_index"`
-			}
-			if err := json.Unmarshal(raw, &pane); err != nil {
-				return fmt.Errorf("decode tmux pane: %w", err)
-			}
-			if pane.PaneID == paneID {
-				if _, err := call(runner, "tmux", []string{"switch-client", "-t", pane.Session + ":" + pane.Window}, nil); err != nil {
-					return fmt.Errorf("switch to tmux window: %w", err)
-				}
-				break
-			}
-		}
+		return writeJSON(stdout, actionResult{Version: protocolVersion, Action: "pane.focus", PaneID: paneID})
 	}
 	if _, err := call(runner, "tmux", []string{command, "-t", paneID}, nil); err != nil {
 		return fmt.Errorf("%s pane %s: %w", action, paneID, err)
@@ -461,8 +447,13 @@ func sortedKeys(values map[string]string) []string {
 }
 
 func selectTmuxSession(ctx context.Context, runner commandRunner, name, cwd string) ([]byte, error) {
+	if focused, err := focusTmuxTarget(ctx, runner, name, "="+name, ""); err != nil {
+		return nil, err
+	} else if focused {
+		return nil, nil
+	}
 	if os.Getenv("TMUX") == "" {
-		return runner(ctx, "wezterm", []string{"cli", "--no-auto-start", "spawn", "--new-window", "--cwd", cwd, "--", "tmux-client", name}, nil)
+		return rendererOpen(ctx, runner, cwd, []string{"tmux-client", name})
 	}
 	return runner(ctx, "tmux", []string{"switch-client", "-t", "=" + name}, nil)
 }

@@ -185,7 +185,41 @@ class LifecycleTests(unittest.TestCase):
         self.close_client(client)
         self.wait_for(lambda: not self.exists())
 
-    def test_smooth_scroll_moves_and_exits_copy_mode_at_bottom(self):
+    def test_mouse_selects_panes_and_scrolls_native_history(self):
+        client = self.attach()
+        self.assertEqual(self.command("show-options", "-gv", "mouse"), "on")
+        self.assertEqual(self.command("show-options", "-gv", "allow-passthrough"), "on")
+        left = self.command("display-message", "-p", "#{pane_id}")
+        right = self.command("split-window", "-h", "-P", "-F", "#{pane_id}", "/bin/sh")
+        self.assertEqual(self.command("display-message", "-p", "#{pane_id}"), right)
+        os.write(client[1], b"\x1b[<0;2;2M\x1b[<0;2;2m")
+        self.wait_for(
+            lambda: self.command("display-message", "-p", "#{pane_id}") == left
+        )
+        writer = "import os,time; os.write(1,('\\n'.join(map(str,range(1,201)))+'\\n').encode()); time.sleep(30)"
+        self.command(
+            "respawn-pane", "-k", "-t", left, shlex.join([sys.executable, "-c", writer])
+        )
+        self.wait_for(lambda: "200" in self.command("capture-pane", "-p", "-t", left))
+        os.write(client[1], b"\x1b[<64;2;2M")
+        self.wait_for(
+            lambda: (
+                self.command("display-message", "-p", "-t", left, "#{pane_in_mode}")
+                == "1"
+            )
+        )
+        self.wait_for(
+            lambda: (
+                int(
+                    self.command(
+                        "display-message", "-p", "-t", left, "#{scroll_position}"
+                    )
+                )
+                > 0
+            )
+        )
+
+    def test_native_scroll_moves_and_exits_copy_mode_at_bottom(self):
         client = self.attach()
         writer = "import os,time; os.write(1,('\\n'.join(map(str,range(1,201)))+'\\n').encode()); time.sleep(30)"
         self.command("respawn-pane", "-k", shlex.join([sys.executable, "-c", writer]))
@@ -272,9 +306,7 @@ class LifecycleTests(unittest.TestCase):
                 == "sysinit-locked"
             )
         )
-        self.assertIn(
-            "LOCKED (Ctrl-G)", self.command("display-message", "-p", "#{E:status-left}")
-        )
+        self.assertEqual(self.command("show-options", "-v", "@sysinit_locked"), "1")
         application_keys = b"\x02s\x08\x0cpi keys\x1b[13;2u"
         self.command("source-file", CONFIG)
         os.write(client[1], application_keys)
@@ -293,6 +325,52 @@ class LifecycleTests(unittest.TestCase):
             lambda: self.command("list-clients", "-F", "#{client_key_table}") == "root"
         )
 
+    def test_logging_capture_history_and_resurrect_save(self):
+        client = self.attach()
+        root = Path(self.directory.name)
+        for option, directory in [
+            ("@logging-path", "logs"),
+            ("@screen-capture-path", "captures"),
+            ("@save-complete-history-path", "history"),
+            ("@resurrect-dir", "resurrect"),
+        ]:
+            self.command("set-option", "-g", option, str(root / directory))
+        name = self.command("list-clients", "-F", "#{client_name}")
+
+        def key(value):
+            self.command("send-keys", "-K", "-c", name, "C-b")
+            self.command("send-keys", "-K", "-c", name, value)
+
+        key("P")
+        self.wait_for(
+            lambda: self.command("display-message", "-p", "#{pane_pipe}") == "1"
+        )
+        self.command("send-keys", "printf 'terminal-plugin-check\\n'", "Enter")
+        self.wait_for(
+            lambda: "terminal-plugin-check" in self.command("capture-pane", "-p")
+        )
+        key("P")
+        self.wait_for(
+            lambda: self.command("display-message", "-p", "#{pane_pipe}") == "0"
+        )
+        self.wait_for(
+            lambda: any(
+                "terminal-plugin-check" in path.read_text(errors="replace")
+                for path in (root / "logs").glob("*")
+            )
+        )
+        key("M-p")
+        self.wait_for(lambda: any((root / "captures").glob("*")))
+        key("M-P")
+        self.wait_for(lambda: any((root / "history").glob("*")))
+        key("C-s")
+        self.wait_for(lambda: (root / "resurrect/last").exists())
+        self.assertIn("test", (root / "resurrect/last").read_text())
+        self.assertIn(
+            "copy-pipe-and-cancel", self.command("list-keys", "-T", "copy-mode-vi", "o")
+        )
+        self.close_client(client)
+
     def test_explicit_detach_preserves_session(self):
         client = self.attach()
         self.command(
@@ -306,6 +384,28 @@ class LifecycleTests(unittest.TestCase):
         self.wait_for(lambda: not self.command("list-clients", "-F", "#{client_name}"))
         self.close_client(client)
         self.assertTrue(self.exists())
+
+    def test_manual_detach_does_not_preserve_another_clients_close(self):
+        first = self.attach()
+        second = self.attach()
+        clients = self.command(
+            "list-clients", "-F", "#{client_pid}\t#{client_name}"
+        ).splitlines()
+        name = next(
+            line.split("\t")[1]
+            for line in clients
+            if line.split("\t")[0] == str(first[0])
+        )
+        self.command("send-keys", "-K", "-c", name, "C-b", "d")
+        self.wait_for(
+            lambda: (
+                len(self.command("list-clients", "-F", "#{client_name}").splitlines())
+                == 1
+            )
+        )
+        self.close_client(first)
+        self.close_client(second)
+        self.wait_for(lambda: not self.exists())
 
     def test_remote_client_keeps_session_alive(self):
         local = self.attach()

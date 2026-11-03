@@ -5,6 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -122,11 +124,21 @@ func TestDefaultTmuxBackendPreservesNumericPaneTargets(t *testing.T) {
 }
 
 func TestTmuxSessionOpenOutsideCreatesRenderer(t *testing.T) {
+	terminalTestConfig(t)
+	tty := filepath.Join(t.TempDir(), "tty")
+	if err := os.WriteFile(tty, nil, 0600); err != nil {
+		t.Fatal(err)
+	}
 	t.Setenv("TMUX", "")
 	runner, _ := runnerFor(t, map[string][]byte{
+		"tmux list-clients -F #{client_name}\t#{client_termname}\t#{client_activity}\t#{session_name}": []byte(""),
 		"sy open demo --format json":                                                                        []byte(`{"version":"seshy.open/v1","id":"seshy:demo","cwd":"/tmp/demo","command":["/bin/sh"],"environment":{}}`),
 		"tmux new-session -d -P -F #{pane_id} -s demo -c /tmp/demo '/bin/sh'":                               []byte("%9\n"),
-		"wezterm cli --no-auto-start spawn --new-window --cwd /tmp/demo -- tmux-client demo":                []byte("42\n"),
+		"/renderer cli --no-auto-start list --format json":                                                  []byte(`[{"pane_id":42,"tty_name":"` + tty + `"}]`),
+		"/renderer cli --no-auto-start activate-tab --tab-id 0":                                             nil,
+		"/renderer cli --no-auto-start activate-pane --pane-id 42":                                          nil,
+		"/usr/bin/open -a /renderer.app":                                                                    nil,
+		"/renderer cli --no-auto-start spawn --new-window --cwd /tmp/demo -- tmux-client demo":              []byte("42\n"),
 		"tmux list-panes -a -F #{pane_id}\t#{session_name}\t#{window_index}\t#{pane_index}\t#{pane_active}": []byte("%9\tdemo\t0\t0\t1\n"),
 	})
 	var stdout, stderr bytes.Buffer

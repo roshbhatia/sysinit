@@ -7,31 +7,9 @@
 let
   themeLib = import ../../../shared/theme-colors.nix { inherit lib; };
   c = themeLib.colorsOf config;
-  smoothScroll = pkgs.tmuxPlugins.mkTmuxPlugin {
-    pluginName = "smooth-scroll";
-    version = "0-unstable-2d686bc";
-    rtpFilePath = "smooth-scroll.tmux";
-    src = pkgs.fetchFromGitHub {
-      owner = "azorng";
-      repo = "tmux-smooth-scroll";
-      rev = "2d686bc5b696c0e66173997e5141b14c8bedd973";
-      hash = "sha256-+DtK0hMO1TAPYR/0jF12I5mqGOAz8PiMzhvGQDbwm3k=";
-    };
-    nativeBuildInputs = [ pkgs.makeWrapper ];
-    postInstall = ''
-      for entry in init scroll; do
-        wrapProgram "$out/share/tmux-plugins/smooth-scroll/src/$entry.sh" \
-          --prefix PATH : ${
-            lib.makeBinPath [
-              pkgs.tmux
-              pkgs.coreutils
-              pkgs.gawk
-              pkgs.perl
-            ]
-          }
-      done
-    '';
-  };
+  paths = import ../../../lib/paths.nix { inherit lib; };
+  presentation = import ./presentation.nix { inherit config pkgs; };
+  pickerCommand = "new-pane -O -K -x 92% -y 86% -X 4% -Y 7% -e SYSINIT_TMUX_UI=picker '${pkgs.sysinit-utils}/bin/ty tmux picker'";
   floatingTerminal = pkgs.writeShellApplication {
     name = "tmux-floating-terminal";
     runtimeInputs = [
@@ -87,7 +65,7 @@ let
         {
           name = "Sessions and providers";
           key = "s";
-          command = "display-popup -E -w 92% -h 86% '${pkgs.sysinit-utils}/bin/ty tmux picker'";
+          command = pickerCommand;
         }
         {
           name = "Panes";
@@ -234,7 +212,7 @@ let
             {
               name = "Quick select paths and identifiers";
               key = "f";
-              command = "display-popup -E -w 85% -h 75% '${pkgs.sysinit-utils}/bin/ty tmux select #{pane_id}'";
+              command = "send-keys -K C-b t";
             }
             {
               name = "Edit scrollback";
@@ -265,6 +243,37 @@ let
               name = "Clear history";
               key = "k";
               command = "send-keys C-l ; clear-history";
+            }
+          ];
+        }
+        {
+          name = "Save, restore and logging";
+          key = "l";
+          menu = [
+            {
+              name = "Save sessions";
+              key = "s";
+              command = "send-keys -K C-b C-s";
+            }
+            {
+              name = "Restore saved sessions";
+              key = "r";
+              command = "send-keys -K C-b C-r";
+            }
+            {
+              name = "Toggle pane logging";
+              key = "l";
+              command = "send-keys -K C-b P";
+            }
+            {
+              name = "Capture screen";
+              key = "p";
+              command = "send-keys -K C-b M-p";
+            }
+            {
+              name = "Save complete history";
+              key = "h";
+              command = "send-keys -K C-b M-P";
             }
           ];
         }
@@ -302,7 +311,7 @@ let
         {
           name = "Detach and preserve session";
           key = "d";
-          command = "set-option @sysinit_manual_detach 1 ; detach-client";
+          command = "send-keys -K C-b d";
         }
       ];
     }
@@ -323,8 +332,8 @@ let
         printf 'usage: tmux-client [session-name]\n' >&2
         exit 2
       fi
-      export SYSINIT_TMUX_PROVIDERS=${providersFile}
-      session="''${1:-''${SYSINIT_TMUX_SESSION:-main}}"
+      export SYSINIT_TMUX_PROVIDERS=${config.xdg.configHome}/sysinit/tmux-providers.json
+      session="''${1:-''${SYSINIT_TMUX_SESSION:-terminal-$(date +%s)-$$}}"
       case "$session" in
         ""|-*|*:*|*$'\n'*|*$'\r'*|*$'\t'*)
           printf 'tmux-client: invalid session name %q\n' "$session" >&2
@@ -353,9 +362,9 @@ let
     ];
     text = ''
       case "''${1:-}:$#" in
-        attached:5|detached:5) ;;
+        attached:5|detached:5|detach:5) ;;
         *)
-          printf 'usage: tmux-lifecycle attached|detached <socket-path> <session-id> <client-name> <terminal-name-or-client-count>\n' >&2
+          printf 'usage: tmux-lifecycle attached|detached|detach <socket-path> <session-id> <client-name> <terminal-name-or-client-count>\n' >&2
           exit 2
           ;;
       esac
@@ -365,8 +374,11 @@ let
       case "$1" in
         attached)
           tmux -S "$socket" set-option -s "@sysinit_client_$client" "$5"
-          tmux -S "$socket" set-option -u -t "$session" @sysinit_manual_detach
           exit 0
+          ;;
+        detach)
+          tmux -S "$socket" set-option -s "@sysinit_detach_$client" 1
+          exec tmux -S "$socket" detach-client -t "$client"
           ;;
         detached)
           terminal=$(tmux -S "$socket" show-option -sqv "@sysinit_client_$client")
@@ -379,9 +391,9 @@ let
         *) exit 0 ;;
       esac
       tmux -S "$socket" has-session -t "$session" 2>/dev/null || exit 0
-      manual=$(tmux -S "$socket" show-option -qv -t "$session" @sysinit_manual_detach 2>/dev/null || true)
+      manual=$(tmux -S "$socket" show-option -sqv "@sysinit_detach_$client")
       if [ "$manual" = 1 ]; then
-        tmux -S "$socket" set-option -u -t "$session" @sysinit_manual_detach
+        tmux -S "$socket" set-option -su "@sysinit_detach_$client"
         exit 0
       fi
       clients=$5
@@ -402,30 +414,11 @@ let
   providers = map (provider: {
     inherit (provider) name key manifest;
   }) config.programs.sysinit-wezterm.settings.picker.providers;
-  sessionChips = pkgs.writeShellApplication {
-    name = "tmux-status-left";
-    runtimeInputs = [
-      pkgs.jq
-      pkgs.sysinit-utils
-    ];
-    text = ''
-      payload=$(agent-sessions) || exit 0
-      printf '%s' "$payload" | jq -r --arg selected "''${1:-}" '
-        [.sessions[:6][] |
-          (if .name == $selected then "#[fg=#${c.base05},bg=#${c.base02},bold] "
-           elif .status == "waiting" then "#[fg=#${c.base08}] "
-           elif .status == "done" then "#[fg=#${c.base0B}] "
-           else "#[fg=#${c.base04}] " end)
-          + "[" + (.name | gsub("#"; "##") | gsub("[\\r\\n]"; " ") | .[0:18])
-          + (if .status then ":" + .status else "" end) + "]#[default]"
-        ] | join("")
-      '
-    '';
-  };
   providersFile = pkgs.writeText "tmux-providers.json" (
     builtins.toJSON {
       version = "sysinit.tmux-providers/v1";
       inherit providers;
+      presentation = presentation.command;
     }
   );
 in
@@ -452,23 +445,29 @@ in
       set -g window-size largest
       set -g status-position bottom
       set -g status-interval 1
-      set -g status-style 'bg=#${c.base01},fg=#${c.base05}'
-      set -g status-left-length 220
-      set -g status-right-length 80
-      set -g status-left '#{?@sysinit_locked,#[fg=#${c.base08}]#[bold] LOCKED (Ctrl-G) #[default],}#[fg=#${c.base0D},bold] #S #[default]| #(${lib.getExe sessionChips} #{q:session_name}) '
-      set -g status-right '#[fg=#${c.base04}]#{window_index}:#{window_name}  #{pane_current_path} '
-      setw -g window-status-format ' #[fg=#${c.base04}]#I:#W '
-      setw -g window-status-current-format ' #[fg=#${c.base05},bg=#${c.base02},bold]#I:#W#[default] '
+      set -g status-style 'bg=default,fg=#${c.base05}'
+      set -g menu-style 'bg=default,fg=#${c.base05}'
+      set -g menu-border-style 'bg=default,fg=#${c.base0D}'
+      set -g menu-selected-style 'bg=#${c.base0D},fg=#${c.base00},bold'
+      set -g popup-style 'bg=default,fg=#${c.base05}'
+      set -g popup-border-style 'bg=default,fg=#${c.base0D}'
+      set -g status-left ""
+      set -g status-right ""
+      set -g status-format[0] '#{E:status-left}#(${pkgs.coreutils}/bin/env SYSINIT_TMUX_PROVIDERS=${config.xdg.configHome}/sysinit/tmux-providers.json ${pkgs.sysinit-utils}/bin/ty tmux ui status #{session_id} #{client_width} #{window_id} #{?@sysinit_locked,1,0} #{?pane_in_mode,COPY,NORMAL})#{E:status-right}'
       set -g pane-border-style 'fg=#${c.base02}'
       set -g pane-active-border-style 'fg=#${c.base0D}'
       set -as terminal-features ',wezterm*:RGB,wezterm*:sixel,wezterm*:extkeys,wezterm*:clipboard'
       set -g set-titles on
       set -g set-titles-string '#S'
 
-      bind-key s display-popup -E -w 92% -h 86% '${pkgs.sysinit-utils}/bin/ty tmux picker'
+      ${lib.concatMapStringsSep "\n" (
+        slot:
+        "bind-key F${toString slot} run-shell '${pkgs.sysinit-utils}/bin/ty tmux ui session-slot ${toString slot}'"
+      ) (lib.range 1 9)}
+      bind-key s ${pickerCommand}
       bind-key f ${floatingCommand}
       bind-key Y run-shell '${lib.getExe pkgs.tmux} -S #{q:socket_path} set-buffer -w -t #{q:client_name} #{q:pane_current_path}'
-      bind-key d set-option @sysinit_manual_detach 1 \; detach-client
+      bind-key d run-shell '${lib.getExe tmuxLifecycle} detach #{q:socket_path} #{q:session_id} #{q:client_name} 0'
       bind-key c ${spawn "window" false}
       bind-key C ${spawn "window" true}
       bind-key '-' ${spawn "down" false}
@@ -495,15 +494,54 @@ in
           "l"
         ]
       }
+      bind-key -T root WheelUpPane if-shell -F -t = '#{||:#{alternate_on},#{pane_in_mode},#{mouse_any_flag}}' 'send-keys -M' 'copy-mode -e -t = ; send-keys -X -t = -N 5 scroll-up'
+      bind-key -T root WheelDownPane if-shell -F -t = '#{||:#{alternate_on},#{pane_in_mode},#{mouse_any_flag}}' 'send-keys -M'
       bind-key -T copy-mode-vi v send-keys -X begin-selection
       bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
       bind-key -T copy-mode-vi Escape send-keys -X cancel
       source-file ${whichKey}
       bind-key '?' show-wk-menu-root
-      set -g @smooth-scroll-speed 50
-      set -g @smooth-scroll-easing sine
-      set -g @smooth-scroll-mouse true
-      run-shell ${smoothScroll}/share/tmux-plugins/smooth-scroll/smooth-scroll.tmux
+      ${lib.concatMapStringsSep "\n" (binding: "bind-key -T copy-mode-vi ${binding}") [
+        "J send-keys -X scroll-down"
+        "K send-keys -X scroll-up"
+        "C-e send-keys -X scroll-down"
+        "C-y send-keys -X scroll-up"
+        "C-Up send-keys -X scroll-up"
+        "C-Down send-keys -X scroll-down"
+        "C-u send-keys -X halfpage-up"
+        "C-d send-keys -X halfpage-down \\; if-shell -F '#{==:#{scroll_position},0}' 'send-keys -X cancel'"
+        "C-b send-keys -X page-up"
+        "C-f send-keys -X page-down"
+        "PPage send-keys -X page-up"
+        "NPage send-keys -X page-down"
+        "WheelUpPane select-pane \\; send-keys -X -N 5 scroll-up"
+        "WheelDownPane select-pane \\; send-keys -X -N 5 scroll-down \\; if-shell -F '#{==:#{scroll_position},0}' 'send-keys -X cancel'"
+      ]}
+      bind-key -T copy-mode-vi g send-keys -X history-top
+      bind-key -T copy-mode-vi G send-keys -X history-bottom
+      bind-key -T copy-mode-vi '[' send-keys -X previous-prompt
+      bind-key -T copy-mode-vi ']' send-keys -X next-prompt
+      bind-key '<' swap-window -t -1
+      bind-key '>' swap-window -t +1
+      set -g @thumbs-key t
+      set -g @thumbs-osc52 1
+      set -g @thumbs-bg-color default
+      set -g @thumbs-fg-color '#${c.base05}'
+      set -g @thumbs-hint-bg-color default
+      set -g @thumbs-hint-fg-color '#${c.base0D}'
+      set -g @thumbs-select-bg-color '#${c.base0D}'
+      set -g @thumbs-select-fg-color '#${c.base00}'
+      set -g @resurrect-dir '${config.xdg.stateHome}/tmux/resurrect'
+      set -g @logging-path '${config.xdg.stateHome}/tmux/logs'
+      set -g @screen-capture-path '${config.xdg.stateHome}/tmux/captures'
+      set -g @save-complete-history-path '${config.xdg.stateHome}/tmux/history'
+      set -g @continuum-save-interval 15
+      set -g @continuum-restore off
+      run-shell '${pkgs.tmuxPlugins.tmux-thumbs}/share/tmux-plugins/tmux-thumbs/tmux-thumbs.tmux'
+      run-shell '${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/resurrect.tmux'
+      run-shell '${pkgs.tmuxPlugins.logging}/share/tmux-plugins/logging/logging.tmux'
+      run-shell '${pkgs.tmuxPlugins.open}/share/tmux-plugins/open/open.tmux'
+      run-shell '${pkgs.tmuxPlugins.continuum}/share/tmux-plugins/continuum/continuum.tmux'
       set-hook -g client-detached 'run-shell "${lib.getExe tmuxLifecycle} detached #{q:socket_path} #{q:session_id} #{q:hook_client} #{session_attached}"'
       set-hook -g client-session-changed 'run-shell "${lib.getExe tmuxLifecycle} attached #{q:socket_path} #{q:session_id} #{q:client_name} #{q:client_termname}"'
       set-hook -g client-session-changed[1] 'if-shell -F "#{&&:#{@sysinit_float_parent},#{m:wezterm*,#{client_termname}}}" { run-shell -b "${lib.getExe floatingTerminal} redirect #{q:socket_path} #{q:session_id} #{q:client_name} #{q:pane_current_path}"; }'
@@ -511,6 +549,23 @@ in
     '';
   };
 
+  xdg.configFile."sysinit/terminal.json".source = pkgs.writeText "terminal.json" (
+    builtins.toJSON {
+      version = "sysinit.terminal/v1";
+      renderer = "wezterm";
+      tmux = "${pkgs.tmux}/bin/tmux";
+      sessionizer = "${pkgs.seshy}/bin/sy";
+      client = lib.getExe tmuxClient;
+      shellCommand = shell;
+      runtimePath = paths.getPathString config.home.username config.home.homeDirectory;
+      executable = "${pkgs.wezterm}/bin/wezterm";
+      application =
+        if pkgs.stdenv.hostPlatform.isDarwin then
+          "${config.home.homeDirectory}/${config.targets.darwin.copyApps.directory}/WezTerm.app"
+        else
+          "";
+    }
+  );
   xdg.configFile."sysinit/tmux-providers.json".source = providersFile;
 
   home.activation.sysinitTmux = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
@@ -521,7 +576,7 @@ in
 
   home.packages = [
     tmuxClient
+    floatingTerminal
     tmuxLifecycle
-    sessionChips
   ];
 }

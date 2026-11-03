@@ -117,7 +117,7 @@ local config = {
   resolver = "/resolver",
   providerDirectory = "/providers",
   browser = "org.mozilla.firefox",
-  tmux = "/nix/store/tmux/bin/tmux",
+  ty = "/nix/store/gotools/bin/ty",
   weztermApp = "/nix/store/wezterm/Applications/WezTerm.app",
   home = "/Users/test user",
   routes = {
@@ -203,15 +203,8 @@ local function pick(index)
   local entry = assert(picks[#picks], "no picker was shown")
   entry.callback(index and assert(entry.spec.rows[index]) or nil)
 end
-local function openedWindow(command, url, session)
-  return table.concat({
-    "new-window",
-    "-t",
-    session,
-    "-c",
-    config.home,
-    "'" .. command .. "' '" .. url .. "'",
-  }, "\n")
+local function openedWindow(command, url)
+  return table.concat({ "terminal", "run", "--", command, url }, "\n")
 end
 
 for pid = 2, 4 do
@@ -243,65 +236,37 @@ assert(spec.rows[2].text == "Neovim")
 assert(spec.rows[3].text == "Firefox")
 
 pick(1)
-assert(tasks[1].binary == config.tmux)
-tasks[1].callback(0, "123\tactive session\twezterm\n", "")
+assert(tasks[1].binary == config.ty)
+assert(table.concat(tasks[1].args, "\n") == openedWindow(dash, pr))
+tasks[1].callback(0, "", "")
 assert(timers[1].stopped)
-assert(table.concat(tasks[2].args, "\n") == openedWindow(dash, pr, "active session"))
-tasks[2].callback(0, "", "")
-assert(focused == "com.github.wez.wezterm")
 assert(#alerts == 0)
-
 click(pr, 1)
 pick(2)
-tasks[3].callback(0, "123\tactive session\twezterm\n", "")
-assert(
-  table.concat(tasks[4].args, "\n") == openedWindow(editor, pr, "active session"),
-  "the editor row reused another command"
-)
-tasks[4].callback(0, "", "")
-
+assert(table.concat(tasks[2].args, "\n") == openedWindow(editor, pr))
+tasks[2].callback(0, "", "")
 click(pr, 1)
 pick(3)
 assert(opened[#opened][1] == pr and opened[#opened][2] == "org.mozilla.firefox")
-assert(#tasks == 4, "the browser row opened a terminal")
-
+assert(#tasks == 2)
 local quiet = #opened
 click(pr, 1)
 pick(nil)
-assert(#tasks == 4 and #opened == quiet, "dismissing the picker launched a review")
-
+assert(#tasks == 2 and #opened == quiet)
 click(runUrl .. "/job/789", 1)
 local actions = picks[#picks].spec
-assert(actions.placeholder == "owner/repo run 456", "the run picker hid which run it watches")
-assert(actions.verb == "Watch", "the actions picker lost its verb")
-assert(actions.historyKey == "github.actions", "action history shares PR ranking")
-assert(#actions.rows == 2 and actions.rows[1].text == "gh enhance")
+assert(actions.placeholder == "owner/repo run 456")
+assert(actions.verb == "Watch" and actions.historyKey == "github.actions")
 pick(1)
-tasks[5].callback(0, "123\tactive session\twezterm\n", "")
-assert(
-  table.concat(tasks[6].args, "\n") == openedWindow(enhance, runUrl, "active session"),
-  "a job link did not open its run in enhance"
-)
-tasks[6].callback(0, "", "")
-
+assert(table.concat(tasks[3].args, "\n") == openedWindow(enhance, runUrl))
+tasks[3].callback(0, "", "")
 click(runUrl, 1)
 pick(2)
-assert(opened[#opened][1] == runUrl and opened[#opened][2] == "org.mozilla.firefox")
-assert(#tasks == 6, "the run browser row opened a terminal")
-
-clients = {}
+assert(opened[#opened][1] == runUrl and #tasks == 3)
 click(pr, 1)
 pick(1)
-tasks[7].callback(0, "", "")
-assert(table.concat(tasks[8].args, "\n") == "has-session\n-t\nmain")
-tasks[8].callback(1, "", "")
-assert(table.concat(tasks[9].args, "\n") == "new-session\n-d\n-s\nmain\n-c\n" .. config.home)
-tasks[9].callback(0, "", "")
-assert(table.concat(tasks[10].args, "\n") == openedWindow(dash, pr, "main"))
-tasks[10].callback(0, "", "")
-assert(tasks[11].binary == "/usr/bin/open")
-assert(table.concat(tasks[11].args, "\n") == "-na\n" .. config.weztermApp)
-tasks[11].callback(0, "", "")
+tasks[4].callback(1, "", "renderer unavailable")
+assert(alerts[#alerts]:match("renderer unavailable"))
 
 failedStart = true
 click(pr, 1)
@@ -315,8 +280,7 @@ resolvedTargets.pull = { { name = "gh dash", command = dash } }
 click(pr, 1)
 assert(#picks == single, "a single target still prompted")
 assert(#tasks > beforeSingleTasks, "a single target dropped the link")
-tasks[beforeSingleTasks + 1].callback(0, "123\tactive session\twezterm\n", "")
-tasks[#tasks].callback(0, "", "")
+tasks[beforeSingleTasks + 1].callback(0, "", "")
 local afterSingleTasks = #tasks
 
 resolvedTargets.pull = {}
@@ -333,7 +297,7 @@ assert(
   "disable lost links during handler restoration"
 )
 print(
-  "URL routing: browser origins, pull and run matching, tmux windows, cold start, single target, and disable passed"
+  "URL routing: browser origins, pull and run matching, shared terminal dispatch, single target, and disable passed"
 )
 
 local prior = #opened

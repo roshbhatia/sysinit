@@ -137,8 +137,11 @@ func tmuxSnapshot(stdout io.Writer, runner commandRunner) error {
 		row := map[string]any{"pane": fields[0], "session": fields[1], "title": fields[4], "cwd": fields[5]}
 		if inspectErr == nil && len(process.Argv) > 0 {
 			row["process"] = process
+			if remote, err := remoteProcess(process); err == nil && len(remote) > 1 {
+				row["domain"] = "ssh:" + remote[len(remote)-1]
+			}
 		}
-		text, captureErr := call(runner, "tmux", []string{"capture-pane", "-p", "-S", "-500", "-t", fields[0]}, nil)
+		text, captureErr := call(runner, "tmux", []string{"capture-pane", "-p", "-t", fields[0]}, nil)
 		if captureErr == nil {
 			row["text"] = string(text)
 		}

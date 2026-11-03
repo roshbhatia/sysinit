@@ -60,7 +60,7 @@ func TestTmuxPickerReadsXDGConfig(t *testing.T) {
 		"tmux list-panes -a -F #{pane_id}\t#{session_name}\t#{window_index}\t#{pane_index}\t#{pane_current_command}\t#{pane_current_path}": []byte("%0\ttest\t0\t0\tsh\t/tmp\n"),
 	})
 	err := runTmuxPicker(io.Discard, runner)
-	if err == nil || !strings.Contains(err.Error(), "needs a terminal") || len(*calls) != 2 {
+	if err == nil || !strings.Contains(err.Error(), "needs a terminal") || len(*calls) != 0 {
 		t.Fatalf("configuration was not read from XDG_CONFIG_HOME: calls=%v err=%v", *calls, err)
 	}
 }

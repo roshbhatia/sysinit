@@ -75,7 +75,7 @@ let
     stateDir = "${home}/.local/state/sysinit/launcher";
     recencyFile = "${home}/.local/state/sysinit/launcher_recency.json";
     emojiFile = "${home}/.local/state/sysinit/launcher_emoji.json";
-    wezterm = "${pkgs.wezterm}/bin/wezterm";
+    ty = "${pkgs.sysinit-gotools}/bin/ty";
     sy = "/etc/profiles/per-user/${config.home.username}/bin/sy";
     fftabs = "${pkgs.firefox-tabs}/bin/firefox-tabs";
     firefoxProfileRoot = "${home}/Library/Application Support/Firefox/Profiles";

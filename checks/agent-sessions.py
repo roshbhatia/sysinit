@@ -121,6 +121,16 @@ class SessionTests(unittest.TestCase):
             {"session with spaces": "working", "tmux-session": "waiting"},
         )
 
+    def test_focused_heartbeat_wins_over_background_active_pane(self):
+        self.seed(["working"])
+        self.env["LIVE"] = json.dumps(
+            [
+                {"pane_id": 0, "workspace": "background", "is_active": True},
+                {"pane_id": 1, "workspace": "session with spaces", "is_active": True},
+            ]
+        )
+        self.assertEqual(self.run_status()["selected"], "session with spaces")
+
     def test_malformed_records(self):
         self.seed(["working"])
         valid = self.panes / "0.json"

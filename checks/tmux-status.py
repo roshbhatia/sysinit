@@ -45,6 +45,10 @@ with tempfile.TemporaryDirectory() as directory:
     assert (
         replacement[0]["agent"] == "claude" and replacement[0]["status"] != "waiting"
     ), replacement
+    record.unlink()
+    stale_spinner = "• Working (1s • esc to interrupt)\n" + "ordinary output\n" * 30
+    bounded = scan("/bin/codex", ["codex"], stale_spinner)
+    assert not bounded or bounded[0]["status"] != "working", bounded
     print(
         "Shared native/tmux classification: stale state, active turn, approval precedence and process replacement pass"
     )

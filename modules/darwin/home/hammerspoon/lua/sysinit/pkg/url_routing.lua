@@ -108,62 +108,11 @@ local function openBrowser(url, bundle)
 end
 
 local function launch(config, command, url)
-  local function quote(value)
-    return "'" .. tostring(value):gsub("'", "'\\''") .. "'"
-  end
-  local shell_command = table.concat({ quote(command), quote(url) }, " ")
-  local function open_window(session, has_client)
-    run(config.tmux, { "new-window", "-t", session, "-c", config.home, shell_command }, function(result, _, stderr)
-      if result ~= 0 then
-        report("Cannot open tmux review window: " .. stderr)
-        return
-      end
-      hs.application.launchOrFocusByBundleID("com.github.wez.wezterm")
-      if not has_client then
-        run("/usr/bin/open", { "-na", config.weztermApp }, function(open_code, _, open_error)
-          if open_code ~= 0 then
-            report("Cannot start WezTerm: " .. open_error)
-          end
-        end)
-      end
-    end)
-  end
-  run(
-    config.tmux,
-    { "list-clients", "-F", "#{client_activity}\t#{session_name}\t#{client_termname}" },
-    function(code, stdout)
-      local most_recent, latest = nil, -1
-      if code == 0 then
-        for line in stdout:gmatch("[^\n]+") do
-          local activity, session, terminal = line:match("^(%d+)\t([^\t]+)\t(.+)$")
-          activity = tonumber(activity)
-          if activity and session and terminal:match("^wezterm") and activity > latest then
-            latest, most_recent = activity, session
-          end
-        end
-      end
-      if most_recent then
-        open_window(most_recent, true)
-        return
-      end
-      run(config.tmux, { "has-session", "-t", "main" }, function(has_session)
-        local function create()
-          open_window("main", false)
-        end
-        if has_session == 0 then
-          create()
-        else
-          run(config.tmux, { "new-session", "-d", "-s", "main", "-c", config.home }, function(result, _, stderr)
-            if result ~= 0 then
-              report("Cannot start tmux: " .. stderr)
-              return
-            end
-            create()
-          end)
-        end
-      end)
+  run(config.ty, { "terminal", "run", "--", command, url }, function(code, _, stderr)
+    if code ~= 0 then
+      report("Cannot open terminal review: " .. stderr)
     end
-  )
+  end)
 end
 
 local function dispatch(config, target, url)

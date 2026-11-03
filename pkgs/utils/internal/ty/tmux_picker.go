@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -18,8 +19,8 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/ansi"
 	"github.com/roshbhatia/go-utils/cell"
-	"github.com/roshbhatia/go-utils/paths"
 	"github.com/roshbhatia/go-utils/terminal"
 	"github.com/roshbhatia/go-utils/ui"
 )
@@ -31,8 +32,9 @@ type providerConfig struct {
 }
 
 type pickerConfig struct {
-	Version   string           `json:"version"`
-	Providers []providerConfig `json:"providers"`
+	Version      string           `json:"version"`
+	Presentation []string         `json:"presentation"`
+	Providers    []providerConfig `json:"providers"`
 }
 
 type providerManifest struct {
@@ -84,25 +86,29 @@ type pickerChoice struct {
 	label    string
 	kind     string
 	target   string
-	window   string
 	provider providerConfig
 	item     pickerItem
 	create   bool
 }
 
 type choiceModel struct {
-	labels       []string
-	input        textinput.Model
-	matches      []int
-	cursor       int
-	selected     int
-	width        int
-	height       int
-	insert       bool
-	done         bool
-	closeTargets bool
-	action       string
-	shortcuts    map[string]int
+	display                  []string
+	heading                  string
+	filterRows               map[string][]int
+	scope                    string
+	selectionFG, selectionBG string
+	labels                   []string
+	input                    textinput.Model
+	matches                  []int
+	cursor                   int
+	selected                 int
+	width                    int
+	height                   int
+	insert                   bool
+	done                     bool
+	closeTargets             bool
+	action                   string
+	shortcuts                map[string]int
 }
 
 func newChoiceModel(labels []string, prompt string) choiceModel {
@@ -112,12 +118,13 @@ func newChoiceModel(labels []string, prompt string) choiceModel {
 	input.Focus()
 	m := choiceModel{input: input, selected: -1, width: 80, height: 12, insert: true}
 	for _, label := range labels {
+		m.display = append(m.display, label)
 		m.labels = append(m.labels, strings.Map(func(r rune) rune {
 			if r < 32 || r == 127 {
 				return ' '
 			}
 			return r
-		}, label))
+		}, ansi.Strip(label)))
 	}
 	m.filter()
 	return m
@@ -125,13 +132,23 @@ func newChoiceModel(labels []string, prompt string) choiceModel {
 
 func (m *choiceModel) filter() {
 	m.matches = nil
-	if m.input.Value() == "" {
-		for i := range m.labels {
-			m.matches = append(m.matches, i)
+	allowed := map[int]bool{}
+	if m.scope != "" {
+		for _, i := range m.filterRows[m.scope] {
+			allowed[i] = true
 		}
-	} else {
-		for _, match := range list.DefaultFilter(m.input.Value(), m.labels) {
+	}
+	for _, match := range list.DefaultFilter(m.input.Value(), m.labels) {
+		if m.scope == "" || allowed[match.Index] {
 			m.matches = append(m.matches, match.Index)
+		}
+	}
+	if m.input.Value() == "" {
+		m.matches = nil
+		for i := range m.labels {
+			if m.scope == "" || allowed[i] {
+				m.matches = append(m.matches, i)
+			}
 		}
 	}
 	m.cursor = 0
@@ -143,7 +160,7 @@ func (m choiceModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := message.(type) {
 	case tea.WindowSizeMsg:
 		m.width, m.height = max(1, msg.Width), max(1, msg.Height)
-		m.input.Width = max(1, m.width-cell.Width(m.input.Prompt)-1)
+		m.input.Width = max(1, m.width-cell.Width(m.input.Prompt)-5)
 		return m, nil
 	case tea.KeyMsg:
 		if !m.insert && msg.Type == tea.KeyRunes && len(msg.Runes) > 1 {
@@ -186,6 +203,23 @@ func (m choiceModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 		if !m.insert {
+			if _, ok := m.filterRows[key]; ok {
+				if key == "0" {
+					m.scope = ""
+				} else {
+					m.scope = key
+				}
+				m.filter()
+				return m, nil
+			}
+			if len(key) == 1 && key >= "1" && key <= "9" {
+				n := int(key[0] - '1')
+				if n < len(m.matches) {
+					m.selected, m.done = m.matches[n], true
+					return m, tea.Quit
+				}
+				return m, nil
+			}
 			if selected, ok := m.shortcuts[key]; ok {
 				m.selected, m.done = selected, true
 				return m, tea.Quit
@@ -225,36 +259,63 @@ func (m choiceModel) View() string {
 	if m.done {
 		return ""
 	}
-	if m.height < 4 {
-		return cell.Truncate("Picker needs 4 rows. Ctrl-C cancels.", m.width)
+	if m.height < 6 {
+		return cell.Truncate("Terminal too short. Ctrl-C cancels.", m.width)
 	}
 	palette := ui.TerminalPalette()
-	accent := lipgloss.NewStyle().Foreground(lipgloss.Color(palette.Accent)).Bold(true)
 	muted := lipgloss.NewStyle().Foreground(lipgloss.Color(palette.Muted))
-	rows := m.height - 3
+	bg, fg := m.selectionBG, m.selectionFG
+	if bg == "" {
+		bg = "4"
+	}
+	if fg == "" {
+		fg = "7"
+	}
+	selected := lipgloss.NewStyle().Background(lipgloss.Color(bg)).Foreground(lipgloss.Color(fg)).Bold(true)
+	width := max(1, m.width-4)
+	hint := "j/k move  1–9 select  / filter  Enter open  Esc quit"
+	if m.closeTargets {
+		hint = "j/k move  / filter  ! attention  a agents  0 all  n:new  x:close  Esc quit"
+	}
+	if m.insert {
+		hint = "FILTER  Tab/Shift-Tab move  Enter open  Esc normal"
+	}
+	hints := strings.Split(ansi.Hardwrap(hint, width, true), "\n")
+	rows := max(1, m.height-5-len(hints))
 	start := max(0, m.cursor-rows+1)
-	lines := []string{muted.Render(cell.Truncate(fmt.Sprintf("%d/%d", len(m.matches), len(m.labels)), m.width))}
+	heading := m.heading
+	if heading == "" {
+		heading = "Select"
+	}
+	lines := []string{"", "  " + cell.Truncate(heading, width), ""}
 	for offset := range rows {
 		index := start + offset
 		line := ""
 		if index < len(m.matches) {
-			line = cell.Truncate("  "+m.labels[m.matches[index]], m.width)
+			choice := m.matches[index]
+			label := m.labels[choice]
+			if choice < len(m.display) && m.display[choice] != "" {
+				label = m.display[choice]
+			}
+			prefix := fmt.Sprintf("%2d. ", index+1)
+			line = cell.Fit(prefix+label, width)
 			if index == m.cursor {
-				line = accent.Render(cell.Truncate("> "+m.labels[m.matches[index]], m.width))
+				line = selected.Render(ansi.Strip(line))
 			}
 		} else if offset == 0 {
-			line = muted.Render(cell.Truncate("  No matches", m.width))
+			line = muted.Render("No matches")
 		}
-		lines = append(lines, line)
+		lines = append(lines, "  "+line)
 	}
-	mode, hint := "INSERT", "Tab/Shift-Tab move · Enter choose · Esc normal · Ctrl-C cancel"
-	if !m.insert {
-		mode, hint = "NORMAL", "j/k move · i or / search · Enter choose · Esc cancel"
-		if m.closeTargets {
-			hint += " · x close · provider shortcut"
-		}
+	input := m.input.Prompt + m.input.Value()
+	if m.insert {
+		input = m.input.View()
 	}
-	lines = append(lines, cell.Truncate(m.input.View(), m.width), muted.Render(cell.Truncate(mode+" · "+hint, m.width)))
+	lines = append(lines, "  "+cell.Truncate(input, width))
+	for _, hint := range hints {
+		lines = append(lines, "  "+muted.Render(hint))
+	}
+	lines = append(lines, "")
 	return strings.Join(lines, "\n")
 }
 
@@ -262,7 +323,7 @@ func choose(labels []string, prompt string) (int, error) {
 	if !terminal.IsTTY(os.Stderr) {
 		return -1, errors.New("the session picker needs a terminal")
 	}
-	result, err := tea.NewProgram(newChoiceModel(labels, prompt), tea.WithInputTTY(), tea.WithOutput(os.Stderr)).Run()
+	result, err := tea.NewProgram(newChoiceModel(labels, prompt), tea.WithAltScreen(), tea.WithInputTTY(), tea.WithOutput(os.Stderr)).Run()
 	if err != nil {
 		return -1, err
 	}
@@ -280,7 +341,7 @@ func (m textModel) Init() tea.Cmd { return textinput.Blink }
 func (m textModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	if size, ok := message.(tea.WindowSizeMsg); ok {
 		m.width = max(1, size.Width)
-		m.input.Width = max(1, m.width-cell.Width(m.input.Prompt)-1)
+		m.input.Width = max(1, m.width-cell.Width(m.input.Prompt)-5)
 		return m, nil
 	}
 	if key, ok := message.(tea.KeyMsg); ok {
@@ -312,94 +373,100 @@ func prompt(prompt string) (string, error) {
 	in.Prompt = prompt + "> "
 	in.CharLimit = 128
 	in.Focus()
-	result, err := tea.NewProgram(textModel{input: in, width: 80}, tea.WithInputTTY(), tea.WithOutput(os.Stderr)).Run()
+	result, err := tea.NewProgram(textModel{input: in, width: 80}, tea.WithAltScreen(), tea.WithInputTTY(), tea.WithOutput(os.Stderr)).Run()
 	if err != nil {
 		return "", err
 	}
 	return result.(textModel).value, nil
 }
 
+var errPickerBack = errors.New("back to sessions")
+
 func runTmuxPicker(stdout io.Writer, runner commandRunner) error {
+	for {
+		err := runTmuxPickerPage(stdout, runner)
+		if !errors.Is(err, errPickerBack) {
+			return err
+		}
+	}
+}
+
+func runTmuxPickerPage(stdout io.Writer, runner commandRunner) error {
 	if os.Getenv("TMUX") == "" {
 		return errors.New("the picker must run inside tmux")
 	}
-	configPath, err := paths.ConfigHomeE()
+	cfg, err := pickerSettings()
 	if err != nil {
 		return err
-	}
-	configFile := os.Getenv("SYSINIT_TMUX_PROVIDERS")
-	if configFile == "" {
-		configFile = filepath.Join(configPath, "sysinit", "tmux-providers.json")
-	}
-	body, err := os.ReadFile(configFile)
-	if err != nil {
-		return fmt.Errorf("read tmux provider config: %w", err)
-	}
-	var config pickerConfig
-	if err := json.Unmarshal(body, &config); err != nil || config.Version != "sysinit.tmux-providers/v1" {
-		return errors.New("invalid tmux provider config")
-	}
-	sessions, err := call(runner, "tmux", []string{"list-sessions", "-F", "#{session_name}\t#{session_windows}\t#{session_attached}"}, nil)
-	if err != nil {
-		return fmt.Errorf("list tmux sessions: %w", err)
-	}
-	choices := []pickerChoice{{label: "+  New tmux session", kind: "new"}}
-	for _, line := range strings.Split(strings.TrimSpace(string(sessions)), "\n") {
-		if line == "" {
-			continue
-		}
-		fields := strings.Split(line, "\t")
-		if len(fields) != 3 || !validSessionName(fields[0]) {
-			return errors.New("tmux returned an invalid session row")
-		}
-		choices = append(choices, pickerChoice{
-			label: fmt.Sprintf("%s  ·  %s windows  ·  %s attached", fields[0], fields[1], fields[2]),
-			kind:  "session", target: fields[0],
-		})
-	}
-	panes, err := call(runner, "tmux", []string{"list-panes", "-a", "-F", "#{pane_id}\t#{session_name}\t#{window_index}\t#{pane_index}\t#{pane_current_command}\t#{pane_current_path}"}, nil)
-	if err != nil {
-		return fmt.Errorf("list tmux panes: %w", err)
-	}
-	for _, line := range strings.Split(strings.TrimSpace(string(panes)), "\n") {
-		if line == "" {
-			continue
-		}
-		fields := strings.Split(line, "\t")
-		if len(fields) != 6 {
-			return errors.New("tmux returned an invalid pane row")
-		}
-		if _, err := parseTmuxPaneID(fields[0]); err != nil || !validSessionName(fields[1]) {
-			return errors.New("tmux returned an unsafe pane or session identifier")
-		}
-		choices = append(choices, pickerChoice{
-			label: fmt.Sprintf("  %s:%s.%s  ·  %s  ·  %s", fields[1], fields[2], fields[3], fields[4], filepath.Base(fields[5])),
-			kind:  "pane", target: fields[0], window: fields[1] + ":" + fields[2],
-		})
-	}
-	for _, provider := range config.Providers {
-		if provider.Name == "" || provider.Key == "" || provider.Manifest == "" {
-			return errors.New("tmux provider has incomplete configuration")
-		}
-		choices = append(choices, pickerChoice{label: provider.Key + "  " + provider.Name, kind: "provider", provider: provider})
-	}
-	labels := make([]string, len(choices))
-	for i := range choices {
-		labels[i] = choices[i].label
-	}
-	model := newChoiceModel(labels, "sessions · providers")
-	model.insert, model.closeTargets = false, true
-	model.input.Blur()
-	model.shortcuts = make(map[string]int)
-	for index, choice := range choices {
-		if choice.kind == "provider" {
-			model.shortcuts[choice.provider.Key] = index
-		}
 	}
 	if !terminal.IsTTY(os.Stderr) {
 		return errors.New("the session picker needs a terminal")
 	}
-	result, err := tea.NewProgram(model, tea.WithInputTTY(), tea.WithOutput(os.Stderr)).Run()
+	data, err := loadPresentation(cfg, runner, true)
+	if err != nil {
+		return err
+	}
+	choices := []pickerChoice{}
+	labels := []string{}
+	display := []string{}
+	for _, row := range data.Rows {
+		parts := strings.SplitN(row.ID, ":", 2)
+		if len(parts) != 2 {
+			continue
+		}
+		choice := pickerChoice{label: row.Text, target: parts[1]}
+		switch parts[0] {
+		case "ws":
+			choice.kind = "session"
+		case "tab":
+			choice.kind = "window"
+		case "pane":
+			choice.kind = "pane"
+		default:
+			continue
+		}
+		choices = append(choices, choice)
+		labels = append(labels, row.Text)
+		rendered := renderNative(row.Label, 1000, false)
+		if os.Getenv("NO_COLOR") != "" {
+			rendered = ansi.Strip(rendered)
+		}
+		display = append(display, rendered)
+	}
+	model := newChoiceModel(labels, "Filter › ")
+	model.display = display
+	model.heading = "Sessions"
+	model.selectionBG = data.Tabs.Active.BG
+	model.selectionFG = data.Tabs.Active.FG
+	model.insert, model.closeTargets = false, true
+	model.input.Blur()
+	model.shortcuts = map[string]int{}
+	model.filterRows = map[string][]int{"0": {}}
+	for key, rows := range map[string][]presentationRow{"!": data.Attention, "a": data.Agents} {
+		indexes := []int{}
+		for _, row := range rows {
+			for i, choice := range choices {
+				if choice.kind == "pane" && "pane:"+choice.target == row.ID {
+					indexes = append(indexes, i)
+				}
+			}
+		}
+		model.filterRows[key] = indexes
+	}
+	model.shortcuts["n"] = len(choices)
+	choices = append(choices, pickerChoice{label: "New session", kind: "new"})
+	for _, provider := range cfg.Providers {
+		if provider.Name == "" || provider.Key == "" || provider.Manifest == "" {
+			return errors.New("tmux provider has incomplete configuration")
+		}
+		model.shortcuts[provider.Key] = len(choices)
+		choices = append(choices, pickerChoice{kind: "provider", provider: provider})
+		model.heading += "   " + provider.Key + " " + provider.Name
+	}
+	if !terminal.IsTTY(os.Stderr) {
+		return errors.New("the session picker needs a terminal")
+	}
+	result, err := tea.NewProgram(model, tea.WithAltScreen(), tea.WithInputTTY(), tea.WithOutput(os.Stderr)).Run()
 	if err != nil {
 		return err
 	}
@@ -409,16 +476,22 @@ func runTmuxPicker(stdout io.Writer, runner commandRunner) error {
 	}
 	choice := choices[selected]
 	if result.(choiceModel).action == "close" {
-		if choice.kind != "session" && choice.kind != "pane" {
+		if choice.kind != "session" && choice.kind != "pane" && choice.kind != "window" {
 			return nil
 		}
 		confirmation, err := choose([]string{"Cancel", "Close " + choice.label}, "Close live terminal")
-		if err != nil || confirmation != 1 {
+		if err != nil {
 			return err
+		}
+		if confirmation != 1 {
+			return errPickerBack
 		}
 		command, target := "kill-session", "="+choice.target
 		if choice.kind == "pane" {
 			command, target = "kill-pane", choice.target
+		}
+		if choice.kind == "window" {
+			command, target = "kill-window", choice.target
 		}
 		_, err = call(runner, "tmux", []string{command, "-t", target}, nil)
 		return err
@@ -426,8 +499,11 @@ func runTmuxPicker(stdout io.Writer, runner commandRunner) error {
 	switch choice.kind {
 	case "new":
 		name, err := prompt("Session name")
-		if err != nil || name == "" {
+		if err != nil {
 			return err
+		}
+		if name == "" {
+			return errPickerBack
 		}
 		if !validSessionName(name) {
 			return errors.New("session name contains characters tmux cannot target safely")
@@ -438,14 +514,29 @@ func runTmuxPicker(stdout io.Writer, runner commandRunner) error {
 		return switchSession(runner, name)
 	case "session":
 		return switchSession(runner, choice.target)
+	case "window":
+		panes, err := listTmuxPanes(context.Background(), runner)
+		if err != nil {
+			return err
+		}
+		for _, raw := range panes {
+			var p struct {
+				PaneID  string `json:"pane_id"`
+				Window  string `json:"window_index"`
+				Session string `json:"session_name"`
+			}
+			if err = json.Unmarshal(raw, &p); err != nil {
+				return err
+			}
+			for _, w := range data.Windows {
+				if w.ID == choice.target && p.Session == w.Session && p.Window == strconv.Itoa(w.Index) {
+					return runTmuxPaneAction([]string{p.PaneID}, "focus", stdout, runner)
+				}
+			}
+		}
+		return errors.New("window is no longer live")
 	case "pane":
-		if _, err := call(runner, "tmux", []string{"switch-client", "-t", choice.window}, nil); err != nil {
-			return fmt.Errorf("switch to tmux window %s: %w", choice.window, err)
-		}
-		if _, err := call(runner, "tmux", []string{"select-pane", "-t", choice.target}, nil); err != nil {
-			return fmt.Errorf("select tmux pane %s: %w", choice.target, err)
-		}
-		return nil
+		return runTmuxPaneAction([]string{choice.target}, "focus", stdout, runner)
 	case "provider":
 		return chooseProvider(runner, choice.provider)
 	default:
@@ -464,22 +555,30 @@ func chooseProvider(runner commandRunner, provider providerConfig) error {
 	if err := json.Unmarshal(data, &manifest); err != nil || manifest.Version != "provider/v1" || len(manifest.Command) == 0 {
 		return fmt.Errorf("invalid %s provider manifest", provider.Name)
 	}
-	describe, err := callProvider(ctx, runner, manifest, "picker.describe", "")
+	loaded, err := loadPickerData(provider.Name, func() (any, error) {
+		describe, err := callProvider(ctx, runner, manifest, "picker.describe", "")
+		if err != nil {
+			return nil, err
+		}
+		var descriptor pickerDescriptor
+		if err := json.Unmarshal(describe, &descriptor); err != nil || descriptor.Title == "" {
+			return nil, fmt.Errorf("%s provider returned an invalid description", provider.Name)
+		}
+		body, err := callProvider(ctx, runner, manifest, "picker.list", "")
+		if err != nil {
+			return nil, err
+		}
+		var listed pickerList
+		if err := json.Unmarshal(body, &listed); err != nil {
+			return nil, fmt.Errorf("%s provider returned an invalid item list", provider.Name)
+		}
+		return providerPage{descriptor, listed}, nil
+	}, cancel)
 	if err != nil {
 		return err
 	}
-	var descriptor pickerDescriptor
-	if err := json.Unmarshal(describe, &descriptor); err != nil || descriptor.Title == "" {
-		return fmt.Errorf("%s provider returned an invalid description", provider.Name)
-	}
-	listedJSON, err := callProvider(ctx, runner, manifest, "picker.list", "")
-	if err != nil {
-		return err
-	}
-	var listed pickerList
-	if err := json.Unmarshal(listedJSON, &listed); err != nil {
-		return fmt.Errorf("%s provider returned an invalid item list", provider.Name)
-	}
+	page := loaded.(providerPage)
+	descriptor, listed := page.descriptor, page.listed
 	choices := make([]pickerChoice, 0, len(listed.Items)+1)
 	for _, item := range listed.Items {
 		if item.ID == "" {
@@ -487,7 +586,14 @@ func chooseProvider(runner commandRunner, provider providerConfig) error {
 		}
 		parts := make([]string, 0, len(item.Segments))
 		for _, segment := range item.Segments {
-			parts = append(parts, strings.Join(strings.Fields(segment.Text), " "))
+			text := strings.Join(strings.Fields(segment.Text), " ")
+			switch segment.Role {
+			case "muted", "description":
+				text = lipgloss.NewStyle().Foreground(lipgloss.Color("8")).Render(text)
+			case "accent", "name":
+				text = lipgloss.NewStyle().Foreground(lipgloss.Color("4")).Render(text)
+			}
+			parts = append(parts, text)
 		}
 		label := strings.Join(parts, "  ")
 		if label == "" {
@@ -503,22 +609,30 @@ func chooseProvider(runner commandRunner, provider providerConfig) error {
 		choices = append(choices, pickerChoice{label: "+  " + label, kind: "create", provider: provider, create: true})
 	}
 	if len(choices) == 0 {
-		return nil
+		return errPickerBack
 	}
 	labels := make([]string, len(choices))
 	for i := range choices {
 		labels[i] = choices[i].label
 	}
 	selected, err := choose(labels, descriptor.Title)
-	if err != nil || selected < 0 {
+	if err != nil {
 		return err
 	}
+	if selected < 0 {
+		return errPickerBack
+	}
+	ctx, cancelAction := context.WithTimeout(context.Background(), 12*time.Second)
+	defer cancelAction()
 	var planJSON json.RawMessage
 	var actionErr error
 	if choices[selected].create {
 		name, err := prompt(descriptor.Create.Prompt)
-		if err != nil || name == "" {
+		if err != nil {
 			return err
+		}
+		if name == "" {
+			return errPickerBack
 		}
 		if provider.Name == "seshy" {
 			planJSON, actionErr = createSeshySession(ctx, runner, name)
@@ -680,6 +794,13 @@ func openPlanInTmux(runner commandRunner, name string, plan spawnPlan) error {
 }
 
 func switchSession(runner commandRunner, name string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	if focused, err := focusTmuxTarget(ctx, runner, name, "="+name, ""); err != nil {
+		return err
+	} else if focused {
+		return nil
+	}
 	if _, err := call(runner, "tmux", []string{"switch-client", "-t", "=" + name}, nil); err != nil {
 		return fmt.Errorf("switch to tmux session %q: %w", name, err)
 	}

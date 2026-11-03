@@ -223,8 +223,7 @@ in
         providerDirectory = "${providerDirectory}";
         resolver = "${pkgs.sysinit-gotools}/bin/url-route";
         home = config.home.homeDirectory;
-        tmux = "${pkgs.tmux}/bin/tmux";
-        weztermApp = "${config.home.homeDirectory}/${config.targets.darwin.copyApps.directory}/WezTerm.app";
+        ty = "${pkgs.sysinit-gotools}/bin/ty";
       };
     };
 }

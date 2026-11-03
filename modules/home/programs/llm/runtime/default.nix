@@ -153,7 +153,7 @@ let
     name = "agent-focus";
     runtimeInputs = [
       pkgs.tmux
-      pkgs.wezterm
+      pkgs.sysinit-gotools
       pkgs.jq
     ]
     ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ pkgs.alerter ];

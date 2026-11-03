@@ -364,6 +364,7 @@ in
       }
       ''
         python3 ${./tmux.py} ${lib.getExe pkgs.tmux} ${home.xdg.configFile."tmux/tmux.conf".source}
+        python3 ${./tmux-presentation.py} ${home.xdg.configFile."sysinit/tmux-providers.json".source}
         touch "$out"
       '';
 }

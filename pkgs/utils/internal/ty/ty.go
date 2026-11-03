@@ -22,6 +22,7 @@ const usage = `ty: inspect and control seshy sessions and terminal panes
 
 Usage:
   ty catalog
+  ty terminal catalog|focus|open|run
   ty tmux catalog|sessions|panes|session|pane|picker
   ty sessions
   ty panes
@@ -94,12 +95,14 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer, runner comman
 		return 0
 	}
 
-	if args[0] != "tmux" && useTmux(args) {
+	if args[0] != "tmux" && args[0] != "terminal" && useTmux(args) {
 		args = append([]string{"tmux"}, args...)
 	}
 
 	var err error
 	switch args[0] {
+	case "terminal":
+		err = runTerminal(args[1:], stdin, stdout, runner)
 	case "tmux":
 		err = runTmux(args[1:], stdin, stdout, runner)
 	case "catalog":
@@ -502,15 +505,26 @@ func call(runner commandRunner, name string, args []string, stdin io.Reader) ([]
 }
 
 func execRunner(ctx context.Context, name string, args []string, stdin io.Reader) ([]byte, error) {
+	cfg, _ := terminalSettings()
+	tmuxBinary, sessionizer := "tmux", "sy"
+	if cfg.Tmux != "" {
+		tmuxBinary = cfg.Tmux
+	}
+	if cfg.Sessionizer != "" {
+		sessionizer = cfg.Sessionizer
+	}
 	switch name {
 	case "sy":
-		name = commandPath("SYSINIT_TY_SY", "sy")
+		name = commandPath("SYSINIT_TY_SY", sessionizer)
 	case "tmux":
-		name = commandPath("SYSINIT_TY_TMUX", "tmux")
+		name = commandPath("SYSINIT_TY_TMUX", tmuxBinary)
 	case "wezterm":
 		name = commandPath("SYSINIT_TY_WEZTERM", "wezterm")
 	}
 	cmd := exec.CommandContext(ctx, name, args...)
+	if cfg.RuntimePath != "" {
+		cmd.Env = append(os.Environ(), "PATH="+cfg.RuntimePath)
+	}
 	cmd.Stdin = stdin
 	var stderr strings.Builder
 	cmd.Stderr = &stderr
