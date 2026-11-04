@@ -55,7 +55,7 @@ pkgs.runCommand "editor-config-check"
       > "$TMPDIR/wezterm-keys.lua"
     test "$(cat "$TMPDIR/tab-passed")" = passed
     grep -Fq "{ key = 'h', mods = 'CTRL'" "$TMPDIR/wezterm-keys.lua"
-    grep -Fq "{ key = 'phys:1', mods = 'SHIFT|SUPER'" "$TMPDIR/wezterm-keys.lua"
+    grep -Fq "{ key = 'phys:1', mods = 'SHIFT|CTRL|SUPER'" "$TMPDIR/wezterm-keys.lua"
     test "$(grep -c '^    { key =' "$TMPDIR/wezterm-keys.lua")" -ge 80
     touch "$out"
   ''
