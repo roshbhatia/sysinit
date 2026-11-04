@@ -1,0 +1,19 @@
+modules/home/programs/ssh.nix
+  s_a317954659702d::t_b215a6ba997d31 45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e9e71cd1f0e03cb3479438b7a36736c4c431dd02",
+  "prompts": {},
+  "sessions": {
+    "s_a317954659702d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1a479-f4f1-7893-a092-cdff4ff483e6",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
