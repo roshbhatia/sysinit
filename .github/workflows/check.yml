@@ -56,6 +56,9 @@ jobs:
         run: |
           codex_path=$(nix build --no-link --print-out-paths .#darwinConfigurations.lv426.pkgs.codex)
           nix develop --command python3 checks/codex-mcp-capabilities.py "$codex_path/bin/codex"
+          if [[ -n "${CACHIX_DAEMON_DIR:-}" ]]; then
+            cachix daemon push --socket "$CACHIX_DAEMON_DIR/daemon.sock" --wait "$codex_path"
+          fi
 
   verify-linux:
     runs-on: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && fromJSON('["self-hosted", "Linux", "X64", "arrakis", "nix"]') || 'ubuntu-latest' }}
@@ -80,7 +83,7 @@ jobs:
       fail-fast: false
       matrix:
         system: [aarch64-darwin, x86_64-linux, aarch64-linux]
-    runs-on: ${{ matrix.system == 'aarch64-darwin' && 'macos-15' || (github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && fromJSON('["self-hosted", "Linux", "X64", "arrakis", "nix"]') || 'ubuntu-latest') }}
+    runs-on: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && fromJSON('["self-hosted", "Linux", "X64", "arrakis", "nix"]') || 'ubuntu-latest' }}
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
