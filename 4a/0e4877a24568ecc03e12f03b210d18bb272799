@@ -1,0 +1,19 @@
+checks/editor-config.nix
+  s_6a59011b119c6f::t_212f10ee87e4ae 58
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4a0e4877a24568ecc03e12f03b210d18bb272799",
+  "prompts": {},
+  "sessions": {
+    "s_6a59011b119c6f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1a32a-8f2d-7b71-a53f-f90208b124f1",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
