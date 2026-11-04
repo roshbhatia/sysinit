@@ -224,6 +224,7 @@ in
         resolver = "${pkgs.sysinit-gotools}/bin/url-route";
         home = config.home.homeDirectory;
         wezterm = "${pkgs.wezterm}/bin/wezterm";
+        wezspawn = "${pkgs.wezspawn}/bin/wezspawn";
         weztermApp = "${config.home.homeDirectory}/${config.targets.darwin.copyApps.directory}/WezTerm.app";
       };
     };

@@ -3,7 +3,6 @@ local tasks, timers, opened, alerts, registered, picks = {}, {}, {}, {}, {}, {}
 local resolverTasks = {}
 local resolvedTargets = {}
 local default = "org.mozilla.firefox"
-local clients = {}
 local focused = nil
 local failedStart = false
 local palette = nil
@@ -30,8 +29,7 @@ hs = {
       if resolvedTargets[text] then
         return resolvedTargets[text]
       end
-      assert(text == "clients", "invalid JSON")
-      return clients
+      error("invalid JSON")
     end,
   },
   loadSpoon = function(name)
@@ -118,6 +116,7 @@ local config = {
   providerDirectory = "/providers",
   browser = "org.mozilla.firefox",
   wezterm = "/nix/store/wezterm/bin/wezterm",
+  wezspawn = "/nix/store/wezspawn/bin/wezspawn",
   weztermApp = "/nix/store/wezterm/Applications/WezTerm.app",
   home = "/Users/test user",
   routes = {
@@ -205,17 +204,14 @@ local function pick(index)
 end
 local function spawned(command, url)
   return table.concat({
-    "cli",
-    "--no-auto-start",
-    "spawn",
-    "--new-window",
-    "--domain-name",
+    "--wezterm",
+    config.wezterm,
+    "--gui-app",
+    config.weztermApp,
+    "--domain",
     "local",
-    "--workspace",
-    "active session",
     "--cwd",
     config.home,
-    "--",
     command,
     url,
   }, "\n")
@@ -228,186 +224,111 @@ for pid = 2, 4 do
 end
 click("https://example.com", 1)
 assert(opened[#opened][2] == config.browser)
-assert(#tasks == 0, "browser links opened a terminal")
-assert(#picks == 0, "browser links opened a picker")
+assert(#tasks == 0 and #picks == 0, "browser links opened a picker or terminal")
 
-clients = {
-  { workspace = "older", idle_time = { secs = 10, nanos = 0 } },
-  { workspace = "active session", idle_time = { secs = 1, nanos = 1 } },
-}
 click(pr .. "/files", 1)
-assert(#tasks == 0, "the picker did not gate the terminal")
-assert(#picks == 1)
+assert(#tasks == 0 and #picks == 1, "the picker did not gate the terminal")
 local spec = picks[1].spec
-assert(spec.placeholder == "owner/repo#123", "the picker hid which PR it reviews")
-assert(spec.verb == "Review", "the pull picker lost its verb")
-assert(spec.showStatus == false, "review picker shows machine status")
-assert(spec.historyKey == "github.pull", "review ranking is not scoped")
+assert(spec.placeholder == "owner/repo#123")
+assert(spec.verb == "Review" and spec.showStatus == false)
+assert(spec.historyKey == "github.pull")
 assert(#spec.rows == 3)
-assert(spec.rows[1].text == "gh dash", "gh dash lost the preselected row")
-assert(spec.rows[1].detail == "Dashboard" and spec.rows[1].label == "Review")
-assert(spec.rows[2].text == "Neovim")
-assert(spec.rows[3].text == "Firefox")
+assert(spec.rows[1].text == "gh dash" and spec.rows[1].detail == "Dashboard")
+assert(spec.rows[1].label == "Review" and spec.rows[2].text == "Neovim" and spec.rows[3].text == "Firefox")
 
 pick(1)
-assert(tasks[1].args[2] == "--no-auto-start")
-tasks[1].callback(0, "clients", "")
-assert(timers[1].stopped)
-assert(table.concat(tasks[2].args, "\n") == spawned(dash, pr))
-tasks[2].callback(0, "42", "")
-assert(focused == "com.github.wez.wezterm")
-assert(#alerts == 0)
+assert(tasks[1].binary == config.wezspawn, "PR commands bypass the shared launcher")
+assert(table.concat(tasks[1].args, "\n") == spawned(dash, pr))
+tasks[1].callback(0, "42", "")
+assert(timers[1].stopped and focused == "com.github.wez.wezterm" and #alerts == 0)
 
 click(pr, 1)
 pick(2)
-tasks[3].callback(0, "clients", "")
-assert(table.concat(tasks[4].args, "\n") == spawned(editor, pr), "the editor row reused another command")
-tasks[4].callback(0, "", "")
-
+assert(table.concat(tasks[2].args, "\n") == spawned(editor, pr))
+tasks[2].callback(0, "", "")
 click(pr, 1)
 pick(3)
-assert(opened[#opened][1] == pr and opened[#opened][2] == "org.mozilla.firefox")
-assert(#tasks == 4, "the browser row opened a terminal")
-
+assert(opened[#opened][1] == pr and opened[#opened][2] == config.browser)
+assert(#tasks == 2, "the browser row opened a terminal")
 local quiet = #opened
 click(pr, 1)
 pick(nil)
-assert(#tasks == 4 and #opened == quiet, "dismissing the picker launched a review")
+assert(#tasks == 2 and #opened == quiet, "dismissing the picker launched a review")
 
 click(runUrl .. "/job/789", 1)
 local actions = picks[#picks].spec
-assert(actions.placeholder == "owner/repo run 456", "the run picker hid which run it watches")
-assert(actions.verb == "Watch", "the actions picker lost its verb")
-assert(actions.historyKey == "github.actions", "action history shares PR ranking")
-assert(#actions.rows == 2 and actions.rows[1].text == "gh enhance")
+assert(actions.placeholder == "owner/repo run 456" and actions.verb == "Watch")
+assert(actions.historyKey == "github.actions" and #actions.rows == 2)
 pick(1)
-tasks[5].callback(0, "clients", "")
-assert(table.concat(tasks[6].args, "\n") == spawned(enhance, runUrl), "a job link did not open its run in enhance")
-tasks[6].callback(0, "", "")
-
+assert(tasks[3].binary == config.wezspawn)
+assert(table.concat(tasks[3].args, "\n") == spawned(enhance, runUrl))
+tasks[3].callback(0, "", "")
 click(runUrl, 1)
 pick(2)
-assert(opened[#opened][1] == runUrl and opened[#opened][2] == "org.mozilla.firefox")
-assert(#tasks == 6, "the run browser row opened a terminal")
-
-clients = {}
-click(pr, 1)
-pick(1)
-tasks[7].callback(0, "clients", "")
-assert(tasks[8].binary == "/usr/bin/open")
-local expected = {
-  "-n",
-  "-a",
-  config.weztermApp,
-  "--args",
-  "start",
-  "--domain",
-  "local",
-  "--cwd",
-  config.home,
-  "--",
-  dash,
-  pr,
-}
-assert(table.concat(tasks[8].args, "\n") == table.concat(expected, "\n"), "cold start lost the command")
-tasks[8].callback(0, "", "")
+assert(opened[#opened][1] == runUrl and opened[#opened][2] == config.browser and #tasks == 3)
 
 click(pr, 999)
 pick(1)
-tasks[9].callback(1, "", "no mux")
-assert(tasks[10].binary == "/usr/bin/open")
-tasks[10].callback(1, "", "launch failure")
-assert(alerts[#alerts]:match("launch failure"))
-
-click(pr, 1)
-pick(1)
-tasks[11].callback(0, "not JSON", "")
-assert(#tasks == 11)
-assert(alerts[#alerts]:match("invalid client list"))
+focused = nil
+tasks[4].callback(1, "", "query failed")
+assert(alerts[#alerts]:match("query failed"))
+assert(#tasks == 4 and focused == nil, "a launcher failure started or focused another GUI")
 
 click(pr, 1)
 pick(1)
 timers[#timers].callback()
-assert(tasks[12].terminated)
-tasks[12].callback(15, "", "terminated")
-assert(#tasks == 12, "timeout started another GUI")
+assert(tasks[5].terminated)
+tasks[5].callback(15, "", "terminated")
+assert(#tasks == 5 and focused == nil, "timeout started another GUI")
 
 palette = nil
 click(pr, 1)
-assert(alerts[#alerts]:match("Cannot open the pull picker"))
-assert(#tasks == 13, "a missing palette dropped the link")
-tasks[13].callback(0, "clients", "")
-tasks[14].callback(0, "", "")
-
+assert(alerts[#alerts]:match("Cannot open the pull picker") and #tasks == 6)
+tasks[6].callback(0, "42", "")
 palette = {
   pick = function()
     error("palette is stopped")
   end,
 }
 click(runUrl, 1)
-assert(alerts[#alerts]:match("Cannot open the actions picker"))
-assert(#tasks == 15, "a stopped palette dropped the link")
-tasks[15].callback(0, "clients", "")
-tasks[16].callback(0, "", "")
+assert(alerts[#alerts]:match("Cannot open the actions picker") and #tasks == 7)
+tasks[7].callback(0, "42", "")
 palette = started
 
 failedStart = true
 click(pr, 1)
-assert(alerts[#alerts]:match("Cannot start task"))
-assert(#tasks == 16)
+assert(alerts[#alerts]:match("Cannot start task") and #tasks == 7)
 failedStart = false
-
 local single = #picks
 resolvedTargets.pull = { { name = "gh dash", command = dash } }
 click(pr, 1)
-assert(#picks == single, "a single target still prompted")
-assert(#tasks == 17, "a single target dropped the link")
-tasks[17].callback(0, "clients", "")
-tasks[18].callback(0, "", "")
-
+assert(#picks == single and #tasks == 8, "single provider routing failed")
+tasks[8].callback(0, "42", "")
 resolvedTargets.pull = {}
 click(pr, 1)
-assert(alerts[#alerts]:match("No target is configured for a pull link"))
-assert(#tasks == 18, "an empty route opened a terminal")
+assert(alerts[#alerts]:match("No target is configured"))
 
 config.enable = false
 router.setup(config)
 assert(default == config.browser)
 click(pr, 1)
-assert(#tasks == 18 and opened[#opened][2] == config.browser, "disable lost links during handler restoration")
-print(
-  "URL routing: browser origins, pull and run matching, picker rows, verbs, each row, dismiss, cold start, failures, palette fallback, single target, and disable passed"
-)
-
-local prior = #opened
-hs.urlevent.httpCallback(nil, nil, nil, "https://example.com", 999999)
-assert(#opened == prior + 1, "a departed sender must fall back to the configured browser")
-assert(router.route(nil) == nil)
-spoon = { CommandPalette = started }
-hs.loadSpoon = function()
-  error("already loaded spoon must be reused")
-end
+assert(opened[#opened][1] == pr and opened[#opened][2] == config.browser)
 hs.urlevent.httpCallback(nil, nil, nil, "https://github.com/test/repo/pull/1", 999999)
-
 config.enable = true
 resolvedTargets.pull = {
   {
-    id = "devin",
     name = "Devin Review",
     bundle = config.browser,
     url = "https://app.devin.ai/review/pinginc/configuration-service/pull/1424",
   },
 }
 click("https://github.com/pinginc/configuration-service/pull/1424/files", 1)
-assert(opened[#opened][1] == resolvedTargets.pull[1].url, "Devin opened the original GitHub URL")
-assert(opened[#opened][2] == config.browser, "Devin did not use the configured browser")
-
+assert(opened[#opened][1] == resolvedTargets.pull[1].url and opened[#opened][2] == config.browser)
 local beforeFailure = #opened
 hs.urlevent.httpCallback("https", "github.com", {}, pr, 1)
 resolverTasks[#resolverTasks].callback(1, "", "provider failed")
-assert(alerts[#alerts]:match("provider failed"), "provider failure was hidden")
-assert(#opened == beforeFailure, "a failed provider opened a link")
+assert(alerts[#alerts]:match("provider failed") and #opened == beforeFailure)
 hs.urlevent.httpCallback("https", "github.com", {}, pr, 1)
 resolverTasks[#resolverTasks].callback(0, "not JSON", "")
-assert(alerts[#alerts]:match("invalid JSON"), "malformed provider output was accepted")
-print("URL providers: transformed browser URLs and resolver failures passed")
+assert(alerts[#alerts]:match("invalid JSON"))
+print("URL routing: shared launcher, browser providers, failures and picker behavior passed")

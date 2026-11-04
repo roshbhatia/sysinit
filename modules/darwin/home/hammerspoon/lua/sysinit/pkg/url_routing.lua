@@ -108,65 +108,23 @@ local function openBrowser(url, bundle)
 end
 
 local function launch(config, command, url)
-  run(config.wezterm, { "cli", "--no-auto-start", "list-clients", "--format", "json" }, function(code, stdout)
-    local clients = {}
-    if code == 0 then
-      local ok, decoded = pcall(hs.json.decode, stdout)
-      if not ok or type(decoded) ~= "table" then
-        report("WezTerm returned an invalid client list")
-        return
-      end
-      clients = decoded
-    end
-    table.sort(clients, function(a, b)
-      local first, second = a.idle_time or {}, b.idle_time or {}
-      if first.secs == second.secs then
-        return (first.nanos or 0) < (second.nanos or 0)
-      end
-      return (first.secs or 0) < (second.secs or 0)
-    end)
-    if #clients == 0 then
-      run("/usr/bin/open", {
-        "-n",
-        "-a",
-        config.weztermApp,
-        "--args",
-        "start",
-        "--domain",
-        "local",
-        "--cwd",
-        config.home,
-        "--",
-        command,
-        url,
-      }, function(result, _, stderr)
-        if result ~= 0 then
-          report("Cannot start WezTerm: " .. stderr)
-        end
-      end)
+  run(config.wezspawn, {
+    "--wezterm",
+    config.wezterm,
+    "--gui-app",
+    config.weztermApp,
+    "--domain",
+    "local",
+    "--cwd",
+    config.home,
+    command,
+    url,
+  }, function(result, _, stderr)
+    if result ~= 0 then
+      report("Cannot open PR window: " .. stderr)
       return
     end
-    run(config.wezterm, {
-      "cli",
-      "--no-auto-start",
-      "spawn",
-      "--new-window",
-      "--domain-name",
-      "local",
-      "--workspace",
-      clients[1].workspace,
-      "--cwd",
-      config.home,
-      "--",
-      command,
-      url,
-    }, function(result, _, stderr)
-      if result ~= 0 then
-        report("Cannot open PR window: " .. stderr)
-        return
-      end
-      hs.application.launchOrFocusByBundleID("com.github.wez.wezterm")
-    end)
+    hs.application.launchOrFocusByBundleID("com.github.wez.wezterm")
   end)
 end
 
