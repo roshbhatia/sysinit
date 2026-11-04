@@ -143,7 +143,7 @@ local function choose(config, route, targets)
     report("No target is configured for a " .. route.kind .. " link")
     return
   end
-  if #targets == 1 then
+  if #targets == 1 and route.kind ~= "pull" then
     dispatch(config, targets[1], route.url)
     return
   end
@@ -158,6 +158,15 @@ local function choose(config, route, targets)
       target = index,
     }
   end
+  if route.kind == "pull" then
+    rows[#rows + 1] = {
+      text = "Copy to clipboard",
+      detail = route.url,
+      label = "Copy",
+      glyph = "clipboard",
+      copyURL = true,
+    }
+  end
   local spec = {
     placeholder = route.label,
     verb = verb,
@@ -170,7 +179,11 @@ local function choose(config, route, targets)
   local ok = palette ~= nil
     and pcall(function()
       palette:pick(spec, function(row)
-        if row then
+        if row and row.copyURL then
+          if not hs.pasteboard.setContents(route.url) then
+            report("Cannot copy PR URL to clipboard")
+          end
+        elseif row then
           dispatch(config, targets[row.target], route.url)
         end
       end)

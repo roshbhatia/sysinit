@@ -4,6 +4,7 @@ local resolverTasks = {}
 local resolvedTargets = {}
 local default = "org.mozilla.firefox"
 local focused = nil
+local clipboard, clipboardWritable = nil, true
 local failedStart = false
 local palette = nil
 local apps = {
@@ -53,6 +54,15 @@ hs = {
     end,
     launchOrFocusByBundleID = function(bundle)
       focused = bundle
+    end,
+  },
+  pasteboard = {
+    setContents = function(value)
+      if not clipboardWritable then
+        return false
+      end
+      clipboard = value
+      return true
     end,
   },
   urlevent = {
@@ -232,9 +242,16 @@ local spec = picks[1].spec
 assert(spec.placeholder == "owner/repo#123")
 assert(spec.verb == "Review" and spec.showStatus == false)
 assert(spec.historyKey == "github.pull")
-assert(#spec.rows == 3)
+assert(#spec.rows == 4)
 assert(spec.rows[1].text == "gh dash" and spec.rows[1].detail == "Dashboard")
 assert(spec.rows[1].label == "Review" and spec.rows[2].text == "Neovim" and spec.rows[3].text == "Firefox")
+
+assert(spec.rows[4].text == "Copy to clipboard" and spec.rows[4].label == "Copy")
+assert(spec.rows[4].detail == pr)
+local beforeCopy = #opened
+pick(4)
+assert(clipboard == pr, "copy did not use the canonical PR URL")
+assert(#tasks == 0 and #opened == beforeCopy and focused == nil, "copy opened or focused an application")
 
 pick(1)
 assert(tasks[1].binary == config.wezspawn, "PR commands bypass the shared launcher")
@@ -302,7 +319,12 @@ failedStart = false
 local single = #picks
 resolvedTargets.pull = { { name = "gh dash", command = dash } }
 click(pr, 1)
-assert(#picks == single and #tasks == 8, "single provider routing failed")
+assert(#picks == single + 1 and #tasks == 7, "one provider hid the clipboard action")
+assert(#picks[#picks].spec.rows == 2)
+pick(2)
+assert(clipboard == pr and #tasks == 7)
+pick(1)
+assert(#tasks == 8)
 tasks[8].callback(0, "42", "")
 resolvedTargets.pull = {}
 click(pr, 1)
@@ -323,7 +345,19 @@ resolvedTargets.pull = {
   },
 }
 click("https://github.com/pinginc/configuration-service/pull/1424/files", 1)
+pick(1)
 assert(opened[#opened][1] == resolvedTargets.pull[1].url and opened[#opened][2] == config.browser)
+pick(2)
+assert(
+  clipboard == "https://github.com/pinginc/configuration-service/pull/1424",
+  "copy used a provider-transformed URL"
+)
+clipboardWritable = false
+local taskCount, browserCount = #tasks, #opened
+pick(2)
+assert(alerts[#alerts]:match("Cannot copy PR URL"))
+assert(#tasks == taskCount and #opened == browserCount, "clipboard failure opened an application")
+clipboardWritable = true
 local beforeFailure = #opened
 hs.urlevent.httpCallback("https", "github.com", {}, pr, 1)
 resolverTasks[#resolverTasks].callback(1, "", "provider failed")
