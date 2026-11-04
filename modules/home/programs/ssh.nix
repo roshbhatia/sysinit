@@ -42,7 +42,7 @@ in
           User = "rshnbhatia";
         };
 
-        "arrakis" = beforeStork {
+        "arrakis arrakis.stork-eel.ts.net." = beforeStork {
           HostName = "arrakis.stork-eel.ts.net";
           User = "rshnbhatia";
         };
