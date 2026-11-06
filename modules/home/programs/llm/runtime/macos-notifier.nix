@@ -18,7 +18,7 @@ pkgs.runCommand "sysinit-agents-notifier-${pkgs.terminal-notifier.version}"
     };
   }
   ''
-    app="$out/Applications/Sysinit Agents.app"
+    app="$out/Applications/CLI Agents.app"
     mkdir -p "$app"
     cp -R ${pkgs.terminal-notifier}/Applications/terminal-notifier.app/. "$app/"
     chmod -R u+w "$app"
@@ -27,7 +27,7 @@ pkgs.runCommand "sysinit-agents-notifier-${pkgs.terminal-notifier.version}"
       rsvg-convert --width "$size" --height "$size" --background-color '#FFFFFF' \
         ${icon} --output "icon-images/$size.png"
     done
-    png2icns "$app/Contents/Resources/SysinitAgents.icns" icon-images/*.png
+    png2icns "$app/Contents/Resources/CLIAgents.icns" icon-images/*.png
     python3 - "$app/Contents/Info.plist" <<'PY'
     import plistlib
     import sys
@@ -37,9 +37,9 @@ pkgs.runCommand "sysinit-agents-notifier-${pkgs.terminal-notifier.version}"
         info = plistlib.load(source)
     info.update(
         CFBundleIdentifier="org.roshbhatia.sysinit.agents",
-        CFBundleName="Sysinit Agents",
-        CFBundleDisplayName="Sysinit Agents",
-        CFBundleIconFile="SysinitAgents",
+        CFBundleName="CLI Agents",
+        CFBundleDisplayName="CLI Agents",
+        CFBundleIconFile="CLIAgents",
     )
     with path.open("wb") as target:
         plistlib.dump(info, target)

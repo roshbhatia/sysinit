@@ -130,7 +130,7 @@ let
     iconOverrides = config.sysinit.llm.notifications.icons;
     notificationAppPath =
       if pkgs.stdenv.hostPlatform.isDarwin then
-        "${config.home.homeDirectory}/${config.targets.darwin.copyApps.directory}/Sysinit Agents.app"
+        "${config.home.homeDirectory}/${config.targets.darwin.copyApps.directory}/CLI Agents.app"
       else
         null;
   };
