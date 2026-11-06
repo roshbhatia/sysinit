@@ -406,7 +406,6 @@ in
     home-manager.users.${user} = {
       sysinit.codesign = {
         binaries.rift = "${pkgs.rift}/bin/rift";
-        protectRunningApps = [ "rift" ];
       };
 
       xdg.configFile."rift/config.toml".source = riftConfig;
