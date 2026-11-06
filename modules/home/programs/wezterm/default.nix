@@ -51,9 +51,6 @@ in
     enable = true;
     settings = {
 
-      customShaders = [ "${pkgs.wezterm}/share/wezterm/shaders/cursor-trail.wgsl" ];
-      customShadersAnimationDurationMs = 140;
-
       agents = import ../llm/harnesses/deck-patterns.nix;
 
       agentIdentity = lib.mapAttrs (_n: h: {
