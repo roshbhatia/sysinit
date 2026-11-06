@@ -66,6 +66,7 @@
   };
 
   users.users.${values.user.username} = {
+    linger = values.wezterm.remoteMux or false;
     isNormalUser = true;
     extraGroups = [
       "wheel"

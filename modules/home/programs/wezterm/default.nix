@@ -3,6 +3,7 @@
   inputs,
   lib,
   pkgs,
+  values ? { },
   ...
 }:
 
@@ -49,7 +50,15 @@ in
   home.packages = [ paneName ];
   programs.sysinit-wezterm = {
     enable = true;
+    persistence = {
+      enable = true;
+      service = values.wezterm.remoteMux or false;
+    };
     settings = {
+      unsetEnvironmentVariables = [ "NO_COLOR" ];
+      persistentRemoteHosts = [
+        "arrakis"
+      ];
 
       agents = import ../llm/harnesses/deck-patterns.nix;
 

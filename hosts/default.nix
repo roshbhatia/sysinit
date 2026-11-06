@@ -72,6 +72,7 @@ let
 in
 {
   lv426 = darwinHost personal {
+    wezterm.remoteMux = true;
     theme.base16Scheme = rosePine;
     darwin.openssh = {
       enable = true;
@@ -87,6 +88,7 @@ in
     hardware = ../modules/nixos/hardware/arrakis.nix;
     inherit (personal) username;
     values = personal.values // {
+      wezterm.remoteMux = true;
       git = personal.values.git // {
         ssh = personal.values.git.ssh // {
           use1PasswordAgent = false;
