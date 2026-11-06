@@ -186,6 +186,12 @@ in
       tui = {
         fullscreen_transcript = true;
         alternate_screen = "always";
+        terminal_title = [
+          "project-name"
+          "thread-name"
+          "app-name"
+          "run-state"
+        ];
       };
 
       otel = {
