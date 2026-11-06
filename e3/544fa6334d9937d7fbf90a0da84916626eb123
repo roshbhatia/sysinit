@@ -1,0 +1,38 @@
+modules/home/programs/llm/default.nix
+  s_de8d39c3c56992::t_4f288856b64448 131-135,201
+  s_de8d39c3c56992::t_197e61a3149f5d 202
+checks/default.nix
+  s_de8d39c3c56992::t_56c506114face9 169-180
+checks/macos-notifier.py
+  s_de8d39c3c56992::t_eb80c42e25016d 1-6,8-42,44-94
+  s_de8d39c3c56992::t_4f288856b64448 7
+  s_de8d39c3c56992::t_e0954f9f3d67d7 43
+modules/home/programs/llm/runtime/macos-notifier.nix
+  s_de8d39c3c56992::t_b8e1de3103981c 1,12-13
+  s_de8d39c3c56992::t_8393fe8f66f84e 4-11,14-45
+modules/home/programs/llm/runtime/macos-notifier.sh
+  s_de8d39c3c56992::t_e0954f9f3d67d7 1,37
+  s_de8d39c3c56992::t_75ce9d72457e56 38-49,52-53,58
+  s_de8d39c3c56992::t_8393fe8f66f84e 2-36,50-51,54-57,59-60
+modules/home/programs/llm/runtime/default.nix
+  s_de8d39c3c56992::t_e0954f9f3d67d7 63
+  s_de8d39c3c56992::t_4f288856b64448 6,49-51,54-62,64-69,71,157,175
+  s_de8d39c3c56992::t_b8e1de3103981c 52
+  s_de8d39c3c56992::t_ad3f7d8663ced1 53
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e3544fa6334d9937d7fbf90a0da84916626eb123",
+  "prompts": {},
+  "sessions": {
+    "s_de8d39c3c56992": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ad25-3528-7c81-a954-276c13dcabf6",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
