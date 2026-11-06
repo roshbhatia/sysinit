@@ -3,6 +3,7 @@
   lib,
   notificationSettings ? { },
   iconOverrides ? { },
+  notificationAppPath ? null,
 }:
 let
   registry = import ../harnesses/registry.nix;
@@ -45,8 +46,29 @@ let
         python3 ${./check-icons.py} ${iconSources} "$out"
       '';
 
+  appPackage =
+    if pkgs.stdenv.hostPlatform.isDarwin then
+      import ./macos-notifier.nix {
+        inherit lib pkgs;
+        icon = svgs.agent;
+      }
+    else
+      null;
+
+  notifier =
+    if pkgs.stdenv.hostPlatform.isDarwin then
+      pkgs.writeShellApplication {
+        name = "alerter";
+        text = ''
+          NOTIFICATION_EXE=${lib.escapeShellArg "${notificationAppPath}/Contents/MacOS/terminal-notifier"}
+          ${builtins.readFile ./macos-notifier.sh}
+        '';
+      }
+    else
+      null;
+
   script = pkgs.mkAgentNotifier {
-    inherit pkgs;
+    inherit pkgs notifier;
     settings = lib.recursiveUpdate {
       defaultIcon = "${icons}/agent.png";
       agents = lib.mapAttrs (name: h: {
@@ -132,7 +154,7 @@ let
       pkgs.wezterm
       pkgs.jq
     ]
-    ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ pkgs.alerter ];
+    ++ lib.optional (notifier != null) notifier;
     bashOptions = [ ];
     text = joinFragments [
       group
@@ -150,6 +172,7 @@ in
     sessionsScript
     agentRefine
     specPreflight
+    appPackage
     ;
 
   inherit (script) configFile schema;

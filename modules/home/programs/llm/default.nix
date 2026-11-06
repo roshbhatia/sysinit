@@ -128,6 +128,11 @@ let
     inherit pkgs lib;
     notificationSettings = config.sysinit.llm.notifications.settings;
     iconOverrides = config.sysinit.llm.notifications.icons;
+    notificationAppPath =
+      if pkgs.stdenv.hostPlatform.isDarwin then
+        "${config.home.homeDirectory}/${config.targets.darwin.copyApps.directory}/Sysinit Agents.app"
+      else
+        null;
   };
 in
 {
@@ -193,7 +198,8 @@ in
       notify.reviewScript
       notify.sessionsScript
       pkgs.seshy
-    ];
+    ]
+    ++ lib.optional pkgs.stdenv.hostPlatform.isDarwin notify.appPackage;
   };
 
   programs.mcp = {

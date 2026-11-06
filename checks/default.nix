@@ -166,6 +166,18 @@ in
     lua ${./url-routing.lua} ${../modules/darwin/home/hammerspoon/lua/sysinit/pkg/url_routing.lua}
     touch "$out"
   '';
+  macos-notifier =
+    pkgs.runCommand "macos-notifier-test"
+      {
+        nativeBuildInputs = [
+          pkgs.python3
+          pkgs.bash
+        ];
+      }
+      ''
+        python3 ${./macos-notifier.py} ${../modules/home/programs/llm/runtime/macos-notifier.sh}
+        touch "$out"
+      '';
   hammerspoon-startup =
     pkgs.runCommand "hammerspoon-startup-test" { nativeBuildInputs = [ pkgs.lua5_4 ]; }
       ''
