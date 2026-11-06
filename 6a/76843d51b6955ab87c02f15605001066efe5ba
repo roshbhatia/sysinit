@@ -1,0 +1,29 @@
+flake.nix
+  s_de8d39c3c56992::t_f2c1c95de4c2d8 160
+flake.lock
+  s_c7495a484be0a4::t_ebfdf539478b6b 1916-1917,1920,1926
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6a76843d51b6955ab87c02f15605001066efe5ba",
+  "prompts": {},
+  "sessions": {
+    "s_c7495a484be0a4": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1a8f5-858f-7852-b00c-9df8f11cdb78",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_de8d39c3c56992": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ad25-3528-7c81-a954-276c13dcabf6",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
