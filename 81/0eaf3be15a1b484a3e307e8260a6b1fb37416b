@@ -1,0 +1,19 @@
+modules/home/programs/llm/harnesses/codex.nix
+  s_de8d39c3c56992::t_b5d715e0fc4aab 189-194
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "810eaf3be15a1b484a3e307e8260a6b1fb37416b",
+  "prompts": {},
+  "sessions": {
+    "s_de8d39c3c56992": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ad25-3528-7c81-a954-276c13dcabf6",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
