@@ -157,7 +157,7 @@
     };
 
     tether = {
-      url = "github:roshbhatia/tether/802bca976f5eec99cf5cea2d795bf613541e0d8b";
+      url = "github:roshbhatia/tether/b5829111d7d190deed70179480f532850a6af95f";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
