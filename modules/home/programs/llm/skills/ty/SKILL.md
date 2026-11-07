@@ -32,6 +32,7 @@ WezTerm, so a missing GUI/mux is an error rather than a headless server launch.
 ```sh
 ty session switch <session-id-or-name>
 ty session open <session-id-or-name>
+ty session launch <session-id-or-name>
 ty pane split <pane-id> --direction right
 ty pane spawn <pane-id> --direction right -- codex
 ty pane send <pane-id> 'text to paste'
@@ -44,6 +45,8 @@ ty pane close <pane-id>
 with the seshy session path and workspace. It returns the resulting pane ID.
 `session switch` activates a pane in that workspace when one exists; otherwise,
 it opens a window. Its JSON result reports whether it opened a window.
+`session launch` opens a GUI window with the same session plan, starting the GUI
+when necessary. It returns after launching and does not report a pane ID.
 `pane split` creates a shell pane; `pane spawn` creates a pane running the
 explicit command after `--`. Both return the new pane ID. `pane send` reads
 stdin when no text argument is supplied. It pastes without submitting unless

@@ -272,3 +272,34 @@ func TestOperationalErrorsUseExitCodeOne(t *testing.T) {
 		t.Fatalf("run() = %d, want operational error exit 1", got)
 	}
 }
+
+func TestSessionLaunchStartsGUIWithSessionPlan(t *testing.T) {
+	runner, calls := runnerFor(t, map[string][]byte{
+		"sy open stable-id --format json": []byte(`{"version":"seshy.open/v1","id":"seshy:stable-id","cwd":"/project with spaces","command":["agent","task with spaces"],"environment":{"SESHY_SESSION":"display name"}}`),
+		"wezterm start --workspace stable-id --cwd /project with spaces -- env SESHY_SESSION=display name agent task with spaces": nil,
+	})
+	var stdout, stderr bytes.Buffer
+	if code := run([]string{"session", "launch", "stable-id"}, strings.NewReader(""), &stdout, &stderr, runner); code != 0 {
+		t.Fatalf("exit=%d stderr=%s", code, stderr.String())
+	}
+	var result actionResult
+	if err := json.Unmarshal(stdout.Bytes(), &result); err != nil {
+		t.Fatal(err)
+	}
+	if result.Action != "session.launch" || result.SessionID != "seshy:stable-id" || result.PaneID != "" || result.Opened == nil || !*result.Opened {
+		t.Fatalf("result=%+v", result)
+	}
+	if len(*calls) != 2 || !reflect.DeepEqual((*calls)[1].args, []string{"start", "--workspace", "stable-id", "--cwd", "/project with spaces", "--", "env", "SESHY_SESSION=display name", "agent", "task with spaces"}) {
+		t.Fatalf("calls=%+v", *calls)
+	}
+}
+
+func TestSessionLaunchRejectsInvalidPlanBeforeStartingGUI(t *testing.T) {
+	runner, calls := runnerFor(t, map[string][]byte{
+		"sy open demo --format json": []byte(`{"version":"seshy.open/v1","id":"seshy:demo","cwd":"relative"}`),
+	})
+	var stdout, stderr bytes.Buffer
+	if code := run([]string{"session", "launch", "demo"}, strings.NewReader(""), &stdout, &stderr, runner); code != 1 || len(*calls) != 1 {
+		t.Fatalf("exit=%d calls=%+v stderr=%s", code, *calls, stderr.String())
+	}
+}

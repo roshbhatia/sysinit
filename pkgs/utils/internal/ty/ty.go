@@ -25,6 +25,7 @@ Usage:
   ty sessions
   ty panes
   ty session open <session-id-or-name>
+  ty session launch <session-id-or-name>
   ty session switch <session-id-or-name>
   ty pane split <pane-id> --direction right|down [--cwd PATH]
   ty pane spawn <pane-id> --direction right|down [--cwd PATH] -- <command> [args...]
@@ -186,8 +187,8 @@ func listPanes(ctx context.Context, runner commandRunner) ([]json.RawMessage, er
 }
 
 func runSession(args []string, stdout io.Writer, runner commandRunner) error {
-	if len(args) != 2 || (args[0] != "open" && args[0] != "switch") {
-		return invalidUsage("usage: ty session open|switch <session-id-or-name>")
+	if len(args) != 2 || (args[0] != "open" && args[0] != "switch" && args[0] != "launch") {
+		return invalidUsage("usage: ty session open|switch|launch <session-id-or-name>")
 	}
 	action := args[0]
 	target := strings.TrimSpace(args[1])
@@ -246,8 +247,7 @@ func runSession(args []string, stdout io.Writer, runner commandRunner) error {
 			})
 		}
 	}
-	weztermArgs := []string{
-		"cli", "--no-auto-start", "spawn", "--new-window",
+	windowArgs := []string{
 		"--workspace", workspace, "--cwd", plan.CWD,
 	}
 	command := plan.Command
@@ -263,9 +263,21 @@ func runSession(args []string, stdout io.Writer, runner commandRunner) error {
 		}
 	}
 	if len(command) > 0 {
-		weztermArgs = append(weztermArgs, "--")
-		weztermArgs = append(weztermArgs, command...)
+		windowArgs = append(windowArgs, "--")
+		windowArgs = append(windowArgs, command...)
 	}
+	if action == "launch" {
+		guiArgs := append([]string{"start"}, windowArgs...)
+		if _, err := runner(ctx, "wezterm", guiArgs, nil); err != nil {
+			return fmt.Errorf("launch WezTerm session %q: %w", plan.ID, err)
+		}
+		opened := true
+		return writeJSON(stdout, actionResult{
+			Version: protocolVersion, Action: "session.launch", SessionID: plan.ID,
+			Workspace: workspace, CWD: plan.CWD, Opened: &opened,
+		})
+	}
+	weztermArgs := append([]string{"cli", "--no-auto-start", "spawn", "--new-window"}, windowArgs...)
 	paneID, err := runner(ctx, "wezterm", weztermArgs, nil)
 	if err != nil {
 		return fmt.Errorf("open WezTerm session %q: %w", plan.ID, err)
@@ -477,11 +489,20 @@ func call(runner commandRunner, name string, args []string, stdin io.Reader) ([]
 }
 
 func execRunner(ctx context.Context, name string, args []string, stdin io.Reader) ([]byte, error) {
+	launchGUI := name == "wezterm" && len(args) > 0 && args[0] == "start"
 	switch name {
 	case "sy":
 		name = commandPath("SYSINIT_TY_SY", "sy")
 	case "wezterm":
 		name = commandPath("SYSINIT_TY_WEZTERM", "wezterm")
+	}
+	if launchGUI {
+		// The GUI outlives this command and must not retain its output pipes.
+		cmd := exec.Command(name, args...)
+		if err := cmd.Start(); err != nil {
+			return nil, err
+		}
+		return nil, cmd.Process.Release()
 	}
 	cmd := exec.CommandContext(ctx, name, args...)
 	cmd.Stdin = stdin

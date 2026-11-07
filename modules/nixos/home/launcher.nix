@@ -24,6 +24,8 @@ let
       lib.attrNames replacements
     )) (builtins.readFile path);
 
+  renderMenu = path: replacements: menuPrelude + "\n" + render path replacements;
+
 in
 {
   home.packages = with pkgs; [
@@ -51,30 +53,26 @@ in
       history = true
     '';
 
-    "elephant/menus/panes.lua".text = render ./launcher/panes.lua {
+    "elephant/menus/panes.lua".text = renderMenu ./launcher/panes.lua {
       "@jq@" = jq;
-      "-- @menu-prelude@" = menuPrelude;
       "@wezterm@" = wezterm;
     };
 
-    "elephant/menus/sessions.lua".text = render ./launcher/sessions.lua {
+    "elephant/menus/sessions.lua".text = renderMenu ./launcher/sessions.lua {
       "@jq@" = jq;
-      "-- @menu-prelude@" = menuPrelude;
       "@sy@" = sy;
-      "@wezterm@" = wezterm;
+      "@ty@" = "${pkgs.sysinit-utils}/bin/ty";
     };
 
-    "elephant/menus/tabs.lua".text = render ./launcher/tabs.lua {
+    "elephant/menus/tabs.lua".text = renderMenu ./launcher/tabs.lua {
       "@firefox-tabs@" = fftabs;
       "@jq@" = jq;
-      "-- @menu-prelude@" = menuPrelude;
     };
 
-    "elephant/menus/windows.lua".text = render ./launcher/windows.lua {
+    "elephant/menus/windows.lua".text = renderMenu ./launcher/windows.lua {
       "@head@" = "${pkgs.coreutils}/bin/head";
       "@jq@" = jq;
       "@ls@" = "${pkgs.coreutils}/bin/ls";
-      "-- @menu-prelude@" = menuPrelude;
       "@swaymsg@" = swaymsg;
     };
 

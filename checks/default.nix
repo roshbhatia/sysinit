@@ -317,6 +317,10 @@ in
   package-set-composition = import ./package-set.nix {
     inherit pkgs darwinConfigurations nixosConfigurations;
   };
+  nixos-launcher = import ./nixos-launcher.nix {
+    inherit pkgs;
+    home = homeConfigurations.${"dev-" + pkgs.stdenv.hostPlatform.system}.config;
+  };
   gate-config = import ./gate-config.nix {
     inherit pkgs;
     inherit (pkgs) lib;
