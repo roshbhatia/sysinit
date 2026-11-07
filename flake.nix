@@ -481,6 +481,7 @@
               pkgs.clang
               pkgs.clang-tools
               pkgs.go
+              pkgs.taskwarrior-cli
               pkgs.golangci-lint
               pkgs.shfmt
               pkgs.shellcheck

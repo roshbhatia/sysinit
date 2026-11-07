@@ -12,7 +12,6 @@ let
 
     nativeCheckInputs = [
       final.git
-      final.taskwarrior3
       final.taskwarrior-cli
       final.pueue
       final.zmx

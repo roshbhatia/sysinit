@@ -9,7 +9,7 @@ import (
 )
 
 func TestBackupRestore(t *testing.T) {
-	binary, err := exec.LookPath("task")
+	binary, err := exec.LookPath("taskwarrior")
 	if err != nil {
 		t.Skip("Taskwarrior supplied by Nix")
 	}
