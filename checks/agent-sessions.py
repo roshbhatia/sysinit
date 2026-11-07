@@ -10,6 +10,7 @@ import unittest
 
 SCRIPT = Path(sys.argv.pop(1)).resolve()
 REDUCER = Path(sys.argv.pop(1)).resolve()
+REVIEW = Path(sys.argv.pop(1)).resolve()
 
 
 class SessionTests(unittest.TestCase):
@@ -22,7 +23,7 @@ class SessionTests(unittest.TestCase):
         bins = self.root / "bin"
         bins.mkdir()
         for name, code in {
-            "wezterm": "assert sys.argv[1:] == ['cli','--no-auto-start','list','--format','json']\nprint(os.environ['LIVE'])\nsys.exit(int(os.environ.get('PROBE_EXIT','0')))\n",
+            "wezterm": "import json\nwith open(os.path.join(os.environ['FIXTURE'], 'wezterm-args.json'), 'w') as f: json.dump(sys.argv[1:], f)\nassert sys.argv[1:] == ['cli','--no-auto-start','list','--format','json']\nprint(os.environ['LIVE'])\nsys.exit(int(os.environ.get('PROBE_EXIT','0')))\n",
             "sy": "assert sys.argv[1:] == ['list','--names']\nprint('session with spaces\\nidle session')\n",
         }.items():
             path = bins / name
@@ -43,6 +44,21 @@ class SessionTests(unittest.TestCase):
             json.dumps(
                 {"selected": "session with spaces", "heartbeat": int(time.time())}
             )
+        )
+
+    def test_review_inspection_never_starts_a_mux(self):
+        repo = self.root / "repo"
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, env=self.env)
+        result = subprocess.run(
+            ["bash", str(REVIEW), str(repo)],
+            capture_output=True,
+            text=True,
+            env=self.env,
+        )
+        self.assertIn(result.returncode, (0, 1), result.stderr)
+        self.assertEqual(
+            json.loads((self.root / "wezterm-args.json").read_text()),
+            ["cli", "--no-auto-start", "list", "--format", "json"],
         )
 
     def run_status(self):

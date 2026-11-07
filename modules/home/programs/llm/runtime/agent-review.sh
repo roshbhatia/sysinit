@@ -114,7 +114,7 @@ wz=$(command -v wezterm 2> /dev/null || true)
 if [ -z "$wz" ]; then
   printf '  agents: skipped, the live pane set is unknown outside WezTerm\n'
 else
-  live=$("$wz" cli list --format json 2> /dev/null | jq -r '.[].pane_id' 2> /dev/null) || live=""
+  live=$("$wz" cli --no-auto-start list --format json 2> /dev/null | jq -r '.[].pane_id' 2> /dev/null) || live=""
   if [ -z "$live" ]; then
     printf '  agents: skipped, the live pane set could not be read\n'
   else

@@ -1,13 +1,13 @@
 Name = "panes"
 NamePretty = "WezTerm Panes"
 Icon = "utilities-terminal"
-Action = "@wezterm@ cli activate-pane --pane-id %VALUE%"
+Action = "@wezterm@ cli --no-auto-start activate-pane --pane-id %VALUE%"
 SearchName = true
 History = true
 
 function GetEntries()
   local entries = {}
-  local cmd = [[@wezterm@ cli list --format json | @jq@ -r '.[] | [
+  local cmd = [[@wezterm@ cli --no-auto-start list --format json | @jq@ -r '.[] | [
     .pane_id,
     (.workspace // "default"),
     (.title // .tab_title // "pane"),
