@@ -1,0 +1,23 @@
+modules/home/programs/ast-grep/default.nix
+  s_de8d39c3c56992::t_628268c2386aea 25
+checks/ast-grep.nix
+  s_de8d39c3c56992::t_3f17f05f1617a7 1-23
+checks/default.nix
+  s_de8d39c3c56992::t_112a16d0e9aba5 316
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7fcb7492defab4a0f185f869ee24737118ad25fb",
+  "prompts": {},
+  "sessions": {
+    "s_de8d39c3c56992": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ad25-3528-7c81-a954-276c13dcabf6",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
