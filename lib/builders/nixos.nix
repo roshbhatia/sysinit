@@ -45,17 +45,7 @@
         home-manager.nixosModules.home-manager
         stylix.nixosModules.stylix
         ../../modules/nixos
-        (import ../../modules/nixos/home-manager.nix {
-          inherit lib;
-          inherit
-            values
-            inputs
-            profile
-            stylix
-            theme
-            ;
-          inherit pkgs;
-        })
+        ../../modules/nixos/home-manager.nix
         {
           documentation.enable = false;
         }

@@ -25,7 +25,6 @@
           profile
           theme
           values
-          pkgs
           ;
       };
       modules = [
@@ -49,17 +48,7 @@
           config.sysinit.darwin = values.darwin;
         })
         ../../modules/darwin
-        (import ../../modules/darwin/home-manager.nix {
-          inherit (values.user) username;
-          inherit
-            lib
-            values
-            pkgs
-            inputs
-            profile
-            theme
-            ;
-        })
+        ../../modules/darwin/home-manager.nix
         home-manager.darwinModules.home-manager
         stylix.darwinModules.stylix
         {

@@ -314,6 +314,9 @@ in
   };
   go-tests = pkgs.sysinit-gotools;
   ast-grep-installed-rules = import ./ast-grep.nix { inherit pkgs; };
+  package-set-composition = import ./package-set.nix {
+    inherit pkgs darwinConfigurations nixosConfigurations;
+  };
   gate-config = import ./gate-config.nix {
     inherit pkgs;
     inherit (pkgs) lib;
