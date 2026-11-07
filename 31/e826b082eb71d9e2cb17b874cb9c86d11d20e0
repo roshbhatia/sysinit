@@ -1,0 +1,33 @@
+modules/nixos/home/launcher/panes.lua
+  s_de8d39c3c56992::t_628268c2386aea 4,10
+modules/home/programs/llm/runtime/agent-review.sh
+  s_de8d39c3c56992::t_628268c2386aea 117
+checks/agent-sessions.nix
+  s_de8d39c3c56992::t_86a32b31a09d88 5,13
+checks/agent-sessions.py
+  s_1cfbbc236f4d97::t_2daef1796f7bbf 13,26,49-63
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "31e826b082eb71d9e2cb17b874cb9c86d11d20e0",
+  "prompts": {},
+  "sessions": {
+    "s_1cfbbc236f4d97": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1b1b5-7f63-7962-8ac1-30c9a92ab568",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_de8d39c3c56992": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ad25-3528-7c81-a954-276c13dcabf6",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
