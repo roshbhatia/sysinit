@@ -1,0 +1,26 @@
+lib/builders/nixos.nix
+  s_de8d39c3c56992::t_628268c2386aea 48
+lib/builders/darwin.nix
+  s_de8d39c3c56992::t_628268c2386aea 51
+checks/package-set.nix
+  s_de8d39c3c56992::t_eabdf86fd43638 11-33
+  s_de8d39c3c56992::t_67a2f235bce64d 1-10,34-37
+checks/default.nix
+  s_de8d39c3c56992::t_2a1adec1790cc4 317-319
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f90770115f538f971b2e7644aff26fd18a2c22d8",
+  "prompts": {},
+  "sessions": {
+    "s_de8d39c3c56992": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ad25-3528-7c81-a954-276c13dcabf6",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+modules/darwin/home/sketchybar/lua/sysinit/pkg/widgets/rift_mode.lua
+  s_00f0f53292bea7::t_b67e1b112b360f 12
+modules/darwin/rift.nix
+  s_00f0f53292bea7::t_f10fda4b9e3e96 15-22,25-32,35,37-46
+  s_00f0f53292bea7::t_283de0811d9b87 213-214
+  s_00f0f53292bea7::t_eabde832b86f84 105,107
+  s_00f0f53292bea7::t_17a8e55c614417 106,224,258-262
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e488621015e4f0642cd61aa50f84499022f83f44",
+  "prompts": {},
+  "sessions": {
+    "s_00f0f53292bea7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1933c-a6e8-7442-97c4-87ca5f511b94",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

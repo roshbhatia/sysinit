@@ -1,0 +1,86 @@
+modules/home/programs/tmux/default.nix
+  s_b6baf4162ed3c9::t_a4af9fdcced93d 520-544,552-568,579
+  s_b6baf4162ed3c9::t_bf216f241cff68 336,365,367,379-382,394,396,421,448-453,504-519
+pkgs/utils/internal/ty/tmux_test.go
+  s_b6baf4162ed3c9::t_53018dd9557b2d 131
+  s_b6baf4162ed3c9::t_8bed7e51173e74 127
+pkgs/utils/internal/ty/ty.go
+  s_b6baf4162ed3c9::t_a4af9fdcced93d 104-105
+modules/home/programs/tmux/presentation.nix
+  s_b6baf4162ed3c9::t_fc4d1a648542a4 11-19
+  s_b6baf4162ed3c9::t_52afbd53236d44 1-2,4-7,20-25,27-44
+  s_b6baf4162ed3c9::t_a4af9fdcced93d 8-10
+pkgs/utils/internal/ty/tmux_picker.go
+  s_b6baf4162ed3c9::t_fb0f88d654a9f7 22,95-111,121,127,135-138,140-142,146-153,163,206-222,262-263,270,273,275,279,282,286-290,295-301,303,306,308,310-312,314-317,326,344,376,383-384,386-394,398,402-403,405,407,409-414,417-425,428-432,434-452,454,456-458,462-464,469,479,483,486-488,493-495,502,505-507,517-520,522-535,537-539,558-576,580-581,589-596,624,631,636,803
+  s_b6baf4162ed3c9::t_2db7ba74827cce 36
+checks/url-routing.lua
+  s_b6baf4162ed3c9::t_8bed7e51173e74 120,206-207,239-241,246-247,251,255,258-259,261-262,265,268-269,283,300
+modules/home/programs/llm/runtime/tmux-status.lua
+  s_b6baf4162ed3c9::t_8bed7e51173e74 40-42
+  s_b6baf4162ed3c9::t_52afbd53236d44 12-18,21,69,71-76
+  s_b6baf4162ed3c9::t_bf216f241cff68 33,36,38-39,43-46,49
+pkgs/utils/internal/ty/terminal.go
+  s_b6baf4162ed3c9::t_bf94653c7ddd01 1-76,79,86,89,92,107-124,127-195,197-276,283-289,361
+  s_b6baf4162ed3c9::t_8bed7e51173e74 80,83-84,87,90,94,100,277,290-318,341-359
+  s_b6baf4162ed3c9::t_4bfefd9fa8abbc 77-78,81,319-340,360
+pkgs/utils/internal/ty/tmux_actions.go
+  s_b6baf4162ed3c9::t_bf216f241cff68 144
+modules/home/programs/tmux/presentation.lua
+  s_b6baf4162ed3c9::t_52afbd53236d44 1-12,14-32,36-69,71-83,85-89,91-114,116-129,131-209,211-353,355-360,366
+  s_b6baf4162ed3c9::t_f3c6353e7edcd5 33-35
+pkgs/utils/internal/ty/tmux_ui.go
+  s_b6baf4162ed3c9::t_2db7ba74827cce 1-42,44-135,137-147,159-165,167-181,183-205,207-209,211-234,236,238-344,356-365,371,376,380,383-393,398,400,406-407,409-414,417,419,425,427-430,455,459-461,468,472,478,481,484-496,498-499
+  s_b6baf4162ed3c9::t_fb0f88d654a9f7 43,148-158,431,434-442,450-451,466,470,474,479
+pkgs/utils/internal/ty/tmux.go
+  s_b6baf4162ed3c9::t_8bed7e51173e74 409,412
+  s_b6baf4162ed3c9::t_2db7ba74827cce 35-36,450-454
+modules/home/programs/llm/runtime/agent-sessions.jq
+  s_b6baf4162ed3c9::t_bf216f241cff68 33
+modules/home/programs/tmux/presentation-assets.lua
+  s_b6baf4162ed3c9::t_fc4d1a648542a4 12-22,24,49-53,60-61
+  s_b6baf4162ed3c9::t_52afbd53236d44 3-11
+pkgs/utils/internal/ty/terminal_test.go
+  s_b6baf4162ed3c9::t_4bfefd9fa8abbc 36-68
+checks/agent-sessions.py
+  s_b6baf4162ed3c9::t_c96de78ed52ff9 124-133
+checks/default.nix
+  s_b6baf4162ed3c9::t_a4d146110d004e 367
+checks/tmux-presentation.py
+  s_b6baf4162ed3c9::t_ce3e897ffcd8dc 1-59
+checks/tmux-status.py
+  s_b6baf4162ed3c9::t_04e8b053707e74 48-51
+checks/tmux.py
+  s_b6baf4162ed3c9::t_b0d8a16ead019f 188-222,309,328-373,388-409
+docs/tmux.md
+  s_b6baf4162ed3c9::t_d3a1155ca0e971 1-77
+modules/darwin/home/hammerspoon/default.nix
+  s_b6baf4162ed3c9::t_8da035ff60a293 78
+modules/darwin/home/hammerspoon/url-routing.nix
+  s_b6baf4162ed3c9::t_8dacfd28cf2e48 226
+modules/home/programs/llm/runtime/default.nix
+  s_b6baf4162ed3c9::t_6002613130ae7e 156
+pkgs/utils/internal/ty/tmux_picker_test.go
+  s_b6baf4162ed3c9::t_6cb21b6ab24041 63
+flake.lock
+  s_b6baf4162ed3c9::t_640fe578a54d3c 51-52,55,267-268,271,1638-1639,1642
+modules/darwin/home/hammerspoon/lua/sysinit/pkg/url_routing.lua
+  s_b6baf4162ed3c9::t_a835e5c29805c8 111-113,115
+pkgs/utils/internal/ty/tmux_loading.go
+  s_b6baf4162ed3c9::t_5cca32a1d1aacf 1-73
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f7cc481704c036e97d3471e2da0523c3c736e4fe",
+  "prompts": {},
+  "sessions": {
+    "s_b6baf4162ed3c9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a19cf6-a9c0-7161-abce-266a87939179",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

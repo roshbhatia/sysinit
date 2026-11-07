@@ -1,0 +1,29 @@
+modules/home/programs/nushell/functions.nu
+  s_00f0f53292bea7::t_085c35f6e5f6c2 166,171
+  s_00f0f53292bea7::t_16ca2482579a52 160-165,176-185
+  s_00f0f53292bea7::t_2398d69180c130 159,167-170,172-175
+modules/home/programs/wezterm/default.nix
+  s_00f0f53292bea7::t_16ca2482579a52 15-36,49
+checks/default.nix
+  s_00f0f53292bea7::t_620c9503253f7f 361,365
+  s_00f0f53292bea7::t_2398d69180c130 372,375,380
+  s_00f0f53292bea7::t_085c35f6e5f6c2 349-360,362-364,366-371,373-374,376-379,381-385
+flake.lock
+  s_00f0f53292bea7::t_7e930edf22b59e 1638-1639,1642
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "162b039274af65cadd0c43033971e33b2ba9e277",
+  "prompts": {},
+  "sessions": {
+    "s_00f0f53292bea7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1933c-a6e8-7442-97c4-87ca5f511b94",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

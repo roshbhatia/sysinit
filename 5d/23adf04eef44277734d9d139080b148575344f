@@ -1,0 +1,70 @@
+flake.nix
+  s_00f0f53292bea7::t_1c1fffa40f249d 67-72
+overlays/default.nix
+  s_00f0f53292bea7::t_1c1fffa40f249d 7
+  s_00f0f53292bea7::t_28e98b57413253 8
+modules/darwin/codesign.nix
+  s_00f0f53292bea7::t_9c0903a5745258 39-43
+  s_00f0f53292bea7::t_e9e1cb336b5125 33-35
+modules/home/programs/fastfetch/probes/darwin-wm.sh
+  s_00f0f53292bea7::t_614782a83018b6 4-6
+modules/darwin/home/sketchybar/lua/sysinit/pkg/widgets/workspaces.lua
+  s_00f0f53292bea7::t_22ecc9d7f2a5a2 70
+  s_00f0f53292bea7::t_d30acd23f9efd2 56
+  s_00f0f53292bea7::t_ae619202cbfc1d 64
+  s_00f0f53292bea7::t_90849d73587a65 6,11-12,23-31,40-42,44-50,53-55,57-63,65-69,71-76
+  s_00f0f53292bea7::t_a498aae81b8d95 33-39,43
+modules/darwin/komorebi.nix
+  s_00f0f53292bea7::t_e9e1cb336b5125 9,13,71,73,108,111,120,160,199
+  s_00f0f53292bea7::t_867b5009d1fef4 92-101,109,112-114,121-123,161-171,188
+  s_00f0f53292bea7::t_fb0b923f537450 1-8,11-12,14-27,29-36,41-70,72,74-91,102-107,110,115-119,124-159,172-187,189-198,200-209
+  s_00f0f53292bea7::t_d36d562dcf28a8 10
+  s_00f0f53292bea7::t_9c0903a5745258 28
+  s_00f0f53292bea7::t_d2809c4c29d1f9 37-40
+checks/sketchybar-health.py
+  s_00f0f53292bea7::t_e7ba8132993c31 31,48
+patches/komorebi-appkit-notification-import.patch
+  s_00f0f53292bea7::t_28e98b57413253 1-8
+modules/darwin/sketchybar-health.py
+  s_00f0f53292bea7::t_e7ba8132993c31 77
+  s_00f0f53292bea7::t_ae619202cbfc1d 95-97
+overlays/komorebi.nix
+  s_00f0f53292bea7::t_28e98b57413253 2-5,12-18
+  s_00f0f53292bea7::t_38f412c655b0a6 6-11
+  s_00f0f53292bea7::t_9c0903a5745258 1
+modules/darwin/home/sketchybar/lua/sysinit/pkg/widgets/komorebi_mode.lua
+  s_00f0f53292bea7::t_e7ba8132993c31 34-51
+modules/home/programs/firefox/tridactylrc
+  s_00f0f53292bea7::t_22ecc9d7f2a5a2 51
+modules/darwin/home/sketchybar/lua/sysinit/init.lua
+  s_00f0f53292bea7::t_90849d73587a65 5-6,9
+modules/darwin/default.nix
+  s_00f0f53292bea7::t_e9e1cb336b5125 11
+modules/darwin/home/sketchybar/default.nix
+  s_00f0f53292bea7::t_d36d562dcf28a8 18
+modules/darwin/sketchybar.nix
+  s_00f0f53292bea7::t_e7ba8132993c31 52
+  s_00f0f53292bea7::t_d36d562dcf28a8 26
+  s_00f0f53292bea7::t_d2809c4c29d1f9 1-6,9-11
+modules/darwin/keybindings.nix
+  s_00f0f53292bea7::t_6cc54018637b51 74-80
+  s_00f0f53292bea7::t_b69c6fa3e2992c 40-73,81-83,86,110-111
+flake.lock
+  s_00f0f53292bea7::t_a93bfafae20807 295-309,525-540,584-601,616,637,819-863,973-999,1060-1061,1127-1141,1204,1464,1689,2056-2076
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5d23adf04eef44277734d9d139080b148575344f",
+  "prompts": {},
+  "sessions": {
+    "s_00f0f53292bea7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1933c-a6e8-7442-97c4-87ca5f511b94",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

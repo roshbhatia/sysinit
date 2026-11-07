@@ -1,0 +1,109 @@
+modules/home/programs/default.nix
+  s_b6baf4162ed3c9::t_01234e22abbe74 33
+modules/home/programs/llm/runtime/agent-sessions.sh
+  s_b6baf4162ed3c9::t_01234e22abbe74 64-65
+modules/home/programs/llm/runtime/agent-review.sh
+  s_b6baf4162ed3c9::t_01234e22abbe74 117
+modules/home/programs/llm/skills/taskwarrior/SKILL.md
+  s_b6baf4162ed3c9::t_01234e22abbe74 80
+modules/home/programs/nushell/default.nix
+  s_b6baf4162ed3c9::t_01234e22abbe74 46
+modules/home/programs/wezterm/default.nix
+  s_b6baf4162ed3c9::t_01234e22abbe74 61-69,142-146,160
+AGENTS.md
+  s_b6baf4162ed3c9::t_01234e22abbe74 56-60
+checks/mail.el
+  s_b6baf4162ed3c9::t_01234e22abbe74 308
+modules/home/programs/mail/emacs/sysinit-mail-images.el
+  s_b6baf4162ed3c9::t_01234e22abbe74 19,39,41-43,45
+modules/home/programs/zsh/integrations/ask.zsh
+  s_b6baf4162ed3c9::t_01234e22abbe74 9-10,12-13
+modules/home/programs/llm/runtime/default.nix
+  s_b6baf4162ed3c9::t_01234e22abbe74 79-81,132
+modules/home/programs/llm/runtime/diff/open.py
+  s_b6baf4162ed3c9::t_01234e22abbe74 24-25,43,144
+modules/home/programs/pueue/default.nix
+  s_b6baf4162ed3c9::t_01234e22abbe74 15
+modules/home/programs/llm/skills/local-workflows/SKILL.md
+  s_b6baf4162ed3c9::t_01234e22abbe74 3,77,119-122
+checks/agent-sessions.py
+  s_b6baf4162ed3c9::t_01234e22abbe74 3,9
+modules/home/programs/llm/runtime/agent-prompt.sh
+  s_b6baf4162ed3c9::t_01234e22abbe74 1
+flake.nix
+  s_b6baf4162ed3c9::t_01234e22abbe74 387
+modules/home/programs/zsh/integrations/seshy-wezterm.zsh
+  s_b6baf4162ed3c9::t_01234e22abbe74 64-89,111,116
+modules/home/tools.toml
+  s_b6baf4162ed3c9::t_01234e22abbe74 148,150
+modules/nixos/home/launcher/panes.lua
+  s_b6baf4162ed3c9::t_01234e22abbe74 2,4,10,12-14
+modules/home/programs/nushell/functions.nu
+  s_b6baf4162ed3c9::t_01234e22abbe74 139-159,161-176,179,282-283,293-294,301,305-306
+modules/home/programs/pueue/_task-queue
+  s_b6baf4162ed3c9::t_01234e22abbe74 17
+modules/home/programs/zmx/default.nix
+  s_b6baf4162ed3c9::t_01234e22abbe74 1-14
+overlays/inputs.nix
+  s_b6baf4162ed3c9::t_01234e22abbe74 60
+checks/url-routing.lua
+  s_b6baf4162ed3c9::t_01234e22abbe74 120,206-221,253-254,256-258,260,263-266,270-271,275-276,279-282,284-287,290-327,330-352,357,364-366,371,377,379
+modules/darwin/home/hammerspoon/lua/sysinit/pkg/url_routing.lua
+  s_b6baf4162ed3c9::t_01234e22abbe74 111-147,149-169
+modules/darwin/home/hammerspoon/default.nix
+  s_b6baf4162ed3c9::t_01234e22abbe74 78
+modules/home/programs/omp.nix
+  s_b6baf4162ed3c9::t_01234e22abbe74 88-93
+checks/default.nix
+  s_b6baf4162ed3c9::t_01234e22abbe74 349-350,353-354,358-383
+modules/home/programs/llm/skills/ty/SKILL.md
+  s_b6baf4162ed3c9::t_01234e22abbe74 3,6,8-9,26-28,43-46
+modules/nixos/home/launcher/sessions.lua
+  s_b6baf4162ed3c9::t_01234e22abbe74 4
+pkgs/task-queue/main.go
+  s_b6baf4162ed3c9::t_01234e22abbe74 9,154-155
+overlays/sysinit-gotools.nix
+  s_b6baf4162ed3c9::t_01234e22abbe74 18
+pkgs/task-queue/terminal.go
+  s_b6baf4162ed3c9::t_01234e22abbe74 189-194,197-198,202-205,207-211,213-219
+checks/task-queue.nix
+  s_b6baf4162ed3c9::t_01234e22abbe74 22
+modules/shared/options/paths-layout.json
+  s_b6baf4162ed3c9::t_01234e22abbe74 17
+modules/nixos/home/launcher.nix
+  s_b6baf4162ed3c9::t_01234e22abbe74 12,57,64
+pkgs/task-queue/submit.go
+  s_b6baf4162ed3c9::t_01234e22abbe74 20
+pkgs/utils/internal/ty/ty.go
+  s_b6baf4162ed3c9::t_01234e22abbe74 21,84,482
+modules/darwin/home/default-apps.nix
+  s_b6baf4162ed3c9::t_01234e22abbe74 146,148
+modules/darwin/home/neovim-file-opener.swift
+  s_b6baf4162ed3c9::t_01234e22abbe74 89-100,102
+modules/nixos/home/desktop.nix
+  s_b6baf4162ed3c9::t_01234e22abbe74 220
+pkgs/task-queue/main_test.go
+  s_b6baf4162ed3c9::t_01234e22abbe74 149,153-154,173,175,200,287,301
+modules/home/programs/llm/runtime/agent-sessions.jq
+  s_b6baf4162ed3c9::t_01234e22abbe74 33-34
+modules/darwin/home/hammerspoon/url-routing.nix
+  s_b6baf4162ed3c9::t_01234e22abbe74 57,226-227
+flake.lock
+  s_b6baf4162ed3c9::t_32667bd2999f16 51-52,55,267-268,271,1615-1616,1619,1638-1639,1642,1950-1951,1954
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "30344b69f54103259122da1a71efb7f67f5efeea",
+  "prompts": {},
+  "sessions": {
+    "s_b6baf4162ed3c9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a19cf6-a9c0-7161-abce-266a87939179",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

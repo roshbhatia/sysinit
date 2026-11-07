@@ -1,0 +1,27 @@
+checks/default.nix
+  s_b6baf4162ed3c9::t_aa5f474f00fc4e 353-364
+modules/darwin/home/hammerspoon/default.nix
+  s_b6baf4162ed3c9::t_4b80480495ecd2 78
+modules/darwin/home/hammerspoon/url-routing.nix
+  s_b6baf4162ed3c9::t_6b3836d009c5e7 226
+modules/home/programs/llm/runtime/default.nix
+  s_b6baf4162ed3c9::t_aabb02b3e83c68 156
+pkgs/utils/internal/ty/terminal.go
+  s_b6baf4162ed3c9::t_69b3c0dd3d4f46 225,227-229,231
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "acbb7ad3a30a7e4cf243f7dc03e50f2c93a0e0a9",
+  "prompts": {},
+  "sessions": {
+    "s_b6baf4162ed3c9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a19cf6-a9c0-7161-abce-266a87939179",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

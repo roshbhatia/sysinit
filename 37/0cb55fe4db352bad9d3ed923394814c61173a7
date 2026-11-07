@@ -1,0 +1,20 @@
+modules/home/programs/nushell/default.nix
+  s_00f0f53292bea7::t_a4f3b76d4df610 137,208
+  s_00f0f53292bea7::t_7fff00a4288eac 209
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "370cb55fe4db352bad9d3ed923394814c61173a7",
+  "prompts": {},
+  "sessions": {
+    "s_00f0f53292bea7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1933c-a6e8-7442-97c4-87ca5f511b94",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

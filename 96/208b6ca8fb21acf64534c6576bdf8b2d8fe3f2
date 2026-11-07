@@ -1,0 +1,154 @@
+modules/home/programs/wezterm/default.nix
+  s_b6baf4162ed3c9::t_59bcaf70ec2830 134
+pkgs/utils/internal/ty/tmux.go
+  s_b6baf4162ed3c9::t_03d25db9b3b9b3 29-30
+  s_b6baf4162ed3c9::t_b6a4531ffdfc7f 40-41
+  s_b6baf4162ed3c9::t_e8df0da3c0f773 1-28,31-39,42-144,147-156,158-168,170-175,177,179,181-191,193-468
+  s_b6baf4162ed3c9::t_abf2b9b24f2287 145,169,176,178
+checks/tmux.py
+  s_b6baf4162ed3c9::t_b66681981a9756 81,92,111,115-126,128-133,140-148,150,158,166,171
+  s_b6baf4162ed3c9::t_e3bfe320de47c4 53-54
+  s_b6baf4162ed3c9::t_0ea420e4c4297d 80
+  s_b6baf4162ed3c9::t_89b8effe0b1e0d 5,73,91,134-139,170
+pkgs/utils/internal/ty/ty.go
+  s_b6baf4162ed3c9::t_e8df0da3c0f773 25,103-104,129-146,508-509
+  s_b6baf4162ed3c9::t_4f6e90279926a5 21,85,98
+pkgs/utils/internal/ty/process_darwin.go
+  s_b6baf4162ed3c9::t_b6a4531ffdfc7f 1-36
+checks/mail.el
+  s_b6baf4162ed3c9::t_24cf7dc67dff8b 308
+modules/home/tools.toml
+  s_b6baf4162ed3c9::t_59bcaf70ec2830 149
+pkgs/utils/internal/ty/tmux_picker.go
+  s_b6baf4162ed3c9::t_e8df0da3c0f773 1-102,106-188,197-252,256-325,327-329,335-389,403-405,407-410,426-666,668-675,677-682,684-687
+  s_b6baf4162ed3c9::t_abf2b9b24f2287 667,676,683
+  s_b6baf4162ed3c9::t_06de9bd1ae9660 103-105,189-196,253-255,390-402,406,411-425
+modules/darwin/home/hammerspoon/url-routing.nix
+  s_b6baf4162ed3c9::t_24cf7dc67dff8b 57,226
+pkgs/utils/internal/ty/process_linux.go
+  s_b6baf4162ed3c9::t_b6a4531ffdfc7f 1-16
+modules/home/programs/llm/runtime/tmux-status.lua
+  s_b6baf4162ed3c9::t_89b8effe0b1e0d 22,47-48
+  s_b6baf4162ed3c9::t_03d25db9b3b9b3 1-17,19-21,23-45,49-64
+pkgs/utils/internal/ty/tmux_picker_test.go
+  s_b6baf4162ed3c9::t_80a4fba791f705 27,29-46,90
+  s_b6baf4162ed3c9::t_e0c3c598651da0 4-26,48-89
+modules/home/programs/mail/emacs/sysinit-mail-images.el
+  s_b6baf4162ed3c9::t_24cf7dc67dff8b 19,39,41-43,45
+checks/url-routing.lua
+  s_b6baf4162ed3c9::t_0f5b823af3927c 247,256,280,318
+  s_b6baf4162ed3c9::t_24cf7dc67dff8b 120,206,208-211,213,246,249-250,257-260,281-284,295-304,309,313,317,319-320,325,331-334,336
+modules/home/programs/llm/runtime/default.nix
+  s_b6baf4162ed3c9::t_03d25db9b3b9b3 76-77,82-86,89-104
+flake.nix
+  s_b6baf4162ed3c9::t_59bcaf70ec2830 481
+modules/darwin/home/default-apps.nix
+  s_b6baf4162ed3c9::t_24cf7dc67dff8b 10,147,149,151
+pkgs/utils/internal/ty/tmux_actions.go
+  s_b6baf4162ed3c9::t_d270efbb8e9925 15-19,91-97,101-103,208-210,213-215
+  s_b6baf4162ed3c9::t_cadb9099bfe73e 88-90,98-100,104-106,108,139
+  s_b6baf4162ed3c9::t_b6a4531ffdfc7f 1-14,20-38,43-44,46-48,50-53,55-74,76,84-87,107,148-205,220-283,285-292,295,297,299-300,304-348,350-357
+  s_b6baf4162ed3c9::t_9266f86dd26863 206-207,211-212,216-219,284
+  s_b6baf4162ed3c9::t_78dd092fd7dd73 77-83
+  s_b6baf4162ed3c9::t_c7e536a6de25bd 293-294,296,298
+  s_b6baf4162ed3c9::t_03d25db9b3b9b3 39-42,45,49,54,75,109-138,140-147
+  s_b6baf4162ed3c9::t_06de9bd1ae9660 301-303
+modules/home/programs/llm/skills/ty/SKILL.md
+  s_b6baf4162ed3c9::t_c7aeb86d24a2a1 63-75
+modules/darwin/home/hammerspoon/lua/sysinit/pkg/url_routing.lua
+  s_b6baf4162ed3c9::t_24cf7dc67dff8b 111-118,121-127,130,144,154
+  s_b6baf4162ed3c9::t_0f5b823af3927c 131-142,145-146,149-153,155-166
+modules/home/programs/default.nix
+  s_b6baf4162ed3c9::t_e8df0da3c0f773 67
+pkgs/utils/internal/ty/tmux_actions_test.go
+  s_b6baf4162ed3c9::t_39774096dc629a 1-31,36-50
+  s_b6baf4162ed3c9::t_d270efbb8e9925 33-35
+  s_b6baf4162ed3c9::t_9266f86dd26863 32
+checks/default.nix
+  s_b6baf4162ed3c9::t_5fda922babb5c5 351-356,365
+  s_b6baf4162ed3c9::t_89b8effe0b1e0d 357,360-361
+modules/darwin/home/neovim-file-opener.swift
+  s_b6baf4162ed3c9::t_24cf7dc67dff8b 9-21,103-114
+checks/tmux-status.py
+  s_b6baf4162ed3c9::t_80a4fba791f705 1-21,23-31,33-44,46,48-50
+modules/home/programs/zsh/integrations/ask.zsh
+  s_b6baf4162ed3c9::t_be9bdfbbba4c5d 9-10,12-17
+pkgs/utils/internal/ty/tmux_test.go
+  s_b6baf4162ed3c9::t_db1f5807e42718 17-19,22,26,30,33,45-46,49,52,57,60,63,69-70,73,77,80,90,93,97-107
+checks/agent-sessions.nix
+  s_b6baf4162ed3c9::t_80a4fba791f705 2-8,20
+modules/home/programs/tmux/default.nix
+  s_b6baf4162ed3c9::t_7ba2f827a57f05 279,305-306
+  s_b6baf4162ed3c9::t_e8df0da3c0f773 1-9,264-271,275,278,280-291,293-301,307-308,325-327,330,332-333,335,337-385,387-393,396-399,401-404,406-410,412-414,416,425-426,450-452,454-460
+  s_b6baf4162ed3c9::t_967b9e25eba0e4 12-15,27-29,32-41,43-250,252-263,394-395,411,417-424,431-447
+  s_b6baf4162ed3c9::t_717d88015ea6bf 10-11,251,405,427-430
+  s_b6baf4162ed3c9::t_337c62d61d315f 30-31
+  s_b6baf4162ed3c9::t_0ea420e4c4297d 16-26,42
+modules/home/programs/llm/harnesses/pi/extensions/diff-review.ts
+  s_b6baf4162ed3c9::t_be9bdfbbba4c5d 41-56
+modules/home/programs/zsh/integrations/seshy-wezterm.zsh
+  s_b6baf4162ed3c9::t_24cf7dc67dff8b 85,90-101
+modules/home/programs/llm/runtime/agent-sessions.sh
+  s_b6baf4162ed3c9::t_03d25db9b3b9b3 70,75,90-92
+modules/home/programs/nushell/functions.nu
+  s_b6baf4162ed3c9::t_be9bdfbbba4c5d 140-142,248-249,259-260,267,271-275
+  s_b6baf4162ed3c9::t_59bcaf70ec2830 145
+overlays/sysinit-gotools.nix
+  s_b6baf4162ed3c9::t_e8df0da3c0f773 202-203,221
+AGENTS.md
+  s_b6baf4162ed3c9::t_fbb859ce7d3f8a 56-60
+checks/agent-sessions.py
+  s_b6baf4162ed3c9::t_8605dd6a33423b 8,25,104-123
+checks/task-queue.nix
+  s_b6baf4162ed3c9::t_93114c58df8a7f 22
+flake.lock
+  s_b6baf4162ed3c9::t_792041d8d945d8 51-52,55,1615-1616,1619,1638-1639,1642,1950-1951,1954
+modules/home/programs/llm/runtime/agent-prompt.sh
+  s_b6baf4162ed3c9::t_9c146594ad2b75 1
+modules/home/programs/llm/runtime/agent-review.sh
+  s_b6baf4162ed3c9::t_a94ea009a67d74 117-119
+modules/home/programs/llm/runtime/diff/default.nix
+  s_b6baf4162ed3c9::t_9e846c3d989e32 7-8
+modules/home/programs/llm/skills/local-workflows/SKILL.md
+  s_b6baf4162ed3c9::t_a215b6a6d28e3c 3,77,119-122
+modules/home/programs/llm/skills/taskwarrior/SKILL.md
+  s_b6baf4162ed3c9::t_f16b1cf83f1e9b 80
+modules/home/programs/pueue/_task-queue
+  s_b6baf4162ed3c9::t_2ce7dc996c2adc 17
+modules/home/programs/pueue/default.nix
+  s_b6baf4162ed3c9::t_4665e1c1549860 15
+modules/nixos/home/desktop.nix
+  s_b6baf4162ed3c9::t_c74e47ea681711 220
+modules/nixos/home/launcher.nix
+  s_b6baf4162ed3c9::t_e3703e2a779c23 12,57,64
+modules/nixos/home/launcher/panes.lua
+  s_b6baf4162ed3c9::t_ff36f476c8aaf3 2,4,10,12-14
+modules/nixos/home/launcher/sessions.lua
+  s_b6baf4162ed3c9::t_d7815f67be222a 4
+pkgs/task-queue/main.go
+  s_b6baf4162ed3c9::t_75371619c5635e 153
+pkgs/task-queue/main_test.go
+  s_b6baf4162ed3c9::t_11d4bdd70d9ee4 149,153,172,174,199,286,300
+pkgs/task-queue/submit.go
+  s_b6baf4162ed3c9::t_606f79c9766151 20
+pkgs/utils/internal/ty/ty_test.go
+  s_b6baf4162ed3c9::t_cc96e39e3286a2 9,276-282
+modules/home/programs/llm/runtime/diff/open.py
+  s_b6baf4162ed3c9::t_c6220e0c29e936 17-62,70-71,89,190-194
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "96208b6ca8fb21acf64534c6576bdf8b2d8fe3f2",
+  "prompts": {},
+  "sessions": {
+    "s_b6baf4162ed3c9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a19cf6-a9c0-7161-abce-266a87939179",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

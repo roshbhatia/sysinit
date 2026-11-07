@@ -1,0 +1,14 @@
+flake.lock
+  h_9ee7ffa72fd255 1745-1746,1749
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d8267eccbd6d9ecf83cfc58d3ecd4911d764507e",
+  "prompts": {},
+  "humans": {
+    "h_9ee7ffa72fd255": {
+      "author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

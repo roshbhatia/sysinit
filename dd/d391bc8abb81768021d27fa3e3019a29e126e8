@@ -1,0 +1,24 @@
+modules/home/programs/llm/skills/untangle-codebase/references/patterns.md
+  s_de8d39c3c56992::t_5b3a9ff0729229 1-53
+modules/home/programs/llm/skills/untangle-codebase/SKILL.md
+  s_de8d39c3c56992::t_5b3a9ff0729229 1-26,44-129
+  s_de8d39c3c56992::t_b54447f6067f95 27-43
+modules/home/programs/llm/skills/untangle-codebase/references/LICENSE
+  s_de8d39c3c56992::t_0457b226ebe599 1-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ddd391bc8abb81768021d27fa3e3019a29e126e8",
+  "prompts": {},
+  "sessions": {
+    "s_de8d39c3c56992": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ad25-3528-7c81-a954-276c13dcabf6",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

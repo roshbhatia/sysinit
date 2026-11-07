@@ -1,0 +1,27 @@
+hosts/default.nix
+  s_de8d39c3c56992::t_77b84353cc172e 75,91
+modules/nixos/common/default.nix
+  s_de8d39c3c56992::t_77b84353cc172e 69
+modules/home/programs/wezterm/default.nix
+  s_de8d39c3c56992::t_8ba4fc3dc8b3b0 58
+  s_de8d39c3c56992::t_cddf5216e0ebda 53-56,59-61
+  s_de8d39c3c56992::t_77b84353cc172e 6
+flake.lock
+  s_de8d39c3c56992::t_e49f7d198df3e7 51-52,55,1554-1555,1558,1618-1619,1622,1745-1746,1749,2077-2078,2081
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3b501b66cc11232c0eee2e845d16c9a333910bc2",
+  "prompts": {},
+  "sessions": {
+    "s_de8d39c3c56992": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ad25-3528-7c81-a954-276c13dcabf6",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}

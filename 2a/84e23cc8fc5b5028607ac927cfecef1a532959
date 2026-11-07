@@ -1,0 +1,25 @@
+modules/home/programs/nushell/functions.nu
+  s_b6baf4162ed3c9::t_23c9ab009fb6b8 264
+checks/default.nix
+  s_b6baf4162ed3c9::t_a765dd5793b091 324-329
+checks/nushell-wezterm.py
+  s_b6baf4162ed3c9::t_25e9bdedbc509a 14-63,78
+modules/home/programs/nushell/default.nix
+  s_b6baf4162ed3c9::t_21b73111e148ce 188-190
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2a84e23cc8fc5b5028607ac927cfecef1a532959",
+  "prompts": {},
+  "sessions": {
+    "s_b6baf4162ed3c9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a19cf6-a9c0-7161-abce-266a87939179",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
