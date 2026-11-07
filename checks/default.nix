@@ -313,6 +313,7 @@ in
     inherit (pkgs) lib;
   };
   go-tests = pkgs.sysinit-gotools;
+  ast-grep-installed-rules = import ./ast-grep.nix { inherit pkgs; };
   gate-config = import ./gate-config.nix {
     inherit pkgs;
     inherit (pkgs) lib;

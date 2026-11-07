@@ -22,7 +22,7 @@ in
     "ast-grep/rules".source = ./rules;
 
     "ast-grep/sgconfig.yml".text = lib.generators.toYAML { } {
-      ruleDirs = [ "rules" ];
+      ruleDirs = [ "${./rules}" ];
 
       languageGlobs = {
         bash = [ "*.zsh" ];
