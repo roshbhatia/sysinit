@@ -928,6 +928,22 @@
         "type": "github"
       }
     },
+    "janestreet-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793728425,
+        "narHash": "sha256-bKGKDaK2pSJsp5uVMUQDcj8J+N9nX2fDdeU1DXM2qLw=",
+        "owner": "janestreet",
+        "repo": "agent_skills",
+        "rev": "7c6715c29548a3b39d4a9545c698ee4fd17a7213",
+        "type": "github"
+      },
+      "original": {
+        "owner": "janestreet",
+        "repo": "agent_skills",
+        "type": "github"
+      }
+    },
     "libpng": {
       "flake": false,
       "locked": {
@@ -1410,6 +1426,7 @@
         "hunk": "hunk",
         "hunk-commit-log": "hunk-commit-log",
         "hunk-viewed": "hunk-viewed",
+        "janestreet-skills": "janestreet-skills",
         "meat": "meat",
         "nix-claude-code": "nix-claude-code",
         "nix-gaming": "nix-gaming",

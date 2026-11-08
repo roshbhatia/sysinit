@@ -181,6 +181,11 @@
       flake = false;
     };
 
+    janestreet-skills = {
+      url = "github:janestreet/agent_skills";
+      flake = false;
+    };
+
     ast-grep-skills = {
       url = "github:ast-grep/agent-skill";
       flake = false;

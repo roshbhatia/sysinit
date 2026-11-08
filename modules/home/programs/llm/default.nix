@@ -83,9 +83,13 @@ let
     "ast-grep-outline/SKILL.md" = "${astGrepSkillRoot}/outline/SKILL.md";
   };
 
+  vendoredSkillFiles = astGrepSkillFiles // {
+    "socratic-tutor/SKILL.md" = "${inputs.janestreet-skills}/socratic-tutor/SKILL.md";
+  };
+
   vendoredSkillFilesFor =
     root:
-    lib.mapAttrs' (rel: src: lib.nameValuePair "${root}/${rel}" { source = src; }) astGrepSkillFiles;
+    lib.mapAttrs' (rel: src: lib.nameValuePair "${root}/${rel}" { source = src; }) vendoredSkillFiles;
 
   skillFilesFor =
     root:
