@@ -34,6 +34,7 @@ let
     attribution = true;
 
     auto_update = false;
+    permission_mode = "dangerous";
 
     read_config_from = {
       claude = false;
@@ -55,7 +56,10 @@ in
     path = ".config/devin/config.json";
     format = "json";
     content = devinSettings;
-    enforce = [ "permissions" ];
+    enforce = [
+      "permissions"
+      "permission_mode"
+    ];
   };
 
   sysinit.llm.managedFiles.devin-mcp = {

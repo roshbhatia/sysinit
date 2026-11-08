@@ -35,13 +35,14 @@ in
     content = {
       provider = "codex";
       models.codex = config.programs.codex.settings.model or "gpt-6-astra";
-      permission_mode = "auto";
+      permission_mode = "full-access";
       auto_upgrade = false;
       permission = fxPermission;
     };
     enforce = [
       "provider"
       "permission"
+      "permission_mode"
       "auto_upgrade"
     ];
   };

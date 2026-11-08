@@ -10,6 +10,7 @@ let
 
   copilotSettings = {
     banner = "never";
+    defaultPermissionMode = "allow-all";
     renderMarkdown = true;
     screenReader = false;
     theme = "default";
@@ -46,6 +47,7 @@ in
 
     enforce = [
       "autoUpdate"
+      "defaultPermissionMode"
       [
         "hooks"
         "PreToolUse"

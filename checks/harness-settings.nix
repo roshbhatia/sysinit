@@ -31,6 +31,9 @@ assert !(home.programs.claude-code.settings ? disabledMcpServers);
 assert home.programs.codex.settings.web_search == "live";
 assert !(home.programs.codex.settings ? tools);
 assert home.sysinit.llm.managedFiles.fx.content.auto_upgrade == false;
+assert home.sysinit.llm.managedFiles.amp.content."amp.dangerouslyAllowAll";
+assert home.sysinit.llm.managedFiles.devin.content.permission_mode == "dangerous";
+assert home.sysinit.llm.managedFiles.fx.content.permission_mode == "full-access";
 pkgs.runCommand "harness-settings"
   {
     nativeBuildInputs = [
@@ -62,6 +65,7 @@ pkgs.runCommand "harness-settings"
 
     parsed = json.loads(Path("parsed.json").read_text())
     assert parsed["theme"] == "default"
+    assert parsed["defaultPermissionMode"] == "allow-all"
     hook = parsed["hooks"]["preToolUse"][0]
     assert hook["_vsCodeCompat"] == "PreToolUse", hook
     assert hook["matcher"] == "Bash", hook

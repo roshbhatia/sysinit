@@ -2,7 +2,7 @@
   amp = {
     shellAlias = {
       name = "amp";
-      value = "amp --settings-file ~/.config/amp/unrestricted.json";
+      value = "env amp";
     };
     label = "Amp";
     module = ./amp.nix;
@@ -82,7 +82,7 @@
   copilot = {
     shellAlias = {
       name = "cpl";
-      value = "copilot --allow-all-tools --allow-all-paths";
+      value = "copilot --allow-all";
     };
     label = "Copilot";
     module = ./copilot-cli.nix;
