@@ -1,0 +1,33 @@
+modules/lib/shell/aliases.nix
+  s_4541d03bc240df::t_c0c2b65ad202b5 4-13
+  s_4541d03bc240df::t_3807607f4a2fbf 14-24
+checks/harness-settings.nix
+  s_4541d03bc240df::t_c0c2b65ad202b5 34-36,68
+modules/home/programs/llm/harnesses/registry.nix
+  s_4541d03bc240df::t_799103933df593 5
+  s_4541d03bc240df::t_394037eac12793 85
+modules/home/programs/llm/harnesses/amp.nix
+  s_4541d03bc240df::t_66cd9e692218f9 19
+modules/home/programs/llm/harnesses/copilot-cli.nix
+  s_4541d03bc240df::t_acf2c3f3b2fe3f 13,50
+modules/home/programs/llm/harnesses/devin.nix
+  s_4541d03bc240df::t_00695eb8d5eb66 37,59-62
+modules/home/programs/llm/harnesses/fx.nix
+  s_4541d03bc240df::t_7d60a0c6001583 38,45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4cd75f267aa7b4d3e86f7974eb0cb62314f8ee03",
+  "prompts": {},
+  "sessions": {
+    "s_4541d03bc240df": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1bd09-f672-7982-8a4f-e1e208a96834",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
