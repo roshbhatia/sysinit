@@ -150,40 +150,7 @@ in
             };
           }
         );
-        default = [
-          {
-            intent = "Code discovery";
-            skills = [ "search-code-routing" ];
-          }
-          {
-            intent = "Design decisions or agreed implementation plans";
-            skills = [
-              "writing-doc-rfc"
-              "writing-doc-design"
-              "openspec-workflow"
-            ];
-          }
-          {
-            intent = "Reproduce and fix a defect";
-            skills = [ "debugging" ];
-          }
-          {
-            intent = "Plan and verify checks for a change";
-            skills = [ "change-validation" ];
-          }
-          {
-            intent = "Commits and pull requests";
-            skills = [
-              "writing-commit-message"
-              "writing-pr-description"
-              "gh-stack"
-            ];
-          }
-          {
-            intent = "Nix builds, input pins, or activation";
-            skills = [ "nix-deployment" ];
-          }
-        ];
+        default = [ ];
         description = "Compact workflow selection hints; downstream modules append their own domain routes.";
       };
 
