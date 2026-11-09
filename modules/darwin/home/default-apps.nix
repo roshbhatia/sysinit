@@ -156,14 +156,23 @@ in
 {
   home.activation.sysinitDefaultApps = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     app=${lib.escapeShellArg app}
-    run mkdir -p "$app/Contents/MacOS"
-    run install -m 0644 ${lib.escapeShellArg (toString plist)} "$app/Contents/Info.plist"
-    run /usr/bin/swiftc -O -framework AppKit -framework CoreServices -framework UniformTypeIdentifiers \
-      ${lib.escapeShellArg (toString source)} \
-      -o "$app/Contents/MacOS/sysinit-neovim-file-opener"
-    run /usr/bin/codesign --force --deep --sign - --timestamp=none "$app"
-    run /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister \
-      -f "$app"
+    stamp=${lib.escapeShellArg "${config.xdg.stateHome}/sysinit/neovim-file-opener-inputs"}
+    inputs=${lib.escapeShellArg "${plist} ${source}"}
+    if [ "$(cat "$stamp" 2>/dev/null)" != "$inputs" ] ||
+      [ ! -x "$app/Contents/MacOS/sysinit-neovim-file-opener" ]; then
+      run mkdir -p "$app/Contents/MacOS"
+      run install -m 0644 ${lib.escapeShellArg (toString plist)} "$app/Contents/Info.plist"
+      run /usr/bin/swiftc -O -framework AppKit -framework CoreServices -framework UniformTypeIdentifiers \
+        ${lib.escapeShellArg (toString source)} \
+        -o "$app/Contents/MacOS/sysinit-neovim-file-opener"
+      run /usr/bin/codesign --force --deep --sign - --timestamp=none "$app"
+      run /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister \
+        -f "$app"
+      if [ -z "''${DRY_RUN:-}" ]; then
+        mkdir -p "$(dirname "$stamp")"
+        printf '%s\n' "$inputs" > "$stamp"
+      fi
+    fi
     run "$app/Contents/MacOS/sysinit-neovim-file-opener" --set-defaults
   '';
 }
