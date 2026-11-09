@@ -44,9 +44,11 @@ let
       (if h ? contextStyle then instructions.makeInstructions else instructions.makeInstructionsWithStyle)
         {
           harness = name;
-          skillsRoot = "~/.claude/skills";
-          inherit (skills) localSkillDescriptions;
+          skillsRoot = "~/${h.skillRoot}";
+          localSkillDescriptions =
+            skills.localSkillDescriptions // home.sysinit.llm.instructions.additionalSkillDescriptions;
           extraSections = home.sysinit.llm.instructions.extraSections;
+          skillRoutes = home.sysinit.llm.instructions.skillRoutes;
         }
     );
     style = if h ? contextStyle then instructionFile h.contextStyle else null;

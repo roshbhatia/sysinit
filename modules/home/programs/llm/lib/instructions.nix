@@ -4,14 +4,7 @@ let
   vocab = import ./vocab.nix { inherit lib; };
   outputStyle = import ./output-style.nix;
 
-  renderRule = item: ''
-    - ${item.rule} ${item.reason}
-
-    <example>
-    <bad>${item.bad}</bad>
-    <good>${item.good}</good>
-    </example>
-  '';
+  renderRule = item: "- ${item.rule} ${item.reason}";
 
   renderRules = rules: builtins.concatStringsSep "\n" (map renderRule rules);
 
@@ -143,6 +136,7 @@ let
       localSkillDescriptions,
       skillsRoot ? "~/.claude/skills",
       extraSections ? [ ],
+      skillRoutes ? [ ],
     }:
     let
       skillsList = formatSkillsBlock localSkillDescriptions;
@@ -168,25 +162,23 @@ let
 
         ${loaderNote}
 
+        ## Skill selection
+
+        Prefer the managed skills at `${skillsRoot}` when another catalog has a
+        conflicting copy. Read skill descriptions first. Choose the workflow that owns the requested
+        outcome, then load supporting skills as needed; do not load the whole catalog.
+        A skill's existence or selection does not grant authorization.
+        ${lib.concatMapStringsSep "\n" (
+          route: "- ${route.intent}: ${lib.concatStringsSep ", " (map (name: "`${name}`") route.skills)}."
+        ) skillRoutes}
+
         ## Shared tasks
 
-        Taskwarrior is the durable todo context shared by agents on this machine.
-        Before coordinating multi-step work, read `local-workflows` for composing `sy`, task execution,
-        and terminals, then read `taskwarrior` and check relevant tasks.
-        Identify whether the current assignment is a bounded delegate's scope or a
-        coordinator's work. Choose native {{agents}} or separate harness executions
-        from the task's needs and available tools; neither choice grants delegation permission.
-        Bounded delegates use the supplied task context and report evidence to their
-        coordinator; they do not create duplicate tasks or take over the parent's lifecycle.
-        Record agreed work, blockers, and verified completion there. Use UUIDs across sessions.
-        Follow host-specific instructions for imported tasks and external synchronization.
-
-        At task intake, consider whether agreed work should run as an explicit queued attempt.
-        When `task-queue` is installed, it submits work to Pueue for any installed harness.
-        Read the `taskwarrior` skill for submission and review. Inspect existing attempts before
-        submitting; keep the current session's work here unless a separate execution is useful.
-        A queued agent inherits only the authorization and scope stated in its task prompt.
-        A successful command still needs result verification before the task is complete.
+        For durable multi-step work, load `local-workflows` and `taskwarrior`, inspect
+        relevant tasks, and record agreed work, blockers, and verified completion by UUID.
+        Bounded delegates use the supplied task and return evidence without taking over
+        its lifecycle. Delegation and queue selection do not grant authorization.
+        Keep execution here unless a separate queued attempt is useful and authorized.
       '';
     in
     vocab.applyVocab harness (base + lib.optionalString (extraSections != [ ]) "\n${extras}");

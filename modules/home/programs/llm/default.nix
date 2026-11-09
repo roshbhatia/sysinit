@@ -16,7 +16,7 @@ let
     relPath: src:
     lib.nameValuePair ".claude/skills/${relPath}" {
       source = src;
-      executable = true;
+      executable = lib.hasInfix "/scripts/" relPath;
     }
   ) skills.skillExtraFiles;
 
@@ -100,7 +100,7 @@ let
       relPath: src:
       lib.nameValuePair "${root}/${relPath}" {
         source = src;
-        executable = true;
+        executable = lib.hasInfix "/scripts/" relPath;
       }
     ) skills.skillExtraFiles
     // vendoredSkillFilesFor root;
@@ -155,6 +155,12 @@ in
       "agent-notify/config.json".source = notify.configFile;
       "agent-notify/schema.json".source = notify.schema;
       "agent-notify/assets.json".source = notify.assetManifest;
+      "sysinit/skills.json".source = pkgs.sysinit.writeJSON "skills-catalog.json" {
+        roots = lib.unique (map (h: h.skillRoot) (builtins.attrValues (import ./harnesses/registry.nix)));
+        descriptions =
+          skills.localSkillDescriptions // config.sysinit.llm.instructions.additionalSkillDescriptions;
+        resources = builtins.attrNames skills.skillExtraFiles;
+      };
       "sysinit/mcp-clients.json".source = pkgs.sysinit.writeJSON "llm-default.json" (
         lib.genAttrs (builtins.attrNames (import ./harnesses/registry.nix)) mcpCatalog.serversFor
       );
@@ -175,11 +181,11 @@ in
       // openspecCommandFiles
       // (vendoredSkillFilesFor ".claude/skills")
       // lib.mergeAttrsList (
-        map skillFilesFor [
-          ".config/amp/skills"
-          ".config/devin/skills"
-          ".copilot/skills"
-        ]
+        map skillFilesFor (
+          lib.remove ".claude/skills" (
+            lib.unique (map (h: h.skillRoot) (builtins.attrValues (import ./harnesses/registry.nix)))
+          )
+        )
       );
 
     activation.llmManagedFiles = lib.mkIf (config.sysinit.llm.managedFiles != { }) (

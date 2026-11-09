@@ -105,7 +105,25 @@ rec {
         if match == null then
           throw "skill '${name}': frontmatter line is not a flat `key: value` pair: ${line}"
         else
-          lib.nameValuePair (builtins.elemAt match 0) (builtins.elemAt match 1);
+          let
+            key = builtins.elemAt match 0;
+            value = builtins.elemAt match 1;
+            decoded =
+              if
+                builtins.elem value [
+                  "true"
+                  "false"
+                  "null"
+                ]
+                || lib.hasPrefix "\"" value
+              then
+                builtins.fromJSON value
+              else if lib.hasPrefix "'" value && lib.hasSuffix "'" value then
+                builtins.replaceStrings [ "''" ] [ "'" ] (lib.removeSuffix "'" (lib.removePrefix "'" value))
+              else
+                value;
+          in
+          lib.nameValuePair key decoded;
     in
     {
       attrs = builtins.listToAttrs (map toPair fmLines);

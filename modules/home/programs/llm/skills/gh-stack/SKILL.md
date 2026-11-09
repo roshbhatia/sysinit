@@ -56,7 +56,8 @@ navigation forms and deliberately carries none of the forms that reach GitHub.
 
 `gh stack submit` pushes branches and creates or updates PRs on GitHub. That is
 outward-facing, so the rule from `writing-pr-description` applies unchanged:
-never submit unless the immediately preceding user turn directed it.
+never submit unless the user authorized submission within the current task scope.
+Keep that authorization valid across implementation and verification turns.
 
 Prepare the stack, show `gh stack view`, and let the owner submit. Same for
 `gh stack merge`, `gh stack push`, `gh stack unstack`, and `gh stack delete`.

@@ -1,257 +1,49 @@
 # AGENTS.md
 
-Nix-managed dotfiles for macOS (Apple Silicon) and NixOS, single-user repo.
-
-Scope: facts about **this** repository. Cross-repo rules live in the global
-context file that `modules/home/programs/llm/lib/instructions.nix` generates
-(`~/.claude/CLAUDE.md`, `~/.config/*/AGENTS.md`). Writing rules live in the
-`sysinit-ste` output style. Domain rules live in the skill that owns them. Do
-not restate any of those here.
-
-## Stack
-
-- openspec via `overlays/openspec/`, which owns the version. The `spec-driven` schema is NOT in
-  that overlay. It lives in `modules/home/programs/llm/openspec-schema/`.
-  home-manager installs it to openspec's XDG user schema directory, where it
-  shadows the built-in. Editing a template rebuilds nothing
-- Harness configs all generate from `modules/home/programs/llm/harnesses/`, one
-  module per entry in `registry.nix`. Do not keep a second list here; the last
-  one named eleven of fifteen and called the `claude` attr `claude-code`.
-  A harness owning assets is a directory holding its `default.nix` beside them;
-  one with no asset is a single file
-- Codex's shared app-server uses the Nix-pinned CLI through a user service.
-  See [docs/codex-daemon.md](docs/codex-daemon.md) for its socket, ownership, and checks
-- Nix-owned Codex hooks live in `/etc/codex/hooks.json` and are trusted by native
-  system policy. [docs/harness-settings.md](docs/harness-settings.md) records the
-  installed-version settings audit and standalone Home Manager behavior
-- `registry.nix` carries what each harness can do, not just who it is: `guard`,
-  `notify`, `editBus`, `acp`, `exitHook`, `projectDir`, `transcriptRoot`.
-  `harnesses/default.nix` rejects a null on the ones that must be answered,
-  so a new harness cannot inherit a capability gap in silence
-- `harnesses/publish.nix` renders the whole registry to
-  `~/.config/sysinit/agents.json`. Publish the entry, not a chosen subset: the
-  subset is what let neovim, wezterm and seshy each keep a private copy
-- A harness with `guard = "none"` exposes no deny mechanism this repo can drive.
-  Empty `status_patterns` select the deck plugin's shared default strings.
-  Those defaults have not been observed per agent
-- `agent-signals` owns the pane-state writer and shared notification fragments.
-  `worker` owns pane execution and log viewing; Changes owns `ws`.
-  `CommandPalette.spoon` owns the Hammerspoon launcher. This repository supplies
-  its theme, sources, hotkeys, and screenshot callbacks.
-- MCP declarations pass through `lib/mcp-routing.nix`. `pkgs/mcp-gateway`
-  supervises per-client agentgateway processes and the Go transport adapter.
-  Existing host gateways use `gateway = true`.
-- The rest of `modules/home/programs/llm/` splits by role. `lib/` is
-  evaluation-time helpers. `runtime/` is the agent-agnostic runtime a harness
-  hook executes: notifier, state bus, gates, guard bodies. `skills/` is the
-  scanned skill registry, and `subagents/` is the teammate definitions
-- ACP adapter commands live in one registry, `lib/acp.nix`, rendered to
-  `~/.config/acp/agents.json`. Goose provider settings derive from the supported
-  provider mappings in that registry; Goose Desktop is installed on supported workstations
-- `harnesses/deck-patterns.nix` is how the wezterm agent-deck plugin recognises
-  an agent in a pane, and it renders into `wezterm/config.json` as `agents`.
-  `harnesses/publish.nix` asserts the file covers the registry exactly
-- The harness registry is the one list of who the agents are. It renders to
-  `~/.config/sysinit/agents.json`, and Neovim's `harness/launch.lua` reads that
-  rather than keeping its own copy. Neovim starts an agent in a wezterm split and
-  talks to it with `wezterm cli send-text`; it never runs one in an editor
-  terminal, and it holds no per-agent code. Either half works alone: with no
-  pane the editor is still a diff viewer, with no editor the agent is still an
-  agent
-- `hack/` scripts are bash with `set -euo pipefail`, formatted by
-  `shfmt -i 2 -ci -sr -s`
-- Nix formatter is `nixfmt-rfc-style`
-- Custom packages that `cache.nixos.org` never serves are published to
-  `roshbhatia.cachix.org`. Its public key is
-  `roshbhatia.cachix.org-1:K7Kq2esJYhrV/aCH8Xl7h54y8NULg/k+7WkObNT9VDk=`. The
-  token is in the 1Password item "Cachix" and the `CACHIX_AUTH_TOKEN` repo
-  secret. The producer is `.github/workflows/build-cache.yml`. It builds the
-  `cacheBundle` `symlinkJoin` from `flake.nix` on every push to main touching
-  flake, overlays, or `_sources`. Add a package by appending its attr name to
-  `cacheAttrs`; a flake-input package goes to `inputPkgsFor`. Over-including is
-  harmless, because only genuinely-built paths upload. The consumer substituter
-  is declared in `modules/darwin/system.nix` and
-  `modules/nixos/common/default.nix`; Lima needs none, it pulls from the host
-  store
+Nix-managed dotfiles for macOS (Apple Silicon) and NixOS, single-user repository.
+Edit Nix sources, never generated dotfiles or store symlinks. Shared agent policy
+is generated by `modules/home/programs/llm/lib/instructions.nix`.
 
 ## Commands
 
-```bash
-nix develop                     # dev shell: every tool used by hack/lint.sh
-nix flake check                 # validate flake (run before commits)
-nix fmt                         # format tracked sources with treefmt
-nix fmt -- --check              # verify formatting, no writes
-ast-grep scan                   # structural lint (reads ./sgconfig.yml)
-sgg <path>                      # the same rules against any other repository
-nh darwin build                 # build current host config (no system change)
-nh darwin switch                # apply config to system (use deliberately)
-./hack/sync-openspec-schema.sh  # detect drift in the forked openspec schema
-./hack/update-pi.sh             # report pi package drift
+Use `nix develop` for check dependencies and installed `nh` for host builds.
+
+```sh
+nix fmt -- --check
+nix develop --command ./hack/lint.sh --all
+nix flake check
+nh darwin build
 ```
 
-Use the installed `nh` for routine builds and switches; use `nix develop` for
-checks. For separate build and activation steps, keep `nh darwin build .
---out-link result-system` rooted. Set the system profile with
-`sudo nix-env -p /nix/var/nix/profiles/system --set "$(realpath result-system)"`,
-then run `sudo ./result-system/sw/bin/darwin-rebuild activate`.
-NH's Darwin command rejects store-path installables.
+Run formatting, semantic lint, and flake checks before committing. Evaluate the
+affected host as well: some module assertions are outside flake checks.
+`checks/default.nix` owns the check inventory; `treefmt.toml` owns formatters.
+Shell scripts use Bash with `set -euo pipefail` and `shfmt -i 2 -ci -sr -s`.
 
-`checks/default.nix` is the list of flake checks. Read it rather than a copy
-here.
-`treefmt.toml` selects source formatters; `hack/lint.sh` adds semantic checks. It covers Go, Lua,
-Nix, shell, YAML, JSON, TOML, CUE, C, SVG, TypeScript, and JavaScript.
-It also checks Nushell and Python script blocks.
-`.githooks/pre-commit` calls it on the staged files, so a violation is a
-rejected commit rather than a broken switch. CI calls it with `--all` over the
-whole tree. Each tool is skipped when it is absent, so the `nix develop`
-shell carries every external linter. `hack/` also holds update scripts for the
-sources nvfetcher does not cover.
+## Choose the relevant guidance
 
-Some invariants are module assertions, not flake checks. They fire on
-`nix eval` of a host, so `nix flake check` does not reach them. They live in
-`modules/home/programs/llm/harnesses/default.nix`,
-`modules/home/programs/llm/subagents/default.nix`,
-`modules/home/programs/llm/harnesses/codex.nix`,
-`modules/home/programs/nushell/default.nix`,
-`modules/darwin/keybindings.nix`, and
-`modules/nixos/home/desktop.nix`. Nothing parses `.zsh`, `.lua`, or shell
-scripts at evaluation time; `hack/lint.sh` is the only parse gate.
+- Harnesses, skills, hooks, MCP, or agent instructions: read
+  `modules/home/programs/llm/AGENTS.md` before editing.
+- Nix activation or downstream input pins: load `nix-deployment`.
+- Darwin keybindings or WezTerm integration: read the matching sections of
+  `docs/repository-reference.md`; inspect live symbolic hotkeys before editing.
+- Overlay build workarounds: load `nix-cache-audit` before adding or retaining one.
+- Dependency or schema updates: use the owning `hack/update-*` script and
+  `openspec-workflow` when the repository has an active OpenSpec change.
 
-CI runs `nix fmt -- --check`, `hack/lint.sh --all`, and `nix flake check` on
-every push to `main` and every pull request. It evaluates every host and each
-standalone Home Manager profile. The explicit evaluations fire module
-assertions without building host closures that exceed hosted runner storage.
+## Ownership and boundaries
 
-`sy`, `openspec`, and `specutil` are machine-wide. Their own skills carry the
-subcommands: `feature-based-session-manager`, `openspec-workflow`, `specutil`.
-Nushell's `storage` and `attribution` subcommands return structured diagnostics;
-see [docs/storage.md](docs/storage.md) for usage and retention boundaries.
+- Harness identities and capabilities belong in `harnesses/registry.nix` under
+  `modules/home/programs/llm`; consumers must derive their lists from it.
+- Shared lifecycle skills belong here. Laurel releases, private service facts,
+  work-only routing, and reporting helpers belong in sibling `sysinit.laurel`.
+- Use the selected checkout and preserve unrelated edits, sessions, and build roots.
+  Read `.sysinit/lessons.md` if present; `.sysinit/` is ignored diagnostic storage.
+- Use `git+file://` for local flake overrides. `path:` references include ignored
+  diagnostics. New source files must be tracked to enter a Git-backed flake.
+- Keep a deployment rooted through activation. Build success does not prove that
+  the active system changed. Verify `/run/current-system` and affected behavior.
 
-## Gotchas
-
-- ast-grep reads rules only from `ruleDirs`. An inline `rules:` key in
-  `sgconfig.yml` parses as YAML and is then discarded, with no warning.
-  ast-grep also never reads XDG and has no config environment variable. It
-  finds `sgconfig.yml` by walking up from the working directory. So the global
-  library in `modules/home/programs/ast-grep/rules/` is reachable only through
-  the `sgg` wrapper. Severity decides gating; `warning` rules report and do not
-  fail.
-- A `ruleDirs` walk skips a rule file that is itself a symlink, so the module
-  installs `ast-grep/rules` as one directory entry. A per-file `xdg.configFile`
-  entry, or `recursive = true`, installs every rule and loads none of them, with
-  no warning and exit 0. This is the openspec schema gotcha with the halves
-  swapped: openspec skips a symlinked *directory* and needs per-file entries.
-  A scan that loaded no rules is indistinguishable from a clean one, and no
-  check covers that today.
-- `~/.config/git/ignore` excludes `**/sgconfig.yml` and `ast-grep/`. This repo's
-  `.gitignore` negates both. An untracked file is absent from the flake source, so
-  forgetting the negation presents as a check that cannot find its own rules.
-- Overlays apply to every host. Gate a Darwin-only workaround on `isDarwin` or
-  the Linux build breaks.
-- An overlay added to work around a broken build goes stale silently. A
-  test-skip such as `doCheck = false` or `disabledTests`, or a Tahoe
-  `cctools-ld` fix, becomes pure waste once Hydra caches the pristine package.
-  The override only perturbs the derivation hash, and forces a local source
-  build of something already cached. Audit with the `nix-cache-audit` skill
-  before adding one, and keep heavy from-source overrides out of `cacheAttrs`.
-- `python313.override { packageOverrides = ... }` pins the whole Python set off
-  cache. One test-skip re-hashes every `python313Packages.*`. `openldap` does
-  not cascade on Darwin, because curl, git, and python do not link LDAP there.
-- To test one override, dry-run the pristine attr at the locked nixpkgs rev:
-  `nix build --dry-run "github:NixOS/nixpkgs/<rev>#<attr>"`. "will be fetched"
-  means the override is now pure waste. "will be built" means cache never had
-  it, so the override costs nothing and can stay.
-- `.sysinit/` is gitignored scratch space. Check `.sysinit/lessons.md` at
-  session start.
-  A `path:` flake reference includes these ignored diagnostics. Use a local
-  `git+file://` reference for checkout overrides to keep them out of the store.
-  Build-result symlinks are GC roots. Reuse the task's output link, then remove
-  temporary check/package roots after verification. Keep the deployment rooted
-  through activation; do not age out another task's prepared deployment.
-- `~/.config/git/ignore` already excludes `**/.claude/` and `**/.agents/`. Do
-  not repeat those in a per-project `.gitignore`.
-- This machine's `spec-driven` is a local override. It installs to
-  `~/.local/share/openspec/schemas/`, where it shadows the CLI's built-in of
-  the same name. A collaborator gets upstream's `spec-driven`, not this one. A
-  shared repo then authors against different templates and a different rubric,
-  silently, with no error. Nothing warns about that; the names are identical.
-- Editing a generated dotfile fails: a PreToolUse hook denies writes that
-  resolve into `/nix/store`. Edit the Nix source instead.
-- A whole-file Read, or a `cat` of one file, over 16 KiB is denied by the
-  gate's `read-router` and `bash-guard` providers. The deny names the two
-  alternatives: Grep then Read with `offset` and `limit`, or
-  `ask -p claude -m haiku -t bulk-read` with the file on stdin, which returns
-  bullets and keeps the file out of the context. A Read that already carries
-  `offset` or `limit` passes.
-- Every hook decision goes through `gate hook`. The chain per event is
-  `modules/home/programs/llm/gate.nix`; every provider comes from the `gate`
-  flake input, and `gate-defaults.nix` holds prose-gate's rule set and every
-  text it injects as step arguments. `gate log tail` shows what
-  each provider decided on the last calls, and `checks/gate-config.nix` fails
-  the build when a chain names a provider with no manifest.
-- An adversarial review is one judged pass recorded by `review`, in `.gate/`
-  next to the work. `review-gate` denies a critic spawned outside an open
-  pass, past the tier's count, or as an agent type that can write.
-- `modules/darwin/keybindings.nix` must hold the complete AppleSymbolicHotKeys
-  dict, because `defaults write` replaces the whole dict. Read the machine with
-  `defaults read com.apple.symbolichotkeys` before you edit that set. A
-  downstream flake needs `lib.mkForce` to change an ID the base set defines.
-- A spawned helper agent is named per harness: Claude Code says "teammate",
-  every other harness says "subagent". Author source text with the `{{agent}}`
-  placeholder and let `modules/home/programs/llm/lib/vocab.nix` render it.
-
-## Harness field footguns
-
-Each one below shipped as a working-looking config that did nothing. None of
-them errors; the code no longer carries a comment saying so.
-
-- goose uses `uri`, not `url`, and `type = "streamable_http"` for modern MCP.
-  `sse` is legacy and belongs only to a server advertising just `/sse`.
-- Antigravity uses `serverUrl`, not `url`, for a remote server.
-- Copilot needs an explicit `tools` allowlist on an http server. Omitting it
-  exposes no tools rather than all of them; `["*"]` opts in.
-- Codex profile files are derived from the profile set,
-  never hand-listed. `programs.codex` writes one `<name>.config.toml` per
-  profile, so a hand-list breaks on the next rename.
-- devin inherits from Cursor, Windsurf, and Claude Code unless its own settings
-  are declared. Its behavior then depends on config this repo does not own.
-- Amp validates skill frontmatter against a fixed allowlist and errors on any key
-  outside it, so it gets its own render. devin and copilot take the Amp render
-  for the same reason.
-- A vendored pi extension must not write the theme. `ctx.ui.setTheme` persists to
-  settings, every declared key is enforced, and the two writers then fight on
-  every activation with no message.
-- The agentgateway MCP allowlist prefix covers every target behind it. Adding a
-  gateway target grants it auto-approval, so that target list is a permission
-  surface.
-
-## Verified failure modes with no signal
-
-- `left-alt` chords cannot fire on macOS: WezTerm defaults
-  `send_composed_key_when_left_alt_is_pressed` to true, so left-alt composes.
-  `modules/darwin/lib/chords.nix` is the shared vocabulary. Two layers binding
-  one chord means one wins and the other never fires. Three assertions in
-  `modules/darwin/keybindings.nix` catch that at eval time.
-- `wezterm cli` starts a headless `wezterm-mux-server` when it finds no GUI. So
-  `wezterm cli spawn` with WezTerm closed prints a pane id, exits 0, and draws
-  nothing. The window is real and lives in the daemon until something attaches.
-  Every `wezterm cli` call from a window manager, a poller, or a hook therefore
-  passes `--no-auto-start`. When `list-clients` is empty, `wezspawn` opens a GUI
-  rather than spawning.
-- A zero-byte state file is what an interrupted first write leaves behind.
-  Testing only for existence makes it absorbing. jq on an empty file exits 0 with
-  no output, so every later write reports success and stores nothing.
-- `git rev-parse --show-toplevel` answers physically, so a relative path reached
-  through a symlink reads as outside the repository it is inside. macOS `/tmp` is
-  such a symlink, so this is the ordinary case there.
-- Neovim's `harness/file_refresh.lua` is the only refresh that covers every
-  agent: a one-second `checktime` over loaded buffers. It used to start from
-  `session.set_active`, whose only caller was the picker that spawned an agent
-  inside the editor. Running the agent in a wezterm pane, which is the ordinary
-  case, therefore started no poll at all, and the only surviving refresh was
-  `edit_events`, which six of fifteen harnesses feed. `api.setup` now starts it
-  unconditionally. Nothing reported the gap; buffers simply went stale
-- An unreferenced `let` binding is dropped silently. Use `config.assertions`
-  for a registry invariant rather than forcing a `throw` from something that
-  ships; five of these were concatenated into an unrelated rsvg `runCommand`
-  and read as stray identifiers prepended to a shell script.
+Architecture details and recorded failure modes live in
+[the repository reference](docs/repository-reference.md). Read its relevant
+section when a symptom or touched module matches; do not load it for every task.

@@ -24,7 +24,7 @@ let
         when_to_use = skill.whenToUse or null;
         model = if skill ? model && harness == "claude" then skill.model else null;
         effort = if skill ? effort && harness == "claude" then skill.effort else null;
-        disable-model-invocation = if skill ? "disable-model-invocation" then true else null;
+        disable-model-invocation = skill."disable-model-invocation" or null;
       };
     in
     vocab.applyVocab harness ''
@@ -54,6 +54,7 @@ let
 in
 {
   inherit
+    renderSkill
     allSkills
     ampSkills
     localSkillDescriptions

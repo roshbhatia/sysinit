@@ -1,0 +1,67 @@
+[
+  {
+    "prompt": "Find callers of this function",
+    "expected": ["search-code-routing"],
+    "avoid": []
+  },
+  {
+    "prompt": "Diagnose this failing test",
+    "expected": ["debugging"],
+    "avoid": []
+  },
+  {
+    "prompt": "Decide between two designs",
+    "expected": ["writing-doc-rfc"],
+    "avoid": []
+  },
+  {
+    "prompt": "Write the agreed technical design",
+    "expected": ["writing-doc-design"],
+    "avoid": []
+  },
+  {
+    "prompt": "Validate this configuration change",
+    "expected": ["change-validation"],
+    "avoid": []
+  },
+  {
+    "prompt": "Commit these changes",
+    "expected": ["writing-commit-message"],
+    "avoid": []
+  },
+  {
+    "prompt": "Prepare a pull request description",
+    "expected": ["writing-pr-description"],
+    "avoid": []
+  },
+  {
+    "prompt": "Inspect the PR stack",
+    "expected": ["gh-stack"],
+    "avoid": []
+  },
+  {
+    "prompt": "Switch this Nix host to the new revision",
+    "expected": ["nix-deployment"],
+    "avoid": []
+  },
+  {
+    "prompt": "Group these existing worktrees",
+    "expected": ["feature-based-session-manager"],
+    "avoid": []
+  },
+  {
+    "prompt": "Record this durable task",
+    "expected": ["taskwarrior"],
+    "avoid": []
+  },
+  {
+    "prompt": "Inspect a visible terminal pane",
+    "expected": ["ty"],
+    "avoid": []
+  },
+  {
+    "prompt": "Explain what this single expression returns",
+    "expected": [],
+    "avoid": ["openspec-workflow", "nix-deployment"]
+  }
+]

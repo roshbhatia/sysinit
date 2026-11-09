@@ -101,8 +101,8 @@ layer carries the issue URL.
 `--web` opens the pre-filled web editor so the user reviews, sets labels and
 reviewers, and submits. Never use these by default: `--draft`, `--fill` /
 `--fill-first`, `--reviewer` / `--assignee` / `--label`, or submitting without
-`--web`. Never auto-submit (draft or ready) unless the immediately preceding user
-turn explicitly directed it.
+`--web`. Never auto-submit (draft or ready) unless the user authorized submission within the current task scope.
+Keep that authorization valid across implementation and verification turns.
 
 ## Top-line: issue URL alone on line 1
 

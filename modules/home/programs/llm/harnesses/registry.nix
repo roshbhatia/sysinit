@@ -15,6 +15,7 @@
     package = "amp-cli";
     glyph = "󰫤";
     command = "amp";
+    skillRoot = ".config/amp/skills";
     acp = true;
     openspecTool = [ ];
     guard = "globs";
@@ -41,6 +42,7 @@
     package = null;
     glyph = "";
     command = "claude";
+    skillRoot = ".claude/skills";
     launch.modelFlag = "--model";
     launch.resumeArgs = [ "--resume" ];
     acp = true;
@@ -68,6 +70,7 @@
     package = null;
     glyph = "󱗿";
     command = "codex";
+    skillRoot = ".claude/skills";
     launch.modelFlag = "--model";
     launch.resumeArgs = [ "resume" ];
     acp = true;
@@ -95,6 +98,7 @@
     package = "github-copilot-cli";
     glyph = "";
     command = "copilot";
+    skillRoot = ".copilot/skills";
     acp = true;
     openspecTool = [ "github-copilot" ];
 
@@ -121,6 +125,7 @@
     package = "crush";
     glyph = "";
     command = "crush";
+    skillRoot = ".claude/skills";
     acp = false;
     openspecTool = [ "crush" ];
     guard = "none";
@@ -146,6 +151,7 @@
     package = "cursor-cli";
     glyph = "";
     command = "cursor-agent";
+    skillRoot = ".claude/skills";
     launch.modelFlag = "--model";
     launch.resumeArgs = [ "--resume" ];
     acp = true;
@@ -173,6 +179,7 @@
     package = "devin-cli";
     glyph = "󰚩";
     command = "devin";
+    skillRoot = ".config/devin/skills";
     acp = true;
     openspecTool = [ ];
     guard = "both";
@@ -199,6 +206,7 @@
     package = "sysinit-fx";
     glyph = "▲";
     command = "fx";
+    skillRoot = ".claude/skills";
     acp = true;
     openspecTool = [ ];
     guard = "globs";
@@ -224,6 +232,7 @@
     package = "antigravity-cli";
     glyph = "󰊭";
     command = "agy";
+    skillRoot = ".claude/skills";
     acp = false;
     openspecTool = [
       "antigravity"
@@ -252,6 +261,7 @@
     package = "goose-cli";
     glyph = "";
     command = "goose";
+    skillRoot = ".claude/skills";
     acp = true;
     openspecTool = [ ];
     guard = "none";
@@ -277,6 +287,7 @@
     package = "opencode";
     glyph = "";
     command = "opencode";
+    skillRoot = ".claude/skills";
     acp = true;
     openspecTool = [ "opencode" ];
     guard = "globs";
@@ -302,6 +313,7 @@
     package = "pi-coding-agent";
     glyph = "󰏿";
     command = "pi";
+    skillRoot = ".claude/skills";
     acp = true;
     openspecTool = [ "pi" ];
     guard = "globs";
@@ -331,6 +343,7 @@
     package = "strands-cli";
     glyph = "S";
     command = "strands";
+    skillRoot = ".claude/skills";
     launch.modelFlag = "--model";
     acp = true;
     openspecTool = [ ];

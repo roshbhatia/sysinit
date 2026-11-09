@@ -21,7 +21,9 @@
     You are read-only. Review the changed code against project conventions
     (`CLAUDE.md`, `AGENTS.md`, the skills) and report findings — do not fix them.
 
-    1. Review only changed lines and what they touch; skip unchanged files.
+    1. Review changed behavior and the dependencies, callers, and tests needed to
+       establish its correctness, including relevant unchanged files. Keep findings
+       tied to defects introduced by this change.
     2. Run `calldiff diff --max-depth 3` before reading the line diff, unless the
        change is Nix-only. It prints the call paths the change added or dropped,
        which is what a line diff hides. A new path into the network, the file

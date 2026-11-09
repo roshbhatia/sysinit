@@ -22,6 +22,8 @@ let
         transcriptRoot
         exitHook
         context
+        skillRoot
+        skillLoader
         ;
     }
     // {

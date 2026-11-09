@@ -286,6 +286,10 @@ in
     ) "the amp MCP set carries suppressed, which harnessSuppressedServers removes";
     evalOnly "mcp-harness-suppression";
   editor-config = import ./editor-config.nix { inherit pkgs; };
+  skill-catalog = import ./skill-catalog.nix {
+    inherit pkgs;
+    home = homeConfigurations.${"dev-" + pkgs.stdenv.hostPlatform.system}.config;
+  };
   harness-instructions = import ./harness-instructions.nix {
     inherit pkgs;
     home = homeConfigurations.${"dev-" + pkgs.stdenv.hostPlatform.system}.config;

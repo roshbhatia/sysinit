@@ -32,9 +32,11 @@
           extraSections ? [ ],
         }:
         llmLib.instructions.makeInstructions {
-          inherit (skillsLib) localSkillDescriptions;
+          localSkillDescriptions =
+            skillsLib.localSkillDescriptions // config.sysinit.llm.instructions.additionalSkillDescriptions;
           extraSections = config.sysinit.llm.instructions.extraSections ++ extraSections;
           inherit harness skillsRoot;
+          skillRoutes = config.sysinit.llm.instructions.skillRoutes;
         };
 
       mkInstructionsWithStyle =
@@ -44,9 +46,11 @@
           extraSections ? [ ],
         }:
         llmLib.instructions.makeInstructionsWithStyle {
-          inherit (skillsLib) localSkillDescriptions;
+          localSkillDescriptions =
+            skillsLib.localSkillDescriptions // config.sysinit.llm.instructions.additionalSkillDescriptions;
           extraSections = config.sysinit.llm.instructions.extraSections ++ extraSections;
           inherit harness skillsRoot;
+          skillRoutes = config.sysinit.llm.instructions.skillRoutes;
         };
     };
 }

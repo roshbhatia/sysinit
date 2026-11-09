@@ -1,5 +1,5 @@
 {
-  description = "Specialized codebase understanding agent for multi-repository analysis, searching remote codebases, retrieving official documentation, and finding implementation examples. MUST BE USED when users ask to look up code in remote repositories, explain library internals, or find usage examples in open source. If local dependency setup is required for reproduction, prefer project-provided nix-shell/nix develop environments.";
+  description = "Specialized codebase understanding agent for multi-repository analysis, searching remote codebases, retrieving official documentation, and finding implementation examples. Use when authorized delegation benefits research into remote code, library internals, or open-source examples; otherwise research directly. If local dependency setup is required for reproduction, prefer project-provided nix-shell/nix develop environments.";
   temperature = 0.1;
 
   useWhen = [
