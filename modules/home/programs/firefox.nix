@@ -227,6 +227,21 @@ in
       };
     };
 
+    # firefox-devtools-mcp attaches here; Marionette marks the browser as automated.
+    profiles.agent = {
+      id = 1;
+      name = "agent";
+      inherit (config.programs.firefox.profiles.default)
+        userChrome
+        userContent
+        settings
+        ;
+      search = {
+        inherit (config.programs.firefox.profiles.default.search) force default engines;
+      };
+      extensions.packages = config.programs.firefox.profiles.default.extensions.packages;
+    };
+
     policies = {
       DisableTelemetry = true;
       DisableFirefoxStudies = true;
@@ -308,4 +323,13 @@ in
   };
 
   home.file.".local/share/firefox/newtab.html".text = newtabHTML;
+
+  home.packages = [
+    (pkgs.sysinit.writeShellApplication {
+      name = "firefox-agent";
+      text = ''
+        exec ${config.programs.firefox.finalPackage}/bin/firefox -P agent --marionette --remote-debugging-port "$@"
+      '';
+    })
+  ];
 }

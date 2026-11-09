@@ -35,6 +35,16 @@
       description = "Browser automation and end-to-end testing via Playwright";
     };
 
+    firefox-devtools = {
+      command = lib.getExe pkgs.firefox-devtools-mcp;
+      args = [
+        "--connect-existing"
+        "--marionette-port"
+        "2828"
+      ];
+      description = "Inspect and drive the Firefox agent profile started by firefox-agent";
+    };
+
   };
 
 }
