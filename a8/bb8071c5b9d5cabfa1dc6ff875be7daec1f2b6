@@ -1,0 +1,108 @@
+checks/skill-catalog.py
+  s_4541d03bc240df::t_bb75767579dacd 4,29-33
+  s_4541d03bc240df::t_a3a6e0436d51e9 15-22
+  s_4541d03bc240df::t_9a38a24643440c 1-3,5-13,24
+checks/skill-helpers.py
+  s_4541d03bc240df::t_0a65fa92d33713 2-94
+modules/home/programs/llm/options.nix
+  s_4541d03bc240df::t_939aa2dcc1f8bd 138-143,188,223
+  s_4541d03bc240df::t_7227b9ec6d8dad 144-149,151-155,157-158,164-166,169-170,173-174,180-182,184-187,191-193,209
+modules/home/programs/llm/AGENTS.md
+  s_4541d03bc240df::t_7227b9ec6d8dad 1-23
+AGENTS.md
+  s_4541d03bc240df::t_7227b9ec6d8dad 3-5,9,11-16,18-49
+modules/home/programs/llm/lib/harness-kit.nix
+  s_4541d03bc240df::t_939aa2dcc1f8bd 35-36,49-50
+  s_4541d03bc240df::t_7227b9ec6d8dad 39,53
+checks/fixtures/skills/contract-fixture/data.json
+  s_4541d03bc240df::t_9a38a24643440c 1
+modules/home/programs/llm/default.nix
+  s_4541d03bc240df::t_9a38a24643440c 158-163
+  s_4541d03bc240df::t_7227b9ec6d8dad 19,103,184-188
+checks/fixtures/skills/contract-fixture/references/nested/details.md
+  s_4541d03bc240df::t_9a38a24643440c 1-3
+checks/fixtures/skills/contract-fixture/scripts/probe.py
+  s_4541d03bc240df::t_9a38a24643440c 1
+checks/skill-catalog.nix
+  s_4541d03bc240df::t_9a38a24643440c 1-15,18-20,29-34,37-50,55-56
+  s_4541d03bc240df::t_bb75767579dacd 16-17,21-25,35-36
+modules/home/programs/llm/skills/skills-ecosystem-discovery/SKILL.md
+  s_4541d03bc240df::t_6f8b46c0a8ccef 22-30
+modules/home/programs/llm/harnesses/registry.nix
+  s_4541d03bc240df::t_7227b9ec6d8dad 18,45,73,101,128,154,182,209,235,264,290,316,346
+modules/home/programs/llm/lib/instructions.nix
+  s_4541d03bc240df::t_7227b9ec6d8dad 7,139,165-166,169-174,177-181
+  s_4541d03bc240df::t_939aa2dcc1f8bd 167-168
+modules/home/programs/llm/skills/render.nix
+  s_4541d03bc240df::t_9a38a24643440c 57
+  s_4541d03bc240df::t_7227b9ec6d8dad 27
+checks/fixtures/skills/invalid-metadata/SKILL.md
+  s_4541d03bc240df::t_bb75767579dacd 1-7
+checks/default.nix
+  s_4541d03bc240df::t_9a38a24643440c 289-292
+checks/harness-instructions.nix
+  s_4541d03bc240df::t_939aa2dcc1f8bd 48-49
+  s_4541d03bc240df::t_7227b9ec6d8dad 51
+docs/repository-reference.md
+  s_4541d03bc240df::t_7227b9ec6d8dad 1-22,24,26-127,129-257
+modules/home/programs/llm/subagents/code-reviewer.nix
+  s_4541d03bc240df::t_7227b9ec6d8dad 24-26
+modules/home/programs/llm/subagents/librarian.nix
+  s_4541d03bc240df::t_7227b9ec6d8dad 2
+checks/fixtures/skills/contract-fixture/SKILL.md
+  s_4541d03bc240df::t_9a38a24643440c 1-8
+modules/home/programs/llm/skills/gh-stack/SKILL.md
+  s_4541d03bc240df::t_7227b9ec6d8dad 59-60
+modules/home/programs/llm/skills/skills-ecosystem-discovery/scripts/catalog.py
+  s_4541d03bc240df::t_6f8b46c0a8ccef 1-2,4-12,14-18,20,28,39-42,56,60,62-63,65
+  s_4541d03bc240df::t_0a65fa92d33713 3,13,19,21-27,29-38,43-55,57-59,61,64
+checks/fixtures/skills/invalid-boolean/SKILL.md
+  s_4541d03bc240df::t_bb75767579dacd 1-7
+modules/home/programs/llm/skills/default.nix
+  s_4541d03bc240df::t_9a38a24643440c 4-5,9
+modules/home/programs/llm/skills/writing-pr-description/SKILL.md
+  s_4541d03bc240df::t_7227b9ec6d8dad 104-105
+modules/home/programs/llm/lib/skill-package.nix
+  s_4541d03bc240df::t_0940ee9e13fa93 32-34
+  s_4541d03bc240df::t_9a38a24643440c 1-31,35-63
+modules/home/programs/llm/harnesses/publish.nix
+  s_4541d03bc240df::t_7227b9ec6d8dad 25-26
+docs/skill-maintenance.md
+  s_4541d03bc240df::t_7a4a1676c6509f 1-41
+docs/skill-routing-cases.json
+  s_4541d03bc240df::t_5ee48b028bff2b 1-67
+modules/home/programs/llm/lib/frontmatter.nix
+  s_4541d03bc240df::t_775f30083eab70 108-126
+modules/home/programs/llm/skills/change-validation/SKILL.md
+  s_4541d03bc240df::t_05e306c70dc222 1-31
+modules/home/programs/llm/skills/debugging/SKILL.md
+  s_4541d03bc240df::t_f82ea022afeea2 1-24
+modules/home/programs/llm/skills/local-workflows/SKILL.md
+  s_4541d03bc240df::t_0d1398ae79f2a5 8-29
+modules/home/programs/llm/skills/local-workflows/references/execution-and-terminals.md
+  s_4541d03bc240df::t_901452e074212f 1-169
+modules/home/programs/llm/skills/nix-deployment/SKILL.md
+  s_4541d03bc240df::t_98b150aefe7bfb 1-35
+modules/home/programs/llm/skills/nix-deployment/scripts/host-state.py
+  s_4541d03bc240df::t_af48159112c41d 1-61
+modules/home/programs/llm/skills/taskwarrior/SKILL.md
+  s_4541d03bc240df::t_03fcddf2a7f985 40,42-45
+modules/home/programs/llm/skills/taskwarrior/references/queued-execution.md
+  s_4541d03bc240df::t_cd0adf82fc3974 1-53
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a8bb8071c5b9d5cabfa1dc6ff875be7daec1f2b6",
+  "prompts": {},
+  "sessions": {
+    "s_4541d03bc240df": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1bd09-f672-7982-8a4f-e1e208a96834",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
