@@ -1759,11 +1759,11 @@
         "spawn": "spawn"
       },
       "locked": {
-        "lastModified": 1794201760,
-        "narHash": "sha256-VfUvv1/4xiwgu62pLcDNA2dpajFEiUZepD785904psA=",
+        "lastModified": 1794202199,
+        "narHash": "sha256-dgErXKGSaThiSuuvsdCzAt6B1/sZEQXmXqnSN40nRZg=",
         "owner": "roshbhatia",
         "repo": "sysinit.wezterm",
-        "rev": "285a8fcce7a410d4eeabe7353b19bed96ca2aa67",
+        "rev": "92ba14b5d7e2b3f184dfd15959b0c0312450be73",
         "type": "github"
       },
       "original": {
