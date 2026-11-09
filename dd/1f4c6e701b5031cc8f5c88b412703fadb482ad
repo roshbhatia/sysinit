@@ -1,0 +1,27 @@
+modules/home/programs/wezterm/default.nix
+  s_4541d03bc240df::t_55709fe93c15d5 71
+docs/repository-reference.md
+  s_4541d03bc240df::t_b41ab94b074f83 241-245
+checks/default.nix
+  s_4541d03bc240df::t_b41ab94b074f83 349-351
+checks/wezterm-shell.nix
+  s_4541d03bc240df::t_59c737af72e744 18,20
+  s_4541d03bc240df::t_819159ddfdc926 7
+  s_4541d03bc240df::t_b41ab94b074f83 1-6,8-17,19,21-22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "dd1f4c6e701b5031cc8f5c88b412703fadb482ad",
+  "prompts": {},
+  "sessions": {
+    "s_4541d03bc240df": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1bd09-f672-7982-8a4f-e1e208a96834",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
