@@ -157,7 +157,7 @@ in
   home.activation.sysinitDefaultApps = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     app=${lib.escapeShellArg app}
     run mkdir -p "$app/Contents/MacOS"
-    run cp ${lib.escapeShellArg (toString plist)} "$app/Contents/Info.plist"
+    run install -m 0644 ${lib.escapeShellArg (toString plist)} "$app/Contents/Info.plist"
     run /usr/bin/swiftc -O -framework AppKit -framework CoreServices -framework UniformTypeIdentifiers \
       ${lib.escapeShellArg (toString source)} \
       -o "$app/Contents/MacOS/sysinit-neovim-file-opener"
