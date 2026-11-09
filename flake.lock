@@ -1217,11 +1217,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793315087,
-        "narHash": "sha256-J0gBLvFF0ob7Kzb9+/zIEcyl1QM8h78Fe1R2hoVVJss=",
+        "lastModified": 1793922487,
+        "narHash": "sha256-G4h1A3hig1KPBHAuSuIgfld5WJ6ia3pOn9rbsNp2u0U=",
         "owner": "roshbhatia",
         "repo": "nu_plugin_nvim",
-        "rev": "7cf2dad501ba9848ea3bde81d5cb616dc9f64ece",
+        "rev": "435ec9e12dc278030e9ecf621db73980d51f791c",
         "type": "github"
       },
       "original": {
