@@ -1,0 +1,63 @@
+modules/home/programs/nushell/externs/git.nu
+  s_4541d03bc240df::t_8a8039ff0018ba 1-7,10-28,30-42,44-53,55-74,76-86
+  s_4541d03bc240df::t_0bf7f435949c20 43,54
+  s_4541d03bc240df::t_7d4efd42c6e9b3 75
+  s_4541d03bc240df::t_d78367fbbc295e 8
+  s_4541d03bc240df::t_e7c0ba679cea89 9,29
+checks/nushell-completions.nix
+  s_4541d03bc240df::t_1bac19604ac058 21-23
+  s_4541d03bc240df::t_10a8b1b8eb97b7 10,13-16,19-20
+modules/home/programs/nushell/completers.nu.tmpl
+  s_4541d03bc240df::t_6951d4f1caa7a5 63-66
+modules/home/programs/nushell/default.nix
+  s_4541d03bc240df::t_8a8039ff0018ba 220-221
+docs/nushell-externs.md
+  s_4541d03bc240df::t_b4dc98527fb4e8 1-7,12-34,38-52,58-69,71-72,77-86
+  s_4541d03bc240df::t_4a8b2fdc813265 8-11
+  s_4541d03bc240df::t_30732c5690f132 53-57,73-74
+  s_4541d03bc240df::t_1bac19604ac058 70,75-76
+  s_4541d03bc240df::t_d78367fbbc295e 35-37
+overlays/default.nix
+  s_4541d03bc240df::t_a69a8cc31986f1 47
+checks/default.nix
+  s_4541d03bc240df::t_c3709d3c4e1e0d 345-348
+modules/home/programs/nushell/lib.nix
+  s_4541d03bc240df::t_8a8039ff0018ba 7-28
+overlays/nushell.nix
+  s_4541d03bc240df::t_4a8b2fdc813265 2-7
+  s_4541d03bc240df::t_5c7e52728923b4 18-20
+  s_4541d03bc240df::t_e7c0ba679cea89 16-17
+  s_4541d03bc240df::t_a69a8cc31986f1 1,8-15,21,24
+modules/home/programs/nushell/externs/tools.nu
+  s_4541d03bc240df::t_8a8039ff0018ba 1,4-21,24-40,43-57,60-71,74-84,88,91-98,101-106,109-117,120-128,131-140,143-154,157-168,171-183,186-193,196-204,207-220,223,225-229,232-234
+  s_4541d03bc240df::t_e7c0ba679cea89 85-87,224
+  s_4541d03bc240df::t_0bf7f435949c20 2,22,41,58,72,89,99,107,118,129,141,155,169,184,194,205,221,230
+  s_4541d03bc240df::t_2bf0ccbadffd6d 3,23,42,59,73,90,100,108,119,130,142,156,170,185,195,206,222,231
+checks/nushell-externs.nix
+  s_4541d03bc240df::t_c3709d3c4e1e0d 1-16
+checks/nushell-externs.py
+  s_4541d03bc240df::t_d78367fbbc295e 225-226
+  s_4541d03bc240df::t_7d4efd42c6e9b3 272,274-275,277-281
+  s_4541d03bc240df::t_10a8b1b8eb97b7 231-234
+  s_4541d03bc240df::t_30732c5690f132 184,211-212,238-244
+  s_4541d03bc240df::t_05f0dd7eb64dac 34-40,42,44-51,53,55-62,64,66
+  s_4541d03bc240df::t_1bac19604ac058 185,276
+  s_4541d03bc240df::t_2cf6031dfea668 126
+  s_4541d03bc240df::t_c3709d3c4e1e0d 1-13,15-33,67-83,85-125,127-171,173-177,179-183,186-210,213-220,222-224,227-230,235-237,245-271,282-283
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d126b45e3ae686439a1d170a12b93c3947b0e3a0",
+  "prompts": {},
+  "sessions": {
+    "s_4541d03bc240df": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1bd09-f672-7982-8a4f-e1e208a96834",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
