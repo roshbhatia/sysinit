@@ -86,11 +86,11 @@
     "ast-grep-skills": {
       "flake": false,
       "locked": {
-        "lastModified": 1789268336,
-        "narHash": "sha256-dORqiMdFOUQVEF6wn1IZiTIcslzO+441A0GZP4KNcOQ=",
+        "lastModified": 1793760842,
+        "narHash": "sha256-HFZVX/UYsct8EMtkczBGJNr9RjjDz77zY6SHS1WlKkc=",
         "owner": "ast-grep",
         "repo": "agent-skill",
-        "rev": "f2175aff21f20cfb8e2db30c28febeb3a2d42b61",
+        "rev": "0613dc7f82bbfb3b557380b54726b92f73358460",
         "type": "github"
       },
       "original": {
