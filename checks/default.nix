@@ -346,6 +346,9 @@ in
     inherit pkgs;
     inherit (pkgs) lib;
   };
+  wezterm-shell = import ./wezterm-shell.nix {
+    inherit pkgs darwinConfigurations nixosConfigurations;
+  };
   nushell-wezterm =
     let
       shellConfig = pkgs.writeText "wezterm-check-config.nu" ''

@@ -68,7 +68,7 @@ in
 
       bin = "${config.home.profileDirectory}/bin";
       shell = [
-        (lib.getExe pkgs.nushell)
+        "${config.home.profileDirectory}/bin/nu"
         "--config"
         "${config.xdg.configHome}/nushell/config.nu"
         "--env-config"

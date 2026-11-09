@@ -238,6 +238,11 @@ them errors; the code no longer carries a comment saying so.
   Every `wezterm cli` call from a window manager, a poller, or a hook therefore
   passes `--no-auto-start`. When `list-clients` is empty, `wezspawn` opens a GUI
   rather than spawning.
+- A persistent mux retains its startup configuration across system switches.
+  Its shell command must use the user profile path, not a versioned store path.
+  Otherwise a new pane can launch an old Nushell against newly deployed syntax.
+  A fresh standalone shell does not test this path; verify a pane launched by
+  the existing mux. Replacing the mux requires preserving its panes and jobs.
 - A zero-byte state file is what an interrupted first write leaves behind.
   Testing only for existence makes it absorbing. jq on an empty file exits 0 with
   no output, so every later write reports success and stores nothing.
