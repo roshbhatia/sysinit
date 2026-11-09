@@ -1,0 +1,19 @@
+flake.lock
+  s_823df142a94f27::t_6a9c0588f8a25c 1571-1572,1575,1762-1763,1766
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "49f747ba83bc8276a8471df352a25cee6568db9b",
+  "prompts": {},
+  "sessions": {
+    "s_823df142a94f27": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e37c8c01-c1a2-4d87-94a7-b84ec196ba06",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
