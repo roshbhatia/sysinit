@@ -342,6 +342,10 @@ in
     inherit (pkgs) lib;
     fzf = homeConfigurations.${"dev-" + pkgs.stdenv.hostPlatform.system}.config.programs.fzf.package;
   };
+  nushell-externs = import ./nushell-externs.nix {
+    inherit pkgs;
+    inherit (pkgs) lib;
+  };
   nushell-wezterm =
     let
       shellConfig = pkgs.writeText "wezterm-check-config.nu" ''

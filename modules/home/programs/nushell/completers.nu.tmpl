@@ -60,7 +60,10 @@ let carapace_completer = {|spans: list<string>|
 }
 
 let external_completer = {|place: record|
-  let spans = $place.command
+  let command = if $place.command.0 in (scope externs | get name) {
+    $place.command.0 | split row " "
+  } else { [$place.command.0] }
+  let spans = $place.command | skip 1 | prepend $command
   let expanded_alias = (
     scope aliases
     | where name == $spans.0

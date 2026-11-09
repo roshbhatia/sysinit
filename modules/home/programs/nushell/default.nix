@@ -217,6 +217,8 @@ in
 
         ${completersConfig}
 
+        use ${nushellLib.externs pkgs} *
+
         source ${ompInitFile}
         # The baked script pins the id it was built with, so every pane would
         # otherwise report one shared prompt session to oh-my-posh.

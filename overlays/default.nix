@@ -44,6 +44,7 @@
   (import ./crush.nix)
   (import ./fx.nix)
   (import ./fzf.nix)
+  (import ./nushell.nix)
   (import ./contextive.nix)
   (import ./ioskeleyMono.nix)
   (import ./wumpusMono.nix)

@@ -7,11 +7,20 @@ let
   nushellLib = import ../modules/home/programs/nushell/lib.nix { inherit lib; };
   config = pkgs.writeText "completion-check-config.nu" ''
     ${nushellLib.completers pkgs}
+    use ${nushellLib.externs pkgs} *
   '';
   script = pkgs.writeText "completion-check.nu" ''
+    let fish = ('nu --ver' | commandline complete)
+    if not ($fish | any {|value| $value | str contains '--version'}) {
+      error make {msg: $"fish completion failed: ($fish)"}
+    }
     let git = ('git --ver' | commandline complete)
     if not ($git | any {|value| $value | str contains '--version'}) {
-      error make {msg: $"fish completion failed: ($git)"}
+      error make {msg: $"git extern completion failed: ($git)"}
+    }
+    let subcommand = ('gh pr list --ap' | commandline complete)
+    if not ($subcommand | any {|value| $value | str contains '--app'}) {
+      error make {msg: $"multiword extern completion failed: ($subcommand)"}
     }
     let carapace = ('fzf --ver' | commandline complete)
     if not ($carapace | any {|value| $value | str contains '--version'}) {
