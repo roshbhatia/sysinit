@@ -26,7 +26,6 @@ let
   };
   plugins = {
     sysinit-output = outputMod;
-    sysinit-diff = ./diff-mod;
     cc-pr-tracker = prTracker;
     claude-mermaid = "${mods}/claude-mermaid";
     claude-queue = "${mods}/claude-queue";
