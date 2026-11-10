@@ -224,6 +224,11 @@ in
         # otherwise report one shared prompt session to oh-my-posh.
         $env.POSH_SESSION_ID = (random uuid)
 
+        # Align input with Nushell's two-column status-line inset.
+        $env.PROMPT_INDICATOR = "\n> "
+        $env.PROMPT_INDICATOR_VI_INSERT = "\n: "
+        $env.PROMPT_INDICATOR_VI_NORMAL = "\n> "
+
         use ${functionsFile} *
         use ${./onepassword.nu} *
         use ${./storage.nu} *
