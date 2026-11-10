@@ -1,0 +1,19 @@
+modules/home/programs/nushell/default.nix
+  s_5cc98e90a5dcd0::t_05380de68ab360 227-231
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e87ae0eceafb7cd7f235584e9828d0bf207831ac",
+  "prompts": {},
+  "sessions": {
+    "s_5cc98e90a5dcd0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1c285-3fe7-7620-b33c-02f6bfdbfbf4",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
