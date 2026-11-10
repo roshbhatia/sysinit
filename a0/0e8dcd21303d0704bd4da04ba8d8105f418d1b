@@ -1,0 +1,30 @@
+modules/home/programs/nushell/lib.nix
+  s_5cc98e90a5dcd0::t_940c4db19ec3fc 9-19,21-38,40,43
+checks/nushell-completions.nix
+  s_5cc98e90a5dcd0::t_a8a5487ffbe776 8,12-15,38-48
+  s_5cc98e90a5dcd0::t_87e7cdb330c418 49
+modules/home/programs/nushell/externs/agents.nu
+  s_5cc98e90a5dcd0::t_1e25cb328ebef0 10-17,21,29,37,39
+  s_5cc98e90a5dcd0::t_ef93c734adf70f 1-9,18-20,22-28,30-36,38,40-50
+checks/nushell-externs.py
+  s_5cc98e90a5dcd0::t_30029bd11efd44 216-220
+  s_5cc98e90a5dcd0::t_a674e6ffafe704 317-318
+  s_5cc98e90a5dcd0::t_ab01b308cc2f00 27,88-91,93-96,98-103,105,301-309,311-313,315-316,319-324
+  s_5cc98e90a5dcd0::t_c45e8b540bce4b 128,310,314,325-335
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a00e8dcd21303d0704bd4da04ba8d8105f418d1b",
+  "prompts": {},
+  "sessions": {
+    "s_5cc98e90a5dcd0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1c285-3fe7-7620-b33c-02f6bfdbfbf4",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
