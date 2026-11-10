@@ -24,7 +24,7 @@ if os.environ.get("EXTERN_BAD_JSON"):
     print("invalid JSON")
 elif os.environ.get("EXTERN_EMPTY"):
     pass
-elif any(arg in args for arg in ["--json", "--format", "--format-version", "-o"]) or "inspect" in args:
+elif any(arg in args for arg in ["--json", "--format", "--format-version", "--style", "-o"]) or "inspect" in args:
     print(os.environ["EXTERN_DATA"])
 else:
     print("native text")
@@ -85,6 +85,24 @@ CASES = [
     ),
     ("pueue status status=running", ["pueue", "status", "--json"], "record"),
     ("colima list", ["colima", "list", "--json"], "objects"),
+    ("atuin threads list", ["atuin", "threads", "list", "--style", "json"], "array"),
+    (
+        "atuin threads show latest",
+        ["atuin", "threads", "show", "--style", "json"],
+        "record",
+    ),
+    (
+        "atuin threads search fixture",
+        ["atuin", "threads", "search", "--style", "json"],
+        "array",
+    ),
+    ("threads list", ["atuin", "threads", "list", "--style", "json"], "array"),
+    ("threads show latest", ["atuin", "threads", "show", "--style", "json"], "record"),
+    (
+        "threads search fixture",
+        ["atuin", "threads", "search", "--style", "json"],
+        "array",
+    ),
 ]
 
 
@@ -107,7 +125,7 @@ class ExternTests(unittest.TestCase):
             "GIT_AUTHOR_EMAIL": "fixture@example.invalid",
             "GIT_COMMITTER_EMAIL": "fixture@example.invalid",
         }
-        for name in {case[1][0] for case in CASES}:
+        for name in {case[1][0] for case in CASES} | {"codex", "claude"}:
             executable = self.bin / name
             executable.write_text(MOCK.replace("__PYTHON__", sys.executable))
             executable.chmod(0o755)
@@ -195,10 +213,11 @@ class ExternTests(unittest.TestCase):
         self.assertIn("int", result.stderr)
 
     def test_external_failures_and_invalid_json(self):
-        for env in [{"EXTERN_FAIL": "1"}, {"EXTERN_BAD_JSON": "1"}]:
-            with self.subTest(env=env):
-                result = self.nu("gh pr list | collect", env=env, check=False)
-                self.assertNotEqual(result.returncode, 0)
+        for command in ["gh pr list", "threads list"]:
+            for env in [{"EXTERN_FAIL": "1"}, {"EXTERN_BAD_JSON": "1"}]:
+                with self.subTest(command=command, env=env):
+                    result = self.nu(f"{command} | collect", env=env, check=False)
+                    self.assertNotEqual(result.returncode, 0)
         result = self.nu(
             "docker ps | collect | to json --raw", env={"EXTERN_EMPTY": "1"}
         )
@@ -278,6 +297,42 @@ class ExternTests(unittest.TestCase):
           'kubectl get fixture-' | commandline complete | to json --raw
         """
         self.assertIn("fixture-pod", self.nu(code).stdout)
+
+    def test_thread_resume_preserves_interactive_arguments(self):
+        self.nu("threads resume fixture --in codex --print")
+        self.assertEqual(
+            json.loads(self.argv.read_text().splitlines()[-1]),
+            ["atuin", "threads", "resume", "fixture", "--in", "codex", "--print"],
+        )
+
+    def test_agent_and_thread_completions(self):
+        for command, expected in [
+            ("codex res", "codex resume"),
+            ("codex resume --la", "--last"),
+            ("claude --res", "--resume"),
+            ("threads --a", "--all"),
+            ("threads res", "threads resume"),
+            ("threads resume --in co", "codex"),
+            ("atuin threads resume --in cl", "claude"),
+            ("threads list --style js", "json"),
+            ("threads search fixture --harness cl", "claude-code"),
+        ]:
+            with self.subTest(command=command):
+                result = self.nu(
+                    f"{json.dumps(command)} | commandline complete | to json --raw"
+                )
+                self.assertIn(expected, json.loads(result.stdout))
+
+    def test_harness_resume_does_not_inject_output_options(self):
+        for command, expected in [
+            ("codex resume fixture --last", ["codex", "resume", "fixture", "--last"]),
+            ("claude --resume fixture", ["claude", "--resume", "fixture"]),
+        ]:
+            with self.subTest(command=command):
+                self.assertEqual(self.nu(command).stdout.strip(), "native text")
+                self.assertEqual(
+                    json.loads(self.argv.read_text().splitlines()[-1]), expected
+                )
 
 
 unittest.main()

@@ -5,9 +5,14 @@
 }:
 let
   nushellLib = import ../modules/home/programs/nushell/lib.nix { inherit lib; };
+  registry = import ../modules/home/programs/llm/harnesses/registry.nix;
   config = pkgs.writeText "completion-check-config.nu" ''
     ${nushellLib.completers pkgs}
     use ${nushellLib.externs pkgs} *
+    ${lib.concatMapStringsSep "\n" (h: ''
+      alias ${builtins.toJSON h.shellAlias.name} = ${h.shellAlias.value}
+      alias ${builtins.toJSON "${h.command}-full"} = ${h.shellAlias.value}
+    '') (builtins.attrValues registry)}
   '';
   script = pkgs.writeText "completion-check.nu" ''
     let fish = ('nu --ver' | commandline complete)
@@ -29,6 +34,18 @@ let
     let path = ('cat completion-tar' | commandline complete)
     if not ($path | any {|value| $value | str contains 'completion-target.txt'}) {
       error make {msg: $"path fallback failed: ($path)"}
+    }
+    for case in [
+      {command: 'cdx resume --la', expected: '--last'}
+      {command: 'codex-full resume --la', expected: '--last'}
+      {command: 'cld --res', expected: '--resume'}
+      {command: 'claude-full --res', expected: '--resume'}
+      {command: 'threads resume --in co', expected: 'codex'}
+    ] {
+      let values = ($case.command | commandline complete)
+      if not ($values | any {|value| $value | str contains $case.expected}) {
+        error make {msg: $"agent completion failed for ($case.command): ($values)"}
+      }
     }
     source ${fzf}/share/fzf/completion.nu
     $env.FZF_DEFAULT_OPTS = '--filter=completion-target.txt'

@@ -6,24 +6,41 @@ in
   inherit arguments;
   externs =
     pkgs:
+    let
+      registry = import ../llm/harnesses/registry.nix;
+      atuinCompletions = pkgs.runCommand "atuin-completions.nu" { } ''
+        ${pkgs.atuin}/bin/atuin gen-completions --shell nushell > "$out"
+      '';
+      harnessExterns = lib.concatMapStringsSep "\n" (h: ''
+        # ${h.label}
+        @complete external
+        export extern ${builtins.toJSON h.command} [...args: string]
+      '') (builtins.attrValues registry);
+    in
     pkgs.writeText "sysinit-externs.nu" (
-      lib.concatMapStringsSep "\n"
-        (name: ''
-          export use ${pkgs.nu_scripts}/share/nu_scripts/custom-completions/${name}/${name}-completions.nu *
-        '')
-        [
-          "git"
-          "nix"
-          "docker"
-          "cargo"
-          "uv"
-          "rg"
-          "ssh"
-          "just"
-        ]
+      harnessExterns
+      +
+        lib.concatMapStringsSep "\n"
+          (name: ''
+            export use ${pkgs.nu_scripts}/share/nu_scripts/custom-completions/${name}/${name}-completions.nu *
+          '')
+          [
+            "git"
+            "nix"
+            "docker"
+            "cargo"
+            "uv"
+            "rg"
+            "ssh"
+            "just"
+            "codex"
+            "claude"
+          ]
       + ''
+        export use ${atuinCompletions} *
         export use ${./externs/git.nu} *
         export use ${./externs/tools.nu} *
+        export use ${./externs/agents.nu} *
       ''
     );
   completers =
