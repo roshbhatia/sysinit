@@ -1,0 +1,31 @@
+modules/home/programs/gh.nix
+  s_823df142a94f27::t_cd52085ef0a157 24-27
+flake.lock
+  s_823df142a94f27::t_a9702ba62a8f1d 420-442,709,1003-1025,1497,1520-1536,1869-1883,2137-2176
+flake.nix
+  s_823df142a94f27::t_908f70e84f600c 146-149,342
+modules/darwin/home/hammerspoon/url-providers/default.nix
+  s_823df142a94f27::t_29aee996024901 52
+modules/darwin/home/hammerspoon/url-routing.nix
+  s_823df142a94f27::t_073999e38c2ee3 172
+modules/home/programs/gh-pr-diff.py
+  s_823df142a94f27::t_0c345d3481f368 71-89,125
+overlays/inputs.nix
+  s_823df142a94f27::t_6c549cccb2a5e2 56
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a616963790549f5cbc586bbf8d4564a29798b1c7",
+  "prompts": {},
+  "sessions": {
+    "s_823df142a94f27": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e37c8c01-c1a2-4d87-94a7-b84ec196ba06",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
