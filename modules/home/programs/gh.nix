@@ -12,6 +12,7 @@ let
       pkgs.gh
       pkgs.git
       pkgs.hunk
+      pkgs.tuicr
     ];
     text = ''
       exec ${lib.getExe pkgs.python3} ${./gh-pr-diff.py} "$@"
@@ -20,7 +21,10 @@ let
 in
 
 {
-  home.packages = [ prDiff ];
+  home.packages = [
+    prDiff
+    pkgs.tuicr
+  ];
   programs.gh-dash = {
     enable = true;
     package = null;

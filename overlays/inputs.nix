@@ -53,6 +53,7 @@ in
   wezspawn = inputs.sysinit-wezterm.packages.${final.stdenv.hostPlatform.system}.wezspawn;
   sysinit-nvim-source = inputs.sysinit-nvim.outPath;
   hunk = inputs.hunk.packages.${final.stdenv.hostPlatform.system}.default;
+  tuicr = inputs.tuicr.packages.${final.stdenv.hostPlatform.system}.default;
   agent-notes = inputs.agent-notes.packages.${final.stdenv.hostPlatform.system}.default;
   agent-notes-nvim = inputs.agent-notes.packages.${final.stdenv.hostPlatform.system}.neovim-plugin;
   seshy-picker = inputs.seshy.packages.${final.stdenv.hostPlatform.system}.provider-wezterm;

@@ -143,6 +143,10 @@
       url = "github:modem-dev/hunk";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    tuicr = {
+      url = "github:agavra/tuicr";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     hunk-commit-log = {
       url = "github:sadick254/hunk-commit-log";
       flake = false;
@@ -335,6 +339,7 @@
         let
           cacheAttrs = [
             "hunk"
+            "tuicr"
             "openspec"
             "calldiff"
             "ast-grep-mcp"

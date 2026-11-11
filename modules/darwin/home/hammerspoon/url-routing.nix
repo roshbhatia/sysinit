@@ -169,6 +169,7 @@ in
               "diffview"
               "changes"
               "hunk"
+              "tuicr"
             ];
           };
           actions = {

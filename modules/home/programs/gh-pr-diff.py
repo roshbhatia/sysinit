@@ -68,6 +68,25 @@ def main(url, tool="nvim", history=False, overview=False):
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError as error:
             raise ValueError("This PR already has an open diff viewer") from error
+        if tool == "tuicr":
+            # tuicr fetches the PR through gh, which resolves the repository from origin.
+            remote = f"https://github.com/{owner}/{repo}.git"
+            subprocess.run(
+                ["git", "-C", str(directory), "init", "--quiet", "--template="],
+                check=True,
+            )
+            remotes = subprocess.run(
+                ["git", "-C", str(directory), "remote"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.split()
+            subcommand = "set-url" if "origin" in remotes else "add"
+            subprocess.run(
+                ["git", "-C", str(directory), "remote", subcommand, "origin", remote],
+                check=True,
+            )
+            return subprocess.run(["tuicr", "pr", number], cwd=directory).returncode
         if tool == "hunk":
             environment = os.environ.copy()
             if not (environment.get("GH_TOKEN") or environment.get("GITHUB_TOKEN")):
@@ -103,7 +122,7 @@ if __name__ == "__main__":
     parser.add_argument("url")
     parser.add_argument(
         "--tool",
-        choices=["nvim", "atlas", "diffview", "changes", "hunk"],
+        choices=["nvim", "atlas", "diffview", "changes", "hunk", "tuicr"],
         default="nvim",
     )
     parser.add_argument("--history", action="store_true")
