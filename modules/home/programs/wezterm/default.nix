@@ -64,6 +64,13 @@ in
 
       agents = import ../llm/harnesses/deck-patterns.nix;
 
+      # Saved in plain text under the 0700 recovery directory; history copies omit it.
+      persistence.scrollback_lines = 10000;
+
+      agentResume = lib.mapAttrs (_n: h: [ h.command ] ++ h.launch.continueArgs) (
+        lib.filterAttrs (_n: h: h ? launch.continueArgs) (import ../llm/harnesses/registry.nix)
+      );
+
       agentIdentity = lib.mapAttrs (_n: h: {
         inherit (h) label glyph;
       }) (import ../llm/harnesses/registry.nix);

@@ -42,9 +42,13 @@
     package = null;
     glyph = "";
     command = "claude";
+    launch = {
+      # Continues the most recent session in the working directory.
+      continueArgs = [ "--continue" ];
+      modelFlag = "--model";
+      resumeArgs = [ "--resume" ];
+    };
     skillRoot = ".claude/skills";
-    launch.modelFlag = "--model";
-    launch.resumeArgs = [ "--resume" ];
     acp = true;
     openspecTool = [ "claude" ];
     guard = "hook";
@@ -70,9 +74,16 @@
     package = null;
     glyph = "󱗿";
     command = "codex";
+    launch = {
+      # Continues the most recent session in the working directory.
+      continueArgs = [
+        "resume"
+        "--last"
+      ];
+      modelFlag = "--model";
+      resumeArgs = [ "resume" ];
+    };
     skillRoot = ".claude/skills";
-    launch.modelFlag = "--model";
-    launch.resumeArgs = [ "resume" ];
     acp = true;
     openspecTool = [ "codex" ];
     guard = "hook";
@@ -261,6 +272,11 @@
     package = "goose-cli";
     glyph = "";
     command = "goose";
+    # Continues the most recent session in the working directory.
+    launch.continueArgs = [
+      "session"
+      "--resume"
+    ];
     skillRoot = ".claude/skills";
     acp = true;
     openspecTool = [ ];
@@ -287,6 +303,8 @@
     package = "opencode";
     glyph = "";
     command = "opencode";
+    # Continues the most recent session in the working directory.
+    launch.continueArgs = [ "--continue" ];
     skillRoot = ".claude/skills";
     acp = true;
     openspecTool = [ "opencode" ];
@@ -313,6 +331,8 @@
     package = "pi-coding-agent";
     glyph = "󰏿";
     command = "pi";
+    # Continues the most recent session in the working directory.
+    launch.continueArgs = [ "--continue" ];
     skillRoot = ".claude/skills";
     acp = true;
     openspecTool = [ "pi" ];
