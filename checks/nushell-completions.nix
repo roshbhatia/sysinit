@@ -6,12 +6,13 @@
 let
   nushellLib = import ../modules/home/programs/nushell/lib.nix { inherit lib; };
   registry = import ../modules/home/programs/llm/harnesses/registry.nix;
+  inherit (import ../modules/lib/shell/aliases.nix) commonAliases;
   config = pkgs.writeText "completion-check-config.nu" ''
     ${nushellLib.completers pkgs}
     use ${nushellLib.externs pkgs} *
     ${lib.concatMapStringsSep "\n" (h: ''
-      alias ${builtins.toJSON h.shellAlias.name} = ${h.shellAlias.value}
-      alias ${builtins.toJSON "${h.command}-full"} = ${h.shellAlias.value}
+      alias ${builtins.toJSON h.shellAlias.name} = ${commonAliases.${h.shellAlias.name}}
+      alias ${builtins.toJSON "${h.command}-full"} = ${commonAliases."${h.command}-full"}
     '') (builtins.attrValues registry)}
   '';
   script = pkgs.writeText "completion-check.nu" ''

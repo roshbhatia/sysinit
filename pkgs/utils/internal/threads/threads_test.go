@@ -103,3 +103,34 @@ func TestNativePassthrough(t *testing.T) {
 		t.Fatalf("output=%q err=%v", output, err)
 	}
 }
+
+func TestWithFullAccess(t *testing.T) {
+	access := map[string]fullAccess{
+		"claude": {Args: []string{"--dangerously-skip-permissions"}},
+		"goose":  {Env: map[string]string{"GOOSE_MODE": "auto"}},
+		"amp":    {},
+	}
+	for _, tc := range []struct{ line, want string }{
+		{"cd -- '/repo with spaces' && claude --resume abc", "cd -- '/repo with spaces' && claude --dangerously-skip-permissions --resume abc"},
+		{"cd -- /repo && goose session --resume", "cd -- /repo && GOOSE_MODE=auto goose session --resume"},
+		{"cd -- /repo && amp threads continue", "cd -- /repo && amp threads continue"},
+		{"cd -- /repo && unknown --resume x", "cd -- /repo && unknown --resume x"},
+		{"claude --resume abc", "claude --dangerously-skip-permissions --resume abc"},
+	} {
+		if got := withFullAccess(tc.line, access); got != tc.want {
+			t.Fatalf("withFullAccess(%q) = %q, want %q", tc.line, got, tc.want)
+		}
+	}
+}
+
+func TestLoadFullAccess(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "agents.json")
+	data := `{"agents":[{"command":"codex","launch":{"fullAccess":{"args":["--dangerously-bypass-approvals-and-sandbox"],"env":{}}}}]}`
+	if err := os.WriteFile(path, []byte(data), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	access, err := loadFullAccess(path)
+	if err != nil || len(access["codex"].Args) != 1 || access["codex"].Args[0] != "--dangerously-bypass-approvals-and-sandbox" {
+		t.Fatalf("access=%v err=%v", access, err)
+	}
+}

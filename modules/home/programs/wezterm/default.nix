@@ -67,9 +67,17 @@ in
       # Saved in plain text under the 0700 recovery directory; history copies omit it.
       persistence.scrollback_lines = 10000;
 
-      agentResume = lib.mapAttrs (_n: h: [ h.command ] ++ h.launch.continueArgs) (
-        lib.filterAttrs (_n: h: h ? launch.continueArgs) (import ../llm/harnesses/registry.nix)
-      );
+      agentResume = lib.mapAttrs (
+        _n: h:
+        let
+          inherit (h.launch.fullAccess) args env;
+          assignments = lib.mapAttrsToList (name: value: "${name}=${value}") env;
+        in
+        lib.optionals (assignments != [ ]) ([ "env" ] ++ assignments)
+        ++ [ h.command ]
+        ++ args
+        ++ h.launch.continueArgs
+      ) (lib.filterAttrs (_n: h: h ? launch.continueArgs) (import ../llm/harnesses/registry.nix));
 
       agentIdentity = lib.mapAttrs (_n: h: {
         inherit (h) label glyph;

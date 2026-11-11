@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strings"
 	"syscall"
 	"time"
@@ -27,6 +28,7 @@ Pick a thread, then choose:
   Inspect         Show its captured conversation
 
 Switching harnesses always creates a new session through Atuin conversion.
+Every launch adds the harness's registry full-access flags (launch.fullAccess).
 --print prints the launch command; forks and conversions still create sessions.
 Other arguments pass through to atuin threads, including list/search/show/resume.
 By default, the picker shows threads captured in the current folder and its
@@ -48,7 +50,9 @@ func Run(args []string) int {
 		return 0
 	}
 	argv, err := prepare(args, pick)
-	if err == nil && len(argv) > 0 {
+	if err == nil && len(argv) > 0 && argv[0] == "resume" {
+		err = resume(argv)
+	} else if err == nil && len(argv) > 0 {
 		var binary string
 		binary, err = exec.LookPath("atuin")
 		if err == nil {
@@ -60,6 +64,105 @@ func Run(args []string) int {
 		return 1
 	}
 	return 0
+}
+
+// resume asks Atuin for the launch line, which still creates any fork or conversion,
+// then runs it with the harness's registry full-access flags so it starts unprompted.
+func resume(argv []string) error {
+	printOnly := false
+	for _, arg := range argv {
+		printOnly = printOnly || arg == "--print"
+	}
+	if !printOnly {
+		argv = append(argv, "--print")
+	}
+	cmd := exec.Command("atuin", argv...)
+	cmd.Stdin, cmd.Stderr = os.Stdin, os.Stderr
+	out, err := cmd.Output()
+	if err != nil {
+		return fmt.Errorf("prepare the resume command: %w", err)
+	}
+	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
+	access, err := loadFullAccess(agents.Path())
+	if err != nil {
+		return err
+	}
+	line := withFullAccess(lines[len(lines)-1], access)
+	if printOnly {
+		fmt.Println(line)
+		return nil
+	}
+	return syscall.Exec("/bin/sh", []string{"sh", "-c", line}, os.Environ())
+}
+
+type fullAccess struct {
+	Args []string          `json:"args"`
+	Env  map[string]string `json:"env"`
+}
+
+// The shared agents type predates launch.fullAccess, so read just that field here.
+func loadFullAccess(path string) (map[string]fullAccess, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("read harness registry: %w", err)
+	}
+	var registry struct {
+		Agents []struct {
+			Command string `json:"command"`
+			Launch  struct {
+				FullAccess fullAccess `json:"fullAccess"`
+			} `json:"launch"`
+		} `json:"agents"`
+	}
+	if err := json.Unmarshal(data, &registry); err != nil {
+		return nil, fmt.Errorf("decode harness registry: %w", err)
+	}
+	access := map[string]fullAccess{}
+	for _, agent := range registry.Agents {
+		access[agent.Command] = agent.Launch.FullAccess
+	}
+	return access, nil
+}
+
+// withFullAccess rewrites Atuin's "cd -- DIR && CMD ARGS" line to
+// "cd -- DIR && ENV... CMD FULL-ACCESS-ARGS ARGS", leaving Atuin's own quoting intact.
+func withFullAccess(line string, access map[string]fullAccess) string {
+	marker := strings.LastIndex(line, "&& ")
+	start := 0
+	if marker >= 0 {
+		start = marker + len("&& ")
+	}
+	rest := line[start:]
+	command, tail, _ := strings.Cut(rest, " ")
+	extra, ok := access[command]
+	if !ok || (len(extra.Args) == 0 && len(extra.Env) == 0) {
+		return line
+	}
+	var words []string
+	names := make([]string, 0, len(extra.Env))
+	for name := range extra.Env {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	for _, name := range names {
+		words = append(words, name+"="+shellQuote(extra.Env[name]))
+	}
+	words = append(words, command)
+	for _, arg := range extra.Args {
+		words = append(words, shellQuote(arg))
+	}
+	rewritten := strings.Join(words, " ")
+	if tail != "" {
+		rewritten += " " + tail
+	}
+	return line[:start] + rewritten
+}
+
+func shellQuote(value string) string {
+	if value != "" && strings.Trim(value, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_=./:@") == "" {
+		return value
+	}
+	return "'" + strings.ReplaceAll(value, "'", `'\''`) + "'"
 }
 
 func prepare(args []string, choose func([]string, string) (int, error)) ([]string, error) {

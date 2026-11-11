@@ -2,7 +2,6 @@
   amp = {
     shellAlias = {
       name = "amp";
-      value = "env amp";
     };
     label = "Amp";
     module = ./amp.nix;
@@ -23,12 +22,18 @@
     projectDir = ".agents/";
     transcriptRoot = null;
     exitHook = false;
+    launch = {
+      # Runs without permission prompts; the shell aliases and session launchers use it.
+      fullAccess = {
+        args = [ ];
+        env = { };
+      };
+    };
   };
 
   claude = {
     shellAlias = {
       name = "cld";
-      value = "claude --dangerously-skip-permissions";
     };
     label = "Claude Code";
     module = ./claude;
@@ -47,6 +52,11 @@
       continueArgs = [ "--continue" ];
       modelFlag = "--model";
       resumeArgs = [ "--resume" ];
+      # Runs without permission prompts; the shell aliases and session launchers use it.
+      fullAccess = {
+        args = [ "--dangerously-skip-permissions" ];
+        env = { };
+      };
     };
     skillRoot = ".claude/skills";
     acp = true;
@@ -61,7 +71,6 @@
   codex = {
     shellAlias = {
       name = "cdx";
-      value = "codex --dangerously-bypass-approvals-and-sandbox";
     };
     label = "Codex";
     module = ./codex.nix;
@@ -82,6 +91,11 @@
       ];
       modelFlag = "--model";
       resumeArgs = [ "resume" ];
+      # Runs without permission prompts; the shell aliases and session launchers use it.
+      fullAccess = {
+        args = [ "--dangerously-bypass-approvals-and-sandbox" ];
+        env = { };
+      };
     };
     skillRoot = ".claude/skills";
     acp = true;
@@ -96,7 +110,6 @@
   copilot = {
     shellAlias = {
       name = "cpl";
-      value = "copilot --allow-all";
     };
     label = "Copilot";
     module = ./copilot-cli.nix;
@@ -118,12 +131,18 @@
     projectDir = ".copilot/";
     transcriptRoot = null;
     exitHook = false;
+    launch = {
+      # Runs without permission prompts; the shell aliases and session launchers use it.
+      fullAccess = {
+        args = [ "--allow-all" ];
+        env = { };
+      };
+    };
   };
 
   crush = {
     shellAlias = {
       name = "crs";
-      value = "crush --yolo";
     };
     label = "Crush";
     module = ./crush.nix;
@@ -144,12 +163,18 @@
     projectDir = ".crush/";
     transcriptRoot = null;
     exitHook = false;
+    launch = {
+      # Runs without permission prompts; the shell aliases and session launchers use it.
+      fullAccess = {
+        args = [ "--yolo" ];
+        env = { };
+      };
+    };
   };
 
   cursor = {
     shellAlias = {
       name = "cur";
-      value = "cursor-agent --yolo";
     };
     label = "Cursor";
     module = ./cursor;
@@ -163,8 +188,15 @@
     glyph = "";
     command = "cursor-agent";
     skillRoot = ".claude/skills";
-    launch.modelFlag = "--model";
-    launch.resumeArgs = [ "--resume" ];
+    launch = {
+      modelFlag = "--model";
+      resumeArgs = [ "--resume" ];
+      # Runs without permission prompts; the shell aliases and session launchers use it.
+      fullAccess = {
+        args = [ "--yolo" ];
+        env = { };
+      };
+    };
     acp = true;
     openspecTool = [ "cursor" ];
     guard = "both";
@@ -177,7 +209,6 @@
   devin = {
     shellAlias = {
       name = "dvn";
-      value = "devin --permission-mode dangerous";
     };
     label = "Devin";
     module = ./devin.nix;
@@ -198,12 +229,21 @@
     projectDir = ".devin/";
     transcriptRoot = null;
     exitHook = false;
+    launch = {
+      # Runs without permission prompts; the shell aliases and session launchers use it.
+      fullAccess = {
+        args = [
+          "--permission-mode"
+          "dangerous"
+        ];
+        env = { };
+      };
+    };
   };
 
   fx = {
     shellAlias = {
       name = "fxx";
-      value = "env FX_PERMISSION_MODE=full-access fx";
     };
     label = "fx";
     module = ./fx.nix;
@@ -225,12 +265,20 @@
     projectDir = ".fx/";
     transcriptRoot = "~/.fx/sessions";
     exitHook = false;
+    launch = {
+      # Runs without permission prompts; the shell aliases and session launchers use it.
+      fullAccess = {
+        args = [ ];
+        env = {
+          FX_PERMISSION_MODE = "full-access";
+        };
+      };
+    };
   };
 
   gemini = {
     shellAlias = {
       name = "gmn";
-      value = "agy --dangerously-skip-permissions";
     };
     label = "Gemini";
     module = ./gemini;
@@ -254,12 +302,19 @@
     projectDir = ".gemini/";
     transcriptRoot = null;
     exitHook = false;
+    launch = {
+      # Runs without permission prompts; the shell aliases and session launchers use it.
+      fullAccess = {
+        args = [ "--dangerously-skip-permissions" ];
+        env = { };
+      };
+    };
   };
 
   goose = {
     shellAlias = {
       name = "gse";
-      value = "env GOOSE_MODE=auto goose session";
+      args = [ "session" ];
     };
     label = "Goose";
     module = ./goose.nix;
@@ -272,11 +327,20 @@
     package = "goose-cli";
     glyph = "";
     command = "goose";
-    # Continues the most recent session in the working directory.
-    launch.continueArgs = [
-      "session"
-      "--resume"
-    ];
+    launch = {
+      # Continues the most recent session in the working directory.
+      continueArgs = [
+        "session"
+        "--resume"
+      ];
+      # Runs without permission prompts; the shell aliases and session launchers use it.
+      fullAccess = {
+        args = [ ];
+        env = {
+          GOOSE_MODE = "auto";
+        };
+      };
+    };
     skillRoot = ".claude/skills";
     acp = true;
     openspecTool = [ ];
@@ -290,7 +354,6 @@
   opencode = {
     shellAlias = {
       name = "opc";
-      value = "opencode --auto";
     };
     label = "OpenCode";
     module = ./opencode;
@@ -303,8 +366,15 @@
     package = "opencode";
     glyph = "";
     command = "opencode";
-    # Continues the most recent session in the working directory.
-    launch.continueArgs = [ "--continue" ];
+    launch = {
+      # Continues the most recent session in the working directory.
+      continueArgs = [ "--continue" ];
+      # Runs without permission prompts; the shell aliases and session launchers use it.
+      fullAccess = {
+        args = [ "--auto" ];
+        env = { };
+      };
+    };
     skillRoot = ".claude/skills";
     acp = true;
     openspecTool = [ "opencode" ];
@@ -318,7 +388,6 @@
   pi = {
     shellAlias = {
       name = "pii";
-      value = "pi --approve";
     };
     label = "Pi";
     module = ./pi;
@@ -331,8 +400,15 @@
     package = "pi-coding-agent";
     glyph = "󰏿";
     command = "pi";
-    # Continues the most recent session in the working directory.
-    launch.continueArgs = [ "--continue" ];
+    launch = {
+      # Continues the most recent session in the working directory.
+      continueArgs = [ "--continue" ];
+      # Runs without permission prompts; the shell aliases and session launchers use it.
+      fullAccess = {
+        args = [ "--approve" ];
+        env = { };
+      };
+    };
     skillRoot = ".claude/skills";
     acp = true;
     openspecTool = [ "pi" ];
@@ -346,7 +422,6 @@
   strands = {
     shellAlias = {
       name = "stn";
-      value = "strands --set interventions=null";
     };
     label = "Strands";
     module = ./strands.nix;
@@ -364,7 +439,17 @@
     glyph = "S";
     command = "strands";
     skillRoot = ".claude/skills";
-    launch.modelFlag = "--model";
+    launch = {
+      modelFlag = "--model";
+      # Runs without permission prompts; the shell aliases and session launchers use it.
+      fullAccess = {
+        args = [
+          "--set"
+          "interventions=null"
+        ];
+        env = { };
+      };
+    };
     acp = true;
     openspecTool = [ ];
     guard = "none";
