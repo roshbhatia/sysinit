@@ -53,6 +53,8 @@ in
     persistence = {
       enable = true;
       service = values.wezterm.remoteMux or false;
+      # The copied bundle keeps one path and one signing identity across updates.
+      muxBinary = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin "${config.home.homeDirectory}/${config.targets.darwin.copyApps.directory}/WezTerm.app/Contents/MacOS/wezterm-mux-server";
     };
     settings = {
       unsetEnvironmentVariables = [ "NO_COLOR" ];
@@ -173,7 +175,8 @@ in
     environment = {
 
       PATH = paths.getPathString config.home.username config.home.homeDirectory;
-      TERMINFO_DIRS = "${pkgs.wezterm.terminfo}/share/terminfo";
+      # A long-lived mux outlives the store path of any one terminfo build.
+      TERMINFO_DIRS = "${config.home.profileDirectory}/share/terminfo";
     };
   };
 
