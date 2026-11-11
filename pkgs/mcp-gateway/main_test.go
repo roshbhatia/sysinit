@@ -7,8 +7,11 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
+	"syscall"
 	"testing"
 	"time"
 )
@@ -176,5 +179,57 @@ func TestConfigTransports(t *testing.T) {
 		if !config.MCP.DNSProtection {
 			t.Fatal("DNS protection is disabled")
 		}
+	}
+}
+
+func TestMain(m *testing.M) {
+	if len(os.Args) > 1 && os.Args[1] == superviseFlag {
+		os.Exit(supervise(os.Args[2:]))
+	}
+	os.Exit(m.Run())
+}
+
+func TestSupervisorHelper(t *testing.T) {
+	if os.Getenv("MCP_GATEWAY_SUPERVISOR_HELPER") != "1" {
+		t.Skip("helper process only")
+	}
+	cmd := exec.Command("sleep", "30")
+	if _, err := start(cmd); err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(cmd.Process.Pid)
+	time.Sleep(time.Minute)
+}
+
+func TestSupervisorEndsGroupWhenParentIsKilled(t *testing.T) {
+	helper := exec.Command(os.Args[0], "-test.run=^TestSupervisorHelper$")
+	helper.Env = append(os.Environ(), "MCP_GATEWAY_SUPERVISOR_HELPER=1")
+	stdout, err := helper.StdoutPipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := helper.Start(); err != nil {
+		t.Fatal(err)
+	}
+	line, err := bufio.NewReader(stdout).ReadString('\n')
+	if err != nil {
+		t.Fatal(err)
+	}
+	group, err := strconv.Atoi(strings.TrimSpace(line))
+	if err != nil {
+		t.Fatalf("helper printed %q", line)
+	}
+	if err := syscall.Kill(group, 0); err != nil {
+		t.Fatalf("supervised group %d is not running: %v", group, err)
+	}
+	_ = helper.Process.Signal(syscall.SIGKILL)
+	_ = helper.Wait()
+	deadline := time.Now().Add(5 * time.Second)
+	for syscall.Kill(-group, 0) == nil {
+		if time.Now().After(deadline) {
+			_ = syscall.Kill(-group, syscall.SIGKILL)
+			t.Fatalf("process group %d outlived its killed parent", group)
+		}
+		time.Sleep(100 * time.Millisecond)
 	}
 }

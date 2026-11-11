@@ -131,7 +131,18 @@ func stop(cmd *exec.Cmd, done <-chan error) error {
 	}
 }
 
+const superviseFlag = "--supervise-parent"
+
+// start runs cmd under a watcher in its own process group. A SIGKILLed supervisor
+// never reaches its deferred stop, so the watcher ends the group when its parent goes.
 func start(cmd *exec.Cmd) (<-chan error, error) {
+	self, err := os.Executable()
+	if err != nil {
+		return nil, fmt.Errorf("locate the supervisor: %w", err)
+	}
+	// The parent pid travels in argv: read later, it could already be launchd's.
+	cmd.Args = append([]string{self, superviseFlag, strconv.Itoa(os.Getpid()), cmd.Path}, cmd.Args[1:]...)
+	cmd.Path = self
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	if err := cmd.Start(); err != nil {
 		return nil, err
@@ -253,7 +264,65 @@ func run(ctx context.Context, server definition, gateway, proxy string, stdin io
 	}
 }
 
+// supervise runs argv in the caller's process group and ends the group once the
+// parent that started it is gone.
+func supervise(argv []string) int {
+	if len(argv) < 2 {
+		fmt.Fprintln(os.Stderr, "mcp-gateway: --supervise-parent needs a parent pid and a command")
+		return 2
+	}
+	parent, err := strconv.Atoi(argv[0])
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "mcp-gateway: invalid parent pid %q\n", argv[0])
+		return 2
+	}
+	argv = argv[1:]
+	child := exec.Command(argv[0], argv[1:]...)
+	child.Stdin, child.Stdout, child.Stderr = os.Stdin, os.Stdout, os.Stderr
+	if err := child.Start(); err != nil {
+		fmt.Fprintf(os.Stderr, "mcp-gateway: %v\n", err)
+		return 1
+	}
+	done := make(chan error, 1)
+	go func() { done <- child.Wait() }()
+	signal.Ignore(syscall.SIGHUP)
+	tick := time.NewTicker(time.Second)
+	defer tick.Stop()
+	for {
+		select {
+		case err := <-done:
+			return exitCode(err)
+		case <-tick.C:
+			if os.Getppid() == parent {
+				continue
+			}
+			_ = syscall.Kill(-os.Getpid(), syscall.SIGTERM)
+			select {
+			case err := <-done:
+				return exitCode(err)
+			case <-time.After(3 * time.Second):
+				_ = syscall.Kill(-os.Getpid(), syscall.SIGKILL)
+				return 1
+			}
+		}
+	}
+}
+
+func exitCode(err error) int {
+	var exit *exec.ExitError
+	if errors.As(err, &exit) {
+		return exit.ExitCode()
+	}
+	if err != nil {
+		return 1
+	}
+	return 0
+}
+
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == superviseFlag {
+		os.Exit(supervise(os.Args[2:]))
+	}
 	gateway := flag.String("gateway", "agentgateway", "agentgateway executable")
 	proxy := flag.String("proxy", "mcp-remote", "stdio transport adapter executable")
 	check := flag.Bool("probe", false, "initialize and check tool discovery without calling tools")
