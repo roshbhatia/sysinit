@@ -3,7 +3,11 @@
 # Attach a WezTerm mux domain without starting a second GUI instance.
 def main [domain: string] {
     let config = $"($env.XDG_CONFIG_HOME? | default $"($env.HOME)/.config")/wezterm/config.json"
-    let local_domain = if ($config | path exists) { open $config | get -o localDomain | default "local" } else { "local" }
+    let local_domain = if ($config | path exists) {
+        open $config | get -o localDomain | default "local"
+    } else {
+        "local"
+    }
     # A second GUI on the local mux mirrors its windows; closing either closes both.
     if $domain in ["local" "unix" $local_domain] {
         print -e $"connect: ($domain) is the local mux, which the running GUI already shows; use wezspawn to open a window"
