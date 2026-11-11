@@ -6,11 +6,8 @@ import (
 	"path/filepath"
 	"sort"
 
-	"github.com/roshbhatia/sysinit/pkgs/utils/internal/forward"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/statusline"
 	"github.com/roshbhatia/sysinit/pkgs/utils/internal/threads"
-	"github.com/roshbhatia/sysinit/pkgs/utils/internal/ty"
-	"github.com/roshbhatia/sysinit/pkgs/utils/internal/wezspawn"
 )
 
 type command struct {
@@ -20,16 +17,6 @@ type command struct {
 }
 
 var commands = map[string]command{
-	"agent-state": {
-		name:    "agent-state",
-		summary: "publish pane status",
-		run:     forward.Command("SYSINIT_AGENT_STATE", "agent-state"),
-	},
-	"firefox-tabs": {
-		name:    "firefox-tabs",
-		summary: "read Firefox session tabs",
-		run:     forward.Command("SYSINIT_FIREFOX_TABS", "firefox-tabs"),
-	},
 	"statusline": {
 		name:    "statusline",
 		summary: statusline.Summary,
@@ -40,31 +27,6 @@ var commands = map[string]command{
 		summary: threads.Summary,
 		run:     threads.Run,
 	},
-	"watch": {
-		name:    "watch",
-		summary: "view worker logs and pane status",
-		run:     forward.Command("SYSINIT_AGENT_WATCH", "agent-watch"),
-	},
-	"ty": {
-		name:    "ty",
-		summary: ty.Summary(),
-		run:     ty.Run,
-	},
-	"wezspawn": {
-		name:    "wezspawn",
-		summary: wezspawn.Summary,
-		run:     wezspawn.Run,
-	},
-	"worker": {
-		name:    "worker",
-		summary: "run a command in a reused pane",
-		run:     forward.Command("SYSINIT_WORKER", "worker"),
-	},
-	"workspace": {
-		name:    "workspace",
-		summary: "inspect workspace repositories and changes",
-		run:     forward.Command("SYSINIT_WORKSPACE", "ws"),
-	},
 }
 
 type link struct {
@@ -73,15 +35,8 @@ type link struct {
 }
 
 var links = map[string]link{
-	"agent-state":      {command: "agent-state"},
 	"agent-statusline": {command: "statusline"},
-	"agent-watch":      {command: "watch"},
-	"firefox-tabs":     {command: "firefox-tabs"},
 	"threads":          {command: "threads"},
-	"wezspawn":         {command: "wezspawn"},
-	"worker":           {command: "worker"},
-	"ws":               {command: "workspace"},
-	"ty":               {command: "ty"},
 }
 
 const usageHeader = `utils: the commands that used to be shell scripts

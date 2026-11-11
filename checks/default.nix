@@ -110,6 +110,21 @@ in
         touch "$out"
       '';
   task-queue = import ./task-queue.nix { inherit pkgs; };
+  nushell-utilities =
+    pkgs.runCommand "nushell-utilities"
+      {
+        nativeBuildInputs = [
+          pkgs.nushell
+          pkgs.coreutils
+        ];
+      }
+      ''
+        export HOME="$TMPDIR"
+        export TASK_BINARY=${lib.getExe pkgs.taskwarrior-cli}
+        nu --no-config-file -c "use ${../modules/home/programs/utils/dev/ere-setup.nu} configure; use ${../modules/home/programs/utils/dev/task-context.nu} [backup restore]; use ${../modules/home/programs/utils/system/cache-maintain.nu} [maintain allocated-bytes]; source ${./nushell-utilities.nu}"
+        nu --no-config-file ${./ty.nu} ${../modules/home/programs/utils/dev/ty.nu}
+        touch "$out"
+      '';
   opencode = import ./opencode.nix { inherit pkgs; };
   utility-contracts = import ./utility-contracts.nix { inherit pkgs; };
   ty =

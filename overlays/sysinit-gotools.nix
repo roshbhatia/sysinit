@@ -191,15 +191,6 @@ in
       ''
         mkdir -p "$out/bin"
         makeWrapper "${sysinit-gotools}/bin/utils" "$out/bin/utils" \
-          --set SYSINIT_AGENT_STATE "${external.agent-state}" \
-          --set SYSINIT_AGENT_WATCH "${external.agent-watch}" \
-          --set SYSINIT_FIREFOX_TABS "${external.firefox-tabs}" \
-          --set SYSINIT_WORKER "${external.worker}" \
-          --set SYSINIT_WORKSPACE "${external.ws}" \
-          --set SYSINIT_TY_SY "${final.seshy-cli}/bin/sy" \
-          --set SYSINIT_TY_WEZTERM "${final.wezterm}/bin/wezterm" \
-          --set SYSINIT_TY_ENV "${final.coreutils}/bin/env" \
-          --set SYSINIT_WEZSPAWN "${final.wezspawn}/bin/wezspawn" \
           --prefix PATH : "${runtimePath}"
         ln -s "${final.wezspawn}/bin/wezspawn" "$out/bin/wezspawn"
         makeWrapper "${sysinit-gotools}/bin/utils" "$out/bin/agent-statusline" \
@@ -211,11 +202,11 @@ in
             ln -s "${binary}" "$out/bin/${name}"
           '') external
         )}
-        makeWrapper "${sysinit-gotools}/bin/utils" "$out/bin/ty" \
-          --add-flags ty \
+        makeWrapper "${final.nushell}/bin/nu" "$out/bin/ty" \
+          --add-flags "--no-config-file ${../modules/home/programs/utils/dev/ty.nu}" \
           --set SYSINIT_TY_SY "${final.seshy-cli}/bin/sy" \
           --set SYSINIT_TY_WEZTERM "${final.wezterm}/bin/wezterm" \
           --set SYSINIT_TY_ENV "${final.coreutils}/bin/env" \
-          --prefix PATH : "${runtimePath}"
+          --prefix PATH : "${final.lib.makeBinPath [ final.coreutils ]}"
       '';
 }

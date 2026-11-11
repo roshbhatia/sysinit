@@ -20,15 +20,11 @@ let
         exec ${lib.getExe pkgs.nushell} --no-config-file ${source} "$@"
       '';
     };
-  audio = pkgs.sysinit.writeShellApplication {
-    name = "audio-switcher";
-    runtimeInputs = [
-      pkgs.fzf
-    ]
+  audio = script "audio-switcher" ./system/audio-switcher.nu (
+    [ pkgs.fzf ]
     ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ pkgs.switchaudio-osx ]
-    ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs.pulseaudio ];
-    text = ''exec ${pkgs.sysinit-gotools}/bin/audio-switcher "$@"'';
-  };
+    ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs.pulseaudio ]
+  );
 in
 {
   home.packages = [

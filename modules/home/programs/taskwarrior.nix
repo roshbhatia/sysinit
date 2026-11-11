@@ -9,7 +9,7 @@ let
   taskContext = pkgs.sysinit.writeShellApplication {
     name = "task-context";
     runtimeInputs = [ pkgs.git ] ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs.xdg-utils ];
-    text = ''exec ${pkgs.sysinit-gotools}/bin/task-context --task ${lib.getExe pkgs.taskwarrior-cli} --directory ${lib.escapeShellArg "${config.xdg.stateHome}/task-backups"} --keep ${toString cfg.backup.keep} "$@"'';
+    text = ''exec ${lib.getExe pkgs.nushell} --no-config-file ${./utils/dev/task-context.nu} --task ${lib.getExe pkgs.taskwarrior-cli} --directory ${lib.escapeShellArg "${config.xdg.stateHome}/task-backups"} --keep ${toString cfg.backup.keep} "$@"'';
   };
   actionable = "+PENDING -WAITING -BLOCKED -blocked -backlog -inbox ( kind:task or kind.none: )";
   report = description: filter: {

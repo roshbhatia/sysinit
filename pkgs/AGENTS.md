@@ -11,9 +11,17 @@ and one vendor hash.
 ```
 pkgs/
   go.mod  go.sum
-  utils/            main package + utils/internal/   (one binary, many names)
+  utils/            agent-statusline and threads (one binary, two names)
   mcp-gateway/      session-preserving MCP gateway supervisor and probe
+  task-queue/       Taskwarrior work submitted to Pueue and reconciled
+  url-route/        URL provider routing for Hammerspoon
 ```
+
+Go is for hot paths (the status line), process supervision, terminal UIs, and
+`exec`-in-place launchers. Command-and-JSON glue is nushell under
+`modules/home/programs/utils/`: `ty`, `audio-switcher`, `task-context`,
+`ere-setup`, and `cache-maintain` moved there in 2026-11, with tests in
+`checks/nushell-utilities.nu` and `checks/ty.nu`.
 
 `ask`, `changes`, `traces`, `seshy`, `specutil`, and `colchis` used to live
 here as sibling directories. Each is now its own repository, pinned as a flake
@@ -36,6 +44,8 @@ used to be packages here; `internal/guard`, `internal/lintgate`, and
 `internal/loopgate` were moved out in 2026-09.
 
 `utils/main.go` dispatches on `argv[0]`, so one binary answers to its names.
+External tools (`agent-state`, `worker`, `ws`, `wezspawn`, ...) are linked
+into `sysinit-utils` directly; `utils` no longer forwards to them.
 No gate provider lives here. `prose-gate` moved to gate's `extras/` in
 2026-09. The rules live in `roshbhatia/prose-style` and reach gate through
 `modules/home/programs/llm/gate-defaults.nix`. Sysinit retains the personal status line and compatibility dispatch.
@@ -54,10 +64,10 @@ Stop continues the turn exactly as `decision: block` does, so gate's
 ## Build
 
 `overlays/sysinit-gotools.nix` builds the remaining module as `sysinit-gotools`.
-Its `sysinit-utils` output links external commands to their owning packages.
-`utils <command>` forwards through pinned absolute paths. `agent-statusline`
-remains a local wrapper. `main_test.go` compares the Go command and link maps.
-Check the overlay's `external` map when changing aliases.
+Its `sysinit-utils` output links external commands to their owning packages and
+wraps `ty.nu` as `ty`. `agent-statusline` and `threads` are local wrappers.
+`main_test.go` compares the Go command and link maps. Check the overlay's
+`external` map when changing aliases.
 
 `buildGoModule` runs the Go tests during its check phase, and the `go-tests`
 flake check builds that package, so `nix flake check` covers them. From a
