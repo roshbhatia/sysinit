@@ -170,11 +170,12 @@ in
       run /usr/bin/codesign --force --deep --sign - --timestamp=none "$app"
       run /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister \
         -f "$app"
+      # macOS confirms each handler change, so only a changed type list asks again.
+      run "$app/Contents/MacOS/sysinit-neovim-file-opener" --set-defaults
       if [ -z "''${DRY_RUN:-}" ]; then
         mkdir -p "$(dirname "$stamp")"
         printf '%s\n' "$inputs" > "$stamp"
       fi
     fi
-    run "$app/Contents/MacOS/sysinit-neovim-file-opener" --set-defaults
   '';
 }

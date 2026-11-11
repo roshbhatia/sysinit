@@ -6,12 +6,23 @@ import UniformTypeIdentifiers
 let bundleIdentifier = "@BUNDLE_ID@"
 let extensions = "@EXTENSIONS@".split(separator: " ").map(String.init)
 
+// macOS asks the user to confirm each handler change, so leave matching handlers alone.
+func editorHandler(_ type: UTType) -> String? {
+  LSCopyDefaultRoleHandlerForContentType(type.identifier as CFString, LSRolesMask.editor)?
+    .takeRetainedValue() as String?
+}
+
+func handles(_ type: UTType, _ bundle: String) -> Bool {
+  editorHandler(type)?.caseInsensitiveCompare(bundle) == .orderedSame
+}
+
 if CommandLine.arguments.contains("--set-defaults") {
   for ext in extensions {
     guard let type = UTType(filenameExtension: ext) else {
       fputs("sysinit file opener: no content type for .\(ext)\n", stderr)
       continue
     }
+    if handles(type, bundleIdentifier) { continue }
     let status = LSSetDefaultRoleHandlerForContentType(
       type.identifier as CFString,
       LSRolesMask.editor,
@@ -25,6 +36,7 @@ if CommandLine.arguments.contains("--set-defaults") {
 
   for ext in ["xcodeproj", "xcworkspace", "swift"] {
     guard let type = UTType(filenameExtension: ext) else { continue }
+    if handles(type, "com.apple.dt.xcode") { continue }
     let status = LSSetDefaultRoleHandlerForContentType(
       type.identifier as CFString,
       LSRolesMask.editor,
@@ -36,7 +48,10 @@ if CommandLine.arguments.contains("--set-defaults") {
     }
   }
 
-  if let goType = UTType(filenameExtension: "go") {
+  if let goType = UTType(filenameExtension: "go"),
+    NSWorkspace.shared.urlForApplication(toOpen: goType)?.standardizedFileURL
+      != Bundle.main.bundleURL.standardizedFileURL
+  {
     let completed = DispatchSemaphore(value: 0)
     NSWorkspace.shared.setDefaultApplication(at: Bundle.main.bundleURL, toOpen: goType) { error in
       if let error {
@@ -55,7 +70,11 @@ if CommandLine.arguments.contains("--set-defaults") {
     }
   }
 
-  let mailtoStatus = LSSetDefaultHandlerForURLScheme(
+  let mailtoHandler = LSCopyDefaultHandlerForURLScheme("mailto" as CFString)?
+    .takeRetainedValue() as String?
+  let mailtoStatus = mailtoHandler?.caseInsensitiveCompare("org.mozilla.firefox") == .orderedSame
+    ? noErr
+    : LSSetDefaultHandlerForURLScheme(
     "mailto" as CFString,
     "org.mozilla.firefox" as CFString
   )
@@ -64,11 +83,16 @@ if CommandLine.arguments.contains("--set-defaults") {
     exit(1)
   }
 
-  let mailClientStatus = LSSetDefaultRoleHandlerForContentType(
-    "com.apple.default-app.mail-client" as CFString,
-    LSRolesMask.all,
-    "org.mozilla.firefox" as CFString
-  )
+  let mailClient = LSCopyDefaultRoleHandlerForContentType(
+    "com.apple.default-app.mail-client" as CFString, LSRolesMask.all
+  )?.takeRetainedValue() as String?
+  let mailClientStatus = mailClient?.caseInsensitiveCompare("org.mozilla.firefox") == .orderedSame
+    ? noErr
+    : LSSetDefaultRoleHandlerForContentType(
+      "com.apple.default-app.mail-client" as CFString,
+      LSRolesMask.all,
+      "org.mozilla.firefox" as CFString
+    )
   guard mailClientStatus == noErr else {
     fputs("sysinit file opener: failed to set the default mail client: \(mailClientStatus)\n", stderr)
     exit(1)
