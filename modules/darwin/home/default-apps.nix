@@ -145,7 +145,9 @@ let
     builtins.replaceStrings
       [ "@WEZTERM@" "@NVIM@" "@BUNDLE_ID@" "@EXTENSIONS@" ]
       [
-        "${config.home.profileDirectory}/bin/wezterm"
+        # The running GUI hands a `start` off only to its own executable; any other
+        # path opens a second GUI that mirrors the same mux windows.
+        "${config.home.homeDirectory}/${config.targets.darwin.copyApps.directory}/WezTerm.app/Contents/MacOS/wezterm"
         "${config.home.profileDirectory}/bin/nvim"
         bundleIdentifier
         (lib.concatStringsSep " " extensions)
