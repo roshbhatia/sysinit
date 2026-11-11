@@ -2210,11 +2210,11 @@
       },
       "locked": {
         "dir": "nix",
-        "lastModified": 1794424162,
-        "narHash": "sha256-8nXPo7Qp7+0hdOoEzyh6klGtS9W2M+LBn69lfYGcpho=",
+        "lastModified": 1794429569,
+        "narHash": "sha256-tmo8XLCqfJT9/wvvi5UQbw90j8+rvkePkOI/cywgGQM=",
         "owner": "roshbhatia",
         "repo": "wezterm",
-        "rev": "103a19a17a09dcc4c4c0ff9931d1b352caf85107",
+        "rev": "9309c155c1f777bb3d732e86084686263f254d7a",
         "type": "github"
       },
       "original": {
