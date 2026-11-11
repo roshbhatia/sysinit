@@ -144,6 +144,7 @@ in
 
       settings = {
         show_banner = false;
+        status_line.signature = false;
         edit_mode = "vi";
         cursor_shape = {
           vi_insert = "line";
@@ -223,11 +224,6 @@ in
         # The baked script pins the id it was built with, so every pane would
         # otherwise report one shared prompt session to oh-my-posh.
         $env.POSH_SESSION_ID = (random uuid)
-
-        # Align input with Nushell's two-column status-line inset.
-        $env.PROMPT_INDICATOR = "\n> "
-        $env.PROMPT_INDICATOR_VI_INSERT = "\n: "
-        $env.PROMPT_INDICATOR_VI_NORMAL = "\n> "
 
         use ${functionsFile} *
         use ${./onepassword.nu} *
