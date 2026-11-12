@@ -180,6 +180,13 @@ in
           key = "%";
           manifest = "${pkgs.zoxide-picker}/share/wezterm/providers/zoxide.json";
         }
+      ]
+      ++ lib.optionals config.sysinit.queue.enable [
+        {
+          name = "task-queue";
+          key = "&";
+          manifest = "${pkgs.task-queue-picker}/share/wezterm/providers/task-queue.json";
+        }
       ];
       cwd_aliases.sy = config.sysinit.paths.resolved.seshySessions;
       passthrough_procs = [

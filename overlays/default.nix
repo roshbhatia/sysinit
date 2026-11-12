@@ -56,6 +56,7 @@
   (import ./localias.nix)
   (import ./git-ai.nix)
   (import ./git-ai-gate.nix)
+  (import ./task-queue-picker)
   (import ./alerter.nix)
   (import ./jankyborders)
   (import ./sheets.nix)

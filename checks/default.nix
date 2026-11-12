@@ -110,6 +110,21 @@ in
         touch "$out"
       '';
   task-queue = import ./task-queue.nix { inherit pkgs; };
+  task-queue-picker =
+    pkgs.runCommand "task-queue-picker-test"
+      {
+        nativeBuildInputs = [
+          pkgs.python3
+          pkgs.pueue
+          pkgs.zmx
+          pkgs.bash
+          pkgs.coreutils
+        ];
+      }
+      ''
+        python3 ${./task-queue-picker.py} ${pkgs.task-queue-picker}/bin/task-queue-picker ${pkgs.sysinit-gotools}/bin/task-queue
+        touch "$out"
+      '';
   nushell-utilities =
     pkgs.runCommand "nushell-utilities"
       {
