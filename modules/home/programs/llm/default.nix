@@ -20,43 +20,11 @@ let
     }
   ) skills.skillExtraFiles;
 
-  openspecSkills =
-    pkgs.runCommand "openspec-skills"
-      {
-        nativeBuildInputs = [
-          pkgs.git
-          pkgs.openspec
-          pkgs.coreutils
-        ];
-      }
-      ''
-        export HOME="$TMPDIR/home"
-        export OPENSPEC_TELEMETRY=0
-        export CI=true
-        mkdir -p "$HOME" work && cd work
-        git init -q .
-        git config user.email nix@localhost
-        git config user.name nix
-        timeout 180 openspec init --tools claude --profile core --force < /dev/null > /dev/null
-
-        [ -d .claude/skills ] || { echo "openspec init produced no .claude/skills" >&2; exit 1; }
-        [ -d .claude/commands/opsx ] || { echo "openspec init produced no .claude/commands/opsx" >&2; exit 1; }
-
-        mkdir -p $out
-        cp -r .claude/skills $out/skills
-        cp -r .claude/commands/opsx $out/commands
-      '';
+  openspecSkills = import ./openspec-skills.nix { inherit pkgs; };
 
   openspecSkillFiles = {
     ".claude/skills" = {
       source = "${openspecSkills}/skills";
-      recursive = true;
-    };
-  };
-
-  openspecCommandFiles = {
-    ".claude/commands/opsx" = {
-      source = "${openspecSkills}/commands";
       recursive = true;
     };
   };
@@ -213,7 +181,6 @@ in
       skillFiles
       // skillScriptFiles
       // openspecSkillFiles
-      // openspecCommandFiles
       // (vendoredSkillFilesFor ".claude/skills")
       // lib.mergeAttrsList (
         map skillFilesFor (

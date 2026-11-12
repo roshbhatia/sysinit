@@ -20,7 +20,7 @@ apply, and confirm gates.
 
 ## Workflow
 
-The four canonical phases (matching Claude Code's `/opsx:*` slash commands and Pi's recipe set):
+The four canonical phases use OpenSpec's generated skills in Claude Code and Pi's recipe set:
 
 - propose, draft a new change with proposal, design, specs, tasks
 - apply, implement the tasks, marking `[x]` as you go

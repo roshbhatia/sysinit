@@ -110,6 +110,7 @@ in
         touch "$out"
       '';
   task-queue = import ./task-queue.nix { inherit pkgs; };
+  openspec-skills = import ../modules/home/programs/llm/openspec-skills.nix { inherit pkgs; };
   task-queue-picker =
     pkgs.runCommand "task-queue-picker-test"
       {
