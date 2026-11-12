@@ -18,10 +18,10 @@ func TestThreadActions(t *testing.T) {
 		want    []string
 	}{
 		{"resume", []int{1, 0}, false, []string{"resume", "thread-b", "--as-is"}},
-		{"resume-switch", []int{1, 1, 0}, true, []string{"resume", "thread-b", "--print", "--in", "claude"}},
+		{"resume-switch", []int{1, 1, 0}, true, []string{"resume", "thread-b", "--print", "--in", "claude-code"}},
 		{"resume-original", []int{1, 1, 1}, false, []string{"resume", "thread-b", "--as-is"}},
 		{"fork", []int{1, 2}, true, []string{"resume", "thread-b", "--print", "--fork"}},
-		{"fork-switch", []int{1, 3, 0}, false, []string{"resume", "thread-b", "--in", "claude"}},
+		{"fork-switch", []int{1, 3, 0}, false, []string{"resume", "thread-b", "--in", "claude-code"}},
 		{"fork-original", []int{1, 3, 1}, false, []string{"resume", "thread-b", "--fork"}},
 		{"claude-resume-original", []int{0, 1, 0}, false, []string{"resume", "thread-a", "--as-is"}},
 		{"claude-fork-original", []int{0, 3, 0}, false, []string{"resume", "thread-a", "--fork"}},

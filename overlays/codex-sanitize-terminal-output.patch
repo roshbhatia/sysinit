@@ -1,8 +1,7 @@
-diff --git a/ansi-escape/src/lib.rs b/ansi-escape/src/lib.rs
-index b47cf14..60b2dec 100644
 --- a/ansi-escape/src/lib.rs
 +++ b/ansi-escape/src/lib.rs
-@@ -5,0 +6,81 @@ use ratatui::text::Text;
+@@ -4,0 +5,81 @@
++
 +fn escape_sequence_end(bytes: &[u8], start: usize) -> usize {
 +    let Some(introducer) = bytes.get(start + 1).copied() else {
 +        return bytes.len();
@@ -83,14 +82,11 @@ index b47cf14..60b2dec 100644
 +    sanitized.push_str(&text[retained_start..]);
 +    std::borrow::Cow::Owned(sanitized)
 +}
-+
-@@ -43 +124,2 @@ pub fn ansi_escape(s: &str) -> Text<'static> {
+@@ -47 +128,2 @@
 -    match s.into_text() {
 +    let sanitized = sanitize_terminal_output(s);
 +    match sanitized.as_ref().into_text() {
-@@ -58,0 +141,37 @@ pub fn ansi_escape(s: &str) -> Text<'static> {
-+
-+#[cfg(test)]
+@@ -64,0 +147,37 @@
 +mod terminal_output_tests {
 +    use super::ansi_escape;
 +
@@ -126,3 +122,5 @@ index b47cf14..60b2dec 100644
 +        assert_eq!(text.lines[0].spans[1].content, "red");
 +    }
 +}
++
++#[cfg(test)]

@@ -1,6 +1,9 @@
 --- a/codex-mcp/src/connection_manager/resources.rs
 +++ b/codex-mcp/src/connection_manager/resources.rs
-@@ -51,0 +52,11 @@
+@@ -56,6 +56,17 @@
+             let Ok(client) = view.connection.client().await else {
+                 continue;
+             };
 +            if view
 +                .connection
 +                .client
@@ -12,7 +15,13 @@
 +            {
 +                continue;
 +            }
-@@ -98,0 +110,11 @@
+             let timeout = view.tool_timeout;
+             join_set.spawn(async move {
+                 let resources = collect_paginated("resources/list", timeout, |params| {
+@@ -100,6 +111,17 @@
+             let Ok(client) = view.connection.client().await else {
+                 continue;
+             };
 +            if view
 +                .connection
 +                .client
@@ -24,3 +33,6 @@
 +            {
 +                continue;
 +            }
+             let timeout = view.tool_timeout;
+             join_set.spawn(async move {
+                 let templates = collect_paginated("resources/templates/list", timeout, |params| {

@@ -65,9 +65,9 @@ fi
     )
     cases = [
         ("Resume", 0, None, None, "<--as-is>"),
-        ("Resume (Switch)", 1, 0, None, "<--in> <claude>"),
+        ("Resume (Switch)", 1, 0, None, "<--in> <claude-code>"),
         ("Fork", 2, None, None, "<--fork>"),
-        ("Fork (Switch)", 3, 0, None, "<--in> <claude>"),
+        ("Fork (Switch)", 3, 0, None, "<--in> <claude-code>"),
         ("Inspect", 4, None, None, "NATIVE: <threads> <show> <thread-b>"),
         ("Resume original", 1, 1, None, "<--as-is>"),
         ("Fork original", 3, 1, None, "<--fork>"),

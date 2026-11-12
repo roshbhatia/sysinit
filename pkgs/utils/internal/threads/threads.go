@@ -287,12 +287,12 @@ func prepareInFolder(args []string, choose func([]string, string) (int, error), 
 		if err != nil || target < 0 {
 			return nil, err
 		}
-		original := thread.Harness
-		if original == "claude-code" {
-			original = "claude"
+		targetHarness := harnesses[target].Name
+		if targetHarness == "claude" {
+			targetHarness = "claude-code"
 		}
-		if harnesses[target].Name != original {
-			return append(argv, "--in", harnesses[target].Name), nil
+		if targetHarness != thread.Harness {
+			return append(argv, "--in", targetHarness), nil
 		}
 	}
 	if action == 2 || action == 3 {

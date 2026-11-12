@@ -313,9 +313,10 @@ class ExternTests(unittest.TestCase):
             ("threads --a", "--all"),
             ("threads res", "threads resume"),
             ("threads resume --in co", "codex"),
-            ("atuin threads resume --in cl", "claude"),
+            ("atuin threads resume --in cl", "claude-code"),
             ("threads list --style js", "json"),
             ("threads search fixture --harness cl", "claude-code"),
+            ("threads search fixture --harness cop", "copilot"),
         ]:
             with self.subTest(command=command):
                 result = self.nu(

@@ -12,7 +12,7 @@ def thread-output-styles [] {
 }
 
 def thread-search-harnesses [] {
-  [claude-code codex opencode pi omp]
+  [claude-code codex copilot opencode pi omp]
 }
 
 # List captured threads; piping returns thread records.

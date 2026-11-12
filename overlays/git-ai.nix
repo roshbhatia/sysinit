@@ -22,7 +22,10 @@ in
       final.pkg-config
       final.git
     ];
-    buildInputs = final.lib.optionals final.stdenv.hostPlatform.isLinux [ final.openssl ];
+    buildInputs = [
+      final.sqlite
+    ]
+    ++ final.lib.optionals final.stdenv.hostPlatform.isLinux [ final.openssl ];
     env = final.lib.optionalAttrs final.stdenv.hostPlatform.isLinux {
       OPENSSL_NO_VENDOR = "1";
     };
