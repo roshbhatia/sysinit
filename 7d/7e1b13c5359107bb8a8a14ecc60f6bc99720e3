@@ -1,0 +1,25 @@
+modules/home/programs/llm/openspec-skills.nix
+  s_7028fc5da01072::t_29c757c5b4d0d7 1-29
+modules/home/programs/llm/default.nix
+  s_7028fc5da01072::t_29c757c5b4d0d7 23
+modules/home/programs/llm/harnesses/gemini/extensions/openspec-awareness/CONTEXT.md
+  s_7028fc5da01072::t_29c757c5b4d0d7 23
+checks/default.nix
+  s_7028fc5da01072::t_29c757c5b4d0d7 113
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7d7e1b13c5359107bb8a8a14ecc60f6bc99720e3",
+  "prompts": {},
+  "sessions": {
+    "s_7028fc5da01072": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1d0ac-4380-7023-8b2f-a382ea7a16c4",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
