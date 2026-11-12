@@ -1,0 +1,23 @@
+checks/default.nix
+  s_7028fc5da01072::t_ff9ab3187fe056 60
+overlays/default.nix
+  s_7028fc5da01072::t_05e06924a97a36 31
+overlays/opentelemetry-collector-contrib.nix
+  s_7028fc5da01072::t_a3319c67908bfd 1-10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "dc44a6a78ae83b8d1dc56c086efba59914fe95b4",
+  "prompts": {},
+  "sessions": {
+    "s_7028fc5da01072": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1d0ac-4380-7023-8b2f-a382ea7a16c4",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
