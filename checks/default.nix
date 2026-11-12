@@ -57,6 +57,7 @@ in
 {
   pi = pkgs.pi-coding-agent;
   conductor = pkgs.conductor-cli;
+  opentelemetry-collector = pkgs.opentelemetry-collector-contrib.tests.version;
   codex-daemon =
     pkgs.runCommand "codex-daemon"
       { nativeBuildInputs = [ (pkgs.python3.withPackages (ps: [ ps.websockets ])) ]; }

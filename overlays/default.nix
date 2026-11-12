@@ -28,6 +28,7 @@
   (import ./calldiff.nix)
   (import ./strands.nix)
   (import ./agentgateway.nix)
+  (import ./opentelemetry-collector-contrib.nix)
   (import ./python313.nix)
   (import ./kubernetes-zeitgeist.nix)
   (import ./gomvp.nix)
