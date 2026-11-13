@@ -331,6 +331,10 @@ in
     home = homeConfigurations.${"dev-" + pkgs.stdenv.hostPlatform.system}.config;
     inherit (pkgs) lib;
   };
+  egm-plugins = import ./egm-plugins.nix {
+    inherit pkgs;
+    home = homeConfigurations.${"dev-" + pkgs.stdenv.hostPlatform.system}.config;
+  };
   harness-settings = import ./harness-settings.nix {
     inherit pkgs darwinConfigurations nixosConfigurations;
     home = homeConfigurations.${"dev-" + pkgs.stdenv.hostPlatform.system}.config;

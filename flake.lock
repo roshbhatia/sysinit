@@ -395,6 +395,22 @@
         "url": "https://install.determinate.systems/determinate-nixd/tag/v3.24.2/x86_64-linux"
       }
     },
+    "elephant-goldfish-model": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1794586103,
+        "narHash": "sha256-3okstMPgjnYzGygzsKh37O/9jl0BSkcYvjI8fgqwxLw=",
+        "owner": "google",
+        "repo": "elephant-goldfish-model",
+        "rev": "964a4f1ecd333961375c35cb37ed09364dab5e4e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "google",
+        "repo": "elephant-goldfish-model",
+        "type": "github"
+      }
+    },
     "ere": {
       "inputs": {
         "flake-utils": "flake-utils_2",
@@ -1464,6 +1480,7 @@
         "cupcake": "cupcake",
         "darwin": "darwin",
         "determinate": "determinate",
+        "elephant-goldfish-model": "elephant-goldfish-model",
         "ere": "ere",
         "firefox-addons": "firefox-addons",
         "firefox-tabs": "firefox-tabs",

@@ -1,4 +1,9 @@
-{ lib, pkgs, ... }:
+{
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 let
   rewriter = import ../../runtime/output-rewrite { inherit pkgs lib; };
   outputMod = pkgs.runCommand "claude-sysinit-output" { } ''
@@ -25,6 +30,7 @@ let
     hash = "sha256-Di/8NsOxaIkw/g4KmO0bFGqXfilXyRAapS4rY2oHyP4=";
   };
   plugins = {
+    egm = inputs.elephant-goldfish-model.outPath;
     sysinit-output = outputMod;
     cc-pr-tracker = prTracker;
     claude-mermaid = "${mods}/claude-mermaid";

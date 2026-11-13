@@ -15,6 +15,12 @@ not restate any of those here.
   one named eleven of fifteen and called the `claude` attr `claude-code`.
   A harness owning assets is a directory holding its `default.nix` beside them;
   one with no asset is a single file
+- EGM is pinned by the `elephant-goldfish-model` flake input. Claude loads the
+  complete bundle as a personal plugin. Codex uses a local marketplace pointing
+  at that pinned source; activation runs its native installer to maintain the
+  runtime cache. The seven workflows remain explicitly invoked. A marketplace
+  source must not point back into its own cache: Codex can delete that directory
+  while refreshing the plugin.
 - Codex's shared app-server uses the Nix-pinned CLI through a user service.
   See [docs/codex-daemon.md](codex-daemon.md) for its socket, ownership, and checks
 - Nix-owned Codex hooks live in `/etc/codex/hooks.json` and are trusted by native

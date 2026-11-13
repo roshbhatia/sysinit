@@ -2,6 +2,7 @@
   lib,
   pkgs,
   config,
+  inputs,
   osConfig ? { },
   ...
 }:
@@ -111,12 +112,17 @@ in
 
   home = {
     inherit (nativeHooks) packages;
-    activation.codexNativeTools = lib.hm.dag.entryBetween [ "llmManagedFiles" ] [ "writeBoundary" ] ''
-      $DRY_RUN_CMD ${lib.getExe nativeToolsPython} ${./codex-native-tools.py}
-    '';
-    activation.codexPluginHooks = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      $DRY_RUN_CMD ${lib.getExe pkgs.python3} ${./codex-plugin-hooks.py}
-    '';
+    activation = {
+      codexNativeTools = lib.hm.dag.entryBetween [ "llmManagedFiles" ] [ "writeBoundary" ] ''
+        $DRY_RUN_CMD ${lib.getExe nativeToolsPython} ${./codex-native-tools.py}
+      '';
+      codexPluginHooks = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        $DRY_RUN_CMD ${lib.getExe pkgs.python3} ${./codex-plugin-hooks.py}
+      '';
+      codexEgm = lib.hm.dag.entryAfter [ "llmManagedFiles" ] ''
+        $DRY_RUN_CMD ${lib.getExe config.programs.codex.package} plugin add egm@egm --json
+      '';
+    };
     file = lib.genAttrs (map (f: ".codex/${f}") codexManagedFiles) (_: {
       enable = lib.mkForce false;
     });
@@ -167,6 +173,7 @@ in
       skillsRoot = "~/.claude/skills";
     };
     plugins = [ ];
+    marketplaces.egm = inputs.elephant-goldfish-model.outPath;
 
     profiles = codexProfiles;
 
@@ -176,6 +183,7 @@ in
       compact_prompt = compactPrompt;
       mcp_servers = codexMcpServers;
       plugins."computer-use@openai-bundled".enabled = false;
+      plugins."egm@egm".enabled = true;
 
       approval_policy = "never";
 
