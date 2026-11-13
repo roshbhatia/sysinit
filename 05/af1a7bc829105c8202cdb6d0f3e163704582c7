@@ -1,0 +1,66 @@
+pkgs/task-queue/state.go
+  s_7028fc5da01072::t_87a356ba022b7a 21
+pkgs/task-queue/submit.go
+  s_7028fc5da01072::t_87a356ba022b7a 18,30-44,134
+pkgs/task-queue/browse.go
+  s_7028fc5da01072::t_62feb742029923 42-50
+  s_7028fc5da01072::t_b127e0b79d72d9 1-3,5-41,51-63,72-134
+  s_7028fc5da01072::t_78d3f387fc12f3 4,64-71
+modules/home/programs/llm/skills/taskwarrior/references/queued-execution.md
+  s_7028fc5da01072::t_5649f11ae69642 41-52
+pkgs/internal/picker/picker_test.go
+  s_7028fc5da01072::t_fe1da5adaa0092 1
+pkgs/task-queue/main.go
+  s_7028fc5da01072::t_87a356ba022b7a 41,53-69,99-103,141-146
+pkgs/utils/internal/threads/threads_test.go
+  s_7028fc5da01072::t_ad4f03ab35eae1 45
+  s_7028fc5da01072::t_5649f11ae69642 29,63
+pkgs/internal/picker/picker.go
+  s_7028fc5da01072::t_fe1da5adaa0092 1-185,188
+pkgs/utils/internal/threads/threads.go
+  s_7028fc5da01072::t_ad4f03ab35eae1 30,269-273,282
+  s_7028fc5da01072::t_87a356ba022b7a 16,55,57,61-64,66,68,280-281
+  s_7028fc5da01072::t_5649f11ae69642 258-262
+  s_7028fc5da01072::t_8d5cf4dc95c6d4 38,56
+modules/home/programs/pueue/default.nix
+  s_7028fc5da01072::t_62feb742029923 16-17
+checks/threads-picker.py
+  s_7028fc5da01072::t_e7360e7618fd7f 46-48
+  s_7028fc5da01072::t_967ffcb093ee0e 49-50,77,151,195
+checks/default.nix
+  s_7028fc5da01072::t_e6a6202aeeceae 114-124
+  s_7028fc5da01072::t_92b206e4e96470 125
+checks/task-queue-picker.py
+  s_7028fc5da01072::t_ec963330ba50d2 146-147
+checks/task-queue-browser.py
+  s_7028fc5da01072::t_e6a6202aeeceae 1-140
+  s_7028fc5da01072::t_3f83405efb1bac 141-171
+overlays/task-queue-picker/default.nix
+  s_7028fc5da01072::t_62feb742029923 15-16,51
+modules/home/programs/pueue/_task-queue
+  s_7028fc5da01072::t_62feb742029923 8,14,22-25
+overlays/task-queue-picker/provider.py
+  s_7028fc5da01072::t_223a08b2978d96 70,78-83,85
+  s_7028fc5da01072::t_62feb742029923 51,61,66,68,72
+  s_7028fc5da01072::t_ec963330ba50d2 73,88
+pkgs/task-queue/main_test.go
+  s_7028fc5da01072::t_8108c963a2b5d5 312-317
+  s_7028fc5da01072::t_29c2b821cc5e2c 150-152
+  s_7028fc5da01072::t_6a87948b6254b9 216-240
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "05af1a7bc829105c8202cdb6d0f3e163704582c7",
+  "prompts": {},
+  "sessions": {
+    "s_7028fc5da01072": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1d0ac-4380-7023-8b2f-a382ea7a16c4",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
