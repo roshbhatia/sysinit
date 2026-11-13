@@ -1818,11 +1818,11 @@
         "spawn": "spawn"
       },
       "locked": {
-        "lastModified": 1794605927,
-        "narHash": "sha256-uPOHIGCdosKeGmeI9/EfT5P9P2e6PWpNDL/nIE2oGvM=",
+        "lastModified": 1794608087,
+        "narHash": "sha256-6JC6MGGawfjIqwCbZm9Kpjzxov2rmofYXN52gFaWvqQ=",
         "owner": "roshbhatia",
         "repo": "sysinit.wezterm",
-        "rev": "515eb49124c90c1889b0b003671d44c9e61c6e23",
+        "rev": "5740b7a5f39d8ee679973eee75bbd9c74e7ed4a2",
         "type": "github"
       },
       "original": {
