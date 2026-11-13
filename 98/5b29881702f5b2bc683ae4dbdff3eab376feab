@@ -1,0 +1,33 @@
+flake.nix
+  s_7028fc5da01072::t_3f61f7f6e6ed7c 362
+checks/default.nix
+  s_7028fc5da01072::t_ba20894369c1e5 59
+modules/home/packages.nix
+  s_7028fc5da01072::t_3f61f7f6e6ed7c 153
+overlays/leaf.nix
+  s_7028fc5da01072::t_3f61f7f6e6ed7c 1-53
+overlays/default.nix
+  s_7028fc5da01072::t_3f61f7f6e6ed7c 63
+_sources/generated.json
+  s_7028fc5da01072::t_ec7eb14abde953 410-469
+_sources/generated.nix
+  s_7028fc5da01072::t_65960984587da2 226-257
+nvfetcher.toml
+  s_7028fc5da01072::t_dae39ec0d75f3b 204-224
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "985b29881702f5b2bc683ae4dbdff3eab376feab",
+  "prompts": {},
+  "sessions": {
+    "s_7028fc5da01072": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1d0ac-4380-7023-8b2f-a382ea7a16c4",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
