@@ -150,6 +150,7 @@ in
         proselint
         sad
         sheets
+        leaf-reader
         simple-completion-language-server
         taplo
         textlint

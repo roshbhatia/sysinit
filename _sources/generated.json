@@ -407,6 +407,66 @@
         },
         "version": "v0.8.0"
     },
+    "leaf": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "leaf",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-3xE4QCWyVPwnDKMTSJRr2hxdryIKQm3ODjE2wdFJ7i4=",
+            "type": "url",
+            "url": "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.15.2/leaf-aarch64-apple-darwin.tar.gz"
+        },
+        "version": "0.15.2"
+    },
+    "leaf-aarch64-linux": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "leaf-aarch64-linux",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-6MaN1PVP6pA7lyjga8rSTDO5POw8PC1je+Jn5ety/VU=",
+            "type": "url",
+            "url": "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.15.2/leaf-aarch64-unknown-linux-gnu.tar.gz"
+        },
+        "version": "0.15.2"
+    },
+    "leaf-x86_64-darwin": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "leaf-x86_64-darwin",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-IDaoxG0Yj0VIET0z2UtTHDifDVkSlRcHpqJ7dIvd+sg=",
+            "type": "url",
+            "url": "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.15.2/leaf-x86_64-apple-darwin.tar.gz"
+        },
+        "version": "0.15.2"
+    },
+    "leaf-x86_64-linux": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "leaf-x86_64-linux",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-JXnXReHtLHn2GZ/GMp4HvF4dVl5xZSdBo6hHFDVq13g=",
+            "type": "url",
+            "url": "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.15.2/leaf-x86_64-unknown-linux-gnu.tar.gz"
+        },
+        "version": "0.15.2"
+    },
     "localias": {
         "cargoLock": null,
         "date": null,

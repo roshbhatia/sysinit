@@ -201,3 +201,24 @@ fetch.url = "https://github.com/git-ai-project/git-ai/releases/download/v$ver/gi
 src.github = "git-ai-project/git-ai"
 src.prefix = "v"
 fetch.url = "https://github.com/git-ai-project/git-ai/releases/download/v$ver/git-ai-linux-x64"
+
+# Leaf terminal reader release binaries.
+[leaf]
+src.github = "DeepanshuMishraa/leaf"
+src.prefix = "v"
+fetch.url = "https://github.com/DeepanshuMishraa/leaf/releases/download/v$ver/leaf-aarch64-apple-darwin.tar.gz"
+
+[leaf-x86_64-darwin]
+src.github = "DeepanshuMishraa/leaf"
+src.prefix = "v"
+fetch.url = "https://github.com/DeepanshuMishraa/leaf/releases/download/v$ver/leaf-x86_64-apple-darwin.tar.gz"
+
+[leaf-aarch64-linux]
+src.github = "DeepanshuMishraa/leaf"
+src.prefix = "v"
+fetch.url = "https://github.com/DeepanshuMishraa/leaf/releases/download/v$ver/leaf-aarch64-unknown-linux-gnu.tar.gz"
+
+[leaf-x86_64-linux]
+src.github = "DeepanshuMishraa/leaf"
+src.prefix = "v"
+fetch.url = "https://github.com/DeepanshuMishraa/leaf/releases/download/v$ver/leaf-x86_64-unknown-linux-gnu.tar.gz"

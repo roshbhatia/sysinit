@@ -223,6 +223,38 @@
       sha256 = "sha256-CVixCnG7pHrxHi67l1/BrAZv1qg0cMW7RtmbN16zUw0=";
     };
   };
+  leaf = {
+    pname = "leaf";
+    version = "0.15.2";
+    src = fetchurl {
+      url = "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.15.2/leaf-aarch64-apple-darwin.tar.gz";
+      sha256 = "sha256-3xE4QCWyVPwnDKMTSJRr2hxdryIKQm3ODjE2wdFJ7i4=";
+    };
+  };
+  leaf-aarch64-linux = {
+    pname = "leaf-aarch64-linux";
+    version = "0.15.2";
+    src = fetchurl {
+      url = "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.15.2/leaf-aarch64-unknown-linux-gnu.tar.gz";
+      sha256 = "sha256-6MaN1PVP6pA7lyjga8rSTDO5POw8PC1je+Jn5ety/VU=";
+    };
+  };
+  leaf-x86_64-darwin = {
+    pname = "leaf-x86_64-darwin";
+    version = "0.15.2";
+    src = fetchurl {
+      url = "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.15.2/leaf-x86_64-apple-darwin.tar.gz";
+      sha256 = "sha256-IDaoxG0Yj0VIET0z2UtTHDifDVkSlRcHpqJ7dIvd+sg=";
+    };
+  };
+  leaf-x86_64-linux = {
+    pname = "leaf-x86_64-linux";
+    version = "0.15.2";
+    src = fetchurl {
+      url = "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.15.2/leaf-x86_64-unknown-linux-gnu.tar.gz";
+      sha256 = "sha256-JXnXReHtLHn2GZ/GMp4HvF4dVl5xZSdBo6hHFDVq13g=";
+    };
+  };
   localias = {
     pname = "localias";
     version = "3.0.0+commit.43c3619";

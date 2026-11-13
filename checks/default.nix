@@ -56,6 +56,7 @@ let
 in
 {
   pi = pkgs.pi-coding-agent;
+  inherit (pkgs) leaf-reader;
   conductor = pkgs.conductor-cli;
   opentelemetry-collector = pkgs.opentelemetry-collector-contrib.tests.version;
   codex-daemon =
