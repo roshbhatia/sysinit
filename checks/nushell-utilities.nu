@@ -83,12 +83,13 @@ do {
 # cache-maintain policy decisions, symlink handling, and uv lock handling.
 do {
     let dir = (mktemp -d)
+    let empty_bytes = (allocated-bytes $dir)
     let file = $dir | path join "cached"
     0..8191 | each { "x" } | str join | save $file
     let policy = {
         name: fixture
         directory: $dir
-        max_bytes: 1
+        max_bytes: ($empty_bytes + 1)
         command: ["/unused"]
     }
     let dry = maintain $policy false {|p| error make {msg: "dry run ran cleanup"} }
