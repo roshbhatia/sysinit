@@ -1,0 +1,49 @@
+modules/home/programs/llm/skills/citation-verification/SKILL.md
+  s_7028fc5da01072::t_463f24a142b4a8 2,13-14
+modules/home/programs/llm/default.nix
+  s_7028fc5da01072::t_a00b992817ff77 132
+checks/pi-extensions.nix
+  s_7028fc5da01072::t_a00b992817ff77 5
+modules/home/programs/llm/harnesses/pi/default.nix
+  s_7028fc5da01072::t_a00b992817ff77 98-99
+modules/home/programs/llm/harnesses/pi/extensions/citation-tools.ts
+  s_7028fc5da01072::t_a00b992817ff77 1-60
+modules/home/programs/seshy/default.nix
+  s_7028fc5da01072::t_a00b992817ff77 18
+checks/nushell-managed-tools.nix
+  s_7028fc5da01072::t_a00b992817ff77 17
+modules/home/programs/llm/skills/adversarial-review/SKILL.md
+  s_7028fc5da01072::t_463f24a142b4a8 42-43
+AGENTS.md
+  s_7028fc5da01072::t_332549686b6b83 31
+docs/repository-reference.md
+  s_7028fc5da01072::t_6e746f88ff9741 120-121,137
+docs/skill-routing-cases.json
+  s_7028fc5da01072::t_9e7afa29f67b4b 65
+modules/home/programs/llm/harnesses/codex.nix
+  s_7028fc5da01072::t_31e9370cde9b08 32,226
+modules/home/programs/llm/harnesses/cursor/rules/nix.mdc
+  s_7028fc5da01072::t_7ff506a247b780 24
+modules/home/programs/llm/skills/diagram-mermaid-render/SKILL.md
+  s_7028fc5da01072::t_77c154f15da44c 11,55,176
+modules/home/programs/llm/skills/nix-cache-audit/SKILL.md
+  s_7028fc5da01072::t_db380d84aaebb3 82
+modules/home/programs/llm/skills/writing-commit-message/SKILL.md
+  s_7028fc5da01072::t_e5a00276c6afa1 55,67
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3f3b4705afde8577df1be46e80ee6967e012938c",
+  "prompts": {},
+  "sessions": {
+    "s_7028fc5da01072": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1d0ac-4380-7023-8b2f-a382ea7a16c4",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
