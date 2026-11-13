@@ -62,6 +62,6 @@
   {
     "prompt": "Explain what this single expression returns",
     "expected": [],
-    "avoid": ["openspec-workflow", "nix-deployment"]
+    "avoid": ["nix-deployment"]
   }
 ]

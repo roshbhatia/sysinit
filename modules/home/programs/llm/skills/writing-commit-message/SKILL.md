@@ -52,7 +52,7 @@ When a repo has no contribution docs, apply the defaults below unmodified.
   when the change fits no single type (observed in the corpus).
 - `scope` is optional: the affected module, lowercase, kebab-case if multi-word.
   In-this-config scopes: `pi`, `llm`, `claude`, `gemini`, `goose`, `codex`,
-  `cursor`, `amp`, `opencode`, `openspec`, `hack`, `flake`.
+  `cursor`, `amp`, `opencode`, `hack`, `flake`.
 - `subject` is an imperative sentence fragment. No trailing period. Omit explanatory prose by default; retain required trailers.
 - Lowercase is preferred (~80% of the corpus). Capitalize only when an identifier
   or proper noun opens the subject; do not force lowercase onto one.
@@ -64,7 +64,7 @@ When a repo has no contribution docs, apply the defaults below unmodified.
 feat(claude): auto-allow read-only inspection commands
 fix(pi): bump pi-coding-agent to 0.74.0 from earendil-works/pi
 refactor(claude): consume harness-kit and canonical allowlist
-chore(openspec): archive refresh-pi-stack change
+chore(flake): refresh managed dependency pins
 
 # bad
 Feat(claude): Added read-only commands.    # capitalized, past tense, trailing period

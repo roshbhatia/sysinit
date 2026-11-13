@@ -28,8 +28,7 @@ Shell scripts use Bash with `set -euo pipefail` and `shfmt -i 2 -ci -sr -s`.
 - Darwin keybindings or WezTerm integration: read the matching sections of
   `docs/repository-reference.md`; inspect live symbolic hotkeys before editing.
 - Overlay build workarounds: load `nix-cache-audit` before adding or retaining one.
-- Dependency or schema updates: use the owning `hack/update-*` script and
-  `openspec-workflow` when the repository has an active OpenSpec change.
+- Dependency updates: use the owning `hack/update-*` script.
 
 ## Ownership and boundaries
 

@@ -16,7 +16,7 @@
     command = "amp";
     skillRoot = ".config/amp/skills";
     acp = true;
-    openspecTool = [ ];
+
     guard = "globs";
     gate = "none";
     projectDir = ".agents/";
@@ -60,7 +60,7 @@
     };
     skillRoot = ".claude/skills";
     acp = true;
-    openspecTool = [ "claude" ];
+
     guard = "hook";
     gate = "claude-json";
     projectDir = ".claude/";
@@ -99,7 +99,7 @@
     };
     skillRoot = ".claude/skills";
     acp = true;
-    openspecTool = [ "codex" ];
+
     guard = "hook";
     gate = "claude-json";
     projectDir = ".codex/";
@@ -124,7 +124,6 @@
     command = "copilot";
     skillRoot = ".copilot/skills";
     acp = true;
-    openspecTool = [ "github-copilot" ];
 
     guard = "hook";
     gate = "exit-code";
@@ -157,7 +156,7 @@
     command = "crush";
     skillRoot = ".claude/skills";
     acp = false;
-    openspecTool = [ "crush" ];
+
     guard = "none";
     gate = "none";
     projectDir = ".crush/";
@@ -198,7 +197,7 @@
       };
     };
     acp = true;
-    openspecTool = [ "cursor" ];
+
     guard = "both";
     gate = "cursor";
     projectDir = ".cursor/";
@@ -223,7 +222,7 @@
     command = "devin";
     skillRoot = ".config/devin/skills";
     acp = true;
-    openspecTool = [ ];
+
     guard = "both";
     gate = "exit-code";
     projectDir = ".devin/";
@@ -259,7 +258,7 @@
     command = "fx";
     skillRoot = ".claude/skills";
     acp = true;
-    openspecTool = [ ];
+
     guard = "globs";
     gate = "none";
     projectDir = ".fx/";
@@ -293,10 +292,7 @@
     command = "agy";
     skillRoot = ".claude/skills";
     acp = false;
-    openspecTool = [
-      "antigravity"
-      "gemini"
-    ];
+
     guard = "hook";
     gate = "exit-code";
     projectDir = ".gemini/";
@@ -343,7 +339,7 @@
     };
     skillRoot = ".claude/skills";
     acp = true;
-    openspecTool = [ ];
+
     guard = "none";
     gate = "none";
     projectDir = ".goose/";
@@ -377,7 +373,7 @@
     };
     skillRoot = ".claude/skills";
     acp = true;
-    openspecTool = [ "opencode" ];
+
     guard = "globs";
     gate = "none";
     projectDir = ".opencode/";
@@ -411,7 +407,7 @@
     };
     skillRoot = ".claude/skills";
     acp = true;
-    openspecTool = [ "pi" ];
+
     guard = "globs";
     gate = "none";
     projectDir = ".pi/";
@@ -451,7 +447,7 @@
       };
     };
     acp = true;
-    openspecTool = [ ];
+
     guard = "none";
     gate = "none";
     projectDir = ".agent/";

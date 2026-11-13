@@ -10,10 +10,6 @@ not restate any of those here.
 
 ## Stack
 
-- openspec via `overlays/openspec/`, which owns the version. The `spec-driven` schema is NOT in
-  that overlay. It lives in `modules/home/programs/llm/openspec-schema/`.
-  home-manager installs it to openspec's XDG user schema directory, where it
-  shadows the built-in. Editing a template rebuilds nothing
 - Harness configs all generate from `modules/home/programs/llm/harnesses/`, one
   module per entry in `registry.nix`. Do not keep a second list here; the last
   one named eleven of fifteen and called the `claude` attr `claude-code`.
@@ -85,7 +81,6 @@ ast-grep scan                   # structural lint (reads ./sgconfig.yml)
 sgg <path>                      # the same rules against any other repository
 nh darwin build                 # build current host config (no system change)
 nh darwin switch                # apply config to system (use deliberately)
-./hack/sync-openspec-schema.sh  # detect drift in the forked openspec schema
 ./hack/update-pi.sh             # report pi package drift
 ```
 
@@ -122,8 +117,8 @@ every push to `main` and every pull request. It evaluates every host and each
 standalone Home Manager profile. The explicit evaluations fire module
 assertions without building host closures that exceed hosted runner storage.
 
-`sy`, `openspec`, and `specutil` are machine-wide. Their own skills carry the
-subcommands: `feature-based-session-manager`, `openspec-workflow`, `specutil`.
+`sy` is machine-wide. Its `feature-based-session-manager` skill carries the
+subcommands.
 Nushell's `storage` and `attribution` subcommands return structured diagnostics;
 see [docs/storage.md](storage.md) for usage and retention boundaries.
 
@@ -139,8 +134,7 @@ see [docs/storage.md](storage.md) for usage and retention boundaries.
 - A `ruleDirs` walk skips a rule file that is itself a symlink, so the module
   installs `ast-grep/rules` as one directory entry. A per-file `xdg.configFile`
   entry, or `recursive = true`, installs every rule and loads none of them, with
-  no warning and exit 0. This is the openspec schema gotcha with the halves
-  swapped: openspec skips a symlinked *directory* and needs per-file entries.
+  no warning and exit 0.
   A scan that loaded no rules is indistinguishable from a clean one, and no
   check covers that today.
 - `~/.config/git/ignore` excludes `**/sgconfig.yml` and `ast-grep/`. This repo's
@@ -170,11 +164,6 @@ see [docs/storage.md](storage.md) for usage and retention boundaries.
   through activation; do not age out another task's prepared deployment.
 - `~/.config/git/ignore` already excludes `**/.claude/` and `**/.agents/`. Do
   not repeat those in a per-project `.gitignore`.
-- This machine's `spec-driven` is a local override. It installs to
-  `~/.local/share/openspec/schemas/`, where it shadows the CLI's built-in of
-  the same name. A collaborator gets upstream's `spec-driven`, not this one. A
-  shared repo then authors against different templates and a different rubric,
-  silently, with no error. Nothing warns about that; the names are identical.
 - Editing a generated dotfile fails: a PreToolUse hook denies writes that
   resolve into `/nix/store`. Edit the Nix source instead.
 - A whole-file Read, or a `cat` of one file, over 16 KiB is denied by the

@@ -127,9 +127,7 @@ in
         copilot-language-server
         conductor-cli
         lsp-ai
-        openspec
         traces
-        specutil
 
         cupcake-cli
         open-policy-agent

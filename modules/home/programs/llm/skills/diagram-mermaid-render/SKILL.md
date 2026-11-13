@@ -8,7 +8,7 @@ allowed-tools: Bash(mermaid-ascii:*) Bash(pretty-mermaid:*) Bash(pretty-mermaid-
 Diagrams live where they are read. Render **every** mermaid diagram as ASCII in
 the terminal, including one you only read. A mermaid block in a file, a PR, or
 a spec is text a reader has to simulate in their head. One command turns it
-into a picture. An ASCII render also survives in markdown, openspec artifacts,
+into a picture. An ASCII render also survives in markdown, design documents,
 and chat with no asset pipeline. Reach for an image only when fidelity earns
 it.
 
@@ -52,7 +52,7 @@ Prefer ASCII; escalate only when the target or the type genuinely needs it.
 
 ## When a diagram earns its place
 
-Reach for one when it clarifies more than prose. In an openspec proposal or
+Reach for one when it clarifies more than prose. In a proposal or
 `design.md`: capability flow, state transitions, sequence-of-calls. In
 exploration: option trees, dependency graphs, decision points. In a bug:
 what-happens against what-should. In an architecture sketch: component
@@ -173,7 +173,7 @@ Pick the type that matches the relationship, then take the path named beside it.
 Across types: short labels; quote labels with spaces/punctuation when a parser
 complains; one relationship per line; render early and iterate.
 
-## OpenSpec integration
+## Design document integration
 
 - Put the Mermaid source in `design.md` (fenced ```` ```mermaid ````), then the
   rendered ASCII in a plain fenced block right after.

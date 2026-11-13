@@ -36,24 +36,6 @@ let
     mcpServers = llmLib.mcp.formatForAntigravity (kit.mcpServers.serversFor "gemini");
   };
 
-  openspecPluginManifest = builtins.toJSON {
-    name = "openspec-awareness";
-    version = "1.0.0";
-    description = "Surfaces the active OpenSpec change in conversation context so the agent knows what spec-driven work is in flight.";
-    contextFileName = "CONTEXT.md";
-    mcpServers = { };
-  };
-
-  importManifest = builtins.toJSON {
-    imports = [
-      {
-        name = "openspec-awareness";
-        source = "local-install";
-        importedAt = "2026-06-26T00:00:00Z";
-        components = [ "installed" ];
-      }
-    ];
-  };
 in
 {
   sysinit.llm.managedFiles.antigravity-cli = {
@@ -85,18 +67,6 @@ in
       force = true;
     };
 
-    ".gemini/config/plugins/openspec-awareness/plugin.json" = {
-      text = openspecPluginManifest;
-      force = true;
-    };
-    ".gemini/config/plugins/openspec-awareness/CONTEXT.md" = {
-      source = ./extensions/openspec-awareness/CONTEXT.md;
-      force = true;
-    };
-    ".gemini/config/import_manifest.json" = {
-      text = importManifest;
-      force = true;
-    };
   };
 
 }

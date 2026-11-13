@@ -53,12 +53,6 @@ jobs:
         run: |
           ./hack/update-vendor-hash.sh
 
-      - name: Update openspec
-        env:
-          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
-        run: |
-          ./hack/update-openspec.sh
-
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v8

@@ -69,7 +69,6 @@ in
     inputs.changes.packages.${final.stdenv.hostPlatform.system}.provider-git-notes;
   changes-neovim-plugin = inputs.changes.packages.${final.stdenv.hostPlatform.system}.neovim-plugin;
   seshy-cli = inputs.seshy.packages.${final.stdenv.hostPlatform.system}.default;
-  specutil-cli = inputs.specutil.packages.${final.stdenv.hostPlatform.system}.full;
   traces-cli = tracesPackages.default;
   ere = inputs.ere.packages.${final.stdenv.hostPlatform.system}.default;
   traces-providers = tracesPackages.extras // {

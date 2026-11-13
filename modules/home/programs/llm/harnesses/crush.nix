@@ -48,7 +48,6 @@ let
         "write"
         "view"
         "patch"
-        "openspec"
         "ls"
         "ripgrep"
         "fd"

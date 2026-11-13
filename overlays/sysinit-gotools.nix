@@ -94,24 +94,6 @@ in
     };
   };
 
-  specutil = select {
-    pname = "specutil";
-    package = final.specutil-cli;
-    binary = "specutil";
-    names = [ "specutil" ];
-    completionPaths = [
-      "bash-completion/completions/specutil.bash"
-      "fish/vendor_completions.d/specutil.fish"
-      "nushell/vendor/autoload/specutil.nu"
-      "zsh/site-functions/_specutil"
-    ];
-    meta = {
-      description = "Project spec-framework change artifacts into other artifacts and visualizations";
-      mainProgram = "specutil";
-      platforms = final.lib.platforms.unix;
-    };
-  };
-
   changes = final.changes-cli;
 
   traces = final.traces-cli;

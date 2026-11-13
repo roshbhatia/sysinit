@@ -112,21 +112,6 @@ separate read-only mediator adjudicate current evidence before revision. (f)
 Bound with a ledger: a tier from the diff, one judged pass, one re-pass on a
 changed tree, and an owner halt.
 
-## Mapping to spec-driven OpenSpec artifacts
-
-- Rubric source. The proposal's `Behavior` criteria, the design `Decisions`
-  and `Rollout & Gating`, and the proposal `Non-goals` ARE the rubric. The critic
-  cites which criterion, decision, or gate the plan violates. The schema carries
-  no separate requirement spec: acceptance criteria live in the proposal.
-- What the critic breaks. For a plan, "fails" means any one of five things. A
-  `Behavior` criterion the plan cannot satisfy. A criterion no command or
-  observation can decide. A decision whose rejected alternative was actually
-  better. A rollout step that mutates shared state with no verification gate. A
-  non-goal the plan silently crosses.
-- Where it runs. The `tasks.md` review-loop gate per phase references this
-  skill, and the findings land in the change's `review.md`. The skill decides
-  between in-process and spawned execution.
-
 ## Citation index
 
 | Short name | arXiv | Role in the loop |

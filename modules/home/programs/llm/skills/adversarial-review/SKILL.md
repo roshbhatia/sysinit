@@ -1,6 +1,6 @@
 ---
-description: 'Runs one adversarial review pass: fresh-context critics try to break an artifact, a mediator tries to disprove each finding, the ledger drops what it cannot anchor, and the author fixes what survived. Use at the spec-driven review gate or when asked to red-team a plan, spec, design, or code.'
-allowed-tools: Agent Read Grep Glob Bash(review:*) Bash(specutil:*) Bash(git diff:*) Bash(git log:*) Bash(calldiff:*)
+description: 'Runs one adversarial review pass: fresh-context critics try to break an artifact, a mediator tries to disprove each finding, the ledger drops what it cannot anchor, and the author fixes what survived. Use when asked to red-team a plan, spec, design, or code.'
+allowed-tools: Agent Read Grep Glob Bash(review:*) Bash(git diff:*) Bash(git log:*) Bash(calldiff:*)
 ---
 
 One pass, bounded by a ledger, not a loop bounded by prose. `review` keeps the
@@ -29,8 +29,8 @@ denies it anyway.
 
 ## The pass
 
-1. `specutil check <change-dir>` first. It is deterministic and cheap; fix
-   every violation before anything else.
+1. Run the artifact's applicable deterministic checks first. Fix every
+   violation before opening a review pass.
 2. `review open --change <change-dir>`. It measures the diff against the merge
    base, picks the tier from the owner's policy, and records pass 1. A
    `trivial` change records `NOT_RUN` and you are done. The status line names
@@ -39,8 +39,8 @@ denies it anyway.
    ops/rollback, cost, data-migration, citation), as fresh-context read-only
    `Explore` agents. Every critic prompt opens with the literal line
    `ADVERSARIAL-CRITIC-ROLE: do not spawn further critics.` and carries the
-   rubric: the proposal's `Behavior` criteria and `Non-goals`, the design
-   `Decisions` and `Rollout & Gating`. The hook tells each critic which
+   rubric: the artifact's acceptance criteria, non-goals, decisions, and
+   rollout constraints. The hook tells each critic which
    revision is under review; you do not. Contract: "Produce a concrete
    scenario in which this artifact fails and the rubric item it violates. If
    you cannot, reply `NO SURVIVING OBJECTION`."

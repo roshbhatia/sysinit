@@ -95,13 +95,8 @@ let
       source = ./extensions/diff-review.ts;
       force = true;
     };
-    ".pi/agent/extensions/spec-tools.ts" = {
-      source = ./extensions/spec-tools.ts;
-      force = true;
-    };
-    ".pi/agent/extensions/openspec-dashboard" = {
-      source = ./extensions/openspec-dashboard;
-      recursive = true;
+    ".pi/agent/extensions/citation-tools.ts" = {
+      source = ./extensions/citation-tools.ts;
       force = true;
     };
     ".pi/agent/extensions/pi-gemini-auth" = {

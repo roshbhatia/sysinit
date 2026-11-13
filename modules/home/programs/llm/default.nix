@@ -20,29 +20,6 @@ let
     }
   ) skills.skillExtraFiles;
 
-  openspecSkills = import ./openspec-skills.nix { inherit pkgs; };
-
-  openspecSkillFiles = {
-    ".claude/skills" = {
-      source = "${openspecSkills}/skills";
-      recursive = true;
-    };
-  };
-
-  openspecSchemaRoot = ./openspec-schema;
-  openspecSchemaFiles = lib.listToAttrs (
-    map
-      (relPath: {
-        name = "openspec/schemas/spec-driven/${relPath}";
-        value.source = openspecSchemaRoot + "/${relPath}";
-      })
-      (
-        map (f: lib.removePrefix "${toString openspecSchemaRoot}/" (toString f)) (
-          lib.filesystem.listFilesRecursive openspecSchemaRoot
-        )
-      )
-  );
-
   astGrepSkillRoot = "${inputs.ast-grep-skills}/ast-grep/skills";
   astGrepSkillFiles = {
     "ast-grep/SKILL.md" = "${astGrepSkillRoot}/ast-grep/SKILL.md";
@@ -118,7 +95,6 @@ in
       skills = [
         "writing-doc-rfc"
         "writing-doc-design"
-        "openspec-workflow"
       ];
     }
     {
@@ -153,7 +129,7 @@ in
   ];
 
   xdg = {
-    dataFile = openspecSchemaFiles // notify.iconFiles;
+    dataFile = notify.iconFiles;
     configFile = {
       "agent-notify/config.json".source = notify.configFile;
       "agent-notify/schema.json".source = notify.schema;
@@ -180,7 +156,6 @@ in
     file =
       skillFiles
       // skillScriptFiles
-      // openspecSkillFiles
       // (vendoredSkillFilesFor ".claude/skills")
       // lib.mergeAttrsList (
         map skillFilesFor (
@@ -204,7 +179,6 @@ in
       (import ./runtime/diff { inherit pkgs; })
       notify.script
       notify.agentRefine
-      notify.specPreflight
       notify.promptScript
       notify.focusScript
       notify.reviewScript

@@ -5,48 +5,6 @@
   ...
 }:
 let
-  registry = import ../llm/harnesses/registry.nix;
-
-  supportedTools = [
-    "amazon-q"
-    "antigravity"
-    "auggie"
-    "bob"
-    "claude"
-    "cline"
-    "codebuddy"
-    "codex"
-    "continue"
-    "costrict"
-    "crush"
-    "cursor"
-    "factory"
-    "forgecode"
-    "gemini"
-    "github-copilot"
-    "iflow"
-    "junie"
-    "kilocode"
-    "kimi"
-    "kiro"
-    "lingma"
-    "oh-my-pi"
-    "opencode"
-    "pi"
-    "qoder"
-    "qwen"
-    "roocode"
-    "trae"
-    "vibe"
-    "windsurf"
-  ];
-
-  declaredTools = lib.naturalSort (
-    lib.unique (lib.concatMap (h: h.openspecTool) (lib.attrValues registry))
-  );
-
-  openspecTools = lib.intersectLists supportedTools declaredTools;
-
   syFishCompletion = pkgs.runCommand "sy-fish-completion" { } ''
     export HOME="$TMPDIR"
     export XDG_CONFIG_HOME="$TMPDIR/config"
@@ -57,19 +15,13 @@ let
     branchFormat = "dev/{{.User}}/{{.Session}}/{{.Repo}}";
     sessionsDir = config.sysinit.paths.resolved.seshySessions;
     hooks = {
-      postCreate =
-        config.sysinit.seshy.postCreateHooks
-        ++ lib.optionals config.sysinit.seshy.planning.enable [
-          "[ -d openspec ] || openspec init --tools ${lib.concatStringsSep "," openspecTools}"
-          "command -v specutil >/dev/null 2>&1 && [ -d openspec/changes ] && specutil graph --as mermaid | mermaid-ascii || true"
-        ];
+      postCreate = config.sysinit.seshy.postCreateHooks;
       preDelete = [ ];
     };
   };
 in
 {
   options.sysinit.seshy = {
-    planning.enable = lib.mkEnableOption "OpenSpec initialization for new sessions";
     postCreateHooks = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [ ];

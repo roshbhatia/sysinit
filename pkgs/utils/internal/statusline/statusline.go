@@ -6,8 +6,6 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"path/filepath"
-	"sort"
 	"strings"
 
 	"github.com/roshbhatia/go-utils/paths"
@@ -59,13 +57,6 @@ func Run(_ []string) int {
 		if session := seshySession(dir); session != "" {
 			parts = append(parts, "seshy:"+session)
 		}
-		if change, extra := openspecChange(dir); change != "" {
-			if extra > 0 {
-				parts = append(parts, fmt.Sprintf("openspec:%s +%d", change, extra))
-			} else {
-				parts = append(parts, "openspec:"+change)
-			}
-		}
 	}
 
 	fmt.Print(strings.Join(parts, separator))
@@ -97,46 +88,4 @@ func seshySession(dir string) string {
 		return ""
 	}
 	return strings.SplitN(rest, "/", 2)[0]
-}
-
-func openspecChange(dir string) (string, int) {
-	root := dir
-	for root != "" && root != "/" {
-		if _, err := os.Stat(filepath.Join(root, "openspec", "config.yaml")); err == nil {
-			break
-		}
-		next := filepath.Dir(root)
-		if next == root {
-			return "", 0
-		}
-		root = next
-	}
-	if root == "" || root == "/" {
-		return "", 0
-	}
-
-	entries, err := os.ReadDir(filepath.Join(root, "openspec", "changes"))
-	if err != nil {
-		return "", 0
-	}
-	type stamped struct {
-		name  string
-		mtime int64
-	}
-	var changes []stamped
-	for _, entry := range entries {
-		if entry.Name() == "archive" {
-			continue
-		}
-		info, err := entry.Info()
-		if err != nil {
-			continue
-		}
-		changes = append(changes, stamped{entry.Name(), info.ModTime().UnixNano()})
-	}
-	if len(changes) == 0 {
-		return "", 0
-	}
-	sort.Slice(changes, func(i, j int) bool { return changes[i].mtime > changes[j].mtime })
-	return changes[0].name, len(changes) - 1
 }

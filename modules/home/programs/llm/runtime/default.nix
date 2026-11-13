@@ -120,20 +120,6 @@ let
     ];
   };
 
-  specPreflight = pkgs.sysinit.writeShellApplication {
-    name = "spec-preflight";
-    runtimeInputs = [
-      pkgs.citelock
-      pkgs.coreutils
-      pkgs.git
-      pkgs.gnugrep
-      pkgs.gnused
-      pkgs.findutils
-      pkgs.ripgrep
-    ];
-    text = builtins.readFile ./spec-preflight.sh;
-  };
-
   agentRefine = pkgs.sysinit.writeShellApplication {
     name = "agent-refine";
     runtimeInputs = [
@@ -171,7 +157,6 @@ in
     reviewScript
     sessionsScript
     agentRefine
-    specPreflight
     appPackage
     ;
 

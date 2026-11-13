@@ -29,7 +29,7 @@ let
 
     Keep:
     - The newest user request and any later corrections or overrides.
-    - Current cwd, repo, branch, git status summary, active OpenSpec change names, and task status.
+    - Current cwd, repo, branch, git status summary, and task status.
     - Files changed, decisions made, validation commands and results, blockers, running sessions, ports, and PIDs.
     - Harness-specific findings: hook event names, config paths, MCP shape differences, and docs already verified.
     - Any user-owned dirty files that must not be reverted.
@@ -223,7 +223,7 @@ in
         max_threads = 6;
         max_depth = 1;
         explore = {
-          description = "Read-only planning and exploration agent for understanding code, OpenSpec changes, options, and tradeoffs before implementation.";
+          description = "Read-only planning and exploration agent for understanding code, options, and tradeoffs before implementation.";
           nickname_candidates = [
             "Explore"
             "Planner"

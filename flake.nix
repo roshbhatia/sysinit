@@ -87,11 +87,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    specutil = {
-      url = "github:roshbhatia/specutil/main";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     ere = {
       url = "github:roshbhatia/ere/44814e2cad9bd719c03435d9a5e6d916b1c5cb97";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -340,7 +335,6 @@
           cacheAttrs = [
             "hunk"
             "tuicr"
-            "openspec"
             "calldiff"
             "ast-grep-mcp"
             "strands-cli"
@@ -363,7 +357,6 @@
             "alerter"
             "sysinit-gotools"
             "seshy"
-            "specutil"
             "changes"
             "changes-providers"
             "changes-provider-git-notes"
@@ -443,7 +436,6 @@
                 "traces"
                 "traces-providers"
                 "seshy"
-                "specutil"
                 "calldiff"
                 "sysinit-utils"
               ];

@@ -37,7 +37,6 @@
   (import ./mermaid-ascii.nix)
   (import ./pretty-mermaid.nix)
   (import ./hererocks.nix)
-  (import ./openspec)
   (import ./pi-coding-agent.nix)
   (import ./amp-cli.nix)
   (import ./amp-acp.nix)

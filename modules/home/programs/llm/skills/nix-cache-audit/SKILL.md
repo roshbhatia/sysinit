@@ -79,7 +79,7 @@ workaround. So are the platform-guarded `sunshine`, `sdl3`, and `electron`.
 - `python313.override { packageOverrides = ... }` re-hashes the entire Python
   set. One test-skip cascades to every `python313Packages.*`, so audit the
   fixpoint, not the single package.
-- Custom and nvfetcher packages (openspec, localias, claude-code) are never on
+- Custom and nvfetcher packages (localias, claude-code) are never on
   `cache.nixos.org`. A MISSING result there proves nothing about the override.
   Their cache is `roshbhatia.cachix.org`; see `AGENTS.md`.
 - Report the verdict and the evidence. Removing an overlay entry is the owner's

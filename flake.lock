@@ -1486,7 +1486,6 @@
         "rust-overlay": "rust-overlay",
         "seshy": "seshy",
         "slk": "slk",
-        "specutil": "specutil",
         "stylix": "stylix",
         "swayfx": "swayfx",
         "sysinit-nvim": "sysinit-nvim",
@@ -1706,27 +1705,6 @@
       "original": {
         "owner": "roshbhatia",
         "repo": "spawn.wezterm",
-        "type": "github"
-      }
-    },
-    "specutil": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1788553100,
-        "narHash": "sha256-ypbtM193pAPTUKXZ5Z7g2uZnkfIDmqMjCBP0sgxABrQ=",
-        "owner": "roshbhatia",
-        "repo": "specutil",
-        "rev": "0b110081f91f57adb0324703d2c73d0e1014da12",
-        "type": "github"
-      },
-      "original": {
-        "owner": "roshbhatia",
-        "ref": "main",
-        "repo": "specutil",
         "type": "github"
       }
     },
