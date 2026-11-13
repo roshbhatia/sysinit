@@ -1,4 +1,4 @@
-package threads
+package picker
 
 import (
 	"errors"
@@ -172,11 +172,17 @@ func (m pickerModel) View() string {
 	return strings.Join(lines, "\n")
 }
 
-func pick(labels []string, prompt string) (int, error) {
+// Pick displays an inline, searchable list without replacing the caller's screen.
+func Pick(labels []string, prompt string, inserting bool) (int, error) {
 	if !terminal.IsTTY(os.Stderr) {
-		return -1, errors.New("the thread picker needs a terminal; use threads list --style json for structured output")
+		return -1, errors.New("the picker needs a terminal; use the command's structured output instead")
 	}
-	result, err := tea.NewProgram(newPicker(labels, prompt), tea.WithInputTTY(), tea.WithOutput(os.Stderr)).Run()
+	model := newPicker(labels, prompt)
+	model.inserting = inserting
+	if !inserting {
+		model.input.Blur()
+	}
+	result, err := tea.NewProgram(model, tea.WithInputTTY(), tea.WithOutput(os.Stderr)).Run()
 	if err != nil {
 		return -1, err
 	}

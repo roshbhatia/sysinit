@@ -5,12 +5,13 @@ _task-queue() {
   typeset -A opt_args
   _arguments -C \
     '--state[Execution record directory]:directory:_directories' \
-    '1:action:(submit status reconcile cancel resume)' \
+    '1:action:(submit status browse thread reconcile cancel resume)' \
     '*::argument:->args'
   case $line[1] in
     submit)
       _arguments \
         '--task[Full Taskwarrior UUID]:UUID:' \
+        '--thread[Exact captured-thread ID]:thread ID:' \
         '--session[Existing seshy session]:session:' \
         '--cwd[Working directory]:directory:_directories' \
         '--group[Pueue group]:group:(agents builds default)' \
@@ -18,7 +19,10 @@ _task-queue() {
         '--retry[Create another attempt after completion]' \
         '*:command:_command_names'
       ;;
-    cancel|resume)
+    browse)
+      _arguments '--thread[Filter by captured-thread ID]:thread ID:'
+      ;;
+    cancel|resume|thread)
       _message 'execution attempt UUID'
       ;;
   esac

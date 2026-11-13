@@ -18,6 +18,7 @@ type attempt struct {
 	Cwd       string            `json:"cwd"`
 	Env       map[string]string `json:"env"`
 	Session   string            `json:"session,omitempty"`
+	Thread    string            `json:"thread,omitempty"`
 	Group     string            `json:"group"`
 	Terminal  string            `json:"terminal,omitempty"`
 	PueueID   *int              `json:"pueue_id,omitempty"`

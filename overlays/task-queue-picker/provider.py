@@ -48,7 +48,7 @@ def respond(request):
         raise ValueError("expected a provider/v1 request")
     capability = request["capability"]
     if capability == "picker.describe":
-        return {"title": "Task queue", "icon": "md_checklist"}
+        return {"title": "Task queue · terminals and logs", "icon": "md_checklist"}
     if capability == "provider.validate":
         jobs()
         return {"ok": True}
@@ -58,22 +58,34 @@ def respond(request):
         for identifier, job in sorted(
             snapshot.items(),
             key=lambda item: (
-                status(item[1]) not in ("Running", "Paused", "Queued"),
+                status(item[1]) not in ("Running", "Paused", "Queued", "Stashed"),
                 -int(item[0]),
             ),
         ):
             record = attempt(job)
-            command = " ".join(record.get("argv", [])[:2]) or job["original_command"]
+            command = " ".join(record.get("argv", [])) or job["original_command"]
             name = record.get("session") or job["group"]
-            detail = f"{status(job)} · {' '.join(command.split())[:120]}"
+            folder = Path(job["path"]).name
+            linked = (
+                " · thread " + record["thread"][-8:] if record.get("thread") else ""
+            )
+            target = "terminal/logs" if record.get("terminal") else "logs"
+            detail = f"{folder} · {target}{linked} · {' '.join(command.split())[:160]}"
             items.append(
                 {
                     "id": identifier,
                     "search": " ".join(
-                        [name, detail, job["path"], record.get("task", "")]
+                        [
+                            name,
+                            detail,
+                            job["path"],
+                            record.get("task", ""),
+                            record.get("thread", ""),
+                            command,
+                        ]
                     ),
                     "segments": [
-                        {"text": f"#{identifier} {name}", "role": "name"},
+                        {"text": f"#{identifier} {status(job)} {name}", "role": "name"},
                         {"text": detail, "role": "detail"},
                     ],
                 }

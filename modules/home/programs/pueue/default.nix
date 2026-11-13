@@ -13,6 +13,8 @@ let
       pkgs.taskwarrior-cli
       pkgs.seshy
       pkgs.zmx
+      pkgs.atuin
+      pkgs.pueue-task-view
     ];
     text = ''exec ${pkgs.sysinit-gotools}/bin/task-queue "$@"'';
   };

@@ -147,6 +147,9 @@ func fixtureFor(t *testing.T) *fixture {
 	}
 	f.env = append(
 		envWithout("ZMX_SESSION", "ZMX_SESSION_PREFIX", "PUEUE_CONFIG_PATH", "TASKRC", "TASKDATA", "SESHY_CONFIG"),
+		"HOME="+root,
+		"XDG_CONFIG_HOME="+filepath.Join(root, "config"),
+		"XDG_STATE_HOME="+filepath.Join(root, "state"),
 		"PUEUE_CONFIG_PATH="+config,
 		"TASKRC="+rc,
 		"TASKDATA="+filepath.Join(root, "tasks"),
@@ -208,6 +211,31 @@ func executable(t *testing.T, name string) string {
 		t.Fatal(e)
 	}
 	return s
+}
+
+func TestCapturedThreadLink(t *testing.T) {
+	f := fixtureFor(t)
+	bin := filepath.Join(f.root, "bin")
+	if err := os.Mkdir(bin, 0700); err != nil {
+		t.Fatal(err)
+	}
+	atuin := "#!/bin/sh\nif [ \"$*\" = 'threads list --style json' ]; then\n  printf '%s' '[{\"atuin_id\":\"captured-thread-a\"}]'\nelse\n  printf '%s\\n' \"$@\"\nfi\n"
+	if err := os.WriteFile(filepath.Join(bin, "atuin"), []byte(atuin), 0700); err != nil {
+		t.Fatal(err)
+	}
+	f.env = append(f.env, "PATH="+bin+string(os.PathListSeparator)+os.Getenv("PATH"))
+	f.queueError("submit", "--thread", "captured", "--", "true")
+	a := f.submit("--thread", "captured-thread-a", "--cwd", f.root, "--", "true")
+	if a.Thread != "captured-thread-a" {
+		t.Fatalf("lost captured-thread identity: %+v", a)
+	}
+	if got := strings.TrimSpace(string(f.queue("thread", a.ID))); got != "threads\nshow\ncaptured-thread-a" {
+		t.Fatalf("wrong captured conversation: %q", got)
+	}
+	if got := string(f.queue("browse", "--thread", "unrelated-thread")); got != "" {
+		t.Fatalf("empty thread browse emitted structured data: %q", got)
+	}
+	f.queueError("thread", "../invalid")
 }
 
 func TestStatesAndIdentity(t *testing.T) {
@@ -281,9 +309,12 @@ func TestLiteralArgumentsAndMissingDirectory(t *testing.T) {
 
 func TestTerminalInputAndFailure(t *testing.T) {
 	f := fixtureFor(t)
-	a := f.submit("--terminal", "--", executable(t, "bash"), "-c", `read -r value </dev/tty; test "$value" = hello || exit 8; exit 7`)
-	waitFor(t, func() bool { return f.terminalExists(a) })
-	time.Sleep(300 * time.Millisecond)
+	ready := filepath.Join(f.root, "input-ready")
+	a := f.submit("--terminal", "--", executable(t, "bash"), "-c", `printf ready > "$1"; read -r value </dev/tty; test "$value" = hello || exit 8; exit 7`, "bash", ready)
+	waitFor(t, func() bool {
+		_, err := os.Stat(ready)
+		return err == nil
+	})
 	f.must("zmx", "send", a.Terminal, "hello\r")
 	r := f.finished(a)
 	if !strings.Contains(string(r.Result), `"Failed":7`) && !strings.Contains(string(r.Result), `"Failed": 7`) {

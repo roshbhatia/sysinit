@@ -38,7 +38,7 @@ func run(args []string) (int, error) {
 	}
 	args = global.Args()
 	if len(args) == 0 {
-		_, e := fmt.Fprintln(os.Stdout, "Usage: task-queue [--state DIR] submit|status|reconcile|cancel|resume\nsubmit [--task UUID] [--session NAME | --cwd DIR] [--group NAME] [--terminal] [--retry] -- COMMAND [ARGS...]")
+		_, e := fmt.Fprintln(os.Stdout, "Usage: task-queue [--state DIR] submit|status|browse|thread|reconcile|cancel|resume\nsubmit [--task UUID] [--thread ID] [--session NAME | --cwd DIR] [--group NAME] [--terminal] [--retry] -- COMMAND [ARGS...]\nbrowse [--thread ID]  Browse attempts, terminals, logs, and linked conversations\nthread UUID           Inspect an attempt's captured conversation")
 		return 0, e
 	}
 	*dir, e = filepath.Abs(*dir)
@@ -50,6 +50,23 @@ func run(args []string) (int, error) {
 	}
 	action := args[0]
 	args = args[1:]
+	if action == "thread" {
+		if len(args) != 1 {
+			return 1, errors.New("one attempt UUID required")
+		}
+		path, err := recordPath(*dir, args[0])
+		if err != nil {
+			return 1, err
+		}
+		var a attempt
+		if err = read(path, &a); err != nil {
+			return 1, err
+		}
+		if a.Thread == "" {
+			return 1, errors.New("attempt has no linked conversation; submit with --thread ID")
+		}
+		return 0, viewCommand("atuin", "threads", "show", a.Thread)
+	}
 	if action == "run" || action == "terminal-child" {
 		if len(args) != 1 {
 			return 1, errors.New("one attempt UUID required")
@@ -79,7 +96,11 @@ func run(args []string) (int, error) {
 	if e != nil {
 		return 1, e
 	}
-	defer func() { _ = guard.Close() }()
+	defer func() {
+		if guard != nil {
+			_ = guard.Close()
+		}
+	}()
 	var snapshot struct {
 		Tasks map[string]job `json:"tasks"`
 	}
@@ -117,6 +138,12 @@ func run(args []string) (int, error) {
 		records = append(records, a)
 	}
 	switch action {
+	case "browse":
+		if e = guard.Close(); e != nil {
+			return 1, e
+		}
+		guard = nil
+		return 0, browse(args, records)
 	case "status", "reconcile":
 		return 0, output(records)
 	case "cancel", "resume":

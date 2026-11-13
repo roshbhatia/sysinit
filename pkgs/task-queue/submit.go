@@ -15,6 +15,7 @@ func submit(args []string, dir string, records []attempt) (int, error) {
 	f := flag.NewFlagSet("submit", flag.ContinueOnError)
 	taskID := f.String("task", "", "Full Taskwarrior UUID")
 	session := f.String("session", "", "Existing seshy session")
+	thread := f.String("thread", "", "Exact Atuin captured-thread ID")
 	cwd := f.String("cwd", "", "Working directory")
 	group := f.String("group", "agents", "Pueue group")
 	terminal := f.Bool("terminal", false, "Attachable zmx session")
@@ -25,6 +26,21 @@ func submit(args []string, dir string, records []attempt) (int, error) {
 	argv := f.Args()
 	if len(argv) == 0 {
 		return 1, errors.New("pass an explicit command after --")
+	}
+	if *thread != "" {
+		var captured []struct {
+			ID string `json:"atuin_id"`
+		}
+		if e = jsonCall(&captured, "atuin", "threads", "list", "--style", "json"); e != nil {
+			return 1, e
+		}
+		found := false
+		for _, entry := range captured {
+			found = found || entry.ID == *thread
+		}
+		if !found {
+			return 1, errors.New("use an exact captured-thread ID from threads list --style json")
+		}
 	}
 	*taskID = strings.ToLower(*taskID)
 	var t task
@@ -115,6 +131,7 @@ func submit(args []string, dir string, records []attempt) (int, error) {
 		Cwd:     *cwd,
 		Env:     env,
 		Session: *session,
+		Thread:  *thread,
 		Group:   *group,
 		Result:  json.RawMessage(`"Preparing"`),
 	}

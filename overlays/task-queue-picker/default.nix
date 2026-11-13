@@ -12,8 +12,8 @@ let
         exit 2
       fi
       case "$2" in
-        follow) pueue follow --lines 1000 "$1" | less -R +F ;;
-        log) pueue log --lines 1000 "$1" | less -R +G ;;
+        follow) pueue follow --lines 1000 "$1" | less -R -P "Pueue #$1 | Ctrl-C pause | j/k scroll | F follow | q quit" +F ;;
+        log) pueue log --lines 1000 "$1" | less -R -P "Pueue #$1 | j/k scroll | g/G top/end | q quit" +G ;;
         *) echo "pueue-task-view: invalid log mode" >&2; exit 2 ;;
       esac
     '';
@@ -48,6 +48,7 @@ let
   );
 in
 {
+  pueue-task-view = viewer;
   task-queue-picker = final.symlinkJoin {
     name = "task-queue-picker";
     paths = [

@@ -43,6 +43,11 @@ else
 fi
 """)
     fixture.chmod(0o700)
+    queue = root / "task-queue"
+    queue.write_text(
+        "#!/bin/sh\nprintf '\\nQUEUE:'; printf ' <%s>' \"$@\"; printf '\\n'\n"
+    )
+    queue.chmod(0o700)
     for harness in ("codex", "claude"):
         executable = root / harness
         executable.write_text("#!/bin/sh\nexit 0\n")
@@ -69,6 +74,7 @@ fi
         ("Fork", 2, None, None, "<--fork>"),
         ("Fork (Switch)", 3, 0, None, "<--in> <claude-code>"),
         ("Inspect", 4, None, None, "NATIVE: <threads> <show> <thread-b>"),
+        ("Queue attempts", 5, None, None, "QUEUE: <browse> <--thread> <thread-b>"),
         ("Resume original", 1, 1, None, "<--as-is>"),
         ("Fork original", 3, 1, None, "<--fork>"),
         ("Cancel thread", 0, None, "thread", None),
@@ -142,7 +148,7 @@ fi
                 os.write(master, b"\x03")
                 return False
             if stage == "thread" and name == "Fuzzy search":
-                os.write(master, b"bta")
+                os.write(master, b"/bta")
                 collect(0.15)
                 assert "thread> bta" in "\n".join(screen.display), "typed query hidden"
             elif stage == "thread":
@@ -152,8 +158,6 @@ fi
                 collect(0.05)
                 os.write(master, b"\t")
             elif stage == "action" and name == "Normal navigation":
-                os.write(master, b"\x1b")
-                collect(0.1)
                 os.write(master, b"j" * index)
             else:
                 for _ in range(index):
@@ -188,7 +192,7 @@ fi
             visible = "\n".join(screen.display)
             if expected:
                 assert expected.encode() in output, (name, visible)
-                if name != "Inspect":
+                if name not in ("Inspect", "Queue attempts"):
                     assert b"NATIVE: <resume> <thread-b> <--print>" in output, (
                         name,
                         visible,

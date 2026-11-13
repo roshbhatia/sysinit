@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/roshbhatia/go-utils/agents"
+	"github.com/roshbhatia/sysinit/pkgs/internal/picker"
 )
 
 const Summary = "pick a captured agent thread, then resume, fork, or inspect it"
@@ -26,6 +27,7 @@ Pick a thread, then choose:
   Fork            Create a session in the original harness
   Fork (Switch)   Choose a harness and create a session there
   Inspect         Show its captured conversation
+  Queue attempts  Browse linked executions (when task-queue is installed)
 
 Switching harnesses always creates a new session through Atuin conversion.
 Every launch adds the harness's registry full-access flags (launch.fullAccess).
@@ -33,6 +35,7 @@ Every launch adds the harness's registry full-access flags (launch.fullAccess).
 Other arguments pass through to atuin threads, including list/search/show/resume.
 By default, the picker shows threads captured in the current folder and its
 subfolders. Use --all or -a to show threads from every folder.
+Pickers start in navigation mode: j/k move, / searches, Esc cancels.
 `
 
 type session struct {
@@ -49,14 +52,20 @@ func Run(args []string) int {
 		fmt.Print(help)
 		return 0
 	}
-	argv, err := prepare(args, pick)
+	argv, err := prepare(args, func(labels []string, prompt string) (int, error) {
+		return picker.Pick(labels, prompt, false)
+	})
 	if err == nil && len(argv) > 0 && argv[0] == "resume" {
 		err = resume(argv)
 	} else if err == nil && len(argv) > 0 {
+		command := "atuin"
+		if argv[0] == "task-queue" {
+			command, argv = argv[0], argv[1:]
+		}
 		var binary string
-		binary, err = exec.LookPath("atuin")
+		binary, err = exec.LookPath(command)
 		if err == nil {
-			err = syscall.Exec(binary, append([]string{"atuin"}, argv...), os.Environ())
+			err = syscall.Exec(binary, append([]string{command}, argv...), os.Environ())
 		}
 	}
 	if err != nil {
@@ -246,19 +255,30 @@ func prepareInFolder(args []string, choose func([]string, string) (int, error), 
 		} else if len(updated) >= 16 {
 			updated = updated[:16]
 		}
-		labels[i] = fmt.Sprintf("└─ [%s] %d msgs · %s · %s · %s", thread.Harness, thread.MessageCount, updated, string(preview), folder)
+		identifier := thread.ID
+		if len(identifier) > 8 {
+			identifier = identifier[len(identifier)-8:]
+		}
+		labels[i] = fmt.Sprintf("[%s] %s · %d msgs · %s · %s · %s", thread.Harness, identifier, thread.MessageCount, updated, folder, string(preview))
 	}
 	index, err := choose(labels, "thread> ")
 	if err != nil || index < 0 {
 		return nil, err
 	}
 	thread := sessions[index]
-	action, err := choose([]string{"Resume", "Resume (Switch)", "Fork", "Fork (Switch)", "Inspect"}, "action> ")
+	actions := []string{"Resume", "Resume (Switch)", "Fork", "Fork (Switch)", "Inspect"}
+	if _, err := exec.LookPath("task-queue"); err == nil {
+		actions = append(actions, "Queue attempts")
+	}
+	action, err := choose(actions, "action> ")
 	if err != nil || action < 0 {
 		return nil, err
 	}
 	if action == 4 {
 		return []string{"threads", "show", thread.ID}, nil
+	}
+	if action == 5 {
+		return []string{"task-queue", "browse", "--thread", thread.ID}, nil
 	}
 	argv := []string{"resume", thread.ID}
 	if printCommand {

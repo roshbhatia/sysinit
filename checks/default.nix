@@ -111,6 +111,18 @@ in
         touch "$out"
       '';
   task-queue = import ./task-queue.nix { inherit pkgs; };
+  task-queue-browser =
+    pkgs.runCommand "task-queue-browser-test"
+      {
+        nativeBuildInputs = [
+          (pkgs.python3.withPackages (ps: [ ps.pyte ]))
+          pkgs.pueue
+        ];
+      }
+      ''
+        python3 ${./task-queue-browser.py} ${pkgs.sysinit-gotools}/bin/task-queue
+        touch "$out"
+      '';
   task-queue-picker =
     pkgs.runCommand "task-queue-picker-test"
       {

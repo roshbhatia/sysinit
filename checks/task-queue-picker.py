@@ -143,7 +143,8 @@ def check(provider, queue):
                 items = result["output"]["items"]
                 assert {item["id"] for item in items} == {"0", identifier}, items
                 assert items[0]["id"] == identifier, items
-                assert "Running" in items[0]["segments"][1]["text"], items
+                assert "Running" in items[0]["segments"][0]["text"], items
+                assert "terminal/logs" in items[0]["segments"][1]["text"], items
                 plan = request("picker.open", identifier)["output"]
                 assert plan["command"][-2:] == ["attach", terminal], plan
                 assert plan["cwd"] == str(root), plan

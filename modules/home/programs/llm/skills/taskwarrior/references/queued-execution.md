@@ -38,6 +38,18 @@ task-queue submit --task <uuid> --cwd /absolute/repository -- \
 ```
 
 Other installed harnesses use the same queue with their own explicit command.
+Use `--thread <exact-atuin-id>` to link an attempt to a captured conversation.
+Get its full `atuin_id` from `threads list --style json`. This records context;
+it does not resume the conversation, infer a thread from its folder, or change
+the explicit command. A noninteractive follow-up still needs the harness's
+native resume arguments and a bounded prompt.
+
+`task-queue browse` opens an inline picker with `j/k` navigation and `/` search.
+Select an attempt to attach its terminal, inspect logs, or inspect its linked
+conversation. `task-queue browse --thread <id>` filters by exact conversation ID;
+the Threads picker's **Queue attempts** action opens this view. Use
+`task-queue thread <attempt-uuid>` to inspect a linked conversation directly.
+
 Add `--terminal` before `--` for an attachable zmx session. Queue output includes
 the attempt UUID and Pueue job ID; retain both with the Taskwarrior UUID. A
 Taskwarrior session ownership marker remains coordination metadata, not a lock.

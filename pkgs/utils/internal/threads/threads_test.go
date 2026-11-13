@@ -26,6 +26,7 @@ func TestThreadActions(t *testing.T) {
 		{"claude-resume-original", []int{0, 1, 0}, false, []string{"resume", "thread-a", "--as-is"}},
 		{"claude-fork-original", []int{0, 3, 0}, false, []string{"resume", "thread-a", "--fork"}},
 		{"inspect", []int{1, 4}, true, []string{"threads", "show", "thread-b"}},
+		{"queue-attempts", []int{1, 5}, false, []string{"task-queue", "browse", "--thread", "thread-b"}},
 		{"cancel-thread", []int{-1}, false, nil},
 		{"cancel-action", []int{1, -1}, false, nil},
 		{"cancel-harness", []int{1, 1, -1}, false, nil},
@@ -41,6 +42,7 @@ func TestThreadActions(t *testing.T) {
 			write("atuin", "#!/bin/sh\nprintf '%s' '[{\"atuin_id\":\"thread-a\",\"harness\":\"claude-code\",\"preview\":\"first\",\"cwd\":\"/repo with spaces\"},{\"atuin_id\":\"thread-b\",\"harness\":\"codex\",\"preview\":\"second\",\"cwd\":\"/repo with spaces\"}]'\n", 0o700)
 			write("claude", "#!/bin/sh\nexit 0\n", 0o700)
 			write("codex", "#!/bin/sh\nexit 0\n", 0o700)
+			write("task-queue", "#!/bin/sh\nexit 0\n", 0o700)
 			if err := os.Mkdir(filepath.Join(root, "sysinit"), 0o700); err != nil {
 				t.Fatal(err)
 			}
@@ -58,7 +60,7 @@ func TestThreadActions(t *testing.T) {
 				if prompt != wantPrompt {
 					t.Fatalf("picker order: %q, want %q", prompt, wantPrompt)
 				}
-				if step == 1 && !reflect.DeepEqual(labels, []string{"Resume", "Resume (Switch)", "Fork", "Fork (Switch)", "Inspect"}) {
+				if step == 1 && !reflect.DeepEqual(labels, []string{"Resume", "Resume (Switch)", "Fork", "Fork (Switch)", "Inspect", "Queue attempts"}) {
 					t.Fatalf("actions: %q", labels)
 				}
 				if step == 2 && !reflect.DeepEqual(labels, []string{"Claude Code", "Codex"}) {
