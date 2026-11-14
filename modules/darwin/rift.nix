@@ -80,7 +80,7 @@ let
     "Alt + N" = {
       exec = [ "${toggleScrolling}" ];
     };
-    "Alt + B" = "balance";
+
     "Alt + Up" = "ascend";
     "Alt + Down" = "descend";
     "Alt + Space" = "toggle_focus_floating";
@@ -93,14 +93,7 @@ let
         weztermApp
       ];
     };
-    "Alt + T" = [
-      {
-        set_workspace_layout = {
-          mode = "traditional";
-        };
-      }
-      "toggle_orientation"
-    ];
+
     "Alt + E" = [
       {
         set_workspace_layout = {
@@ -109,14 +102,7 @@ let
       }
       "toggle_orientation"
     ];
-    "Alt + A" = [
-      {
-        set_workspace_layout = {
-          mode = "stack";
-        };
-      }
-      "toggle_orientation"
-    ];
+
     "Alt + S" = {
       set_workspace_layout = {
         mode = "stack";
@@ -173,10 +159,10 @@ let
     "Alt + 3" = {
       switch_to_workspace = 2;
     };
-    "Alt + C" = {
+    "Alt + 4" = {
       switch_to_workspace = 3;
     };
-    "Alt + M" = {
+    "Alt + 5" = {
       switch_to_workspace = 4;
     };
     "Alt + Shift + 1" = {
@@ -197,13 +183,13 @@ let
         follow = true;
       };
     };
-    "Alt + Shift + C" = {
+    "Alt + Shift + 4" = {
       move_window_to_workspace = {
         workspace = 3;
         follow = true;
       };
     };
-    "Alt + Shift + M" = {
+    "Alt + Shift + 5" = {
       move_window_to_workspace = {
         workspace = 4;
         follow = true;
@@ -227,6 +213,12 @@ let
       focus_follows_mouse = false;
       default_disable = false;
       hot_reload = true;
+      gestures = {
+        enabled = true;
+        consume_dock_swipe = true;
+        fingers = 3;
+        skip_empty = false;
+      };
       ui.stack_line.enabled = false;
       ui.menu_bar = {
         enabled = true;
@@ -280,8 +272,8 @@ let
         "1"
         "2"
         "3"
-        "C"
-        "M"
+        "4"
+        "5"
       ];
       preserve_focus_per_workspace = true;
       workspace_auto_back_and_forth = true;
@@ -291,31 +283,6 @@ let
           app_id = "com.github.wez.wezterm";
           floating = false;
           focus = true;
-        }
-        {
-          app_id = "com.hnc.Discord";
-          workspace = "C";
-        }
-        {
-          app_id = "com.tinyspeck.slackmacgap";
-          workspace = "C";
-        }
-        {
-          app_id = "com.apple.iBooksX";
-          workspace = "M";
-        }
-        {
-          app_id = "com.apple.Music";
-          workspace = "M";
-        }
-        {
-          app_id = "com.apple.Podcasts";
-          workspace = "M";
-        }
-        {
-          app_name = "Audible";
-          title_substring = "Audible Cloud Player";
-          workspace = "M";
         }
       ]
       ++ map (app_id: {

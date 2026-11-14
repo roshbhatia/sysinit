@@ -36,6 +36,8 @@
         Clicking = false;
         TrackpadRightClick = true;
         TrackpadThreeFingerDrag = false;
+        TrackpadThreeFingerHorizSwipeGesture = 0;
+        TrackpadFourFingerHorizSwipeGesture = 0;
       };
 
       NSGlobalDomain = {
