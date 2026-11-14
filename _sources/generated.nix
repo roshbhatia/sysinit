@@ -16,26 +16,26 @@
   };
   amp-cli = {
     pname = "amp-cli";
-    version = "0.0.1794628846-g6069ba";
+    version = "0.0.1794657642-gc1e41b";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1794628846-g6069ba/amp-darwin-arm64.gz";
-      sha256 = "sha256-0w2nzVRiqHpkm6ol7N9Hje3pgwVE6FKHeYsuENteeno=";
+      url = "https://static.ampcode.com/cli/0.0.1794657642-gc1e41b/amp-darwin-arm64.gz";
+      sha256 = "sha256-c8hr4PR2A57joiOkA+VE5zw56PJihzviL6HkTzw0VpQ=";
     };
   };
   amp-cli-aarch64-linux = {
     pname = "amp-cli-aarch64-linux";
-    version = "0.0.1794628846-g6069ba";
+    version = "0.0.1794657642-gc1e41b";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1794628846-g6069ba/amp-linux-arm64.gz";
-      sha256 = "sha256-JoV7tAQVGBTXW0ySrBfehZQWeI9EYvs7nUh091CRYW0=";
+      url = "https://static.ampcode.com/cli/0.0.1794657642-gc1e41b/amp-linux-arm64.gz";
+      sha256 = "sha256-aryDwpL8lcH4DkJnhjt6+eo7XjoZa2Gq1jbBIqh7TqM=";
     };
   };
   amp-cli-x86_64-linux = {
     pname = "amp-cli-x86_64-linux";
-    version = "0.0.1794628846-g6069ba";
+    version = "0.0.1794657642-gc1e41b";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1794628846-g6069ba/amp-linux-x64-baseline.gz";
-      sha256 = "sha256-pJOfZY0PI/7MqUL7tATNRDRp0EL9m/BHpUx88rErhVc=";
+      url = "https://static.ampcode.com/cli/0.0.1794657642-gc1e41b/amp-linux-x64-baseline.gz";
+      sha256 = "sha256-RPP99aJlF1px3sT0vQIJY5vHf0Wyo1Ql6YoV3uI59hc=";
     };
   };
   crush = {
@@ -147,50 +147,34 @@
   };
   goose-cli-bin = {
     pname = "goose-cli-bin";
-    version = "1.59.0";
+    version = "1.59.1";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.59.0/goose-aarch64-apple-darwin.tar.gz";
-      sha256 = "sha256-AUKDnzOeNIS0kybWnenZz4CJmQh6tCGukwTSYg5kfLw=";
+      url = "https://github.com/block/goose/releases/download/v1.59.1/goose-aarch64-apple-darwin.tar.gz";
+      sha256 = "sha256-JdcDES1erNW10uiAtP2F2YDeHJ0VrEKvk5ufsirIlfk=";
     };
   };
   goose-cli-bin-aarch64-linux = {
     pname = "goose-cli-bin-aarch64-linux";
-    version = "1.59.0";
+    version = "1.59.1";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.59.0/goose-aarch64-unknown-linux-gnu.tar.gz";
-      sha256 = "sha256-upa3g5TjBQB3SCuyhf8180YTZG6QuEoYtdZ0txkFFm4=";
+      url = "https://github.com/block/goose/releases/download/v1.59.1/goose-aarch64-unknown-linux-gnu.tar.gz";
+      sha256 = "sha256-42GbLr92276JJFYf10giDyiaNGceJ1fNoc2DPkQZT44=";
     };
   };
   goose-cli-bin-x86_64-darwin = {
     pname = "goose-cli-bin-x86_64-darwin";
-    version = "1.59.0";
+    version = "1.59.1";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.59.0/goose-x86_64-apple-darwin.tar.gz";
-      sha256 = "sha256-GhX2Scq73sy7GQVIOmwwaBN1ZTJkJz8CLgM1i6U60s4=";
+      url = "https://github.com/block/goose/releases/download/v1.59.1/goose-x86_64-apple-darwin.tar.gz";
+      sha256 = "sha256-DLxIucyLXRBNunNhht5yddyrf8NgqrBxY+qe7gMxQ2I=";
     };
   };
   goose-cli-bin-x86_64-linux = {
     pname = "goose-cli-bin-x86_64-linux";
-    version = "1.59.0";
+    version = "1.59.1";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.59.0/goose-x86_64-unknown-linux-gnu.tar.gz";
-      sha256 = "sha256-p3RmfebCAgamDXjXvs4tndqDiWZ+T1wvyKqnWNHoHvM=";
-    };
-  };
-  goose-desktop = {
-    pname = "goose-desktop";
-    version = "1.59.0";
-    src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.59.0/Goose-darwin-arm64.zip";
-      sha256 = "sha256-fR0imHbZKzofN7fjIDuUh+5dIclxjFa7N0O+HjZW3VI=";
-    };
-  };
-  goose-desktop-x86_64-darwin = {
-    pname = "goose-desktop-x86_64-darwin";
-    version = "1.59.0";
-    src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.59.0/Goose-darwin-x64.zip";
-      sha256 = "sha256-fUjY3N/9BALmw8vDyU6H6dTjUodaPiVEluhIGvR6keo=";
+      url = "https://github.com/block/goose/releases/download/v1.59.1/goose-x86_64-unknown-linux-gnu.tar.gz";
+      sha256 = "sha256-BMCJAKsq54uOL1VvHtU1qRthwICj/2Lp/YsoDM61RO8=";
     };
   };
   hererocks = {
