@@ -1,0 +1,23 @@
+modules/darwin/rift.nix
+  s_7028fc5da01072::t_6d49e3325faa9e 216-221,275-276
+  s_7028fc5da01072::t_be30566424042a 83,96,105
+  s_7028fc5da01072::t_f5e3501d9fcd35 162,165,186,192
+modules/darwin/desktop.nix
+  s_7028fc5da01072::t_1deaac5e6c1c59 39-40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "476378b666c87a704c7451796eb1acdff0ae38e7",
+  "prompts": {},
+  "sessions": {
+    "s_7028fc5da01072": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1d0ac-4380-7023-8b2f-a382ea7a16c4",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
