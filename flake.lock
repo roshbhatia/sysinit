@@ -464,11 +464,11 @@
       },
       "locked": {
         "dir": "pkgs/firefox-addons",
-        "lastModified": 1794542626,
-        "narHash": "sha256-ZPws7f4lzdUEEZ9OjwtYjSCZqsg22Pkb31rA81Jg2rA=",
+        "lastModified": 1794628980,
+        "narHash": "sha256-uz+OubNB+ONcAer3eUNZY28x1mZpL5274IMkMroenlI=",
         "owner": "rycee",
         "repo": "nur-expressions",
-        "rev": "33f773785fc1f6bec35344bdc7c630cbd41b92b9",
+        "rev": "8e041d4e4cc0b8d7c775a1a181bc1b06817d395e",
         "type": "gitlab"
       },
       "original": {
@@ -1234,11 +1234,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794610828,
-        "narHash": "sha256-475229hQGw+vSbiM427d24z203kCtH/BtamOO0WaF/Y=",
+        "lastModified": 1794631259,
+        "narHash": "sha256-3W3LoDPV/IdLB7OkotGRkLyicll6cxZLChFwXB2oMuI=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "252515e9066f49cdb4ffc7f98b4677a375b6fc62",
+        "rev": "19ae12b272d9e97662f698a074488cd13c6aabf7",
         "type": "github"
       },
       "original": {
@@ -1279,11 +1279,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794526952,
-        "narHash": "sha256-Y1EiXP37UWBXrHFc5uUUwDJkMi1Y3hG2nuTMpI8TBwM=",
+        "lastModified": 1794613512,
+        "narHash": "sha256-WhyulOVEbfyrlolF6D4Wo3iVTwMaDvEoeZZK0AK901s=",
         "owner": "roshbhatia",
         "repo": "nu_plugin_nvim",
-        "rev": "5b242a63ac870c52e289c1b75cf7f7d3a3c16b76",
+        "rev": "e4ddf43a2ce6867053e617368e91210d1e7a2fe4",
         "type": "github"
       },
       "original": {
@@ -1769,11 +1769,11 @@
         "systems": "systems_8"
       },
       "locked": {
-        "lastModified": 1794506535,
-        "narHash": "sha256-IOGJp0+aadxROam1E929H2sGzIoUKbZFO4qRGvR/p5E=",
+        "lastModified": 1794612643,
+        "narHash": "sha256-gIbvWM8e37wHbX/ZCqJbPhR2BRdBb02PPEMYa81WT6w=",
         "owner": "WillPower3309",
         "repo": "swayfx",
-        "rev": "46e557e5831540955b90d95bf4bfc86d2cd09ceb",
+        "rev": "98429c6f98f77b08b10e8cedd780966a4fe446fc",
         "type": "github"
       },
       "original": {
@@ -2138,11 +2138,11 @@
         "utils": "utils"
       },
       "locked": {
-        "lastModified": 1794605732,
-        "narHash": "sha256-lE/jm3LE2chOFMk+F07uQbD6OEQxx7K+iF24GuA0VP4=",
+        "lastModified": 1794617323,
+        "narHash": "sha256-lig/Z1ETh+IuGB8GfHi7+QNjxYTSUV9m/UK47uNrvPY=",
         "owner": "agavra",
         "repo": "tuicr",
-        "rev": "110d7d270f6c9c5dd65b83f1492bc6d437e8c7ea",
+        "rev": "532320c78f8d50b022a69cde7be1af7f8d40e3c1",
         "type": "github"
       },
       "original": {
