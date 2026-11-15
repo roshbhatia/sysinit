@@ -70,6 +70,12 @@ in
       touch "$out"
     '';
   inherit (pkgs) leaf-reader;
+  traces-opencode-runtime =
+    assert pkgs.traces-providers.providers.opencode.providerRuntimeInputs == [ pkgs.opencode ];
+    pkgs.runCommand "traces-opencode-runtime" { } ''
+      grep -F '${pkgs.opencode}/bin' ${pkgs.traces-providers}/bin/traces-provider-opencode
+      touch "$out"
+    '';
   conductor = pkgs.conductor-cli;
   opentelemetry-collector = pkgs.opentelemetry-collector-contrib.tests.version;
   codex-daemon =

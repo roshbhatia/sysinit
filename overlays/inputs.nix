@@ -19,9 +19,21 @@ let
   askExtras = inputs.ask.packages.${final.stdenv.hostPlatform.system}.extras;
   askProviders = askExtras.providers;
   tracesPackages = inputs.traces.packages.${final.stdenv.hostPlatform.system};
-  tracesProviderPackages = final.lib.mapAttrs' (
-    name: package: final.lib.nameValuePair (final.lib.removePrefix "provider-" name) package
-  ) (final.lib.filterAttrs (name: _package: final.lib.hasPrefix "provider-" name) tracesPackages);
+  tracesProviderPackages =
+    final.lib.mapAttrs' (
+      name: package: final.lib.nameValuePair (final.lib.removePrefix "provider-" name) package
+    ) (final.lib.filterAttrs (name: _package: final.lib.hasPrefix "provider-" name) tracesPackages)
+    // {
+      opencode = tracesPackages.provider-opencode.overrideAttrs (old: {
+        postFixup = ''
+          wrapProgram "$out/bin/traces-provider-opencode" \
+            --prefix PATH : ${final.lib.makeBinPath [ final.opencode ]}
+        '';
+        passthru = old.passthru // {
+          providerRuntimeInputs = [ final.opencode ];
+        };
+      });
+    };
 
   tracesToolPackages = final.lib.mapAttrs' (
     name: package: final.lib.nameValuePair (final.lib.removePrefix "tool-" name) package
@@ -71,8 +83,10 @@ in
   seshy-cli = inputs.seshy.packages.${final.stdenv.hostPlatform.system}.default;
   traces-cli = tracesPackages.default;
   ere = inputs.ere.packages.${final.stdenv.hostPlatform.system}.default;
-  traces-providers = tracesPackages.extras // {
-    providers = tracesProviderPackages;
+  traces-providers = final.symlinkJoin {
+    inherit (tracesPackages.extras) name meta;
+    paths = final.lib.attrValues tracesProviderPackages ++ final.lib.attrValues tracesToolPackages;
+    passthru.providers = tracesProviderPackages;
   };
   traces-tools = tracesToolPackages;
   slk = inputs.slk.packages.${final.stdenv.hostPlatform.system}.default.overrideAttrs (
