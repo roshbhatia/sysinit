@@ -1,0 +1,34 @@
+hack/test_github_release_with_assets.py
+  s_7028fc5da01072::t_207023d25f137e 1-44
+.github/workflows/auto-merge-dependabot.yml
+  s_7028fc5da01072::t_ade5c784a35b4a 1,11-14,16-56,58,61,64,66,69
+.github/workflows/update-sources.yml
+  s_7028fc5da01072::t_ade5c784a35b4a 56-60
+  s_7028fc5da01072::t_207023d25f137e 41
+hack/github-release-with-assets.py
+  s_7028fc5da01072::t_207023d25f137e 1-34
+checks/default.nix
+  s_7028fc5da01072::t_207023d25f137e 59-71
+nvfetcher.toml
+  s_7028fc5da01072::t_207023d25f137e 143,148
+_sources/generated.json
+  s_7028fc5da01072::t_6c144710d35a6c 323-352
+_sources/generated.nix
+  s_7028fc5da01072::t_a7319a8364047b 180-195
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "917ceae2445132ee586f8e54564eb2e5ce517aa8",
+  "prompts": {},
+  "sessions": {
+    "s_7028fc5da01072": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1d0ac-4380-7023-8b2f-a382ea7a16c4",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
