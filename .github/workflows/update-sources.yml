@@ -17,7 +17,20 @@ env:
   GH_TOKEN: ${{ github.token }}
 
 jobs:
+  pending-update:
+    runs-on: ubuntu-latest
+    outputs:
+      count: ${{ steps.pending.outputs.count }}
+    steps:
+      - name: Preserve the open update PR
+        id: pending
+        run: |
+          count="$(gh pr list --repo "${{ github.repository }}" --head automation/update-sources --state open --json number --jq length)"
+          echo "count=${count}" >> "$GITHUB_OUTPUT"
+
   update:
+    needs: pending-update
+    if: needs.pending-update.outputs.count == '0'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -38,7 +51,7 @@ jobs:
           nvfetcher_keyfile="$(mktemp)"
           trap 'rm -f "${nvfetcher_keyfile}"' EXIT
           printf '[keys]\ngithub = "%s"\n' "${GITHUB_TOKEN}" > "${nvfetcher_keyfile}"
-          nix run nixpkgs#nvfetcher -- -k "${nvfetcher_keyfile}" -c nvfetcher.toml -o _sources --keep-going
+          nix run nixpkgs#nvfetcher -- -k "${nvfetcher_keyfile}" -c nvfetcher.toml -o _sources
 
       - name: Update flake inputs
         env:
@@ -52,6 +65,11 @@ jobs:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: |
           ./hack/update-vendor-hash.sh
+
+      - name: Format and validate generated sources
+        run: |
+          nix fmt
+          nix build --no-link .#checks.x86_64-linux.nvfetcher-sources
 
       - name: Create Pull Request
         id: cpr
