@@ -8,11 +8,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-wkJ8E49h8xAyqpwtxy6XIL1PP/7nehs+zijaH0j7nq8=",
+            "sha256": "sha256-07jdxd9RN7lUU/016baUu/xCrlx2IxXIB2ohl8tjq/E=",
             "type": "url",
-            "url": "https://registry.npmjs.org/amp-acp/-/amp-acp-0.12.0.tgz"
+            "url": "https://registry.npmjs.org/amp-acp/-/amp-acp-0.13.0.tgz"
         },
-        "version": "0.12.0"
+        "version": "0.13.0"
     },
     "amp-cli": {
         "cargoLock": null,
@@ -23,11 +23,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-0w2nzVRiqHpkm6ol7N9Hje3pgwVE6FKHeYsuENteeno=",
+            "sha256": "sha256-vCULKFFE4PeT2tgdUc/xhXjTDdZD3vt05/Z+ebR5OQk=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1794628846-g6069ba/amp-darwin-arm64.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1794772833-g217332/amp-darwin-arm64.gz"
         },
-        "version": "0.0.1794628846-g6069ba"
+        "version": "0.0.1794772833-g217332"
     },
     "amp-cli-aarch64-linux": {
         "cargoLock": null,
@@ -38,11 +38,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-JoV7tAQVGBTXW0ySrBfehZQWeI9EYvs7nUh091CRYW0=",
+            "sha256": "sha256-81FK3VfLbxy8t3lMs8epqCpbZli0GJrvKvo7bhjfUWg=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1794628846-g6069ba/amp-linux-arm64.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1794772833-g217332/amp-linux-arm64.gz"
         },
-        "version": "0.0.1794628846-g6069ba"
+        "version": "0.0.1794772833-g217332"
     },
     "amp-cli-x86_64-linux": {
         "cargoLock": null,
@@ -53,11 +53,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-pJOfZY0PI/7MqUL7tATNRDRp0EL9m/BHpUx88rErhVc=",
+            "sha256": "sha256-qez5bERD+xfWocOwAIeRImE1QzpuFZvO6QQUNlUwhI0=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1794628846-g6069ba/amp-linux-x64-baseline.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1794772833-g217332/amp-linux-x64-baseline.gz"
         },
-        "version": "0.0.1794628846-g6069ba"
+        "version": "0.0.1794772833-g217332"
     },
     "crush": {
         "cargoLock": null,
@@ -128,11 +128,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-IVio1C53RXp3RADSJdmAK7bA5goLsGdKERa8MSUkkNY=",
+            "sha256": "sha256-XKy1s2JKeduP1OMdy8WdapM9fl7Uw5d3bZXfa2GClqk=",
             "type": "url",
-            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.16/fx-macos-aarch64.tar.gz"
+            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.17/fx-macos-aarch64.tar.gz"
         },
-        "version": "0.0.16"
+        "version": "0.0.17"
     },
     "fx-aarch64-linux": {
         "cargoLock": null,
@@ -143,11 +143,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-ypRBsQQ1fiEFA52/1MLq8NbuZahAhfI/UeiAyVy/Rq8=",
+            "sha256": "sha256-tGM7iYfsQ/G5RU5GKfO1pPHghqrja4SuT+/qzWpTdh8=",
             "type": "url",
-            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.16/fx-linux-aarch64.tar.gz"
+            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.17/fx-linux-aarch64.tar.gz"
         },
-        "version": "0.0.16"
+        "version": "0.0.17"
     },
     "fx-x86_64-darwin": {
         "cargoLock": null,
@@ -158,11 +158,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-soeXT5egh59QtEOcRlN/zUS4MybBGiMNh/WWBz+NjZs=",
+            "sha256": "sha256-mE7vZjLXvSf/e3W++1K52zLCUoeQUAnbWCL2pmmGH+w=",
             "type": "url",
-            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.16/fx-macos-x86_64.tar.gz"
+            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.17/fx-macos-x86_64.tar.gz"
         },
-        "version": "0.0.16"
+        "version": "0.0.17"
     },
     "fx-x86_64-linux": {
         "cargoLock": null,
@@ -173,11 +173,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-8PuCLHvlRsgLzInVBSG8FFRDXgxvWG6EIMTiuE+oBZk=",
+            "sha256": "sha256-eMFV1Z+lnkL9VtkwN/11BBhoycZ4ZejH8MptzfrCPnU=",
             "type": "url",
-            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.16/fx-linux-x86_64.tar.gz"
+            "url": "https://github.com/vercel-labs/fx/releases/download/v0.0.17/fx-linux-x86_64.tar.gz"
         },
-        "version": "0.0.16"
+        "version": "0.0.17"
     },
     "git-ai": {
         "cargoLock": null,
@@ -269,11 +269,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-AUKDnzOeNIS0kybWnenZz4CJmQh6tCGukwTSYg5kfLw=",
+            "sha256": "sha256-JdcDES1erNW10uiAtP2F2YDeHJ0VrEKvk5ufsirIlfk=",
             "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.59.0/goose-aarch64-apple-darwin.tar.gz"
+            "url": "https://github.com/block/goose/releases/download/v1.59.1/goose-aarch64-apple-darwin.tar.gz"
         },
-        "version": "1.59.0"
+        "version": "1.59.1"
     },
     "goose-cli-bin-aarch64-linux": {
         "cargoLock": null,
@@ -284,11 +284,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-upa3g5TjBQB3SCuyhf8180YTZG6QuEoYtdZ0txkFFm4=",
+            "sha256": "sha256-42GbLr92276JJFYf10giDyiaNGceJ1fNoc2DPkQZT44=",
             "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.59.0/goose-aarch64-unknown-linux-gnu.tar.gz"
+            "url": "https://github.com/block/goose/releases/download/v1.59.1/goose-aarch64-unknown-linux-gnu.tar.gz"
         },
-        "version": "1.59.0"
+        "version": "1.59.1"
     },
     "goose-cli-bin-x86_64-darwin": {
         "cargoLock": null,
@@ -299,11 +299,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-GhX2Scq73sy7GQVIOmwwaBN1ZTJkJz8CLgM1i6U60s4=",
+            "sha256": "sha256-DLxIucyLXRBNunNhht5yddyrf8NgqrBxY+qe7gMxQ2I=",
             "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.59.0/goose-x86_64-apple-darwin.tar.gz"
+            "url": "https://github.com/block/goose/releases/download/v1.59.1/goose-x86_64-apple-darwin.tar.gz"
         },
-        "version": "1.59.0"
+        "version": "1.59.1"
     },
     "goose-cli-bin-x86_64-linux": {
         "cargoLock": null,
@@ -314,41 +314,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-p3RmfebCAgamDXjXvs4tndqDiWZ+T1wvyKqnWNHoHvM=",
+            "sha256": "sha256-BMCJAKsq54uOL1VvHtU1qRthwICj/2Lp/YsoDM61RO8=",
             "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.59.0/goose-x86_64-unknown-linux-gnu.tar.gz"
+            "url": "https://github.com/block/goose/releases/download/v1.59.1/goose-x86_64-unknown-linux-gnu.tar.gz"
         },
-        "version": "1.59.0"
-    },
-    "goose-desktop": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "goose-desktop",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-fR0imHbZKzofN7fjIDuUh+5dIclxjFa7N0O+HjZW3VI=",
-            "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.59.0/Goose-darwin-arm64.zip"
-        },
-        "version": "1.59.0"
-    },
-    "goose-desktop-x86_64-darwin": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "goose-desktop-x86_64-darwin",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "name": null,
-            "sha256": "sha256-fUjY3N/9BALmw8vDyU6H6dTjUodaPiVEluhIGvR6keo=",
-            "type": "url",
-            "url": "https://github.com/block/goose/releases/download/v1.59.0/Goose-darwin-x64.zip"
-        },
-        "version": "1.59.0"
+        "version": "1.59.1"
     },
     "hererocks": {
         "cargoLock": null,
@@ -416,11 +386,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-3xE4QCWyVPwnDKMTSJRr2hxdryIKQm3ODjE2wdFJ7i4=",
+            "sha256": "sha256-79b0rbs1WL+qzEHzMo0VkT8IR9mG9OuswL7gA4y2WNs=",
             "type": "url",
-            "url": "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.15.2/leaf-aarch64-apple-darwin.tar.gz"
+            "url": "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.16.3/leaf-aarch64-apple-darwin.tar.gz"
         },
-        "version": "0.15.2"
+        "version": "0.16.3"
     },
     "leaf-aarch64-linux": {
         "cargoLock": null,
@@ -431,11 +401,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-6MaN1PVP6pA7lyjga8rSTDO5POw8PC1je+Jn5ety/VU=",
+            "sha256": "sha256-+AvQxNw13j+RXivuvU9MWBBA92eAwyNvFZqxqeKh+xA=",
             "type": "url",
-            "url": "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.15.2/leaf-aarch64-unknown-linux-gnu.tar.gz"
+            "url": "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.16.3/leaf-aarch64-unknown-linux-gnu.tar.gz"
         },
-        "version": "0.15.2"
+        "version": "0.16.3"
     },
     "leaf-x86_64-darwin": {
         "cargoLock": null,
@@ -446,11 +416,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-IDaoxG0Yj0VIET0z2UtTHDifDVkSlRcHpqJ7dIvd+sg=",
+            "sha256": "sha256-oTRDzIGVPpJqFQhVdvL7KWJmB7p6plDZg8odBcjiJPE=",
             "type": "url",
-            "url": "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.15.2/leaf-x86_64-apple-darwin.tar.gz"
+            "url": "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.16.3/leaf-x86_64-apple-darwin.tar.gz"
         },
-        "version": "0.15.2"
+        "version": "0.16.3"
     },
     "leaf-x86_64-linux": {
         "cargoLock": null,
@@ -461,11 +431,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-JXnXReHtLHn2GZ/GMp4HvF4dVl5xZSdBo6hHFDVq13g=",
+            "sha256": "sha256-mBnO50VmStnUW1H1Fc/xCtIiHGHxYJpEqaJkAbf5DA0=",
             "type": "url",
-            "url": "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.15.2/leaf-x86_64-unknown-linux-gnu.tar.gz"
+            "url": "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.16.3/leaf-x86_64-unknown-linux-gnu.tar.gz"
         },
-        "version": "0.15.2"
+        "version": "0.16.3"
     },
     "localias": {
         "cargoLock": null,
