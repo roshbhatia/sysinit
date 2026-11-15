@@ -61,7 +61,7 @@ jobs:
           fi
 
   verify-linux:
-    runs-on: ${{ ((github.event_name != 'pull_request' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'automation/update-sources')) && fromJSON('["self-hosted", "Linux", "X64", "arrakis", "nix"]') || 'ubuntu-latest' }}
+    runs-on: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && fromJSON('["self-hosted", "Linux", "X64", "arrakis", "nix"]') || 'ubuntu-latest' }}
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v7
