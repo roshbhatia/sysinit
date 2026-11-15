@@ -222,3 +222,7 @@ fetch.url = "https://github.com/DeepanshuMishraa/leaf/releases/download/v$ver/le
 src.github = "DeepanshuMishraa/leaf"
 src.prefix = "v"
 fetch.url = "https://github.com/DeepanshuMishraa/leaf/releases/download/v$ver/leaf-x86_64-unknown-linux-gnu.tar.gz"
+
+[terminal-browser]
+src.github = "roshbhatia/terminal-browser"
+fetch.url = "https://github.com/roshbhatia/terminal-browser/releases/download/$ver/terminal-browser-darwin-arm64.tar.gz"

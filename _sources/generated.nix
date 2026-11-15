@@ -330,4 +330,12 @@
       sha256 = "sha256-gRxvLJ56ruJStUBCUuVW+3E6ognB9/kkImqnfU73DLU=";
     };
   };
+  terminal-browser = {
+    pname = "terminal-browser";
+    version = "fork-54a201a1653d";
+    src = fetchurl {
+      url = "https://github.com/roshbhatia/terminal-browser/releases/download/fork-54a201a1653d/terminal-browser-darwin-arm64.tar.gz";
+      sha256 = "sha256-hemDQwxaOI9D0DpH33mvNW/aI+bkpNJis7X97wGkdNc=";
+    };
+  };
 }

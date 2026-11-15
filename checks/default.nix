@@ -512,3 +512,7 @@ in
     touch "$out"
   '';
 }
+
+// lib.optionalAttrs (pkgs.stdenv.hostPlatform.system == "aarch64-darwin") {
+  inherit (pkgs) terminal-browser;
+}

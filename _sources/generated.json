@@ -607,5 +607,20 @@
             "url": "https://github.com/earendil-works/pi/releases/download/v1.5.2/pi-linux-x64.tar.gz"
         },
         "version": "1.5.2"
+    },
+    "terminal-browser": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "terminal-browser",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-hemDQwxaOI9D0DpH33mvNW/aI+bkpNJis7X97wGkdNc=",
+            "type": "url",
+            "url": "https://github.com/roshbhatia/terminal-browser/releases/download/fork-54a201a1653d/terminal-browser-darwin-arm64.tar.gz"
+        },
+        "version": "fork-54a201a1653d"
     }
 }

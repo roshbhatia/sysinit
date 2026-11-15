@@ -428,6 +428,7 @@
                       "goose-cli"
                       "goose-desktop"
                     ]
+                    ++ lib.optionals (system == "aarch64-darwin") [ "terminal-browser" ]
                   );
             };
 

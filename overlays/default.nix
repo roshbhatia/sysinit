@@ -61,6 +61,7 @@
   (import ./jankyborders)
   (import ./sheets.nix)
   (import ./leaf.nix)
+  (import ./terminal-browser.nix)
   (import ./zoetrope.nix)
   (import ./mise-nix.nix)
   (
