@@ -8,34 +8,34 @@
 {
   amp-acp = {
     pname = "amp-acp";
-    version = "0.12.0";
+    version = "0.13.0";
     src = fetchurl {
-      url = "https://registry.npmjs.org/amp-acp/-/amp-acp-0.12.0.tgz";
-      sha256 = "sha256-wkJ8E49h8xAyqpwtxy6XIL1PP/7nehs+zijaH0j7nq8=";
+      url = "https://registry.npmjs.org/amp-acp/-/amp-acp-0.13.0.tgz";
+      sha256 = "sha256-07jdxd9RN7lUU/016baUu/xCrlx2IxXIB2ohl8tjq/E=";
     };
   };
   amp-cli = {
     pname = "amp-cli";
-    version = "0.0.1794744038-ga74b43";
+    version = "0.0.1794772833-g217332";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1794744038-ga74b43/amp-darwin-arm64.gz";
-      sha256 = "sha256-isHv6mwEFrhfwwP8xKcvxzCSdair378XScJj/ET00LM=";
+      url = "https://static.ampcode.com/cli/0.0.1794772833-g217332/amp-darwin-arm64.gz";
+      sha256 = "sha256-vCULKFFE4PeT2tgdUc/xhXjTDdZD3vt05/Z+ebR5OQk=";
     };
   };
   amp-cli-aarch64-linux = {
     pname = "amp-cli-aarch64-linux";
-    version = "0.0.1794744038-ga74b43";
+    version = "0.0.1794772833-g217332";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1794744038-ga74b43/amp-linux-arm64.gz";
-      sha256 = "sha256-EN/YXOYtO20pNmOBSDbve8fGPkpu+lJbc9gCCHJlKgc=";
+      url = "https://static.ampcode.com/cli/0.0.1794772833-g217332/amp-linux-arm64.gz";
+      sha256 = "sha256-81FK3VfLbxy8t3lMs8epqCpbZli0GJrvKvo7bhjfUWg=";
     };
   };
   amp-cli-x86_64-linux = {
     pname = "amp-cli-x86_64-linux";
-    version = "0.0.1794744038-ga74b43";
+    version = "0.0.1794772833-g217332";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1794744038-ga74b43/amp-linux-x64-baseline.gz";
-      sha256 = "sha256-FkdwgjazKjti7gC6EEirTlMTxK/1jRSfOc2mQmk7IuU=";
+      url = "https://static.ampcode.com/cli/0.0.1794772833-g217332/amp-linux-x64-baseline.gz";
+      sha256 = "sha256-qez5bERD+xfWocOwAIeRImE1QzpuFZvO6QQUNlUwhI0=";
     };
   };
   crush = {
@@ -225,34 +225,34 @@
   };
   leaf = {
     pname = "leaf";
-    version = "0.16.1";
+    version = "0.16.3";
     src = fetchurl {
-      url = "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.16.1/leaf-aarch64-apple-darwin.tar.gz";
-      sha256 = "sha256-OfHAXf/umCcPtGgEXdzTHQvQP2I2pmUTmWgzhuX6Aic=";
+      url = "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.16.3/leaf-aarch64-apple-darwin.tar.gz";
+      sha256 = "sha256-79b0rbs1WL+qzEHzMo0VkT8IR9mG9OuswL7gA4y2WNs=";
     };
   };
   leaf-aarch64-linux = {
     pname = "leaf-aarch64-linux";
-    version = "0.16.1";
+    version = "0.16.3";
     src = fetchurl {
-      url = "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.16.1/leaf-aarch64-unknown-linux-gnu.tar.gz";
-      sha256 = "sha256-QDSUO7SYNiRrolQ91txdVg2SmtWCkfikQu3MBAApLqQ=";
+      url = "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.16.3/leaf-aarch64-unknown-linux-gnu.tar.gz";
+      sha256 = "sha256-+AvQxNw13j+RXivuvU9MWBBA92eAwyNvFZqxqeKh+xA=";
     };
   };
   leaf-x86_64-darwin = {
     pname = "leaf-x86_64-darwin";
-    version = "0.16.1";
+    version = "0.16.3";
     src = fetchurl {
-      url = "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.16.1/leaf-x86_64-apple-darwin.tar.gz";
-      sha256 = "sha256-5tnTZreXd/4MlPlnhk4Ky5yDyg9AihkKO33BqxsQ6cg=";
+      url = "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.16.3/leaf-x86_64-apple-darwin.tar.gz";
+      sha256 = "sha256-oTRDzIGVPpJqFQhVdvL7KWJmB7p6plDZg8odBcjiJPE=";
     };
   };
   leaf-x86_64-linux = {
     pname = "leaf-x86_64-linux";
-    version = "0.16.1";
+    version = "0.16.3";
     src = fetchurl {
-      url = "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.16.1/leaf-x86_64-unknown-linux-gnu.tar.gz";
-      sha256 = "sha256-PYU57qKiqE85TNqA1bKsySEWxvPG7kuPIpvK/FWWMyI=";
+      url = "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.16.3/leaf-x86_64-unknown-linux-gnu.tar.gz";
+      sha256 = "sha256-mBnO50VmStnUW1H1Fc/xCtIiHGHxYJpEqaJkAbf5DA0=";
     };
   };
   localias = {

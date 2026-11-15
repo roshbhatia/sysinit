@@ -17,7 +17,20 @@ env:
   GH_TOKEN: ${{ github.token }}
 
 jobs:
+  pending-update:
+    runs-on: ubuntu-latest
+    outputs:
+      count: ${{ steps.pending.outputs.count }}
+    steps:
+      - name: Preserve the open update PR
+        id: pending
+        run: |
+          count="$(gh pr list --repo "${{ github.repository }}" --head automation/update-sources --state open --json number --jq length)"
+          echo "count=${count}" >> "$GITHUB_OUTPUT"
+
   update:
+    needs: pending-update
+    if: needs.pending-update.outputs.count == '0'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
