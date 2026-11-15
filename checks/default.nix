@@ -56,6 +56,19 @@ let
 in
 {
   pi = pkgs.pi-coding-agent;
+  nvfetcher-sources =
+    let
+      declared = builtins.attrNames (builtins.fromTOML (builtins.readFile ../nvfetcher.toml));
+      generated = builtins.attrNames pkgs.nvfetcherSources;
+      manifest = builtins.attrNames (builtins.fromJSON (builtins.readFile ../_sources/generated.json));
+    in
+    assert lib.assertMsg (
+      declared == generated && declared == manifest
+    ) "nvfetcher output must contain every configured source";
+    pkgs.runCommand "nvfetcher-sources" { nativeBuildInputs = [ pkgs.python3 ]; } ''
+      python3 -m unittest discover -s ${../hack} -p 'test_github_release_with_assets.py'
+      touch "$out"
+    '';
   inherit (pkgs) leaf-reader;
   conductor = pkgs.conductor-cli;
   opentelemetry-collector = pkgs.opentelemetry-collector-contrib.tests.version;

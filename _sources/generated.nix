@@ -177,6 +177,22 @@
       sha256 = "sha256-BMCJAKsq54uOL1VvHtU1qRthwICj/2Lp/YsoDM61RO8=";
     };
   };
+  goose-desktop = {
+    pname = "goose-desktop";
+    version = "1.59.0";
+    src = fetchurl {
+      url = "https://github.com/block/goose/releases/download/v1.59.0/Goose-darwin-arm64.zip";
+      sha256 = "sha256-fR0imHbZKzofN7fjIDuUh+5dIclxjFa7N0O+HjZW3VI=";
+    };
+  };
+  goose-desktop-x86_64-darwin = {
+    pname = "goose-desktop-x86_64-darwin";
+    version = "1.59.0";
+    src = fetchurl {
+      url = "https://github.com/block/goose/releases/download/v1.59.0/Goose-darwin-x64.zip";
+      sha256 = "sha256-fUjY3N/9BALmw8vDyU6H6dTjUodaPiVEluhIGvR6keo=";
+    };
+  };
   hererocks = {
     pname = "hererocks";
     version = "0.25.1";

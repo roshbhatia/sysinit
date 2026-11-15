@@ -320,6 +320,36 @@
         },
         "version": "1.59.1"
     },
+    "goose-desktop": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "goose-desktop",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-fR0imHbZKzofN7fjIDuUh+5dIclxjFa7N0O+HjZW3VI=",
+            "type": "url",
+            "url": "https://github.com/block/goose/releases/download/v1.59.0/Goose-darwin-arm64.zip"
+        },
+        "version": "1.59.0"
+    },
+    "goose-desktop-x86_64-darwin": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "goose-desktop-x86_64-darwin",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-fUjY3N/9BALmw8vDyU6H6dTjUodaPiVEluhIGvR6keo=",
+            "type": "url",
+            "url": "https://github.com/block/goose/releases/download/v1.59.0/Goose-darwin-x64.zip"
+        },
+        "version": "1.59.0"
+    },
     "hererocks": {
         "cargoLock": null,
         "date": null,
