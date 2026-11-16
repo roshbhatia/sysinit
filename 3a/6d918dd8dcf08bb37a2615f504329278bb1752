@@ -1,0 +1,41 @@
+checks/skill-catalog.nix
+  s_796b0b41a96769::t_f484bdc334d0bd 48-49,54-55
+  s_796b0b41a96769::t_1793b75d4e573c 56-57
+modules/home/programs/llm/skills/skills-ecosystem-discovery/SKILL.md
+  s_796b0b41a96769::t_1793b75d4e573c 25,27-28
+modules/home/programs/llm/skills/nix-deployment/SKILL.md
+  s_796b0b41a96769::t_f484bdc334d0bd 13,15,26
+checks/host-state.nu
+  s_796b0b41a96769::t_4988065aeb5266 16-18,21-23
+  s_796b0b41a96769::t_6963ef65609934 4
+  s_796b0b41a96769::t_30d8f534d2ca80 1-3,5-15,24-43
+  s_796b0b41a96769::t_3881f7bd362fdf 19-20
+checks/skill-helpers.nu
+  s_796b0b41a96769::t_22bd5e5bdf430d 26
+  s_796b0b41a96769::t_cf7be3d69d7051 1-7,9-11,13-25,27-32,34-44
+modules/home/programs/llm/skills/nix-deployment/scripts/host-state.nu
+  s_796b0b41a96769::t_1d4578aab63831 11
+  s_796b0b41a96769::t_4114b63dc20d88 10
+  s_796b0b41a96769::t_247d7cd5f41f2f 8,12-42
+  s_796b0b41a96769::t_8e8d5ed0d47304 7
+  s_796b0b41a96769::t_2e7d7e10d12fc9 1-6,9
+modules/home/programs/llm/skills/skills-ecosystem-discovery/scripts/catalog.nu
+  s_796b0b41a96769::t_007202373bae1a 48
+  s_796b0b41a96769::t_cf7be3d69d7051 1-13,16-25,27,29-40,45-47,49-54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3a6d918dd8dcf08bb37a2615f504329278bb1752",
+  "prompts": {},
+  "sessions": {
+    "s_796b0b41a96769": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
