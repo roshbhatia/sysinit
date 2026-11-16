@@ -464,11 +464,11 @@
       },
       "locked": {
         "dir": "pkgs/firefox-addons",
-        "lastModified": 1794775650,
-        "narHash": "sha256-Aaf6OFIz6T+LfbnewyIvX9DQ+QhyolsFTSYUzKT53vA=",
+        "lastModified": 1794801771,
+        "narHash": "sha256-TdlskgDOwOwH+cXD1Hs1eiaCi0uLnYYxbBlLckFoNOU=",
         "owner": "rycee",
         "repo": "nur-expressions",
-        "rev": "bc8477f9b13385aec9b369de1c3e4479e07bbbb8",
+        "rev": "2060a2a111cee4c855ba08e3df37173321d9d589",
         "type": "gitlab"
       },
       "original": {
@@ -1648,11 +1648,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794628608,
-        "narHash": "sha256-Jy56C4Rih3NVkJnPU8A2/OQ7VZkreLCAgZfnHLsRlRA=",
+        "lastModified": 1794863000,
+        "narHash": "sha256-BmdPm7tpZ/0l31S+jXNGxT/JZ1zkeQWqD+YRmOEtrEY=",
         "owner": "roshbhatia",
         "repo": "session-tree.wezterm",
-        "rev": "2c37e3f942ab50cb4186f42df43bb22eec1995df",
+        "rev": "cd2f607973a22bde342ef30f439a06c9d5967066",
         "type": "github"
       },
       "original": {
@@ -1818,11 +1818,11 @@
         "spawn": "spawn"
       },
       "locked": {
-        "lastModified": 1794790413,
-        "narHash": "sha256-hA9LtVZyR6dUzWm8kcGgEbpiTkanUQC2NolTACFZN2A=",
+        "lastModified": 1794863269,
+        "narHash": "sha256-hC+t1Zfp6ON3GQmsH5hEpE6sydwyIwIKeRXOJaH8LBg=",
         "owner": "roshbhatia",
         "repo": "sysinit.wezterm",
-        "rev": "ec2f7d4189b9fb8473ed8b8a32e798ca4b4555f3",
+        "rev": "976962a18ca2cc67a5c376d9bc39b9bbb3fb37c3",
         "type": "github"
       },
       "original": {
