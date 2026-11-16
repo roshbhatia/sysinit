@@ -1,0 +1,21 @@
+modules/darwin/home/hammerspoon/emoji-data.nu
+  s_796b0b41a96769::t_79498d6aaf3e07 1-23,25-27,29-37,39-45,47-59
+modules/darwin/home/hammerspoon/emoji.nix
+  s_796b0b41a96769::t_79498d6aaf3e07 5,9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ec673ec3bc45b5d86e5e40f6f12a1ee903bf7501",
+  "prompts": {},
+  "sessions": {
+    "s_796b0b41a96769": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
