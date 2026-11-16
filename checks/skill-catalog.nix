@@ -45,12 +45,15 @@ pkgs.runCommand "skill-catalog"
     nativeBuildInputs = [
       pkgs.python3
       pkgs.git
+      pkgs.nushell
+      pkgs.coreutils
     ];
   }
   ''
     python3 ${./skill-catalog.py} ${manifest}
-    python3 ${./skill-helpers.py} \
-      ${../modules/home/programs/llm/skills/nix-deployment/scripts/host-state.py} \
-      ${../modules/home/programs/llm/skills/skills-ecosystem-discovery/scripts/catalog.py}
+    nu --no-config-file ${./host-state.nu} \
+      ${../modules/home/programs/llm/skills/nix-deployment/scripts/host-state.nu}
+    nu --no-config-file ${./skill-helpers.nu} \
+      ${../modules/home/programs/llm/skills/skills-ecosystem-discovery/scripts/catalog.nu}
     touch "$out"
   ''
