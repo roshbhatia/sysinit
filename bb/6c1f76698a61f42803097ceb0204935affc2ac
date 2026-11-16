@@ -1,0 +1,26 @@
+docs/repository-reference.md
+  s_796b0b41a96769::t_7a35f8ea2b0000 80-93
+  s_796b0b41a96769::t_796508cdc8181e 79,94
+modules/home/programs/terraform.nix
+  s_796b0b41a96769::t_5a626780b57e96 11-15,17-20,22,29-30
+  s_796b0b41a96769::t_7621df25c9c805 23-28
+  s_796b0b41a96769::t_88554ddba59f90 1-10,16,21,31
+modules/home/programs/default.nix
+  s_796b0b41a96769::t_88554ddba59f90 59
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "bb6c1f76698a61f42803097ceb0204935affc2ac",
+  "prompts": {},
+  "sessions": {
+    "s_796b0b41a96769": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
