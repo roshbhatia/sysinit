@@ -160,7 +160,6 @@ in
         zoetrope
       ]
       ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ alerter ]
-      ++ lib.optionals (pkgs.stdenv.hostPlatform.system == "aarch64-darwin") [ terminal-browser ]
       ++ map (name: pkgs.${name}) (
         lib.filter (name: name != null) (
           lib.mapAttrsToList (_name: h: h.package) (import ./programs/llm/harnesses/registry.nix)
