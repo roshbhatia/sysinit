@@ -1,0 +1,34 @@
+modules/darwin/rift-transient-view.nu
+  s_796b0b41a96769::t_dbaa391cc1f4dc 139
+  s_796b0b41a96769::t_e10eea3ec6a4c7 173-182,199-203
+  s_796b0b41a96769::t_942e4ac4734709 108-112
+  s_796b0b41a96769::t_e3f5ffa07ce514 169,204-207
+  s_796b0b41a96769::t_9e4b46d5ac975a 1-106,113-138,140-168,170-172,183-198,215-217
+  s_796b0b41a96769::t_5825310eb3f8fd 208-214
+  s_796b0b41a96769::t_23421c5daaf747 107
+modules/darwin/rift.nix
+  s_796b0b41a96769::t_5825310eb3f8fd 23-61
+  s_796b0b41a96769::t_10372801e52558 149,156-159,175-184,202-203,336-343
+  s_796b0b41a96769::t_99483c677d4a45 15-16,18,20-22,310
+  s_796b0b41a96769::t_6a63abe51516df 185-200
+  s_796b0b41a96769::t_e10eea3ec6a4c7 134-137,140-142,144-148
+  s_796b0b41a96769::t_ccfc18c776050b 201,293-303
+  s_796b0b41a96769::t_b96e91f9f2778b 119
+  s_796b0b41a96769::t_9e4b46d5ac975a 17,19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a491cd4818465485b669255d857a1313be14e648",
+  "prompts": {},
+  "sessions": {
+    "s_796b0b41a96769": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
