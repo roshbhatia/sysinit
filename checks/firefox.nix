@@ -25,9 +25,9 @@ let
 in
 pkgs.runCommand "firefox-theme-and-bindings-test"
   {
-    nativeBuildInputs = [ pkgs.python3 ];
+    nativeBuildInputs = [ pkgs.nushell ];
   }
   ''
-    python3 ${./firefox.py} ${fixtures} ${../modules/home/programs/firefox/tridactylrc}
+    nu --no-config-file ${./firefox.nu} ${fixtures} ${../modules/home/programs/firefox/tridactylrc}
     touch "$out"
   ''

@@ -89,12 +89,13 @@ in
     pkgs.runCommand "zsh-agent-shell"
       {
         nativeBuildInputs = [
-          pkgs.python3
+          pkgs.nushell
           pkgs.zsh
+          pkgs.coreutils
         ];
       }
       ''
-        python ${./zsh-agent-shell.py} ${lib.getExe pkgs.zsh} ${../modules/home/programs/zsh/core/agent-glob.zsh}
+        nu --no-config-file ${./zsh-agent-shell.nu} ${lib.getExe pkgs.zsh} ${../modules/home/programs/zsh/core/agent-glob.zsh}
         touch "$out"
       '';
   native-output = import ./native-output.nix { inherit pkgs; };
@@ -259,12 +260,13 @@ in
     pkgs.runCommand "completion-cache-test"
       {
         nativeBuildInputs = [
-          pkgs.python3
+          pkgs.nushell
           pkgs.zsh
+          pkgs.coreutils
         ];
       }
       ''
-        python3 ${./completion-cache.py} ${../modules/home/programs/zsh/core/compinit.zsh}
+        nu --no-config-file ${./completion-cache.nu} ${../modules/home/programs/zsh/core/compinit.zsh}
         touch "$out"
       '';
   generated-format = import ./generated-format.nix { inherit pkgs; };
