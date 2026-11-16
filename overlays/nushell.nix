@@ -21,4 +21,10 @@ _final: prev: {
           };
         }
       );
+
+  nushellPlugins = prev.nushellPlugins // {
+    # The @structured snapshot retains the stable plugin protocol. Keep the
+    # official plugin package and its patches independent of that shell source.
+    formats = prev.nushellPlugins.formats.override { inherit (prev) nushell; };
+  };
 }

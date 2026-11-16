@@ -495,6 +495,7 @@
               pkgs.shellcheck
               pkgs.zsh
               pkgs.nushell
+              pkgs.nushellPlugins.formats
               pkgs.fish
               pkgs.carapace
               pkgs.lua5_4

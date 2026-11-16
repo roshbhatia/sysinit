@@ -7,7 +7,7 @@
 let
   paths = import ../shared/codesign.nix;
   user = config.sysinit.user.username;
-  appState = "${lib.getExe pkgs.python3} ${../home/app-copy-state.py}";
+  appState = "${lib.getExe pkgs.nushell} --no-config-file ${../home/app-copy-state.nu}";
   appStateArgs = lib.escapeShellArgs [
     "${config.system.build.applications}/Applications"
     "/Applications/Nix Apps"

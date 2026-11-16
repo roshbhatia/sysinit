@@ -43,18 +43,14 @@ let
     paths = config.home.packages;
     pathsToLink = [ "/Applications" ];
   };
-  appState = "${lib.getExe pkgs.python3} ${./app-copy-state.py}";
-  appStateArgs = lib.escapeShellArgs (
-    [
-      "${applications}/Applications"
-      "${home}/${config.targets.darwin.copyApps.directory}"
-      "${config.xdg.stateHome}/sysinit/app-copy.json"
-    ]
-    ++ lib.concatMap (name: [
-      "--protect-running"
-      name
-    ]) cfg.protectRunningApps
-  );
+  appState = "${lib.getExe pkgs.nushell} --no-config-file ${./app-copy-state.nu}";
+  appStateArgs = lib.escapeShellArgs [
+    "${applications}/Applications"
+    "${home}/${config.targets.darwin.copyApps.directory}"
+    "${config.xdg.stateHome}/sysinit/app-copy.json"
+    "--protect-running"
+    (builtins.toJSON cfg.protectRunningApps)
+  ];
 
   signer = pkgs.sysinit.writeShellApplication {
     name = "sysinit-codesign";

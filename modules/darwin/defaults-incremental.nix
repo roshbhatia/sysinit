@@ -50,7 +50,7 @@ let
     pkgs.writeText name (
       builtins.toJSON (builtins.filter (item: builtins.elemAt item 1 != { }) entries)
     );
-  runner = "${lib.getExe pkgs.python3} ${./defaults-incremental.py}";
+  runner = "${lib.getExe pkgs.nushell} --no-config-file --plugins ${lib.getExe pkgs.nushellPlugins.formats} ${./defaults-incremental.nu}";
 in
 {
   assertions = [

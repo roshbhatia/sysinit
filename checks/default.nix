@@ -275,9 +275,19 @@ in
     home = homeConfigurations.${"dev-" + pkgs.stdenv.hostPlatform.system}.config;
   };
   incremental-defaults =
-    pkgs.runCommand "incremental-defaults-test" { nativeBuildInputs = [ pkgs.python3 ]; }
+    let
+      plugin = lib.getExe pkgs.nushellPlugins.formats;
+      command = pkgs.writeShellScript "defaults-fixture" ''
+        exec ${lib.getExe pkgs.nushell} --no-config-file --plugins ${plugin} ${./fixtures/defaults-command.nu} "$@"
+      '';
+    in
+    pkgs.runCommand "incremental-defaults-test"
+      {
+        nativeBuildInputs = [ pkgs.nushell ];
+        DEFAULTS_TEST_PLUGIN = plugin;
+      }
       ''
-        python3 ${./incremental-defaults.py} ${../modules/darwin/defaults-incremental.py}
+        nu --no-config-file --plugins "$DEFAULTS_TEST_PLUGIN" ${./incremental-defaults.nu} ${../modules/darwin/defaults-incremental.nu} ${command}
         touch "$out"
       '';
   homebrew-reconcile =
@@ -293,15 +303,21 @@ in
         touch "$out"
       '';
   app-copy-state =
+    let
+      command = pkgs.writeShellScript "app-copy-fixture" ''
+        exec ${lib.getExe pkgs.nushell} --no-config-file ${./fixtures/app-copy-command.nu} "$@"
+      '';
+    in
     pkgs.runCommand "app-copy-state-test"
       {
         nativeBuildInputs = [
-          pkgs.python3
+          pkgs.nushell
+          pkgs.coreutils
           pkgs.rsync
         ];
       }
       ''
-        python3 ${./app-copy-state.py} ${../modules/home/app-copy-state.py}
+        nu --no-config-file ${./app-copy-state.nu} ${../modules/home/app-copy-state.nu} ${command}
         touch "$out"
       '';
   github-runner-guard = import ./github-runner-guard.nix { inherit pkgs; };
