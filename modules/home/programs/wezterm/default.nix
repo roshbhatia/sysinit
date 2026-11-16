@@ -76,8 +76,8 @@ in
         lib.optionals (assignments != [ ]) ([ "env" ] ++ assignments)
         ++ [ h.command ]
         ++ args
-        ++ h.launch.continueArgs
-      ) (lib.filterAttrs (_n: h: h ? launch.continueArgs) (import ../llm/harnesses/registry.nix));
+        ++ h.launch.resumeArgs
+      ) (lib.filterAttrs (_n: h: h ? launch.resumeArgs) (import ../llm/harnesses/registry.nix));
 
       agentIdentity = lib.mapAttrs (_n: h: {
         inherit (h) label glyph;
