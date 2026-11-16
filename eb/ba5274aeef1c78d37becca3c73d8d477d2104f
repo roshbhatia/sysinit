@@ -1,0 +1,34 @@
+modules/home/programs/llm/runtime/notifier-plist.nu
+  s_796b0b41a96769::t_fa7115f5b0dcc9 1-9
+checks/notification-assets.nu
+  s_796b0b41a96769::t_9c4643b9863a05 35-37
+  s_796b0b41a96769::t_f57900fa805e28 1-34,38-49
+modules/home/programs/llm/runtime/check-icons.nu
+  s_796b0b41a96769::t_552077126201af 14
+  s_796b0b41a96769::t_fa7115f5b0dcc9 1-13,15-26,28-33
+modules/home/programs/llm/runtime/default.nix
+  s_796b0b41a96769::t_fa7115f5b0dcc9 39-40,44,47
+modules/home/programs/llm/runtime/macos-notifier.nix
+  s_796b0b41a96769::t_fa7115f5b0dcc9 11,31-32
+checks/default.nix
+  s_796b0b41a96769::t_f57900fa805e28 178
+checks/notification-assets.nix
+  s_796b0b41a96769::t_434313bb2af215 2-4,17
+  s_796b0b41a96769::t_f57900fa805e28 1,5-16,18-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ebba5274aeef1c78d37becca3c73d8d477d2104f",
+  "prompts": {},
+  "sessions": {
+    "s_796b0b41a96769": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
