@@ -16,6 +16,7 @@ pkgs.runCommand "utility-contracts"
   }
   ''
     python3 ${./utility-contracts.py} ${../.}
+    nu --no-config-file ${./codex-plugin-hooks.nu} ${../modules/home/programs/llm/harnesses/codex-plugin-hooks.nu}
     lua ${./desktop-contracts.lua} ${../.}
     python3 ${./log-retention.py}
     python3 ${./sketchybar-health.py} ${../.}

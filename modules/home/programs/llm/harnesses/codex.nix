@@ -117,7 +117,8 @@ in
         $DRY_RUN_CMD ${lib.getExe nativeToolsPython} ${./codex-native-tools.py}
       '';
       codexPluginHooks = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        $DRY_RUN_CMD ${lib.getExe pkgs.python3} ${./codex-plugin-hooks.py}
+        $DRY_RUN_CMD ${lib.getExe pkgs.nushell} --no-config-file ${./codex-plugin-hooks.nu} \
+          --chmod-command ${lib.getExe' pkgs.coreutils "chmod"}
       '';
       codexEgm = lib.hm.dag.entryAfter [ "llmManagedFiles" ] ''
         $DRY_RUN_CMD ${lib.getExe config.programs.codex.package} plugin add egm@egm --json
