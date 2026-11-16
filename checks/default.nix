@@ -175,6 +175,7 @@ in
       '';
   opencode = import ./opencode.nix { inherit pkgs; };
   utility-contracts = import ./utility-contracts.nix { inherit pkgs; };
+  notification-assets = import ./notification-assets.nix { inherit pkgs; };
   ty =
     pkgs.runCommand "ty-cli"
       {

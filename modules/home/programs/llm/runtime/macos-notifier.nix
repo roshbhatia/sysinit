@@ -8,7 +8,7 @@ pkgs.runCommand "sysinit-agents-notifier-${pkgs.terminal-notifier.version}"
     nativeBuildInputs = [
       pkgs.librsvg
       pkgs.libicns
-      pkgs.python3
+      pkgs.nushell
     ];
     meta = {
       description = "Agent notifications using the macOS UserNotifications framework";
@@ -28,22 +28,8 @@ pkgs.runCommand "sysinit-agents-notifier-${pkgs.terminal-notifier.version}"
         ${icon} --output "icon-images/$size.png"
     done
     png2icns "$app/Contents/Resources/CLIAgents.icns" icon-images/*.png
-    python3 - "$app/Contents/Info.plist" <<'PY'
-    import plistlib
-    import sys
-    from pathlib import Path
-    path = Path(sys.argv[1])
-    with path.open("rb") as source:
-        info = plistlib.load(source)
-    info.update(
-        CFBundleIdentifier="org.roshbhatia.sysinit.agents",
-        CFBundleName="CLI Agents",
-        CFBundleDisplayName="CLI Agents",
-        CFBundleIconFile="CLIAgents",
-    )
-    with path.open("wb") as target:
-        plistlib.dump(info, target)
-    PY
+    nu --no-config-file --plugins ${lib.getExe pkgs.nushellPlugins.formats} \
+      ${./notifier-plist.nu} "$app/Contents/Info.plist"
     /usr/bin/codesign --force --sign - --timestamp=none "$app"
     /usr/bin/codesign --verify --deep --strict "$app"
   ''

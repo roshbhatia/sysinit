@@ -36,14 +36,15 @@ let
       {
         nativeBuildInputs = [
           pkgs.librsvg
-          pkgs.python3
+          pkgs.nushell
+          pkgs.libxml2
         ];
       }
       ''
-        python3 ${./check-icons.py} ${iconSources}
+        nu --no-config-file ${./check-icons.nu} ${iconSources}
         mkdir -p "$out"
         ${iconCommands}
-        python3 ${./check-icons.py} ${iconSources} "$out"
+        nu --no-config-file ${./check-icons.nu} ${iconSources} "$out"
       '';
 
   appPackage =
