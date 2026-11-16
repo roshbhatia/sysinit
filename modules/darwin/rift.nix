@@ -12,14 +12,53 @@ let
   weztermApp = "${home.home.homeDirectory}/${home.targets.darwin.copyApps.directory}/WezTerm.app";
   sketchybar = "${pkgs.sketchybar}/bin/sketchybar";
   riftCli = "${pkgs.rift}/bin/rift-cli";
-  toggleScrolling = pkgs.writeShellScript "rift-toggle-scrolling" ''
-    set -euo pipefail
-    layout="$(${riftCli} query workspace-layout | ${pkgs.jq}/bin/jq -er 'map(select(.is_active)) | first | .layout_mode')"
-    if [ "$layout" = scrolling ]; then
-      exec ${riftCli} execute workspace set-layout traditional
-    fi
-    exec ${riftCli} execute workspace set-layout scrolling
-  '';
+  transientView = pkgs.writeShellApplication {
+    name = "rift-view";
+    runtimeInputs = [ pkgs.nushell ];
+    text = ''
+      exec nu --no-config-file ${./rift-transient-view.nu} --rift-cli ${riftCli} -- "$@"
+    '';
+  };
+  viewCommand = args: { exec = [ (lib.getExe transientView) ] ++ args; };
+  focusWindow =
+    direction:
+    viewCommand [
+      "focus"
+      direction
+    ];
+  switchWorkspace =
+    id:
+    viewCommand [
+      "run"
+      "workspace"
+      "switch"
+      (toString id)
+    ];
+  moveToWorkspace =
+    id:
+    viewCommand [
+      "run"
+      "workspace"
+      "move-window"
+      (toString id)
+      "--follow"
+    ];
+  resizeWindow =
+    command: orientation:
+    viewCommand [
+      "run"
+      "window"
+      command
+      "--orientation"
+      orientation
+    ];
+  windowCommand =
+    command:
+    viewCommand [
+      "run"
+      "window"
+      command
+    ];
   notifyScript = pkgs.writeShellScript "rift-sketchybar-event" ''
     set -euo pipefail
     notify_mode() {
@@ -77,9 +116,7 @@ let
   ];
   exitMode = [ { binding_mode = "default"; } ];
   commands = {
-    "Alt + N" = {
-      exec = [ "${toggleScrolling}" ];
-    };
+    "Alt + N" = viewCommand [ "toggle-scrolling" ];
 
     "Alt + Up" = "ascend";
     "Alt + Down" = "descend";
@@ -94,47 +131,32 @@ let
       ];
     };
 
-    "Alt + E" = [
-      {
-        set_workspace_layout = {
-          mode = "traditional";
-        };
-      }
-      "toggle_orientation"
+    "Alt + E" = viewCommand [
+      "layout"
+      "traditional"
+      "toggle-orientation"
     ];
 
-    "Alt + S" = {
-      set_workspace_layout = {
-        mode = "stack";
-      };
-    };
-    "Alt + W" = [
-      {
-        set_workspace_layout = {
-          mode = "stack";
-        };
-      }
-      "toggle_orientation"
+    "Alt + S" = viewCommand [
+      "layout"
+      "stack"
     ];
-    "Alt + Shift + Space" = "toggle_window_floating";
+    "Alt + W" = viewCommand [
+      "layout"
+      "stack"
+      "toggle-orientation"
+    ];
+    "Alt + Shift + Space" = windowCommand "toggle-float";
     "Alt + X" = {
       binding_mode = "move";
     };
     "Alt + G" = {
       binding_mode = "locked";
     };
-    "Alt + H" = {
-      move_focus = "left";
-    };
-    "Alt + J" = {
-      move_focus = "down";
-    };
-    "Alt + K" = {
-      move_focus = "up";
-    };
-    "Alt + L" = {
-      move_focus = "right";
-    };
+    "Alt + H" = focusWindow "left";
+    "Alt + J" = focusWindow "down";
+    "Alt + K" = focusWindow "up";
+    "Alt + L" = focusWindow "right";
     "Alt + Shift + H" = {
       move_node = "left";
     };
@@ -150,60 +172,35 @@ let
     "Alt + R" = {
       binding_mode = "resize";
     };
-    "Alt + 1" = {
-      switch_to_workspace = 0;
-    };
-    "Alt + 2" = {
-      switch_to_workspace = 1;
-    };
-    "Alt + 3" = {
-      switch_to_workspace = 2;
-    };
-    "Alt + 4" = {
-      switch_to_workspace = 3;
-    };
-    "Alt + 5" = {
-      switch_to_workspace = 4;
-    };
-    "Alt + Shift + 1" = {
-      move_window_to_workspace = {
-        workspace = 0;
-        follow = true;
-      };
-    };
-    "Alt + Shift + 2" = {
-      move_window_to_workspace = {
-        workspace = 1;
-        follow = true;
-      };
-    };
-    "Alt + Shift + 3" = {
-      move_window_to_workspace = {
-        workspace = 2;
-        follow = true;
-      };
-    };
-    "Alt + Shift + 4" = {
-      move_window_to_workspace = {
-        workspace = 3;
-        follow = true;
-      };
-    };
-    "Alt + Shift + 5" = {
-      move_window_to_workspace = {
-        workspace = 4;
-        follow = true;
-      };
-    };
-    "Alt + Tab" = {
-      next_workspace = false;
-    };
-    "Alt + Shift + Tab" = {
-      prev_workspace = false;
-    };
-    "Alt + P" = "switch_to_last_workspace";
-    "Alt + F" = "toggle_fullscreen_within_gaps";
-    "Alt + Shift + F" = "toggle_fullscreen";
+    "Alt + 1" = switchWorkspace 0;
+    "Alt + 2" = switchWorkspace 1;
+    "Alt + 3" = switchWorkspace 2;
+    "Alt + 4" = switchWorkspace 3;
+    "Alt + 5" = switchWorkspace 4;
+    "Alt + Shift + 1" = moveToWorkspace 0;
+    "Alt + Shift + 2" = moveToWorkspace 1;
+    "Alt + Shift + 3" = moveToWorkspace 2;
+    "Alt + Shift + 4" = moveToWorkspace 3;
+    "Alt + Shift + 5" = moveToWorkspace 4;
+    "Alt + Tab" = viewCommand [
+      "run"
+      "workspace"
+      "next"
+      "false"
+    ];
+    "Alt + Shift + Tab" = viewCommand [
+      "run"
+      "workspace"
+      "prev"
+      "false"
+    ];
+    "Alt + P" = viewCommand [
+      "run"
+      "workspace"
+      "last"
+    ];
+    "Alt + F" = windowCommand "toggle-fullscreen-within-gaps";
+    "Alt + Shift + F" = windowCommand "toggle-fullscreen";
   };
   settings = {
     settings = {
@@ -293,17 +290,24 @@ let
     keys = commands;
     binding_modes = {
       scroll = commands // {
-        "Alt + Comma" = {
-          switch_preset_column_width.backwards = true;
-        };
-        "Alt + Period" = "switch_preset_column_width";
+        "Alt + Comma" = viewCommand [
+          "run"
+          "layout"
+          "switch-preset-column-width"
+          "--backwards"
+        ];
+        "Alt + Period" = viewCommand [
+          "run"
+          "layout"
+          "switch-preset-column-width"
+        ];
         "Alt + I" = {
           consume_or_expel_window = "left";
         };
         "Alt + O" = {
           consume_or_expel_window = "right";
         };
-        "Alt + U" = "center_selection";
+        "Alt + U" = viewCommand [ "reading" ];
       };
       move = {
         Escape = exitMode;
@@ -329,30 +333,14 @@ let
         Escape = exitMode;
         Enter = exitMode;
         "Alt + Escape" = exitMode;
-        H = {
-          resize_window_shrink = "horizontal";
-        };
-        J = {
-          resize_window_grow = "vertical";
-        };
-        K = {
-          resize_window_shrink = "vertical";
-        };
-        L = {
-          resize_window_grow = "horizontal";
-        };
-        "Alt + H" = {
-          resize_window_shrink = "horizontal";
-        };
-        "Alt + J" = {
-          resize_window_grow = "vertical";
-        };
-        "Alt + K" = {
-          resize_window_shrink = "vertical";
-        };
-        "Alt + L" = {
-          resize_window_grow = "horizontal";
-        };
+        H = resizeWindow "resize-shrink" "horizontal";
+        J = resizeWindow "resize-grow" "vertical";
+        K = resizeWindow "resize-shrink" "vertical";
+        L = resizeWindow "resize-grow" "horizontal";
+        "Alt + H" = resizeWindow "resize-shrink" "horizontal";
+        "Alt + J" = resizeWindow "resize-grow" "vertical";
+        "Alt + K" = resizeWindow "resize-shrink" "vertical";
+        "Alt + L" = resizeWindow "resize-grow" "horizontal";
       };
     };
   };
