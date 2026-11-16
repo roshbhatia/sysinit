@@ -65,8 +65,8 @@ in
     assert lib.assertMsg (
       declared == generated && declared == manifest
     ) "nvfetcher output must contain every configured source";
-    pkgs.runCommand "nvfetcher-sources" { nativeBuildInputs = [ pkgs.python3 ]; } ''
-      python3 -m unittest discover -s ${../hack} -p 'test_github_release_with_assets.py'
+    pkgs.runCommand "nvfetcher-sources" { nativeBuildInputs = [ pkgs.nushell ]; } ''
+      nu --no-config-file ${../hack}/test-github-release-with-assets.nu
       touch "$out"
     '';
   inherit (pkgs) leaf-reader;

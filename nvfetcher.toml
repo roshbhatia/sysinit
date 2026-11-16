@@ -140,12 +140,12 @@ src.prefix = "v"
 fetch.url = "https://github.com/block/goose/releases/download/v$ver/goose-x86_64-unknown-linux-gnu.tar.gz"
 
 [goose-desktop]
-src.cmd = "python3 hack/github-release-with-assets.py block/goose Goose-darwin-arm64.zip Goose-darwin-x64.zip"
+src.cmd = "nu --no-config-file hack/github-release-with-assets.nu block/goose Goose-darwin-arm64.zip Goose-darwin-x64.zip"
 src.prefix = "v"
 fetch.url = "https://github.com/block/goose/releases/download/v$ver/Goose-darwin-arm64.zip"
 
 [goose-desktop-x86_64-darwin]
-src.cmd = "python3 hack/github-release-with-assets.py block/goose Goose-darwin-arm64.zip Goose-darwin-x64.zip"
+src.cmd = "nu --no-config-file hack/github-release-with-assets.nu block/goose Goose-darwin-arm64.zip Goose-darwin-x64.zip"
 src.prefix = "v"
 fetch.url = "https://github.com/block/goose/releases/download/v$ver/Goose-darwin-x64.zip"
 
