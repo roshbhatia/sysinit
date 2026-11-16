@@ -76,6 +76,22 @@ not restate any of those here.
   `modules/nixos/common/default.nix`; Lima needs none, it pulls from the host
   store
 
+## Terraform and OpenTofu provider storage
+
+`modules/home/programs/terraform.nix` manages `.terraformrc` and `.tofurc` for
+development profiles. Activation creates separate provider caches under
+`$XDG_CACHE_HOME/terraform/plugin-cache` and
+`$XDG_CACHE_HOME/opentofu/plugin-cache`. OpenTofu 1.10 and later coordinate
+concurrent cache access; Terraform does not guarantee concurrent cache safety.
+Keep the two tools' caches separate and retain normal dependency-lock checks.
+
+Initialized directories can link into these caches. Removing a referenced cache
+entry requires `init` in affected directories. Do not treat `.terraform/` as
+entirely disposable: it can contain backend metadata and nested module
+checkouts. Clean provider downloads separately from state and recovery files.
+Git worktrees already share history; dependency caches and explicitly selected
+sparse directories address the remaining storage independently.
+
 ## Commands
 
 ```bash
