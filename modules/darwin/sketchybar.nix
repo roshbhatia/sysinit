@@ -13,7 +13,7 @@ let
 
   monitor-reload-script = pkgs.sysinit.writeShellScript "sketchybar-monitor-reload" ''
     set -euo pipefail
-    exec ${lib.getExe pkgs.python3} ${./sketchybar-health.py} \
+    exec ${lib.getExe pkgs.nushell} --no-config-file ${./sketchybar-health.nu} \
       --sketchybar ${pkgs.sketchybar}/bin/sketchybar \
       --rift-cli ${pkgs.rift}/bin/rift-cli
   '';
