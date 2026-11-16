@@ -2,9 +2,9 @@
 
 pkgs.runCommand "sysinit-emoji.json"
   {
-    nativeBuildInputs = [ pkgs.python3 ];
+    nativeBuildInputs = [ pkgs.nushell ];
     src = pkgs.elephant.src;
   }
   ''
-    python3 ${./emoji-data.py} "$src" "$out"
+    nu --no-config-file ${./emoji-data.nu} "$src" "$out"
   ''
