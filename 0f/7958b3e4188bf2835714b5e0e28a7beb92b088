@@ -1,0 +1,53 @@
+checks/onepassword.nix
+  s_796b0b41a96769::t_34b044c767040e 2-11,13
+checks/macos-notifier.nu
+  s_796b0b41a96769::t_2b8c6f297ff162 1-6,8-54
+checks/egm-plugins.nix
+  s_796b0b41a96769::t_6884c1c4d81b1c 2,7
+checks/onepassword.nu
+  s_796b0b41a96769::t_34b044c767040e 1-60
+checks/fixtures/onepassword-command.nu
+  s_796b0b41a96769::t_34b044c767040e 1-9,13-25
+checks/homebrew-reconcile.nu
+  s_796b0b41a96769::t_875d108a009922 1-56
+checks/default.nix
+  s_796b0b41a96769::t_875d108a009922 329-330,335-336
+  s_796b0b41a96769::t_5d643739514db9 265-266
+  s_796b0b41a96769::t_2b8c6f297ff162 271-272
+checks/fixtures/notifier-command.nu
+  s_796b0b41a96769::t_2b8c6f297ff162 1-14
+checks/harness-settings.nix
+  s_796b0b41a96769::t_6884c1c4d81b1c 40,60
+checks/egm-plugins.nu
+  s_796b0b41a96769::t_a8ba84a2340ae6 1-4,6-37
+checks/fixtures/homebrew-command.nu
+  s_796b0b41a96769::t_875d108a009922 1-20,22-28,30-37,41,43-48
+  s_796b0b41a96769::t_1d0f35b16af3fb 21,29,38-40,42
+checks/harness-settings.nu
+  s_796b0b41a96769::t_a8ba84a2340ae6 1-28
+checks/opencode-schema.nu
+  s_796b0b41a96769::t_8be07d86a621f5 1-17
+checks/opencode.nix
+  s_796b0b41a96769::t_8be07d86a621f5 27,31
+checks/harness-instructions.nix
+  s_796b0b41a96769::t_6884c1c4d81b1c 70-71
+checks/harness-instructions.nu
+  s_796b0b41a96769::t_a8ba84a2340ae6 1-12,15-18
+  s_796b0b41a96769::t_0d7ed94a809fe3 13-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0f7958b3e4188bf2835714b5e0e28a7beb92b088",
+  "prompts": {},
+  "sessions": {
+    "s_796b0b41a96769": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
