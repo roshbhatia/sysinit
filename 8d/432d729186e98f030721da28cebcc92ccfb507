@@ -1,0 +1,44 @@
+checks/fixtures/utility-command.nu
+  s_796b0b41a96769::t_c0d453c993d122 1-28
+checks/utility-contracts.nix
+  s_796b0b41a96769::t_c0d453c993d122 18
+checks/agent-sessions.nix
+  s_796b0b41a96769::t_fc091a78e9a6c1 6,13-16
+checks/agent-sessions.nu
+  s_796b0b41a96769::t_fc091a78e9a6c1 1,3-10,12-16,18,22-39,41-42,44-90,92-100
+checks/nushell-externs.nu
+  s_796b0b41a96769::t_3d94a1ff8186bb 1-17,19-172
+  s_796b0b41a96769::t_12bb6e5b0547bd 18
+checks/nushell-externs.nix
+  s_796b0b41a96769::t_1aea1c4ef69b3a 9,14-15
+checks/fixtures/nh-command.nu
+  s_796b0b41a96769::t_e9951b8bd263b1 1-28
+checks/nh.nix
+  s_796b0b41a96769::t_e9951b8bd263b1 2-12
+checks/nh.nu
+  s_796b0b41a96769::t_e9951b8bd263b1 1-11,13-15,17-19,21-64
+checks/fixtures/agent-sessions-command.nu
+  s_796b0b41a96769::t_fc091a78e9a6c1 1-12
+checks/utility-contracts.nu
+  s_796b0b41a96769::t_c0d453c993d122 1-116
+checks/fixtures/nushell-extern-cases.nuon
+  s_796b0b41a96769::t_3d94a1ff8186bb 1-28
+checks/fixtures/nushell-extern-command.nu
+  s_796b0b41a96769::t_3d94a1ff8186bb 1-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8d432d729186e98f030721da28cebcc92ccfb507",
+  "prompts": {},
+  "sessions": {
+    "s_796b0b41a96769": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
