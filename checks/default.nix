@@ -56,6 +56,13 @@ let
 in
 {
   pi = pkgs.pi-coding-agent;
+  runner-operator = pkgs.runCommand "runner-operator-check" {
+    nativeBuildInputs = [ pkgs.nushell pkgs.coreutils ];
+  } ''
+    nu --no-config-file ${./runner-operator.nu} \
+      ${../modules/nixos/runner-operator.nu} ${./fixtures/runner-kubectl.nu}
+    touch "$out"
+  '';
   nvfetcher-sources =
     let
       declared = builtins.attrNames (builtins.fromTOML (builtins.readFile ../nvfetcher.toml));
