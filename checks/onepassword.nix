@@ -1,6 +1,13 @@
 { pkgs }:
-pkgs.runCommand "onepassword-nushell" { } ''
-  ${pkgs.python3}/bin/python3 ${./onepassword.py} \
-    ${../modules/home/programs/nushell/onepassword.nu} ${pkgs.nushell}/bin/nu
-  touch "$out"
-''
+pkgs.runCommand "onepassword-nushell"
+  {
+    nativeBuildInputs = [
+      pkgs.nushell
+      pkgs.coreutils
+    ];
+  }
+  ''
+    nu --no-config-file ${./onepassword.nu} \
+      ${../modules/home/programs/nushell/onepassword.nu} ${./fixtures/onepassword-command.nu}
+    touch "$out"
+  ''

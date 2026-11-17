@@ -262,12 +262,14 @@ in
     pkgs.runCommand "macos-notifier-test"
       {
         nativeBuildInputs = [
-          pkgs.python3
+          pkgs.nushell
+          pkgs.coreutils
           pkgs.bash
         ];
       }
       ''
-        python3 ${./macos-notifier.py} ${../modules/home/programs/llm/runtime/macos-notifier.sh}
+        nu --no-config-file ${./macos-notifier.nu} \
+          ${../modules/home/programs/llm/runtime/macos-notifier.sh} ${./fixtures/notifier-command.nu}
         touch "$out"
       '';
   hammerspoon-startup =
@@ -324,12 +326,14 @@ in
     pkgs.runCommand "homebrew-reconcile-test"
       {
         nativeBuildInputs = [
-          pkgs.python3
+          pkgs.nushell
+          pkgs.coreutils
           pkgs.bash
         ];
       }
       ''
-        python3 ${./homebrew-reconcile.py} ${../modules/darwin/reconcile-homebrew.sh}
+        nu --no-config-file ${./homebrew-reconcile.nu} \
+          ${../modules/darwin/reconcile-homebrew.sh} ${./fixtures/homebrew-command.nu}
         touch "$out"
       '';
   app-copy-state =

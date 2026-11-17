@@ -37,7 +37,7 @@ assert home.sysinit.llm.managedFiles.fx.content.permission_mode == "full-access"
 pkgs.runCommand "harness-settings"
   {
     nativeBuildInputs = [
-      pkgs.python3
+      pkgs.nushell
       pkgs.github-copilot-cli
       pkgs.yq-go
     ];
@@ -57,35 +57,6 @@ pkgs.runCommand "harness-settings"
     ' ${home.xdg.configFile."gate/config.yaml".source} > gate.json
     export GATE_CONFIG="$PWD/gate.json"
 
-    python3 - <<'PY'
-    import json
-    import os
-    from pathlib import Path
-    import subprocess
-
-    parsed = json.loads(Path("parsed.json").read_text())
-    assert parsed["theme"] == "default"
-    assert parsed["defaultPermissionMode"] == "allow-all"
-    hook = parsed["hooks"]["preToolUse"][0]
-    assert hook["_vsCodeCompat"] == "PreToolUse", hook
-    assert hook["matcher"] == "Bash", hook
-    for command, expected in [("printf fixture", 0), ("git reset --hard", 2)]:
-        result = subprocess.run(
-            [hook["bash"]],
-            input=json.dumps({
-                "hook_event_name": "PreToolUse",
-                "session_id": "harness-settings-test",
-                "cwd": os.getcwd(),
-                "tool_name": "Bash",
-                "tool_input": {"command": command},
-            }),
-            text=True, capture_output=True, timeout=15,
-            env={**os.environ, "PATH": "/usr/bin:/bin"},
-        )
-        assert result.returncode == expected, (command, result.returncode, result.stderr)
-        if expected:
-            assert "prohibited" in result.stderr, result.stderr
-    print("Native Copilot hook parsing and real guard allow/deny passed")
-    PY
+    nu --no-config-file ${./harness-settings.nu} ${pkgs.coreutils}/bin/timeout
     touch "$out"
   ''
