@@ -56,6 +56,20 @@ let
 in
 {
   pi = pkgs.pi-coding-agent;
+  update-flakes =
+    pkgs.runCommand "update-flakes-check"
+      {
+        nativeBuildInputs = [
+          pkgs.nushell
+          pkgs.coreutils
+          pkgs.git
+        ];
+      }
+      ''
+        nu --no-config-file ${../hack/test-update-flakes.nu} \
+          ${../hack/update-flakes.nu} ${../hack/fixtures/update-flakes-command.nu}
+        touch "$out"
+      '';
   runner-operator =
     pkgs.runCommand "runner-operator-check"
       {
