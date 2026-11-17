@@ -23,11 +23,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-WhvuF1uTmxUrU/wVJjuoXwjaqVcHD2ty+OOxe6zRGuw=",
+            "sha256": "sha256-pjQZRSIlr3S4Ucwb7lE0Rjf7sueqCSRwH7qhDROe7c8=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1794873665-g35bc76/amp-darwin-arm64.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1794916837-g564d50/amp-darwin-arm64.gz"
         },
-        "version": "0.0.1794873665-g35bc76"
+        "version": "0.0.1794916837-g564d50"
     },
     "amp-cli-aarch64-linux": {
         "cargoLock": null,
@@ -38,11 +38,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-OkHzb2aGa/LJ1qS9dkBrMX7HB4eX7TEQyyZmYqOUllY=",
+            "sha256": "sha256-cJxSVT162Ep5Gxa+DPHMTCp7J/ObjAlZNtdDkZwUgxc=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1794873665-g35bc76/amp-linux-arm64.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1794916837-g564d50/amp-linux-arm64.gz"
         },
-        "version": "0.0.1794873665-g35bc76"
+        "version": "0.0.1794916837-g564d50"
     },
     "amp-cli-x86_64-linux": {
         "cargoLock": null,
@@ -53,11 +53,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-nOY5M9oBxweYc5FEeP8Ih3yb79AvGfgnuAhynspiFLI=",
+            "sha256": "sha256-snK8XFx9tP33gXRS+U4dnqnubMDPyxZaAVuQbhd8dYA=",
             "type": "url",
-            "url": "https://static.ampcode.com/cli/0.0.1794873665-g35bc76/amp-linux-x64-baseline.gz"
+            "url": "https://static.ampcode.com/cli/0.0.1794916837-g564d50/amp-linux-x64-baseline.gz"
         },
-        "version": "0.0.1794873665-g35bc76"
+        "version": "0.0.1794916837-g564d50"
     },
     "crush": {
         "cargoLock": null,
@@ -416,11 +416,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-eUlYlrRE+DC1TM8vgiBwt6TQYC4VMKH0v7dJAdT1zL4=",
+            "sha256": "sha256-NeJEYF5qHuNx03YhR0driF9wsgUuEb37fRmdVrns3kQ=",
             "type": "url",
-            "url": "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.17.0/leaf-aarch64-apple-darwin.tar.gz"
+            "url": "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.17.1/leaf-aarch64-apple-darwin.tar.gz"
         },
-        "version": "0.17.0"
+        "version": "0.17.1"
     },
     "leaf-aarch64-linux": {
         "cargoLock": null,
@@ -431,11 +431,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-n0tfydxEwECiSo9nnobmicsDk3LP7Tkph+tvf1LxOa8=",
+            "sha256": "sha256-AGZ6Q4qgsdO9W+jWNBvTFHIc8bpNS8lSN0yb9zyCG/g=",
             "type": "url",
-            "url": "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.17.0/leaf-aarch64-unknown-linux-gnu.tar.gz"
+            "url": "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.17.1/leaf-aarch64-unknown-linux-gnu.tar.gz"
         },
-        "version": "0.17.0"
+        "version": "0.17.1"
     },
     "leaf-x86_64-darwin": {
         "cargoLock": null,
@@ -446,11 +446,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-A/sLw1C0Y9UNP9PLOSjsGMr1BwmoCfRB7eCBKTeK4CU=",
+            "sha256": "sha256-kmH5prUg1kAmuulSdgP7xHFMAIx6XNeyWqNb6PQXb2I=",
             "type": "url",
-            "url": "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.17.0/leaf-x86_64-apple-darwin.tar.gz"
+            "url": "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.17.1/leaf-x86_64-apple-darwin.tar.gz"
         },
-        "version": "0.17.0"
+        "version": "0.17.1"
     },
     "leaf-x86_64-linux": {
         "cargoLock": null,
@@ -461,11 +461,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-jTAu09kGSeKcyAY+/sKlD4aaE0ec3m/yjttRq55ArzA=",
+            "sha256": "sha256-RbFNrGm994LFpnzXzVhFUpACge8AfMWXujhhVsSeNBY=",
             "type": "url",
-            "url": "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.17.0/leaf-x86_64-unknown-linux-gnu.tar.gz"
+            "url": "https://github.com/DeepanshuMishraa/leaf/releases/download/v0.17.1/leaf-x86_64-unknown-linux-gnu.tar.gz"
         },
-        "version": "0.17.0"
+        "version": "0.17.1"
     },
     "localias": {
         "cargoLock": null,
