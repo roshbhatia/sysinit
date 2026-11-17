@@ -2,8 +2,11 @@
 
 Nushell owns new and substantially changed automation. The following items need
 a separate utility boundary before their Python implementation can be removed.
-They are temporary migration blockers, not permanent language exceptions. Other
-remaining Python files are practical migration work.
+They are temporary migration blockers, not permanent language exceptions. The
+practical migration removes 44 Python files here and seven in sysinit.laurel.
+The 12 files below and six private scripts and fixtures remain deferred.
+Upstream Python applications and language development tools retain their own
+runtime dependencies; they are not repository-owned scripts.
 
 | Files | Required utility boundary |
 | --- | --- |

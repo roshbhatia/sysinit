@@ -64,13 +64,14 @@ def respond [
         } | sort-by inactive order
         let items = $ordered | each {|row|
             let record = attempt $row.job
-            let command = $record.argv? | default [] | str join ' ' | default --empty $row.job.original_command
+            let arguments = $record.argv? | default [] | str join ' '
+            let command = $arguments | default --empty $row.job.original_command
             let name = $record.session? | default --empty $row.job.group
             let folder = $row.job.path | path basename
             let thread = $record.thread? | default ''
             let linked = if $thread == '' { '' } else { $' · thread ($thread | str substring (-8)..)' }
             let target = if ($record.terminal? | default '') == '' { 'logs' } else { 'terminal/logs' }
-            let summary = $command | str replace --all --regex '\s+' ' ' | str trim | str substring 0..159
+            let summary = $command | str replace --all --regex '\s+' ' ' | str trim | split chars --code-points | take 160 | str join ''
             let detail = $'($folder) · ($target)($linked) · ($summary)'
             {
                 id: $row.id
