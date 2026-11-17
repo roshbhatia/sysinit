@@ -1,12 +1,19 @@
 { pkgs }:
-pkgs.runCommand "nh-darwin-output-path" { nativeBuildInputs = [ pkgs.python3 ]; } (
-  if pkgs.stdenv.hostPlatform.isDarwin then
-    ''
-      python3 ${./nh.py} ${pkgs.nh}/bin/nh
-      touch "$out"
-    ''
-  else
-    ''
-      touch "$out"
-    ''
-)
+pkgs.runCommand "nh-darwin-output-path"
+  {
+    nativeBuildInputs = [
+      pkgs.nushell
+      pkgs.coreutils
+    ];
+  }
+  (
+    if pkgs.stdenv.hostPlatform.isDarwin then
+      ''
+        nu --no-config-file ${./nh.nu} ${pkgs.nh}/bin/nh ${./fixtures/nh-command.nu}
+        touch "$out"
+      ''
+    else
+      ''
+        touch "$out"
+      ''
+  )
