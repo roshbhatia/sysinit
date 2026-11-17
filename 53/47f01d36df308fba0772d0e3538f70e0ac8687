@@ -1,0 +1,19 @@
+modules/home/programs/wezterm/default.nix
+  s_d2d448cefaa2bf::t_b2dac80f29cd3a 162
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5347f01d36df308fba0772d0e3538f70e0ac8687",
+  "prompts": {},
+  "sessions": {
+    "s_d2d448cefaa2bf": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1eb81-5b2b-78b2-84fd-673be95ed315",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
