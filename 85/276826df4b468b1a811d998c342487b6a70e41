@@ -1,0 +1,33 @@
+modules/nixos/home/streaming.nix
+  s_796b0b41a96769::t_d894ddb0d1c118 1
+  s_796b0b41a96769::t_1918386dafe8ea 121-122,125
+modules/nixos/home/sunshine-apps-gen.nu
+  s_796b0b41a96769::t_1918386dafe8ea 1-17,20,23-29,31-134
+  s_796b0b41a96769::t_02a13054096fdf 18-19,21-22
+  s_796b0b41a96769::t_e90bebb44cdca9 30
+checks/sunshine-apps.nu
+  s_796b0b41a96769::t_e90bebb44cdca9 1-30,32-63
+  s_796b0b41a96769::t_02a13054096fdf 31
+overlays/task-queue-picker/default.nix
+  s_796b0b41a96769::t_b9b87226af9628 30
+checks/default.nix
+  s_796b0b41a96769::t_e90bebb44cdca9 59-72
+overlays/task-queue-picker/provider.nu
+  s_796b0b41a96769::t_b9b87226af9628 1-5,7-30,32-44,46,50-103,105-109,111-112,118,120-122,124-133,135-141
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "85276826df4b468b1a811d998c342487b6a70e41",
+  "prompts": {},
+  "sessions": {
+    "s_796b0b41a96769": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
