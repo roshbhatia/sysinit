@@ -56,6 +56,20 @@ let
 in
 {
   pi = pkgs.pi-coding-agent;
+  sunshine-apps =
+    pkgs.runCommand "sunshine-apps-check"
+      {
+        nativeBuildInputs = [
+          pkgs.nushell
+          pkgs.coreutils
+          pkgs.curl
+          pkgs.imagemagick
+        ];
+      }
+      ''
+        nu --no-config-file ${./sunshine-apps.nu} ${../modules/nixos/home/sunshine-apps-gen.nu}
+        touch "$out"
+      '';
   update-flakes =
     pkgs.runCommand "update-flakes-check"
       {
