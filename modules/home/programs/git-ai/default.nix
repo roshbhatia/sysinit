@@ -22,7 +22,11 @@ let
   };
   maintenance = pkgs.writeShellApplication {
     name = "git-ai-maintain";
-    text = ''exec ${pkgs.python3}/bin/python3 ${./maintain-metrics.py} "$@"'';
+    runtimeInputs = [
+      pkgs.sqlite
+      pkgs.coreutils
+    ];
+    text = ''exec ${lib.getExe pkgs.nushell} --no-config-file ${./maintain-metrics.nu} "$@"'';
   };
   yamlFormat = pkgs.formats.yaml { };
 in
