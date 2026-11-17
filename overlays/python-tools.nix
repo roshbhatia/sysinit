@@ -59,6 +59,8 @@ in
         '';
         doInstallCheck = true;
         installCheckPhase = ''
+          export HOME="$TMPDIR/conductor-home"
+          mkdir -p "$HOME"
           "$out/bin/conductor" --version
           "$out/bin/conductor" --help > /dev/null
           "$out/bin/conductor" validate ${../pkgs/conductor/check.yaml}
