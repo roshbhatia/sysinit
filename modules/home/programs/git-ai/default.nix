@@ -15,9 +15,10 @@ let
     runtimeInputs = [
       pkgs.git-ai
       config.programs.git.package
+      pkgs.coreutils
     ];
     text = ''
-      exec ${pkgs.python3}/bin/python3 ${./changes-provider.py} "$@"
+      exec ${lib.getExe pkgs.nushell} --no-config-file --stdin ${./changes-provider.nu} "$@"
     '';
   };
   maintenance = pkgs.writeShellApplication {

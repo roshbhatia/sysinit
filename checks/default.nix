@@ -150,7 +150,6 @@ in
     pkgs.runCommand "git-ai-integration"
       {
         nativeBuildInputs = [
-          pkgs.python3
           pkgs.git
           pkgs.changes
           pkgs.traces
@@ -161,8 +160,8 @@ in
         ];
       }
       ''
-        python3 ${./git-ai-integration.py} ${pkgs.git-ai}/bin/git-ai ${pkgs.git-ai-gate}/bin/git-ai-gate \
-          ${../modules/home/programs/git-ai/changes-provider.py} \
+        nu --no-config-file ${./git-ai-integration.nu} ${pkgs.git-ai}/bin/git-ai ${pkgs.git-ai-gate}/bin/git-ai-gate \
+          ${../modules/home/programs/git-ai/changes-provider.nu} \
           ${../modules/home/programs/nushell/attribution.nu} ${../modules/home/programs/nushell/storage.nu}
         touch "$out"
       '';
