@@ -13,9 +13,10 @@ let
       pkgs.git
       pkgs.hunk
       pkgs.tuicr
+      pkgs.flock
     ];
     text = ''
-      exec ${lib.getExe pkgs.python3} ${./gh-pr-diff.py} "$@"
+      exec ${lib.getExe pkgs.nushell} --no-config-file ${./gh-pr-diff.nu} "$@"
     '';
   };
 in

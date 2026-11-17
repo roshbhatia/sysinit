@@ -253,15 +253,15 @@ in
     pkgs.runCommand "pr-workflow-test"
       {
         nativeBuildInputs = [
-          pkgs.python3
           pkgs.git
           pkgs.nushell
+          pkgs.flock
         ];
       }
       ''
         export HOME="$TMPDIR/home"
         mkdir -p "$HOME"
-        python ${./pr-workflow.py} ${../modules/home/programs/gh-pr-diff.py} ${../modules/home/programs/llm/runtime/ask-terminal.py} ${nuFunctions}
+        nu --no-config-file ${./pr-workflow.nu} ${../modules/home/programs/gh-pr-diff.nu} ${../modules/home/programs/llm/runtime/ask-terminal.nu} ${nuFunctions} ${./fixtures/review-tools.nu}
         touch "$out"
       '';
   gh-dash-pr = pkgs.runCommand "gh-dash-pr-test" { nativeBuildInputs = [ pkgs.sysinit-gh-dash ]; } ''

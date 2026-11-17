@@ -3,7 +3,8 @@ pkgs.runCommand "native-output-contracts"
   {
     nativeBuildInputs = [
       pkgs.bun
-      pkgs.python3
+      pkgs.git
+      pkgs.flock
       pkgs.nushell
       pkgs.coreutils
     ];
@@ -14,6 +15,6 @@ pkgs.runCommand "native-output-contracts"
     cp ${./native-output.test.js} ./native-output.test.js
     bun test ./native-output.test.js
     nu --no-config-file ${./output-rewrite.nu} ${../modules/home/programs/llm/runtime/output-rewrite/rewrite.nu} ${./fixtures/output-rewrite-tools.nu}
-    python3 ${./diff-pane.py} ${../modules/home/programs/llm/runtime/diff/open.py}
+    nu --no-config-file ${./diff-pane.nu} ${../modules/home/programs/llm/runtime/diff/open.nu} ${./fixtures/review-tools.nu}
     touch "$out"
   ''
