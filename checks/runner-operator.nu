@@ -10,9 +10,18 @@ def main [script: path, fixture: path] {
         let log = $root | path join operations.jsonl
         '' | save $log
         let documents = [
-            {kind: CustomResourceDefinition, metadata: {name: existing.example}}
-            {kind: CustomResourceDefinition, metadata: {name: new.example}}
-            {kind: Deployment, metadata: {name: operator}}
+            {
+                kind: CustomResourceDefinition
+                metadata: {name: existing.example}
+            }
+            {
+                kind: CustomResourceDefinition
+                metadata: {name: new.example}
+            }
+            {
+                kind: Deployment
+                metadata: {name: operator}
+            }
         ]
         ($documents | each { to yaml } | str join "---\n") | save $manifest
         with-env {PATH: ($env.PATH | prepend $root), RUNNER_OPERATOR_LOG: $log} {
