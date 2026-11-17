@@ -87,6 +87,7 @@ in
 
         argocd
         helm-ls
+        istioctl
         k9s
         kind
         krew
