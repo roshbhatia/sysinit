@@ -2,10 +2,10 @@
 pkgs.writeShellApplication {
   name = "agent-output-rewrite";
   runtimeInputs = [
-    pkgs.python3
+    pkgs.coreutils
     pkgs.vale
   ];
   text = ''
-    exec python3 ${./rewrite.py} --style ${pkgs.vale-styles}/vale.ini ${lib.optionalString pkgs.stdenv.hostPlatform.isDarwin "--fm /usr/bin/fm"} "$@"
+    exec ${lib.getExe pkgs.nushell} --no-config-file --stdin ${./rewrite.nu} --style ${pkgs.vale-styles}/vale.ini ${lib.optionalString pkgs.stdenv.hostPlatform.isDarwin "--fm /usr/bin/fm"} "$@"
   '';
 }

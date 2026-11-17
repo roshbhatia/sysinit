@@ -18,7 +18,12 @@ nh darwin build
 Run formatting, semantic lint, and flake checks before committing. Evaluate the
 affected host as well: some module assertions are outside flake checks.
 `checks/default.nix` owns the check inventory; `treefmt.toml` owns formatters.
-Shell scripts use Bash with `set -euo pipefail` and `shfmt -i 2 -ci -sr -s`.
+Use Nushell for new and substantially changed scripts, with Nix-pinned
+`nu --no-config-file` and `nufmt`. Migrate Python to Nushell. If a conversion
+needs a separate utility or library boundary, document the blocker and defer
+that item for design rather than accepting a permanent Python exception.
+Retained Bash uses `set -euo pipefail` and
+`shfmt -i 2 -ci -sr -s`.
 
 ## Choose the relevant guidance
 

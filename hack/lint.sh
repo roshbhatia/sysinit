@@ -176,20 +176,19 @@ nu_files=()
 while IFS= read -r file; do
   [ -n "${file}" ] && nu_files+=("${file}")
 done < <(files_for '\.nu$')
-if [ "${#nu_files[@]}" -gt 0 ] && command -v nu > /dev/null 2>&1 && command -v jq > /dev/null 2>&1; then
+if [ "${#nu_files[@]}" -gt 0 ] && command -v nu > /dev/null 2>&1; then
   echo "==> nushell diagnostics" >&2
+  if ! nu_formats="$(command -v nu_plugin_formats)"; then
+    echo "FAIL: nu_plugin_formats is missing; run lint with nix develop" >&2
+    exit 1
+  fi
   for file in "${nu_files[@]}"; do
-    if ! output="$(nu --no-config-file --ide-check 100 "${file}")"; then
+    # Parse after plugin registration; --ide-check does not load --plugins.
+    if ! output="$(nu --no-config-file --plugins "${nu_formats}" hack/check-nushell.nu "${file}" 2>&1)"; then
       printf '%s\n' "${output}" >&2
       echo "FAIL: nushell diagnostics ${file}" >&2
       status=1
       continue
-    fi
-    diagnostics="$(printf '%s\n' "${output}" | jq -cs '[.[] | select(.type == "diagnostic")]')"
-    if [ "${diagnostics}" != "[]" ]; then
-      printf '%s\n' "${diagnostics}" | jq . >&2
-      echo "FAIL: nushell diagnostics ${file}" >&2
-      status=1
     fi
   done
 fi

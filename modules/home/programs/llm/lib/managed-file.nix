@@ -91,14 +91,14 @@ let
         CACHE_MANIFEST = toString (
           pkgs.sysinit.writeJSON "managed-file-manifest.json" (lib.mapAttrsToList mkArgs enabled)
         );
-        CACHE_TOOL = "${lib.getExe pkgs.python3} ${./managed-file-cache.py}";
+        CACHE_TOOL = "${lib.getExe pkgs.nushell} --no-config-file ${./managed-file-cache.nu}";
         CACHE_REVISION = lib.escapeShellArg (
           builtins.hashString "sha256" (
             readSource "managed-file-reconcile.sh.tmpl"
             + mergeProgram
             + readSource "managed-file-adopt.jq"
             + readSource "managed-file-apply-enforced.jq"
-            + "${pkgs.jq}:${pkgs.yq-go}:${pkgs.check-jsonschema}:${pkgs.python3}:${./managed-file-cache.py}"
+            + "${pkgs.jq}:${pkgs.yq-go}:${pkgs.check-jsonschema}:${pkgs.nushell}:${./managed-file-cache.nu}"
           )
         );
         EMPTY_MANAGED_COMMENT = lib.optionalString (

@@ -50,8 +50,10 @@ in
               lib.escapeShellArg (
                 ".command = "
                 + builtins.toJSON [
-                  (lib.getExe pkgs.python3)
-                  "${./runtime/ask-terminal.py}"
+                  (lib.getExe pkgs.nushell)
+                  "--no-config-file"
+                  "--stdin"
+                  "${./runtime/ask-terminal.nu}"
                 ]
                 + " + .command"
                 + lib.optionalString (name == "claude") " | .defaults.model = \"haiku\""

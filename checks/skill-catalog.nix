@@ -38,19 +38,21 @@ assert fixture.description == "It's a fixture";
 assert fixture."disable-model-invocation" == false;
 assert fixture.files ? "data.json";
 assert fixture.files ? "references/nested/details.md";
-assert fixture.files ? "scripts/probe.py";
+assert fixture.files ? "scripts/probe.nu";
 assert !(fixture.files ? "SKILL.md");
 pkgs.runCommand "skill-catalog"
   {
     nativeBuildInputs = [
-      pkgs.python3
       pkgs.git
+      pkgs.nushell
+      pkgs.coreutils
     ];
   }
   ''
-    python3 ${./skill-catalog.py} ${manifest}
-    python3 ${./skill-helpers.py} \
-      ${../modules/home/programs/llm/skills/nix-deployment/scripts/host-state.py} \
-      ${../modules/home/programs/llm/skills/skills-ecosystem-discovery/scripts/catalog.py}
+    nu --no-config-file ${./skill-catalog.nu} ${manifest}
+    nu --no-config-file ${./host-state.nu} \
+      ${../modules/home/programs/llm/skills/nix-deployment/scripts/host-state.nu}
+    nu --no-config-file ${./skill-helpers.nu} \
+      ${../modules/home/programs/llm/skills/skills-ecosystem-discovery/scripts/catalog.nu}
     touch "$out"
   ''

@@ -22,8 +22,10 @@ under one owner and pin their source when adding them to Nix.
 
 ## Inspect installed coverage
 
-Run `python3 scripts/catalog.py --root ~/.agents/skills` from this skill's
+Run `nu --no-config-file scripts/catalog.nu ~/.agents/skills` from this skill's
 location to compare the declared managed roots with another native catalog.
+Pass additional catalog directories as positional arguments. Use Nushell from
+the repository's Nix shell.
 The output includes missing names, every inspected copy's path/hash/ownership,
 and names with different bytes. Some differences are intentional harness metadata
 translations; inspect them before calling them semantic drift. `--check` fails

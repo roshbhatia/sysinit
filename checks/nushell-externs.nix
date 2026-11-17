@@ -6,11 +6,12 @@ pkgs.runCommand "nushell-externs"
   {
     nativeBuildInputs = [
       pkgs.nushell
-      pkgs.python3
+      pkgs.coreutils
       pkgs.git
     ];
   }
   ''
-    python3 ${./nushell-externs.py} ${lib.getExe pkgs.nushell} ${nushellLib.externs pkgs}
+    nu --no-config-file ${./nushell-externs.nu} ${nushellLib.externs pkgs} \
+      ${./fixtures/nushell-extern-command.nu} ${./fixtures/nushell-extern-cases.nuon}
     touch "$out"
   ''

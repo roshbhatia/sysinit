@@ -56,6 +56,7 @@ in
         ./pueue
         ./seshy
         ./tether
+        ./terraform.nix
         ./traces.nix
         ./yazi
       ];

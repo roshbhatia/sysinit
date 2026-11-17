@@ -59,11 +59,13 @@ in
         '';
         doInstallCheck = true;
         installCheckPhase = ''
+          export HOME="$TMPDIR/conductor-home"
+          mkdir -p "$HOME"
           "$out/bin/conductor" --version
           "$out/bin/conductor" --help > /dev/null
           "$out/bin/conductor" validate ${../pkgs/conductor/check.yaml}
           "$out/bin/conductor" --silent run ${../pkgs/conductor/check.yaml} > result.json
-          ${lib.getExe final.python313} -c 'import json; assert json.load(open("result.json")) == {"message": "conductor-ready"}'
+          ${lib.getExe final.nushell} --no-config-file -c 'use std/assert; assert equal (open result.json) {message: "conductor-ready"}'
         '';
         meta = old.meta // {
           description = "Microsoft Conductor workflow CLI and local dashboard";

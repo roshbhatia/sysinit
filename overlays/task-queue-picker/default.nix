@@ -27,7 +27,7 @@ let
       viewer
     ];
     text = ''
-      exec ${final.python3}/bin/python3 ${./provider.py} \
+      exec ${final.lib.getExe final.nushell} --no-config-file --stdin ${./provider.nu} \
         ${final.lib.getExe final.zmx} ${final.lib.getExe viewer} ${final.lib.getExe' final.coreutils "env"}
     '';
   };

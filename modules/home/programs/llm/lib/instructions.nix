@@ -73,6 +73,12 @@ let
       good = "Add the linter to the Nix shell and edit its source module.";
     }
     {
+      rule = "In sysinit and sysinit.laurel, use Nushell as the default for new and substantially changed scripts.";
+      reason = "Use structured data and Nix-pinned `nu --no-config-file`. Migrate Python; document and defer items needing a separate utility boundary instead of accepting permanent Python exceptions.";
+      bad = "Add a Python helper for CLI JSON orchestration.";
+      good = "Use a Nu script with explicit external-command exit checks.";
+    }
+    {
       rule = "Preserve Git history and hooks.";
       reason = "Bypass flags and destructive commands remove review and recovery paths.";
       bad = "Use `--no-verify`, force-push, or `reset --hard` to finish faster.";

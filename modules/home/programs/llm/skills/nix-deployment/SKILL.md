@@ -10,9 +10,9 @@ changes. Resolve the host flake and configuration explicitly; an upstream
 checkout may not define the current machine. Do not assume an environment
 variable's flake points at the intended source revision.
 
-Run `python3 scripts/host-state.py --flake <host-checkout>` from this skill's
+Run `nu --no-config-file scripts/host-state.nu --flake <host-checkout>` from this skill's
 location to inspect its Git revision, input pins, and active system. It only
-reads state. Dependencies are Python and Git from the repository's Nix shell.
+reads state. Dependencies are Nushell, Git, and GNU Coreutils from the repository's Nix shell.
 
 1. Compare the requested source revision with the consuming flake's lock. If a
    downstream pin differs, prepare the scoped lock update or explicit override
@@ -23,7 +23,7 @@ reads state. Dependencies are Python and Git from the repository's Nix shell.
    repository's supported `nh ... switch` command. Do not pass a store path to
    NH's Darwin installable argument; use the documented profile/activation flow
    when separate activation of an existing Darwin build is needed.
-4. Run `python3 scripts/host-state.py --flake <host-checkout> --result <output-link>`.
+4. Run `nu --no-config-file scripts/host-state.nu --flake <host-checkout> --result <output-link>`.
    A mismatch with `/run/current-system` exits nonzero. Verify the changed
    installed files and native behavior as well; a matching path alone is not
    an end-to-end behavior test.

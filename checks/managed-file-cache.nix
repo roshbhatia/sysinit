@@ -22,7 +22,7 @@ let
     };
   };
 in
-pkgs.runCommand "managed-file-cache-test" { nativeBuildInputs = [ pkgs.python3 ]; } ''
-  python3 ${./managed-file-cache.py} ${runner}/bin/sysinit-llm-reconcile ${../modules/home/programs/llm/lib/managed-file-cache.py}
+pkgs.runCommand "managed-file-cache-test" { nativeBuildInputs = [ pkgs.nushell ]; } ''
+  nu --no-config-file ${./managed-file-cache.nu} ${runner}/bin/sysinit-llm-reconcile ${../modules/home/programs/llm/lib/managed-file-cache.nu}
   touch "$out"
 ''

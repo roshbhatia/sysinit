@@ -2,11 +2,12 @@
 pkgs.writeShellApplication {
   name = "agent-diff";
   runtimeInputs = [
-    pkgs.python3
+    pkgs.coreutils
+    pkgs.flock
     pkgs.git
     pkgs.wezterm
   ];
   text = ''
-    exec python3 ${./open.py} "$@"
+    exec ${pkgs.nushell}/bin/nu --no-config-file ${./open.nu} "$@"
   '';
 }

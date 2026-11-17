@@ -57,8 +57,10 @@ jobs:
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: |
-          python3 -m unittest discover -s hack -p "test_update_flakes.py"
-          python3 "$GITHUB_WORKSPACE/hack/update-flakes.py"
+          nix develop --command nu --no-config-file hack/test-update-flakes.nu \
+            "$GITHUB_WORKSPACE/hack/update-flakes.nu" \
+            "$GITHUB_WORKSPACE/hack/fixtures/update-flakes-command.nu"
+          nix develop --command nu --no-config-file "$GITHUB_WORKSPACE/hack/update-flakes.nu"
 
       - name: Update Go vendorHash values
         env:
@@ -83,7 +85,7 @@ jobs:
           body: |
             Automated update:
             - Regenerated `_sources/generated.nix` via nvfetcher
-            - Updated `flake.lock` via `python3 "$GITHUB_WORKSPACE/hack/update-flakes.py"`
+            - Updated flake inputs via `nix develop --command nu --no-config-file hack/update-flakes.nu`
             - Auto-updated Go `vendorHash` values
           labels: automated,dependencies
 

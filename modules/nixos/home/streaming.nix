@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 
 let
   dropCaps = "setpriv --ambient-caps -all --inh-caps -all --";
@@ -118,10 +118,11 @@ let
     name = "sunshine-apps-gen";
     runtimeInputs = [
       pkgs.imagemagick
-      pkgs.python3
+      pkgs.curl
+      pkgs.coreutils
     ];
     text = ''
-      exec python3 ${./sunshine-apps-gen.py} "$@"
+      exec ${lib.getExe pkgs.nushell} --no-config-file ${./sunshine-apps-gen.nu} "$@"
     '';
   };
 in

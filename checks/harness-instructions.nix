@@ -67,26 +67,7 @@ assert lib.all (text: !(lib.hasInfix style.rules text)) base;
 assert hasStyleOnce claudeStyle;
 assert lib.hasInfix "keep-coding-instructions: true\n---" claudeStyle;
 assert home.programs.claude-code.settings.outputStyle == style.name;
-pkgs.runCommand "harness-instructions" { } ''
-  ${pkgs.python3}/bin/python - ${manifest} <<'PY'
-  import json
-  import pathlib
-  import sys
-
-  manifest = json.loads(pathlib.Path(sys.argv[1]).read_text())
-  for harness in manifest["harnesses"]:
-      text = pathlib.Path(harness["source"]).read_text()
-      if harness["key"]:
-          value = json.loads(text)
-          for key in harness["key"]:
-              value = value[key]
-          text = value
-      expected = pathlib.Path(harness["expected"]).read_text()
-      assert text.count(expected) == 1, harness["name"]
-      if harness["style"]:
-          text = pathlib.Path(harness["style"]).read_text()
-          assert text.count(manifest["outputStyle"]) == 1, harness["name"]
-      print(harness["name"], "generated instructions match shared sources")
-  PY
+pkgs.runCommand "harness-instructions" { nativeBuildInputs = [ pkgs.nushell ]; } ''
+  nu --no-config-file ${./harness-instructions.nu} ${manifest}
   touch $out
 ''

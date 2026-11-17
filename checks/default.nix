@@ -56,6 +56,47 @@ let
 in
 {
   pi = pkgs.pi-coding-agent;
+  sunshine-apps =
+    pkgs.runCommand "sunshine-apps-check"
+      {
+        nativeBuildInputs = [
+          pkgs.nushell
+          pkgs.coreutils
+          pkgs.curl
+          pkgs.imagemagick
+        ];
+      }
+      ''
+        nu --no-config-file ${./sunshine-apps.nu} ${../modules/nixos/home/sunshine-apps-gen.nu}
+        touch "$out"
+      '';
+  update-flakes =
+    pkgs.runCommand "update-flakes-check"
+      {
+        nativeBuildInputs = [
+          pkgs.nushell
+          pkgs.coreutils
+          pkgs.git
+        ];
+      }
+      ''
+        nu --no-config-file ${../hack/test-update-flakes.nu} \
+          ${../hack/update-flakes.nu} ${../hack/fixtures/update-flakes-command.nu}
+        touch "$out"
+      '';
+  runner-operator =
+    pkgs.runCommand "runner-operator-check"
+      {
+        nativeBuildInputs = [
+          pkgs.nushell
+          pkgs.coreutils
+        ];
+      }
+      ''
+        nu --no-config-file ${./runner-operator.nu} \
+          ${../modules/nixos/runner-operator.nu} ${./fixtures/runner-kubectl.nu}
+        touch "$out"
+      '';
   nvfetcher-sources =
     let
       declared = builtins.attrNames (builtins.fromTOML (builtins.readFile ../nvfetcher.toml));
@@ -65,8 +106,8 @@ in
     assert lib.assertMsg (
       declared == generated && declared == manifest
     ) "nvfetcher output must contain every configured source";
-    pkgs.runCommand "nvfetcher-sources" { nativeBuildInputs = [ pkgs.python3 ]; } ''
-      python3 -m unittest discover -s ${../hack} -p 'test_github_release_with_assets.py'
+    pkgs.runCommand "nvfetcher-sources" { nativeBuildInputs = [ pkgs.nushell ]; } ''
+      nu --no-config-file ${../hack}/test-github-release-with-assets.nu
       touch "$out"
     '';
   inherit (pkgs) leaf-reader;
@@ -89,12 +130,13 @@ in
     pkgs.runCommand "zsh-agent-shell"
       {
         nativeBuildInputs = [
-          pkgs.python3
+          pkgs.nushell
           pkgs.zsh
+          pkgs.coreutils
         ];
       }
       ''
-        python ${./zsh-agent-shell.py} ${lib.getExe pkgs.zsh} ${../modules/home/programs/zsh/core/agent-glob.zsh}
+        nu --no-config-file ${./zsh-agent-shell.nu} ${lib.getExe pkgs.zsh} ${../modules/home/programs/zsh/core/agent-glob.zsh}
         touch "$out"
       '';
   native-output = import ./native-output.nix { inherit pkgs; };
@@ -108,7 +150,6 @@ in
     pkgs.runCommand "git-ai-integration"
       {
         nativeBuildInputs = [
-          pkgs.python3
           pkgs.git
           pkgs.changes
           pkgs.traces
@@ -119,15 +160,22 @@ in
         ];
       }
       ''
-        python3 ${./git-ai-integration.py} ${pkgs.git-ai}/bin/git-ai ${pkgs.git-ai-gate}/bin/git-ai-gate \
-          ${../modules/home/programs/git-ai/changes-provider.py} \
+        nu --no-config-file ${./git-ai-integration.nu} ${pkgs.git-ai}/bin/git-ai ${pkgs.git-ai-gate}/bin/git-ai-gate \
+          ${../modules/home/programs/git-ai/changes-provider.nu} \
           ${../modules/home/programs/nushell/attribution.nu} ${../modules/home/programs/nushell/storage.nu}
         touch "$out"
       '';
   git-ai-maintenance =
-    pkgs.runCommand "git-ai-maintenance" { nativeBuildInputs = [ pkgs.python3 ]; }
+    pkgs.runCommand "git-ai-maintenance"
+      {
+        nativeBuildInputs = [
+          pkgs.nushell
+          pkgs.sqlite
+          pkgs.coreutils
+        ];
+      }
       ''
-        python3 ${./git-ai-maintenance.py} ${../modules/home/programs/git-ai/maintain-metrics.py}
+        nu --no-config-file -c 'use ${../modules/home/programs/git-ai/maintain-metrics.nu} maintain; source ${./git-ai-maintenance.nu}; check ${../modules/home/programs/git-ai/maintain-metrics.nu} ${./fixtures/wait-for-file.nu}'
         touch "$out"
       '';
   task-queue = import ./task-queue.nix { inherit pkgs; };
@@ -175,6 +223,7 @@ in
       '';
   opencode = import ./opencode.nix { inherit pkgs; };
   utility-contracts = import ./utility-contracts.nix { inherit pkgs; };
+  notification-assets = import ./notification-assets.nix { inherit pkgs; };
   ty =
     pkgs.runCommand "ty-cli"
       {
@@ -204,15 +253,15 @@ in
     pkgs.runCommand "pr-workflow-test"
       {
         nativeBuildInputs = [
-          pkgs.python3
           pkgs.git
           pkgs.nushell
+          pkgs.flock
         ];
       }
       ''
         export HOME="$TMPDIR/home"
         mkdir -p "$HOME"
-        python ${./pr-workflow.py} ${../modules/home/programs/gh-pr-diff.py} ${../modules/home/programs/llm/runtime/ask-terminal.py} ${nuFunctions}
+        nu --no-config-file ${./pr-workflow.nu} ${../modules/home/programs/gh-pr-diff.nu} ${../modules/home/programs/llm/runtime/ask-terminal.nu} ${nuFunctions} ${./fixtures/review-tools.nu}
         touch "$out"
       '';
   gh-dash-pr = pkgs.runCommand "gh-dash-pr-test" { nativeBuildInputs = [ pkgs.sysinit-gh-dash ]; } ''
@@ -233,12 +282,14 @@ in
     pkgs.runCommand "macos-notifier-test"
       {
         nativeBuildInputs = [
-          pkgs.python3
+          pkgs.nushell
+          pkgs.coreutils
           pkgs.bash
         ];
       }
       ''
-        python3 ${./macos-notifier.py} ${../modules/home/programs/llm/runtime/macos-notifier.sh}
+        nu --no-config-file ${./macos-notifier.nu} \
+          ${../modules/home/programs/llm/runtime/macos-notifier.sh} ${./fixtures/notifier-command.nu}
         touch "$out"
       '';
   hammerspoon-startup =
@@ -258,12 +309,13 @@ in
     pkgs.runCommand "completion-cache-test"
       {
         nativeBuildInputs = [
-          pkgs.python3
+          pkgs.nushell
           pkgs.zsh
+          pkgs.coreutils
         ];
       }
       ''
-        python3 ${./completion-cache.py} ${../modules/home/programs/zsh/core/compinit.zsh}
+        nu --no-config-file ${./completion-cache.nu} ${../modules/home/programs/zsh/core/compinit.zsh}
         touch "$out"
       '';
   generated-format = import ./generated-format.nix { inherit pkgs; };
@@ -275,33 +327,51 @@ in
     home = homeConfigurations.${"dev-" + pkgs.stdenv.hostPlatform.system}.config;
   };
   incremental-defaults =
-    pkgs.runCommand "incremental-defaults-test" { nativeBuildInputs = [ pkgs.python3 ]; }
+    let
+      plugin = lib.getExe pkgs.nushellPlugins.formats;
+      command = pkgs.writeShellScript "defaults-fixture" ''
+        exec ${lib.getExe pkgs.nushell} --no-config-file --plugins ${plugin} ${./fixtures/defaults-command.nu} "$@"
+      '';
+    in
+    pkgs.runCommand "incremental-defaults-test"
+      {
+        nativeBuildInputs = [ pkgs.nushell ];
+        DEFAULTS_TEST_PLUGIN = plugin;
+      }
       ''
-        python3 ${./incremental-defaults.py} ${../modules/darwin/defaults-incremental.py}
+        nu --no-config-file --plugins "$DEFAULTS_TEST_PLUGIN" ${./incremental-defaults.nu} ${../modules/darwin/defaults-incremental.nu} ${command}
         touch "$out"
       '';
   homebrew-reconcile =
     pkgs.runCommand "homebrew-reconcile-test"
       {
         nativeBuildInputs = [
-          pkgs.python3
+          pkgs.nushell
+          pkgs.coreutils
           pkgs.bash
         ];
       }
       ''
-        python3 ${./homebrew-reconcile.py} ${../modules/darwin/reconcile-homebrew.sh}
+        nu --no-config-file ${./homebrew-reconcile.nu} \
+          ${../modules/darwin/reconcile-homebrew.sh} ${./fixtures/homebrew-command.nu}
         touch "$out"
       '';
   app-copy-state =
+    let
+      command = pkgs.writeShellScript "app-copy-fixture" ''
+        exec ${lib.getExe pkgs.nushell} --no-config-file ${./fixtures/app-copy-command.nu} "$@"
+      '';
+    in
     pkgs.runCommand "app-copy-state-test"
       {
         nativeBuildInputs = [
-          pkgs.python3
+          pkgs.nushell
+          pkgs.coreutils
           pkgs.rsync
         ];
       }
       ''
-        python3 ${./app-copy-state.py} ${../modules/home/app-copy-state.py}
+        nu --no-config-file ${./app-copy-state.nu} ${../modules/home/app-copy-state.nu} ${command}
         touch "$out"
       '';
   github-runner-guard = import ./github-runner-guard.nix { inherit pkgs; };

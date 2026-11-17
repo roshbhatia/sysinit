@@ -73,7 +73,7 @@ pinned_version() {
 latest_version() {
   local pkg="$1"
   curl -sf "https://registry.npmjs.org/${pkg}/latest" 2> /dev/null |
-    python3 -c 'import sys,json; print(json.load(sys.stdin).get("version","?"))' 2> /dev/null ||
+    nu --no-config-file --stdin -c 'from json | get --optional version | default "?"' 2> /dev/null ||
     echo "?"
 }
 
