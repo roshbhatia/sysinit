@@ -52,6 +52,16 @@ in
           User = "rshnbhatia";
         };
 
+        "lv426.local" = {
+          User = "rshnbhatia";
+          HostKeyAlias = "lv426.stork-eel.ts.net";
+        };
+
+        "arrakis.local" = {
+          User = "rshnbhatia";
+          HostKeyAlias = "arrakis.stork-eel.ts.net";
+        };
+
         "urth" = beforeStork {
           HostName = "urth.stork-eel.ts.net";
           User = "roshan";
