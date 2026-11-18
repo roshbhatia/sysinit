@@ -72,8 +72,21 @@ let
 in
 {
   lv426 = darwinHost personal {
+    packages = [
+      "black"
+      "fluxcd"
+      "mcp-proxy"
+      "spec-kit"
+      "stack"
+      "temporal-cli"
+    ];
     wezterm.remoteMux = true;
     theme.base16Scheme = rosePine;
+    darwin.homebrew.additionalPackages.casks = [
+      "google-chrome"
+      "vesktop"
+      "vlc"
+    ];
     darwin.openssh = {
       enable = true;
       authorizedKeys = personalSshKeys;

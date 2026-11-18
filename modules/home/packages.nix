@@ -2,6 +2,7 @@
   pkgs,
   lib,
   profile ? "workstation",
+  values ? { },
   ...
 }:
 let
@@ -170,5 +171,6 @@ in
       workstation =
         lib.optionals pkgs.stdenv.hostPlatform.isLinux [ hyprpicker ]
         ++ lib.optionals (lib.meta.availableOn pkgs.stdenv.hostPlatform goose-desktop) [ goose-desktop ];
-    };
+    }
+    ++ map (name: pkgs.${name}) (values.packages or [ ]);
 }
