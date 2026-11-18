@@ -73,13 +73,18 @@ in
 {
   lv426 = darwinHost personal {
     packages = [
+      "beads"
       "black"
+      "claude-powerline"
       "fluxcd"
+      "markdownlint-cli"
       "mcp-proxy"
+      "mermaid-cli"
       "spec-kit"
       "stack"
       "temporal-cli"
     ];
+    environment.PUPPETEER_EXECUTABLE_PATH = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
     wezterm.remoteMux = true;
     theme.base16Scheme = rosePine;
     darwin.homebrew.additionalPackages.casks = [
