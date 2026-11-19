@@ -19,7 +19,7 @@ let
     (entry ".GlobalPreferences" cfg.".GlobalPreferences")
     (entry "com.apple.LaunchServices" cfg.LaunchServices)
     (entry "com.apple.menuextra.clock" cfg.menuExtraClock)
-    (entry "com.apple.dock" (builtins.removeAttrs cfg.dock [ "expose-group-by-app" ]))
+    (entry "com.apple.dock" (removeAttrs cfg.dock [ "expose-group-by-app" ]))
     (entry "com.apple.finder" cfg.finder)
     (entry "com.apple.HIToolbox" cfg.hitoolbox)
     (entry "com.apple.iCal" cfg.iCal)

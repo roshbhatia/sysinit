@@ -206,5 +206,5 @@ in
     outputStyle
     ;
   inherit (subagents) formatSubagentAsMarkdown;
-  subagentDefs = builtins.removeAttrs subagents [ "formatSubagentAsMarkdown" ];
+  subagentDefs = removeAttrs subagents [ "formatSubagentAsMarkdown" ];
 }

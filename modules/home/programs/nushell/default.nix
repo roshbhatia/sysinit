@@ -43,7 +43,7 @@ let
     builtins.mapAttrs splitSelfAppend sessionVarsExpanded
   );
 
-  sessionVarsCarried = builtins.removeAttrs sessionVarsExpanded (lib.attrNames selfAppendVars);
+  sessionVarsCarried = removeAttrs sessionVarsExpanded (lib.attrNames selfAppendVars);
 
   sessionVarsUnexpanded = lib.filterAttrs (
     _name: value: builtins.match ".*[$].*" value != null
@@ -138,9 +138,7 @@ in
 
       # An alias shadows the extern of the same name, so drop `name = env name` no-ops.
       shellAliases = lib.mkForce (
-        lib.filterAttrs (name: value: value != "env ${name}") (
-          builtins.removeAttrs shell.commonAliases [ "ll" ]
-        )
+        lib.filterAttrs (name: value: value != "env ${name}") (removeAttrs shell.commonAliases [ "ll" ])
       );
 
       environmentVariables = lib.optionalAttrs (lsColorsFile != null) {

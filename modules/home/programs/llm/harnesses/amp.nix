@@ -20,7 +20,7 @@ let
     "amp.git.commit.ampThread.enabled" = false;
     "amp.mcpServers" = llmLib.mcp.formatForAmp (kit.mcpServers.serversFor "amp");
     "amp.permissions" =
-      builtins.map (tool: {
+      map (tool: {
         inherit tool;
         action = "ask";
       }) llmLib.allowlist.slackSendTools

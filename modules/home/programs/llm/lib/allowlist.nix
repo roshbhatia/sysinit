@@ -270,21 +270,21 @@ let
       // builtins.listToAttrs (map allowEntry emittedMcp);
     };
 
-  formatForClaude = tier: builtins.map (cmd: "Bash(${cmd})") tier;
+  formatForClaude = tier: map (cmd: "Bash(${cmd})") tier;
 
-  formatDestructiveForCursor = patterns: builtins.map (cmd: "Shell(${cmd})") patterns;
+  formatDestructiveForCursor = patterns: map (cmd: "Shell(${cmd})") patterns;
 
   stripTrailingGlob =
     cmd: if lib.hasSuffix " *" cmd then lib.substring 0 (lib.stringLength cmd - 2) cmd else cmd;
 
-  formatForDevin = tier: builtins.map (cmd: "Exec(${stripTrailingGlob cmd})") tier;
-  formatDestructiveForDevin = patterns: builtins.map (cmd: "Exec(${stripTrailingGlob cmd})") patterns;
+  formatForDevin = tier: map (cmd: "Exec(${stripTrailingGlob cmd})") tier;
+  formatDestructiveForDevin = patterns: map (cmd: "Exec(${stripTrailingGlob cmd})") patterns;
 
   formatDestructiveForOpencode =
-    patterns: lib.listToAttrs (builtins.map (cmd: lib.nameValuePair cmd "deny") patterns);
+    patterns: lib.listToAttrs (map (cmd: lib.nameValuePair cmd "deny") patterns);
   formatDestructiveForAmp =
     patterns:
-    builtins.map (cmd: {
+    map (cmd: {
       tool = "Bash";
       matches = {
         inherit cmd;

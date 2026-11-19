@@ -28,7 +28,7 @@ let
       ) (lib.filterAttrs (_name: value: value != null) fields)
     );
 in
-rec {
+{
   expandIncludes =
     { name, sharedDir }:
     body:

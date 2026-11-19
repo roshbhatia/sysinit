@@ -8,7 +8,7 @@
 let
   profiles = import ../shared/profile-tiers.nix { inherit lib; };
 
-  manifest = builtins.fromTOML (builtins.readFile ./tools.toml);
+  manifest = fromTOML (builtins.readFile ./tools.toml);
   minimalPackages = map (entry: pkgs.${entry.nix}) manifest.tool;
 in
 {
