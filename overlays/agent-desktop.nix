@@ -29,7 +29,9 @@ in
 
     sourceRoot = ".";
 
-    nativeBuildInputs = final.lib.optionals final.stdenv.hostPlatform.isLinux [ final.autoPatchelfHook ];
+    nativeBuildInputs = final.lib.optionals final.stdenv.hostPlatform.isLinux [
+      final.autoPatchelfHook
+    ];
     buildInputs = final.lib.optionals final.stdenv.hostPlatform.isLinux [ final.stdenv.cc.cc.lib ];
 
     # The CLI looks for its platform helper in its own directory.
