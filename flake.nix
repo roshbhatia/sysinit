@@ -345,6 +345,7 @@
             "strands-cli"
             "localias"
             "agent-desktop"
+            "screen-relay"
             "git-ai"
             "mermaid-ascii"
             "pretty-mermaid"

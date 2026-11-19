@@ -6,30 +6,46 @@
 }:
 let
   signing = config.sysinit.codesign;
+
   # TCC grants follow a binary's path and signature, so macOS runs the signed copies.
-  agentDesktop =
-    if signing.enable then
-      pkgs.symlinkJoin {
-        name = "agent-desktop-stable-path";
-        paths = [ pkgs.agent-desktop ];
-        postBuild = ''
-          for name in agent-desktop agent-desktop-macos-helper; do
-            rm -f "$out/bin/$name"
-            ln -s "${signing.signedBinDir}/$name" "$out/bin/$name"
-          done
-        '';
-        meta.mainProgram = "agent-desktop";
-      }
-    else
-      pkgs.agent-desktop;
-in
-{
-  sysinit.codesign.binaries = lib.mkIf signing.enable {
+  signed = {
     agent-desktop = lib.getExe pkgs.agent-desktop;
     agent-desktop-macos-helper = "${pkgs.agent-desktop}/bin/agent-desktop-macos-helper";
+    relay-engine = "${pkgs.screen-relay}/libexec/screen-relay/relay-engine";
   };
 
-  home.packages = [ agentDesktop ];
+  stablePath =
+    package: names:
+    pkgs.symlinkJoin {
+      name = "${package.pname}-stable-path";
+      paths = [ package ];
+      postBuild = lib.concatMapStrings (name: ''
+        rm -f "$out/bin/${name}"
+        ln -s "${signing.signedBinDir}/${name}" "$out/bin/${name}"
+      '') names;
+      meta.mainProgram = package.meta.mainProgram;
+    };
+
+  agentDesktop =
+    if signing.enable then
+      stablePath pkgs.agent-desktop [
+        "agent-desktop"
+        "agent-desktop-macos-helper"
+      ]
+    else
+      pkgs.agent-desktop;
+
+  # screen-relay finds relay-engine on PATH; on Linux its wrapper already provides it.
+  screenRelay =
+    if signing.enable then stablePath pkgs.screen-relay [ "relay-engine" ] else pkgs.screen-relay;
+in
+{
+  sysinit.codesign.binaries = lib.mkIf signing.enable signed;
+
+  home.packages = [
+    agentDesktop
+    screenRelay
+  ];
 
   sysinit.llm.mcp.additionalServers.agent-desktop = {
     command = lib.getExe agentDesktop;

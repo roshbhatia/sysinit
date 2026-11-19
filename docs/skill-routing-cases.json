@@ -63,5 +63,10 @@
     "prompt": "Explain what this single expression returns",
     "expected": [],
     "avoid": ["nix-deployment"]
+  },
+  {
+    "prompt": "Click the Export button in the Preview app and pick PDF",
+    "expected": ["computer-use"],
+    "avoid": []
   }
 ]

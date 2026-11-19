@@ -56,6 +56,7 @@
   (import ./python-tools.nix { inherit inputs; })
   (import ./localias.nix)
   (import ./agent-desktop.nix)
+  (import ./screen-relay.nix)
   (import ./git-ai.nix)
   (import ./git-ai-gate.nix)
   (import ./task-queue-picker)
