@@ -58,7 +58,7 @@ in
     installPhase = ''
       runHook preInstall
       mkdir -p $out/lib/screen-relay $out/bin
-      cp -r dist package.json $out/lib/screen-relay/
+      cp -r dist skills package.json THIRD-PARTY-NOTICES.md $out/lib/screen-relay/
       install -Dm755 relay-engine $out/libexec/screen-relay/relay-engine
       makeWrapper ${final.lib.getExe final.nodejs_22} $out/bin/screen-relay \
         --add-flags $out/lib/screen-relay/dist/cli/relay.mjs \
