@@ -11,6 +11,13 @@ in
       atuinCompletions = pkgs.runCommand "atuin-completions.nu" { } ''
         ${pkgs.atuin}/bin/atuin gen-completions --shell nushell > "$out"
       '';
+      generatedCompletions = pkgs.runCommand "generated-completions" { } ''
+        export HOME="$TMPDIR"
+        mkdir -p "$out"
+        ${pkgs.ruff}/bin/ruff generate-shell-completion nushell > "$out/ruff.nu"
+        ${pkgs.uv}/bin/uvx --generate-shell-completion nushell > "$out/uvx.nu"
+        ${pkgs.goose-cli}/bin/goose completion nu > "$out/goose.nu"
+      '';
       harnessExterns = lib.concatMapStringsSep "\n" (h: ''
         # ${h.label}
         @complete external
@@ -35,12 +42,27 @@ in
             "just"
             "codex"
             "claude"
+            "aws"
+            "bat"
+            "btm"
+            "eza"
+            "glow"
+            "make"
+            "npm"
+            "op"
+            "rustup"
+            "yarn"
+            "zmx"
           ]
       + ''
         export use ${atuinCompletions} *
+        export use ${generatedCompletions}/ruff.nu *
+        export use ${generatedCompletions}/uvx.nu *
+        export use ${generatedCompletions}/goose.nu *
         export use ${./externs/git.nu} *
         export use ${./externs/tools.nu} *
         export use ${./externs/agents.nu} *
+        export use ${./externs/completions.nu} *
       ''
     );
   completers =
