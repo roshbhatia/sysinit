@@ -44,6 +44,7 @@ in
         ./git-ai
         ./hunk.nix
         ./htop.nix
+        ./java.nix
         ./k9s.nix
         ./kubectl.nix
         ./llm
