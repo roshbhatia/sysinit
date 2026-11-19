@@ -1,0 +1,21 @@
+flake.lock
+  s_a4a3eea4720821::t_97955b8dd0e104 1629-1630,1633,1639
+flake.nix
+  s_a4a3eea4720821::t_55fd21257baeda 91
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b862b5c70d6483cafae2b5420a32af104f65a29d",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
