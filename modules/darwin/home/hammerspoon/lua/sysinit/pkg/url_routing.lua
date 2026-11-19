@@ -63,13 +63,15 @@ local routes = {
       if not owner or not carries(suffix) then
         return nil
       end
-      return "https://github.com/" .. owner .. "/" .. repo .. "/pull/" .. number, owner .. "/" .. repo .. "#" .. number
+      return "https://github.com/" .. owner .. "/" .. repo .. "/pull/" .. number,
+        owner .. "/" .. repo .. "#" .. number
     end,
   },
   {
     kind = "actions",
     match = function(path)
-      local owner, repo, id, suffix = path:match("^/([%w%-]+)/([%w_.%-]+)/actions/runs/([1-9]%d*)(.*)$")
+      local owner, repo, id, suffix =
+        path:match("^/([%w%-]+)/([%w_.%-]+)/actions/runs/([1-9]%d*)(.*)$")
       if not owner or not carries(suffix) then
         return nil
       end

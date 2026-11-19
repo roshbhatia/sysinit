@@ -40,7 +40,11 @@ let releases = [
         assets: $complete
     }
 ]
+
 assert equal (select-release $releases [arm.zip x64.zip]) v1
+
 assert error { select-release [] [arm.zip] }
+
 assert error { select-release ($releases | first 4) [arm.zip x64.zip] }
+
 print "Release asset selection checks passed"

@@ -5,6 +5,7 @@ def devices [] {
     match $nu.os-info.name {
         "macos" => {
             let active = (^SwitchAudioSource -c -t output -f json | from json | get id)
+
             # SwitchAudioSource prints one JSON object per line rather than an array.
             ^SwitchAudioSource -a -t output -f json
             | lines
@@ -13,6 +14,7 @@ def devices [] {
         }
         "linux" => {
             let active = (^pactl get-default-sink | str trim)
+
             ^pactl --format=json list sinks
             | from json
             | each {|sink| {id: $sink.name, name: $sink.description, current: ($sink.name == $active)} }
@@ -23,6 +25,7 @@ def devices [] {
 
 def fail [message: string] {
     print -e $"audio-switcher: ($message)"
+
     exit 1
 }
 
@@ -30,6 +33,7 @@ def switch-to [id: string, outputs: list<any>] {
     if ($outputs | where id == $id | is-empty) {
         fail $"unknown audio device ID: ($id)"
     }
+
     if $nu.os-info.name == "macos" {
         ^SwitchAudioSource -t output -i $id | ignore
     } else {
@@ -50,9 +54,11 @@ def "main set" [id: string] {
 # Select an audio output with fzf.
 def main [] {
     let outputs = (devices)
+
     if ($outputs | is-empty) {
         fail "no audio outputs available"
     }
+
     let choice = (
         $outputs
         | enumerate
@@ -61,13 +67,16 @@ def main [] {
         | ^fzf --no-multi --delimiter="\t" --with-nth=2.. "--prompt=Audio output> "
         | complete
     )
+
     # fzf exits 1 with no match and 130 when dismissed; both mean no change.
     if $choice.exit_code in [1 130] {
         return
     }
+
     if $choice.exit_code != 0 {
         fail $"fzf exited ($choice.exit_code)"
     }
+
     let index = (
         $choice.stdout
         | str trim
@@ -75,5 +84,6 @@ def main [] {
         | first
         | into int
     )
+
     switch-to ($outputs | get $index | get id) $outputs
 }

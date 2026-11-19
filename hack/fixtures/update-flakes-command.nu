@@ -1,5 +1,6 @@
 def --wrapped main [...arguments: string] {
     if ($env.UPDATE_FIXTURE_FAIL? | default '') == $env.UPDATE_FIXTURE_COMMAND { exit 7 }
+
     (
         (
             {
@@ -10,11 +11,15 @@ def --wrapped main [...arguments: string] {
             | to json --raw
         ) + "\n"
     ) | save --append $env.UPDATE_FIXTURE_LOG
+
     if $env.UPDATE_FIXTURE_COMMAND == nix {
         if $arguments != [flake update] { error make {msg: 'unexpected Nix operation'} }
+
         return
     }
+
     let endpoint = $arguments.1
+
     let value = if ($endpoint | str ends-with '/releases?per_page=100') {
         if $env.UPDATE_FIXTURE_MODE == releases {
             [
@@ -22,7 +27,9 @@ def --wrapped main [...arguments: string] {
                 {tag_name: v1.5.0, draft: false, prerelease: false}
                 {tag_name: v2.0.0, draft: false, prerelease: false}
             ]
-        } else { [] }
+        } else {
+            []
+        }
     } else if ($endpoint | str ends-with '/tags?per_page=100') {
         [
             {name: v1.9.0}
@@ -36,5 +43,6 @@ def --wrapped main [...arguments: string] {
     } else {
         {default_branch: main}
     }
+
     $value | to json | print
 }

@@ -6,8 +6,11 @@ export def "storage free" [] {
 # Rank allocated directory sizes without following symlinks.
 export def "storage usage" [directory: path = ~, --depth: int = 1, --top: int = 20] {
     if $depth < 0 or $top < 1 { error make {msg: "depth must be nonnegative and top must be positive"} }
+
     let result = (^du -x -k -d $depth -- ($directory | path expand) | complete)
+
     if $result.exit_code != 0 { error make {msg: $"du could not complete: ($result.stderr | str trim)"} }
+
     $result.stdout
     | lines
     | parse --regex '^(?<kib>\d+)\t(?<path>.*)$'
@@ -19,11 +22,13 @@ export def "storage usage" [directory: path = ~, --depth: int = 1, --top: int = 
 # List roots retaining Nix paths; deleting a result link changes retention.
 export def "storage nix-roots" [] {
     let result = (^nix-store --gc --print-roots | complete)
+
     if $result.exit_code != 0 {
         error make {
             msg: ($result.stderr | str trim)
         }
     }
+
     $result.stdout
     | lines
     | parse --regex '^(?<root>.+) -> (?<target>/nix/store/.*)$'
@@ -33,8 +38,11 @@ export def "storage nix-roots" [] {
 # Inspect managed cache thresholds; cleanup requires an explicit --apply.
 export def "storage caches" [--apply] {
     let arguments = if $apply { [--apply] } else { [] }
+
     let result = (^cache-maintain ...$arguments | complete)
+
     if $result.exit_code != 0 { error make {msg: $"cache-maintain failed: ($result.stderr | str trim)"} }
+
     $result.stdout
     | from json
     | get results

@@ -2,11 +2,13 @@
 
 def main [source: path, output: path] {
     let data = $source | path join internal/providers/symbols/data
+
     let variations = open --raw ($data | path join variations.txt)
     | lines
     | each {|line| $line | split row '#' | first | str trim }
     | where {|line| $line != "" }
     | each {|line| char --unicode ($line | split words | first) }
+
     let annotations = [
         ($data | path join en.xml)
         ($data | path join derived/en.xml)
@@ -28,6 +30,7 @@ def main [source: path, output: path] {
             }
         }
     | where {|node| $node.cp != "" and $node.text != "" }
+
     $annotations
     | group-by cp
     | transpose cp annotations

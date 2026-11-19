@@ -2,10 +2,13 @@
 
 def main [--update] {
     let required_commands = ["fzf" "chafa" "gh" "fd"]
+
     for cmd in $required_commands {
         if (which $cmd | is-empty) {
             print $"(ansi red_bold)[ERROR](ansi reset) Required command not found: ($cmd)"
+
             print $"(ansi blue)[INFO](ansi reset) Install it with: nix shell nixpkgs#($cmd)"
+
             exit 1
         }
     }
@@ -14,29 +17,40 @@ def main [--update] {
 
     if $os not-in ["macos" "linux"] {
         print $"(ansi red_bold)[ERROR](ansi reset) Unsupported OS: ($os)"
+
         exit 1
     }
 
     let wallpapers_dir = $env.HOME | path join ".local" "share" "wallpapers"
+
     let wallpapers_repo = "roshbhatia/wallpapers"
 
     print $"(ansi blue)[INFO](ansi reset) Checking wallpapers repository..."
+
     if not ($wallpapers_dir | path exists) {
         print $"(ansi blue)[INFO](ansi reset) Cloning wallpapers repository to ($wallpapers_dir)"
+
         mkdir ($wallpapers_dir | path dirname)
+
         let result = do { gh repo clone $wallpapers_repo $wallpapers_dir } | complete
+
         if $result.exit_code != 0 {
             print $"(ansi red_bold)[ERROR](ansi reset) Failed to clone wallpapers repository"
+
             exit 1
         }
     } else if $update {
         print $"(ansi blue)[INFO](ansi reset) Updating wallpapers repository"
+
         let fetch = do {
             cd $wallpapers_dir
+
             git fetch --quiet
         } | complete
+
         let pull = do {
             cd $wallpapers_dir
+
             git pull --ff-only --quiet
         } | complete
 
@@ -48,10 +62,12 @@ def main [--update] {
     }
 
     print $"(ansi blue)[INFO](ansi reset) Scanning for wallpapers..."
+
     let images = do { fd --print0 --type f --extension jpg --extension jpeg --extension png --extension webp . $wallpapers_dir } | complete | get stdout | split row (char nul) | where {|item| $item != "" }
 
     let images = if ($images | is-empty) {
         print $"(ansi blue)[INFO](ansi reset) No images in wallpapers repo, checking system locations..."
+
         let fallback_dirs = if $os == "macos" {
             [
                 ($env.HOME | path join "Pictures")
@@ -75,6 +91,7 @@ def main [--update] {
 
         if ($found_images | is-empty) {
             print $"(ansi red_bold)[ERROR](ansi reset) No images found in any location"
+
             exit 1
         }
 
@@ -91,12 +108,17 @@ def main [--update] {
         | ^fzf --read0 --print0 --preview "chafa --size 80x24 --colors 256 {}" --preview-window "right:50%" --height 50%
         | complete
     )
+
     if $selection.exit_code in [1 130] { return }
+
     if $selection.exit_code != 0 {
         print -e $selection.stderr
+
         exit $selection.exit_code
     }
+
     let selected = $selection.stdout | split row (char nul) | first
+
     if ($selected | is-empty) { return }
 
     print $"(ansi blue)[INFO](ansi reset) Setting background to: ($selected | path basename)"
@@ -105,10 +127,13 @@ def main [--update] {
         ^osascript -e 'on run argv
             tell application "System Events" to set picture of every desktop to item 1 of argv
         end run' $selected
+
         if $env.LAST_EXIT_CODE != 0 { exit $env.LAST_EXIT_CODE }
     } else if $os == "linux" {
         mkdir ($env.HOME | path join ".config" "background")
+
         cp $selected ($env.HOME | path join ".config" "background" "current")
+
         ln -sf ($env.HOME | path join ".config" "background" "current") ($env.HOME | path join ".background-image")
 
         print $"(ansi green)[OK](ansi reset) Background image linked to ~/.background-image"
@@ -116,6 +141,7 @@ def main [--update] {
         if "SWAYSOCK" in $env {
             try {
                 swaymsg $'output * bg ($selected | to json -r) fill'
+
                 print $"(ansi blue)[INFO](ansi reset) Applied background in sway"
             } catch {
                 print $"(ansi yellow_bold)[WARN](ansi reset) Could not set sway background"

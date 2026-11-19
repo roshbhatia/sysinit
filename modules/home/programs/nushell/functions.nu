@@ -24,6 +24,7 @@ export def ls [
     ...pattern: glob
 ]: nothing -> table {
     let pattern = if ($pattern | is-empty) { [.] } else { $pattern }
+
     (%ls
     --all=$all
     --long=$long
@@ -43,59 +44,92 @@ export alias ll = ls --all --long
 
 export def "pr urls" [--refresh(-f)]: string -> list<string> {
     let message = $in
+
     if ($message | str trim | is-empty) { return [] }
+
     let present = ($message
         | parse --regex '(?i)(?:https?://)?github\.com/(?P<owner>[a-z0-9-]+)/(?P<repo>[a-z0-9_.-]+)/pull/(?P<number>[1-9][0-9]*)(?:[/?#\s<>|),.;]|$)'
         | each {|pr| $"https://github.com/($pr.owner)/($pr.repo)/pull/($pr.number)" })
+
     let cache_root = ($env.XDG_CACHE_HOME? | default ($nu.home-dir | path join ".cache")) | path join "gh-dash" "prq-v1"
+
     let cache_file = $cache_root | path join $"($message | hash sha256).json"
+
     if not $refresh {
         let cached = try {
             open --raw $cache_file | from json
-        } catch { null }
+        } catch {
+            null
+        }
+
         if $cached != null and $cached == ($present | uniq) { return $cached }
     }
+
     let result = (
         $message
         | ^ask --quiet --schema 'urls:[]string' -- 'Extract GitHub pull request URLs from stdin. Return {"urls": ["https://github.com/owner/repo/pull/123"]}. Accept Slack link markup and links without a scheme. Remove suffix paths, queries, and fragments. Preserve owner/repository spelling, preserve order, and deduplicate. Include only PR links explicitly present in the input; return an empty list when none exist.'
         | complete
     )
+
     if $result.exit_code != 0 {
         error make {msg: $"ask failed: ($result.stderr | str trim)"}
     }
+
     let urls = $result.stdout | from json | get urls
+
     for url in $urls {
         if ($url | describe) != 'string' or ($url not-in $present) {
             error make {msg: $"ask returned a PR URL not present in the input: ($url)"}
         }
     }
+
     let ordered = $urls | uniq
+
     if $ordered != ($present | uniq) {
         error make {msg: "ask omitted or reordered PR URLs; no PRs were opened"}
     }
+
     try {
         mkdir $cache_root
+
         ^chmod 700 $cache_root
+
         let temporary = $cache_root | path join $"(random uuid).tmp"
+
         $ordered | to json --raw | save --force $temporary
+
         ^chmod 600 $temporary
+
         mv --force $temporary $cache_file
-    } catch { print -e "prq: could not cache the validated PR list" }
+    } catch {
+        print -e "prq: could not cache the validated PR list"
+    }
+
     $ordered
 }
 
 export def prq [--dry-run, --refresh(-f)] {
     let piped = $in
+
     let message = if ($piped | is-empty) {
         let clipboard = (^pbpaste | complete)
+
         if $clipboard.exit_code != 0 { error make {msg: $"Could not read clipboard: ($clipboard.stderr | str trim)"} }
+
         $clipboard.stdout
-    } else { $piped }
+    } else {
+        $piped
+    }
+
     let urls = $message | pr urls --refresh=$refresh
+
     if $dry_run { return $urls }
+
     for url in $urls {
         print -e $"Opening ($url); quit gh-dash to continue to the next PR."
+
         ^gh dash $url
+
         if $env.LAST_EXIT_CODE != 0 { error make {msg: $"gh dash failed for ($url)"} }
     }
 }
@@ -111,12 +145,16 @@ def sysinit-seshy-session [dir: string] {
 def sysinit-seshy-names [] {
     if (which sy | is-empty) {
         print -e "seshy: sy not found on PATH"
+
         return []
     }
+
     let out = (^sy list --names | complete)
+
     if $out.exit_code != 0 {
         return []
     }
+
     $out.stdout
     | lines
     | where {|name| $name | is-not-empty }
@@ -125,14 +163,20 @@ def sysinit-seshy-names [] {
 export def --env s [name?: string] {
     if ($name | is-empty) {
         print -e "seshy: usage: s <session>"
+
         return
     }
+
     let out = (^sy --greedy $name | complete)
+
     let target = $out.stdout | str trim
+
     if $out.exit_code != 0 or ($target | is-empty) {
         print -e $"seshy: no session matches ($name)"
+
         return
     }
+
     cd $target
 }
 
@@ -142,18 +186,22 @@ export def sl [] {
 
 export def --env si [] {
     let names = (sysinit-seshy-names)
+
     if ($names | is-empty) {
         return
     }
+
     let picked = (
     $names
     | str join (char newline)
     | ^fzf --height 40% --reverse --prompt "session> "
     | str trim
   )
+
     if ($picked | is-empty) {
         return
     }
+
     s $picked
 }
 
@@ -162,9 +210,12 @@ def sysinit-set-user-var [name: string, value: string] {
 }
 
 export def wezcopy [...args: string] {
-    let data = if ($args | is-empty) { $in | into string } else {
+    let data = if ($args | is-empty) {
+        $in | into string
+    } else {
         $args | str join " "
     }
+
     sysinit-set-user-var "1337;SetUserVar=wez_copy" $data
 }
 
@@ -184,6 +235,7 @@ export def "path.print" [] {
 
 export def "env.print" [pattern?: string] {
     let prefix = $pattern | default ""
+
     $env
     | transpose name value
     | where {|row| $row.name | str starts-with $prefix }
@@ -194,6 +246,7 @@ export def "env.print" [pattern?: string] {
 }
 
 export alias nuvim-plugin-context = nuvim context
+
 export alias nuvim-plugin-servers = nuvim servers
 
 export def --env nuvim [] {
@@ -202,6 +255,7 @@ export def --env nuvim [] {
     }
 
     let servers = (nuvim-plugin-servers)
+
     if ($servers | is-empty) {
         error make {msg: "nuvim: no running Neovim sessions found"}
     }
@@ -214,6 +268,7 @@ export def --env nuvim [] {
     }
 
     $env.NVIM = $selected.server
+
     nuvim-plugin-context
 }
 
@@ -226,6 +281,7 @@ export-env {
                 sysinit-set-user-var "1337;SetUserVar=WEZTERM_PROG" (commandline)
             }
         )
+
         $env.config.hooks.pre_prompt = (
             $env.config.hooks.pre_prompt?
             | default []

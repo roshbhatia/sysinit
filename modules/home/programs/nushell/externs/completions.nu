@@ -1,5 +1,6 @@
 def "nu-complete taskwarrior" [] {
     let commands = ^taskwarrior _commands | lines | where not ($it | str starts-with "_")
+
     [
         ...(
             ^taskwarrior rc.verbose=nothing _zshids
@@ -27,13 +28,16 @@ export extern taskwarrior [
 
 def "nu-complete go-task targets" [] {
     let listing = ^task --list-all --json | complete
+
     if $listing.exit_code != 0 { return [] }
+
     $listing.stdout | from json | get tasks | each {|target|
     {value: $target.name, description: ($target.desc? | default "")}
   }
 }
 
 def "nu-complete go-task output" [] { [interleaved group prefixed] }
+
 def "nu-complete go-task sort" [] { [default alphanumeric none] }
 
 # Run Taskfile targets with go-task.
@@ -71,6 +75,7 @@ def "nu-complete sketchybar" [] {
     } catch {
         []
     }
+
     [
         ...($items | each {|item| {value: $item, description: item} })
         ...(

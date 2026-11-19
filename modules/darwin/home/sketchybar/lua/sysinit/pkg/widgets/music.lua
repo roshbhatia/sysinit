@@ -90,9 +90,13 @@ function M.setup()
   music:subscribe("mouse.scrolled", function(env)
     local direction = env.SCROLL_DIRECTION
     if direction == "up" then
-      os.execute('osascript -e "tell application \\"Music\\" to set sound volume to (get sound volume) + 10"')
+      os.execute(
+        'osascript -e "tell application \\"Music\\" to set sound volume to (get sound volume) + 10"'
+      )
     elseif direction == "down" then
-      os.execute('osascript -e "tell application \\"Music\\" to set sound volume to (get sound volume) - 10"')
+      os.execute(
+        'osascript -e "tell application \\"Music\\" to set sound volume to (get sound volume) - 10"'
+      )
     end
   end)
 

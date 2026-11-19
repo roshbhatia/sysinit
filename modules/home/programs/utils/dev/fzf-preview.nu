@@ -67,6 +67,7 @@ def preview-dir [path: string] {
 def preview-image [path: string] {
     if (which chafa | is-empty) {
         print $"Image: ($path) (install chafa for preview)"
+
         return
     }
 
@@ -75,11 +76,13 @@ def preview-image [path: string] {
             ^tput cols | str trim
         } catch { "80" }
     )
+
     let lines = (
         try {
             ^tput lines | str trim
         } catch { "24" }
     )
+
     let dim = $"($cols)x($lines)"
 
     ^chafa --size $dim $path
@@ -95,6 +98,7 @@ def preview-text [path: string] {
 
 def preview-executable [path: string] {
     let basename = $path | path basename
+
     if (which man | is-empty) {
         print $"Executable: ($basename) (no man page available)"
     } else {
@@ -108,6 +112,7 @@ def preview-executable [path: string] {
 
 def preview-archive [path: string] {
     let ext = $path | path parse | get extension
+
     match $ext {
         "gz" | "tgz" | "tar" | "tbz2" | "bz2" => {
             ^tar -tvf $path | lines | first 20
@@ -132,6 +137,7 @@ def preview-symlink [path: string] {
         | str trim
         | default "broken symlink"
     )
+
     print $"Symlink: ($path) -> ($target)"
 
     if ($target | path exists) and (($target | path type) != "dir") {
@@ -141,9 +147,11 @@ def preview-symlink [path: string] {
 
 def main [target_arg?: string, --kind(-k): string] {
     let target = get-target ($target_arg | default "")
+
     if $target == null { return }
 
     let target = (normalize-target $target)
+
     if $target == null { return }
 
     let kind = if ($kind | is-empty) {
