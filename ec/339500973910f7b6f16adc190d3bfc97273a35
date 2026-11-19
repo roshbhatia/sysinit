@@ -1,0 +1,29 @@
+modules/darwin/desktop-layout.nix
+  s_a4a3eea4720821::t_0f4d14f1ce309f 1-5
+modules/darwin/home/sketchybar/default.nix
+  s_a4a3eea4720821::t_0f4d14f1ce309f 15
+modules/darwin/home/sketchybar/lua/sysinit/pkg/widgets/logo.lua
+  s_a4a3eea4720821::t_0f4d14f1ce309f 18-19
+modules/darwin/rift.nix
+  s_a4a3eea4720821::t_0f4d14f1ce309f 9,253-254,257-260
+checks/desktop-contracts.lua
+  s_a4a3eea4720821::t_caed5e5335d448 30
+modules/darwin/home/sketchybar/lua/sysinit/pkg/core/init.lua
+  s_a4a3eea4720821::t_0f4d14f1ce309f 4,10,16-18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ec339500973910f7b6f16adc190d3bfc97273a35",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
