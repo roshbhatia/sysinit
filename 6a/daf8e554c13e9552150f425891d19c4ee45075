@@ -1,0 +1,23 @@
+pkgs/mcp-gateway/main_test.go
+  s_a4a3eea4720821::t_d5a30872de81da 7,28-40
+  s_a4a3eea4720821::t_dcf0551340ba5d 41-42
+pkgs/mcp-gateway/main.go
+  s_a4a3eea4720821::t_dc729bf587b8f7 173
+  s_a4a3eea4720821::t_26846bb78aad8b 170-172
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6adaf8e554c13e9552150f425891d19c4ee45075",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
