@@ -38,14 +38,16 @@ in
     buildInputs = [
       final.x264
       final.libwebsockets
+      # libwebsockets.h includes the OpenSSL headers on every platform.
+      final.openssl
       final.zlib
     ]
-    ++ final.lib.optionals isDarwin [ final.openssl ]
     ++ final.lib.optionals isLinux [
       final.libx11
       final.libxext
       final.libxdamage
       final.libxfixes
+      final.libxi
       final.libxtst
     ];
 
