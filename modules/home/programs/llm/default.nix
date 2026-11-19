@@ -125,6 +125,7 @@ in
     ./acp.nix
     ./harnesses/publish.nix
     ./mcp-servers.nix
+    ./computer-use.nix
     ./harnesses
   ];
 

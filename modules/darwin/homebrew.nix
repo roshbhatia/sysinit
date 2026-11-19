@@ -57,7 +57,6 @@ let
     "osx-cross/avr"
     "sandreas/tap"
     "slp/krunkit"
-    "steipete/tap"
   ];
 
   baseBrews = [
@@ -74,7 +73,6 @@ let
     "slp/krunkit/krunkit"
     "slp/krunkit/libkrun-efi"
     "slp/krunkit/virglrenderer"
-    "steipete/tap/peekaboo"
     "switchaudio-osx"
   ];
 

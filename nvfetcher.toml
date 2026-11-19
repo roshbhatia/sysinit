@@ -133,6 +133,23 @@ src.github = "peterldowns/localias"
 src.prefix = "v"
 fetch.url = "https://github.com/peterldowns/localias/releases/download/v$ver/localias-linux-amd64"
 
+# Binary release packages - agent-desktop (vercel-labs/agent-desktop). Each archive
+# holds the CLI and a platform helper that must stay beside it.
+[agent-desktop]
+src.github = "vercel-labs/agent-desktop"
+src.prefix = "v"
+fetch.url = "https://github.com/vercel-labs/agent-desktop/releases/download/v$ver/agent-desktop-v$ver-aarch64-apple-darwin.tar.gz"
+
+[agent-desktop-aarch64-linux]
+src.github = "vercel-labs/agent-desktop"
+src.prefix = "v"
+fetch.url = "https://github.com/vercel-labs/agent-desktop/releases/download/v$ver/agent-desktop-v$ver-aarch64-unknown-linux-gnu.tar.gz"
+
+[agent-desktop-x86_64-linux]
+src.github = "vercel-labs/agent-desktop"
+src.prefix = "v"
+fetch.url = "https://github.com/vercel-labs/agent-desktop/releases/download/v$ver/agent-desktop-v$ver-x86_64-unknown-linux-gnu.tar.gz"
+
 # Binary release packages - goose-cli (block/goose) Tags are v1.33.1, strip prefix so
 # $ver = 1.33.1 for URL construction
 [goose-cli-bin]

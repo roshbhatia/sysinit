@@ -1,4 +1,49 @@
 {
+    "agent-desktop": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "agent-desktop",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-m3t8/HSJLqtGwshdbLfcSGO/jasKIiz8+4rkYExpyGw=",
+            "type": "url",
+            "url": "https://github.com/vercel-labs/agent-desktop/releases/download/v1.3.1/agent-desktop-v1.3.1-aarch64-apple-darwin.tar.gz"
+        },
+        "version": "1.3.1"
+    },
+    "agent-desktop-aarch64-linux": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "agent-desktop-aarch64-linux",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-Q4mQpwP76xl3VZbDQcNwFDXoCtv6Gy9kuC/xdWfVVzs=",
+            "type": "url",
+            "url": "https://github.com/vercel-labs/agent-desktop/releases/download/v1.3.1/agent-desktop-v1.3.1-aarch64-unknown-linux-gnu.tar.gz"
+        },
+        "version": "1.3.1"
+    },
+    "agent-desktop-x86_64-linux": {
+        "cargoLock": null,
+        "date": null,
+        "extract": null,
+        "name": "agent-desktop-x86_64-linux",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-yne2t1A07rEuU33YwKTyo0JBGSU/OLfmvXm6DS/vEmQ=",
+            "type": "url",
+            "url": "https://github.com/vercel-labs/agent-desktop/releases/download/v1.3.1/agent-desktop-v1.3.1-x86_64-unknown-linux-gnu.tar.gz"
+        },
+        "version": "1.3.1"
+    },
     "amp-acp": {
         "cargoLock": null,
         "date": null,

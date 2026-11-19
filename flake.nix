@@ -344,6 +344,7 @@
             "ast-grep-mcp"
             "strands-cli"
             "localias"
+            "agent-desktop"
             "git-ai"
             "mermaid-ascii"
             "pretty-mermaid"

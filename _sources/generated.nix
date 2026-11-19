@@ -6,6 +6,30 @@
   dockerTools,
 }:
 {
+  agent-desktop = {
+    pname = "agent-desktop";
+    version = "1.3.1";
+    src = fetchurl {
+      url = "https://github.com/vercel-labs/agent-desktop/releases/download/v1.3.1/agent-desktop-v1.3.1-aarch64-apple-darwin.tar.gz";
+      sha256 = "sha256-m3t8/HSJLqtGwshdbLfcSGO/jasKIiz8+4rkYExpyGw=";
+    };
+  };
+  agent-desktop-aarch64-linux = {
+    pname = "agent-desktop-aarch64-linux";
+    version = "1.3.1";
+    src = fetchurl {
+      url = "https://github.com/vercel-labs/agent-desktop/releases/download/v1.3.1/agent-desktop-v1.3.1-aarch64-unknown-linux-gnu.tar.gz";
+      sha256 = "sha256-Q4mQpwP76xl3VZbDQcNwFDXoCtv6Gy9kuC/xdWfVVzs=";
+    };
+  };
+  agent-desktop-x86_64-linux = {
+    pname = "agent-desktop-x86_64-linux";
+    version = "1.3.1";
+    src = fetchurl {
+      url = "https://github.com/vercel-labs/agent-desktop/releases/download/v1.3.1/agent-desktop-v1.3.1-x86_64-unknown-linux-gnu.tar.gz";
+      sha256 = "sha256-yne2t1A07rEuU33YwKTyo0JBGSU/OLfmvXm6DS/vEmQ=";
+    };
+  };
   amp-acp = {
     pname = "amp-acp";
     version = "0.13.0";
