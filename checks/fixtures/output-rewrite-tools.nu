@@ -1,8 +1,12 @@
 def main --wrapped [tool: string, ...arguments: string] {
     let text = $in
+
     if $tool == vale {
         if $env.REWRITE_MODE == unavailable { exit 2 }
-        let alerts = if $env.REWRITE_MODE == clean or ($text | str starts-with 'Use ') { [] } else if $env.REWRITE_MODE == unicode {
+
+        let alerts = if $env.REWRITE_MODE == clean or ($text | str starts-with 'Use ') {
+            []
+        } else if $env.REWRITE_MODE == unicode {
             [
                 {
                     Line: 1
@@ -21,9 +25,11 @@ def main --wrapped [tool: string, ...arguments: string] {
                 }
             ]
         }
+
         {stdin: $alerts} | to json --raw | print
     } else {
         'called' | save --append $env.REWRITE_CALLS
+
         match $env.REWRITE_MODE {
             timeout => { sleep 10sec }
             number => {

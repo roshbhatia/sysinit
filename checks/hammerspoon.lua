@@ -176,10 +176,16 @@ assert(#tasks[1].args == 2, "screen capture did not allocate one path per screen
 assert(tasks[1].args[1]:match(" 1%.png$"), "first screen path lost its index")
 assert(tasks[1].args[2]:match(" 2%.png$"), "second screen path lost its index")
 assert(#copied == 2, "screen capture did not copy every image")
-assert(alerts[#alerts] == "2 screenshots saved and copied", "screen capture reported the wrong result")
+assert(
+  alerts[#alerts] == "2 screenshots saved and copied",
+  "screen capture reported the wrong result"
+)
 
 screenshots.capture(" window ")
-assert(table.concat(tasks[2].args, " "):match("^%-i %-W %-o "), "window capture used the wrong flags")
+assert(
+  table.concat(tasks[2].args, " "):match("^%-i %-W %-o "),
+  "window capture used the wrong flags"
+)
 screenshots.capture("area")
 assert(table.concat(tasks[3].args, " "):match("^%-i %-s "), "area capture used the wrong flags")
 

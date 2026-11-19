@@ -17,35 +17,23 @@ let
   };
 in
 assert !(home.config.programs.helix.settings.editor ? clipboard-provider);
-pkgs.runCommand "editor-composition-test"
-  {
-    nativeBuildInputs = with pkgs; [
-      helix
-      nixd
-      nixfmt
-      pyright
-      ruff
-      gopls
-      delve
-      docker-language-server
-      markdown-oxide
-      tofu-ls
-    ];
-  }
-  ''
-    export HOME="$TMPDIR/home"
-    export XDG_CONFIG_HOME="$HOME/.config"
-    mkdir -p "$XDG_CONFIG_HOME/helix"
-    cp ${
-      home.config.xdg.configFile."helix/languages.toml".source
-    } "$XDG_CONFIG_HOME/helix/languages.toml"
-    cp ${home.config.xdg.configFile."helix/config.toml".source} "$XDG_CONFIG_HOME/helix/config.toml"
-    for language in nix python go dockerfile markdown hcl tfvars; do
-      hx --health "$language" > "$TMPDIR/$language-health"
-      cat "$TMPDIR/$language-health"
-      if grep -q 'not found in' "$TMPDIR/$language-health"; then
-        exit 1
-      fi
-    done
-    touch "$out"
-  ''
+import ./lib.nix { inherit pkgs; } {
+  name = "editor-composition-test";
+  script = "editor-composition.nu";
+  arguments = [
+    home.config.xdg.configFile."helix/languages.toml".source
+    home.config.xdg.configFile."helix/config.toml".source
+  ];
+  inputs = with pkgs; [
+    helix
+    nixd
+    nixfmt
+    pyright
+    ruff
+    gopls
+    delve
+    docker-language-server
+    markdown-oxide
+    tofu-ls
+  ];
+}

@@ -2,7 +2,9 @@ use std/assert
 
 def notify [script: path, arguments: list<string>] {
     let result = ^bash -euo pipefail $script ...$arguments | complete
+
     assert equal $result.exit_code 0 $result.stderr
+
     {
         output: ($result.stdout | str trim)
         arguments: (open $env.NOTIFIER_ARGUMENTS)
@@ -11,9 +13,12 @@ def notify [script: path, arguments: list<string>] {
 
 def main [source: path, fixture: path] {
     let root = mktemp --directory
+
     try {
         let backend = $root | path join backend
+
         let focus = $root | path join 'focus handler'
+
         for entry in [
             {path: $backend, name: backend}
             {path: $focus, name: focus}
@@ -21,13 +26,18 @@ def main [source: path, fixture: path] {
             (
                 $'#!($nu.current-exe) --no-config-file' + "\n" + $'$env.NOTIFIER_TEST_COMMAND = "($entry.name)"' + "\n" + (open --raw $fixture)
             ) | save $entry.path
+
             ^chmod 700 $entry.path
         }
+
         let script = $root | path join notify.sh
+
         (
             $'NOTIFICATION_EXE=($backend | to json --raw)' + "\n" + (open --raw $source)
         ) | save $script
+
         let context = $root | path join focus.json
+
         with-env {NOTIFIER_ARGUMENTS: ($root | path join arguments.json), NOTIFIER_CONTEXT: $context} {
             hide-env --ignore-errors AGENT_NOTIFY_FOCUS_EXE AGENT_NOTIFY_PANE AGENT_NOTIFY_SESSION
             let basic = notify $script [--title '[Codex]' --message 'Tests passed' --app-icon /icons/codex.png --timeout '5']
@@ -47,8 +57,11 @@ def main [source: path, fixture: path] {
         }
     } catch {|failure|
         rm --recursive --force $root
+
         error make $failure
     }
+
     rm --recursive --force $root
+
     print 'Notification image, encoding, click context, and removal checks passed'
 }

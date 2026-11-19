@@ -4,28 +4,20 @@ let
   tools =
     (import ../modules/home/programs/llm/lib/allowlist.nix { inherit (pkgs) lib; }).slackSendTools;
 in
-pkgs.runCommand "slack-guard-test"
-  {
-    nativeBuildInputs = [
-      pkgs.bash
-      pkgs.jq
-    ];
+import ./lib.nix { inherit pkgs; } {
+  name = "slack-guard-test";
+  script = "slack-guard.nu";
+  arguments = [
+    ../modules/home/programs/llm/harnesses/claude/slack-guard.sh
+    (pkgs.writeText "slack-guard-tools.json" (builtins.toJSON tools))
+  ];
+  inputs = [
+    pkgs.bash
+    pkgs.jq
+  ];
+  environment = {
     send_now_tools = builtins.toJSON (builtins.filter (t: !(lib.hasSuffix "schedule_message" t)) tools);
     schedule_tools = builtins.toJSON (builtins.filter (lib.hasSuffix "schedule_message") tools);
     allowed_channels = builtins.toJSON [ "U_ALLOWED" ];
-  }
-  ''
-    for tool in ${lib.escapeShellArgs tools}; do
-      for channel in U_ALLOWED U_OTHER; do
-        result=$(jq -n --arg tool "$tool" --arg channel "$channel" \
-          '{tool_name:$tool,tool_input:{channel_id:$channel}}' \
-          | bash ${../modules/home/programs/llm/harnesses/claude/slack-guard.sh})
-        if [[ "$tool" == *schedule_message || "$channel" == U_OTHER ]]; then
-          jq -e '.hookSpecificOutput.permissionDecision == "deny"' <<< "$result"
-        else
-          test -z "$result"
-        fi
-      done
-    done
-    touch "$out"
-  ''
+  };
+}

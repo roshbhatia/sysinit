@@ -15,39 +15,30 @@ let
   };
   mainConfig = pkgs.writeText "opencode-main.json" (builtins.toJSON render.main);
   tuiConfig = pkgs.writeText "opencode-cli.json" (builtins.toJSON render.tui);
+  fixture = pkgs.writeText "opencode-check.json" (
+    builtins.toJSON {
+      inherit bridge;
+      inherit (render) schemas;
+      main = mainConfig;
+      tui = tuiConfig;
+      specification = spec;
+      alias = aliasSpec;
+      notify = ../modules/home/programs/llm/harnesses/opencode/plugins/sysinit-notify.ts;
+      process = ../modules/home/programs/llm/harnesses/opencode/plugins/sysinit-process.ts;
+      edits = ../modules/home/programs/llm/harnesses/opencode/plugins/sysinit-edits.ts;
+      probe = ./opencode-plugins.test.js;
+    }
+  );
 in
-pkgs.runCommand "opencode-v2-plugins"
-  {
-    nativeBuildInputs = [
-      pkgs.bun
-      pkgs.carapace
-      pkgs.zsh
-      pkgs.nushell
-      pkgs.opencode
-      pkgs.jsonschema-cli
-    ];
-  }
-  ''
-    nu --no-config-file ${./opencode-schema.nu} ${render.schemas} ${mainConfig} ${tuiConfig}
-    export HOME="$TMPDIR/home"
-    export OPENCODE_PLUGIN_DIR="$TMPDIR/opencode"
-    mkdir -p "$HOME" "$OPENCODE_PLUGIN_DIR/plugins"
-    cp ${../modules/home/programs/llm/harnesses/opencode/plugins/sysinit-notify.ts} "$OPENCODE_PLUGIN_DIR/sysinit-notify.ts"
-    cp ${../modules/home/programs/llm/harnesses/opencode/plugins/sysinit-process.ts} "$OPENCODE_PLUGIN_DIR/sysinit-process.ts"
-    ln -s ../sysinit-process.ts "$OPENCODE_PLUGIN_DIR/plugins/sysinit-process.ts"
-    cp ${../modules/home/programs/llm/harnesses/opencode/plugins/sysinit-edits.ts} "$OPENCODE_PLUGIN_DIR/plugins/sysinit-edits.ts"
-    cp ${./opencode-plugins.test.js} ./opencode-plugins.test.js
-    bun test ./opencode-plugins.test.js
-    export XDG_CONFIG_HOME="$HOME/.config"
-    mkdir -p "$XDG_CONFIG_HOME/carapace/bridge/zsh" "$XDG_CONFIG_HOME/carapace/specs"
-    cp ${bridge} "$XDG_CONFIG_HOME/carapace/bridge/zsh/.zshrc"
-    cp ${spec} "$XDG_CONFIG_HOME/carapace/specs/opencode.yaml"
-    cp ${aliasSpec} "$XDG_CONFIG_HOME/carapace/specs/opencode2.yaml"
-    nu --no-config-file -c '
-      for cmd in [opencode opencode2] {
-        let values = (carapace $cmd nushell $cmd run --sta | from json | get value | str trim)
-        if "--standalone" not-in $values { error make {msg: $"Missing v2 completion for ($cmd)"} }
-      }
-    '
-    touch "$out"
-  ''
+import ./lib.nix { inherit pkgs; } {
+  name = "opencode-v2-plugins";
+  script = "opencode.nu";
+  arguments = [ fixture ];
+  inputs = [
+    pkgs.bun
+    pkgs.carapace
+    pkgs.zsh
+    pkgs.opencode
+    pkgs.jsonschema-cli
+  ];
+}

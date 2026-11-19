@@ -1,0 +1,6 @@
+{
+    indent: 4,
+    line_length: 100,
+    margin: 1,
+    consistent_branches: "always",
+}

@@ -24,38 +24,57 @@ let
     nushellLib.sourceCompletion pkgs.seshy "sy"
   );
 in
-pkgs.runCommand "nushell-managed-tools" { nativeBuildInputs = [ pkgs.nushell ]; } ''
-  test -s ${pkgs.seshy}/share/nushell/vendor/autoload/sy.nu
-  test -s ${managedProfile}/share/nushell/vendor/autoload/sy.nu
+(import ./native.nix { inherit pkgs; }) {
+  name = "nushell-managed-tools";
+  commands = [
+    [
+      "nu"
+      "--no-config-file"
+      "${./managed-tool-files.nu}"
+      "${pkgs.seshy}/share/nushell/vendor/autoload/sy.nu"
+      "${managedProfile}/share/nushell/vendor/autoload/sy.nu"
+    ]
+    [
+      "nu"
+      "--no-config-file"
+      "-c"
+      ''
 
-  ${pkgs.nushell}/bin/nu --no-config-file -c '
-    use std/util "path add"
-    $env.PATH = ["${userShims}/bin"]
-    ${nushellLib.pathAdd [
-      "${managedProfile}/bin"
-      "${pkgs.coreutils}/bin"
-    ]}
+        use std/util "path add"
+        $env.PATH = ["${userShims}/bin"]
+        ${nushellLib.pathAdd [
+          "${managedProfile}/bin"
+          "${pkgs.coreutils}/bin"
+        ]}
 
-    let expected = ["${managedProfile}/bin" "${pkgs.coreutils}/bin" "${userShims}/bin"]
-    if ($env.PATH | take 3) != $expected {
-      error make {msg: "managed path order mismatch"}
-    }
+        let expected = ["${managedProfile}/bin" "${pkgs.coreutils}/bin" "${userShims}/bin"]
+        if ($env.PATH | take 3) != $expected {
+          error make {msg: "managed path order mismatch"}
+        }
 
-    let sy = (which sy | first | get path | into string)
-    if $sy != "${managedProfile}/bin/sy" {
-      error make {msg: $"sy resolved to ($sy)"}
-    }
-    if (^sy --version | str trim) != "sy version ${lib.getVersion pkgs.seshy}" {
-      error make {msg: "managed sy version mismatch"}
-    }
-  '
+        let sy = (which sy | first | get path | into string)
+        if $sy != "${managedProfile}/bin/sy" {
+          error make {msg: $"sy resolved to ($sy)"}
+        }
+        if (^sy --version | str trim) != "sy version ${lib.getVersion pkgs.seshy}" {
+          error make {msg: "managed sy version mismatch"}
+        }
 
-  ${pkgs.nushell}/bin/nu --config ${completionConfig} -c '
-    let help_text = (help sy | to text)
-    if not ($help_text | str contains "sy delete") {
-      error make {msg: "help sy did not load Seshy completions"}
-    }
-  '
+      ''
+    ]
+    [
+      "nu"
+      "--config"
+      "${completionConfig}"
+      "-c"
+      ''
 
-  touch $out
-''
+        let help_text = (help sy | to text)
+        if not ($help_text | str contains "sy delete") {
+          error make {msg: "help sy did not load Seshy completions"}
+        }
+
+      ''
+    ]
+  ];
+}

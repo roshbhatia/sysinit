@@ -1,11 +1,17 @@
 def main --wrapped [tool: string, ...arguments: string] {
     let input = $in
+
     let root = $env.REVIEW_FIXTURE
+
     match $tool {
         gh => {
             ($arguments | to json --raw) + "\n" | save --append ($root | path join gh-calls)
-            if $arguments.0 == auth { print fixture-token } else if $arguments.0 == api {
+
+            if $arguments.0 == auth {
+                print fixture-token
+            } else if $arguments.0 == api {
                 let revisions = open ($root | path join revisions.json)
+
                 if ($arguments.1 | str contains /compare/) {
                     {
                         merge_base_commit: {sha: $revisions.base}
@@ -20,7 +26,9 @@ def main --wrapped [tool: string, ...arguments: string] {
         }
         ask => {
             "call\n" | save --append ($root | path join ask-calls)
+
             print $env.ASK_RESPONSE
+
             exit ($env.ASK_EXIT? | default '0' | into int)
         }
         provider => {
@@ -28,6 +36,7 @@ def main --wrapped [tool: string, ...arguments: string] {
                 envelope: ($input | from json --strict)
                 arguments: $arguments
             } | to json --raw | print
+
             exit ($env.PROVIDER_EXIT? | default '0' | into int)
         }
         changes => {
@@ -42,6 +51,7 @@ def main --wrapped [tool: string, ...arguments: string] {
                 authenticated: ($env.GH_TOKEN? == fixture-token)
                 explicit: $env.GITHUB_TOKEN?
             } | to json | save --force hunk.json
+
             exit ($env.HUNK_EXIT? | default '0' | into int)
         }
         tuicr => {
@@ -50,7 +60,9 @@ def main --wrapped [tool: string, ...arguments: string] {
         nvim => {
             if '--headless' in $arguments {
                 let expression = $arguments | last
+
                 if $env.RPC_FAIL? == '1' { exit 1 }
+
                 if $expression == 'getcwd()' { print $env.DIFF_ROOT } else { print 2 }
             } else {
                 $arguments | to json | save --force editor.json
@@ -58,6 +70,7 @@ def main --wrapped [tool: string, ...arguments: string] {
         }
         wezterm => {
             let action = $arguments.2
+
             match $action {
                 list-clients => { print '[{"client_id":1}]' }
                 list => {
@@ -65,6 +78,7 @@ def main --wrapped [tool: string, ...arguments: string] {
                 }
                 split-pane => {
                     $arguments | to json | save --force ($root | path join split.json)
+
                     let index = (
                         $arguments
                         | enumerate
@@ -72,8 +86,11 @@ def main --wrapped [tool: string, ...arguments: string] {
                         | first
                         | get index
                     ) + 1
+
                     touch ($arguments | get $index)
+
                     open ($root | path join panes.json) | append {pane_id: 8, tab_id: 2} | to json | save --force ($root | path join panes.json)
+
                     print 8
                 }
                 activate-pane => {
@@ -83,6 +100,7 @@ def main --wrapped [tool: string, ...arguments: string] {
         }
         lock => {
             touch ($root | path join lock-ready)
+
             while not ($root | path join lock-release | path exists) { sleep 10ms }
         }
     }

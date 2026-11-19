@@ -2,11 +2,16 @@ use std/assert
 
 def main [nh: path, fixture: path] {
     let root = mktemp --directory | path expand --strict
+
     try {
         let bin = $root | path join bin
+
         let target = $root | path join built-system
+
         mkdir $bin ($target | path join sw bin)
+
         '{}' | save ($root | path join flake.nix)
+
         for entry in [
             {
                 name: nix
@@ -24,10 +29,14 @@ def main [nh: path, fixture: path] {
             (
                 $'#!($nu.current-exe) --no-config-file' + "\n" + $'$env.NH_TEST_COMMAND = "($entry.name)"' + "\n" + (open --raw $fixture)
             ) | save $entry.path
+
             ^chmod 700 $entry.path
         }
+
         let log = $root | path join commands.jsonl
+
         cd $root
+
         with-env {PATH: ($env.PATH | prepend $bin), NH_TEST_LOG: $log, NH_TEST_TARGET: $target} {
             for case in [
                 {name: relative, output: result-system, fail: false}
@@ -56,9 +65,13 @@ def main [nh: path, fixture: path] {
         }
     } catch {|failure|
         cd ($root | path dirname)
+
         rm --recursive --force $root
+
         error make $failure
     }
+
     cd ($root | path dirname)
+
     rm --recursive --force $root
 }

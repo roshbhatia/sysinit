@@ -7,11 +7,13 @@ def run-case [
     command: string
 ] {
     let flags = if $case.interactive { '-fic' } else { '-fc' }
+
     ^timeout 10s $zsh $flags ('source "$1"; ' + $command) sysinit-check $fragment | complete
 }
 
 def main [zsh: path, fragment: path] {
     let root = mktemp -d
+
     let cases = [
         {
             name: plain
@@ -50,6 +52,7 @@ def main [zsh: path, fragment: path] {
             interactive: true
         }
     ]
+
     try {
         with-env {} {
             hide-env --ignore-errors CLAUDECODE CODEX_THREAD_ID SYSINIT_AGENT_SHELL
@@ -81,8 +84,11 @@ def main [zsh: path, fragment: path] {
         }
     } catch {|failure|
         rm -rf $root
+
         error make $failure
     }
+
     rm -rf $root
+
     print 'Zsh agent-shell behavior passed for all six contexts'
 }

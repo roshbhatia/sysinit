@@ -244,14 +244,21 @@ assert(spec.verb == "Review" and spec.showStatus == false)
 assert(spec.historyKey == "github.pull")
 assert(#spec.rows == 4)
 assert(spec.rows[1].text == "gh dash" and spec.rows[1].detail == "Dashboard")
-assert(spec.rows[1].label == "Review" and spec.rows[2].text == "Neovim" and spec.rows[3].text == "Firefox")
+assert(
+  spec.rows[1].label == "Review"
+    and spec.rows[2].text == "Neovim"
+    and spec.rows[3].text == "Firefox"
+)
 
 assert(spec.rows[4].text == "Copy to clipboard" and spec.rows[4].label == "Copy")
 assert(spec.rows[4].detail == pr)
 local beforeCopy = #opened
 pick(4)
 assert(clipboard == pr, "copy did not use the canonical PR URL")
-assert(#tasks == 0 and #opened == beforeCopy and focused == nil, "copy opened or focused an application")
+assert(
+  #tasks == 0 and #opened == beforeCopy and focused == nil,
+  "copy opened or focused an application"
+)
 
 pick(1)
 assert(tasks[1].binary == config.wezspawn, "PR commands bypass the shared launcher")

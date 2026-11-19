@@ -12,36 +12,58 @@ def step [
     expected: string
 ] {
     let decision = decide $state $now $reason $monitors
+
     assert equal $decision.action $expected
+
     $decision.state
 }
 
 def main [] {
     mut state = step {} 1000 bad [display] ''
+
     $state = step $state 1030 '' [display] ''
+
     $state = step $state 1060 bad [display] ''
+
     $state = step $state 1090 bad [display] bad
+
     $state = $state | insert last_recovery 1090
+
     $state = step $state 1120 bad [display] ''
+
     $state = step $state 1150 '' [display] ''
+
     assert equal $state.failures 0
+
     $state = step {
         last_check: 1000
         monitors: [display]
         ready_at: 0
     } 2000 stale null ''
+
     assert equal $state.monitors [display]
+
     $state = step $state 2030 '' null ''
+
     $state = step $state 2060 '' [display] ''
+
     step $state 2090 '' ['new display'] 'monitor configuration changed' | ignore
+
     let root = mktemp -d | path expand --strict
+
     try {
         let binary = $root | path join bar
+
         let shell = $nu.current-exe
+
         ($'#!($shell) --no-config-file' + "\n" + (open --raw $fixture)) | save $binary
+
         ^chmod 700 $binary
+
         let calls = $root | path join calls.jsonl
+
         let reloaded = $root | path join reloaded
+
         with-env {HEALTH_TEST_CALLS: $calls, HEALTH_TEST_RELOADED: $reloaded, HEALTH_TEST_HEARTBEAT: '1000', HEALTH_TEST_MODE: healthy, XDG_CACHE_HOME: $root} {
             assert equal (probe $binary 1050) {reachable: true, reason: ''}
             assert ((probe $binary 1100).reason | str contains stale)
@@ -88,8 +110,11 @@ def main [] {
         }
     } catch {|failure|
         rm -rf $root
+
         error make $failure
     }
+
     rm -rf $root
+
     print 'SketchyBar health checks passed'
 }

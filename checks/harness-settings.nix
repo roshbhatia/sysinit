@@ -34,29 +34,18 @@ assert home.sysinit.llm.managedFiles.fx.content.auto_upgrade == false;
 assert home.sysinit.llm.managedFiles.amp.content."amp.dangerouslyAllowAll";
 assert home.sysinit.llm.managedFiles.devin.content.permission_mode == "dangerous";
 assert home.sysinit.llm.managedFiles.fx.content.permission_mode == "full-access";
-pkgs.runCommand "harness-settings"
-  {
-    nativeBuildInputs = [
-      pkgs.nushell
-      pkgs.github-copilot-cli
-      pkgs.yq-go
-    ];
-  }
-  ''
-    export HOME="$TMPDIR/home"
-    export XDG_CONFIG_HOME="$HOME/.config"
-    export COPILOT_HOME="$HOME/.copilot"
-    mkdir -p "$COPILOT_HOME"
-    cp ${copilot} "$COPILOT_HOME/settings.json"
-    copilot config --list --json > parsed.json
-
-    yq -o=json '
-      .providers.directory = "${pkgs.gate-providers}/share/gate/providers"
-      | .log = strenv(TMPDIR) + "/gate.jsonl"
-      | .chains = {"PreToolUse": (.chains.PreToolUse | map(select(.provider == "bash-guard")))}
-    ' ${home.xdg.configFile."gate/config.yaml".source} > gate.json
-    export GATE_CONFIG="$PWD/gate.json"
-
-    nu --no-config-file ${./harness-settings.nu} ${pkgs.coreutils}/bin/timeout
-    touch "$out"
-  ''
+(import ./lib.nix { inherit pkgs; }) {
+  name = "harness-settings";
+  script = "harness-settings-setup.nu";
+  arguments = [
+    copilot
+    home.xdg.configFile."gate/config.yaml".source
+    "${pkgs.gate-providers}/share/gate/providers"
+    ./harness-settings.nu
+    "${pkgs.coreutils}/bin/timeout"
+  ];
+  inputs = [
+    pkgs.github-copilot-cli
+    pkgs.yq-go
+  ];
+}

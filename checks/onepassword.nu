@@ -6,16 +6,22 @@ def invoke [module: path, command: string] {
 
 def main [module: path, fixture: path] {
     let root = mktemp --directory
+
     try {
         for name in [op pbcopy] {
             let path = $root | path join $name
+
             (
                 $'#!($nu.current-exe) --no-config-file' + "\n" + $'$env.OP_TEST_COMMAND = "($name)"' + "\n" + (open --raw $fixture)
             ) | save $path
+
             ^chmod 700 $path
         }
+
         let log = $root | path join calls.jsonl
+
         let clipboard = $root | path join clipboard
+
         with-env {PATH: ($env.PATH | prepend $root), OP_TEST_LOG: $log, OP_TEST_CLIPBOARD: $clipboard} {
             let found = invoke $module 'op-find EXAMPLE --account test --vault Test | to json'
             assert equal $found.exit_code 0 $found.stderr
@@ -53,8 +59,11 @@ def main [module: path, fixture: path] {
         }
     } catch {|failure|
         rm --recursive --force $root
+
         error make $failure
     }
+
     rm --recursive --force $root
+
     print '1Password metadata, references, clipboard, OTP, errors, and child status checks passed'
 }

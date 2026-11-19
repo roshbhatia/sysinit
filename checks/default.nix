@@ -8,6 +8,8 @@
 }:
 let
   inherit (pkgs) lib;
+  nuCheck = import ./lib.nix { inherit pkgs; };
+  nativeCheck = import ./native.nix { inherit pkgs; };
 
   evalOnly = name: pkgs.runCommand name { } "touch $out";
 
@@ -56,89 +58,91 @@ let
 in
 {
   pi = pkgs.pi-coding-agent;
-  sunshine-apps =
-    pkgs.runCommand "sunshine-apps-check"
-      {
-        nativeBuildInputs = [
-          pkgs.nushell
-          pkgs.coreutils
-          pkgs.curl
-          pkgs.imagemagick
-        ];
-      }
-      ''
-        nu --no-config-file ${./sunshine-apps.nu} ${../modules/nixos/home/sunshine-apps-gen.nu}
-        touch "$out"
-      '';
-  update-flakes =
-    pkgs.runCommand "update-flakes-check"
-      {
-        nativeBuildInputs = [
-          pkgs.nushell
-          pkgs.coreutils
-          pkgs.git
-        ];
-      }
-      ''
-        nu --no-config-file ${../hack/test-update-flakes.nu} \
-          ${../hack/update-flakes.nu} ${../hack/fixtures/update-flakes-command.nu}
-        touch "$out"
-      '';
-  runner-operator =
-    pkgs.runCommand "runner-operator-check"
-      {
-        nativeBuildInputs = [
-          pkgs.nushell
-          pkgs.coreutils
-        ];
-      }
-      ''
-        nu --no-config-file ${./runner-operator.nu} \
-          ${../modules/nixos/runner-operator.nu} ${./fixtures/runner-kubectl.nu}
-        touch "$out"
-      '';
+  sunshine-apps = nuCheck {
+    name = "sunshine-apps-check";
+    script = "sunshine-apps.nu";
+    arguments = [ ../modules/nixos/home/sunshine-apps-gen.nu ];
+    inputs = [
+      pkgs.curl
+      pkgs.imagemagick
+    ];
+  };
+
+  update-flakes = nativeCheck {
+    name = "update-flakes-check";
+    inputs = [ pkgs.git ];
+    commands = [
+      [
+        "nu"
+        "--no-config-file"
+        ../hack/test-update-flakes.nu
+        ../hack/update-flakes.nu
+        ../hack/fixtures/update-flakes-command.nu
+      ]
+    ];
+  };
+
+  runner-operator = nuCheck {
+    name = "runner-operator-check";
+    script = "runner-operator.nu";
+    arguments = [
+      ../modules/nixos/runner-operator.nu
+      ./fixtures/runner-kubectl.nu
+    ];
+  };
   nvfetcher-sources =
     let
-      declared = builtins.attrNames (builtins.fromTOML (builtins.readFile ../nvfetcher.toml));
+      declared = builtins.attrNames (fromTOML (builtins.readFile ../nvfetcher.toml));
       generated = builtins.attrNames pkgs.nvfetcherSources;
       manifest = builtins.attrNames (builtins.fromJSON (builtins.readFile ../_sources/generated.json));
     in
     assert lib.assertMsg (
       declared == generated && declared == manifest
     ) "nvfetcher output must contain every configured source";
-    pkgs.runCommand "nvfetcher-sources" { nativeBuildInputs = [ pkgs.nushell ]; } ''
-      nu --no-config-file ${../hack}/test-github-release-with-assets.nu
-      touch "$out"
-    '';
+    nativeCheck {
+      name = "nvfetcher-sources";
+      commands = [
+        [
+          "nu"
+          "--no-config-file"
+          "${../hack}/test-github-release-with-assets.nu"
+        ]
+      ];
+    };
   inherit (pkgs) leaf-reader;
   traces-opencode-runtime =
     assert pkgs.traces-providers.providers.opencode.providerRuntimeInputs == [ pkgs.opencode ];
-    pkgs.runCommand "traces-opencode-runtime" { } ''
-      grep -F '${pkgs.opencode}/bin' ${pkgs.traces-providers}/bin/traces-provider-opencode
-      touch "$out"
-    '';
+    nuCheck {
+      name = "traces-opencode-runtime";
+      script = "command-contracts.nu";
+      arguments = [
+        "contains"
+        "${pkgs.traces-providers}/bin/traces-provider-opencode"
+        "${pkgs.opencode}/bin"
+      ];
+    };
   conductor = pkgs.conductor-cli;
   opentelemetry-collector = pkgs.opentelemetry-collector-contrib.tests.version;
-  codex-daemon =
-    pkgs.runCommand "codex-daemon"
-      { nativeBuildInputs = [ (pkgs.python3.withPackages (ps: [ ps.websockets ])) ]; }
-      ''
-        python3 ${./codex-daemon.py} ${lib.getExe pkgs.codex}
-        touch "$out"
-      '';
-  zsh-agent-shell =
-    pkgs.runCommand "zsh-agent-shell"
-      {
-        nativeBuildInputs = [
-          pkgs.nushell
-          pkgs.zsh
-          pkgs.coreutils
-        ];
-      }
-      ''
-        nu --no-config-file ${./zsh-agent-shell.nu} ${lib.getExe pkgs.zsh} ${../modules/home/programs/zsh/core/agent-glob.zsh}
-        touch "$out"
-      '';
+  codex-daemon = nativeCheck {
+    name = "codex-daemon";
+    inputs = [ (pkgs.python3.withPackages (ps: [ ps.websockets ])) ];
+    commands = [
+      [
+        "python3"
+        ./codex-daemon.py
+        (lib.getExe pkgs.codex)
+      ]
+    ];
+  };
+  zsh-agent-shell = nuCheck {
+    name = "zsh-agent-shell";
+    script = "zsh-agent-shell.nu";
+    arguments = [
+      (lib.getExe pkgs.zsh)
+      ../modules/home/programs/zsh/core/agent-glob.zsh
+    ];
+    inputs = [ pkgs.zsh ];
+  };
   native-output = import ./native-output.nix { inherit pkgs; };
   pi-extensions = import ./pi-extensions.nix { inherit pkgs; };
   onepassword = import ./onepassword.nix { inherit pkgs; };
@@ -179,126 +183,138 @@ in
         touch "$out"
       '';
   task-queue = import ./task-queue.nix { inherit pkgs; };
-  task-queue-browser =
-    pkgs.runCommand "task-queue-browser-test"
-      {
-        nativeBuildInputs = [
-          (pkgs.python3.withPackages (ps: [ ps.pyte ]))
-          pkgs.pueue
-        ];
-      }
-      ''
-        python3 ${./task-queue-browser.py} ${pkgs.sysinit-gotools}/bin/task-queue
-        touch "$out"
-      '';
-  task-queue-picker =
-    pkgs.runCommand "task-queue-picker-test"
-      {
-        nativeBuildInputs = [
-          pkgs.python3
-          pkgs.pueue
-          pkgs.wezterm
-          pkgs.bash
-          pkgs.coreutils
-        ];
-      }
-      ''
-        python3 ${./task-queue-picker.py} ${pkgs.task-queue-picker}/bin/task-queue-picker ${pkgs.sysinit-gotools}/bin/task-queue
-        touch "$out"
-      '';
-  nushell-utilities =
-    pkgs.runCommand "nushell-utilities"
-      {
-        nativeBuildInputs = [
-          pkgs.nushell
-          pkgs.coreutils
-        ];
-      }
-      ''
-        export HOME="$TMPDIR"
-        export TASK_BINARY=${lib.getExe pkgs.taskwarrior-cli}
-        nu --no-config-file -c "use ${../modules/home/programs/utils/dev/ere-setup.nu} configure; use ${../modules/home/programs/utils/dev/task-context.nu} [backup restore]; use ${../modules/home/programs/utils/system/cache-maintain.nu} [maintain allocated-bytes]; source ${./nushell-utilities.nu}"
-        nu --no-config-file ${./ty.nu} ${../modules/home/programs/utils/dev/ty.nu}
-        touch "$out"
-      '';
+  task-queue-browser = nativeCheck {
+    name = "task-queue-browser-test";
+    inputs = [
+      (pkgs.python3.withPackages (ps: [ ps.pyte ]))
+      pkgs.pueue
+    ];
+    commands = [
+      [
+        "python3"
+        ./task-queue-browser.py
+        "${pkgs.sysinit-gotools}/bin/task-queue"
+      ]
+    ];
+  };
+
+  task-queue-picker = nativeCheck {
+    name = "task-queue-picker-test";
+    inputs = [
+      pkgs.python3
+      pkgs.pueue
+      pkgs.wezterm
+      pkgs.bash
+    ];
+    commands = [
+      [
+        "python3"
+        ./task-queue-picker.py
+        "${pkgs.task-queue-picker}/bin/task-queue-picker"
+        "${pkgs.sysinit-gotools}/bin/task-queue"
+      ]
+    ];
+  };
+  nushell-utilities = nativeCheck {
+    name = "nushell-utilities";
+    environment.TASK_BINARY = lib.getExe pkgs.taskwarrior-cli;
+    commands = [
+      [
+        "nu"
+        "--no-config-file"
+        "-c"
+        "use ${../modules/home/programs/utils/dev/ere-setup.nu} configure; use ${../modules/home/programs/utils/dev/task-context.nu} [backup restore]; use ${../modules/home/programs/utils/system/cache-maintain.nu} [maintain allocated-bytes]; source ${./nushell-utilities.nu}"
+      ]
+      [
+        "nu"
+        "--no-config-file"
+        "${./ty.nu}"
+        "${../modules/home/programs/utils/dev/ty.nu}"
+      ]
+    ];
+  };
   opencode = import ./opencode.nix { inherit pkgs; };
   utility-contracts = import ./utility-contracts.nix { inherit pkgs; };
   notification-assets = import ./notification-assets.nix { inherit pkgs; };
-  ty =
-    pkgs.runCommand "ty-cli"
-      {
-        nativeBuildInputs = [
-          pkgs.sysinit-utils
-          pkgs.gnugrep
-        ];
-      }
-      ''
-        ${pkgs.sysinit-utils}/bin/ty --help | grep -F 'ty catalog'
-        touch "$out"
-      '';
-  slk-config =
-    pkgs.runCommand "slk-config-test"
-      {
-        nativeBuildInputs = [ (pkgs.python3.withPackages (p: [ p.tomlkit ])) ];
-      }
-      ''
-        python ${./slk.py} ${../modules/home/programs/slk-setup.py}
-        touch $out
-      '';
+  ty = nuCheck {
+    name = "ty-cli";
+    script = "command-contracts.nu";
+    arguments = [
+      "help"
+      "${pkgs.sysinit-utils}/bin/ty"
+      "ty catalog"
+    ];
+  };
+  slk-config = nuCheck {
+    name = "slk-config-test";
+    script = "slk.nu";
+    arguments = [ ../modules/home/programs/slk-setup.py ];
+    inputs = [ (pkgs.python3.withPackages (p: [ p.tomlkit ])) ];
+  };
 
   firefox = import ./firefox.nix { inherit pkgs darwinConfigurations nixosConfigurations; };
   editor-composition = import ./editor-composition.nix { inherit pkgs homeManagerLib; };
   slack-guard = import ./slack-guard.nix { inherit pkgs; };
-  pr-workflow =
-    pkgs.runCommand "pr-workflow-test"
-      {
-        nativeBuildInputs = [
-          pkgs.git
-          pkgs.nushell
-          pkgs.flock
-        ];
-      }
-      ''
-        export HOME="$TMPDIR/home"
-        mkdir -p "$HOME"
-        nu --no-config-file ${./pr-workflow.nu} ${../modules/home/programs/gh-pr-diff.nu} ${../modules/home/programs/llm/runtime/ask-terminal.nu} ${nuFunctions} ${./fixtures/review-tools.nu}
-        touch "$out"
-      '';
-  gh-dash-pr = pkgs.runCommand "gh-dash-pr-test" { nativeBuildInputs = [ pkgs.sysinit-gh-dash ]; } ''
-    export HOME="$TMPDIR/home"
-    mkdir -p "$HOME"
-    if gh-dash https://github.com/owner/repo/issues/1 > stdout 2> stderr; then
-      echo "gh-dash accepted an issue URL as a PR" >&2
-      exit 1
-    fi
-    grep -F 'points to an issue, only pull requests are supported' stderr
-    touch "$out"
-  '';
-  url-routing = pkgs.runCommand "url-routing-test" { nativeBuildInputs = [ pkgs.lua5_4 ]; } ''
-    lua ${./url-routing.lua} ${../modules/darwin/home/hammerspoon/lua/sysinit/pkg/url_routing.lua}
-    touch "$out"
-  '';
-  macos-notifier =
-    pkgs.runCommand "macos-notifier-test"
-      {
-        nativeBuildInputs = [
-          pkgs.nushell
-          pkgs.coreutils
-          pkgs.bash
-        ];
-      }
-      ''
-        nu --no-config-file ${./macos-notifier.nu} \
-          ${../modules/home/programs/llm/runtime/macos-notifier.sh} ${./fixtures/notifier-command.nu}
-        touch "$out"
-      '';
-  hammerspoon-startup =
-    pkgs.runCommand "hammerspoon-startup-test" { nativeBuildInputs = [ pkgs.lua5_4 ]; }
-      ''
-        lua ${./hammerspoon-switcher.lua} ${../modules/darwin/home/hammerspoon/lua/sysinit/pkg/core/init.lua}
-        lua ${./hammerspoon-startup.lua} ${../modules/darwin/home/hammerspoon/lua/sysinit/pkg/core/startup.lua}
-        touch "$out"
-      '';
+  pr-workflow = nativeCheck {
+    name = "pr-workflow-test";
+    inputs = [
+      pkgs.git
+      pkgs.flock
+    ];
+    commands = [
+      [
+        "nu"
+        "--no-config-file"
+        "${./pr-workflow.nu}"
+        "${../modules/home/programs/gh-pr-diff.nu}"
+        "${../modules/home/programs/llm/runtime/ask-terminal.nu}"
+        "${nuFunctions}"
+        "${./fixtures/review-tools.nu}"
+      ]
+    ];
+  };
+  gh-dash-pr = nuCheck {
+    name = "gh-dash-pr-test";
+    script = "command-contracts.nu";
+    arguments = [ "gh-dash" ];
+    inputs = [ pkgs.sysinit-gh-dash ];
+  };
+  url-routing = nativeCheck {
+    name = "url-routing-test";
+    inputs = [ pkgs.lua5_4 ];
+    commands = [
+      [
+        "lua"
+        ./url-routing.lua
+        ../modules/darwin/home/hammerspoon/lua/sysinit/pkg/url_routing.lua
+      ]
+    ];
+  };
+  macos-notifier = nuCheck {
+    name = "macos-notifier-test";
+    script = "macos-notifier.nu";
+    arguments = [
+      ../modules/home/programs/llm/runtime/macos-notifier.sh
+      ./fixtures/notifier-command.nu
+    ];
+    inputs = [ pkgs.bash ];
+  };
+  hammerspoon-startup = nativeCheck {
+    name = "hammerspoon-startup-test";
+    inputs = [ pkgs.lua5_4 ];
+    commands = [
+      [
+        "lua"
+        ./hammerspoon-switcher.lua
+        ../modules/darwin/home/hammerspoon/lua/sysinit/pkg/core/init.lua
+      ]
+      [
+        "lua"
+        ./hammerspoon-startup.lua
+        ../modules/darwin/home/hammerspoon/lua/sysinit/pkg/core/startup.lua
+      ]
+    ];
+  };
   jankyborders =
     if pkgs.stdenv.hostPlatform.isDarwin then
       pkgs.jankyborders
@@ -499,49 +515,50 @@ in
         use ${nuFunctions} *
       '';
     in
-    pkgs.runCommand "nushell-wezterm"
-      {
-        nativeBuildInputs = [
-          pkgs.nushell
-          pkgs.python3
-        ];
-      }
-      ''
-        python3 ${./nushell-wezterm.py} ${shellConfig}
-        touch "$out"
-      '';
-  nushell-plugin-registration = pkgs.runCommand "nushell-plugin-registration" { } ''
-    export HOME="$TMPDIR/home"
-    export XDG_CONFIG_HOME="$HOME/.config"
-    export XDG_DATA_HOME="$HOME/.local/share"
-    export XDG_RUNTIME_DIR="$TMPDIR/runtime"
-    mkdir -p "$HOME" "$XDG_RUNTIME_DIR"
-    touch "$TMPDIR/plugin.msgpackz"
-    ${lib.getExe pkgs.nushell} --plugin-config "$TMPDIR/plugin.msgpackz" \
-      --commands 'plugin add ${lib.getExe pkgs.nu-plugin-nuvim}'
-    ${lib.getExe pkgs.nushell} --plugin-config "$TMPDIR/plugin.msgpackz" \
-      --commands 'plugin use nuvim; nuvim servers | ignore'
-    touch "$out"
-  '';
+    nativeCheck {
+      name = "nushell-wezterm";
+      inputs = [ pkgs.python3 ];
+      commands = [
+        [
+          "python3"
+          ./nushell-wezterm.py
+          shellConfig
+        ]
+      ];
+    };
+  nushell-plugin-registration = nuCheck {
+    name = "nushell-plugin-registration";
+    script = "command-contracts.nu";
+    arguments = [
+      "plugins"
+      (lib.getExe pkgs.nu-plugin-nuvim)
+    ];
+  };
 
   system-generation-prune =
     if pkgs.stdenv.hostPlatform.isDarwin then
       import ./system-generation-prune.nix { inherit pkgs; }
     else
       evalOnly "system-generation-prune-not-applicable";
-  nushell-command-surface =
-    pkgs.runCommand "nushell-command-surface" { nativeBuildInputs = [ pkgs.jq ]; }
-      ''
-        export HOME="$TMPDIR"
-        ${pkgs.nushell}/bin/nu --no-config-file -c \
-          'use ${nuFunctions} *; ls | columns | to json -r' \
-          | jq -e 'index("icon") != null' > /dev/null
-        touch $out
-      '';
+  nushell-command-surface = nuCheck {
+    name = "nushell-command-surface";
+    script = "command-contracts.nu";
+    arguments = [
+      "command-surface"
+      nuFunctions
+    ];
+  };
 }
 // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
-  codex-mcp-capabilities = pkgs.runCommand "codex-mcp-capabilities" { } ''
-    ${lib.getExe pkgs.python3} ${./codex-mcp-capabilities.py} ${lib.getExe pkgs.codex}
-    touch "$out"
-  '';
+  codex-mcp-capabilities = nativeCheck {
+    name = "codex-mcp-capabilities";
+    inputs = [ pkgs.python3 ];
+    commands = [
+      [
+        "python3"
+        ./codex-mcp-capabilities.py
+        (lib.getExe pkgs.codex)
+      ]
+    ];
+  };
 }

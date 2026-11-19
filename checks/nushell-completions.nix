@@ -70,26 +70,15 @@ let
     }
   '';
 in
-pkgs.runCommand "nushell-completions"
-  {
-    nativeBuildInputs = [
-      pkgs.nushell
-      fzf
-      pkgs.git
-    ];
-  }
-  ''
-    export HOME="$TMPDIR/home"
-    mkdir -p "$HOME" "$TMPDIR/fixtures"
-    cd "$TMPDIR/fixtures"
-    touch completion-target.txt unrelated.txt
-    if ! ${pkgs.nushell}/bin/nu --config ${config} ${script} 2> "$TMPDIR/stderr"; then
-      cat "$TMPDIR/stderr" >&2
-      exit 1
-    fi
-    if [ -s "$TMPDIR/stderr" ]; then
-      cat "$TMPDIR/stderr" >&2
-      exit 1
-    fi
-    touch "$out"
-  ''
+(import ./lib.nix { inherit pkgs; }) {
+  name = "nushell-completions";
+  script = "nushell-completions-runner.nu";
+  arguments = [
+    config
+    script
+  ];
+  inputs = [
+    fzf
+    pkgs.git
+  ];
+}

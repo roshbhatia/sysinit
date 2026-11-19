@@ -15,17 +15,15 @@ let
     ];
   };
 in
-pkgs.runCommand "generated-format-test"
-  {
-    nativeBuildInputs = [
-      pkgs.shfmt
-      pkgs.jq
-    ];
-  }
-  ''
-    shfmt -ln bash -i 2 -ci -sr -s -d ${script}/bin/format-fixture
-    test "$(${script}/bin/format-fixture)" = "argument with spaces"
-    jq --indent 2 . ${json} > expected.json
-    cmp ${json} expected.json
-    touch "$out"
-  ''
+import ./lib.nix { inherit pkgs; } {
+  name = "generated-format-test";
+  script = "generated-format.nu";
+  arguments = [
+    "${script}/bin/format-fixture"
+    json
+  ];
+  inputs = [
+    pkgs.shfmt
+    pkgs.jq
+  ];
+}

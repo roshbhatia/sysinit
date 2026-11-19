@@ -39,41 +39,41 @@ assert builtins.all (shell: home.programs.atuin.${"enable${shell}Integration"}) 
   "Fish"
   "Nushell"
 ];
-pkgs.runCommand "atuin-local-history-and-threads"
-  {
-    nativeBuildInputs = [
-      pkgs.atuin
-      pkgs.codex
-      pkgs.claude-code
-      pkgs.nushell
-      pkgs.git
-      pkgs.sysinit-utils
-      (pkgs.python3.withPackages (ps: [
-        ps.tomlkit
-        ps.pyte
-      ]))
-    ];
-  }
-  ''
-    python3 ${./atuin.py} ${settings}
-    python3 ${./atuin-nushell.py} ${settings} ${nushellConfig}
-    python3 ${./threads-picker.py} ${pkgs.sysinit-gotools}/bin/utils
-    export HOME="$TMPDIR/nu-home"
-    export XDG_CONFIG_HOME="$HOME/.config"
-    mkdir -p "$HOME"
-    nu --config ${nushellConfig} -c '
-      let history = ($env.config.keybindings | where modifier == control and keycode == char_r)
-      for mode in [emacs vi_normal vi_insert] {
-        let binding = ($history | where {|binding| $mode in $binding.mode} | last)
-        if $binding.name != $"atuin-($mode)" {
-          error make {msg: $"Atuin does not own Ctrl-R in ($mode): ($binding)"}
-        }
-      }
-      let place = ("git --ver" | commandline complete --input | get place)
-      let completion = (do $env.config.completions.external.completer $place)
-      if not ($completion | any {|item| $item.value == "--version"}) {
-        error make {msg: "Atuin displaced the existing completion chain"}
-      }
-    '
-    touch "$out"
-  ''
+(import ./native.nix { inherit pkgs; }) {
+  name = "atuin-local-history-and-threads";
+  inputs = [
+    pkgs.atuin
+    pkgs.codex
+    pkgs.claude-code
+    pkgs.git
+    pkgs.sysinit-utils
+    (pkgs.python3.withPackages (ps: [
+      ps.tomlkit
+      ps.pyte
+    ]))
+  ];
+  commands = [
+    [
+      "python3"
+      "${./atuin.py}"
+      "${settings}"
+    ]
+    [
+      "python3"
+      "${./atuin-nushell.py}"
+      "${settings}"
+      "${nushellConfig}"
+    ]
+    [
+      "python3"
+      "${./threads-picker.py}"
+      "${pkgs.sysinit-gotools}/bin/utils"
+    ]
+    [
+      "nu"
+      "--config"
+      "${nushellConfig}"
+      "${./atuin-bindings.nu}"
+    ]
+  ];
+}

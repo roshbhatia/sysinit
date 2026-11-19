@@ -9,7 +9,17 @@ let
   };
   menu = name: pkgs.writeText "${name}.lua" module.xdg.configFile."elephant/menus/${name}.lua".text;
 in
-pkgs.runCommand "nixos-launcher-menus" { nativeBuildInputs = [ pkgs.lua5_4 ]; } ''
-  lua ${./nixos-launcher.lua} ${menu "sessions"} ${menu "panes"} ${menu "tabs"} ${menu "windows"}
-  touch "$out"
-''
+import ./native.nix { inherit pkgs; } {
+  name = "nixos-launcher-menus";
+  inputs = [ pkgs.lua5_4 ];
+  commands = [
+    [
+      "lua"
+      ./nixos-launcher.lua
+      (menu "sessions")
+      (menu "panes")
+      (menu "tabs")
+      (menu "windows")
+    ]
+  ];
+}

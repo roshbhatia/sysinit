@@ -38,8 +38,7 @@ let
         inherit pkgs;
         files.codex = home.sysinit.llm.managedFiles."codex-config.toml";
       };
-  nativeTools = "${lib.getExe pkgs.nushell} --no-config-file ${../modules/home/programs/llm/harnesses/codex-native-tools.nu} --chmod-command ${lib.getExe' pkgs.coreutils "chmod"}";
-  tomlPython = pkgs.python3.withPackages (ps: [ ps.tomlkit ]);
+
 in
 assert home.programs.codex.settings.features.hooks;
 assert builtins.all (event: home.programs.codex.settings.hooks.${event} != [ ]) [
@@ -48,84 +47,14 @@ assert builtins.all (event: home.programs.codex.settings.hooks.${event} != [ ]) 
   "UserPromptSubmit"
   "Stop"
 ];
-pkgs.runCommand "codex-config" { } ''
-  export HOME="$TMPDIR/home"
-  mkdir -p "$HOME/.codex"
-
-  printf '%s\n' '[desktop]' 'external-agent-import-sync-enabled = true' \
-    > "$HOME/.codex/config.toml"
-  ${reconciler}/bin/sysinit-llm-reconcile
-  grep -F 'external-agent-import-sync-enabled = false' "$HOME/.codex/config.toml"
-  grep -F 'PATH = "/profile/bin:/usr/bin:/bin"' "$HOME/.codex/config.toml"
-
-  sed -i 's/external-agent-import-sync-enabled = false/external-agent-import-sync-enabled = true/' \
-    "$HOME/.codex/config.toml"
-  ${reconciler}/bin/sysinit-llm-reconcile
-  grep -F 'external-agent-import-sync-enabled = false' "$HOME/.codex/config.toml"
-
-  export HOME="$TMPDIR/bootstrap-home"
-  mkdir -p "$HOME/.codex"
-  cat > "$HOME/.codex/.config.toml.nix-base" <<'EOF'
-  [mcp_servers.computer-use]
-  enabled = false
-  [mcp_servers.cua_repl]
-  enabled = false
-  [mcp_servers.node_repl]
-  enabled = false
-  EOF
-  cat > "$HOME/.codex/config.toml" <<'EOF'
-  [mcp_servers.computer-use]
-  enabled = false
-  command = "/user/computer-use"
-  [mcp_servers.cua_repl]
-  enabled = false
-  command = "/user/cua"
-  [mcp_servers.node_repl]
-  enabled = false
-  command = "/app/node_repl"
-  [mcp_servers.node_repl.env]
-  NATIVE_PIPE = "/app/pipe"
-  [plugins."computer-use@openai-bundled"]
-  enabled = false
-  [plugins."browser@openai-bundled"]
-  enabled = false
-  [features]
-  js_repl = false
-  EOF
-  ${nativeTools}
-  ${bootstrapReconciler}/bin/sysinit-llm-reconcile
-  ${lib.getExe pkgs.codex} mcp list > "$TMPDIR/mcp-list"
-  grep -F 'node_repl' "$TMPDIR/mcp-list"
-  ${lib.getExe tomlPython} - <<'PY'
-  import os
-  from pathlib import Path
-  import tomlkit
-  path = Path(os.environ["HOME"]) / ".codex/config.toml"
-  document = tomlkit.parse(path.read_text())
-  servers = document["mcp_servers"]
-  assert "computer-use" not in servers
-  assert "cua_repl" not in servers
-  assert servers["node_repl"]["command"] == "/app/node_repl"
-  assert servers["node_repl"]["env"]["NATIVE_PIPE"] == "/app/pipe"
-  assert servers["node_repl"].get("enabled", True)
-  assert not document["plugins"]["computer-use@openai-bundled"]["enabled"]
-  assert document["plugins"]["browser@openai-bundled"]["enabled"]
-  assert "js_repl" not in document["features"]
-  document["plugins"]["browser@openai-bundled"]["enabled"] = False
-  path.write_text(tomlkit.dumps(document))
-  PY
-  ${nativeTools}
-  grep -A 1 '\[plugins."browser@openai-bundled"\]' "$HOME/.codex/config.toml" | grep -F 'enabled = false'
-
-  export HOME="$TMPDIR/empty-native-server-home"
-  mkdir -p "$HOME/.codex"
-  touch "$HOME/.codex/.sysinit-native-tools-v1"
-  printf '%s\n' '[mcp_servers.node_repl]' '[plugins."browser@openai-bundled"]' 'enabled = false' \
-    > "$HOME/.codex/config.toml"
-  ${nativeTools}
-  ! grep -F 'node_repl' "$HOME/.codex/config.toml"
-  grep -F 'enabled = false' "$HOME/.codex/config.toml"
-  ${lib.getExe pkgs.codex} mcp list
-
-  touch "$out"
-''
+(import ./lib.nix { inherit pkgs; }) {
+  name = "codex-config";
+  script = "codex-config.nu";
+  arguments = [
+    "${reconciler}/bin/sysinit-llm-reconcile"
+    "${bootstrapReconciler}/bin/sysinit-llm-reconcile"
+    ../modules/home/programs/llm/harnesses/codex-native-tools.nu
+    (lib.getExe' pkgs.coreutils "chmod")
+    (lib.getExe pkgs.codex)
+  ];
+}

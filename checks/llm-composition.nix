@@ -88,42 +88,15 @@ assert lib.assertMsg (
 ) "no roshbhatia flake input is pinned to a release tag; the lock shape changed";
 assert lib.assertMsg (unpinned == [ ])
   "tag-pinned flake inputs missing from the .github/dependabot.yml ignore list, so dependabot can propose a downgrade: ${lib.concatStringsSep ", " unpinned}";
-pkgs.runCommand "llm-composition"
-  {
-    nativeBuildInputs = [
-      pkgs.jq
-      pkgs.yq-go
-    ];
-  }
-  ''
-    yq -o=json '.' ${gateConfig} > config.json
-
-    # Every provider that denies a whole-file read prints the same sentence, so
-    # they must name one reader. read-router and bash-guard both do; a third
-    # that forgets the arg falls back to gate's default and disagrees silently.
-    readers=$(jq -r '[.chains.PreToolUse[] | select(.args.reader) | .args.reader]
-      | unique | .[]' config.json)
-    test "$(printf '%s\n' "$readers" | wc -l)" -eq 1
-    carriers=$(jq -r '[.chains.PreToolUse[] | select(.args.reader) | .provider]
-      | sort | join(" ")' config.json)
-    test "$carriers" = "bash-guard read-router"
-
-    reader="$readers"
-    template="''${reader##*-t }"
-    prompt="${askTemplates}/ask/templates/prompts/$template.yaml"
-    test -f "$prompt"
-
-    yq -o=json '.' "$prompt" > prompt.json
-    jq -e --arg name "$template" '.name == $name
-      and (.provider | type == "string" and length > 0)
-      and (.model | type == "string" and length > 0)' prompt.json > /dev/null
-    schema=$(jq -r '.schema' prompt.json)
-    test -f "${askTemplates}/ask/templates/schemas/$schema.yaml"
-
-    export XDG_CONFIG_HOME=${askTemplates}
-    for rubric in task-triage log-triage answer-review; do
-      ${lib.getExe pkgs.ask} rubric show "$rubric" | jq -e 'length > 0' > /dev/null
-    done
-
-    touch "$out"
-  ''
+(import ./lib.nix { inherit pkgs; }) {
+  name = "llm-composition";
+  script = "llm-composition.nu";
+  arguments = [
+    gateConfig
+    askTemplates
+  ];
+  inputs = [
+    pkgs.yq-go
+    pkgs.ask
+  ];
+}

@@ -11,7 +11,9 @@ def seed [root: path, statuses: list<string>] {
 
 def status [script: path] {
     let result = ^bash $script | complete
+
     assert equal $result.exit_code 0 $result.stderr
+
     $result.stdout | from json
 }
 
@@ -23,28 +25,36 @@ def main [
 ] {
     for case in [review mixed discovery malformed] {
         let root = mktemp --directory | path expand --strict
+
         try {
             mkdir ($root | path join panes) ($root | path join bin)
+
             for name in [wezterm sy] {
                 let path = $root | path join bin $name
+
                 (
                     $'#!($nu.current-exe) --no-config-file' + "\n" + $'$env.AGENT_SESSION_TEST_COMMAND = "($name)"' + "\n" + (open --raw $fixture)
                 ) | save $path
+
                 ^chmod 700 $path
             }
+
             let script = $root | path join run.sh
+
             (
                 'sysinit_path() { if [ "$1" = agentPanes ]; then echo "$FIXTURE/panes"; else echo "$FIXTURE"; fi; }' + "\n" + (
                     open --raw $source
                     | str replace --all '@agentSessionsReducer@' $reducer
                 )
             ) | save $script
+
             {
                 selected: 'session with spaces'
                 heartbeat: (date now | into int | $in // 1_000_000_000)
             }
             | to json
             | save ($root | path join selected.json)
+
             with-env {PATH: ($env.PATH | prepend ($root | path join bin)), FIXTURE: $root, LIVE: '[]'} {
                 match $case {
                     review => {
@@ -92,9 +102,12 @@ def main [
             }
         } catch {|failure|
             rm --recursive --force $root
+
             error make $failure
         }
+
         rm --recursive --force $root
     }
+
     print 'Agent session aggregation, failed discovery, malformed records, and review inspection checks passed'
 }

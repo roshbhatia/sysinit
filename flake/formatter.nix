@@ -20,7 +20,10 @@ nixpkgs.lib.genAttrs systems (
       prettier
       clang-tools
       cue
+      nushell
     ];
-    text = builtins.readFile ../hack/format.sh;
+    text = ''
+      exec nu --no-config-file ${../hack/format.nu} "$@"
+    '';
   }
 )

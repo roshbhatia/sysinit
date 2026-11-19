@@ -2,13 +2,20 @@ use std/assert
 
 def main [script: path, fixture: path] {
     let root = mktemp --directory
+
     try {
         let command = $root | path join kubectl
+
         ($'#!($nu.current-exe) --no-config-file' + "\n" + (open --raw $fixture)) | save $command
+
         ^chmod 700 $command
+
         let manifest = $root | path join operator.yaml
+
         let log = $root | path join operations.jsonl
+
         '' | save $log
+
         let documents = [
             {
                 kind: CustomResourceDefinition
@@ -23,7 +30,9 @@ def main [script: path, fixture: path] {
                 metadata: {name: operator}
             }
         ]
+
         ($documents | each { to yaml } | str join "---\n") | save $manifest
+
         with-env {PATH: ($env.PATH | prepend $root), RUNNER_OPERATOR_LOG: $log} {
             let result = ^$nu.current-exe --no-config-file $script $manifest | complete
             assert equal $result.exit_code 0 $result.stderr
@@ -45,8 +54,11 @@ def main [script: path, fixture: path] {
         }
     } catch {|failure|
         rm --recursive --force $root
+
         error make $failure
     }
+
     rm --recursive --force $root
+
     print 'Runner operator checks passed'
 }

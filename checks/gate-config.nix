@@ -38,101 +38,22 @@ let
     defaults.timeout = "10s";
   };
 in
-pkgs.runCommand "gate-config"
-  {
-    nativeBuildInputs = [
-      pkgs.gate-cli
-      pkgs.gate-providers
-      pkgs.agent-notes
-      pkgs.git
-      pkgs.git-ai
-      pkgs.git-ai-gate
-    ];
-  }
-  ''
-    export HOME="$TMPDIR/home"
-    export XDG_CONFIG_HOME="$TMPDIR/config"
-    export XDG_STATE_HOME="$TMPDIR/state"
-    mkdir -p "$HOME/.git-ai" "$XDG_CONFIG_HOME/gate/providers" "$XDG_STATE_HOME"
-    printf '%s' '{"git_path":"${pkgs.git}/bin/git","telemetry_oss":"off","prompt_storage":"local","feature_flags":{"transcript_sweep":false,"token_usage_metrics":false,"daemon_log_upload":false}}' > "$HOME/.git-ai/config.json"
-    cp ${pkgs.gate-providers}/share/gate/providers/*.yaml "$XDG_CONFIG_HOME/gate/providers/"
-    cp ${gitAiGate} "$XDG_CONFIG_HOME/gate/providers/git-ai-gate.yaml"
-    sed -e "s|@providers@|$XDG_CONFIG_HOME/gate/providers|" -e "s|@log@|$TMPDIR/gate-decisions.jsonl|" \
-      ${configFile} > "$XDG_CONFIG_HOME/gate/config.yaml"
-    cp ${reviewFile} "$XDG_CONFIG_HOME/gate/review.yaml"
-    gate config validate
-    GATE_REVIEW_CONFIG="$XDG_CONFIG_HOME/gate/review.yaml" review policy > /dev/null
-    # A destructive command is denied through the whole chain, not only in a
-    # unit test of the provider.
-    printf '%s' '{"hook_event_name":"PreToolUse","tool_name":"Bash","tool_input":{"command":"git push --force"},"cwd":"/"}' \
-      | gate hook --harness claude --event PreToolUse --format json > decision
-    grep -q '"decision":"deny"' decision
-    # An open note the owner left reaches the model on the next prompt through
-    # the whole UserPromptSubmit chain, as context rather than as a raw hook.
-    printf 'one\n' > annotated.txt
-    note add --file annotated.txt --line 1 --summary 'why is this here' --origin user
-    printf '%s' '{"hook_event_name":"UserPromptSubmit","prompt":"hi","cwd":"/"}' \
-      | gate hook --harness claude --event UserPromptSubmit --format json > prompt
-    grep -q '"decision":"context"' prompt
-    grep -q 'why is this here' prompt
-    # prose-gate's rules are arguments, so the chain is what proves them: a
-    # reply in agent prose is recorded on Stop, silently, and the next prompt
-    # carries the findings with this repository's reminder.
-    export PROSE_GATE_STATE_DIR="$TMPDIR/prose"
-    printf '%s' '{"hook_event_name":"Stop","session_id":"s1","stop_hook_active":false,"last_assistant_message":"Basically, this seamlessly leverages a pivotal unlock. In summary, we delivered a robust solution."}' \
-      | gate hook --harness claude --event Stop --format json > stop
-    test ! -s stop
-    printf '%s' '{"hook_event_name":"UserPromptSubmit","session_id":"s1","prompt":"go"}' \
-      | gate hook --harness claude --event UserPromptSubmit --format json > prompt
-    if ! grep -q 'read like agent prose' prompt || ! grep -q 'sysinit-ste output style is active' prompt; then
-      echo "prose-gate did not carry the findings into the prompt:" >&2
-      cat prompt "$TMPDIR/gate-decisions.jsonl" >&2
-      exit 1
-    fi
-    # edit-event's record is a side effect of a pass, so only the chain proves
-    # it: the prompt lands on UserPromptSubmit and the next Edit is one JSONL
-    # line plus one shadow commit whose subject is that prompt. The paths are
-    # the contract neovim's harness.edit_store derives, not asked of a binary:
-    # <agentEdits>/<base>-<sha256(root):16>.{jsonl,delta}.
-    work="$TMPDIR/work"
-    mkdir -p "$work"
-    git -C "$work" init --quiet --initial-branch=main
-    printf 'old\n' > "$work/a.txt"
-    git -C "$work" -c user.name=t -c user.email=t@example.invalid -c commit.gpgsign=false add a.txt
-    git -C "$work" -c user.name=t -c user.email=t@example.invalid -c commit.gpgsign=false commit --quiet -m base
-    root=$(cd "$work" && pwd -P)
-    git-ai bg run > "$TMPDIR/git-ai.log" 2>&1 &
-    git_ai_pid=$!
-    trap 'if kill -0 "$git_ai_pid" 2>/dev/null; then kill "$git_ai_pid"; wait "$git_ai_pid" || true; fi' EXIT
-    for _ in $(seq 1 40); do
-      if git-ai bg status > /dev/null 2>&1; then break; fi
-      sleep 0.25
-    done
-    if ! git-ai bg status; then
-      cat "$TMPDIR/git-ai.log" >&2
-      exit 1
-    fi
-    printf '%s\n' '{"type":"assistant","message":{"model":"test-model"}}' > "$work/session.jsonl"
-    printf '%s' "{\"hook_event_name\":\"UserPromptSubmit\",\"session_id\":\"s2\",\"cwd\":\"$root\",\"prompt\":\"Make a.txt say new\"}" \
-      | gate hook --harness claude --event UserPromptSubmit --format json > /dev/null
-    printf 'new\n' > "$work/a.txt"
-    printf '%s' "{\"hook_event_name\":\"PostToolUse\",\"session_id\":\"s2\",\"transcript_path\":\"$root/session.jsonl\",\"cwd\":\"$root\",\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$root/a.txt\",\"old_string\":\"old\",\"new_string\":\"new\"}}" \
-      | gate hook --harness claude --event PostToolUse --format json > edit
-    if grep -q '"decision":"deny"' edit; then
-      cat edit "$TMPDIR/gate-decisions.jsonl" >&2
-      exit 1
-    fi
-    stem="$XDG_STATE_HOME/agents/edits/work-$(printf %s "$root" | sha256sum | cut -c1-16)"
-    if ! grep -q "\"harness\":\"claude\",\"kind\":\"edit\",\"file\":\"$root/a.txt\"" "$stem.jsonl"; then
-      echo "edit-event did not record the edit at $stem.jsonl:" >&2
-      cat edit "$TMPDIR/gate-decisions.jsonl" >&2
-      exit 1
-    fi
-    if [ "$(git --git-dir "$stem.delta" log -1 --format=%s)" != "Make a.txt say new" ]; then
-      echo "the shadow commit subject is not the prompt:" >&2
-      git --git-dir "$stem.delta" log --format=%s >&2
-      cat "$TMPDIR/gate-decisions.jsonl" >&2
-      exit 1
-    fi
-    touch "$out"
-  ''
+(import ./lib.nix { inherit pkgs; }) {
+  name = "gate-config";
+  script = "gate-config.nu";
+  arguments = [
+    "${pkgs.gate-providers}/share/gate/providers"
+    gitAiGate
+    configFile
+    reviewFile
+    "${pkgs.git}/bin/git"
+  ];
+  inputs = [
+    pkgs.gate-cli
+    pkgs.gate-providers
+    pkgs.agent-notes
+    pkgs.git
+    pkgs.git-ai
+    pkgs.git-ai-gate
+  ];
+}

@@ -6,6 +6,7 @@ def invoke [command: string, arguments: list<string>] {
 
 def main [root: path, fixture: path] {
     let scratch = mktemp --directory | path expand --strict
+
     try {
         for name in [
             wezterm
@@ -18,12 +19,16 @@ def main [root: path, fixture: path] {
             chafa
         ] {
             let path = $scratch | path join $name
+
             (
                 $'#!($nu.current-exe) --no-config-file' + "\n" + $'$env.UTILITY_TEST_COMMAND = "($name)"' + "\n" + (open --raw $fixture)
             ) | save $path
+
             ^chmod 700 $path
         }
+
         let calls = $scratch | path join calls
+
         with-env {PATH: ($env.PATH | prepend $scratch), WEZTERM_PANE: fixture, ASK_CAPTURE: '1', CALLS: $calls} {
             with-env {UTILITY_TEST_CONNECT_FAIL: '1'} {
                 let connected = invoke $nu.current-exe [--no-config-file ($root | path join modules home programs utils dev connect.nu) fixture]
@@ -109,8 +114,11 @@ def main [root: path, fixture: path] {
         }
     } catch {|failure|
         rm --recursive --force $scratch
+
         error make $failure
     }
+
     rm --recursive --force $scratch
+
     print 'Utility runtime contracts passed'
 }

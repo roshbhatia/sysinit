@@ -6,8 +6,11 @@ def evaluate [module: path, code: string] {
 
 def success [module: path, code: string] {
     let result = evaluate $module $code
+
     assert equal $result.exit_code 0 $result.stderr
+
     assert equal $result.stderr ''
+
     $result.stdout
 }
 
@@ -17,27 +20,40 @@ def last-arguments [] {
 
 def --wrapped git [...arguments: string] {
     let result = ^git ...$arguments | complete
+
     assert equal $result.exit_code 0 $result.stderr
+
     $result.stdout
 }
 
 def init-repository [] {
     git init --initial-branch=main | ignore
+
     "original\n" | save 'original file'
+
     "first\n" | save tracked
+
     git add . | ignore
+
     git commit -m 'subject | with "quotes"' | ignore
+
     "second\n" | save --force tracked
+
     git add tracked | ignore
+
     git commit '--allow-empty-message' '-m' '' | ignore
 }
 
 def main [module: path, fixture: path, cases_file: path] {
     let root = mktemp --directory | path expand --strict
+
     try {
         let cases = open $cases_file
+
         let bin = $root | path join bin
+
         mkdir $bin
+
         for name in (
             $cases
             | get prefix
@@ -46,12 +62,16 @@ def main [module: path, fixture: path, cases_file: path] {
             | uniq
         ) {
             let path = $bin | path join $name
+
             (
                 $'#!($nu.current-exe) --no-config-file' + "\n" + $'$env.EXTERN_TEST_COMMAND = "($name)"' + "\n" + (open --raw $fixture)
             ) | save $path
+
             ^chmod 700 $path
         }
+
         cd $root
+
         with-env {
             PATH: ($env.PATH | prepend $bin)
             EXTERN_ARGV: ($root | path join argv.jsonl)
@@ -163,10 +183,15 @@ def main [module: path, fixture: path, cases_file: path] {
         }
     } catch {|failure|
         cd ($root | path dirname)
+
         rm --recursive --force $root
+
         error make $failure
     }
+
     cd ($root | path dirname)
+
     rm --recursive --force $root
+
     print 'Structured external output, native escapes, Git records, failures, and completion checks passed'
 }

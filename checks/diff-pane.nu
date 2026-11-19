@@ -2,10 +2,15 @@ use std/assert
 
 def main [script: path, fixture: path] {
     let script = $script | path expand --strict
+
     let fixture = $fixture | path expand --strict
+
     let root = mktemp --directory --tmpdir-path /tmp | path expand --strict
+
     let bin = $root | path join bin
+
     mkdir $bin
+
     for tool in [wezterm nvim] {
         let command = [
             'exec'
@@ -15,9 +20,12 @@ def main [script: path, fixture: path] {
             $tool
             '"$@"'
         ] | str join ' '
+
         $"#!/bin/sh\n($command)\n" | save ($bin | path join $tool)
+
         chmod +x ($bin | path join $tool)
     }
+
     try {
         with-env {PATH: ($env.PATH | prepend $bin), REVIEW_FIXTURE: $root, DIFF_ROOT: $root, WEZTERM_PANE: '7', XDG_STATE_HOME: ($root | path join state)} {
             ^git -C $root init --quiet '--template='
@@ -42,6 +50,7 @@ def main [script: path, fixture: path] {
         # Remove only this fixture's recorded socket, never other active editors.
         if ($root | path join split.json | path exists) {
             let split = open ($root | path join split.json)
+
             let index = (
                 $split
                 | enumerate
@@ -49,11 +58,16 @@ def main [script: path, fixture: path] {
                 | first
                 | get index
             ) + 1
+
             rm --force ($split | get $index)
         }
+
         rm --recursive --force $root
+
         error make $failure
     }
+
     rm --recursive --force $root
+
     print 'Diff creation, native flock, headless RPC, reuse, unborn HEAD and tab isolation passed'
 }

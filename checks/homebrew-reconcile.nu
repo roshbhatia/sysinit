@@ -7,14 +7,18 @@ def reconcile [script: path, root: path] {
 def main [script: path, fixture: path] {
     for mode in [overlap drift] {
         let root = mktemp --directory
+
         try {
             for command in [snapshot check reconcile] {
                 let path = $root | path join $command
+
                 (
                     $'#!($nu.current-exe) --no-config-file' + "\n" + $'$env.BREW_TEST_COMMAND = "($command)"' + "\n" + (open --raw $fixture)
                 ) | save $path
+
                 ^chmod 700 $path
             }
+
             with-env {BREW_TEST_ROOT: $root, BREW_TEST_MODE: $mode} {
                 if $mode == overlap {
                     let result = reconcile $script $root
@@ -48,9 +52,12 @@ def main [script: path, fixture: path] {
             }
         } catch {|failure|
             rm --recursive --force $root
+
             error make $failure
         }
+
         rm --recursive --force $root
     }
+
     print 'Homebrew concurrency, drift, failure, and state checks passed'
 }

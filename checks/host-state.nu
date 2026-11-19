@@ -2,6 +2,7 @@ use std/assert
 
 def main [helper: path] {
     let root = mktemp -d | path expand --strict
+
     try {
         with-env {HOME: $root, GIT_CONFIG_GLOBAL: /dev/null, GIT_CONFIG_NOSYSTEM: '1'} {
             let repo = $root | path join host
@@ -36,8 +37,11 @@ def main [helper: path] {
         }
     } catch {|failure|
         rm -rf $root
+
         error make $failure
     }
+
     rm -rf $root
+
     print 'host-state checks passed'
 }

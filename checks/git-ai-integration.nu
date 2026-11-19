@@ -2,22 +2,27 @@ use std/assert
 
 def run-command [arguments: list<string>, --data: string, --unchecked] {
     let program = $arguments | first
+
     let arguments = $arguments | skip 1
+
     let result = if $data == null {
         ^timeout 60s $program ...$arguments | complete
     } else {
         $data | ^timeout 60s $program ...$arguments | complete
     }
+
     if not $unchecked and $result.exit_code != 0 {
         error make {
             msg: ($result.stdout + "\n" + $result.stderr)
         }
     }
+
     $result
 }
 
 def write-json [path: path, value] {
     mkdir ($path | path dirname)
+
     $value | to json | save --force $path
 }
 
@@ -37,7 +42,9 @@ def checkpoint [
             }
         }
     }
+
     let result = run-command [$gate serve] --data ($request | to json)
+
     assert equal ($result.stdout | from json | get output.decision) pass
 }
 
@@ -49,11 +56,16 @@ def main [
     storage: path
 ] {
     let git = which git | first | get path
+
     let root = mktemp --directory --tmpdir-path /tmp | path expand --strict
+
     try {
         let home = $root | path join home
+
         let repo = $root | path join repo
+
         mkdir $home $repo
+
         with-env {
             HOME: $home
             XDG_CONFIG_HOME: ($home | path join .config)
@@ -205,10 +217,15 @@ def main [
         }
     } catch {|failure|
         cd ($root | path dirname)
+
         rm --recursive --force $root
+
         error make $failure
     }
+
     cd ($root | path dirname)
+
     rm --recursive --force $root
+
     print 'Native checkpoints preserve human edits; Git notes and Traces session provenance compose'
 }

@@ -2,16 +2,22 @@ use std/assert
 
 def generate [script: path] {
     let result = ^$nu.current-exe --no-config-file $script | complete
+
     assert equal $result.exit_code 0 $result.stderr
+
     open ($env.HOME | path join .config sunshine apps.json)
 }
 
 def main [script: path] {
     let root = mktemp --directory | path expand --strict
+
     try {
         let home = $root | path join home
+
         let sunshine = $home | path join .config sunshine
+
         mkdir $sunshine
+
         with-env {HOME: $home} {
             let empty = generate $script
             assert equal $empty.apps.name [Desktop 'Steam Big Picture']
@@ -56,8 +62,11 @@ def main [script: path] {
         }
     } catch {|failure|
         rm --recursive --force $root
+
         error make $failure
     }
+
     rm --recursive --force $root
+
     print 'Sunshine Steam, Epic, GOG, extra applications, artwork, and cache checks passed'
 }
