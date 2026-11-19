@@ -22,6 +22,10 @@ harnesses require the current task's delegation authorization; selecting a
 mechanism does not grant it. Use separate checkouts for concurrent writers,
 through the workspace owner's lifecycle, and verify integrated results.
 
+Use [pull-request observation](references/pull-requests.md) for read-only PR
+inspection and waits. Queue a command for durable observation; use an agent
+only when its independent judgment or execution adds something to the result.
+
 Read [execution and terminal details](references/execution-and-terminals.md)
 only for queue composition, cross-harness execution, session recovery, visible
 terminal work, or shared Codex service diagnosis. It owns command contracts,

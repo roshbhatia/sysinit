@@ -279,6 +279,11 @@ in
     arguments = [ "gh-dash" ];
     inputs = [ pkgs.sysinit-gh-dash ];
   };
+  gh-pr-state = nuCheck {
+    name = "gh-pr-state-test";
+    script = "gh-pr-state.nu";
+    arguments = [ ../modules/home/programs/gh-pr-state.nu ];
+  };
   url-routing = nativeCheck {
     name = "url-routing-test";
     inputs = [ pkgs.lua5_4 ];

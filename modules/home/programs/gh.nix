@@ -6,6 +6,16 @@
 }:
 
 let
+  prState = pkgs.sysinit.writeShellApplication {
+    name = "gh-pr-state";
+    runtimeInputs = [
+      pkgs.gh
+      pkgs.coreutils
+    ];
+    text = ''
+      exec ${lib.getExe pkgs.nushell} --no-config-file ${./gh-pr-state.nu} "$@"
+    '';
+  };
   prDiff = pkgs.sysinit.writeShellApplication {
     name = "gh-pr-diff";
     runtimeInputs = [
@@ -24,6 +34,7 @@ in
 {
   home.packages = [
     prDiff
+    prState
     pkgs.tuicr
   ];
   programs.gh-dash = {
