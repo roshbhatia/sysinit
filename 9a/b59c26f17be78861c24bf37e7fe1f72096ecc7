@@ -1,0 +1,25 @@
+modules/home/programs/llm/harnesses/opencode/default.nix
+  s_a4a3eea4720821::t_7cb5cf3e13b45a 43
+modules/home/programs/llm/lib/instructions.nix
+  s_a4a3eea4720821::t_7cb5cf3e13b45a 209-217
+modules/home/programs/llm/options.nix
+  s_a4a3eea4720821::t_7cb5cf3e13b45a 8-18
+modules/home/programs/llm/harnesses/claude/default.nix
+  s_a4a3eea4720821::t_7cb5cf3e13b45a 53
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9ab59c26f17be78861c24bf37e7fe1f72096ecc7",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
