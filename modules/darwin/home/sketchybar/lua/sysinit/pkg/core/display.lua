@@ -1,23 +1,9 @@
 local cjson = require("cjson")
 local M = {}
 
-local DISPLAY_PROFILES = {
-  { w = 2056, h = 1329, y_offset = 52 },
-  { w = 1800, h = 1169, y_offset = 52 },
-}
-
 local NAME_PROFILES = {
   ["LG HDR 4K"] = { font_size = 14 },
 }
-
-local function get_profile(width, height)
-  for _, p in ipairs(DISPLAY_PROFILES) do
-    if width == p.w and height == p.h then
-      return p
-    end
-  end
-  return nil
-end
 
 local cached_displays
 
@@ -25,7 +11,8 @@ local function get_displays()
   if cached_displays then
     return cached_displays
   end
-  local handle = io.popen("/usr/sbin/system_profiler SPDisplaysDataType -json -timeout 2 2>/dev/null")
+  local handle =
+    io.popen("/usr/sbin/system_profiler SPDisplaysDataType -json -timeout 2 2>/dev/null")
   if not handle then
     return {}
   end
@@ -51,17 +38,6 @@ local function get_displays()
   end
   cached_displays = displays
   return displays
-end
-
-function M.get_y_offset()
-  local displays = get_displays()
-  for _, d in ipairs(displays) do
-    local profile = get_profile(d.width, d.height)
-    if profile then
-      return profile.y_offset
-    end
-  end
-  return 8
 end
 
 function M.get_font_size(default)

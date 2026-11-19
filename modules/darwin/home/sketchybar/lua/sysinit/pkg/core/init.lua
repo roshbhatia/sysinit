@@ -1,20 +1,21 @@
 local sbar = require("sketchybar")
 local settings = require("sysinit.pkg.settings")
 local colors = require("sysinit.pkg.colors")
-local display = require("sysinit.pkg.core.display")
+local layout = require("sysinit.pkg.config").layout
 
 local M = {}
 
 function M.setup()
   sbar.bar({
-    height = 32,
+    height = layout.barHeight,
     color = colors.background_primary,
     position = "top",
     blur_radius = colors.blur_radius,
     shadow = false,
     corner_radius = 10,
-    margin = 16,
-    y_offset = display.get_y_offset(),
+    margin = layout.gap,
+    y_offset = layout.gap,
+    notch_offset = layout.notchOffset,
     padding_left = 8,
     padding_right = 8,
   })

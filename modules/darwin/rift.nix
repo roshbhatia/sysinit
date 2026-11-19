@@ -6,6 +6,7 @@
 }:
 
 let
+  desktopLayout = import ./desktop-layout.nix;
   format = pkgs.formats.toml { };
   home = config.home-manager.users.${config.sysinit.user.username};
   user = config.sysinit.user.username;
@@ -249,14 +250,14 @@ let
         stack.default_orientation = "vertical";
         gaps = {
           inner = {
-            horizontal = 16;
-            vertical = 16;
+            horizontal = desktopLayout.gap;
+            vertical = desktopLayout.gap;
           };
           outer = {
-            left = 16;
-            right = 16;
-            top = 62;
-            bottom = 14;
+            left = desktopLayout.gap;
+            right = desktopLayout.gap;
+            top = desktopLayout.barHeight + 2 * desktopLayout.gap;
+            bottom = desktopLayout.gap;
           };
         };
       };

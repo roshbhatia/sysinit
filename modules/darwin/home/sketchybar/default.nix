@@ -12,6 +12,7 @@ let
   themeConfig = config.sysinit.theme;
 
   sketchybarConfig = {
+    layout = import ../../desktop-layout.nix;
     inherit (themeConfig) base16Scheme;
     inherit (themeConfig) appearance;
     inherit (themeConfig) transparency;
