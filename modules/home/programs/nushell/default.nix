@@ -136,7 +136,12 @@ in
 
       extraEnv = "# Environment values are generated in config.nu.\n";
 
-      shellAliases = lib.mkForce (builtins.removeAttrs shell.commonAliases [ "ll" ]);
+      # An alias shadows the extern of the same name, so drop `name = env name` no-ops.
+      shellAliases = lib.mkForce (
+        lib.filterAttrs (name: value: value != "env ${name}") (
+          builtins.removeAttrs shell.commonAliases [ "ll" ]
+        )
+      );
 
       environmentVariables = lib.optionalAttrs (lsColorsFile != null) {
         LS_COLORS = lib.mkForce (lib.hm.nushell.mkNushellInline "(open --raw ${lsColorsFile} | str trim)");
