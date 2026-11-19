@@ -40,7 +40,6 @@ in
         checkmake
         commitlint
         gum
-        grc
 
         go
         gopls
@@ -50,15 +49,8 @@ in
         go-tools
         gomodifytags
         impl
-        gotestsum
-        govulncheck
-        ginkgo
-        go-enum
         gomvp
         (lib.lowPrio gotools)
-        mockgen
-        reftools
-        richgo
 
         python311
         uv
@@ -67,7 +59,6 @@ in
         ruff
 
         rustup
-        cargo-watch
         zig
 
         nodejs_24
@@ -99,19 +90,14 @@ in
         kubernetes-helm
         kubernetes-zeitgeist
         kustomize
-        stern
 
         docker
         docker-compose
         docker-buildx
-        docker-color-output
         docker-compose-language-service
         docker-language-server
 
         ansible
-        ansible-lint
-        awscli2
-        crossplane-cli
         cue
         cuelsp
         opentofu
@@ -140,16 +126,12 @@ in
         awk-language-server
         codespell
         contextive
-        devbox
-        devcontainer
         go-task
         jq-lsp
         localias
         markdown-oxide
-        meld
         mermaid-ascii
         pretty-mermaid
-        proselint
         sad
         sheets
         leaf-reader

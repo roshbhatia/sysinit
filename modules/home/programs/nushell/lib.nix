@@ -42,7 +42,6 @@ in
             "just"
             "codex"
             "claude"
-            "aws"
             "bat"
             "btm"
             "eza"

@@ -48,9 +48,6 @@ nix = "watch"
 nix = "socat"
 
 [[tool]]
-nix = "sshpass"
-
-[[tool]]
 nix = "openssh"
 
 [[tool]]
@@ -70,9 +67,6 @@ nix = "ripgrep"
 
 [[tool]]
 nix = "jq"
-
-[[tool]]
-nix = "jqp"
 
 [[tool]]
 nix = "yq-go"
@@ -127,9 +121,6 @@ nix = "gh"
 
 [[tool]]
 nix = "delta"
-
-[[tool]]
-nix = "diff-so-fancy"
 
 [[tool]]
 nix = "difftastic"
