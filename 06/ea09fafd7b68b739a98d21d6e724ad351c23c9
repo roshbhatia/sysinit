@@ -1,0 +1,277 @@
+checks/slack-guard.nu
+  s_a4a3eea4720821::t_831d91db5d1aec 1-25
+checks/editor-composition.nix
+  s_a4a3eea4720821::t_4eab36e0e4284a 20-39
+checks/system-generation-prune.nix
+  s_a4a3eea4720821::t_0dee24518c4f96 3,5,8-23
+checks/egm-plugins.nix
+  s_a4a3eea4720821::t_aac5bd735e0396 2-13
+checks/native-probes.nu
+  s_a4a3eea4720821::t_8c42ca5e4e34dd 1-39
+checks/atuin.nix
+  s_a4a3eea4720821::t_44595c07193dd8 42-79
+checks/native-output.nix
+  s_a4a3eea4720821::t_b951081311eff2 2-35
+checks/nushell-externs.nix
+  s_a4a3eea4720821::t_b951081311eff2 5-14
+checks/ast-grep.nu
+  s_a4a3eea4720821::t_4eab36e0e4284a 1-26
+checks/task-queue.nu
+  s_a4a3eea4720821::t_03afd9dbc0aa5d 1-23
+checks/lib/process.nu
+  s_a4a3eea4720821::t_26846bb78aad8b 12
+  s_a4a3eea4720821::t_dabac1eda589f5 1-11,13-23
+stylua.toml
+  s_a4a3eea4720821::t_26846bb78aad8b 3
+checks/task-commands.nu
+  s_a4a3eea4720821::t_bac0271e075494 1-41
+checks/nushell-completions-runner.nu
+  s_a4a3eea4720821::t_d8203160e0af4e 1-17
+hack/lint.nu
+  s_a4a3eea4720821::t_056987b5fde1c6 1-278
+checks/task-commands.nix
+  s_a4a3eea4720821::t_bac0271e075494 2-14
+checks/llm-composition.nu
+  s_a4a3eea4720821::t_f72eaf56b1b4f2 7
+  s_a4a3eea4720821::t_d8203160e0af4e 1-5,9-32
+  s_a4a3eea4720821::t_8b2085c4059b7f 6,8
+checks/harness-settings-setup.nu
+  s_a4a3eea4720821::t_d8203160e0af4e 1-34
+checks/utility-contracts.nix
+  s_a4a3eea4720821::t_b951081311eff2 2-36,42-43
+  s_a4a3eea4720821::t_ee841c23927707 37-41
+checks/github-runner-guard.nu
+  s_a4a3eea4720821::t_bac0271e075494 1-32
+checks/shell-completions.nu
+  s_a4a3eea4720821::t_d8203160e0af4e 1-7
+checks/cloud-files.nix
+  s_a4a3eea4720821::t_4eab36e0e4284a 5-15
+checks/atuin-bindings.nu
+  s_a4a3eea4720821::t_44595c07193dd8 1-14
+checks/log-retention.nu
+  s_a4a3eea4720821::t_dabac1eda589f5 1,3-19,35-37,41-47
+  s_a4a3eea4720821::t_d0d43b73194e60 26
+  s_a4a3eea4720821::t_d6f654ea4d52f9 39-40
+  s_a4a3eea4720821::t_b55b4504b7c41e 2,20-25,27-34
+  s_a4a3eea4720821::t_060009bda0ee72 38
+checks/opencode.nu
+  s_a4a3eea4720821::t_03afd9dbc0aa5d 1-38
+checks/pi-extensions.nix
+  s_a4a3eea4720821::t_b951081311eff2 2-16
+checks/llm-composition.nix
+  s_a4a3eea4720821::t_d8203160e0af4e 91-102
+checks/nixos-launcher.nix
+  s_a4a3eea4720821::t_b951081311eff2 12-25
+checks/editor-composition.nu
+  s_a4a3eea4720821::t_4eab36e0e4284a 1-22
+checks/github-runner-guard.nix
+  s_a4a3eea4720821::t_bac0271e075494 2-7
+checks/gate-config.nu
+  s_a4a3eea4720821::t_7b6d24a246b49e 1-93,97-103,109-120,124-169,175-176
+  s_a4a3eea4720821::t_2a24fedf1df6e8 105-107,122,171-173
+  s_a4a3eea4720821::t_88d100bdb3e589 95-96
+  s_a4a3eea4720821::t_800e76f5241015 94,104,108,121,123,170,174
+checks/shell-completions.nix
+  s_a4a3eea4720821::t_d8203160e0af4e 7-69
+checks/lib/carapace.nu
+  s_a4a3eea4720821::t_03afd9dbc0aa5d 1-25
+checks/egm-plugins-runner.nu
+  s_a4a3eea4720821::t_aac5bd735e0396 1-21
+checks/editor-config.nix
+  s_a4a3eea4720821::t_43fcd4dba622e3 13-14,24
+  s_a4a3eea4720821::t_44595c07193dd8 7-12,15-23,25-83
+checks/fixtures/racing-nix-env.nu
+  s_a4a3eea4720821::t_0dee24518c4f96 1-19
+checks/harness-settings.nix
+  s_a4a3eea4720821::t_d8203160e0af4e 37-51
+checks/lib.nix
+  s_a4a3eea4720821::t_5d0decdaa17fa9 1-3,5
+  s_a4a3eea4720821::t_8fbebd48580ff0 4,27
+  s_a4a3eea4720821::t_bac0271e075494 6-26,28-29
+flake/formatter.nix
+  s_a4a3eea4720821::t_78226f63753065 23,25-27
+checks/slack-guard.nix
+  s_a4a3eea4720821::t_831d91db5d1aec 7-18,22-23
+checks/generated-format.nu
+  s_a4a3eea4720821::t_bac0271e075494 1-10
+checks/changes-integration.nix
+  s_a4a3eea4720821::t_0dee24518c4f96 2-17
+checks/native.nix
+  s_a4a3eea4720821::t_8c42ca5e4e34dd 1-17
+checks/mail.nix
+  s_a4a3eea4720821::t_b951081311eff2 7-29
+checks/task-queue.nix
+  s_a4a3eea4720821::t_03afd9dbc0aa5d 16-33
+hack/check-script-blocks.nu
+  s_a4a3eea4720821::t_78c8965bc2bdc9 5,12-14,20,24
+  s_a4a3eea4720821::t_3028c682ae91fe 1-4,7-11,15-18,21-22,25-37
+  s_a4a3eea4720821::t_57e6a944a49b19 6,19,23
+checks/codex-config.nix
+  s_a4a3eea4720821::t_cc3ef09cea0b13 41,50-60
+checks/editor-config.nu
+  s_a4a3eea4720821::t_44595c07193dd8 1-10,12-40
+  s_a4a3eea4720821::t_c1c1b4bb28cbde 11
+checks/changes-integration.nu
+  s_a4a3eea4720821::t_0dee24518c4f96 1-95
+checks/codex-config.nu
+  s_a4a3eea4720821::t_cc3ef09cea0b13 1-53,57-112,116-119
+  s_a4a3eea4720821::t_f72eaf56b1b4f2 114
+  s_a4a3eea4720821::t_fd308873622212 54-56
+  s_a4a3eea4720821::t_4318052f08eb79 113,115
+checks/default.nix
+  s_a4a3eea4720821::t_a3b94849a1f4df 102,104-105,109-111,122-123,221-222,227-228,233-235,246-247,263-265,273-275,281,518-536,543-550,553-563
+  s_a4a3eea4720821::t_2925740e1b537e 61-92,137-145,223-224,229-230,242,248-253,266-267,293-301
+  s_a4a3eea4720821::t_8c42ca5e4e34dd 11-12,126-136,186-217,260,282-292,302-317
+  s_a4a3eea4720821::t_3574858d26bc9c 95,103,106-108,115-121,218-220,225-226,231-232,239-241,243-245,258-259,261-262,268-272,276-280
+nufmt.nuon
+  s_a4a3eea4720821::t_4eab36e0e4284a 1-6
+checks/skill-catalog.nix
+  s_a4a3eea4720821::t_831d91db5d1aec 43-66
+checks/opencode.nix
+  s_a4a3eea4720821::t_1e50ff3d7d8aed 18-20,22-31,33-44
+  s_a4a3eea4720821::t_219e817ff09467 21
+checks/ast-grep.nix
+  s_a4a3eea4720821::t_4eab36e0e4284a 11-19
+hack/format.nu
+  s_a4a3eea4720821::t_ed5d622343579c 6
+  s_a4a3eea4720821::t_3028c682ae91fe 1-4,7-35
+  s_a4a3eea4720821::t_b16c8a3895d8f1 5
+checks/slk.nu
+  s_a4a3eea4720821::t_dabac1eda589f5 1-58
+checks/nushell-completions.nix
+  s_a4a3eea4720821::t_d8203160e0af4e 73-84
+checks/cloud-files.nu
+  s_a4a3eea4720821::t_4eab36e0e4284a 1-27
+checks/generated-format.nix
+  s_a4a3eea4720821::t_bac0271e075494 18-29
+checks/README.md
+  s_a4a3eea4720821::t_fade9bcfced771 1-31
+checks/system-generation-prune.nu
+  s_a4a3eea4720821::t_0dee24518c4f96 1-128
+checks/agent-sessions.nu
+  s_a4a3eea4720821::t_30a1832a9f86bf 14,16,28,31,34,38,41,43,50,57,105,108,111
+checks/app-copy-state.nu
+  s_a4a3eea4720821::t_f936eb5b90003f 5,7,9,11,13,15,17,19,33,44,50,52,58,60,62,64,70,72,74,76,80,82,84,86,88,90,94,96,98,102,104,106,110,112,114,118,120,122,126,128,130,132,137,139,141,143,145,147,149,151,153,158,160,162,164,168,170,172,174,179,183,185,187,189,194,198,200,205,209,214,218,220,222,227,229
+checks/codex-plugin-hooks.nu
+  s_a4a3eea4720821::t_73ae438bac18a6 5,8,10,12,37,39,41,43,45,47,55,57,59,61,63,65,67,69,71,73,75,77,79,81,85,88,90
+checks/command-contracts.nu
+  s_a4a3eea4720821::t_d8e9a960dc70c7 1-50
+checks/completion-cache.nu
+  s_a4a3eea4720821::t_0aa2c283a06440 5,9,11,14,16,18,20,27,38,41,43
+checks/diff-pane.nu
+  s_a4a3eea4720821::t_b9fab16c10db8d 5,7,9,11,13,23,25,28,53,61,64,66,69,71
+checks/egm-plugins.nu
+  s_a4a3eea4720821::t_54e764b2614393 5,7,9,11,13,23,31,36,38,40,42,45,48
+checks/firefox.nu
+  s_a4a3eea4720821::t_e2420bae06adff 7,9,11,14,18,21,23,30,32,38,44,46,49,54,57,60,62,64,71
+checks/fixtures/agent-sessions-command.nu
+  s_a4a3eea4720821::t_839df55ff71c25 6,8,10,13,15
+checks/fixtures/app-copy-command.nu
+  s_a4a3eea4720821::t_20371d4861c9a5 3,5,8,11
+checks/fixtures/defaults-command.nu
+  s_a4a3eea4720821::t_88d87be338416f 3,5,8,11,13,15,18,22,27,31,33,36,39,41,44,47,50,52,54,56,66,68
+checks/fixtures/homebrew-command.nu
+  s_a4a3eea4720821::t_9f0405ae6e1f7e 5,8,15,20,22,27,29,31,33,35,40,54,56
+checks/fixtures/nh-command.nu
+  s_a4a3eea4720821::t_b0cb16ecfed37a 6,9,11,14,23,25,27,31,33,36-38
+checks/fixtures/notifier-command.nu
+  s_a4a3eea4720821::t_528988c98c4409 4,7,9,12,14,16,19
+checks/fixtures/nushell-extern-command.nu
+  s_a4a3eea4720821::t_fe1ad113343776 3,6,9,16-18
+checks/fixtures/onepassword-command.nu
+  s_a4a3eea4720821::t_a4bc9c06f62e58 4,7,9,22,25,29-31
+checks/fixtures/output-rewrite-tools.nu
+  s_a4a3eea4720821::t_0be7c5a1c230b3 3,6-9,28,32
+checks/fixtures/review-tools.nu
+  s_a4a3eea4720821::t_8cdd9e702623a6 3,5,9-12,14,29,31,39,54,63,65,73,81,89,91,93,103
+checks/fixtures/runner-kubectl.nu
+  s_a4a3eea4720821::t_338509f05f236e 4,6,9,11,13
+checks/fixtures/sketchybar-command.nu
+  s_a4a3eea4720821::t_f03a7df72f822c 3,5,9,12,15,17,32
+checks/fixtures/utility-command.nu
+  s_a4a3eea4720821::t_c259c9169c7e7b 6,9,14,21,23,28
+checks/fixtures/wait-for-file.nu
+  s_a4a3eea4720821::t_bf2a0511863ea4 3,6
+checks/gate-config.nix
+  s_a4a3eea4720821::t_db7555a9087782 41-59
+checks/git-ai-integration.nu
+  s_a4a3eea4720821::t_ff04101aec189d 5,7,13,19,25,45,47,59,61,64,66,68,220,222,225,227,229
+checks/git-ai-maintenance.nu
+  s_a4a3eea4720821::t_ab70c51762987e 5,11,13,19,22,29,32,34,46,59,61,63,65,67,69,71,73,75,77,79,100,105,108,110,112,114,116,118,120,126,128,130,132,134,140,142,144,146,148,150,152,155,160,162,164,166,168,170,172,174,176,178,181,186,190,193,195,197,200,202,204,206,208,210,212,214,221,223,225,229,232,234
+checks/hammerspoon.lua
+  s_a4a3eea4720821::t_f86c9194640cb1 179-182,185-188
+checks/harness-instructions.nu
+  s_a4a3eea4720821::t_437a3d98f3212b 5,8-11,14,16,18,21,24
+checks/harness-settings.nu
+  s_a4a3eea4720821::t_40e7911c533e65 5,7,9,11,13,15,27,31,33,36
+checks/homebrew-reconcile.nu
+  s_a4a3eea4720821::t_904ad97663613a 10,14,18,21,55,58,61
+checks/host-state.nu
+  s_a4a3eea4720821::t_9cfc9e42bbac3d 5,40,43,45
+checks/incremental-defaults.nu
+  s_a4a3eea4720821::t_208383b2b812dc 9,11,13,17,19,21,23,28,30,32,34,37,40,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,94,101,103,105,112,114,116,119,121,123,125,127,130,132,134,136,138,141,143,155,157,159,161,163,165,167,169,171,178,180,182,184,186,188,190,193
+checks/macos-notifier.nu
+  s_a4a3eea4720821::t_9770fe76f8ea8d 5,7,16,19,21,29,32,34,38,40,60,63,65
+checks/managed-file-cache.nu
+  s_a4a3eea4720821::t_d56d63a410381c 5,8,10,12,16,18,20,22,24,26,28,30,32,34,36,38,40,45,47,49,51,53,55,57,59,61,63,65,67,69,71,73,77,81,83,87,89,91,93,96,98,101,103,105,107,109,111,113-116,118,120
+checks/managed-tool-files.nu
+  s_a4a3eea4720821::t_4dcdc7c96fa7da 1-5
+checks/nh.nu
+  s_a4a3eea4720821::t_9bc359edfb2998 5,8,10,12,14,32,35,37,39,68,70,73,75
+checks/notification-assets.nu
+  s_a4a3eea4720821::t_5a1df4fddbba30 5,8,10,12,14,16,25,27,30,32,34,36,38,40,42,44,46,48,50,52,54,56,60,62,64,66,68,72,75,77
+checks/nushell-externs.nu
+  s_a4a3eea4720821::t_3747c1980003bf 9,11,13,23,25,31,33,35,37,39,41,43,49,52,54,56,65,69,72,74,186,188,191,193,195
+checks/nushell-managed-tools.nix
+  s_a4a3eea4720821::t_a4a07a31568a5a 27-80
+checks/nushell-utilities.nu
+  s_a4a3eea4720821::t_5bfea71c41e361 10,20,24,28,32,41,50,57,59,61,85,87,94,96,98,100,107,109,111,115,117,119,123,125,127,129,131,142,144,148,150,152
+checks/onepassword.nu
+  s_a4a3eea4720821::t_ba39d44d25c9ae 9,13,17,20,22,24,62,65,67
+checks/opencode-schema.nu
+  s_a4a3eea4720821::t_b4d6b966d5c880 9,11,13,15,17,19,22
+checks/output-rewrite.nu
+  s_a4a3eea4720821::t_12a1d67ca7efe0 5,16,18,21,27,29,40,42,50,52,54,58,63,69,72,77,79,83,86,88
+checks/pr-workflow.nu
+  s_a4a3eea4720821::t_1242041128e555 5,7,13,15,39,41,43,45,47,49,51,54,56,59,61,63,65,67,69,71,73,75,77,79,81,83,87,111,114,116,118,125,128,130,132,134,136,139,142,145,149,151,154,156,158,160,162,164,166,168,172,174,176,178,180,182,191,200,202,204,206,209,211-213,215,219,225,232,235,237,239,241,243,247,249,251,255,257,261,263,269,271,286,288,291,293,295,297,299,301,312,314,316,318,320,322,324,342,344,347,367,370,372
+checks/runner-operator.nu
+  s_a4a3eea4720821::t_7ff738f651a6e6 5,8,10,12,14,16,18,33,35,57,60,62
+checks/sketchybar-health.nu
+  s_a4a3eea4720821::t_aecf7015d1ac23 15,17,23,25,27,29,31,33,35,37,43,45,47,49,51,53,56,58,60,62,64,66,113,116,118
+checks/skill-catalog.nu
+  s_a4a3eea4720821::t_909f89d78f3eac 5,9,11,13,15,17,19,21,24,29,32,37
+checks/skill-helpers.nu
+  s_a4a3eea4720821::t_4b1d08bd42638e 5,8,13,19,21,24,26,28,30,32,34,36,38,40,42,44,46,48,50,55,57,61,64,66
+checks/sunshine-apps.nu
+  s_a4a3eea4720821::t_a99331cd20a5e7 5,7,13,16,18,20,65,68,70
+checks/ty.nu
+  s_a4a3eea4720821::t_3e080e46cc3325 4,6,9,11,13,16,18,20,27,38,42,46,50,56,58,72,74,85,87,99,105,107,113,115,124,126,130,132,141,152,160,170,174,176,187,202,209,211,215,217
+checks/url-routing.lua
+  s_a4a3eea4720821::t_060f2ed776f142 247-251,258-261
+checks/utility-contracts.nu
+  s_a4a3eea4720821::t_cb8f49ec40deba 9,22,26,29,31,117,120,122
+checks/zsh-agent-shell.nu
+  s_a4a3eea4720821::t_fe334567c0e185 10,16,55,87,90,92
+hack/check-script-blocks.sh
+  s_a4a3eea4720821::t_9b6a925c71262b 2-3
+hack/format.sh
+  s_a4a3eea4720821::t_2222b717fa62b6 3
+hack/lint.sh
+  s_a4a3eea4720821::t_dbdb6696b296f0 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "06ea09fafd7b68b739a98d21d6e724ad351c23c9",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
