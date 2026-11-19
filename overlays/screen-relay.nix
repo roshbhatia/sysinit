@@ -10,8 +10,9 @@ let
     hash = "sha256-oiMQG3xISh6pO3mOkBxMhWA+o/rNua/Q11wdjoisKl4=";
   };
 
-  # Programs the CLI starts for a Linux X11 session with an XFCE desktop.
-  linuxSessionPrograms = [
+  # The X11 and XFCE groups of upstream packages.tsv. xfce4-session reads its
+  # default session from XDG_CONFIG_DIRS, so the wrapper exports those paths too.
+  linuxSession = [
     final.util-linux
     final.xorg-server
     final.xauth
@@ -19,8 +20,35 @@ let
     final.xwininfo
     final.xdpyinfo
     final.setxkbmap
-    final.xfce4-session
     final.dbus
+    final.at-spi2-core
+    final.xfce4-session
+    final.xfwm4
+    final.xfce4-panel
+    final.xfdesktop
+    final.xfce4-settings
+    final.xfconf
+    final.thunar
+    final.xfce4-terminal
+    final.dejavu_fonts
+    final.librsvg
+    final.gdk-pixbuf
+    final.hicolor-icon-theme
+    final.adwaita-icon-theme
+  ];
+  linuxWrapperFlags = final.lib.escapeShellArgs [
+    "--prefix"
+    "PATH"
+    ":"
+    (final.lib.makeBinPath linuxSession)
+    "--prefix"
+    "XDG_DATA_DIRS"
+    ":"
+    (final.lib.makeSearchPath "share" linuxSession)
+    "--prefix"
+    "XDG_CONFIG_DIRS"
+    ":"
+    (final.lib.makeSearchPath "etc/xdg" linuxSession)
   ];
 in
 {
@@ -64,9 +92,7 @@ in
       install -Dm755 relay-engine $out/libexec/screen-relay/relay-engine
       makeWrapper ${final.lib.getExe final.nodejs_22} $out/bin/screen-relay \
         --add-flags $out/lib/screen-relay/dist/cli/relay.mjs \
-        ${final.lib.optionalString isLinux "--prefix PATH : ${
-          final.lib.makeBinPath ([ (placeholder "out") ] ++ linuxSessionPrograms)
-        }"}
+        ${final.lib.optionalString isLinux "--prefix PATH : $out/bin ${linuxWrapperFlags}"}
       ${final.lib.optionalString isLinux "ln -s $out/libexec/screen-relay/relay-engine $out/bin/relay-engine"}
       runHook postInstall
     '';
