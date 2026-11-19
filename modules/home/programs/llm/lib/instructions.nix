@@ -206,5 +206,13 @@ in
     outputStyle
     ;
   inherit (subagents) formatSubagentAsMarkdown;
-  subagentDefs = removeAttrs subagents [ "formatSubagentAsMarkdown" ];
+  subagentDefs =
+    optional:
+    lib.getAttrs (lib.unique (
+      [
+        "code-reviewer"
+        "review-mediator"
+      ]
+      ++ optional
+    )) subagents;
 }

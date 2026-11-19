@@ -50,7 +50,7 @@ let
 
   steOutputStyle = kit.llmLib.instructions.outputStyle.claude;
 
-  subagents = kit.llmLib.instructions.subagentDefs;
+  subagents = kit.llmLib.instructions.subagentDefs (config.sysinit.llm.optionalSubagents or [ ]);
 
   disabledBuiltinServers = config.sysinit.llm.mcp.disabledBuiltinServers;
   slackAllowedChannels = config.sysinit.llm.mcp.slackAllowedSendChannels;

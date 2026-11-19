@@ -5,6 +5,17 @@ let
 in
 {
   options.sysinit.llm = {
+    optionalSubagents = mkOption {
+      type = types.listOf (
+        types.enum [
+          "implementor"
+          "librarian"
+          "oracle"
+        ]
+      );
+      default = [ ];
+      description = "Additional specialized agents to expose in Claude Code and OpenCode.";
+    };
     notifications = {
       settings = mkOption {
         type = types.attrsOf types.anything;

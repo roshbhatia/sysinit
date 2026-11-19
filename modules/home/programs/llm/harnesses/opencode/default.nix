@@ -40,7 +40,7 @@ let
         harness = "opencode";
       };
     }
-  ) llmLib.instructions.subagentDefs;
+  ) (llmLib.instructions.subagentDefs (config.sysinit.llm.optionalSubagents or [ ]));
 
 in
 {
