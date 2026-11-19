@@ -154,7 +154,9 @@ def check [
 
     touch ($root | path join lock-release)
 
-    try { job kill $holder }
+    let released = ^flock --exclusive --timeout 5 $lock true | complete
+
+    assert equal $released.exit_code 0 'Timed out waiting for the fixture review lock to be released'
 
     assert equal $conflict.exit_code 73
 
