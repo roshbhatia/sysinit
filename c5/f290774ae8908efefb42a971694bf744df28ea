@@ -1,0 +1,21 @@
+checks/codex-config.nix
+  s_66f61b808b0520::t_5d5894b6002687 119-128
+modules/home/programs/llm/harnesses/codex-native-tools.py
+  s_66f61b808b0520::t_5563055113aaa1 4,8-19,33,41,65,69-85,88
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c5f290774ae8908efefb42a971694bf744df28ea",
+  "prompts": {},
+  "sessions": {
+    "s_66f61b808b0520": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0927ec18-df7b-4501-b352-1766e88da69b",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
