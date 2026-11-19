@@ -1,0 +1,107 @@
+hack/fixtures/update-flakes-command.nu
+  s_a4a3eea4720821::t_8df4150f175185 3,14,17,20,22,30-32,46
+hack/github-release-with-assets.nu
+  s_a4a3eea4720821::t_5a56fca17b9df6 9,14-15,20,22,24
+hack/test-github-release-with-assets.nu
+  s_a4a3eea4720821::t_88d43f7f607c47 43,45,47,49
+hack/test-update-flakes.nu
+  s_a4a3eea4720821::t_7cb1667a385f0c 5,8,10,13,17,20,22,24,26,28,30,32,34,43,49,56,58,66,69,71
+hack/update-flakes.nu
+  s_a4a3eea4720821::t_a6d9ed2685594b 3,5,18,20,22,24,26,29,31,33,36,38,40,42,50,54,56,60,63,66,68,71,73,75,77,79,81
+modules/darwin/defaults-incremental.nu
+  s_a4a3eea4720821::t_5fcf0b9cb48f3c 7,9,11,14,22,24,27,29,31,34,38,41,43,45,49,53,55
+modules/darwin/home/hammerspoon/emoji-data.nu
+  s_a4a3eea4720821::t_c733919fc1cc6c 5,11,33
+modules/darwin/home/hammerspoon/lua/sysinit/pkg/core/init.lua
+  s_a4a3eea4720821::t_579883f38c085e 12-15
+modules/darwin/home/hammerspoon/lua/sysinit/pkg/url_routing.lua
+  s_a4a3eea4720821::t_391ba4681f94da 66-67,73-74
+modules/darwin/home/sketchybar/lua/sysinit/pkg/widgets/music.lua
+  s_a4a3eea4720821::t_ca1795dd9cc8ab 93-95,97-99
+modules/darwin/home/sketchybar/lua/sysinit/pkg/widgets/volume.lua
+  s_a4a3eea4720821::t_f8146bc143b2ef 123-125,127-129
+modules/darwin/rift-transient-view.nu
+  s_a4a3eea4720821::t_df2864b4b19b24 7,11,18,26-28,36,38,45,47,49,51,61,69,71,73,75,90,98,101,107,109,111,115,117,119,122,124,127,129,131,142,144,150,152,154,156,158,160,162,164,166,174,179,185,187,189,192,194,199,201,203,217,219,221,223,225,234,236,241,243,247,249,251,257,262,264,269,271
+modules/darwin/sketchybar-health.nu
+  s_a4a3eea4720821::t_cde204752367eb 3,5,12,14,22,24,28,32,35,37,42,53,57,63,65,75,89,93,95,102,108,110,116,118,120,125,127,130,132,134,136,139,141,143-146,149,153,156,158,160,167,169,171,173,175,177,182
+modules/home/app-copy-state.nu
+  s_a4a3eea4720821::t_cff69f34dc5670 5,7,9,11,13,28,30,32,49,51,61,63,65,67,69,84,86,91,97,99,101,104,108,127,133,138,146
+modules/home/programs/gh-pr-diff.nu
+  s_a4a3eea4720821::t_90df0992c1a9f7 5,11,13,19,31,33,42,44,46,48,50,52,54,57,59,61,63,66,68,70,74,76,79,81,84,86,89,96,98,101,103,105,107,109,111,113,119,125,127,129,131,136-139,141-146,149
+modules/home/programs/git-ai/changes-provider.nu
+  s_a4a3eea4720821::t_23c1ef71151ef2 3,5,7,13,16,19,29,31,37,43,45,47,49,51,55,57,59,62,70,74,76,78,82,94,107,114,116,118,120,122,124,126,128,131,134,136,140,150,152,156,163,165,167,174,176,179,182,184-186,188,196,198,201,204,209,211,213,215,217,219,222,224,226,238,252,254,256,259,265,267,285,287,297,303,305,313
+modules/home/programs/git-ai/maintain-metrics.nu
+  s_a4a3eea4720821::t_af08fab4a99d7c 3,5,7,9,15,44,46,48,50,52,54,60,62,66,68,70,72,76,78,80,83,86,90,92,95,97,103,105,112,119,124,126,129,132,135,138,140,142,145,147,149,151,160,163-165,167,178,184
+modules/home/programs/llm/harnesses/codex-native-tools.nu
+  s_a4a3eea4720821::t_fc985cfcec05da 11,14,16,18,22,37,40,43,45,47,49,56,59,62,65,76,79,83,89,91,99,101,103,105,107,110,113,116,118,125,127,129,131,135,137,139,145,147
+modules/home/programs/llm/harnesses/codex-plugin-hooks.nu
+  s_a4a3eea4720821::t_910192406daa54 3,8,10,22,24,26,28,30,33,35,37,41
+modules/home/programs/llm/lib/managed-file-cache.nu
+  s_a4a3eea4720821::t_3751b42220a18c 10,28,31,36,38,40,43,47,50,55-57,63,73,76,78,80,83,85,87,89
+modules/home/programs/llm/runtime/ask-terminal.nu
+  s_a4a3eea4720821::t_23338db0408ad1 4,7,9-12,14
+modules/home/programs/llm/runtime/check-icons.nu
+  s_a4a3eea4720821::t_fac0efb4977df5 3,5,11,16,18,22,24,28,30,34,37,43
+modules/home/programs/llm/runtime/diff/open.nu
+  s_a4a3eea4720821::t_d810c66f7dc7b7 5,11,17,35,37,39,41,43,45,47,49,51,53,55,57,59,61,64,66,69,72,74,76,80,82,86,92,94,97,100,102,108,110,114,117,119,122,131,133,152,157,159,163,166,170,173-174
+modules/home/programs/llm/runtime/notifier-plist.nu
+  s_a4a3eea4720821::t_c6871d84bb5be1 3
+modules/home/programs/llm/runtime/output-rewrite/rewrite.nu
+  s_a4a3eea4720821::t_df1ef450a57fa1 6,8,10,19,23,29,31,40,42,45,47,49,51,53,55,57,59,61,63,65,67,70,72,75,77,79,81,83,86,99,101,103,111,119,121,123,125,127,129,131,134,137,139,142-148,150,153,162,168,170,174,176,178
+modules/home/programs/llm/skills/nix-deployment/scripts/host-state.nu
+  s_a4a3eea4720821::t_e5a0bae2cef40d 3,5,11,13,15,17,21,35,40,47,49,51,53
+modules/home/programs/llm/skills/skills-ecosystem-discovery/scripts/catalog.nu
+  s_a4a3eea4720821::t_7a29ea1513b8ad 3,5,7,9,11,14,16,19,21,27,30,40,61,63,65,67,69
+modules/home/programs/mail/email.nu
+  s_a4a3eea4720821::t_16ba9da4623df6 10,12,14,18,20,23-31,36,40,42,44,46,48
+modules/home/programs/nushell/attribution.nu
+  s_a4a3eea4720821::t_0fcd1633f9f575 3,5,12,18,20,27,33,51,57,69,71,73,75
+modules/home/programs/nushell/externs/completions.nu
+  s_a4a3eea4720821::t_b25705c621d9f7 3,31,33,40,78
+modules/home/programs/nushell/functions.nu
+  s_a4a3eea4720821::t_1088d5390baa93 27,47,49,53,55,57,61-64,67,73,77,79,85,87,91,94,96,98,100,102,104-107,113,116,118,120-123,125,127,130,132,148,151,153,157,166,169,171,173,176,179,189,193,200,204,213-215,218,238,249,258,271,284
+modules/home/programs/nushell/onepassword.nu
+  s_a4a3eea4720821::t_13a689cd7b911e 8,10,12,14,16,24,26,28,33,35,47,60,62,64,66,68,70,72,74,76,83
+modules/home/programs/nushell/storage.nu
+  s_a4a3eea4720821::t_633d1406a32a6e 9,11,13,25,31,41,43,45
+modules/home/programs/utils/dev/connect.nu
+  s_a4a3eea4720821::t_c5b2b1d054db6b 6,12,16,19,22,25,28,30
+modules/home/programs/utils/dev/ere-setup.nu
+  s_a4a3eea4720821::t_c72af5200eda99 5,15,17,25,29,37,41,47,55,70,78,80,84,86,88,92,94,96,98,100,106,108,110,112,117,119,121,123,125,127,129,133,137
+modules/home/programs/utils/dev/fzf-preview.nu
+  s_a4a3eea4720821::t_8a7f8a3e4a6a96 70,79,85,101,115,140,150,154
+modules/home/programs/utils/dev/task-context.nu
+  s_a4a3eea4720821::t_9f5dd486463964 8,17,19,21,29,31,33,35,38,42,52,54,56,58,65,70,72,74,76,82,86,90,97,101,103,107,109,111,113,115,126,128,130,145,147,151,153,157,170,175,191,196,201,211
+modules/home/programs/utils/dev/ty.nu
+  s_a4a3eea4720821::t_9809e90b8bed68 43,49,52,54,61,73,81,97,109,111,113,117,125,133,135,137,139,143,145,149,151,157,159,163,165,168,181,191,195,206,215,220,222,224,227,236,239,248,252,266,272,274,276,278,280,283,286,292,296,303,306,308,310,312,314,316,318,320,322,324,326,332,340,342,352,358,360,362,369,371,381,397,403,405,411,413,425,427,429,431,437,451,454,482
+modules/home/programs/utils/network/dns-flush.nu
+  s_a4a3eea4720821::t_ad80f47c00b498 7,9,11,16
+modules/home/programs/utils/system/audio-switcher.nu
+  s_a4a3eea4720821::t_40ab6738a53ce3 8,17,28,36,57,61,70,75,79,87
+modules/home/programs/utils/system/cache-maintain.nu
+  s_a4a3eea4720821::t_664dd88fa83537 25,28,42,44,46,50,54,56,60,64,71,74,77,81,88,90,102,105,107,109,111,114,116,119
+modules/home/programs/utils/system/set-background.nu
+  s_a4a3eea4720821::t_49e624f4305193 5,9,11,20,25,29,32,34,36,39,44,47,50,53,65,70,94,111,113,116,119,121,130,134,136,144
+modules/nixos/home/sunshine-apps-gen.nu
+  s_a4a3eea4720821::t_fa40e08b4b277f 8,10,16,18,20,22,25,27,29,31,33,35-37,42,67,69,75,77,79,83,85,91,93,95,97,99,103,105,111,113,117,119,125,127,129,131,135,141,143,145,150-153,155,157,163,176,178,180,182
+modules/nixos/runner-operator.nu
+  s_a4a3eea4720821::t_d8da7d9da239c0 3,5,7,14,16,18,23,25,27,29
+overlays/task-queue-picker/provider.nu
+  s_a4a3eea4720821::t_3ee618f79e6f65 3,5,12,16,22,24,33,35,43,45,47,49,55,57,59,62,68-70,77,79,83,85,87,92,113,116,119,123,125,127,129,132,138,140,149,155,161,163,172
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "de3613f5ba6e38a509e6b9c7306ef460588b56ca",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
