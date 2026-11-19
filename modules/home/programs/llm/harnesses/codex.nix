@@ -69,7 +69,6 @@ let
   ) (kit.mcpServers.serversFor "codex");
 
   codexManagedFiles = [ "config.toml" ] ++ map (n: "${n}.config.toml") (lib.attrNames codexProfiles);
-  nativeToolsPython = pkgs.python3.withPackages (ps: [ ps.tomlkit ]);
   daemonCommand = [
     "${config.programs.codex.package}/bin/codex"
     "app-server"
@@ -114,7 +113,8 @@ in
     inherit (nativeHooks) packages;
     activation = {
       codexNativeTools = lib.hm.dag.entryBetween [ "llmManagedFiles" ] [ "writeBoundary" ] ''
-        $DRY_RUN_CMD ${lib.getExe nativeToolsPython} ${./codex-native-tools.py}
+        $DRY_RUN_CMD ${lib.getExe pkgs.nushell} --no-config-file ${./codex-native-tools.nu} \
+          --chmod-command ${lib.getExe' pkgs.coreutils "chmod"}
       '';
       codexPluginHooks = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         $DRY_RUN_CMD ${lib.getExe pkgs.nushell} --no-config-file ${./codex-plugin-hooks.nu} \

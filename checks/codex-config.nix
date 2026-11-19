@@ -38,7 +38,8 @@ let
         inherit pkgs;
         files.codex = home.sysinit.llm.managedFiles."codex-config.toml";
       };
-  nativeToolsPython = pkgs.python3.withPackages (ps: [ ps.tomlkit ]);
+  nativeTools = "${lib.getExe pkgs.nushell} --no-config-file ${../modules/home/programs/llm/harnesses/codex-native-tools.nu} --chmod-command ${lib.getExe' pkgs.coreutils "chmod"}";
+  tomlPython = pkgs.python3.withPackages (ps: [ ps.tomlkit ]);
 in
 assert home.programs.codex.settings.features.hooks;
 assert builtins.all (event: home.programs.codex.settings.hooks.${event} != [ ]) [
@@ -91,11 +92,11 @@ pkgs.runCommand "codex-config" { } ''
   [features]
   js_repl = false
   EOF
-  ${lib.getExe nativeToolsPython} ${../modules/home/programs/llm/harnesses/codex-native-tools.py}
+  ${nativeTools}
   ${bootstrapReconciler}/bin/sysinit-llm-reconcile
   ${lib.getExe pkgs.codex} mcp list > "$TMPDIR/mcp-list"
   grep -F 'node_repl' "$TMPDIR/mcp-list"
-  ${lib.getExe nativeToolsPython} - <<'PY'
+  ${lib.getExe tomlPython} - <<'PY'
   import os
   from pathlib import Path
   import tomlkit
@@ -113,7 +114,7 @@ pkgs.runCommand "codex-config" { } ''
   document["plugins"]["browser@openai-bundled"]["enabled"] = False
   path.write_text(tomlkit.dumps(document))
   PY
-  ${lib.getExe nativeToolsPython} ${../modules/home/programs/llm/harnesses/codex-native-tools.py}
+  ${nativeTools}
   grep -A 1 '\[plugins."browser@openai-bundled"\]' "$HOME/.codex/config.toml" | grep -F 'enabled = false'
 
   export HOME="$TMPDIR/empty-native-server-home"
@@ -121,7 +122,7 @@ pkgs.runCommand "codex-config" { } ''
   touch "$HOME/.codex/.sysinit-native-tools-v1"
   printf '%s\n' '[mcp_servers.node_repl]' '[plugins."browser@openai-bundled"]' 'enabled = false' \
     > "$HOME/.codex/config.toml"
-  ${lib.getExe nativeToolsPython} ${../modules/home/programs/llm/harnesses/codex-native-tools.py}
+  ${nativeTools}
   ! grep -F 'node_repl' "$HOME/.codex/config.toml"
   grep -F 'enabled = false' "$HOME/.codex/config.toml"
   ${lib.getExe pkgs.codex} mcp list
