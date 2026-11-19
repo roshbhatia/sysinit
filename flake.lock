@@ -1626,17 +1626,17 @@
         "roster": "roster"
       },
       "locked": {
-        "lastModified": 1795116617,
-        "narHash": "sha256-E0VKs92kupuROxVXDzoy973ExSbNkjggXwbH6mRQ+3w=",
+        "lastModified": 1795118166,
+        "narHash": "sha256-uiUbgJo1BV2Du3592XxJ5NcskYc47YnRxrLNKoEGQfU=",
         "owner": "roshbhatia",
         "repo": "seshy",
-        "rev": "d381ba9809d3d31d9e5a2b0e7f5f0919f519c787",
+        "rev": "06c90a3653d1bd2908be90b12fadf0a4f21fe329",
         "type": "github"
       },
       "original": {
         "owner": "roshbhatia",
         "repo": "seshy",
-        "rev": "d381ba9809d3d31d9e5a2b0e7f5f0919f519c787",
+        "rev": "06c90a3653d1bd2908be90b12fadf0a4f21fe329",
         "type": "github"
       }
     },

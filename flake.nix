@@ -88,7 +88,7 @@
     };
 
     seshy = {
-      url = "github:roshbhatia/seshy/d381ba9809d3d31d9e5a2b0e7f5f0919f519c787";
+      url = "github:roshbhatia/seshy/06c90a3653d1bd2908be90b12fadf0a4f21fe329";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
