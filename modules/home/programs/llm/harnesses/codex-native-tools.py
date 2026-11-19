@@ -1,9 +1,21 @@
 import os
-from pathlib import Path
 import shutil
 import tempfile
+from pathlib import Path
 
 import tomlkit
+
+NATIVE_SERVERS = ("computer-use", "cua_repl", "node_repl")
+
+
+def write_atomically(root, path, text):
+    fd, temporary = tempfile.mkstemp(dir=root, prefix=".native-tools-")
+    try:
+        with os.fdopen(fd, "w") as output:
+            output.write(text)
+        os.replace(temporary, path)
+    finally:
+        Path(temporary).unlink(missing_ok=True)
 
 
 def migrate(root):
@@ -18,7 +30,7 @@ def migrate(root):
         original = path.read_text()
         document = tomlkit.parse(original)
         servers = document.get("mcp_servers", {})
-        for name in ("computer-use", "cua_repl", "node_repl"):
+        for name in NATIVE_SERVERS:
             server = servers.get(name)
             if server is None:
                 continue
@@ -26,7 +38,7 @@ def migrate(root):
                 server.get("enabled") is False
                 and (
                     name != "node_repl"
-                    or server.get("command", "").endswith("/bin/false")
+                    or server.get("command", "/bin/false").endswith("/bin/false")
                 )
             ):
                 del servers[name]
@@ -50,15 +62,27 @@ def migrate(root):
             if not backup.exists():
                 shutil.copy2(path, backup)
                 backup.chmod(0o600)
-            fd, temporary = tempfile.mkstemp(dir=root, prefix=".native-tools-")
-            try:
-                with os.fdopen(fd, "w") as output:
-                    output.write(updated)
-                os.replace(temporary, path)
-            finally:
-                Path(temporary).unlink(missing_ok=True)
+            write_atomically(root, path, updated)
     marker.touch(mode=0o600)
+
+
+# Codex rejects an MCP server table with no transport; v1 of migrate left these.
+def drop_transportless_servers(root):
+    config = root / "config.toml"
+    if not config.exists():
+        return
+    original = config.read_text()
+    document = tomlkit.parse(original)
+    servers = document.get("mcp_servers", {})
+    for name in NATIVE_SERVERS:
+        server = servers.get(name)
+        if server is not None and "command" not in server and "url" not in server:
+            del servers[name]
+    updated = tomlkit.dumps(document)
+    if updated != original:
+        write_atomically(root, config, updated)
 
 
 if __name__ == "__main__":
     migrate(Path.home() / ".codex")
+    drop_transportless_servers(Path.home() / ".codex")

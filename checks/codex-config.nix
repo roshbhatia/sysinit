@@ -116,5 +116,15 @@ pkgs.runCommand "codex-config" { } ''
   ${lib.getExe nativeToolsPython} ${../modules/home/programs/llm/harnesses/codex-native-tools.py}
   grep -A 1 '\[plugins."browser@openai-bundled"\]' "$HOME/.codex/config.toml" | grep -F 'enabled = false'
 
+  export HOME="$TMPDIR/empty-native-server-home"
+  mkdir -p "$HOME/.codex"
+  touch "$HOME/.codex/.sysinit-native-tools-v1"
+  printf '%s\n' '[mcp_servers.node_repl]' '[plugins."browser@openai-bundled"]' 'enabled = false' \
+    > "$HOME/.codex/config.toml"
+  ${lib.getExe nativeToolsPython} ${../modules/home/programs/llm/harnesses/codex-native-tools.py}
+  ! grep -F 'node_repl' "$HOME/.codex/config.toml"
+  grep -F 'enabled = false' "$HOME/.codex/config.toml"
+  ${lib.getExe pkgs.codex} mcp list
+
   touch "$out"
 ''
