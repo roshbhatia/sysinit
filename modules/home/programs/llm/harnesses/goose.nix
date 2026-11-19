@@ -10,8 +10,9 @@ let
   routeServer = import ../lib/mcp-routing.nix { inherit lib pkgs; };
 
   bundledExtensions = {
+    # agent-desktop and screen-relay replace its UI automation; see the computer-use skill.
     computercontroller = {
-      enabled = true;
+      enabled = false;
       description = "macOS UI automation, web scraping, and office-document tools";
     };
     autovisualiser = {

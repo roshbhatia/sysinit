@@ -40,20 +40,29 @@ let
     if signing.enable then stablePath pkgs.screen-relay [ "relay-engine" ] else pkgs.screen-relay;
 in
 {
-  sysinit.codesign.binaries = lib.mkIf signing.enable signed;
-
   home.packages = [
     agentDesktop
     screenRelay
   ];
 
-  sysinit.llm.mcp.additionalServers.agent-desktop = {
-    command = lib.getExe agentDesktop;
-    # The owner approved physical input; ref actions still try the accessibility API first.
-    args = [
-      "--headed"
-      "mcp"
+  sysinit = {
+    codesign.binaries = lib.mkIf signing.enable signed;
+
+    llm.instructions.skillRoutes = [
+      {
+        intent = "Desktop computer use, instead of a harness's built-in computer-use or screenshot tools";
+        skills = [ "computer-use" ];
+      }
     ];
-    description = "Operate native desktop apps through the OS accessibility tree";
+
+    llm.mcp.additionalServers.agent-desktop = {
+      command = lib.getExe agentDesktop;
+      # The owner approved physical input; ref actions still try the accessibility API first.
+      args = [
+        "--headed"
+        "mcp"
+      ];
+      description = "Operate native desktop apps through the OS accessibility tree";
+    };
   };
 }

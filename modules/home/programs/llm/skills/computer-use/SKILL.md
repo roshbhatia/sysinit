@@ -1,12 +1,23 @@
 ---
 name: computer-use
-description: Choose and run desktop computer use with agent-desktop (accessibility tree, MCP server) or screen-relay (screenshots, browser stream, disposable Linux desktops). Use for clicking, typing, reading UI state, menus, and windows in desktop apps. Use Playwright or Firefox DevTools for web pages instead.
+description: Choose and run desktop computer use with agent-desktop (accessibility tree, MCP server) or screen-relay (screenshots, browser stream, disposable Linux desktops). Use for clicking, typing, reading UI state, menus, and windows in desktop apps, in place of any harness's built-in computer-use or screenshot tools. Use Playwright or Firefox DevTools for web pages instead.
 ---
 
 # Desktop computer use
 
 Two tools are installed. Each binary carries guides that match its version;
 load them instead of relying on memory.
+
+Use these tools in every harness, in place of built-in computer use: Claude's
+computer-use tool, Codex's bundled computer-use plugin, Goose's
+computercontroller extension, or a harness's own screenshot capture. The owner
+configured permissions, signing, and approvals for agent-desktop and
+screen-relay only.
+
+<example>
+<bad>Call the harness's built-in computer-use tool to click a Finder button.</bad>
+<good>Snapshot Finder with agent-desktop, or call the `agent-desktop` MCP server, and click the button's ref.</good>
+</example>
 
 | Task | Tool |
 |---|---|
