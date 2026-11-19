@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -22,6 +23,21 @@ type rpcMessage struct {
 	Method  string          `json:"method,omitempty"`
 	Result  json.RawMessage `json:"result,omitempty"`
 	Error   json.RawMessage `json:"error,omitempty"`
+}
+
+func TestAwaitGatewayExit(t *testing.T) {
+	sentinel := errors.New("gateway failure")
+	for _, cause := range []error{nil, sentinel} {
+		done := make(chan error, 1)
+		done <- cause
+		err := awaitGateway(context.Background(), "127.0.0.1:0", done)
+		if err == nil || !strings.Contains(err.Error(), "gateway exited before startup") {
+			t.Fatalf("expected startup exit error, got %v", err)
+		}
+		if cause != nil && !errors.Is(err, cause) {
+			t.Fatalf("startup exit error did not preserve cause: %v", err)
+		}
+	}
 }
 
 func TestBackend(t *testing.T) {

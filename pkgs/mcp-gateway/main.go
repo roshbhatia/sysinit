@@ -167,7 +167,10 @@ func awaitGateway(ctx context.Context, address string, done <-chan error) error 
 		case <-timer.C:
 			return errors.New("gateway startup timed out")
 		case err := <-done:
-			return fmt.Errorf("gateway exited before startup: %v", err)
+			if err == nil {
+				return errors.New("gateway exited before startup")
+			}
+			return fmt.Errorf("gateway exited before startup: %w", err)
 		case <-tick.C:
 			connection, err := net.DialTimeout("tcp", address, 100*time.Millisecond)
 			if err == nil {
