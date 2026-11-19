@@ -8,6 +8,10 @@ def main [script: path] {
 def --wrapped main [...args: string] {
     match $args.0 {
         pr => {
+            if $env.GH_AUDIT_SLOW? != null {
+                sleep 2sec
+                touch $env.GH_AUDIT_SLOW
+            }
             {
                 url: $args.2
                 state: OPEN
@@ -37,10 +41,21 @@ def --wrapped main [...args: string] {
             assert equal $rows.0.checks.0.state SUCCESS
             assert ($rows.1.error | str contains canonical)
 
-            let watched = ^$nu.current-exe --no-config-file $script watch $url --interval 5ms --timeout 100ms | complete
+            let watched = ^$nu.current-exe --no-config-file $script watch $url --interval 1sec --timeout 500ms | complete
             assert equal $watched.exit_code 8 $watched.stderr
             assert equal ($watched.stdout | lines | length) 1
             assert equal ($watched.stdout | from json | get head) abc123
+
+            let invalid = ^$nu.current-exe --no-config-file $script watch invalid | complete
+            assert equal $invalid.exit_code 1
+            assert ($invalid.stderr | str contains canonical)
+
+            let finished = $root | path join slow-call-finished
+            let slow = with-env {GH_AUDIT_SLOW: $finished} {
+                ^$nu.current-exe --no-config-file $script watch $url --timeout 250ms | complete
+            }
+            assert equal $slow.exit_code 8 $slow.stderr
+            assert (not ($finished | path exists))
         }
     }
 }

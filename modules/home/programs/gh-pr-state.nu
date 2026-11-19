@@ -11,29 +11,47 @@ const threads_query = 'query($owner: String!, $repo: String!, $number: Int!, $en
     }
 }'
 
-def --wrapped github [...arguments: string] {
-    let result = ^timeout 20s gh ...$arguments | complete
+def --wrapped github [deadline: datetime, ...arguments: string] {
+    let remaining = ([
+        20sec
+        ($deadline - (date now))
+    ] | math min)
+
+    if $remaining <= 0sec { error make {msg: 'GitHub observation deadline elapsed'} }
+
+    let seconds = ($remaining / 1sec) | into string
+
+    let result = ^timeout --signal=KILL $seconds gh ...$arguments | complete
 
     if $result.exit_code != 0 {
+        let message = $result.stderr | str trim
+
         error make {
-            msg: ($result.stderr | str trim)
+            msg: (
+                if $message == '' { $'GitHub observation failed with exit ($result.exit_code)' } else { $message }
+            )
         }
     }
 
     $result.stdout
 }
 
-def inspect [url: string] {
-    let target = $url
+def parse-url [url: string] {
+    $url
     | parse --regex '^https://github\.com/(?<owner>[a-zA-Z0-9_.-]+)/(?<repo>[a-zA-Z0-9_.-]+)/pull/(?<number>[1-9][0-9]*)$'
     | first
+}
+
+def inspect [url: string, deadline: datetime] {
+    let target = parse-url $url
 
     if $target == null { error make {msg: 'Expected a canonical GitHub pull request URL'} }
 
-    let pr = github pr view $url --json $fields | from json
+    let pr = github $deadline pr view $url --json $fields | from json
 
     let unresolved = if $pr.state == OPEN {
         (github
+            $deadline
             api
             graphql
             --paginate
@@ -78,10 +96,10 @@ def inspect [url: string] {
     }
 }
 
-def snapshot [urls: list<string>] {
+def snapshot [urls: list<string>, deadline?: datetime] {
     $urls | uniq | each {|url|
         try {
-            inspect $url
+            inspect $url ($deadline | default ((date now) + 40sec))
         } catch {|failure|
             {url: $url, error: $failure.msg}
         }
@@ -99,12 +117,18 @@ def 'main watch' [--interval: duration = 1min, --timeout: duration = 30min, ...u
         error make {msg: 'Pass PR URLs and positive interval and timeout values'}
     }
 
+    if ($urls | any {|url| (parse-url $url) == null}) {
+        error make {msg: 'Expected canonical GitHub pull request URLs'}
+    }
+
     let deadline = (date now) + $timeout
 
     mut previous = []
 
     loop {
-        let current = snapshot $urls
+        if (date now) >= $deadline { exit 8 }
+
+        let current = snapshot $urls $deadline
 
         for row in $current {
             if $row not-in $previous {
@@ -112,15 +136,15 @@ def 'main watch' [--interval: duration = 1min, --timeout: duration = 30min, ...u
             }
         }
 
+        let remaining = $deadline - (date now)
+
+        if $remaining <= 0sec { exit 8 }
+
         if ($current | all {|row| $row.ready? == true or $row.state? in [MERGED CLOSED]}) {
             return
         }
 
         $previous = $current
-
-        let remaining = $deadline - (date now)
-
-        if $remaining <= 0sec { exit 8 }
 
         sleep ([$remaining $interval] | math min)
     }
