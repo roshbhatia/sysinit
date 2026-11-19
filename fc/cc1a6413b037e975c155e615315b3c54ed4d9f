@@ -1,0 +1,29 @@
+flake.lock
+  s_62c4cb57de6538::t_a909a7c30933e7 1629-1630,1633,1639,1651-1652,1655,1661,1799-1800,1803,1822-1823,1826,1832
+flake.nix
+  s_a4a3eea4720821::t_3ff630e77d53ae 91,131
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "fccc1a6413b037e975c155e615315b3c54ed4d9f",
+  "prompts": {},
+  "sessions": {
+    "s_62c4cb57de6538": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ec00-1de2-7bc2-a676-ca7ded8f2943",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
