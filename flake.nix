@@ -395,7 +395,6 @@
             "seshy-picker"
             "tether-picker"
             "zoxide-picker"
-            "zmx-picker"
           ];
 
           linuxCacheAttrs = [

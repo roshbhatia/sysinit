@@ -30,7 +30,6 @@ in
         ./taskwarrior.nix
         ./utils
         ./vivid.nix
-        ./zmx
         ./zoxide.nix
         ./zsh
       ];

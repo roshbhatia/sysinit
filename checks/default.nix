@@ -197,7 +197,7 @@ in
         nativeBuildInputs = [
           pkgs.python3
           pkgs.pueue
-          pkgs.zmx
+          pkgs.wezterm
           pkgs.bash
           pkgs.coreutils
         ];
@@ -537,43 +537,6 @@ in
           'use ${nuFunctions} *; ls | columns | to json -r' \
           | jq -e 'index("icon") != null' > /dev/null
         touch $out
-      '';
-  zmx-nushell =
-    pkgs.runCommand "zmx-nushell"
-      {
-        nativeBuildInputs = [
-          pkgs.nushell
-          pkgs.gnugrep
-        ];
-      }
-      ''
-        mkdir -p fake-bin
-        cat > fake-bin/wezterm-pane-name <<'SH'
-        #!/bin/sh
-        printf '%s\n' quiet-falcon
-        SH
-        cat > fake-bin/zmx <<'SH'
-        #!/bin/sh
-        printf '%s\n' "$*" >> "$ZMX_TEST_LOG"
-        SH
-        chmod +x fake-bin/wezterm-pane-name fake-bin/zmx
-        export PATH="$PWD/fake-bin:$PATH"
-        export ZMX_TEST_LOG="$TMPDIR/zmx-args"
-        export WEZTERM_PANE=18
-        export ZMX_SESSION_PREFIX=
-
-        nu --no-config-file -c 'use ${nuFunctions} *; persist'
-        grep -Fx 'attach quiet-falcon' "$ZMX_TEST_LOG"
-
-        : > "$ZMX_TEST_LOG"
-        export ZMX_SESSION=quiet-falcon
-        nu --no-config-file -c 'use ${nuFunctions} *; persist'
-        test ! -s "$ZMX_TEST_LOG"
-
-        unset ZMX_SESSION
-        nu --no-config-file -c 'use ${nuFunctions} *; if ((scope commands | where name == "zmx" | length) != 0) { error make {msg: "zmx must remain an external command"} }; zmx list --short'
-        grep -Fx 'list --short' "$ZMX_TEST_LOG"
-        touch "$out"
       '';
 }
 // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {

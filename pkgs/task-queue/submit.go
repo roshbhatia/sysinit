@@ -18,7 +18,7 @@ func submit(args []string, dir string, records []attempt) (int, error) {
 	thread := f.String("thread", "", "Exact Atuin captured-thread ID")
 	cwd := f.String("cwd", "", "Working directory")
 	group := f.String("group", "agents", "Pueue group")
-	terminal := f.Bool("terminal", false, "Attachable zmx session")
+	terminal := f.Bool("terminal", false, "Attachable WezTerm mux terminal")
 	retry := f.Bool("retry", false, "New attempt after completion")
 	if e = f.Parse(args); e != nil {
 		return 1, e

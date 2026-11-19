@@ -12,7 +12,7 @@ let
       pkgs.pueue
       pkgs.taskwarrior-cli
       pkgs.seshy
-      pkgs.zmx
+      pkgs.wezterm
       pkgs.atuin
       pkgs.pueue-task-view
     ];

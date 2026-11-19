@@ -6,7 +6,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strconv"
 )
@@ -178,9 +177,7 @@ func run(args []string) (int, error) {
 		}
 		s := state(j.Status)
 		if a.Terminal != "" && (s == "Running" || s == "Paused") {
-			c := exec.Command("zmx", "kill", a.Terminal, "--force")
-			c.Env = envWithout("ZMX_SESSION", "ZMX_SESSION_PREFIX")
-			if e = c.Run(); e != nil {
+			if e = killTerminal(a.Terminal); e != nil {
 				return 1, e
 			}
 		}

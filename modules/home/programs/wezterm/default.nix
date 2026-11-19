@@ -167,11 +167,6 @@ in
           manifest = "${pkgs.tether-picker}/share/wezterm/providers/tether.json";
         }
         {
-          name = "zmx";
-          key = "#";
-          manifest = "${pkgs.zmx-picker}/share/wezterm/providers/zmx.json";
-        }
-        {
           name = "seshy";
           key = "$";
           manifest = "${pkgs.seshy-picker}/share/wezterm/providers/seshy.json";
@@ -191,7 +186,6 @@ in
       ];
       cwd_aliases.sy = config.sysinit.paths.resolved.seshySessions;
       passthrough_procs = [
-        "zmx"
         "caffeinate"
       ];
     };

@@ -50,7 +50,7 @@ conversation. `task-queue browse --thread <id>` filters by exact conversation ID
 the Threads picker's **Queue attempts** action opens this view. Use
 `task-queue thread <attempt-uuid>` to inspect a linked conversation directly.
 
-Add `--terminal` before `--` for an attachable zmx session. Queue output includes
+Add `--terminal` before `--` for an attachable WezTerm mux workspace. Queue output includes
 the attempt UUID and Pueue job ID; retain both with the Taskwarrior UUID. A
 Taskwarrior session ownership marker remains coordination metadata, not a lock.
 

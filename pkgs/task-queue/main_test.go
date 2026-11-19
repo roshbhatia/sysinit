@@ -145,20 +145,32 @@ func fixtureFor(t *testing.T) *fixture {
 	if e != nil {
 		t.Fatal(e)
 	}
+	socket := filepath.Join(root, "mux.sock")
+	muxConfig := filepath.Join(root, "mux.lua")
+	if e = os.WriteFile(muxConfig, []byte(fmt.Sprintf("return { unix_domains = { { name = %q, socket_path = %q } }, mux_server_spawn_initial_tab = false }\n", muxDomain, socket)), 0600); e != nil {
+		t.Fatal(e)
+	}
 	f.env = append(
-		envWithout("ZMX_SESSION", "ZMX_SESSION_PREFIX", "PUEUE_CONFIG_PATH", "TASKRC", "TASKDATA", "SESHY_CONFIG"),
+		envWithout("WEZTERM_PANE", "WEZTERM_UNIX_SOCKET", "PUEUE_CONFIG_PATH", "TASKRC", "TASKDATA", "SESHY_CONFIG"),
 		"HOME="+root,
 		"XDG_CONFIG_HOME="+filepath.Join(root, "config"),
 		"XDG_STATE_HOME="+filepath.Join(root, "state"),
 		"PUEUE_CONFIG_PATH="+config,
 		"TASKRC="+rc,
 		"TASKDATA="+filepath.Join(root, "tasks"),
-		"ZMX_DIR="+filepath.Join(root, "z"),
-		"ZMX_SESSION_PREFIX=",
+		"TASK_QUEUE_WEZTERM_SOCKET="+socket,
+		"WEZTERM_UNIX_SOCKET="+socket,
 		"SHELL="+shell,
 	)
 	log, e := os.Create(filepath.Join(root, "daemon.log"))
 	if e != nil {
+		t.Fatal(e)
+	}
+	mux := exec.Command("wezterm-mux-server", "--config-file", muxConfig)
+	mux.Env = f.env
+	mux.Stdout = log
+	mux.Stderr = log
+	if e = mux.Start(); e != nil {
 		t.Fatal(e)
 	}
 	f.daemon = exec.Command("pueued")
@@ -173,10 +185,8 @@ func fixtureFor(t *testing.T) *fixture {
 			b, _ := f.command("pueue", "log", "--all")
 			t.Log(string(b))
 		}
-		b, _ := f.command("zmx", "list", "--short")
-		for _, name := range strings.Fields(string(b)) {
-			_, _ = f.command("zmx", "kill", name, "--force")
-		}
+		_ = mux.Process.Signal(syscall.SIGTERM)
+		_ = mux.Wait()
 		_ = f.daemon.Process.Signal(syscall.SIGTERM)
 		_ = f.daemon.Wait()
 		_ = log.Close()
@@ -184,7 +194,8 @@ func fixtureFor(t *testing.T) *fixture {
 	})
 	waitFor(t, func() bool {
 		_, e := os.Stat(filepath.Join(root, "socket"))
-		return e == nil
+		_, muxErr := os.Stat(socket)
+		return e == nil && muxErr == nil
 	})
 	return f
 }
@@ -199,9 +210,29 @@ func (f *fixture) task() string {
 	return rows[0].UUID
 }
 
+func (f *fixture) wezterm(args ...string) []byte {
+	return f.must("wezterm", append([]string{"cli", "--prefer-mux", "--no-auto-start"}, args...)...)
+}
+
+func (f *fixture) terminalPane(a attempt) (string, bool) {
+	var panes []struct {
+		PaneID    int    `json:"pane_id"`
+		Workspace string `json:"workspace"`
+	}
+	if e := json.Unmarshal(f.wezterm("list", "--format", "json"), &panes); e != nil {
+		f.t.Fatal(e)
+	}
+	for _, p := range panes {
+		if p.Workspace == a.Terminal {
+			return strconv.Itoa(p.PaneID), true
+		}
+	}
+	return "", false
+}
+
 func (f *fixture) terminalExists(a attempt) bool {
-	b, _ := f.command("zmx", "list", "--short")
-	return strings.Contains(string(b), a.Terminal)
+	_, ok := f.terminalPane(a)
+	return ok
 }
 
 func executable(t *testing.T, name string) string {
@@ -315,7 +346,8 @@ func TestTerminalInputAndFailure(t *testing.T) {
 		_, err := os.Stat(ready)
 		return err == nil
 	})
-	f.must("zmx", "send", a.Terminal, "hello\r")
+	pane, _ := f.terminalPane(a)
+	f.wezterm("send-text", "--pane-id", pane, "--no-paste", "hello\r")
 	r := f.finished(a)
 	if !strings.Contains(string(r.Result), `"Failed":7`) && !strings.Contains(string(r.Result), `"Failed": 7`) {
 		t.Fatalf("wrong exit: %s", r.Result)
@@ -329,7 +361,8 @@ func TestLostTerminalCannotSucceed(t *testing.T) {
 	f := fixtureFor(t)
 	a := f.submit("--terminal", "--", executable(t, "sleep"), "60")
 	waitFor(t, func() bool { return f.terminalExists(a) })
-	f.must("zmx", "kill", a.Terminal, "--force")
+	pane, _ := f.terminalPane(a)
+	f.wezterm("kill-pane", "--pane-id", pane)
 	if f.finished(a).Review {
 		t.Fatal("lost terminal succeeded")
 	}

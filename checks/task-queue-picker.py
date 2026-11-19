@@ -28,14 +28,21 @@ def check(provider, queue):
                 }
             )
         )
+        socket = root / "mux.sock"
+        mux_config = root / "mux.lua"
+        mux_config.write_text(
+            f'return {{ unix_domains = {{ {{ name = "unix", socket_path = "{socket}" }} }}, '
+            "mux_server_spawn_initial_tab = false }\n"
+        )
         env = os.environ | {
+            "HOME": str(root),
             "PUEUE_CONFIG_PATH": str(config),
             "XDG_STATE_HOME": str(root / "state"),
-            "ZMX_DIR": str(root / "zmx"),
-            "ZMX_SESSION_PREFIX": "",
+            "TASK_QUEUE_WEZTERM_SOCKET": str(socket),
+            "WEZTERM_UNIX_SOCKET": str(socket),
             "SHELL": "/bin/sh",
         }
-        env.pop("ZMX_SESSION", None)
+        env.pop("WEZTERM_PANE", None)
 
         def run(*args, data=None):
             return subprocess.run(
@@ -55,6 +62,15 @@ def check(provider, queue):
                     return result
                 time.sleep(0.1)
             raise AssertionError("isolated task queue did not become ready")
+
+        def mux(*args):
+            return run("wezterm", "cli", "--prefer-mux", "--no-auto-start", *args)
+
+        def panes():
+            return {
+                pane["workspace"]: str(pane["pane_id"])
+                for pane in json.loads(mux("list", "--format", "json"))
+            }
 
         def request(capability, identifier=None):
             payload = {
@@ -102,10 +118,15 @@ def check(provider, queue):
                     os.waitpid(child, 0)
 
         with (root / "daemon.log").open("w") as log:
+            server = subprocess.Popen(
+                ["wezterm-mux-server", "--config-file", str(mux_config)],
+                env=env,
+                stdout=log,
+                stderr=log,
+            )
             daemon = subprocess.Popen(["pueued"], env=env, stdout=log, stderr=log)
-            terminal = None
             try:
-                wait(lambda: (root / "socket").exists())
+                wait(lambda: (root / "socket").exists() and socket.exists())
                 run(
                     "pueue",
                     "add",
@@ -136,7 +157,7 @@ def check(provider, queue):
                     )
                 )
                 terminal = record["terminal"]
-                wait(lambda: terminal in run("zmx", "list", "--short").splitlines())
+                wait(lambda: terminal in panes())
                 identifier = str(record["pueue_id"])
                 result = request("picker.list")
                 assert result["status"] == "ok", result
@@ -146,33 +167,33 @@ def check(provider, queue):
                 assert "Running" in items[0]["segments"][0]["text"], items
                 assert "terminal/logs" in items[0]["segments"][1]["text"], items
                 plan = request("picker.open", identifier)["output"]
-                assert plan["command"][-2:] == ["attach", terminal], plan
+                assert plan["label"] == terminal, plan
                 assert plan["cwd"] == str(root), plan
-                assert "ZMX_SESSION" in plan["command"], plan
-                open_terminal(plan, b"PICKER_FIXTURE", b"\x1c")
+                wait(
+                    lambda: (
+                        "PICKER_FIXTURE"
+                        in mux("get-text", "--pane-id", panes()[terminal])
+                    )
+                )
                 completed = request("picker.open", "0")["output"]
                 assert completed["command"][-2:] == ["0", "log"], completed
                 open_terminal(completed, b"LOG_FIXTURE", b"q")
                 assert request("picker.open", "9999")["status"] == "error"
                 assert request("picker.open", "../0")["status"] == "error"
-                run("zmx", "kill", terminal, "--force")
-                terminal = None
+                mux("kill-pane", "--pane-id", panes()[terminal])
+                wait(lambda: terminal not in panes())
                 fallback = request("picker.open", identifier)["output"]
-                assert "attach" not in fallback["command"], fallback
+                assert fallback["label"] != terminal, fallback
                 assert fallback["command"][-1] in ("follow", "log"), fallback
                 print(
-                    "Pueue picker: live discovery, native terminal attachment, completed logs, stale IDs, and lost-terminal fallback passed"
+                    "Pueue picker: live discovery, mux workspace attachment, completed logs, stale IDs, and lost-terminal fallback passed"
                 )
             finally:
-                if terminal:
-                    subprocess.run(
-                        ["zmx", "kill", terminal, "--force"],
-                        env=env,
-                        capture_output=True,
-                    )
                 subprocess.run(["pueue", "kill", "--all"], env=env, capture_output=True)
                 daemon.terminate()
                 daemon.wait(timeout=10)
+                server.terminate()
+                server.wait(timeout=10)
 
 
 check(*sys.argv[1:])

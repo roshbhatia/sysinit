@@ -51,7 +51,6 @@ in
             "op"
             "rustup"
             "yarn"
-            "zmx"
           ]
       + ''
         export use ${atuinCompletions} *

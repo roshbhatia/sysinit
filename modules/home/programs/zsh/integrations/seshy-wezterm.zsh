@@ -61,32 +61,6 @@ function s() {
   cd "$target" || return
 }
 
-# zmx holds terminal state in libghostty-vt and hands the client a grid snapshot,
-# so OSC never crosses it. Measured: a wrapped pane loses OSC 7 (wezterm reads
-# zmx's own cwd) and OSC 1337 SetUserVar (agent_state, IS_NVIM, wezcopy). `s`
-# used to attach on every switch, which put every agent behind that boundary.
-# Attaching is deliberate now, and `sz` is where you say so.
-function sz() {
-  if ! command -v zmx > /dev/null 2>&1; then
-    _seshy_err "zmx not found on PATH"
-    return 1
-  fi
-
-  local session
-  session=$(_seshy_session_name "$PWD")
-  if [[ -z $session ]]; then
-    _seshy_err "$PWD is not inside a seshy session"
-    return 1
-  fi
-
-  if [[ ${ZMX_SESSION:-} == "${ZMX_SESSION_PREFIX:-}${session}" ]]; then
-    _seshy_debug "already attached to $ZMX_SESSION"
-    return 0
-  fi
-
-  zmx attach "$session"
-}
-
 function sl() {
   _seshy_names
 }

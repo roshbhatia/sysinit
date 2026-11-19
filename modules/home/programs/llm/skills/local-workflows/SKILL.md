@@ -1,6 +1,6 @@
 ---
 name: local-workflows
-description: Choose the execution role and compose native helpers, separate harnesses, workspaces, queues, and terminals. Use at multi-step intake and for sy/seshy, Taskwarrior, task-queue/Pueue, zmx, worker, wezspawn, WezTerm, or command/session recovery with Atuin.
+description: Choose the execution role and compose native helpers, separate harnesses, workspaces, queues, and terminals. Use at multi-step intake and for sy/seshy, Taskwarrior, task-queue/Pueue, worker, wezspawn, WezTerm, or command/session recovery with Atuin.
 ---
 
 # Local workflows

@@ -84,16 +84,13 @@ func browse(args []string, records []attempt) error {
 	var labelsActions []string
 	var commands [][]string
 	if a.Terminal != "" {
-		out, err := call("zmx", "list", "--short")
+		panes, err := terminalPanes(a.Terminal)
 		if err != nil {
 			return err
 		}
-		for _, name := range strings.Split(string(out), "\n") {
-			if name == a.Terminal {
-				labelsActions = append(labelsActions, "Attach terminal")
-				commands = append(commands, []string{"env", "-u", "ZMX_SESSION", "-u", "ZMX_SESSION_PREFIX", "zmx", "attach", a.Terminal})
-				break
-			}
+		if len(panes) > 0 {
+			labelsActions = append(labelsActions, "Attach terminal")
+			commands = append(commands, []string{"wezterm", "connect", muxDomain, "--workspace", a.Terminal})
 		}
 	}
 	if a.PueueID != nil && state(a.Result) != "Missing" {

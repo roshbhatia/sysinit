@@ -14,7 +14,7 @@ let
       final.git
       final.taskwarrior-cli
       final.pueue
-      final.zmx
+      final.wezterm
       final.seshy
     ];
     TASK_QUEUE_TESTS = "1";

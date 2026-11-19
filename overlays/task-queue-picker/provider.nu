@@ -4,6 +4,15 @@ def command-output [program: string, arguments: list<string>] {
     $result.stdout
 }
 
+# Each attachable attempt runs in its own workspace on the persistent WezTerm mux.
+def terminal-live [wezterm: string, terminal: string] {
+    let socket = $env.TASK_QUEUE_WEZTERM_SOCKET? | default ($env.HOME | path join .local state wezterm mux.sock)
+    let panes = with-env {WEZTERM_UNIX_SOCKET: $socket} {
+        command-output $wezterm [cli --prefer-mux --no-auto-start list --format json]
+    }
+    $panes | from json | any {|pane| $pane.workspace == $terminal }
+}
+
 def attempt [job: record] {
     let label = $job.label? | default ''
     if not ($label | str starts-with 'task-queue:') { return {} }
@@ -43,12 +52,7 @@ def status [job: record] {
     } else { $name }
 }
 
-def respond [
-    request: record
-    zmx: string
-    viewer: string
-    environment: string
-] {
+def respond [request: record, wezterm: string, viewer: string] {
     if ($request.version? | default '') != provider/v1 or ($request.kind? | default '') != request {
         error make {msg: 'expected a provider/v1 request'}
     }
@@ -92,28 +96,17 @@ def respond [
         let job = $snapshot | get $identifier
         let record = attempt $job
         let terminal = $record.terminal? | default ''
-        let command = if $terminal != '' and $terminal in (command-output $zmx [list --short] | lines) {
-            [
-                $environment
-                -u
-                ZMX_SESSION
-                -u
-                ZMX_SESSION_PREFIX
-                $zmx
-                attach
-                $terminal
-            ]
-        } else {
-            [
-                $viewer
-                $identifier
-                (if (status $job) == Running { 'follow' } else { 'log' })
-            ]
-        }
+        # The launcher switches to an existing workspace named by the label and spawns only for a new one.
+        let label = if $terminal != '' and (terminal-live $wezterm $terminal) { $terminal } else { $'Pueue #($identifier)' }
+        let command = [
+            $viewer
+            $identifier
+            (if (status $job) == Running { 'follow' } else { 'log' })
+        ]
         let cwd = if ($job.path | path expand | path type) == dir { $job.path } else { $env.HOME }
         return {
             kind: spawn
-            label: $'Pueue #($identifier)'
+            label: $label
             cwd: $cwd
             command: $command
             environment: {}
@@ -122,7 +115,7 @@ def respond [
     error make {msg: $'unsupported capability: ($capability)'}
 }
 
-def main [zmx: string = 'zmx', viewer: string = 'pueue-task-view', environment: string = 'env'] {
+def main [wezterm: string = 'wezterm', viewer: string = 'pueue-task-view'] {
     let input = $in
     let parsed = try {
         $input | from json
@@ -133,7 +126,7 @@ def main [zmx: string = 'zmx', viewer: string = 'pueue-task-view', environment: 
     let result = try {
         {
             status: ok
-            output: (respond $request $zmx $viewer $environment)
+            output: (respond $request $wezterm $viewer)
         }
     } catch {|failure|
         {status: error, message: $failure.msg}

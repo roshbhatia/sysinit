@@ -136,49 +136,6 @@ export def --env s [name?: string] {
     cd $target
 }
 
-# zmx holds terminal state in libghostty-vt and hands the client a grid snapshot,
-# so OSC never crosses it. A wrapped pane loses OSC 7 and OSC 1337 SetUserVar,
-# which is every wezterm surface this config drives. Attaching stays deliberate.
-export def sz [] {
-    if (which zmx | is-empty) {
-        print -e "seshy: zmx not found on PATH"
-        return
-    }
-    let session = (sysinit-seshy-session $env.PWD)
-    if ($session | is-empty) {
-        print -e $"seshy: ($env.PWD) is not inside a seshy session"
-        return
-    }
-    let prefix = $env.ZMX_SESSION_PREFIX? | default ""
-    if ($env.ZMX_SESSION? | default "") == $"($prefix)($session)" {
-        return
-    }
-    ^zmx attach $session
-}
-
-# Attach this pane to the same persistent identity shown by WezTerm's pane badge.
-export def persist [] {
-    if ($env.WEZTERM_PANE? | is-empty) {
-        print -e "persist: run inside a WezTerm pane, or use zmx attach <session>"
-        return
-    }
-    let resolved = wezterm-pane-name | complete
-    if $resolved.exit_code != 0 {
-        print -e $"persist: could not resolve this pane's name: ($resolved.stderr | str trim)"
-        return
-    }
-    let session = $resolved.stdout | str trim
-    if ($session | is-empty) {
-        print -e "persist: pane name resolved to an empty session"
-        return
-    }
-    let prefix = $env.ZMX_SESSION_PREFIX? | default ""
-    if ($env.ZMX_SESSION? | default "") == $"($prefix)($session)" {
-        return
-    }
-    ^zmx attach $session
-}
-
 export def sl [] {
     sysinit-seshy-names
 }

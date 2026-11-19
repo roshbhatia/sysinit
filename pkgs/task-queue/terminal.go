@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"crypto/sha256"
 	"encoding/json"
@@ -34,6 +35,55 @@ func envWithout(keys ...string) []string {
 	return out
 }
 
+// The persistent WezTerm mux hosts attachable terminals, one workspace per attempt.
+const muxDomain = "unix"
+
+func wezterm(args ...string) *exec.Cmd {
+	c := exec.Command("wezterm", append([]string{"cli", "--prefer-mux", "--no-auto-start"}, args...)...)
+	socket := os.Getenv("TASK_QUEUE_WEZTERM_SOCKET")
+	if socket == "" {
+		// The socket path configured by the sysinit-wezterm module.
+		home, _ := os.UserHomeDir()
+		socket = filepath.Join(home, ".local", "state", "wezterm", "mux.sock")
+	}
+	c.Env = append(envWithout("WEZTERM_PANE"), "WEZTERM_UNIX_SOCKET="+socket)
+	return c
+}
+
+func terminalPanes(name string) ([]int, error) {
+	b, e := wezterm("list", "--format", "json").Output()
+	if e != nil {
+		return nil, fmt.Errorf("terminal mux unavailable: %w", e)
+	}
+	var panes []struct {
+		PaneID    int    `json:"pane_id"`
+		Workspace string `json:"workspace"`
+	}
+	if e = json.Unmarshal(b, &panes); e != nil {
+		return nil, e
+	}
+	ids := []int{}
+	for _, p := range panes {
+		if p.Workspace == name {
+			ids = append(ids, p.PaneID)
+		}
+	}
+	return ids, nil
+}
+
+func killTerminal(name string) error {
+	ids, e := terminalPanes(name)
+	if e != nil {
+		return e
+	}
+	for _, id := range ids {
+		if e = wezterm("kill-pane", "--pane-id", strconv.Itoa(id)).Run(); e != nil {
+			return e
+		}
+	}
+	return nil
+}
+
 func exitCode(e error) int {
 	if e == nil {
 		return 0
@@ -58,6 +108,20 @@ func ttyForeground(f *os.File, pid int) error {
 }
 
 func execute(a attempt, dir string, terminal bool) (int, error) {
+	if terminal {
+		// A mux pane starts with the server's environment, not the submitter's.
+		var environment []string
+		if e := read(filepath.Join(dir, a.ID+".environment"), &environment); e != nil {
+			return 1, e
+		}
+		os.Clearenv()
+		for _, entry := range environment {
+			key, value, _ := strings.Cut(entry, "=")
+			if e := os.Setenv(key, value); e != nil {
+				return 1, e
+			}
+		}
+	}
 	for k, v := range a.Env {
 		if e := os.Setenv(k, v); e != nil {
 			return 1, e
@@ -130,6 +194,10 @@ func execute(a attempt, dir string, terminal bool) (int, error) {
 			if writeErr := save(filepath.Join(dir, a.ID+".exit"), map[string]int{"code": code}); writeErr != nil {
 				return 1, writeErr
 			}
+			// Hold the pane open so its output stays attachable after the command ends.
+			_ = ttyForeground(tty, syscall.Getpgrp())
+			_, _ = fmt.Fprintf(tty, "\n[task-queue] command exited with status %d; press Enter to close\n", code)
+			_, _ = bufio.NewReader(tty).ReadString('\n')
 			return code, e
 		case s := <-signals:
 			return 128 + int(s.(syscall.Signal)), errors.Join(fmt.Errorf("terminal interrupted: %s", s), stop())
@@ -186,35 +254,42 @@ func terminalRun(a attempt, dir string) (int, error) {
 	if e != nil {
 		return 1, e
 	}
-	c := exec.Command("zmx", "run", a.Terminal, self, "--state", dir, "terminal-child", a.ID)
-	c.Dir = a.Cwd
-	c.Env = envWithout("ZMX_SESSION", "ZMX_SESSION_PREFIX", "CODEX_THREAD_ID", "CLAUDECODE", "WEZTERM_PANE")
-	c.Stdout = os.Stdout
-	c.Stderr = os.Stderr
-	if e = c.Start(); e != nil {
+	environment := envWithout("CODEX_THREAD_ID", "CLAUDECODE", "WEZTERM_PANE")
+	if e = save(filepath.Join(dir, a.ID+".environment"), environment); e != nil {
 		return 1, e
 	}
-	done := make(chan error, 1)
-	go func() { done <- c.Wait() }()
+	spawn := wezterm("spawn", "--new-window", "--workspace", a.Terminal, "--cwd", a.Cwd, "--", self, "--state", dir, "terminal-child", a.ID)
+	spawn.Stderr = os.Stderr
+	if e = spawn.Run(); e != nil {
+		return 1, fmt.Errorf("terminal spawn failed: %w", e)
+	}
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGTERM, syscall.SIGINT)
 	defer signal.Stop(signals)
-	select {
-	case waitErr := <-done:
-		if waitErr != nil {
-			return exitCode(waitErr), fmt.Errorf("terminal client failed: %w", waitErr)
-		}
-	case s := <-signals:
-		k := exec.Command("zmx", "kill", a.Terminal, "--force")
-		k.Env = c.Env
-		_ = k.Run()
-		return 128 + int(s.(syscall.Signal)), errors.Join(errors.New("queue job cancelled"), <-done)
-	}
+	ticker := time.NewTicker(200 * time.Millisecond)
+	defer ticker.Stop()
+	exitRecord := filepath.Join(dir, a.ID+".exit")
 	var result struct {
 		Code int `json:"code"`
 	}
-	if e = read(filepath.Join(dir, a.ID+".exit"), &result); e != nil {
-		return 1, fmt.Errorf("terminal disconnected without command exit record: %w", e)
+	for {
+		select {
+		case s := <-signals:
+			return 128 + int(s.(syscall.Signal)), errors.Join(errors.New("queue job cancelled"), killTerminal(a.Terminal))
+		case <-ticker.C:
+			if read(exitRecord, &result) == nil {
+				return result.Code, nil
+			}
+			panes, e := terminalPanes(a.Terminal)
+			if e != nil {
+				return 1, e
+			}
+			if len(panes) == 0 {
+				if read(exitRecord, &result) == nil {
+					return result.Code, nil
+				}
+				return 1, errors.New("terminal disconnected without command exit record")
+			}
+		}
 	}
-	return result.Code, nil
 }

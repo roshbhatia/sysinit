@@ -22,13 +22,13 @@ let
     name = "task-queue-picker";
     runtimeInputs = [
       final.pueue
-      final.zmx
+      final.wezterm
       final.coreutils
       viewer
     ];
     text = ''
       exec ${final.lib.getExe final.nushell} --no-config-file --stdin ${./provider.nu} \
-        ${final.lib.getExe final.zmx} ${final.lib.getExe viewer} ${final.lib.getExe' final.coreutils "env"}
+        ${final.lib.getExe final.wezterm} ${final.lib.getExe viewer}
     '';
   };
   manifest = final.writeText "task-queue.json" (
