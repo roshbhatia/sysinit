@@ -70,6 +70,30 @@
       sha256 = "sha256-zyNJSOPXxSNtGKBIo48lp9+cokuguP2qUl1FxfcF+Zo=";
     };
   };
+  devin-cli = {
+    pname = "devin-cli";
+    version = "3000.14.30821";
+    src = fetchurl {
+      url = "https://static.devin.ai/cli/3000.14.30821/devin-3000.14.30821-aarch64-apple-darwin.tar.gz";
+      sha256 = "sha256-Ru8addi9hRZlF54Ta345rVl9PXkTuV1n/SuI6civAGE=";
+    };
+  };
+  devin-cli-aarch64-linux = {
+    pname = "devin-cli-aarch64-linux";
+    version = "3000.14.30821";
+    src = fetchurl {
+      url = "https://static.devin.ai/cli/3000.14.30821/devin-3000.14.30821-aarch64-unknown-linux.tar.gz";
+      sha256 = "sha256-PeuK9rAmBg6XXtNxk24TmBgCDl3Fq7y6B83gOfRzpaU=";
+    };
+  };
+  devin-cli-x86_64-linux = {
+    pname = "devin-cli-x86_64-linux";
+    version = "3000.14.30821";
+    src = fetchurl {
+      url = "https://static.devin.ai/cli/3000.14.30821/devin-3000.14.30821-x86_64-unknown-linux.tar.gz";
+      sha256 = "sha256-TcQ+PkOIus5g/iqoAQy7OZQC5ySJLXF1hFsc3vAOfds=";
+    };
+  };
   fx = {
     pname = "fx";
     version = "0.0.17";

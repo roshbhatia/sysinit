@@ -95,6 +95,22 @@ src.webpage = "https://static.ampcode.com/cli/cli-version.txt"
 src.regex = '0\.0\.[0-9]+-g[0-9a-f]+'
 fetch.url = "https://static.ampcode.com/cli/$ver/amp-linux-x64-baseline.gz"
 
+# static.devin.ai deletes superseded releases, so the nixpkgs pin goes 403.
+[devin-cli]
+src.webpage = "https://static.devin.ai/cli/current/manifest.json"
+src.regex = '3000\.[0-9]+\.[0-9]+'
+fetch.url = "https://static.devin.ai/cli/$ver/devin-$ver-aarch64-apple-darwin.tar.gz"
+
+[devin-cli-aarch64-linux]
+src.webpage = "https://static.devin.ai/cli/current/manifest.json"
+src.regex = '3000\.[0-9]+\.[0-9]+'
+fetch.url = "https://static.devin.ai/cli/$ver/devin-$ver-aarch64-unknown-linux.tar.gz"
+
+[devin-cli-x86_64-linux]
+src.webpage = "https://static.devin.ai/cli/current/manifest.json"
+src.regex = '3000\.[0-9]+\.[0-9]+'
+fetch.url = "https://static.devin.ai/cli/$ver/devin-$ver-x86_64-unknown-linux.tar.gz"
+
 # Binary release packages - localias (peterldowns/localias) Tags are
 # v3.0.0+commit.XXXXXXX; strip v prefix so $ver = 3.0.0+commit.XXXXXXX
 [localias]

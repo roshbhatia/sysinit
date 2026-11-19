@@ -40,6 +40,7 @@
   (import ./pi-coding-agent.nix)
   (import ./amp-cli.nix)
   (import ./amp-acp.nix)
+  (import ./devin-cli.nix)
   (import ./goose.nix)
   (import ./crush.nix)
   (import ./fx.nix)
