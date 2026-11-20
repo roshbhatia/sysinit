@@ -20,7 +20,7 @@ Native probes retain the API they exercise:
 | Python | PTYs, terminal emulation, asynchronous MCP stdio, and Unix WebSockets |
 
 The retained Python files are `atuin.py`, `atuin-nushell.py`,
-`threads-picker.py`, `task-queue-browser.py`, `task-queue-picker.py`,
+`threads-picker.py`, `tq-browser.py`, `tq-picker.py`,
 `nushell-wezterm.py`, `codex-mcp-capabilities.py`, and `codex-daemon.py`.
 Replacing these probes requires an equivalent terminal or protocol test
 utility. Ordinary filesystem and configuration checks belong in Nushell.

@@ -8,7 +8,7 @@ def command-output [program: string, arguments: list<string>] {
 
 # Each attachable attempt runs in its own workspace on the persistent WezTerm mux.
 def terminal-live [wezterm: string, terminal: string] {
-    let socket = $env.TASK_QUEUE_WEZTERM_SOCKET? | default ($env.HOME | path join .local state wezterm mux.sock)
+    let socket = $env.TQ_WEZTERM_SOCKET? | default ($env.HOME | path join .local state wezterm mux.sock)
 
     let panes = with-env {WEZTERM_UNIX_SOCKET: $socket} {
         command-output $wezterm [cli --prefer-mux --no-auto-start list --format json]
@@ -20,10 +20,11 @@ def terminal-live [wezterm: string, terminal: string] {
 def attempt [job: record] {
     let label = $job.label? | default ''
 
-    if not ($label | str starts-with 'task-queue:') { return {} }
+    let parts = $label | split row --number 2 ':'
 
-    let compact = $label
-    | str replace 'task-queue:' ''
+    if ($parts.0 not-in [tq task-queue]) or $parts.1? == null { return {} }
+
+    let compact = $parts.1
     | str replace --all 'urn:' ''
     | str replace --all 'uuid:' ''
     | str replace --regex '^[{}]+' ''
@@ -31,7 +32,7 @@ def attempt [job: record] {
     | str replace --all '-' ''
     | str lowercase
 
-    if $compact !~ '^[0-9a-f]{32}$' { error make {msg: 'invalid task-queue attempt UUID'} }
+    if $compact !~ '^[0-9a-f]{32}$' { error make {msg: 'invalid tq attempt UUID'} }
 
     let identifier = [
         ($compact | str substring 0..7)
@@ -43,7 +44,13 @@ def attempt [job: record] {
 
     let state = $env.XDG_STATE_HOME? | default ($env.HOME | path join .local state)
 
-    let path = $state | path join task-queue ($identifier + '.json')
+    let current = $state | path join tq
+
+    let legacy = $state | path join task-queue
+
+    let directory = if not ($current | path exists) and ($legacy | path type) == dir { $legacy } else { $current }
+
+    let path = $directory | path join ($identifier + '.json')
 
     if not ($path | path exists) { return {} }
 
@@ -78,7 +85,7 @@ def respond [request: record, wezterm: string, viewer: string] {
     let capability = $request.capability
 
     if $capability == picker.describe {
-        return {title: 'Task queue · terminals and logs', icon: md_checklist}
+        return {title: 'tq · terminals and logs', icon: md_checklist}
     }
 
     let snapshot = command-output pueue [status --json] | from json | get tasks
@@ -170,5 +177,5 @@ def main [wezterm: string = 'wezterm', viewer: string = 'pueue-task-view'] {
         {status: error, message: $failure.msg}
     }
 
-    $result | merge {version: provider/v1, kind: result, requestId: ($request.requestId? | default invalid)} | to json | print
+    $result | merge {version: provider/v1, kind: result, requestId: ($request.requestId? | default invalid)} | to json --raw | print
 }

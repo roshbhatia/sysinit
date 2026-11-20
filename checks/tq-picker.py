@@ -38,7 +38,7 @@ def check(provider, queue):
             "HOME": str(root),
             "PUEUE_CONFIG_PATH": str(config),
             "XDG_STATE_HOME": str(root / "state"),
-            "TASK_QUEUE_WEZTERM_SOCKET": str(socket),
+            "TQ_WEZTERM_SOCKET": str(socket),
             "WEZTERM_UNIX_SOCKET": str(socket),
             "SHELL": "/bin/sh",
         }
@@ -80,7 +80,9 @@ def check(provider, queue):
                 "capability": capability,
                 "input": {"id": identifier},
             }
-            result = json.loads(run(provider, data=json.dumps(payload)))
+            lines = run(provider, data=json.dumps(payload)).splitlines()
+            assert len(lines) == 1, "expected one JSON frame per line"
+            result = json.loads(lines[0])
             assert result["requestId"] == "fixture", result
             return result
 
@@ -127,11 +129,23 @@ def check(provider, queue):
             daemon = subprocess.Popen(["pueued"], env=env, stdout=log, stderr=log)
             try:
                 wait(lambda: (root / "socket").exists() and socket.exists())
+                assert json.loads(run(queue, "status")) == []
+                state = Path(env["XDG_STATE_HOME"])
+                assert (state / "tq").is_dir()
+
+                state = root / "legacy-state"
+                env["XDG_STATE_HOME"] = str(state)
+                legacy = state / "task-queue"
+                legacy.mkdir(parents=True)
+                legacy_id = "d06232e1-2b5d-401a-853d-074b6f4137f1"
+                (legacy / f"{legacy_id}.json").write_text(
+                    json.dumps({"id": legacy_id, "session": "Legacy session"})
+                )
                 run(
                     "pueue",
                     "add",
                     "--label",
-                    "finished-picker-fixture",
+                    f"task-queue:{legacy_id}",
                     "--",
                     "printf LOG_FIXTURE",
                 )
@@ -143,6 +157,10 @@ def check(provider, queue):
                         ].values()
                     )
                 )
+                history = json.loads(run(queue, "status"))
+                assert [
+                    (attempt["id"], attempt["pueue_id"]) for attempt in history
+                ] == [(legacy_id, 0)], history
                 record = json.loads(
                     run(
                         queue,
@@ -159,6 +177,8 @@ def check(provider, queue):
                 terminal = record["terminal"]
                 wait(lambda: terminal in panes())
                 identifier = str(record["pueue_id"])
+                jobs = json.loads(run("pueue", "status", "--json"))["tasks"]
+                assert jobs[identifier]["label"] == f"tq:{record['id']}"
                 result = request("picker.list")
                 assert result["status"] == "ok", result
                 items = result["output"]["items"]
@@ -166,6 +186,7 @@ def check(provider, queue):
                 assert items[0]["id"] == identifier, items
                 assert "Running" in items[0]["segments"][0]["text"], items
                 assert "terminal/logs" in items[0]["segments"][1]["text"], items
+                assert "Legacy session" in items[1]["segments"][0]["text"], items
                 plan = request("picker.open", identifier)["output"]
                 assert plan["label"] == terminal, plan
                 assert plan["cwd"] == str(root), plan

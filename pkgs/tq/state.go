@@ -33,6 +33,26 @@ type job struct {
 	Status json.RawMessage `json:"status"`
 }
 
+const labelPrefix = "tq:"
+
+func attemptID(label string) (string, bool) {
+	if id, ok := strings.CutPrefix(label, labelPrefix); ok {
+		return id, true
+	}
+	return strings.CutPrefix(label, "task-queue:")
+}
+
+func defaultStateDir(base string) string {
+	current := filepath.Join(base, "tq")
+	legacy := filepath.Join(base, "task-queue")
+	if _, err := os.Stat(current); errors.Is(err, os.ErrNotExist) {
+		if info, err := os.Stat(legacy); err == nil && info.IsDir() {
+			return legacy
+		}
+	}
+	return current
+}
+
 type task struct {
 	UUID    string   `json:"uuid"`
 	Status  string   `json:"status"`

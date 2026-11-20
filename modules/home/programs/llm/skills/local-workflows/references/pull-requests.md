@@ -12,10 +12,10 @@ gh-pr-state watch https://github.com/OWNER/REPO/pull/123 --interval 1min --timeo
 The watcher emits one newline-delimited JSON record per change, exits when every
 PR is ready or closed, and exits 8 when the deadline elapses. Use a Taskwarrior
 UUID for the outcome and an explicit queued attempt if the wait must survive the
-session. Use `task-queue status` and the corresponding Pueue job log on resume.
+session. Use `tq status` and the corresponding Pueue job log on resume.
 
 ```sh
-task-queue submit --task UUID -- gh-pr-state watch https://github.com/OWNER/REPO/pull/123
+tq submit --task UUID -- gh-pr-state watch https://github.com/OWNER/REPO/pull/123
 ```
 
 To follow only required CI, use `gh pr checks --required --watch`. When

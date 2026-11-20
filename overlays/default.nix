@@ -59,7 +59,7 @@
   (import ./screen-relay.nix)
   (import ./git-ai.nix)
   (import ./git-ai-gate.nix)
-  (import ./task-queue-picker)
+  (import ./tq-picker)
   (import ./alerter.nix)
   (import ./jankyborders)
   (import ./sheets.nix)

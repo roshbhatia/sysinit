@@ -17,7 +17,7 @@ let
       final.wezterm
       final.seshy
     ];
-    TASK_QUEUE_TESTS = "1";
+    TQ_TESTS = "1";
     AGENTGATEWAY_BINARY = "${final.agentgateway}/bin/agentgateway";
     MCP_REMOTE_BINARY = "${final.mcp-remote-go}/bin/mcp-remote";
 

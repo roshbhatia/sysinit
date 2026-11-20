@@ -56,7 +56,7 @@ func enqueue(a *attempt, dir string) error {
 		return e
 	}
 	command := shellQuote(self) + " --state " + shellQuote(dir) + " run " + shellQuote(a.ID)
-	b, e := call("pueue", "add", "--stashed", "--print-task-id", "--group", a.Group, "--label", "task-queue:"+a.ID, "--working-directory", a.Cwd, "--", command)
+	b, e := call("pueue", "add", "--stashed", "--print-task-id", "--group", a.Group, "--label", labelPrefix+a.ID, "--working-directory", a.Cwd, "--", command)
 	if e != nil {
 		return e
 	}

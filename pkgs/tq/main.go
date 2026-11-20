@@ -13,7 +13,7 @@ import (
 func main() {
 	code, e := run(os.Args[1:])
 	if e != nil {
-		fmt.Fprintln(os.Stderr, "task-queue:", e)
+		fmt.Fprintln(os.Stderr, "tq:", e)
 		if code == 0 {
 			code = 1
 		}
@@ -30,14 +30,14 @@ func run(args []string) (int, error) {
 	if base == "" {
 		base = filepath.Join(home, ".local/state")
 	}
-	global := flag.NewFlagSet("task-queue", flag.ContinueOnError)
-	dir := global.String("state", filepath.Join(base, "task-queue"), "Execution record directory")
+	global := flag.NewFlagSet("tq", flag.ContinueOnError)
+	dir := global.String("state", defaultStateDir(base), "Execution record directory")
 	if e = global.Parse(args); e != nil {
 		return 1, e
 	}
 	args = global.Args()
 	if len(args) == 0 {
-		_, e := fmt.Fprintln(os.Stdout, "Usage: task-queue [--state DIR] submit|status|browse|thread|reconcile|cancel|resume\nsubmit [--task UUID] [--thread ID] [--session NAME | --cwd DIR] [--group NAME] [--terminal] [--retry] -- COMMAND [ARGS...]\nbrowse [--thread ID]  Browse attempts, terminals, logs, and linked conversations\nthread UUID           Inspect an attempt's captured conversation")
+		_, e := fmt.Fprintln(os.Stdout, "Usage: tq [--state DIR] submit|status|browse|thread|reconcile|cancel|resume\nsubmit [--task UUID] [--thread ID] [--session NAME | --cwd DIR] [--group NAME] [--terminal] [--retry] -- COMMAND [ARGS...]\nbrowse [--thread ID]  Browse attempts, terminals, logs, and linked conversations\nthread UUID           Inspect an attempt's captured conversation")
 		return 0, e
 	}
 	*dir, e = filepath.Abs(*dir)
@@ -108,9 +108,13 @@ func run(args []string) (int, error) {
 	}
 	jobs := map[string]job{}
 	for _, j := range snapshot.Tasks {
-		existing, ok := jobs[j.Label]
+		id, managed := attemptID(j.Label)
+		if !managed {
+			continue
+		}
+		existing, ok := jobs[id]
 		if !ok || existing.ID < j.ID {
-			jobs[j.Label] = j
+			jobs[id] = j
 		}
 	}
 	records := []attempt{}
@@ -123,7 +127,7 @@ func run(args []string) (int, error) {
 		if e = read(path, &a); e != nil {
 			return 1, e
 		}
-		if j, ok := jobs["task-queue:"+a.ID]; ok {
+		if j, ok := jobs[a.ID]; ok {
 			a.PueueID = &j.ID
 			a.Result = j.Status
 			a.Review = success(j.Status)
@@ -157,7 +161,7 @@ func run(args []string) (int, error) {
 		if e = read(path, &a); e != nil {
 			return 1, e
 		}
-		j, found := jobs["task-queue:"+a.ID]
+		j, found := jobs[a.ID]
 		if action == "resume" {
 			if a.Cancelled {
 				return 1, errors.New("attempt cancelled; submit --retry")

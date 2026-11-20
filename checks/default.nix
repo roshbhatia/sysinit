@@ -182,9 +182,9 @@ in
         nu --no-config-file -c 'use ${../modules/home/programs/git-ai/maintain-metrics.nu} maintain; source ${./git-ai-maintenance.nu}; check ${../modules/home/programs/git-ai/maintain-metrics.nu} ${./fixtures/wait-for-file.nu}'
         touch "$out"
       '';
-  task-queue = import ./task-queue.nix { inherit pkgs; };
-  task-queue-browser = nativeCheck {
-    name = "task-queue-browser-test";
+  tq = import ./tq.nix { inherit pkgs; };
+  tq-browser = nativeCheck {
+    name = "tq-browser-test";
     inputs = [
       (pkgs.python3.withPackages (ps: [ ps.pyte ]))
       pkgs.pueue
@@ -192,14 +192,14 @@ in
     commands = [
       [
         "python3"
-        ./task-queue-browser.py
-        "${pkgs.sysinit-gotools}/bin/task-queue"
+        ./tq-browser.py
+        "${pkgs.sysinit-gotools}/bin/tq"
       ]
     ];
   };
 
-  task-queue-picker = nativeCheck {
-    name = "task-queue-picker-test";
+  tq-picker = nativeCheck {
+    name = "tq-picker-test";
     inputs = [
       pkgs.python3
       pkgs.pueue
@@ -209,9 +209,9 @@ in
     commands = [
       [
         "python3"
-        ./task-queue-picker.py
-        "${pkgs.task-queue-picker}/bin/task-queue-picker"
-        "${pkgs.sysinit-gotools}/bin/task-queue"
+        ./tq-picker.py
+        "${pkgs.tq-picker}/bin/tq-picker"
+        "${pkgs.sysinit-gotools}/bin/tq"
       ]
     ];
   };

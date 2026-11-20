@@ -19,7 +19,7 @@ let
     '';
   };
   executable = final.writeShellApplication {
-    name = "task-queue-picker";
+    name = "tq-picker";
     runtimeInputs = [
       final.pueue
       final.wezterm
@@ -31,11 +31,11 @@ let
         ${final.lib.getExe final.wezterm} ${final.lib.getExe viewer}
     '';
   };
-  manifest = final.writeText "task-queue.json" (
+  manifest = final.writeText "tq.json" (
     builtins.toJSON {
       version = "provider/v1";
       kind = "picker";
-      name = "task-queue";
+      name = "tq";
       description = "Pueue tasks and Taskwarrior execution terminals";
       command = [ (final.lib.getExe executable) ];
       actions =
@@ -49,16 +49,16 @@ let
 in
 {
   pueue-task-view = viewer;
-  task-queue-picker = final.symlinkJoin {
-    name = "task-queue-picker";
+  tq-picker = final.symlinkJoin {
+    name = "tq-picker";
     paths = [
       executable
       viewer
     ];
     postBuild = ''
       mkdir -p "$out/share/wezterm/providers"
-      cp ${manifest} "$out/share/wezterm/providers/task-queue.json"
+      cp ${manifest} "$out/share/wezterm/providers/tq.json"
     '';
-    meta.mainProgram = "task-queue-picker";
+    meta.mainProgram = "tq-picker";
   };
 }

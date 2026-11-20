@@ -5,19 +5,19 @@ use ./lib/process.nu with-fixture
 def main [
     bridge: path
     pueue: path
-    queue: path
+    tq: path
     executable: path
 ] {
     with-fixture {|root|
         let configuration = $root | path join .config
 
-        carapace install $configuration $bridge {'pueue.yaml': $pueue, 'task-queue.yaml': $queue}
+        carapace install $configuration $bridge {'pueue.yaml': $pueue, 'tq.yaml': $tq}
 
         with-env {HOME: $root, XDG_CONFIG_HOME: $configuration} {
             carapace check-completion pueue [add --sta] '--stashed'
-            carapace check-completion task-queue [submit --ter] '--terminal'
+            carapace check-completion tq [submit --ter] '--terminal'
         }
 
-        assert (ls -l $executable | first | get mode | str contains x)
+        assert ((^$executable) | str starts-with 'Usage: tq ')
     }
 }

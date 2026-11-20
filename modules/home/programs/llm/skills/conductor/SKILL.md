@@ -47,14 +47,14 @@ Read the `taskwarrior` skill before submitting a task-linked execution. Keep the
 workflow in the foreground so Pueue observes its actual completion:
 
 ```sh
-task-queue submit --task <uuid> --cwd /absolute/repository -- \
+tq submit --task <uuid> --cwd /absolute/repository -- \
   conductor run /absolute/repository/workflows/workflow.yaml \
   --workspace-instructions --instructions /absolute/global-instructions.md
 ```
 
 Use `--web` for a foreground run with a dashboard. `--web-bg` detaches and returns
 before the workflow finishes, so do not use it as a queued command's completion
-signal. Inspect `task-queue status`, the Pueue log, and the workflow's outputs
+signal. Inspect `tq status`, the Pueue log, and the workflow's outputs
 before recording verified completion.
 
 `conductor fleet` opens the TUI. `conductor fleet list` and `conductor status --json`

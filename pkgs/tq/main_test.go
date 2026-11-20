@@ -17,12 +17,12 @@ import (
 var testBinary string
 
 func TestMain(m *testing.M) {
-	if os.Getenv("TASK_QUEUE_TESTS") == "1" {
+	if os.Getenv("TQ_TESTS") == "1" {
 		root, e := os.MkdirTemp("", "queue-test-bin-")
 		if e != nil {
 			panic(e)
 		}
-		testBinary = filepath.Join(root, "task-queue")
+		testBinary = filepath.Join(root, "tq")
 		c := exec.Command("go", "build", "-o", testBinary, ".")
 		c.Stdout = os.Stdout
 		c.Stderr = os.Stderr
@@ -119,7 +119,7 @@ func (f *fixture) finished(a attempt) attempt {
 func fixtureFor(t *testing.T) *fixture {
 	t.Helper()
 	if testBinary == "" {
-		t.Skip("TASK_QUEUE_TESTS=1 enables isolated daemon integration tests")
+		t.Skip("TQ_TESTS=1 enables isolated daemon integration tests")
 	}
 	root, e := os.MkdirTemp("", "pq-")
 	if e != nil {
@@ -158,7 +158,7 @@ func fixtureFor(t *testing.T) *fixture {
 		"PUEUE_CONFIG_PATH="+config,
 		"TASKRC="+rc,
 		"TASKDATA="+filepath.Join(root, "tasks"),
-		"TASK_QUEUE_WEZTERM_SOCKET="+socket,
+		"TQ_WEZTERM_SOCKET="+socket,
 		"WEZTERM_UNIX_SOCKET="+socket,
 		"SHELL="+shell,
 	)

@@ -90,7 +90,7 @@ fi
         for cancel in (False, True):
             child, master = pty.fork()
             if child == 0:
-                os.write(1, b"original prompt > task-queue browse\r\n")
+                os.write(1, b"original prompt > tq browse\r\n")
                 os.execvpe(queue, command + ["browse", "--thread", "thread-a"], env)
             fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack("HHHH", 30, 120, 0, 0))
             screen = pyte.Screen(120, 30)
@@ -154,9 +154,7 @@ fi
                     b"CONVERSATION: <threads> <show> <thread-a>" in output
                 ) != cancel
                 assert b"\x1b[?1049h" not in output
-                assert "original prompt > task-queue browse" in "\n".join(
-                    screen.display
-                )
+                assert "original prompt > tq browse" in "\n".join(screen.display)
             finally:
                 os.close(master)
                 if child:

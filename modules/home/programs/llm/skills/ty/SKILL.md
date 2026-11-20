@@ -59,7 +59,7 @@ actions return JSON.
   or deleting seshy sessions and their worktrees. `ty` does not own that
   lifecycle.
 - Use `ty` for visible pane work only when the owner requests it. Use
-  `task-queue` for durable task-linked execution and `worker` for a requested
+  `tq` for durable task-linked execution and `worker` for a requested
   long-running visible command in the current workspace.
 - Before sending text, confirm the pane ID belongs to the intended task. Sending
   with `--submit` executes the submitted input in that terminal. Do not send

@@ -179,9 +179,9 @@ in
       ]
       ++ lib.optionals config.sysinit.queue.enable [
         {
-          name = "task-queue";
+          name = "tq";
           key = "&";
-          manifest = "${pkgs.task-queue-picker}/share/wezterm/providers/task-queue.json";
+          manifest = "${pkgs.tq-picker}/share/wezterm/providers/tq.json";
         }
       ];
       cwd_aliases.sy = config.sysinit.paths.resolved.seshySessions;

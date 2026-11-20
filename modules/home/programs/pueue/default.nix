@@ -7,7 +7,7 @@
 let
   cfg = config.sysinit.queue;
   queue = pkgs.writeShellApplication {
-    name = "task-queue";
+    name = "tq";
     runtimeInputs = [
       pkgs.pueue
       pkgs.taskwarrior-cli
@@ -16,11 +16,11 @@ let
       pkgs.atuin
       pkgs.pueue-task-view
     ];
-    text = ''exec ${pkgs.sysinit-gotools}/bin/task-queue "$@"'';
+    text = ''exec ${pkgs.sysinit-gotools}/bin/tq "$@"'';
   };
-  completions = pkgs.runCommand "task-queue-completions" { } ''
+  completions = pkgs.runCommand "tq-completions" { } ''
     mkdir -p "$out/share/zsh/site-functions"
-    cp ${./_task-queue} "$out/share/zsh/site-functions/_task-queue"
+    cp ${./_tq} "$out/share/zsh/site-functions/_tq"
   '';
 in
 {
@@ -59,16 +59,16 @@ in
       '';
       "carapace/bridge/zsh/.zshrc".text = ''
         fpath=(${pkgs.pueue}/share/zsh/site-functions ${completions}/share/zsh/site-functions $fpath)
-        autoload -Uz _pueue _task-queue
+        autoload -Uz _pueue _tq
         compdef _pueue pueue
-        compdef _task-queue task-queue
+        compdef _tq tq
       '';
-      "carapace/specs/task-queue.yaml".text = ''
-        name: task-queue
+      "carapace/specs/tq.yaml".text = ''
+        name: tq
         description: Dispatch explicit execution attempts
         parsing: disabled
         completion:
-          positionalany: ["$carapace.bridge.Zsh([task-queue])"]
+          positionalany: ["$carapace.bridge.Zsh([tq])"]
       '';
     };
   };

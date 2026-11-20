@@ -1,8 +1,8 @@
 { pkgs }:
 let
+  inherit (pkgs) lib;
   module = import ../modules/home/programs/pueue {
-    inherit pkgs;
-    inherit (pkgs) lib;
+    inherit lib pkgs;
     config = {
       sysinit.queue.enable = true;
       xdg.stateHome = "/tmp/queue-test-state";
@@ -11,16 +11,16 @@ let
   files = module.config.content.xdg.configFile;
   bridge = pkgs.writeText "queue-bridge.zsh" files."carapace/bridge/zsh/.zshrc".text;
   spec = pkgs.writeText "pueue.yaml" files."carapace/specs/pueue.yaml".text;
-  queueSpec = pkgs.writeText "task-queue.yaml" files."carapace/specs/task-queue.yaml".text;
+  tqSpec = pkgs.writeText "tq.yaml" files."carapace/specs/tq.yaml".text;
 in
 import ./lib.nix { inherit pkgs; } {
-  name = "task-queue-test";
-  script = "task-queue.nu";
+  name = "tq-test";
+  script = "tq.nu";
   arguments = [
     bridge
     spec
-    queueSpec
-    "${pkgs.sysinit-gotools}/bin/task-queue"
+    tqSpec
+    (lib.getExe (builtins.head module.config.content.home.packages))
   ];
   inputs = [
     pkgs.pueue

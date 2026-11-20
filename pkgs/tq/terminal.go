@@ -40,7 +40,7 @@ const muxDomain = "unix"
 
 func wezterm(args ...string) *exec.Cmd {
 	c := exec.Command("wezterm", append([]string{"cli", "--prefer-mux", "--no-auto-start"}, args...)...)
-	socket := os.Getenv("TASK_QUEUE_WEZTERM_SOCKET")
+	socket := os.Getenv("TQ_WEZTERM_SOCKET")
 	if socket == "" {
 		// The socket path configured by the sysinit-wezterm module.
 		home, _ := os.UserHomeDir()
@@ -196,7 +196,7 @@ func execute(a attempt, dir string, terminal bool) (int, error) {
 			}
 			// Hold the pane open so its output stays attachable after the command ends.
 			_ = ttyForeground(tty, syscall.Getpgrp())
-			_, _ = fmt.Fprintf(tty, "\n[task-queue] command exited with status %d; press Enter to close\n", code)
+			_, _ = fmt.Fprintf(tty, "\n[tq] command exited with status %d; press Enter to close\n", code)
 			_, _ = bufio.NewReader(tty).ReadString('\n')
 			return code, e
 		case s := <-signals:
@@ -206,7 +206,7 @@ func execute(a attempt, dir string, terminal bool) (int, error) {
 				return 1, errors.Join(errors.New("queue supervisor disappeared"), stop())
 			}
 			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-			b, queryErr := exec.CommandContext(ctx, "pueue", "status", "--json", "label=task-queue:"+a.ID).Output()
+			b, queryErr := exec.CommandContext(ctx, "pueue", "status", "--json", "label="+labelPrefix+a.ID).Output()
 			cancel()
 			var snapshot struct {
 				Tasks map[string]job `json:"tasks"`
