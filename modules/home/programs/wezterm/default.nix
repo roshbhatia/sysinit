@@ -84,7 +84,15 @@ in
       }) (import ../llm/harnesses/registry.nix);
 
       bin = "${config.home.profileDirectory}/bin";
-      shell = import ../../../shared/terminal-shell.nix config;
+      shell = [
+        "${config.home.profileDirectory}/bin/nu"
+        "--config"
+        "${config.xdg.configHome}/nushell/config.nu"
+        "--env-config"
+        "${config.xdg.configHome}/nushell/env.nu"
+        "--plugin-config"
+        "${config.xdg.configHome}/nushell/plugin.msgpackz"
+      ];
       ssh = lib.optionalAttrs sshCfg.use1PasswordAgent { agent_socket = sshAgentSocket; };
       font = {
         inherit (themeConfig.font) monospace;
@@ -94,9 +102,35 @@ in
         inherit (themeConfig.transparency) opacity;
         inherit (themeConfig.transparency) blur;
       };
-      colors = (import ../../../shared/terminal-palette.nix c) // {
+      colors = {
+        foreground = "#${c.base05}";
+        background = "#${c.base00}";
+        cursor_bg = "#${c.base05}";
+        cursor_fg = "#${c.base00}";
         cursor_border = "#${c.base05}";
+        selection_bg = "#${c.base02}";
+        selection_fg = "#${c.base05}";
         split = "#${c.base0D}";
+        ansi = [
+          "#${c.base00}"
+          "#${c.base08}"
+          "#${c.base0B}"
+          "#${c.base0A}"
+          "#${c.base0D}"
+          "#${c.base0E}"
+          "#${c.base0C}"
+          "#${c.base05}"
+        ];
+        brights = [
+          "#${c.base03}"
+          "#${c.base08}"
+          "#${c.base0B}"
+          "#${c.base0A}"
+          "#${c.base0D}"
+          "#${c.base0E}"
+          "#${c.base0C}"
+          "#${c.base07}"
+        ];
         tab_bar = {
           background = "#${c.base01}";
           active_tab = {
@@ -125,18 +159,31 @@ in
         ssh = lib.getExe' pkgs.openssh "ssh";
         mosh = lib.getExe' pkgs.mosh "mosh";
       };
-      picker =
-        (import ../../../shared/terminal-providers.nix {
-          inherit
-            config
-            inputs
-            lib
-            pkgs
-            ;
-        })
-        // {
-          placement = "pane";
-        };
+      picker.placement = "pane";
+      picker.providers = [
+        {
+          name = "tether";
+          key = "@";
+          manifest = "${pkgs.tether-picker}/share/wezterm/providers/tether.json";
+        }
+        {
+          name = "seshy";
+          key = "$";
+          manifest = "${pkgs.seshy-picker}/share/wezterm/providers/seshy.json";
+        }
+        {
+          name = "zoxide";
+          key = "%";
+          manifest = "${pkgs.zoxide-picker}/share/wezterm/providers/zoxide.json";
+        }
+      ]
+      ++ lib.optionals config.sysinit.queue.enable [
+        {
+          name = "tq";
+          key = "&";
+          manifest = "${pkgs.tq-picker}/share/wezterm/providers/tq.json";
+        }
+      ];
       cwd_aliases.sy = config.sysinit.paths.resolved.seshySessions;
       passthrough_procs = [
         "caffeinate"

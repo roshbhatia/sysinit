@@ -127,10 +127,6 @@
     };
     # Keep the fork's dependency lock so consumers match its CI cache paths.
     wezterm-fork.url = "github:roshbhatia/wezterm?dir=nix";
-    neorex = {
-      url = "github:alexrlocke/neorex/dfcefefb4df12b95469781791416dc582eba3e20";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     sysinit-wezterm = {
       url = "github:roshbhatia/sysinit.wezterm/7cd917ed90d92b7ca6276a824d9b82d3ac19edf0";
       inputs.nixpkgs.follows = "nixpkgs";
