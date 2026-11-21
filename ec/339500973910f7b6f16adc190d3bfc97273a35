@@ -1,15 +1,17 @@
-modules/darwin/desktop-layout.nix
-  s_a4a3eea4720821::t_0f4d14f1ce309f 1-5
-modules/darwin/home/sketchybar/default.nix
-  s_a4a3eea4720821::t_0f4d14f1ce309f 15
-modules/darwin/home/sketchybar/lua/sysinit/pkg/widgets/logo.lua
-  s_a4a3eea4720821::t_0f4d14f1ce309f 18-19
-modules/darwin/rift.nix
-  s_a4a3eea4720821::t_0f4d14f1ce309f 9,253-254,257-260
 checks/desktop-contracts.lua
-  s_a4a3eea4720821::t_caed5e5335d448 30
+  s_a4a3eea4720821::t_d88339197cfac5 23-30,44-50
+modules/darwin/desktop-layout.nix
+  s_62c4cb57de6538::t_6b338c239972b2 1-5
+modules/darwin/home/sketchybar/default.nix
+  s_62c4cb57de6538::t_7e5df7714dee4c 15
+modules/darwin/home/sketchybar/lua/sysinit/pkg/core/display.lua
+  s_a4a3eea4720821::t_d31be0ae7e078f 14-15
 modules/darwin/home/sketchybar/lua/sysinit/pkg/core/init.lua
-  s_a4a3eea4720821::t_0f4d14f1ce309f 4,10,16-18
+  s_62c4cb57de6538::t_ae8c51b3863163 4,10,16-18
+modules/darwin/home/sketchybar/lua/sysinit/pkg/widgets/logo.lua
+  s_62c4cb57de6538::t_eef03bba3c9b5d 18-19
+modules/darwin/rift.nix
+  s_62c4cb57de6538::t_1c7ff266a68e90 9,253-254,257-260
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -17,6 +19,14 @@ modules/darwin/home/sketchybar/lua/sysinit/pkg/core/init.lua
   "base_commit_sha": "ec339500973910f7b6f16adc190d3bfc97273a35",
   "prompts": {},
   "sessions": {
+    "s_62c4cb57de6538": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ec00-1de2-7bc2-a676-ca7ded8f2943",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
     "s_a4a3eea4720821": {
       "agent_id": {
         "tool": "codex",
