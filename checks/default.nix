@@ -230,6 +230,7 @@ in
         "--no-config-file"
         "${./ty.nu}"
         "${../modules/home/programs/utils/dev/ty.nu}"
+        "${../modules/home/programs/nushell/wezterm.nu}"
       ]
     ];
   };

@@ -35,9 +35,11 @@ def main [script: path, fixture: path] {
             assert ($opened.stdout | str starts-with Opened)
             let split = open ($root | path join split.json)
             assert equal ($split | last) DiffviewOpen
+            assert ('--cmd' not-in $split)
             let reused = ^$nu.current-exe --no-config-file $script --cwd $root | complete
             assert equal $reused.exit_code 0 $reused.stderr
             assert ($reused.stdout | str starts-with Reused)
+            assert ($root | path join refreshed | path exists)
             assert ($root | path join activation.json | path exists)
             open ($root | path join panes.json) | update 1 {pane_id: 8, tab_id: 3} | to json | save --force ($root | path join panes.json)
             let refused = ^$nu.current-exe --no-config-file $script --cwd $root | complete

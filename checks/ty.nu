@@ -1,5 +1,5 @@
 # Drives the ty script against stub sy and wezterm executables that log their argv.
-def main [script: path] {
+def main [script: path, nuwez_module: path] {
     let root = (mktemp -d)
 
     let log = $root | path join "calls.log"
@@ -212,6 +212,29 @@ def main [script: path] {
     do $check (
         $operational.exit_code == 1 and ($operational.stderr | str contains "no such pane")
     ) $"operational error ($operational)"
+
+    do $stub ty $'exec "($nu.current-exe)" --no-config-file "($script)" "$@"' | ignore
+
+    let import = $"use ($nuwez_module | to json --raw) *"
+
+    let commands = ([
+        $import
+        'use std/assert'
+        'assert equal (nuwez | get panes.0.pane_id) 7'
+        'assert equal (nuwez pane read 7) "raw\ntext"'
+        'assert (nuwez --help | str starts-with "ty:")'
+    ] | str join '; ')
+
+    let result = with-env {
+        PATH: ($env.PATH | prepend $root)
+        SYSINIT_TY_SY: $sy
+        SYSINIT_TY_WEZTERM: $wezterm
+        SYSINIT_TY_ENV: "/usr/bin/env"
+    } {
+        ^nu --no-config-file -c $commands | complete
+    }
+
+    do $check ($result.exit_code == 0) $"Nushell wrapper failed: ($result.stderr)"
 
     rm -rf $root
 

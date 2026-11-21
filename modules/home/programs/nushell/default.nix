@@ -229,6 +229,7 @@ in
         $env.POSH_SESSION_ID = (random uuid)
 
         use ${functionsFile} *
+        use ${./wezterm.nu} *
         use ${./onepassword.nu} *
         use ${./storage.nu} *
         use ${./attribution.nu} *

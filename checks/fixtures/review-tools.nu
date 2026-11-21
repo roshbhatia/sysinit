@@ -63,7 +63,15 @@ def main --wrapped [tool: string, ...arguments: string] {
 
                 if $env.RPC_FAIL? == '1' { exit 1 }
 
-                if $expression == 'getcwd()' { print $env.DIFF_ROOT } else { print 2 }
+                match $expression {
+                    'getcwd()' => { print $env.DIFF_ROOT }
+                    "exists(':DiffviewRefresh')" => { print 2 }
+                    "execute('checktime | DiffviewRefresh')" => {
+                        touch ($root | path join refreshed)
+                    }
+                    'getpid()' => { print 123 }
+                    _ => { exit 1 }
+                }
             } else {
                 $arguments | to json | save --force editor.json
             }

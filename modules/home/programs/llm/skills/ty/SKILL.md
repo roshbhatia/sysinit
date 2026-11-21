@@ -1,6 +1,6 @@
 ---
 name: ty
-description: Inspect and control seshy sessions and WezTerm panes through the structured ty CLI. Use when an owner requests visible terminal work or pane inspection.
+description: Inspect and control WezTerm panes with ty or nuwez and Neovim editors with nuvim. Use for owner-requested pane or editor operations, including matching an editor to a worktree.
 ---
 
 # WezTerm session API
@@ -9,6 +9,10 @@ description: Inspect and control seshy sessions and WezTerm panes through the st
 CLI. It is a local command API, not a daemon. Catalog and action responses are
 single-line JSON using `sysinit.ty/v1`; pane reads write terminal text
 directly so they can be piped to other tools.
+
+In a configured Nushell, `nuwez` accepts the same subcommands and returns
+structured values. Bare `nuwez` lists panes. `nuwez pane read` returns text.
+For example, `nuwez panes | get panes` selects the pane records.
 
 ## Inspect
 
@@ -52,6 +56,23 @@ explicit command after `--`. Both return the new pane ID. `pane send` reads
 stdin when no text argument is supplied. It pastes without submitting unless
 `--submit` is given. `pane read` returns raw terminal text. Other successful
 actions return JSON.
+
+## Inspect and control Neovim
+
+Use `nuvim servers` in Nushell to discover sockets, process IDs, and working
+directories. Use the exact socket when multiple editors are open:
+
+```nu
+nuvim context --server $socket
+nuvim buffers --server $socket
+nuvim diagnostics --server $socket
+nuvim open --server $socket $file
+```
+
+Match the editor's working directory to the intended worktree before changing
+it. Use `nuvim` for buffers, selections, diagnostics, and quickfix. Use
+`agent-diff` for a dedicated working-tree Diffview split from inside WezTerm.
+Use explicit pane IDs with `ty` or `nuwez` for terminal placement.
 
 ## Boundaries
 

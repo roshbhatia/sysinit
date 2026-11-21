@@ -96,7 +96,7 @@ def main [--cwd: path = '.', --lock-held] {
         let probe = rpc $socket 'getcwd()'
 
         if $probe.exit_code == 0 and ($probe.stdout | str trim | path expand) == $root {
-            let refresh = rpc $socket "execute('checktime | Review refresh')"
+            let refresh = rpc $socket "execute('checktime | DiffviewRefresh')"
 
             if $refresh.exit_code != 0 { error make {msg: 'The diff editor could not refresh yet. Run /diff again.'} }
 
@@ -144,8 +144,6 @@ def main [--cwd: path = '.', --lock-held] {
         nvim
         --listen
         $socket
-        --cmd
-        $"let g:harness_pane = '($parent)'"
         -c
         $action
     )
@@ -159,7 +157,7 @@ def main [--cwd: path = '.', --lock-held] {
 
     while (date now) < $deadline {
         if ($socket | path exists) {
-            let ready = rpc $socket "exists(':Review')"
+            let ready = rpc $socket "exists(':DiffviewRefresh')"
 
             if $ready.exit_code == 0 and ($ready.stdout | str trim) == '2' {
                 print 'Opened the Neovim diff pane.'

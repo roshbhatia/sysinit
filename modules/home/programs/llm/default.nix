@@ -91,6 +91,10 @@ in
       skills = [ "search-code-routing" ];
     }
     {
+      intent = "WezTerm pane or Neovim editor operations";
+      skills = [ "ty" ];
+    }
+    {
       intent = "Design decisions or agreed implementation plans";
       skills = [
         "writing-doc-rfc"
