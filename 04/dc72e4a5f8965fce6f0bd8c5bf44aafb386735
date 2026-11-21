@@ -1,0 +1,25 @@
+flake.lock
+  s_a4a3eea4720821::t_3f9d34ef1660af 686,725,1086,1301,1510,1604,1742,1770,1866,1926,1941,1957,1972,1987-2001,2158
+modules/darwin/desktop.nix
+  s_a4a3eea4720821::t_911083685453e6 1
+modules/home/codesign.sh.tmpl
+  s_a4a3eea4720821::t_ff7e44a69037dd 99,103
+modules/home/programs/wezterm/default.nix
+  s_a4a3eea4720821::t_9519b11184e659 87-95,105-109,111-112,114-133,162-186
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "04dc72e4a5f8965fce6f0bd8c5bf44aafb386735",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
