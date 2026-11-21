@@ -5,8 +5,11 @@ return function(settings)
     title = "Apply sysinit terminal settings",
     category = "Settings",
     run = function()
-      if settings.shell then
-        rex.client.queue("client.setting.terminal.shell.command", { value = settings.shell })
+      if settings.startupCommand ~= "" then
+        rex.client.queue(
+          "client.setting.terminal.shell.command",
+          { value = settings.startupCommand }
+        )
       end
       rex.client.queue(
         "client.setting.interface.appearance.scheme",

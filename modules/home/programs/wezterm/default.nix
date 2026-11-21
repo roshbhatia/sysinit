@@ -125,31 +125,18 @@ in
         ssh = lib.getExe' pkgs.openssh "ssh";
         mosh = lib.getExe' pkgs.mosh "mosh";
       };
-      picker.placement = "pane";
-      picker.providers = [
-        {
-          name = "tether";
-          key = "@";
-          manifest = "${pkgs.tether-picker}/share/wezterm/providers/tether.json";
-        }
-        {
-          name = "seshy";
-          key = "$";
-          manifest = "${pkgs.seshy-picker}/share/wezterm/providers/seshy.json";
-        }
-        {
-          name = "zoxide";
-          key = "%";
-          manifest = "${pkgs.zoxide-picker}/share/wezterm/providers/zoxide.json";
-        }
-      ]
-      ++ lib.optionals config.sysinit.queue.enable [
-        {
-          name = "tq";
-          key = "&";
-          manifest = "${pkgs.tq-picker}/share/wezterm/providers/tq.json";
-        }
-      ];
+      picker =
+        (import ../../../shared/terminal-providers.nix {
+          inherit
+            config
+            inputs
+            lib
+            pkgs
+            ;
+        })
+        // {
+          placement = "pane";
+        };
       cwd_aliases.sy = config.sysinit.paths.resolved.seshySessions;
       passthrough_procs = [
         "caffeinate"

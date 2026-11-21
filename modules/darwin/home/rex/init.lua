@@ -62,7 +62,6 @@ rex.action({
 })
 
 local bindings = {
-  ["cmd+s"] = "session.switch",
   ["ctrl+cmd+p"] = "pane.go_to",
   ["ctrl+shift+f"] = "pane.go_to",
   ["ctrl+s"] = "pane.split.down",
@@ -71,7 +70,6 @@ local bindings = {
   ["ctrl+shift+v"] = "pane.split.right",
   ["cmd+shift+v"] = "pane.split.right",
   ["ctrl+m"] = "pane.zoom",
-  ["cmd+f"] = "pane.float",
   ["ctrl+w"] = "sysinit_close_pane",
   ["cmd+w"] = "sysinit_close_pane",
   ["ctrl+t"] = "client.tab.new",
