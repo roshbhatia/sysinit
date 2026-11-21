@@ -1,19 +1,15 @@
-hack/update-flakes.nu
-  s_796b0b41a96769::t_3fa30f17966353 1-25,27-30,36-47,49-57
-  s_796b0b41a96769::t_742ffc6ec5f5cb 48
-  s_796b0b41a96769::t_6efab0ba13d1ff 26,31-35
-hack/update-pi.sh
-  s_796b0b41a96769::t_18c4a395c11115 76
-checks/default.nix
-  s_796b0b41a96769::t_1bd44646dee320 59-72
-hack/test-update-flakes.nu
-  s_796b0b41a96769::t_0e43f9e92ef34b 41-46
-  s_796b0b41a96769::t_44040e4539b740 1-40,47-53
-hack/fixtures/update-flakes-command.nu
-  s_796b0b41a96769::t_0e43f9e92ef34b 2
-  s_796b0b41a96769::t_44040e4539b740 1,3-40
 .github/workflows/update-sources.yml
-  s_796b0b41a96769::t_1bd44646dee320 60-63,88
+  s_796b0b41a96769::t_18650d6807b928 60-63,88
+checks/default.nix
+  s_a4a3eea4720821::t_d79c07a48fcf2b 59-72
+hack/fixtures/update-flakes-command.nu
+  s_a4a3eea4720821::t_2e077e6a908c12 1-40
+hack/test-update-flakes.nu
+  s_a4a3eea4720821::t_e68afbd71f1a28 1-53
+hack/update-flakes.nu
+  s_a4a3eea4720821::t_13a62c58a06c62 1-57
+hack/update-pi.sh
+  s_796b0b41a96769::t_23d807410224b7 76
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -26,6 +22,14 @@ hack/fixtures/update-flakes-command.nu
         "tool": "codex",
         "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
         "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
