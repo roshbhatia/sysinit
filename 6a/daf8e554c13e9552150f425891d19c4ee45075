@@ -1,9 +1,7 @@
-pkgs/mcp-gateway/main_test.go
-  s_a4a3eea4720821::t_d5a30872de81da 7,28-40
-  s_a4a3eea4720821::t_dcf0551340ba5d 41-42
 pkgs/mcp-gateway/main.go
-  s_a4a3eea4720821::t_dc729bf587b8f7 173
-  s_a4a3eea4720821::t_26846bb78aad8b 170-172
+  s_62c4cb57de6538::t_61558d47aec76b 170-173
+pkgs/mcp-gateway/main_test.go
+  s_a4a3eea4720821::t_88ae4a4f86c6e9 7,28-42
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -11,6 +9,14 @@ pkgs/mcp-gateway/main.go
   "base_commit_sha": "6adaf8e554c13e9552150f425891d19c4ee45075",
   "prompts": {},
   "sessions": {
+    "s_62c4cb57de6538": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ec00-1de2-7bc2-a676-ca7ded8f2943",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
     "s_a4a3eea4720821": {
       "agent_id": {
         "tool": "codex",
