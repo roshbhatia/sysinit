@@ -1,5 +1,5 @@
 modules/home/programs/wezterm/default.nix
-  s_d2d448cefaa2bf::t_b2dac80f29cd3a 162
+  s_a4a3eea4720821::t_94bc30f1b8c872 162
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -7,11 +7,11 @@ modules/home/programs/wezterm/default.nix
   "base_commit_sha": "5347f01d36df308fba0772d0e3538f70e0ac8687",
   "prompts": {},
   "sessions": {
-    "s_d2d448cefaa2bf": {
+    "s_a4a3eea4720821": {
       "agent_id": {
         "tool": "codex",
-        "id": "01a1eb81-5b2b-78b2-84fd-673be95ed315",
-        "model": "gpt-6.1-sol"
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
