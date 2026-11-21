@@ -1,6 +1,5 @@
 modules/home/programs/ssh.nix
-  s_d2d448cefaa2bf::t_d57b1a6cc06799 55-63
-  s_d2d448cefaa2bf::t_fe59d7ac441b99 64
+  s_d2d448cefaa2bf::t_3b85bd64075a90 55-64
 ---
 {
   "schema_version": "authorship/3.0.0",
