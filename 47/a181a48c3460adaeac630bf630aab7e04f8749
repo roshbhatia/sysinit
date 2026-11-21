@@ -1,15 +1,15 @@
-modules/darwin/home/default.nix
-  s_a4a3eea4720821::t_a176d7e6acbca0 8
-overlays/default.nix
-  s_a4a3eea4720821::t_a176d7e6acbca0 27
-modules/darwin/home/rex/init.lua
-  s_a4a3eea4720821::t_a176d7e6acbca0 1-13
 lib/builders/pkgs.nix
-  s_a4a3eea4720821::t_a176d7e6acbca0 40
+  s_a4a3eea4720821::t_3394d8b2261f6c 40
+modules/darwin/home/default.nix
+  s_a4a3eea4720821::t_761efee6b62afe 8
 modules/darwin/home/rex/default.nix
-  s_a4a3eea4720821::t_a176d7e6acbca0 1-15
+  s_a4a3eea4720821::t_986afd8ab97d08 1-15
+modules/darwin/home/rex/init.lua
+  s_a4a3eea4720821::t_db7679ded12af7 1-13
+overlays/default.nix
+  s_a4a3eea4720821::t_81f65e1282b28b 27
 overlays/rex.nix
-  s_a4a3eea4720821::t_a176d7e6acbca0 1-32
+  s_a4a3eea4720821::t_1901093396f15a 1-32
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -21,7 +21,7 @@ overlays/rex.nix
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.2-sol"
+        "model": "unknown"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
