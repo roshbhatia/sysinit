@@ -61,7 +61,7 @@
             {
               "Workspace.tabStyle" = "horizontal";
               "Workspace.tabBarEdge" = "bottom";
-              "Workspace.inactivePaneFadeMode" = "off";
+              "Workspace.inactivePaneFadeMode" = "both";
               "Workspace.usesStandardInactiveWindowPaneStyles" = false;
             };
         "NSGlobalDomain" = {
