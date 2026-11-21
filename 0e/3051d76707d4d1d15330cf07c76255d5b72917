@@ -1,16 +1,9 @@
-modules/home/programs/llm/harnesses/codex-plugin-hooks.nu
-  s_796b0b41a96769::t_0653125c4c5818 1-6,8-22,24-31
-  s_796b0b41a96769::t_25292b4d0d478b 23
-  s_796b0b41a96769::t_8929ddf94393ed 7
-  s_796b0b41a96769::t_aaab0bc8809206 32-33
-checks/utility-contracts.nix
-  s_796b0b41a96769::t_8929ddf94393ed 19
 checks/codex-plugin-hooks.nu
-  s_796b0b41a96769::t_af01c721bfcc42 30,34
-  s_796b0b41a96769::t_8929ddf94393ed 1-29,31-33,35-45
-  s_796b0b41a96769::t_0aaf8fa8a7d6fa 46-65
-modules/home/programs/llm/harnesses/codex.nix
-  s_796b0b41a96769::t_0653125c4c5818 120-121
+  s_a4a3eea4720821::t_dc4f618d867034 1-65
+checks/utility-contracts.nix
+  s_a4a3eea4720821::t_7ccbaffeb27eb4 19
+modules/home/programs/llm/harnesses/codex-plugin-hooks.nu
+  s_a4a3eea4720821::t_0a3218152df765 1-33
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -18,10 +11,10 @@ modules/home/programs/llm/harnesses/codex.nix
   "base_commit_sha": "0e3051d76707d4d1d15330cf07c76255d5b72917",
   "prompts": {},
   "sessions": {
-    "s_796b0b41a96769": {
+    "s_a4a3eea4720821": {
       "agent_id": {
         "tool": "codex",
-        "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
         "model": "gpt-6.1-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
