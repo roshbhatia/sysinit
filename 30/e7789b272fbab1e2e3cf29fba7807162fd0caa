@@ -1,8 +1,5 @@
 modules/darwin/home/rex/init.lua
-  s_a4a3eea4720821::t_b242ee95e1942b 1-11,13-17
-  s_a4a3eea4720821::t_9ff04c0f927da3 70-72,79-80,89
-  s_a4a3eea4720821::t_7c522d009dc557 12,18-55,57-69,73-78,81-88,90-92,94-117,119-129,132-138
-  s_a4a3eea4720821::t_17857b33b32bb1 93
+  s_a4a3eea4720821::t_ed06091a56f00c 1-55,57-117,119-129,132-138
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -14,7 +11,7 @@ modules/darwin/home/rex/init.lua
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.2-sol"
+        "model": "unknown"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
