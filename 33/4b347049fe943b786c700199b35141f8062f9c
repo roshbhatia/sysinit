@@ -1,5 +1,5 @@
 modules/home/codesign.sh.tmpl
-  s_a4a3eea4720821::t_def49d40190cf3 99,103
+  s_a4a3eea4720821::t_c7f03e8e81eea0 99,103
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -11,7 +11,7 @@ modules/home/codesign.sh.tmpl
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.2-sol"
+        "model": "unknown"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
