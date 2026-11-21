@@ -1,27 +1,17 @@
-checks/skill-catalog.nix
-  s_796b0b41a96769::t_f484bdc334d0bd 48-49,54-55
-  s_796b0b41a96769::t_1793b75d4e573c 56-57
-modules/home/programs/llm/skills/skills-ecosystem-discovery/SKILL.md
-  s_796b0b41a96769::t_1793b75d4e573c 25,27-28
-modules/home/programs/llm/skills/nix-deployment/SKILL.md
-  s_796b0b41a96769::t_f484bdc334d0bd 13,15,26
 checks/host-state.nu
-  s_796b0b41a96769::t_4988065aeb5266 16-18,21-23
-  s_796b0b41a96769::t_6963ef65609934 4
-  s_796b0b41a96769::t_30d8f534d2ca80 1-3,5-15,24-43
-  s_796b0b41a96769::t_3881f7bd362fdf 19-20
+  s_a4a3eea4720821::t_428afa7d2dd464 1-43
+checks/skill-catalog.nix
+  s_a4a3eea4720821::t_fa06cdc39076b9 48-49,54-57
 checks/skill-helpers.nu
-  s_796b0b41a96769::t_22bd5e5bdf430d 26
-  s_796b0b41a96769::t_cf7be3d69d7051 1-7,9-11,13-25,27-32,34-44
+  s_a4a3eea4720821::t_2658604fb2920e 1-44
+modules/home/programs/llm/skills/nix-deployment/SKILL.md
+  s_796b0b41a96769::t_d9c063ce8bc2d8 13,15,26
 modules/home/programs/llm/skills/nix-deployment/scripts/host-state.nu
-  s_796b0b41a96769::t_1d4578aab63831 11
-  s_796b0b41a96769::t_4114b63dc20d88 10
-  s_796b0b41a96769::t_247d7cd5f41f2f 8,12-42
-  s_796b0b41a96769::t_8e8d5ed0d47304 7
-  s_796b0b41a96769::t_2e7d7e10d12fc9 1-6,9
+  s_a4a3eea4720821::t_32da87ea036c0c 1-42
+modules/home/programs/llm/skills/skills-ecosystem-discovery/SKILL.md
+  s_796b0b41a96769::t_beb13068c8df5a 25,27-28
 modules/home/programs/llm/skills/skills-ecosystem-discovery/scripts/catalog.nu
-  s_796b0b41a96769::t_007202373bae1a 48
-  s_796b0b41a96769::t_cf7be3d69d7051 1-13,16-25,27,29-40,45-47,49-54
+  s_a4a3eea4720821::t_6c12cecfa6f7ac 1-25,27,29-40,42-54
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -33,6 +23,14 @@ modules/home/programs/llm/skills/skills-ecosystem-discovery/scripts/catalog.nu
       "agent_id": {
         "tool": "codex",
         "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
         "model": "gpt-6.1-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
