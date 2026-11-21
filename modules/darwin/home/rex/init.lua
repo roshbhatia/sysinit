@@ -45,18 +45,26 @@ rex.action({
   name = "sysinit_close_pane",
   title = "Close or detach",
   args = { close_only = "boolean?" },
-  run = function(_, args)
-    local choices = { { id = "pane.close", title = "Close pane and end its process" } }
+  run = function(ctx, args)
+    local choices = {}
+    if ctx.session_id and ctx.block_id then
+      choices[#choices + 1] = { id = "close", title = "Close pane and end its process" }
+    end
     if not args.close_only then
       choices[#choices + 1] = {
-        id = "client.window.close",
+        id = "detach",
         title = "Close the window and keep the session running",
       }
     end
 
+    if #choices == 0 then
+      return
+    end
     local choice = rex.ui.pick({ title = "Close or detach?", items = choices })
-    if choice then
-      rex.client.queue(choice)
+    if choice == "close" then
+      assert(rex.call("block.close", { session_id = ctx.session_id, block_id = ctx.block_id }))
+    elseif choice == "detach" then
+      rex.client.queue("client.window.close")
     end
   end,
 })

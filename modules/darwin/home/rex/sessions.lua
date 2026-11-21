@@ -46,17 +46,16 @@ return function(settings, layout)
       )
       return
     end
-    local label = provider.name .. ": " .. plan.label
     if provider.name == "seshy" then
       for _, session in ipairs(sessions) do
-        if session.label == label then
+        if session.label == plan.label or session.label == "seshy: " .. plan.label then
           rex.client.queue("session.select", { session_id = session.session_id })
           return
         end
       end
     end
     local created = assert(rex.call("session.create", {
-      label = label,
+      label = plan.label,
       initial_windows = { { layout = layout(plan) } },
     }))
     rex.client.queue("session.select", { session_id = created.session_id })
@@ -72,8 +71,7 @@ return function(settings, layout)
       for _, provider in ipairs(settings.picker.providers) do
         local id = "provider:" .. provider.name
         providers[id] = provider
-        items[#items + 1] =
-          { id = id, title = provider.key .. "  " .. provider.name, icon = "folder" }
+        items[#items + 1] = { id = id, title = provider.name, icon = "folder" }
       end
       for _, session in ipairs(sessions) do
         items[#items + 1] = { id = session.session_id, title = session.label, icon = "terminal" }
