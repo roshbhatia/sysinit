@@ -96,11 +96,11 @@ if [ -z "$LEAF" ]; then
 fi
 
 already_ours() {
-  codesign -d -r- "$1" 2>&1 | grep -q "certificate leaf = H\"$LEAF\""
+  codesign -d -r- "$1" 2>&1 | grep "certificate leaf = H\"$LEAF\"" > /dev/null
 }
 
 managed() {
-  ! codesign -dv "$1" 2>&1 | grep -qE "^TeamIdentifier=[A-Z0-9]"
+  ! codesign -dv "$1" 2>&1 | grep -E "^TeamIdentifier=[A-Z0-9]" > /dev/null
 }
 
 sign() {
