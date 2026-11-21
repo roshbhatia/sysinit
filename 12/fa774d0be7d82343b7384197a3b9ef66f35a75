@@ -1,0 +1,39 @@
+checks/diff-pane.nu
+  s_a4a3eea4720821::t_b0b2b1d69fa00d 38,42
+modules/home/programs/llm/default.nix
+  s_a4a3eea4720821::t_06c9a0be41c4d0 94-96
+  s_a4a3eea4720821::t_a527fae74d566e 93
+modules/home/programs/llm/skills/ty/SKILL.md
+  s_a4a3eea4720821::t_06c9a0be41c4d0 3,13-16,60-75
+  s_a4a3eea4720821::t_c70bbc01fb6af6 76
+checks/fixtures/review-tools.nu
+  s_a4a3eea4720821::t_b0b2b1d69fa00d 66-74
+modules/home/programs/nushell/default.nix
+  s_a4a3eea4720821::t_eb72229661e6a0 232
+checks/default.nix
+  s_a4a3eea4720821::t_992fd375255387 233
+modules/home/programs/nushell/wezterm.nu
+  s_a4a3eea4720821::t_eb72229661e6a0 1-12,18-22
+  s_a4a3eea4720821::t_0edb853662ce58 13-17
+modules/home/programs/llm/runtime/diff/open.nu
+  s_a4a3eea4720821::t_b0b2b1d69fa00d 99,160
+checks/ty.nu
+  s_a4a3eea4720821::t_992fd375255387 2,216-218,228-233,235-237
+  s_a4a3eea4720821::t_6812ab351b86d9 220-226,234
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "12fa774d0be7d82343b7384197a3b9ef66f35a75",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
