@@ -1,6 +1,5 @@
 hosts/default.nix
-  s_d2d448cefaa2bf::t_f1d980d047109a 76,78,80,82
-  s_d2d448cefaa2bf::t_25ce723a10996c 87
+  s_d2d448cefaa2bf::t_4e7a7180b3e9fa 76,78,80,82,87
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -12,7 +11,7 @@ hosts/default.nix
       "agent_id": {
         "tool": "codex",
         "id": "01a1eb81-5b2b-78b2-84fd-673be95ed315",
-        "model": "gpt-6.1-sol"
+        "model": "unknown"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
