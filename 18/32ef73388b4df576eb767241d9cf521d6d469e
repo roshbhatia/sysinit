@@ -1,75 +1,63 @@
-pkgs/AGENTS.md
-  s_a4a3eea4720821::t_d500d5e49c1399 16
-pkgs/tq/main.go
-  s_a4a3eea4720821::t_38751b614417de 34,40,111-115,117,130,164
-checks/tq.nu
-  s_a4a3eea4720821::t_38751b614417de 14
-checks/default.nix
-  s_a4a3eea4720821::t_d500d5e49c1399 185-187,195-196,201-202,212-214
-pkgs/tq/terminal.go
-  s_a4a3eea4720821::t_38751b614417de 209
-  s_a4a3eea4720821::t_d500d5e49c1399 43,199
-modules/home/programs/pueue/default.nix
-  s_a4a3eea4720821::t_b7205e7c283559 10,71
-  s_a4a3eea4720821::t_38751b614417de 19,21,23,62,64,66-67
-pkgs/utils/internal/threads/threads_test.go
-  s_a4a3eea4720821::t_d500d5e49c1399 29,45
-checks/tq-browser.py
-  s_a4a3eea4720821::t_d500d5e49c1399 1-156,158-169
-  s_a4a3eea4720821::t_46908e95da4265 157
-pkgs/tq/main_test.go
-  s_a4a3eea4720821::t_d500d5e49c1399 1-523
 checks/README.md
-  s_a4a3eea4720821::t_d500d5e49c1399 23
-checks/tq.nix
-  s_a4a3eea4720821::t_38751b614417de 17-18,22-23
-pkgs/tq/dispatch.go
-  s_a4a3eea4720821::t_d500d5e49c1399 1-58,60-70
-  s_a4a3eea4720821::t_38751b614417de 59
-overlays/tq-picker/default.nix
-  s_a4a3eea4720821::t_d500d5e49c1399 22,34,38,52-53,60,62
+  s_a4a3eea4720821::t_59b2d8e8dfa3c1 23
+checks/default.nix
+  s_a4a3eea4720821::t_6d682aa7be80af 185-187,195-196,201-202,212-214
 checks/threads-picker.py
-  s_a4a3eea4720821::t_d500d5e49c1399 46
-docs/python-migration.md
-  s_a4a3eea4720821::t_d500d5e49c1399 13
-modules/home/programs/llm/skills/local-workflows/references/execution-and-terminals.md
-  s_a4a3eea4720821::t_58caca7602939d 20,38,70-72,83,96,108,110,115-116,125,127
-pkgs/utils/internal/threads/threads.go
-  s_a4a3eea4720821::t_d500d5e49c1399 30,62,270,281
-modules/home/programs/wezterm/default.nix
-  s_a4a3eea4720821::t_b7205e7c283559 182
-  s_a4a3eea4720821::t_d500d5e49c1399 184
-overlays/default.nix
-  s_a4a3eea4720821::t_d500d5e49c1399 62
+  s_a4a3eea4720821::t_421b29ceb326be 46
+checks/tq-browser.py
+  s_a4a3eea4720821::t_d7a3d238c8f1f1 93,157
 checks/tq-picker.py
-  s_a4a3eea4720821::t_d500d5e49c1399 41,83-85
-  s_a4a3eea4720821::t_46908e95da4265 161-163
-  s_a4a3eea4720821::t_f12190bbcab02a 132-143,148,160,180-181,189
-overlays/sysinit-gotools.nix
-  s_a4a3eea4720821::t_d500d5e49c1399 20
-modules/home/programs/pueue/_tq
-  s_a4a3eea4720821::t_d500d5e49c1399 1,3,31
-overlays/tq-picker/provider.nu
-  s_a4a3eea4720821::t_46908e95da4265 48,50,52
-  s_a4a3eea4720821::t_d500d5e49c1399 11,88,180
-  s_a4a3eea4720821::t_f12190bbcab02a 23,25,27
-  s_a4a3eea4720821::t_38751b614417de 26,35,47,49,51,53
-pkgs/tq/state.go
-  s_a4a3eea4720821::t_38751b614417de 28,34,36-55,62,68,72,75,79,82,84,90,92,98,103-104,106,113,115,121,125,130,138-139,141,146,148,154,158,162,164
+  s_a4a3eea4720821::t_d46cd5ae8c2c3e 41,83-85,132-143,148,160-163,180-181,189
+docs/python-migration.md
+  s_a4a3eea4720821::t_766b45a230c4ee 13
 modules/home/programs/llm/skills/conductor/SKILL.md
-  s_a4a3eea4720821::t_e9c5ab896fe4f3 50,57
+  s_a4a3eea4720821::t_5fd66370829971 50,57
 modules/home/programs/llm/skills/local-workflows/SKILL.md
-  s_a4a3eea4720821::t_f55dbd0f688d26 3,16
+  s_a4a3eea4720821::t_3066acdf18c82a 3,16
+modules/home/programs/llm/skills/local-workflows/references/execution-and-terminals.md
+  s_a4a3eea4720821::t_bd75f12f7013fb 20,38,70-72,83,96,108,110,115-116,125,127
 modules/home/programs/llm/skills/local-workflows/references/pull-requests.md
-  s_a4a3eea4720821::t_19a8d9fe0b22fa 15,18
+  s_a4a3eea4720821::t_9e684d99e80a71 15,18
 modules/home/programs/llm/skills/taskwarrior/SKILL.md
-  s_a4a3eea4720821::t_acf637aeb44fb0 3,43
+  s_a4a3eea4720821::t_8952ef335031d2 3,43
 modules/home/programs/llm/skills/taskwarrior/references/queued-execution.md
-  s_a4a3eea4720821::t_1c25f7aaa30e9a 12,18,32,34,36,47,49,51,57-59
+  s_a4a3eea4720821::t_be43f4c6dd4d2b 12,18,32,34,36,47,49,51,57-59
 modules/home/programs/llm/skills/ty/SKILL.md
-  s_a4a3eea4720821::t_c9267a376e8814 62
+  s_a4a3eea4720821::t_a50539dea49a8d 62
+modules/home/programs/pueue/_tq
+  s_a4a3eea4720821::t_f6dfcddb855cce 1,3,31
+overlays/sysinit-gotools.nix
+  s_a4a3eea4720821::t_17efdf2f8c2b2b 20
+overlays/tq-picker/default.nix
+  s_a4a3eea4720821::t_debb739a761f75 22,34,38,52-53,60,62
+overlays/tq-picker/provider.nu
+  s_a4a3eea4720821::t_fdcea873c9e85b 11,23,25-27,35,47-53,88,180
+pkgs/AGENTS.md
+  s_a4a3eea4720821::t_0e599535bb5cb8 16
+pkgs/tq/main_test.go
+  s_a4a3eea4720821::t_76b6e723751158 20,25,122,161
+pkgs/utils/internal/threads/threads.go
+  s_a4a3eea4720821::t_3827c7301875ad 30,62,270,281
+pkgs/utils/internal/threads/threads_test.go
+  s_a4a3eea4720821::t_7eb1fa12087e1f 29,45
+checks/tq.nix
+  s_a4a3eea4720821::t_78a78279e6b6d0 3,5,14,17-18,22-23
+checks/tq.nu
+  s_a4a3eea4720821::t_4c7f91e4ff235c 8,14,18,21
+modules/home/programs/pueue/default.nix
+  s_a4a3eea4720821::t_d53381f36e22f6 10,19,21,23,62,64,66-67,71
+overlays/default.nix
+  s_a4a3eea4720821::t_542ae5b85f758d 62
 pkgs/tq/browse.go
-  s_a4a3eea4720821::t_babd0c8ce314a1 34
+  s_a4a3eea4720821::t_9e08a5dc09487d 34
+pkgs/tq/dispatch.go
+  s_a4a3eea4720821::t_06af541c0a2cfd 59
+pkgs/tq/main.go
+  s_a4a3eea4720821::t_7e68559c87e259 16,33-34,40,111-115,117,130,164
+pkgs/tq/state.go
+  s_a4a3eea4720821::t_c3b920dfa99c87 36-55
+pkgs/tq/terminal.go
+  s_a4a3eea4720821::t_3815dd8a06061a 43,199,209
 ---
 {
   "schema_version": "authorship/3.0.0",
