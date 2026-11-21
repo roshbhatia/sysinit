@@ -1,30 +1,29 @@
-checks/fixtures/utility-command.nu
-  s_796b0b41a96769::t_c0d453c993d122 1-28
-checks/utility-contracts.nix
-  s_796b0b41a96769::t_c0d453c993d122 18
 checks/agent-sessions.nix
-  s_796b0b41a96769::t_fc091a78e9a6c1 6,13-16
+  s_796b0b41a96769::t_57889670b81e48 6,13-16
 checks/agent-sessions.nu
-  s_796b0b41a96769::t_fc091a78e9a6c1 1,3-10,12-16,18,22-39,41-42,44-90,92-100
-checks/nushell-externs.nu
-  s_796b0b41a96769::t_3d94a1ff8186bb 1-17,19-172
-  s_796b0b41a96769::t_12bb6e5b0547bd 18
-checks/nushell-externs.nix
-  s_796b0b41a96769::t_1aea1c4ef69b3a 9,14-15
-checks/fixtures/nh-command.nu
-  s_796b0b41a96769::t_e9951b8bd263b1 1-28
-checks/nh.nix
-  s_796b0b41a96769::t_e9951b8bd263b1 2-12
-checks/nh.nu
-  s_796b0b41a96769::t_e9951b8bd263b1 1-11,13-15,17-19,21-64
+  s_a4a3eea4720821::t_d1f6c58f783236 1,3-10,12-16,18-39,41-90,92-100
 checks/fixtures/agent-sessions-command.nu
-  s_796b0b41a96769::t_fc091a78e9a6c1 1-12
-checks/utility-contracts.nu
-  s_796b0b41a96769::t_c0d453c993d122 1-116
+  s_a4a3eea4720821::t_af660ff45a8562 1-12
+checks/fixtures/nh-command.nu
+  s_a4a3eea4720821::t_f668fc06fd9eaa 1-28
 checks/fixtures/nushell-extern-cases.nuon
-  s_796b0b41a96769::t_3d94a1ff8186bb 1-28
+  s_796b0b41a96769::t_44477afd8e446f 1-28
 checks/fixtures/nushell-extern-command.nu
-  s_796b0b41a96769::t_3d94a1ff8186bb 1-14
+  s_a4a3eea4720821::t_2dd53db31d45a2 1-14
+checks/fixtures/utility-command.nu
+  s_a4a3eea4720821::t_ecb98f9f7ba36a 1-28
+checks/nh.nix
+  s_796b0b41a96769::t_8cc3ca2753b065 2-19
+checks/nh.nu
+  s_a4a3eea4720821::t_e7b1d4eb3428c0 1-64
+checks/nushell-externs.nix
+  s_62c4cb57de6538::t_af57edcd79600c 9,14-15
+checks/nushell-externs.nu
+  s_a4a3eea4720821::t_4e9c7f0e8b6cfb 1-172
+checks/utility-contracts.nix
+  s_a4a3eea4720821::t_125bacd3a55fc4 18
+checks/utility-contracts.nu
+  s_a4a3eea4720821::t_dd79a84babf1fd 1-116
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -32,10 +31,26 @@ checks/fixtures/nushell-extern-command.nu
   "base_commit_sha": "8d432d729186e98f030721da28cebcc92ccfb507",
   "prompts": {},
   "sessions": {
+    "s_62c4cb57de6538": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ec00-1de2-7bc2-a676-ca7ded8f2943",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
     "s_796b0b41a96769": {
       "agent_id": {
         "tool": "codex",
         "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
         "model": "gpt-6.1-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
