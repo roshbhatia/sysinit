@@ -59,6 +59,7 @@
         "com.superlogical.rex" =
           lib.mkIf (config.home-manager.users.${config.system.primaryUser}.sysinit.rex.enable or false)
             {
+              "Workspace.floatingTaskbarCorner" = "top-right";
               "Workspace.tabStyle" = "horizontal";
               "Workspace.tabBarEdge" = "bottom";
               "Workspace.inactivePaneFadeMode" = "both";
