@@ -1,24 +1,5 @@
-checks/firefox.nu
-  s_796b0b41a96769::t_a865d9777d967b 1-17,19-32
-  s_796b0b41a96769::t_249aebf247b3ab 18
-  s_796b0b41a96769::t_2426f629a1a087 33-54
-checks/zsh-agent-shell.nu
-  s_796b0b41a96769::t_a865d9777d967b 1-53
-  s_796b0b41a96769::t_0bce396a1db60a 54-88
-checks/firefox.nix
-  s_796b0b41a96769::t_249aebf247b3ab 28,31
-checks/default.nix
-  s_796b0b41a96769::t_249aebf247b3ab 133,135,139,312,314,318
-checks/skill-catalog.nix
-  s_796b0b41a96769::t_249aebf247b3ab 41,52
-checks/fixtures/skills/contract-fixture/scripts/probe.nu
-  s_796b0b41a96769::t_d0516cd573684e 1
-checks/skill-catalog.nu
-  s_796b0b41a96769::t_d0516cd573684e 1-5,7-27
-  s_796b0b41a96769::t_f8b2559125bc15 6
-checks/completion-cache.nu
-  s_796b0b41a96769::t_d0516cd573684e 1-29
-  s_796b0b41a96769::t_4aa7371b1ae2c0 30-34
+flake.lock
+  s_a4a3eea4720821::t_fcba5fca78841f 1821-1822,1825,2208-2209,2212,2262
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -26,11 +7,11 @@ checks/completion-cache.nu
   "base_commit_sha": "2a4f64e5bd794d7ae30b4201e660c3659a2172eb",
   "prompts": {},
   "sessions": {
-    "s_796b0b41a96769": {
+    "s_a4a3eea4720821": {
       "agent_id": {
         "tool": "codex",
-        "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
-        "model": "gpt-6.1-sol"
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
