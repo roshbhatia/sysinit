@@ -1,0 +1,29 @@
+modules/darwin/home/default.nix
+  s_a4a3eea4720821::t_a176d7e6acbca0 8
+overlays/default.nix
+  s_a4a3eea4720821::t_a176d7e6acbca0 27
+modules/darwin/home/rex/init.lua
+  s_a4a3eea4720821::t_a176d7e6acbca0 1-13
+lib/builders/pkgs.nix
+  s_a4a3eea4720821::t_a176d7e6acbca0 40
+modules/darwin/home/rex/default.nix
+  s_a4a3eea4720821::t_a176d7e6acbca0 1-15
+overlays/rex.nix
+  s_a4a3eea4720821::t_a176d7e6acbca0 1-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "47a181a48c3460adaeac630bf630aab7e04f8749",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
