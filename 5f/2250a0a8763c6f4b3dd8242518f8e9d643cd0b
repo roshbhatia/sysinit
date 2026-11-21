@@ -1,19 +1,13 @@
-checks/output-rewrite.nu
-  s_796b0b41a96769::t_6c9e1229c75927 15
-  s_796b0b41a96769::t_f38559be9d818b 58-63
-  s_796b0b41a96769::t_a20f5bab698e25 1-14,16-45,47-49,51-57,64-70
-  s_796b0b41a96769::t_5d5afe63908e7f 46,50
-checks/native-output.nix
-  s_796b0b41a96769::t_a20f5bab698e25 7-8,16
-modules/home/programs/llm/runtime/output-rewrite/default.nix
-  s_796b0b41a96769::t_a20f5bab698e25 5,9
-modules/home/programs/llm/runtime/output-rewrite/rewrite.nu
-  s_796b0b41a96769::t_375c98f390b926 1-8,10-27,29-104,106-124
-  s_796b0b41a96769::t_3531406ec1c888 9,28,105
 checks/fixtures/output-rewrite-tools.nu
-  s_796b0b41a96769::t_a20f5bab698e25 1-4,15-16,20-43
-  s_796b0b41a96769::t_f38559be9d818b 5-7,11-14
-  s_796b0b41a96769::t_502bf5da81479d 8-10,17-19
+  s_a4a3eea4720821::t_4fc5a7ad602f09 1-43
+checks/native-output.nix
+  s_a4a3eea4720821::t_03553c82d40962 7-8,16
+checks/output-rewrite.nu
+  s_a4a3eea4720821::t_bfa27fc91b9f5a 1-70
+modules/home/programs/llm/runtime/output-rewrite/default.nix
+  s_796b0b41a96769::t_4cd8a7e229072c 5,9
+modules/home/programs/llm/runtime/output-rewrite/rewrite.nu
+  s_a4a3eea4720821::t_fb3453f939e156 1-124
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -25,6 +19,14 @@ checks/fixtures/output-rewrite-tools.nu
       "agent_id": {
         "tool": "codex",
         "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
         "model": "gpt-6.1-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
