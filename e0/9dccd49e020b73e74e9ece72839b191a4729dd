@@ -1,39 +1,25 @@
-modules/home/programs/llm/runtime/diff/open.nu
-  s_796b0b41a96769::t_f30c3de8e4aabf 97
-  s_796b0b41a96769::t_8b8590e8f5176b 10-14,19-27,61-65,72-76,82-86,89-96,98-119,130-132
-  s_796b0b41a96769::t_aeb75d52856281 1,3-6,9,15-16,18,28,30-44,46-60,66-71,77-81,87-88,120-129,133-134
-  s_796b0b41a96769::t_8ed393e134e8e3 8
-checks/diff-pane.nu
-  s_796b0b41a96769::t_8b8590e8f5176b 10-17,45-51
-  s_796b0b41a96769::t_a4118d772dcdfa 1-9,18-44,52-59
-modules/home/programs/llm/runtime/diff/default.nix
-  s_796b0b41a96769::t_3ad94b8a18b562 5-6,11
-modules/home/programs/llm/runtime/ask-terminal.nu
-  s_796b0b41a96769::t_33880b92edd3d8 1-10
-modules/home/programs/gh.nix
-  s_796b0b41a96769::t_3ad94b8a18b562 16,19
-checks/pr-workflow.nu
-  s_796b0b41a96769::t_8b8590e8f5176b 15-21,28-33,58-60,62-81,88-92,129-141,156-163,171-173,180-182,184-188,191-199,215-220,228-244
-  s_796b0b41a96769::t_ed3cbfcae49b78 3
-  s_796b0b41a96769::t_5374907889b9f5 23,97-108,110-112,114,252
-  s_796b0b41a96769::t_e2959f965c2d0e 1-2,4-14,22,24-27,34-52,54-57,61,82-87,93-96,115-128,142-155,164-170,174-179,183,189-190,200-214,221-227,245-251,253-271
-  s_796b0b41a96769::t_f6744926defdb0 53
-  s_796b0b41a96769::t_a8c975054ee57d 109,113
-modules/home/programs/gh-pr-diff.nu
-  s_796b0b41a96769::t_8b8590e8f5176b 19-25,28-35,63-68,78-87
-  s_796b0b41a96769::t_f30c3de8e4aabf 96
-  s_796b0b41a96769::t_33880b92edd3d8 3-18,26-27,36-39,41-43,48-62,69-77,88-95,97-101
-  s_796b0b41a96769::t_b6d763a832875c 1-2,40
-  s_796b0b41a96769::t_3ad94b8a18b562 44-47
-checks/fixtures/review-tools.nu
-  s_796b0b41a96769::t_a4118d772dcdfa 1-9,19-26,31-33,38-39,45,49-54,58-62,66-67,75-77,81-89
-  s_796b0b41a96769::t_8b8590e8f5176b 10-18,27-30,34-37,40-44,46-48,55-57,63-65,68-74,78-80
-checks/native-output.nix
-  s_796b0b41a96769::t_3ad94b8a18b562 6-7,18
 checks/default.nix
-  s_796b0b41a96769::t_3ad94b8a18b562 258,264
+  s_a4a3eea4720821::t_983899f122e3de 258,264
+checks/diff-pane.nu
+  s_a4a3eea4720821::t_a597793b902d9f 1-59
+checks/fixtures/review-tools.nu
+  s_a4a3eea4720821::t_ecb43a3d647cd6 1-89
+checks/native-output.nix
+  s_a4a3eea4720821::t_0f27ad099adf96 6-7,18
+modules/home/programs/gh-pr-diff.nu
+  s_a4a3eea4720821::t_69a2f8beaf08e4 1-101
+modules/home/programs/gh.nix
+  s_a4a3eea4720821::t_2723e62c8e782e 16,19
+modules/home/programs/llm/runtime/ask-terminal.nu
+  s_a4a3eea4720821::t_c1b710e20b646b 1-10
+modules/home/programs/llm/runtime/diff/default.nix
+  s_796b0b41a96769::t_92381a06b95127 5-6,11
+modules/home/programs/llm/runtime/diff/open.nu
+  s_a4a3eea4720821::t_27aa2bc94c131e 1,3-6,8-16,18-28,30-44,46-134
 modules/home/programs/llm/skill-tools.nix
-  s_796b0b41a96769::t_3ad94b8a18b562 53-56
+  s_796b0b41a96769::t_c94d4c1d8c1ee1 53-56
+checks/pr-workflow.nu
+  s_a4a3eea4720821::t_6be4c1a761bfc0 1-271
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -46,6 +32,14 @@ modules/home/programs/llm/skill-tools.nix
         "tool": "codex",
         "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
         "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
