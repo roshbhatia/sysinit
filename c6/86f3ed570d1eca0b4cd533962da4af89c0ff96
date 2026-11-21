@@ -1,0 +1,26 @@
+docs/terminal-capability-audit.md
+  s_a4a3eea4720821::t_8e0b1cfcba8c15 20
+modules/darwin/home/rex/sessions.lua
+  s_a4a3eea4720821::t_db46498719dc21 51,58,74
+modules/darwin/desktop.nix
+  s_a4a3eea4720821::t_fc79a11bb0d0fc 1,59-63,66
+  s_a4a3eea4720821::t_72d03aa5e382e0 64-65
+modules/darwin/home/rex/init.lua
+  s_a4a3eea4720821::t_de11cd003b4f48 48-52,55,60-62,64-67
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c686f3ed570d1eca0b4cd533962da4af89c0ff96",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
