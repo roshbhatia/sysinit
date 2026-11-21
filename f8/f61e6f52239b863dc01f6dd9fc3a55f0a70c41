@@ -1,17 +1,17 @@
 modules/darwin/defaults-incremental.nix
-  s_a4a3eea4720821::t_0fce0931ded6e5 22
-modules/home/programs/nushell/default.nix
-  s_a4a3eea4720821::t_0fce0931ded6e5 46,141
-modules/home/programs/llm/harnesses/amp.nix
-  s_a4a3eea4720821::t_0fce0931ded6e5 23
-modules/home/programs/llm/lib/frontmatter.nix
-  s_a4a3eea4720821::t_dc729bf587b8f7 31
-modules/home/programs/llm/lib/instructions.nix
-  s_a4a3eea4720821::t_0fce0931ded6e5 209
-modules/home/programs/llm/lib/allowlist.nix
-  s_a4a3eea4720821::t_0fce0931ded6e5 273,275,280-281,284,287
+  s_a4a3eea4720821::t_1f95847a1037bb 22
 modules/home/packages.nix
-  s_a4a3eea4720821::t_cc3895e9c31f15 11
+  s_a4a3eea4720821::t_40998daf33782c 11
+modules/home/programs/llm/harnesses/amp.nix
+  s_a4a3eea4720821::t_d5b112c175586f 23
+modules/home/programs/llm/lib/allowlist.nix
+  s_a4a3eea4720821::t_79017a43f0af7a 273,275,280-281,284,287
+modules/home/programs/llm/lib/frontmatter.nix
+  s_62c4cb57de6538::t_533ee9cb170e58 31
+modules/home/programs/llm/lib/instructions.nix
+  s_a8f060c64afc5c::t_39d98a76590e7a 209
+modules/home/programs/nushell/default.nix
+  s_a4a3eea4720821::t_a32c3b07ce8477 46,141
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -19,11 +19,27 @@ modules/home/packages.nix
   "base_commit_sha": "f8f61e6f52239b863dc01f6dd9fc3a55f0a70c41",
   "prompts": {},
   "sessions": {
+    "s_62c4cb57de6538": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ec00-1de2-7bc2-a676-ca7ded8f2943",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
     "s_a4a3eea4720821": {
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
         "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a8f060c64afc5c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f577-5612-72f3-9fd8-1d348b20bd7b",
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
