@@ -1,20 +1,17 @@
-modules/home/programs/llm/runtime/notifier-plist.nu
-  s_796b0b41a96769::t_fa7115f5b0dcc9 1-9
-checks/notification-assets.nu
-  s_796b0b41a96769::t_9c4643b9863a05 35-37
-  s_796b0b41a96769::t_f57900fa805e28 1-34,38-49
-modules/home/programs/llm/runtime/check-icons.nu
-  s_796b0b41a96769::t_552077126201af 14
-  s_796b0b41a96769::t_fa7115f5b0dcc9 1-13,15-26,28-33
-modules/home/programs/llm/runtime/default.nix
-  s_796b0b41a96769::t_fa7115f5b0dcc9 39-40,44,47
-modules/home/programs/llm/runtime/macos-notifier.nix
-  s_796b0b41a96769::t_fa7115f5b0dcc9 11,31-32
-checks/default.nix
-  s_796b0b41a96769::t_f57900fa805e28 178
 checks/notification-assets.nix
-  s_796b0b41a96769::t_434313bb2af215 2-4,17
-  s_796b0b41a96769::t_f57900fa805e28 1,5-16,18-19
+  s_796b0b41a96769::t_de250675a0f778 1-19
+checks/notification-assets.nu
+  s_a4a3eea4720821::t_c6fb5c594598c8 1-49
+modules/home/programs/llm/runtime/check-icons.nu
+  s_a4a3eea4720821::t_63a7f7f8e85b01 1-33
+modules/home/programs/llm/runtime/default.nix
+  s_796b0b41a96769::t_3f23079ca09c85 39-40,44,47
+modules/home/programs/llm/runtime/macos-notifier.nix
+  s_796b0b41a96769::t_337b3e6aee40c0 11,31-32
+modules/home/programs/llm/runtime/notifier-plist.nu
+  s_a4a3eea4720821::t_baf14c096e9846 1-9
+checks/default.nix
+  s_a4a3eea4720821::t_05f39673274a09 178
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -26,6 +23,14 @@ checks/notification-assets.nix
       "agent_id": {
         "tool": "codex",
         "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
         "model": "gpt-6.1-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
