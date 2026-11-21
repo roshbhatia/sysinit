@@ -1,0 +1,28 @@
+modules/darwin/home/rex/appearance.lua
+  s_a4a3eea4720821::t_e5ae51004a2b85 2,4-6,8-10,25,28
+modules/home/programs/wezterm/default.nix
+  s_a4a3eea4720821::t_e5ae51004a2b85 87
+modules/darwin/home/rex/default.nix
+  s_a4a3eea4720821::t_e5ae51004a2b85 25-34,46
+docs/terminal-capability-audit.md
+  s_a4a3eea4720821::t_e5ae51004a2b85 16
+  s_a4a3eea4720821::t_af4d2304a2c714 30-45
+modules/shared/terminal-shell.nix
+  s_a4a3eea4720821::t_e5ae51004a2b85 1-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6e7bab1e4e763544dbd113ebf9035525af63b051",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
