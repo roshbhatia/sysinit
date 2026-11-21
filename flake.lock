@@ -1785,9 +1785,6 @@
     },
     "sysinit-nvim": {
       "inputs": {
-        "agent-notes": [
-          "agent-notes"
-        ],
         "changes": [
           "changes"
         ],
@@ -1796,11 +1793,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1795116617,
-        "narHash": "sha256-jCPMiAo5giHydN2XLwbBJ5ksCQnUj/AGxgE1c0pBleo=",
+        "lastModified": 1795303569,
+        "narHash": "sha256-+RomaUFQ2iwaJwXtCzZMbFyPRAgdZ50enaOqpcTGA/Q=",
         "owner": "roshbhatia",
         "repo": "sysinit.nvim",
-        "rev": "0676e4d77dffd97906e5a14bae860660165e7077",
+        "rev": "25781be7039613c1cf89bd2f092468c6038afc8a",
         "type": "github"
       },
       "original": {

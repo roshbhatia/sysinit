@@ -135,7 +135,6 @@
       url = "github:roshbhatia/sysinit.nvim";
       inputs = {
         nixpkgs.follows = "nixpkgs";
-        agent-notes.follows = "agent-notes";
         changes.follows = "changes";
       };
     };
