@@ -1,11 +1,7 @@
-overlays/task-queue-picker/provider.nu
-  s_796b0b41a96769::t_d8b2f042946c6f 74
-  s_796b0b41a96769::t_bb6ef269e945f9 67-68
 docs/python-migration.md
-  s_796b0b41a96769::t_dde0d1d090aefb 7
-  s_796b0b41a96769::t_d8b2f042946c6f 5-6,8-9
+  s_a4a3eea4720821::t_66481a22d5576a 5-9
 overlays/python-tools.nix
-  s_796b0b41a96769::t_d8b2f042946c6f 66
+  s_796b0b41a96769::t_7b97d5a2990e0c 66
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -18,6 +14,14 @@ overlays/python-tools.nix
         "tool": "codex",
         "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
         "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
