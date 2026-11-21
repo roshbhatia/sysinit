@@ -13,7 +13,7 @@ the installed build from ports that still need implementation.
 | Daily keys and editing | Native actions cover splits, focus, resize, float, tab operations, search, copy mode, fonts, and the command palette. Server Lua can inspect the foreground process and forward a key. | Share key intent, directions, and passthrough policy as data when the next keymap changes. Resolve actual actions in each client. Rex page scrolling and native floating behavior differ from WezTerm's fixed-line scrolling and tab-owned scratch pane. |
 | Native sessions | Rex supports creating, attaching, renaming, closing, and listing sessions. Session geometry belongs to the Rex server. | Use each client's lifecycle directly. WezTerm's numbered workspace slots, Lua recovery snapshots, and agent-resume behavior have no shared state format. Define slot ordering only if both clients need the same behavior. |
 | Provider menu | Rex has a native session picker and Lua text and choice prompts. Lua can run a process with structured argv, deadline, stdin, and JSON output. | Reuse the existing `provider/v1` manifests for Seshy, zoxide, Tether, and `tq`. Move the current WezTerm-named frame runner toward a terminal-neutral command if Rex becomes its second consumer. Add a Rex presenter and translate launch plans at that boundary. Expose create, rename, and delete only when the provider declares them. |
-| Shells, remote hosts, and spawning | Rex creates terminal blocks with argv and cwd and connects to named Rex servers. | Keep the command, cwd, and host selection policy shareable. WezTerm mux domains, SSH and Mosh forwarding behavior, and Rex server addresses need separate adapters. Rex does not inherit the WezTerm shell launch command. |
+| Shells, remote hosts, and spawning | Rex creates terminal blocks with argv and cwd and connects to named Rex servers. The Mac client exposes a local startup command. | Both terminals use the same managed Nushell argv. WezTerm mux domains, SSH and Mosh forwarding behavior, and Rex server addresses need separate adapters. The client's startup setting applies to new panes it opens on the local server. |
 | Queue jobs, logs, and terminal identity | Pueue jobs and `tq` records are independent of the terminal UI. Rex can launch a log viewer in a block. | Share browse and log behavior. A running `tq --terminal` job stores a WezTerm workspace today. Add a Rex backend before changing where new attempts run. Persist backend plus opaque identifier for future attach and cancel, and keep existing WezTerm records readable. |
 | Agent activity, capture, and recovery | Rex exposes screen text, terminal process state, session and block events, and program status via OSC 7501. | Continue using the agent registry and existing signals as inputs. A Rex adapter can emit OSC 7501 or render status from the same events. WezTerm badges, palette previews, snapshots, and scrollback restore remain client-specific. |
 | Neovim navigation and companion panes | Rex exposes split, focus, input, capture, and close operations through its CLI and Lua API. | Keep ordinary Neovim in Rex. The existing `sysinit.nvim` WezTerm helper is the starting boundary for an editor-side terminal adapter. Discover the backend from the process context and keep pane IDs opaque. Harness launch and Markdown preview are good first callers. |
@@ -26,6 +26,22 @@ the installed build from ports that still need implementation.
 [Rex Lua events](https://www.superlogical.com/rex/docs/automate/lua-events),
 [Program status protocol](https://www.superlogical.com/rex/docs/build/program-status),
 [sysinit WezTerm behavior](https://github.com/roshbhatia/sysinit.wezterm)
+
+## Vim copy mode
+
+The managed `Ctrl+Escape` and `Ctrl+Shift+X` shortcuts enter Rex's native copy
+mode. Rex provides Vim motions, character, line and block selections, match and
+character search, yank, and exit. Rex also implements counts and paragraph
+motions. Its documented defaults differ from WezTerm for Tab and Shift+Tab,
+Return, Space, Ctrl+C, Ctrl+G, and the horizontal selection-end swap. Return
+yanks in Rex and moves to the start of the next line in WezTerm. The installed
+Rex action schema has no next-line-start motion or horizontal-only swap.
+[Rex copy mode actions](https://www.superlogical.com/rex/docs/reference/mac-actions)
+
+Rex currently reports `xterm-256color` on this host. Moving to `xterm-rex`
+requires installing the terminfo entry through Nix and integrating Rex's SSH
+fallback with the managed SSH configuration.
+[Rex shell and terminal integration](https://www.superlogical.com/rex/docs/automate/shell-scripting)
 
 ## Neorex
 
