@@ -1,11 +1,11 @@
 AGENTS.md
-  s_cccc57401e3d8c::t_1f66f8d497aa0c 22-23
+  s_796b0b41a96769::t_ffd8a552545a26 22-23
 docs/codex-daemon.md
-  s_cccc57401e3d8c::t_c27695e99b86fa 1-47
-modules/darwin/log-retention.nix
-  s_cccc57401e3d8c::t_b1e3048f7b0dfe 23
+  s_cccc57401e3d8c::t_9f3b47686265b3 1-47
 modules/home/programs/llm/skills/local-workflows/SKILL.md
-  s_cccc57401e3d8c::t_574d827948b7af 136-145
+  s_a4a3eea4720821::t_07a16baa7479ea 136-145
+checks/default.nix
+  s_a4a3eea4720821::t_4e7c485690a48e 60-66
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -13,11 +13,27 @@ modules/home/programs/llm/skills/local-workflows/SKILL.md
   "base_commit_sha": "35cb00749dc7d9bf2b3ecaab031be078ff6f41bb",
   "prompts": {},
   "sessions": {
+    "s_796b0b41a96769": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
     "s_cccc57401e3d8c": {
       "agent_id": {
         "tool": "codex",
         "id": "01a17e4b-b712-7e82-993b-13c0fa9fac0e",
-        "model": "unknown"
+        "model": "gpt-6.1-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
