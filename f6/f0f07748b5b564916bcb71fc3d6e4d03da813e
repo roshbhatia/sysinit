@@ -1,0 +1,69 @@
+flake.lock
+  s_a4a3eea4720821::t_f31dda47ab9433 72-73,76,82,170-186,350-353,355,365,367,371,377,379,383,389,391,395,406-407,410,416,428-429,432,554-555,558,735-736,739,796-797,800,819-820,823,897,905-908,910,924-925,928,947-948,951,1007-1008,1011,1038-1041,1043,1052-1053,1056,1074-1075,1078,1119-1120,1123,1141-1142,1145,1273-1274,1277,1283,1294-1295,1298,1304,1377-1378,1381,1468-1469,1472,1477,1565-1566,1569,1589-1590,1593,1698-1699,1702,1774-1775,1778,1883-1884,1887,1893,1929-1930,1933,1939
+flake.nix
+  s_a4a3eea4720821::t_6c5f1aaec34e3a 68,96,101,168,188,193,201
+lib/builders/pkgs.nix
+  s_a4a3eea4720821::t_8e095c0bf0db1d 26,28,34
+modules/home/programs/nushell/functions.nu
+  s_a4a3eea4720821::t_7eade825ed32f2 241,254-255,266
+modules/home/programs/nushell/onepassword.nu
+  s_a4a3eea4720821::t_494a8379aaf0a4 53-57
+overlays/agentgateway.nix
+  s_7028fc5da01072::t_71ff6e4fe75e20 6,10,14,46,48
+overlays/codex-sanitize-terminal-output.patch
+  s_7028fc5da01072::t_82fed09f34f6b8 94
+overlays/codex.nix
+  s_7028fc5da01072::t_518c9658142bd4 12-13,17-18,20-34
+overlays/gh-dash.nix
+  s_7028fc5da01072::t_7eabf36781bb64 4,16
+overlays/mermaid-ascii.nix
+  s_7028fc5da01072::t_3b6d1030e68599 12
+overlays/opencode.nix
+  s_cccc57401e3d8c::t_0dbdff84cb2832 3,7,11,15,19,25,29
+overlays/sheets.nix
+  s_7028fc5da01072::t_24f6259d18e3eb 4,9-10,13
+templates/discrete/flake.lock
+  s_796b0b41a96769::t_c208410aa39fa5 46,51,54-55,57-58,63,67,73,76-77,80,86,174-203,217-218,221,252-272,346-349,351,361,363,367,373,375,379,385,387,391,394,396,403-407,411-413,417-439,456-476,533,536-537,540,551,631,648-665,741-742,745,804-805,808,813,818,820,824-825,828-832,836-884,913-916,918,933-934,937,957-958,961,1001-1015,1048-1051,1053,1062-1063,1066,1076,1078,1085-1086,1089,1133-1134,1137,1153,1156-1157,1160,1302,1324,1390-1391,1394,1415,1441-1442,1445,1451-1473,1479,1486-1487,1490,1495,1500-1543,1580,1587-1588,1591,1603,1609,1612-1613,1616,1628,1633,1637,1639,1641-1644,1648,1653-1654,1663,1665-1667,1670-1671,1674,1699-1700,1703,1717-1720,1723-1724,1727,1767-1781,1796-1811,1827,1842,1857,1971-1972,1975,1981-2004,2020-2021,2024,2030-2051
+overlays/inputs.nix
+  s_a4a3eea4720821::t_158bcf2dc781ee 79
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f6f0f07748b5b564916bcb71fc3d6e4d03da813e",
+  "prompts": {},
+  "sessions": {
+    "s_7028fc5da01072": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1d0ac-4380-7023-8b2f-a382ea7a16c4",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_796b0b41a96769": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_cccc57401e3d8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a17e4b-b712-7e82-993b-13c0fa9fac0e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
