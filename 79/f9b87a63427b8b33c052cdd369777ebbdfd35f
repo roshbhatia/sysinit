@@ -1,24 +1,17 @@
-checks/default.nix
-  s_df142d9d9da5a3::t_784b16f619e1f8 266-269
-overlays/fzf.nix
-  s_df142d9d9da5a3::t_15a990be636172 1-12
-modules/home/programs/nushell/lib.nix
-  s_df142d9d9da5a3::t_aac30c3821f04e 7-8
-  s_df142d9d9da5a3::t_784b16f619e1f8 9-12
-modules/home/programs/nushell/default.nix
-  s_df142d9d9da5a3::t_784b16f619e1f8 110
-modules/home/programs/nushell/completers.nu.tmpl
-  s_df142d9d9da5a3::t_15a990be636172 62-63
-overlays/default.nix
-  s_df142d9d9da5a3::t_15a990be636172 43
 checks/nushell-completions.nix
-  s_df142d9d9da5a3::t_beccd8c1ae67cd 55-58
-  s_df142d9d9da5a3::t_aac30c3821f04e 42-54,59-64
-  s_df142d9d9da5a3::t_784b16f619e1f8 1-19,21,25-28,32,39-41
-  s_df142d9d9da5a3::t_97dd9c0d840c34 20,23-24,29-31,33-38
-  s_df142d9d9da5a3::t_9fa0c06dd563fb 22
+  s_a4a3eea4720821::t_e25eed535ebd8c 1-64
 flake.nix
-  s_df142d9d9da5a3::t_665b10b680f625 342
+  s_a4a3eea4720821::t_efc9b770d95262 342
+modules/home/programs/nushell/completers.nu.tmpl
+  s_4541d03bc240df::t_4f9f5e0d43d394 62-63
+overlays/default.nix
+  s_a4a3eea4720821::t_514c001074f5b0 43
+overlays/fzf.nix
+  s_7028fc5da01072::t_2cd5d6e99c43df 1-12
+checks/default.nix
+  s_a4a3eea4720821::t_7a961af44f1517 266-269
+modules/home/programs/nushell/default.nix
+  s_a4a3eea4720821::t_ddbe1b1b762aa9 110
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -26,10 +19,26 @@ flake.nix
   "base_commit_sha": "79f9b87a63427b8b33c052cdd369777ebbdfd35f",
   "prompts": {},
   "sessions": {
-    "s_df142d9d9da5a3": {
+    "s_4541d03bc240df": {
       "agent_id": {
         "tool": "codex",
-        "id": "01a16643-3c4e-7a42-bf10-32b8d3ca1f79",
+        "id": "01a1bd09-f672-7982-8a4f-e1e208a96834",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_7028fc5da01072": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1d0ac-4380-7023-8b2f-a382ea7a16c4",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
         "model": "gpt-6.1-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
