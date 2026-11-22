@@ -1,11 +1,7 @@
-docs/atuin.md
-  s_cccc57401e3d8c::t_4e54654f61ec55 19-20
-modules/home/programs/atuin.nix
-  s_cccc57401e3d8c::t_4e54654f61ec55 51
 checks/atuin.py
-  s_cccc57401e3d8c::t_8e4e7cfaef5edd 2,6-8,10-11,15,22-33,35-48,51,53-55,57,59-72,134
-  s_cccc57401e3d8c::t_be2580b45d4579 50
-  s_cccc57401e3d8c::t_d4a340854d38c4 56
+  s_cccc57401e3d8c::t_3f4c6c5a748e78 2,6-8,10-11,15,22-72,134
+docs/atuin.md
+  s_cccc57401e3d8c::t_5826ac839c3ea7 19-20
 ---
 {
   "schema_version": "authorship/3.0.0",
