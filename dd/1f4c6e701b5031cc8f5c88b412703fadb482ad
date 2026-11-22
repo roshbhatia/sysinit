@@ -1,13 +1,11 @@
-modules/home/programs/wezterm/default.nix
-  s_4541d03bc240df::t_55709fe93c15d5 71
-docs/repository-reference.md
-  s_4541d03bc240df::t_b41ab94b074f83 241-245
-checks/default.nix
-  s_4541d03bc240df::t_b41ab94b074f83 349-351
 checks/wezterm-shell.nix
-  s_4541d03bc240df::t_59c737af72e744 18,20
-  s_4541d03bc240df::t_819159ddfdc926 7
-  s_4541d03bc240df::t_b41ab94b074f83 1-6,8-17,19,21-22
+  s_4541d03bc240df::t_8cae433f9f00af 1-22
+modules/home/programs/wezterm/default.nix
+  s_a4a3eea4720821::t_0d11e4dc8344dd 71
+checks/default.nix
+  s_a4a3eea4720821::t_01000565cb6883 349-351
+docs/repository-reference.md
+  s_a4a3eea4720821::t_c78ebf6d3c185c 241-245
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -20,6 +18,14 @@ checks/wezterm-shell.nix
         "tool": "codex",
         "id": "01a1bd09-f672-7982-8a4f-e1e208a96834",
         "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
