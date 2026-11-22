@@ -1,21 +1,11 @@
-modules/home/programs/llm/lib/instructions.nix
-  s_df142d9d9da5a3::t_6bd265d9d0a11a 5,108,174
-  s_df142d9d9da5a3::t_a55d4174dc1a4b 184-189
 checks/harness-instructions.nix
-  s_df142d9d9da5a3::t_6bd265d9d0a11a 18-20,24-28
-  s_df142d9d9da5a3::t_a55d4174dc1a4b 1-5
-modules/home/programs/llm/gate-defaults.nix
-  s_df142d9d9da5a3::t_6bd265d9d0a11a 4,11
-checks/default.nix
-  s_df142d9d9da5a3::t_6bd265d9d0a11a 233
-modules/home/programs/llm/lib/output-style.nix
-  s_df142d9d9da5a3::t_6bd265d9d0a11a 1-4,6-53,55-80
-  s_df142d9d9da5a3::t_637ee57e32f996 5,54
+  s_796b0b41a96769::t_912686ace3de8c 1-5,18-20,24-28
 modules/home/programs/llm/harnesses/claude/default.nix
-  s_df142d9d9da5a3::t_6bd265d9d0a11a 51,115
-modules/home/programs/llm/skills/writing-tone/SKILL.md
-  s_df142d9d9da5a3::t_6bd265d9d0a11a 79,168
-  s_df142d9d9da5a3::t_43e39844f7f2b4 13-14,103
+  s_a4a3eea4720821::t_28848f7f0ebb70 51,115
+checks/default.nix
+  s_a4a3eea4720821::t_a51b82275bbee9 233
+modules/home/programs/llm/lib/instructions.nix
+  s_a4a3eea4720821::t_06817c4b7b95ef 5,108,174,184-189
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -23,11 +13,19 @@ modules/home/programs/llm/skills/writing-tone/SKILL.md
   "base_commit_sha": "1816ee4ed31b05bade17116022ef2faa53ccc114",
   "prompts": {},
   "sessions": {
-    "s_df142d9d9da5a3": {
+    "s_796b0b41a96769": {
       "agent_id": {
         "tool": "codex",
-        "id": "01a16643-3c4e-7a42-bf10-32b8d3ca1f79",
+        "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
         "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
