@@ -1,0 +1,33 @@
+modules/home/programs/gh.nix
+  s_a4a3eea4720821::t_a8784c0331a1f8 66
+modules/darwin/home/hammerspoon/url-providers/default.nix
+  s_a4a3eea4720821::t_a8784c0331a1f8 40
+docs/review-tools.md
+  s_a4a3eea4720821::t_a8784c0331a1f8 30,55
+checks/pr-workflow.nu
+  s_a4a3eea4720821::t_fbe62d68940bf0 88,90,94-101,112
+checks/url-routing.lua
+  s_a4a3eea4720821::t_a8784c0331a1f8 138
+modules/darwin/home/hammerspoon/url-routing.nix
+  s_a4a3eea4720821::t_a8784c0331a1f8 167
+modules/home/programs/gh-pr-diff.nu
+  s_a4a3eea4720821::t_a8784c0331a1f8 52,65-70,139
+flake.lock
+  s_a4a3eea4720821::t_2a2d7a60c3e5d0 1796-1797,1800
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0532af2d5aae759e7cd02593846d44d31dbc2c61",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
