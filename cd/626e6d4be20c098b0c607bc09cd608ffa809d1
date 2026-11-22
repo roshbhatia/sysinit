@@ -1,9 +1,5 @@
 .github/workflows/update-sources.yml
-  s_7028fc5da01072::t_c0e3147a23f403 20-30,32-33
-_sources/generated.json
-  s_7028fc5da01072::t_c0e3147a23f403 11,13,15,26,28,30,41,43,45,56,58,60,419,421,423,434,436,438,449,451,453,464,466,468
-_sources/generated.nix
-  s_7028fc5da01072::t_c0e3147a23f403 11,13-14,19,21-22,27,29-30,35,37-38,228,230-231,236,238-239,244,246-247,252,254-255
+  s_796b0b41a96769::t_cc9c1cb4515d29 20-30,32-33
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -11,10 +7,10 @@ _sources/generated.nix
   "base_commit_sha": "cd626e6d4be20c098b0c607bc09cd608ffa809d1",
   "prompts": {},
   "sessions": {
-    "s_7028fc5da01072": {
+    "s_796b0b41a96769": {
       "agent_id": {
         "tool": "codex",
-        "id": "01a1d0ac-4380-7023-8b2f-a382ea7a16c4",
+        "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
         "model": "gpt-6.1-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
