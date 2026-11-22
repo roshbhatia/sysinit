@@ -1,7 +1,7 @@
-modules/home/programs/wezterm/default.nix
-  s_7028fc5da01072::t_64dd66a6bff521 79-80
 flake.lock
-  s_7028fc5da01072::t_3d80a6f093108c 51-52,55,1821-1822,1825
+  s_a4a3eea4720821::t_05ddefefc59398 51-52,55,1821-1822,1825
+modules/home/programs/wezterm/default.nix
+  s_a4a3eea4720821::t_93b6d0f23dea18 79-80
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -9,11 +9,11 @@ flake.lock
   "base_commit_sha": "5ca3da574e55679106af8a8b0bbf2fafd10e6170",
   "prompts": {},
   "sessions": {
-    "s_7028fc5da01072": {
+    "s_a4a3eea4720821": {
       "agent_id": {
         "tool": "codex",
-        "id": "01a1d0ac-4380-7023-8b2f-a382ea7a16c4",
-        "model": "gpt-6.1-sol"
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
