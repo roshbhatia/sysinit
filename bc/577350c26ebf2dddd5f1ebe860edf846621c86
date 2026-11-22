@@ -1,11 +1,9 @@
-modules/home/programs/llm/harnesses/registry.nix
-  s_df142d9d9da5a3::t_15a990be636172 35,62,321-325
 checks/harness-instructions.nix
-  s_df142d9d9da5a3::t_f639b8efefca06 54-59,74-75,86
-  s_df142d9d9da5a3::t_aac30c3821f04e 24-25,27-29,36-42,44-50
-  s_df142d9d9da5a3::t_1c56d334669d9d 8-10,23,26,30-35,43,51-53,68-73,76-85,87-90
+  s_796b0b41a96769::t_57caedcf78d8df 8-10,23-59,68-90
 modules/home/programs/llm/harnesses/publish.nix
-  s_df142d9d9da5a3::t_15a990be636172 28-29,34-39,75-88
+  s_a4a3eea4720821::t_a87d12adbfcb49 28-29,34-39,75-88
+modules/home/programs/llm/harnesses/registry.nix
+  s_a4a3eea4720821::t_48be2ac3e6a09d 35,62,321-325
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -13,11 +11,19 @@ modules/home/programs/llm/harnesses/publish.nix
   "base_commit_sha": "bc577350c26ebf2dddd5f1ebe860edf846621c86",
   "prompts": {},
   "sessions": {
-    "s_df142d9d9da5a3": {
+    "s_796b0b41a96769": {
       "agent_id": {
         "tool": "codex",
-        "id": "01a16643-3c4e-7a42-bf10-32b8d3ca1f79",
+        "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
         "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "unknown"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
