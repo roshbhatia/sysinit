@@ -1,20 +1,7 @@
-modules/darwin/home/sketchybar/lua/sysinit/pkg/core/health.lua
-  s_c4706d5f7b8e30::t_10ac6c1d048d2d 1-16
-checks/sketchybar-health.py
-  s_c4706d5f7b8e30::t_167783a9af9fe8 3,7-8,19-60
-  s_c4706d5f7b8e30::t_70876d516efd7b 1-2,4-6,9-18,61-118,122-125
-  s_c4706d5f7b8e30::t_d9cdc8f6e382d6 119-121
-  s_c4706d5f7b8e30::t_c95f551be5ed56 126-129
 checks/utility-contracts.nix
-  s_c4706d5f7b8e30::t_70876d516efd7b 21
-modules/darwin/sketchybar-health.py
-  s_c4706d5f7b8e30::t_d9cdc8f6e382d6 62-64
-  s_c4706d5f7b8e30::t_544be59de482a3 23-26,101
-  s_c4706d5f7b8e30::t_10ac6c1d048d2d 1-22,27-61,65-100,102-118
-modules/darwin/home/sketchybar/lua/sysinit/init.lua
-  s_c4706d5f7b8e30::t_10ac6c1d048d2d 20-21
+  s_a4a3eea4720821::t_fa1a26e3af54b1 21
 modules/darwin/sketchybar.nix
-  s_c4706d5f7b8e30::t_8942192f1540e6 16-18
+  s_796b0b41a96769::t_e1af3012a34939 16-18
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -22,10 +9,18 @@ modules/darwin/sketchybar.nix
   "base_commit_sha": "35f339508092e5fc99f5d4c4a8d5b6ef83f02a98",
   "prompts": {},
   "sessions": {
-    "s_c4706d5f7b8e30": {
+    "s_796b0b41a96769": {
       "agent_id": {
         "tool": "codex",
-        "id": "01a14114-b1c5-7eb2-8ccd-594dc57f7c79",
+        "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
         "model": "gpt-6.1-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
