@@ -1,7 +1,5 @@
 docs/atuin.md
-  s_cccc57401e3d8c::t_3d60ef84254c95 16-18,26
-modules/home/programs/atuin.nix
-  s_cccc57401e3d8c::t_3d60ef84254c95 9-11,31-44,52-53,60-61
+  s_cccc57401e3d8c::t_888880de4a8599 16-18,26
 ---
 {
   "schema_version": "authorship/3.0.0",
