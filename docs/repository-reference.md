@@ -10,6 +10,17 @@ not restate any of those here.
 
 ## Stack
 
+Sysinit follows the [Building Block Economy](https://mitchellh.com/writing/building-block-economy).
+State and mutations belong to their native owners. Make the underlying
+commands usable from a shell, then compose them in a picker, editor, or bridge.
+Keep common tools on the profile and load project-specific dependencies in
+project shells. The development profile includes the shared infrastructure
+toolchain and all packaged harnesses from the registry.
+Use `sysinit.llm.harnessPackages` to select a smaller set for a host.
+`sysinit.llm.agentFavorites` orders the Nushell launcher independently.
+The `ask` wrapper supplies the runtime of its own providers on its subprocess
+PATH. Installing Ask does not expose their agent commands globally.
+
 - Harness configs all generate from `modules/home/programs/llm/harnesses/`, one
   module per entry in `registry.nix`. Do not keep a second list here; the last
   one named eleven of fifteen and called the `claude` attr `claude-code`.

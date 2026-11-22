@@ -60,6 +60,8 @@ atuin resume <id> --print
 atuin resume <id> --in codex --print
 ```
 
+Open the thread picker from `agents` by selecting **Captured conversations**,
+or run `agents threads`. Both call the same standalone `threads` command.
 The shell-independent Go `threads` command opens an eight-row Bubble Tea picker for a
 captured thread, then offers `Resume`, `Resume (Switch)`, `Fork`, `Fork (Switch)`,
 and `Inspect`, in that order. The two Switch actions open a harness picker.

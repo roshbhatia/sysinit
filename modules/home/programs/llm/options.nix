@@ -2,9 +2,30 @@
 
 let
   inherit (lib) mkOption types;
+  packagedHarnesses = builtins.attrNames (
+    lib.filterAttrs (_: harness: harness.package != null) (import ./harnesses/registry.nix)
+  );
 in
 {
   options.sysinit.llm = {
+    agentFavorites = mkOption {
+      type = types.listOf (types.enum (builtins.attrNames (import ./harnesses/registry.nix)));
+      default = [
+        "codex"
+        "opencode"
+        "claude"
+      ];
+      description = "Agent launcher favorites in display order, independent of installed CLI packages.";
+    };
+
+    workspace.enable = lib.mkEnableOption "agent workspace session, observer, and feedback integration";
+
+    harnessPackages = mkOption {
+      type = types.listOf (types.enum packagedHarnesses);
+      default = packagedHarnesses;
+      description = "Registry harnesses whose CLI packages the development profile installs directly.";
+    };
+
     optionalSubagents = mkOption {
       type = types.listOf (
         types.enum [

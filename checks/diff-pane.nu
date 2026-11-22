@@ -9,6 +9,10 @@ def main [script: path, fixture: path, ty: path] {
 
     let bin = $root | path join bin
 
+    let project = $root | path join project
+
+    let plain = $root | path join 'plain directory'
+
     let ty_command = [
         'exec'
         ($nu.current-exe | to json --raw)
@@ -17,7 +21,7 @@ def main [script: path, fixture: path, ty: path] {
         '"$@"'
     ] | str join ' '
 
-    mkdir $bin
+    mkdir $bin $project $plain
 
     $"#!/bin/sh\n($ty_command)\n" | save ($bin | path join ty)
 
@@ -39,26 +43,38 @@ def main [script: path, fixture: path, ty: path] {
     }
 
     try {
-        with-env {PATH: ($env.PATH | prepend $bin), REVIEW_FIXTURE: $root, DIFF_ROOT: $root, WEZTERM_PANE: '7', XDG_STATE_HOME: ($root | path join state)} {
-            ^git -C $root init --quiet '--template='
+        with-env {PATH: ($env.PATH | prepend $bin), REVIEW_FIXTURE: $root, DIFF_ROOT: $project, WEZTERM_PANE: '7', XDG_STATE_HOME: ($root | path join state)} {
+            ^git -C $project init --quiet '--template='
             [{pane_id: 7, tab_id: 2}] | to json | save ($root | path join panes.json)
-            let opened = ^$nu.current-exe --no-config-file $script --cwd $root | complete
+            let opened = ^$nu.current-exe --no-config-file $script --cwd $project | complete
             assert equal $opened.exit_code 0 $opened.stderr
             assert ($opened.stdout | str starts-with Opened)
             let split = open ($root | path join split.json)
             assert equal ($split | last) DiffviewOpen
+            assert ($split | window 2 | any {|pair| $pair == [--percent '45'] })
             assert ('--cmd' not-in $split)
-            let reused = ^$nu.current-exe --no-config-file $script --cwd $root | complete
+            let reused = ^$nu.current-exe --no-config-file $script --cwd $project | complete
             assert equal $reused.exit_code 0 $reused.stderr
             assert ($reused.stdout | str starts-with Reused)
             assert ($root | path join refreshed | path exists)
             assert ($root | path join activation.json | path exists)
             open ($root | path join panes.json) | update 1 {pane_id: 8, tab_id: 3} | to json | save --force ($root | path join panes.json)
-            let refused = ^$nu.current-exe --no-config-file $script --cwd $root | complete
+            let refused = ^$nu.current-exe --no-config-file $script --cwd $project | complete
             assert ($refused.exit_code != 0)
             assert ($refused.stderr | str contains 'outside this tab')
             let index = ($split | enumerate | where item == --listen | first | get index) + 1
             rm --force ($split | get $index)
+
+            [{pane_id: 7, tab_id: 2}] | to json | save --force ($root | path join panes.json)
+            let directory = with-env {DIFF_ROOT: $plain} {
+                ^$nu.current-exe --no-config-file $script --pane-id 7 --cwd $plain --allow-directory | complete
+            }
+            assert equal $directory.exit_code 0 $directory.stderr
+            let directory_split = open ($root | path join split.json)
+            assert equal ($directory_split | last) $plain
+            assert ('DiffviewOpen' not-in $directory_split)
+            let socket_index = ($directory_split | enumerate | where item == --listen | first | get index) + 1
+            rm --force ($directory_split | get $socket_index)
         }
     } catch {|failure|
         # Remove only this fixture's recorded socket, never other active editors.

@@ -119,7 +119,10 @@ in
     in
     final.runCommand "ask-${final.ask-cli.version}"
       {
-        nativeBuildInputs = [ final.installShellFiles ];
+        nativeBuildInputs = [
+          final.installShellFiles
+          final.makeWrapper
+        ];
         meta = {
           description = "Agents in your shell!";
           mainProgram = "ask";
@@ -130,6 +133,7 @@ in
         ''
           mkdir -p "$out/bin"
           cp -rs "${final.ask-cli}/bin/." "$out/bin/"
+          wrapProgram "$out/bin/ask" --suffix PATH : "${final.lib.makeBinPath [ final.ask-providers ]}"
           mkdir -p "$out/share"
           cp -r "${final.ask-cli}/share/." "$out/share/"
           chmod -R u+w "$out/share"

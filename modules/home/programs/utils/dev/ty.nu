@@ -14,8 +14,8 @@ Usage:
   ty session open <session-id-or-name>
   ty session launch <session-id-or-name>
   ty session switch <session-id-or-name>
-  ty pane split <pane-id> --direction right|down [--cwd PATH]
-  ty pane spawn <pane-id> --direction right|down [--cwd PATH] -- <command> [args...]
+  ty pane split <pane-id> --direction right|down [--cwd PATH] [--percent N]
+  ty pane spawn <pane-id> --direction right|down [--cwd PATH] [--percent N] -- <command> [args...]
   ty pane read <pane-id>
   ty pane send [--submit] <pane-id> [text...]
   ty pane focus <pane-id>
@@ -279,6 +279,8 @@ def split [args: list<string>, spawn: bool] {
 
     mut cwd = ""
 
+    mut percent = ""
+
     mut command = []
 
     mut index = 0
@@ -286,16 +288,24 @@ def split [args: list<string>, spawn: bool] {
     while $index < ($args | length) {
         let arg = $args | get $index
 
-        if $arg == "--direction" or $arg == "--cwd" {
+        if $arg in [--direction --cwd --percent] {
             $index += 1
 
             if $index >= ($args | length) {
-                usage-error (
-                    if $arg == "--direction" { "--direction requires right or down" } else { "--cwd requires a path" }
-                )
+                usage-error $"($arg) requires a value"
             }
 
-            if $arg == "--direction" { $direction = ($args | get $index) } else { $cwd = ($args | get $index) }
+            let value = $args | get $index
+
+            match $arg {
+                "--direction" => { $direction = $value }
+                "--cwd" => { $cwd = $value }
+                "--percent" => {
+                    if $value !~ '^[1-9][0-9]?$' { usage-error "--percent must be an integer from 1 to 99" }
+
+                    $percent = $value
+                }
+            }
         } else if $arg == "--" {
             $command = ($args | skip ($index + 1))
 
@@ -331,6 +341,7 @@ def split [args: list<string>, spawn: bool] {
 
     let wez = (
         [cli --no-auto-start split-pane --pane-id $pane (if $direction == "right" { "--right" } else { "--bottom" })]
+        ++ (if ($percent | is-empty) { [] } else { [--percent $percent] })
         ++ (if ($cwd | is-empty) { [] } else { [--cwd $cwd] })
         ++ (if ($command | is-empty) { [] } else { ["--"] ++ $command })
     )

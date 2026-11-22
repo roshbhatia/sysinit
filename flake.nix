@@ -337,6 +337,17 @@
 
       packages =
         let
+          harnesses = import ./modules/home/programs/llm/harnesses/registry.nix;
+          onDemand = lib.unique (
+            lib.filter (name: name != null) (lib.mapAttrsToList (_: h: h.package) harnesses)
+            ++ [
+              "agents"
+              "agent-diff"
+              "agent-workspace"
+              "goose-desktop"
+              "tuicr"
+            ]
+          );
           cacheAttrs = [
             "hunk"
             "tuicr"
@@ -409,10 +420,13 @@
           system:
           let
             pkgs = pkgsFor.${system};
+            candidates = pkgs // {
+              agents = import ./modules/home/programs/llm/runtime/agents { inherit pkgs; };
+              agent-diff = import ./modules/home/programs/llm/runtime/diff { inherit pkgs; };
+              agent-workspace = import ./modules/home/programs/llm/runtime/workspace { inherit pkgs; };
+            };
           in
           {
-            inherit (pkgs) strands-cli;
-
             cacheBundle = pkgs.symlinkJoin {
               name = "sysinit-cache-bundle-${system}";
               paths =
@@ -455,6 +469,9 @@
                 inherit (pkgs) lib;
               }).all;
           }
+          // lib.genAttrs (lib.filter (
+            name: lib.meta.availableOn pkgs.stdenv.hostPlatform candidates.${name}
+          ) onDemand) (name: candidates.${name})
         );
 
       checks = lib.genAttrs cacheSystems (

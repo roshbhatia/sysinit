@@ -14,6 +14,6 @@ pkgs.writeShellApplication {
   ];
   text = ''
     export SYSINIT_AGENT_WORKSPACE_BIN="$0"
-    exec ${pkgs.nushell}/bin/nu --no-config-file ${./.}/workspace.nu "$@"
+    exec ${pkgs.nushell}/bin/nu --no-config-file ${./..}/workspace/workspace.nu "$@"
   '';
 }

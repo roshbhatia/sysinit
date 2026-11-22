@@ -180,13 +180,15 @@ def main [script: path, nuwez_module: path] {
         5
         --direction
         down
+        --percent
+        '45'
         --
         echo
         "two words"
     ])
 
     do $check (
-        (do $calls | last) == "wezterm cli --no-auto-start split-pane --pane-id 5 --bottom -- echo two words" and ($spawned.stdout | from json | get action) == "pane.spawn"
+        (do $calls | last) == "wezterm cli --no-auto-start split-pane --pane-id 5 --bottom --percent 45 -- echo two words" and ($spawned.stdout | from json | get action) == "pane.spawn"
     ) $"spawn ($spawned)"
 
     for usage in [
@@ -194,6 +196,23 @@ def main [script: path, nuwez_module: path] {
         [pane read -1]
         [pane focus x]
         [pane split 5 --direction left]
+        [
+            pane
+            split
+            5
+            --direction
+            right
+            --percent
+            100
+        ]
+        [
+            pane
+            split
+            5
+            --direction
+            right
+            --percent
+        ]
         [pane spawn 5 --direction right]
         [session open]
         [nonsense]

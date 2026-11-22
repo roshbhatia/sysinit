@@ -181,8 +181,8 @@ in
       pkgs.meat
       pkgs.sysinit-utils
       capture
+      (import ./runtime/agents { inherit pkgs; })
       (import ./runtime/diff { inherit pkgs; })
-      (import ./runtime/workspace { inherit pkgs; })
       notify.script
       notify.agentRefine
       notify.promptScript
@@ -191,8 +191,11 @@ in
       notify.sessionsScript
       pkgs.seshy
     ]
+    ++ lib.optional config.sysinit.llm.workspace.enable (import ./runtime/workspace { inherit pkgs; })
     ++ lib.optional pkgs.stdenv.hostPlatform.isDarwin notify.appPackage;
   };
+
+  sysinit.llm.notifications.settings.events.done.enabled = lib.mkDefault false;
 
   programs.mcp = {
     enable = true;

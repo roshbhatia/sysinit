@@ -64,6 +64,14 @@ def main [script: path, fixture: path, ty: path] {
             REVIEW_FIXTURE: $root
             PATH: ($env.PATH | prepend $bin)
         } {
+            let invalid_id = random uuid
+            let invalid = $state | path join agent-workspace $invalid_id
+            mkdir $invalid
+            'invalid JSON' | save ($invalid | path join workspace.json)
+            let invalid_only = ^$nu.current-exe --no-config-file $script list | complete
+            assert equal $invalid_only.exit_code 0
+            assert equal ($invalid_only.stdout | from json --strict) []
+
             let launched = ^$nu.current-exe --no-config-file $script open --agent fixture --cwd $project --pane-id 7 -- --model fixture-model | from json --strict
             assert equal $launched.review directory
             assert equal $launched.base null
@@ -84,6 +92,13 @@ def main [script: path, fixture: path, ty: path] {
             assert equal $attached.cwd $project
             assert equal $attached.argv []
 
+            let listed = ^$nu.current-exe --no-config-file $script list | complete
+            assert equal $listed.exit_code 0
+            assert equal ($listed.stdout | from json --strict | get id | sort) ([$id $attached.id] | sort)
+            assert ($listed.stderr | str contains $invalid_id)
+            let invalid_show = ^$nu.current-exe --no-config-file $script show $invalid_id | complete
+            assert ($invalid_show.exit_code != 0)
+
             open ($root | path join panes.json) | where pane_id != 9 | to json | save --force ($root | path join panes.json)
             let resumed = ^$nu.current-exe --no-config-file $script resume $id --conversation fixture-conversation --pane-id 7 | from json --strict
             assert equal $resumed.id $id
@@ -98,5 +113,5 @@ def main [script: path, fixture: path, ty: path] {
 
     rm --recursive --force $root
 
-    print 'Registry launch, plain folder review notes, pane attachment, and exact conversation resume passed'
+    print 'Registry launch, review notes, workspace listing, pane attachment, and exact conversation resume passed'
 }

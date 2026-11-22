@@ -56,6 +56,7 @@ def main [
     --pane-id: string
     --base: string
     --directory
+    --allow-directory
     --file: string
     --against: path
     --note-session: string
@@ -68,6 +69,12 @@ def main [
     let parent = $pane_id | default ($env.WEZTERM_PANE? | default '')
 
     if $parent !~ '^\d+$' { error make {msg: 'No WezTerm pane. Run agent-diff from a WezTerm session.'} }
+
+    let git_root = if not $directory {
+        run-command [git -C $cwd rev-parse --show-toplevel]
+    }
+
+    let directory = $directory or ($allow_directory and $base == null and $git_root.exit_code? != 0)
 
     if $note_session != null and ((not $directory and $base == null) or $note_session !~ '^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$') {
         error make {
@@ -94,8 +101,6 @@ def main [
 
         $resolved
     } else {
-        let git_root = run-command [git -C $cwd rev-parse --show-toplevel]
-
         if $git_root.exit_code != 0 { error make {msg: 'The current directory is not a Git worktree.'} }
 
         $git_root.stdout | str trim | path expand
@@ -234,7 +239,12 @@ def main [
             if $refresh.exit_code != 0 { error make {msg: 'The diff editor could not refresh yet. Run /diff again.'} }
 
             if not $background {
-                wez activate-pane --pane-id ($live.0.pane_id | into string) | ignore
+                command-output [
+                    ty
+                    pane
+                    focus
+                    ($live.0.pane_id | into string)
+                ] | ignore
             }
 
             if $json {
@@ -322,18 +332,20 @@ def main [
         }
     }
 
-    let pane = (wez
-        split-pane
-        --pane-id
+    let pane = (command-output [
+        ty
+        pane
+        spawn
         $anchor
-        --right
+        --direction
+        right
         --percent
-        45
+        '45'
         --cwd
         $root
         --
         ...$editor
-    )
+    ]) | from json --strict | get pane_id
 
     if $background and $active != null {
         let selection = panes | where {|item|
@@ -341,10 +353,10 @@ def main [
         } | get 0?
 
         if $selection != null and ($selection.pane_id | into string) == $pane and (wez get-pane-direction --pane-id $pane Left) == $anchor {
-            wez activate-pane-direction --pane-id $pane Left | ignore
+            command-output [ty pane focus $anchor] | ignore
         }
     } else if not $background {
-        wez activate-pane --pane-id $pane | ignore
+        command-output [ty pane focus $pane] | ignore
     }
 
     {

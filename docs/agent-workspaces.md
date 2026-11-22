@@ -4,6 +4,11 @@ A workspace pairs a directory with a terminal pane and optional review splits.
 The directory can be a Git worktree, part of a worktree, a seshy session, or an
 ordinary folder. The original directory stays the agent's working directory.
 
+Use `nix shell .#agent-workspace` from Sysinit or set
+`sysinit.llm.workspace.enable = true` in Home Manager for routine use. Pass
+`--workspaces` to `task-board` when you want workspace discovery.
+Normal agent launches and `agent-diff` use independent entry points.
+
 ```sh
 agent-workspace agents
 agent-workspace open --agent pi
@@ -80,3 +85,5 @@ conversation history. Set `--socket` to use a different local App Server.
 Workspace records and plain-file notes live under
 `${XDG_STATE_HOME:-$HOME/.local/state}/agent-workspace`. The Changes local
 provider owns Git review notes. Workspace feedback exports both.
+`list` returns valid rows as a JSON array and reports skipped records on
+stderr. Direct commands such as `show` still fail on an invalid record.

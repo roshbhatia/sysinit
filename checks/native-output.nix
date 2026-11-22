@@ -32,8 +32,14 @@ import ./native.nix { inherit pkgs; } {
     [
       "nu"
       "--no-config-file"
+      ./agents.nu
+      "${../modules/home/programs/llm/runtime/agents}/launch.nu"
+    ]
+    [
+      "nu"
+      "--no-config-file"
       ./agent-workspace.nu
-      ../modules/home/programs/llm/runtime/workspace/workspace.nu
+      "${../modules/home/programs/llm/runtime}/workspace/workspace.nu"
       ./fixtures/review-tools.nu
       ../modules/home/programs/utils/dev/ty.nu
     ]

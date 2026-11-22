@@ -1,12 +1,14 @@
 {
   pkgs,
   lib,
+  config,
   profile ? "workstation",
   values ? { },
   ...
 }:
 let
   profiles = import ../shared/profile-tiers.nix { inherit lib; };
+  harnesses = import ./programs/llm/harnesses/registry.nix;
 
   manifest = fromTOML (builtins.readFile ./tools.toml);
   minimalPackages = map (entry: pkgs.${entry.nix}) manifest.tool;
@@ -144,15 +146,9 @@ in
         zoetrope
       ]
       ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ alerter ]
-      ++ map (name: pkgs.${name}) (
-        lib.filter (name: name != null) (
-          lib.mapAttrsToList (_name: h: h.package) (import ./programs/llm/harnesses/registry.nix)
-        )
-      );
+      ++ map (name: pkgs.${harnesses.${name}.package}) config.sysinit.llm.harnessPackages;
 
-      workstation =
-        lib.optionals pkgs.stdenv.hostPlatform.isLinux [ hyprpicker ]
-        ++ lib.optionals (lib.meta.availableOn pkgs.stdenv.hostPlatform goose-desktop) [ goose-desktop ];
+      workstation = lib.optionals pkgs.stdenv.hostPlatform.isLinux [ hyprpicker ];
     }
     ++ map (name: pkgs.${name}) (values.packages or [ ]);
 }

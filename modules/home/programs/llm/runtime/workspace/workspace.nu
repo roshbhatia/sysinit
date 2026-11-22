@@ -1,3 +1,5 @@
+use ../agents/catalog.nu agent-catalog
+
 const runtime = path self | path dirname
 const client = $runtime | path join codex.ts
 const observer = $runtime | path join observe.ts
@@ -116,13 +118,7 @@ def workspace-directory [session, cwd] {
 }
 
 def agents [] {
-    let config = $env.XDG_CONFIG_HOME? | default ($env.HOME | path join .config)
-
-    let catalog = $config | path join sysinit agents.json
-
-    open --raw $catalog | from json --strict | get agents | each {|agent|
-        $agent | insert available (which $agent.command | is-not-empty)
-    }
+    agent-catalog | get agents
 }
 
 def launch-plan [
@@ -183,9 +179,13 @@ def "main agents" [--all] {
 def "main list" [] {
     glob --no-dir (state-dir | path join '*' workspace.json) | each {|file|
         let id = $file | path dirname | path basename
-        let workspace = load-workspace $id
-        $workspace | select id cwd root review agent conversation session task pane_id tab_id codex
-    } | to json --raw
+        try {
+            load-workspace $id | select id cwd root review agent conversation session task pane_id tab_id codex
+        } catch {
+            print --stderr $"agent-workspace: skipped invalid record ($file)"
+            null
+        }
+    } | compact | to json --raw
 }
 
 def socket-path [socket] {
@@ -464,7 +464,7 @@ def "main resume" [
                 error make {msg: 'The existing workspace pane is still live.'}
             }
 
-            mux activate-pane --pane-id ($workspace.pane_id | into string) | ignore
+            checked ty pane focus ($workspace.pane_id | into string) | ignore
 
             return ($workspace | to json --raw)
         }
