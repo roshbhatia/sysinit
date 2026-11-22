@@ -1,25 +1,15 @@
-pkgs/utils/internal/ty/ty.go
-  s_de8d39c3c56992::t_d5ce35f649a331 250,266-267,270,280
-  s_de8d39c3c56992::t_658097cd895b18 28,190-191,269,271-279,492,499,501-506
-  s_de8d39c3c56992::t_e4a0fc5a111b42 500
-modules/home/programs/llm/skills/ty/SKILL.md
-  s_de8d39c3c56992::t_d5ce35f649a331 35,48-49
-modules/nixos/home/launcher.nix
-  s_de8d39c3c56992::t_a22f382820539f 56,61,67,72
-  s_de8d39c3c56992::t_4c6aacea312686 27
-  s_de8d39c3c56992::t_628268c2386aea 64
-  s_de8d39c3c56992::t_41a68d6b7de125 28
-modules/nixos/home/launcher/sessions.lua
-  s_de8d39c3c56992::t_628268c2386aea 4,11,19-20
 checks/nixos-launcher.lua
-  s_de8d39c3c56992::t_75d1319c639bc8 3-57
-  s_de8d39c3c56992::t_cd0ed9013a37e5 1-2,58
-checks/default.nix
-  s_de8d39c3c56992::t_8224a33b8d1367 320-323
+  s_de8d39c3c56992::t_ae437c3e5f9d21 1-58
 checks/nixos-launcher.nix
-  s_1cfbbc236f4d97::t_1a0810a6d961b0 1-15
-pkgs/utils/internal/ty/ty_test.go
-  s_1cfbbc236f4d97::t_fb22c1ef07ef83 275-305
+  s_62c4cb57de6538::t_253f67a93c2be7 1-15
+modules/home/programs/llm/skills/ty/SKILL.md
+  s_a4a3eea4720821::t_d3aacc2c9ed5a2 35,48-49
+modules/nixos/home/launcher.nix
+  s_de8d39c3c56992::t_4b1cf88cc3f1cf 27-28,56,61,64,67,72
+modules/nixos/home/launcher/sessions.lua
+  s_1cfbbc236f4d97::t_59591ce998ab51 4,11,19-20
+checks/default.nix
+  s_a4a3eea4720821::t_a27f1d9af92688 320-323
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -32,6 +22,22 @@ pkgs/utils/internal/ty/ty_test.go
         "tool": "codex",
         "id": "01a1b1b5-7f63-7962-8ac1-30c9a92ab568",
         "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_62c4cb57de6538": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ec00-1de2-7bc2-a676-ca7ded8f2943",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     },
