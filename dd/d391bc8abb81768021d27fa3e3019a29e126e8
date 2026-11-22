@@ -1,10 +1,9 @@
-modules/home/programs/llm/skills/untangle-codebase/references/patterns.md
-  s_de8d39c3c56992::t_5b3a9ff0729229 1-53
 modules/home/programs/llm/skills/untangle-codebase/SKILL.md
-  s_de8d39c3c56992::t_5b3a9ff0729229 1-26,44-129
-  s_de8d39c3c56992::t_b54447f6067f95 27-43
+  s_fc5138a7686b50::t_3c7940e540a055 1-129
 modules/home/programs/llm/skills/untangle-codebase/references/LICENSE
-  s_de8d39c3c56992::t_0457b226ebe599 1-21
+  s_de8d39c3c56992::t_42b72041710850 1-21
+modules/home/programs/llm/skills/untangle-codebase/references/patterns.md
+  s_fc5138a7686b50::t_24aea81867176e 1-53
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -16,6 +15,14 @@ modules/home/programs/llm/skills/untangle-codebase/references/LICENSE
       "agent_id": {
         "tool": "codex",
         "id": "01a1ad25-3528-7c81-a954-276c13dcabf6",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_fc5138a7686b50": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1acc4-2dc6-7760-9eae-12ebbd0f80c9",
         "model": "gpt-6.1-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
