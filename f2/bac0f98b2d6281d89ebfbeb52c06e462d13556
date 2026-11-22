@@ -1,24 +1,13 @@
-nvfetcher.toml
-  s_7028fc5da01072::t_25916e8462c6d1 225-228
-overlays/terminal-browser.nix
-  s_7028fc5da01072::t_a8dcb431d0192a 25
-  s_7028fc5da01072::t_02e765406d416f 1-2
-  s_7028fc5da01072::t_9b72e7ebc5fff6 3-21,23-24,26-40
-  s_7028fc5da01072::t_a94ca43d6e3142 22
-modules/home/packages.nix
-  s_7028fc5da01072::t_25916e8462c6d1 163
-overlays/default.nix
-  s_7028fc5da01072::t_9b72e7ebc5fff6 64
-checks/default.nix
-  s_7028fc5da01072::t_55a27d7e320f5e 515-518
-_sources/generated.json
-  s_7028fc5da01072::t_a750a9bbd37d74 610-624
-_sources/generated.nix
-  s_7028fc5da01072::t_5cd7d982bd00a3 333-340
 flake.lock
-  s_7028fc5da01072::t_999bfaf6ceb182 1821-1822,1825
+  s_a4a3eea4720821::t_cae36c88240a7e 1821-1822,1825
+modules/home/packages.nix
+  s_a4a3eea4720821::t_a88b5d6839aca9 163
+overlays/default.nix
+  s_a4a3eea4720821::t_be420b8a7fd61f 64
+checks/default.nix
+  s_a4a3eea4720821::t_b136521b7f706d 515-518
 flake.nix
-  s_7028fc5da01072::t_2000b1d8400cd5 431
+  s_a4a3eea4720821::t_0b8c4617e80e40 431
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -26,11 +15,11 @@ flake.nix
   "base_commit_sha": "f2bac0f98b2d6281d89ebfbeb52c06e462d13556",
   "prompts": {},
   "sessions": {
-    "s_7028fc5da01072": {
+    "s_a4a3eea4720821": {
       "agent_id": {
         "tool": "codex",
-        "id": "01a1d0ac-4380-7023-8b2f-a382ea7a16c4",
-        "model": "gpt-6.1-sol"
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
