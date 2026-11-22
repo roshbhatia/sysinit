@@ -24,7 +24,10 @@ let
         let
           separator = if builtins.isAttrs value then "" else " ";
         in
-        "${name}:${separator}${renderValue "" value}"
+        if name == "metadata" then
+          "metadata: ${builtins.toJSON value}"
+        else
+          "${name}:${separator}${renderValue "" value}"
       ) (lib.filterAttrs (_name: value: value != null) fields)
     );
 in
@@ -116,6 +119,7 @@ in
                   "null"
                 ]
                 || lib.hasPrefix "\"" value
+                || key == "metadata"
               then
                 builtins.fromJSON value
               else if lib.hasPrefix "'" value && lib.hasSuffix "'" value then
@@ -124,9 +128,13 @@ in
                 value;
           in
           lib.nameValuePair key decoded;
-    in
-    {
       attrs = builtins.listToAttrs (map toPair fmLines);
+    in
+    assert lib.assertMsg (
+      builtins.length fmLines == builtins.length (builtins.attrNames attrs)
+    ) "skill '${name}': duplicate frontmatter field";
+    {
+      inherit attrs;
       body = lib.concatStringsSep "\n" bodyLines;
     };
 

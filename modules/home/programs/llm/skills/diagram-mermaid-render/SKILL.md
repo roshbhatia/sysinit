@@ -1,4 +1,5 @@
 ---
+name: diagram-mermaid-render
 description: 'Renders Mermaid diagrams as ASCII in the terminal and as themed SVG. Use when a diagram clarifies more than prose: capability flow, state transitions, sequence of calls, option trees, dependency graphs, architecture sketches.'
 allowed-tools: Bash(mermaid-ascii:*) Bash(pretty-mermaid:*) Bash(pretty-mermaid-batch:*) Bash(pretty-mermaid-themes:*) Read Write Edit
 ---

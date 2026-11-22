@@ -1,7 +1,7 @@
 ---
+name: writing-commit-message
 description: 'Writes concise conventional commit messages with agent attribution trailers. Use when drafting or creating commits. Supports ticket prefixes when a tracker ticket is in scope.'
-model: haiku
-effort: low
+metadata: {"sysinit-claude-model":"haiku","sysinit-claude-effort":"low"}
 ---
 
 # Opinionated commit messages

@@ -1,8 +1,8 @@
 ---
+name: feature-based-session-manager
 description: Manages feature workspaces, inventories Git worktrees across harnesses, and reduces duplicate checkouts through seshy. Use before creating, grouping, inspecting, archiving, or cleaning worktrees.
 allowed-tools: Bash(sy:*)
-model: haiku
-effort: low
+metadata: {"sysinit-claude-model":"haiku","sysinit-claude-effort":"low"}
 ---
 
 # Seshy workspaces

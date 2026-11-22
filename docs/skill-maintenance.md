@@ -13,12 +13,17 @@ root; downstream synchronization derives destinations from that registry.
 unmanaged application/plugin skill copies just to make their names agree.
 Prefer the managed root and report a conflicting duplicate's source and content.
 
-The shared metadata reader intentionally accepts flat scalar fields: name,
-description, allowed-tools, when_to_use, model, effort, disable-model-invocation.
-Unknown fields fail evaluation. Boolean values remain booleans; quoted strings
-are decoded. Resources may be at the root or nested; only SKILL.md is excluded.
-The Amp render omits Claude-specific model/effort keys. Add a tested translation
-before introducing a field unsupported by a target harness.
+Shared sources use [Agent Skills frontmatter](https://agentskills.io/specification).
+Declare `name` explicitly and match it to the directory. Write a description
+that says what the skill does and when it applies. The Nix reader accepts
+single-line scalars and a JSON-style YAML map for `metadata`. Unknown fields,
+duplicate fields, and invalid values fail evaluation.
+
+Store Claude-specific settings as string values under namespaced `metadata`
+keys, such as `sysinit-claude-model`. The Claude renderer translates those
+values to native fields. Other renders use the standard fields. The catalog
+check parses the source and rendered frontmatter as YAML in every managed
+root. Resources may be at the root or nested.
 
 Run the skill-catalog and harness-instructions flake checks after changing
 rendering, resources, or roots. Helpers need fixtures for malformed/empty inputs,

@@ -1,4 +1,5 @@
 ---
+name: worklog
 description: Generates a cross-session work report from worklog.jsonl, digested per day and per repo. Use when the user asks what they worked on or accomplished recently, or wants a daily or weekly progress report spanning repos.
 allowed-tools: Read Write Edit Glob Bash(bash:*) Bash(jq:*) Bash(git:*) Agent
 ---

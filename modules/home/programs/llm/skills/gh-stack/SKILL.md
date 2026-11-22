@@ -1,8 +1,8 @@
 ---
+name: gh-stack
 description: Operates stacked pull requests with `gh stack`, one branch and one PR per reviewable concern. Use when opening a PR for a multi-concern change, when a PR grows past one concern, or when the user says 'stack', 'split this PR', or 'rebase the stack'.
 allowed-tools: Bash(gh:*) Bash(git:*)
-model: haiku
-effort: low
+metadata: {"sysinit-claude-model":"haiku","sysinit-claude-effort":"low"}
 ---
 
 # Stacked pull requests

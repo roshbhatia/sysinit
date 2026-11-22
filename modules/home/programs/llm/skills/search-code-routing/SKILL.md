@@ -1,8 +1,8 @@
 ---
+name: search-code-routing
 description: 'Routes a code search to the right tool: `ast-grep outline` to map structure, `ast-grep` for code shapes and for every find-and-replace that spans more than one site, `rg`/Glob for literal text, `gh search` for repos not cloned here. Use when starting a search, and whenever renaming or replacing a construct across files.'
 allowed-tools: Bash(rg:*) Bash(grep:*) Bash(ast-grep:*) Bash(gh:*) Read Glob
-model: haiku
-effort: low
+metadata: {"sysinit-claude-model":"haiku","sysinit-claude-effort":"low"}
 ---
 
 # Code Search

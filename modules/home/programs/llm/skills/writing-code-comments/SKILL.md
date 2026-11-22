@@ -1,7 +1,7 @@
 ---
+name: writing-code-comments
 description: 'Opinionated style for inline source-code comments. Default to no comment. Add a comment only when the WHY is non-obvious: a hidden constraint, a subtle invariant, a workaround for a specific bug, or behavior that would surprise a reader. No multi-paragraph docstrings. One short line max. Use when editing source files, when asked ''should I comment this'', or whenever the agent considers adding a comment to code.'
-model: haiku
-effort: low
+metadata: {"sysinit-claude-model":"haiku","sysinit-claude-effort":"low"}
 ---
 
 # Opinionated source-code comments

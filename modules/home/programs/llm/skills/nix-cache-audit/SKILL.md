@@ -1,7 +1,8 @@
 ---
+name: nix-cache-audit
 description: Checks whether an entry in `overlays/` still earns its keep, by comparing the pristine package against the overridden one on cache.nixos.org. Use before adding a test-skip or a link-failure workaround, when a switch rebuilds a package from source that should have been substituted, or when asked why the build is slow or which overlays are obsolete.
 allowed-tools: Read Glob Grep Bash(nix:*) Bash(curl:*) Bash(basename:*) Bash(cut:*)
-model: sonnet
+metadata: {"sysinit-claude-model":"sonnet"}
 ---
 
 # Overlay cache audit

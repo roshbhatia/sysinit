@@ -1,4 +1,5 @@
 ---
+name: shell-script-authoring
 description: Write and validate Nushell automation and maintain existing shell scripts in sysinit and sysinit.laurel. Use for CLI wrappers, checks, hooks, and repository automation.
 ---
 

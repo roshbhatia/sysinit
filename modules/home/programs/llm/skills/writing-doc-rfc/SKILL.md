@@ -1,4 +1,5 @@
 ---
+name: writing-doc-rfc
 description: 'Structures a request-for-comments from the Rust RFC skeleton: Motivation, Guide-level and Reference-level explanation, Drawbacks, Alternatives, Prior art. Use when the open question is WHETHER or WHICH, so the doc has to win a decision. When the approach is already agreed and only the how is open, use `writing-doc-design` instead. Use when drafting or reviewing an RFC that solicits a decision.'
 ---
 

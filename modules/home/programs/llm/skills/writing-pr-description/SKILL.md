@@ -1,7 +1,7 @@
 ---
+name: writing-pr-description
 description: Writes GitHub PR descriptions in a terse, opinionated style. Delegates body shape to the repo PR template when one exists; falls back to `## Summary` plus an optional ad-hoc validating-changes block. Never mutates an existing checklist. A change carrying more than one reviewable concern is stacked by default, one PR per concern, via the `gh-stack` skill. Use when drafting a `gh pr create` body, opening a PR, or when the user says 'PR body' / 'pull request description'.
-model: haiku
-effort: low
+metadata: {"sysinit-claude-model":"haiku","sysinit-claude-effort":"low"}
 ---
 
 # Opinionated PR descriptions

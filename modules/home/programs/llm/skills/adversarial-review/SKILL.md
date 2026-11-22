@@ -1,4 +1,5 @@
 ---
+name: adversarial-review
 description: 'Runs one adversarial review pass: fresh-context critics try to break an artifact, a mediator tries to disprove each finding, the ledger drops what it cannot anchor, and the author fixes what survived. Use when asked to red-team a plan, spec, design, or code.'
 allowed-tools: Agent Read Grep Glob Bash(review:*) Bash(git diff:*) Bash(git log:*) Bash(calldiff:*)
 ---

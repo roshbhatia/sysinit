@@ -21,41 +21,58 @@ let
       supported = [
         "name"
         "description"
+        "license"
+        "compatibility"
+        "metadata"
         "allowed-tools"
-        "when_to_use"
-        "model"
-        "effort"
-        "disable-model-invocation"
       ];
       unknown = lib.subtractLists supported (builtins.attrNames a);
+      metadata = a.metadata or { };
     in
     assert lib.assertMsg (
       builtins.stringLength name <= 64 && builtins.match "[a-z0-9]+(-[a-z0-9]+)*" name != null
     ) "skill '${name}': invalid directory name";
-    assert lib.assertMsg (unknown == [ ])
-      "skill '${name}': unsupported metadata ${lib.concatStringsSep ", " unknown}; use flat supported fields";
     assert lib.assertMsg (
-      !(a ? name) || a.name == name
-    ) "skill '${name}': name must match its directory";
+      unknown == [ ]
+    ) "skill '${name}': unsupported frontmatter fields ${lib.concatStringsSep ", " unknown}";
+    assert lib.assertMsg ((a.name or null) == name) "skill '${name}': name must match its directory";
     assert lib.assertMsg (
-      builtins.isString a.description
-      && a.description != ""
+      builtins.isString (a.description or null)
+      && lib.trim a.description != ""
       && builtins.stringLength a.description <= 1024
     ) "skill '${name}': description must be a nonempty string up to 1024 characters";
     assert lib.assertMsg (
-      !(a ? "disable-model-invocation") || builtins.isBool a."disable-model-invocation"
-    ) "skill '${name}': disable-model-invocation must be boolean";
+      !(a ? compatibility)
+      || (
+        builtins.isString a.compatibility
+        && lib.trim a.compatibility != ""
+        && builtins.stringLength a.compatibility <= 500
+      )
+    ) "skill '${name}': compatibility must be a nonempty string up to 500 characters";
+    assert lib.assertMsg (lib.all (key: !(a ? ${key}) || builtins.isString a.${key}) [
+      "license"
+      "allowed-tools"
+    ]) "skill '${name}': license and allowed-tools must be strings";
+    assert lib.assertMsg (
+      builtins.isAttrs metadata && lib.all builtins.isString (builtins.attrValues metadata)
+    ) "skill '${name}': metadata must map strings to strings";
+    assert lib.assertMsg (
+      !(metadata ? sysinit-claude-disable-model-invocation)
+      || builtins.elem metadata.sysinit-claude-disable-model-invocation [
+        "true"
+        "false"
+      ]
+    ) "skill '${name}': sysinit-claude-disable-model-invocation must be a boolean string";
     {
       inherit (a) description;
       content = frontmatter.expandIncludes { inherit name sharedDir; } parsed.body;
     }
-    // lib.optionalAttrs (a ? "allowed-tools") { "allowed-tools" = a."allowed-tools"; }
-    // lib.optionalAttrs (a ? when_to_use) { whenToUse = a.when_to_use; }
-    // lib.optionalAttrs (a ? model) { inherit (a) model; }
-    // lib.optionalAttrs (a ? effort) { inherit (a) effort; }
-    // lib.optionalAttrs (a ? "disable-model-invocation") {
-      "disable-model-invocation" = a."disable-model-invocation";
-    }
+    // lib.getAttrs (lib.intersectLists (builtins.attrNames a) [
+      "license"
+      "compatibility"
+      "metadata"
+      "allowed-tools"
+    ]) a
     // lib.optionalAttrs (files != { }) { inherit files; };
 in
 {

@@ -17,15 +17,25 @@ let
   renderSkill =
     harness: name: skill:
     let
+      sourceMetadata = skill.metadata or { };
+      claudeFields = {
+        model = sourceMetadata.sysinit-claude-model or null;
+        effort = sourceMetadata.sysinit-claude-effort or null;
+        disable-model-invocation =
+          if sourceMetadata ? sysinit-claude-disable-model-invocation then
+            sourceMetadata.sysinit-claude-disable-model-invocation == "true"
+          else
+            null;
+      };
       metadata = {
         inherit name;
         inherit (skill) description;
+        license = skill.license or null;
+        compatibility = skill.compatibility or null;
+        metadata = skill.metadata or null;
         allowed-tools = skill."allowed-tools" or null;
-        when_to_use = skill.whenToUse or null;
-        model = if skill ? model && harness == "claude" then skill.model else null;
-        effort = if skill ? effort && harness == "claude" then skill.effort else null;
-        disable-model-invocation = skill."disable-model-invocation" or null;
-      };
+      }
+      // lib.optionalAttrs (harness == "claude") claudeFields;
     in
     vocab.applyVocab harness ''
       ${frontmatter.render metadata}

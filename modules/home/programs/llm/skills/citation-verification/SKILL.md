@@ -1,4 +1,5 @@
 ---
+name: citation-verification
 description: 'Verify external-factual claims (pricing, availability, external API behavior, cited papers) deterministically with `citelock`: pin each claim into a citations.lock against a tool-captured snapshot, so the offline gate is a pure function and `citelock capture` fails closed on a quote a live source does not state. Use when authoring a document with external-factual claims.'
 allowed-tools: Bash(citelock:*) Read
 ---

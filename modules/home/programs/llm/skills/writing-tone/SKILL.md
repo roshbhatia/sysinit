@@ -1,7 +1,7 @@
 ---
+name: writing-tone
 description: 'Rewrites longer-form prose into Roshan''s working voice: scope-bounded, contract-shaped, plain, with no bolded prefixes and no callout boxes. Use for audit docs, proposals, design notes, RFCs, status posts, and review comments written in his name.'
-model: haiku
-effort: low
+metadata: {"sysinit-claude-model":"haiku","sysinit-claude-effort":"low"}
 ---
 
 # Roshan's writing voice

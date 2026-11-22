@@ -1,4 +1,5 @@
 ---
+name: calldiff
 description: Reads and diffs call graphs with `calldiff`, so a change is described by the call paths it moved rather than by prose over a line diff. Use before proposing an approach, when reviewing a diff that reroutes control flow, and when writing the PR body for one. Do not use for Nix, which calldiff cannot parse.
 allowed-tools: Bash(calldiff:*) Read Glob
 ---

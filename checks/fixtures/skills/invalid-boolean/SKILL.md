@@ -1,7 +1,7 @@
 ---
 name: invalid-boolean
 description: Invalid metadata fixture
-disable-model-invocation: "false"
+metadata: {"sysinit-claude-disable-model-invocation":"yes"}
 ---
 
 Must be rejected.
