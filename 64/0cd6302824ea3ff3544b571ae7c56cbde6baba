@@ -1,0 +1,25 @@
+modules/home/programs/tether/default.nix
+  s_a4a3eea4720821::t_51a92867fb55d7 9-15
+modules/home/programs/wezterm/default.nix
+  s_a4a3eea4720821::t_51a92867fb55d7 63-65
+flake.nix
+  s_a4a3eea4720821::t_b820f3a089010e 164
+flake.lock
+  s_a4a3eea4720821::t_c749087cb7e63e 1651-1652,1655,1661,2006-2007,2010,2016
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "640cd6302824ea3ff3544b571ae7c56cbde6baba",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
