@@ -63,7 +63,7 @@ in
       keybindings.prs = [
         {
           key = "d";
-          name = "GitHub review diff in Neovim";
+          name = "Review PR in Atlas";
           command = ''${lib.getExe prDiff} "https://github.com/{{.RepoName}}/pull/{{.PrNumber}}"'';
         }
         {
@@ -80,11 +80,6 @@ in
           key = "T";
           name = "PR checks in Enhance";
           command = ''gh enhance "https://github.com/{{.RepoName}}/pull/{{.PrNumber}}"'';
-        }
-        {
-          key = "V";
-          name = "Review PR in Neovim";
-          command = ''${lib.getExe prDiff} --overview "https://github.com/{{.RepoName}}/pull/{{.PrNumber}}"'';
         }
       ]
       ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [

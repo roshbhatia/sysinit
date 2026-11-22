@@ -16,7 +16,6 @@ in
     pkgs.wezterm
   ];
   environment = {
-    SYSINIT_NVIM_OCTO = pkgs.vimPlugins.octo-nvim;
     SYSINIT_NVIM_CONFIG = nvimRoot;
     SYSINIT_NVIM_DIFFVIEW = pkgs.vimPlugins.diffview-nvim;
     SYSINIT_NVIM_NU_PARSER = pkgs.vimPlugins.nvim-treesitter.grammarPlugins.nu;

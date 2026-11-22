@@ -24,7 +24,6 @@ def main [
     url: string
     --tool: string = nvim
     --history
-    --overview
     --lock-held
 ] {
     let parsed = $url | parse --regex '^https://github\.com/(?P<owner>[A-Za-z0-9-]+)/(?P<repo>[A-Za-z0-9_.-]+)/pull/(?P<number>[1-9][0-9]*)$'
@@ -41,8 +40,6 @@ def main [
 
     if $history and $tool != nvim { error make {msg: '--history uses Neovim'} }
 
-    if $overview and ($history or $tool != nvim) { error make {msg: '--overview uses the GitHub review view in Neovim'} }
-
     let pr = $parsed | first
 
     let state = $env.XDG_STATE_HOME? | default ($env.HOME | path join .local state)
@@ -52,7 +49,7 @@ def main [
     mkdir $directory
 
     if not $lock_held {
-        let options = [--lock-held --tool $tool] | append (if $history { [--history] } else { [] }) | append (if $overview { [--overview] } else { [] })
+        let options = [--lock-held --tool $tool] | append (if $history { [--history] } else { [] })
 
         ^flock --exclusive --nonblock --conflict-exit-code 73 $'($directory).lock' $nu.current-exe --no-config-file $script $url ...$options
 
@@ -64,6 +61,12 @@ def main [
     }
 
     cd $directory
+
+    if $tool == nvim and not $history {
+        ^nvim -n --cmd 'let g:sysinit_pr_review = v:true' -c $'Atlas review ($url)'
+
+        exit $env.LAST_EXIT_CODE
+    }
 
     let repository = $'https://github.com/($pr.owner)/($pr.repo).git'
 
@@ -133,9 +136,7 @@ def main [
     } else {
         let range = $'($merge_base)..($head)'
 
-        let action = if $tool == nvim and not $history {
-            $'(if $overview { 'PRReview!' } else { 'PRReview' }) ($url)'
-        } else if $history {
+        let action = if $history {
             $'DiffviewFileHistory --range=($range)'
         } else {
             $'DiffviewOpen ($range)'

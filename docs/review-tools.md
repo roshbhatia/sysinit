@@ -27,7 +27,7 @@ was not measured.
 | Diffview.nvim | Worktree or range review, file history, and merge conflict UI. Neogit, `gh-pr-diff`, `agent-diff`, and the workspace review flow use it. |
 | Gitsigns.nvim and Snacks | In-buffer changed lines, blame, hunk navigation, staging, and Git pickers. |
 | Neogit | Full Git status and staging workflow inside Neovim. Uses Diffview for diffs. |
-| Octo.nvim | GitHub PR diffs, discussions, review threads, and submission through the same Neovim entry point. The PR launcher and macOS picker open it. |
+| Atlas.nvim | GitHub PR diffs, discussions, review threads, local notes, and review submission. The PR launcher and macOS picker open it. |
 | Helix and Emacs | Alternate installed editors with built-in Git changed-line navigation or diff/Ediff. No separate Emacs Magit configuration was found in Sysinit. |
 | Mergiraf | Git's configured semantic merge driver. This handles merges for paths that select the driver in attributes. |
 
@@ -52,7 +52,7 @@ was not measured.
 - `gh dash` is the PR dashboard. Laurel adds a team review queue. `gh enhance`
   is for Actions jobs and logs. Installed extensions also include `gh stack`
   for stack navigation and `gh aw` for agentic workflows.
-- `gh-pr-diff` is the shared local launcher. Its backends are Neovim/Octo,
+- `gh-pr-diff` is the shared local launcher. Its backends are Neovim/Atlas,
   Diffview, Changes, Hunk, and tuicr. Both `gh dash` and the macOS GitHub
   link picker compose these through the launcher.
 - `gh-pr-state` reads structured PR state and supports bounded, resumable

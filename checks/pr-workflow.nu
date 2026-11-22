@@ -85,31 +85,19 @@ def check [
         $'DiffviewFileHistory --range=($base)..($head)' in (open ($directory | path join editor.json))
     )
 
-    for entry in [
-        {
-            tool: nvim
-            flags: []
-            action: $'PRReview ($url)'
-        }
-        {
-            tool: nvim
-            flags: [--overview]
-            action: $'PRReview! ($url)'
-        }
-        {
-            tool: diffview
-            flags: []
-            action: $'DiffviewOpen ($base)..($head)'
-        }
-    ] {
-        review $script $url ([--tool $entry.tool] | append $entry.flags) | ignore
+    review $script $url [--tool diffview] | ignore
 
-        assert equal (open ($directory | path join editor.json)) [-n --cmd 'let g:sysinit_pr_review = v:true' -c $entry.action]
-    }
-
-    assert equal (git-command $source status --porcelain) ''
+    assert equal (open ($directory | path join editor.json)) [-n --cmd 'let g:sysinit_pr_review = v:true' -c $'DiffviewOpen ($base)..($head)']
 
     rm --force ($root | path join gh-calls)
+
+    review $script $url [] | ignore
+
+    assert equal (open ($directory | path join editor.json)) [-n --cmd 'let g:sysinit_pr_review = v:true' -c $'Atlas review ($url)']
+
+    assert (not ($root | path join gh-calls | path exists))
+
+    assert equal (git-command $source status --porcelain) ''
 
     for invalid in [
         'https://github.com/o/r/issues/1'
@@ -121,7 +109,7 @@ def check [
         assert ($result.exit_code != 0)
     }
 
-    let retired = ^$nu.current-exe --no-config-file $script $url --tool atlas | complete
+    let retired = ^$nu.current-exe --no-config-file $script $url --tool octo | complete
 
     assert ($retired.exit_code != 0)
 

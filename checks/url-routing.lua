@@ -135,7 +135,7 @@ local config = {
       providers = { "dash", "editor", "browser" },
       targets = {
         { name = "gh dash", detail = "Dashboard", command = dash },
-        { name = "Neovim", detail = "Octo overview", command = editor },
+        { name = "Neovim", detail = "Atlas review", command = editor },
         { name = "Firefox", detail = "github.com", bundle = "org.mozilla.firefox" },
       },
     },
