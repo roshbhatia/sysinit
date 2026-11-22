@@ -112,7 +112,12 @@ def main [...urls: string] {
     snapshot $urls | to json --raw | print
 }
 
-def 'main watch' [--interval: duration = 1min, --timeout: duration = 30min, ...urls: string] {
+def 'main watch' [
+    --interval: duration = 1min
+    --timeout: duration = 30min
+    --until: string = ready
+    ...urls: string
+] {
     if ($urls | is-empty) or $interval <= 0sec or $timeout <= 0sec {
         error make {msg: 'Pass PR URLs and positive interval and timeout values'}
     }
@@ -120,6 +125,8 @@ def 'main watch' [--interval: duration = 1min, --timeout: duration = 30min, ...u
     if ($urls | any {|url| (parse-url $url) == null}) {
         error make {msg: 'Expected canonical GitHub pull request URLs'}
     }
+
+    if $until not-in [ready closed] { error make {msg: '--until accepts ready or closed'} }
 
     let deadline = (date now) + $timeout
 
@@ -140,7 +147,7 @@ def 'main watch' [--interval: duration = 1min, --timeout: duration = 30min, ...u
 
         if $remaining <= 0sec { exit 8 }
 
-        if ($current | all {|row| $row.ready? == true or $row.state? in [MERGED CLOSED]}) {
+        if ($current | all {|row| $row.state? in [MERGED CLOSED] or ($until == ready and $row.ready? == true)}) {
             return
         }
 

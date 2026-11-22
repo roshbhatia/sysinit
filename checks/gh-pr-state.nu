@@ -14,7 +14,7 @@ def --wrapped main [...args: string] {
             }
             {
                 url: $args.2
-                state: OPEN
+                state: ($env.GH_FIXTURE_STATE? | default OPEN)
                 isDraft: false
                 headRefOid: "abc123"
                 reviewDecision: APPROVED
@@ -24,7 +24,7 @@ def --wrapped main [...args: string] {
         }
         api => {
             [{data: {repository: {pullRequest: {reviewThreads: {
-                nodes: [{isResolved: false} {isResolved: true}]
+                nodes: [{isResolved: ($env.GH_FIXTURE_RESOLVED? == "yes")} {isResolved: true}]
             }}}}}] | to json --raw
         }
     }
@@ -45,6 +45,17 @@ def --wrapped main [...args: string] {
             assert equal $watched.exit_code 8 $watched.stderr
             assert equal ($watched.stdout | lines | length) 1
             assert equal ($watched.stdout | from json | get head) abc123
+
+            with-env {GH_FIXTURE_RESOLVED: yes} {
+                let ready = ^$nu.current-exe --no-config-file $script watch $url --timeout 500ms | complete
+                assert equal $ready.exit_code 0 $ready.stderr
+                let waiting = ^$nu.current-exe --no-config-file $script watch $url --until closed --timeout 500ms | complete
+                assert equal $waiting.exit_code 8 $waiting.stderr
+            }
+            with-env {GH_FIXTURE_STATE: MERGED} {
+                let merged = ^$nu.current-exe --no-config-file $script watch $url --until closed | from json
+                assert equal $merged.state MERGED
+            }
 
             let invalid = ^$nu.current-exe --no-config-file $script watch invalid | complete
             assert equal $invalid.exit_code 1

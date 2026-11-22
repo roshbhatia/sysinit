@@ -21,6 +21,24 @@ was not measured.
 
 ## Review local edits
 
+Run `agent-diff --allow-directory` inside WezTerm to open or focus a Neovim
+review split for the shell's current directory. It works in a Git worktree
+or a plain directory. Run it from the remote shell for a remote checkout.
+
+`agents` opens a searchable list of registered agents on the shell's PATH.
+Codex, OpenCode, and Claude appear first by default. Selecting an agent
+runs its native command in the current pane and directory. Select
+**Captured conversations** to open the Atuin thread picker. You can also
+open it directly with `agents threads` or `threads`.
+
+```nu
+agents
+agents pi --continue
+agents list --all
+agents threads list --style json
+ty pane spawn $env.WEZTERM_PANE --direction right --cwd $env.PWD -- agents pi
+```
+
 In OpenCode, press `Ctrl-a`, then `d`, to open the native diff from the
 conversation. It starts on Last turn with a file tree and one
 file's patch. Press `d` inside the viewer to choose a different scope. Use
@@ -74,8 +92,9 @@ Diffing keeps the same baseline until you mark again.
   is for Actions jobs and logs. Installed extensions also include `gh stack`
   for stack navigation and `gh aw` for agentic workflows.
 - `gh-pr-diff` is the shared local launcher. Its backends are Neovim/Atlas,
-  Diffview, Changes, Hunk, and tuicr. Both `gh dash` and the macOS GitHub
-  link picker compose these through the launcher.
+  Diffview, Changes, Hunk, and tuicr. The macOS GitHub link picker offers Atlas,
+  Hunk, and the browser by default. Use `nix shell .#tuicr` for standalone
+  tuicr or choose `gh-pr-diff --tool tuicr` directly.
 - `gh-pr-state` reads structured PR state and supports bounded, resumable
   polling. The installed GitHub CLI 2.104.0 does not expose `gh event`.
 - Hunk, Changes, GitHub tools and the agent/editor configuration are in the

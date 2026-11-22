@@ -20,7 +20,7 @@ def snapshot [] {
     let alternate = $temporary | path join index
 
     let tree = try {
-        if ($index | path exists) { cp $index $alternate }
+        if ($index | path exists) { cp --preserve [timestamps] $index $alternate }
 
         with-env {GIT_INDEX_FILE: $alternate} {
             git-output add --all -- . | ignore

@@ -35,7 +35,6 @@ in
   home.packages = [
     prDiff
     prState
-    pkgs.tuicr
   ];
   programs.gh-dash = {
     enable = true;

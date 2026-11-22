@@ -162,13 +162,9 @@ in
           pull = {
             verb = "Review";
             providers = [
-              "gh-dash"
               "browser"
               "atlas"
-              "diffview"
-              "changes"
               "hunk"
-              "tuicr"
             ];
           };
           actions = {
