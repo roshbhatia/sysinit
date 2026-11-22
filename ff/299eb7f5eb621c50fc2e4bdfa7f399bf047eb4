@@ -1,10 +1,7 @@
-modules/home/programs/llm/lib/instructions.nix
-  s_796b0b41a96769::t_4aff9ef1e156ef 76,78-80
-  s_796b0b41a96769::t_1a827019fc1717 77
-  s_796b0b41a96769::t_d33d8768fe9dfd 75
 AGENTS.md
-  s_796b0b41a96769::t_1a827019fc1717 22-25
-  s_796b0b41a96769::t_4aff9ef1e156ef 21,26
+  s_796b0b41a96769::t_9e608e79661114 21-26
+modules/home/programs/llm/lib/instructions.nix
+  s_a8f060c64afc5c::t_8890b13cbee356 75-80
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -17,6 +14,14 @@ AGENTS.md
         "tool": "codex",
         "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
         "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a8f060c64afc5c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f577-5612-72f3-9fd8-1d348b20bd7b",
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
