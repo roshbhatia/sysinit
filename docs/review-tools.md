@@ -27,7 +27,7 @@ was not measured.
 | Diffview.nvim | Worktree or range review, file history, and merge conflict UI. Neogit, `gh-pr-diff`, `agent-diff`, and the workspace review flow use it. |
 | Gitsigns.nvim and Snacks | In-buffer changed lines, blame, hunk navigation, staging, and Git pickers. |
 | Neogit | Full Git status and staging workflow inside Neovim. Uses Diffview for diffs. |
-| Octo.nvim and Atlas.nvim | Two Neovim front ends for GitHub PRs and discussions. Both are configured. The PR launcher and macOS picker expose each separately. |
+| Octo.nvim | GitHub PR diffs, discussions, review threads, and submission through the same Neovim entry point. The PR launcher and macOS picker open it. |
 | Helix and Emacs | Alternate installed editors with built-in Git changed-line navigation or diff/Ediff. No separate Emacs Magit configuration was found in Sysinit. |
 | Mergiraf | Git's configured semantic merge driver. This handles merges for paths that select the driver in attributes. |
 
@@ -53,7 +53,7 @@ was not measured.
   is for Actions jobs and logs. Installed extensions also include `gh stack`
   for stack navigation and `gh aw` for agentic workflows.
 - `gh-pr-diff` is the shared local launcher. Its backends are Neovim/Octo,
-  Diffview, Atlas, Changes, Hunk, and tuicr. Both `gh dash` and the macOS GitHub
+  Diffview, Changes, Hunk, and tuicr. Both `gh dash` and the macOS GitHub
   link picker compose these through the launcher.
 - `gh-pr-state` reads structured PR state and supports bounded, resumable
   polling. The installed GitHub CLI 2.104.0 does not expose `gh event`.
@@ -79,17 +79,14 @@ workstation only.
 1. Use native OpenCode for last-turn review, Hunk for the live worktree, and
    Diffview for Neovim editing, file history, and merge conflicts. All three
    can work with the agent started normally.
-2. Compare Octo and Atlas on one PR with review comments and unresolved
-   threads. Retire the weaker backend from the editor, launcher, and link
-   picker together. This is the clearest duplicated feature.
-3. Compare tuicr's local line-comment export with Hunk's review and note
+2. Compare tuicr's local line-comment export with Hunk's review and note
    workflow before dropping either. Prefer one secondary PR viewer at most.
-4. Keep Changes for its structured output and notes. If the standalone
+3. Keep Changes for its structured output and notes. If the standalone
    diffnav workflow goes unused, change the configured external reader and
    verify the patch handoff before removing diffnav. Difftastic and the
    standalone Delta command have no Git difftool or pager binding. Delta
    remains in the Nix closure while diffnav uses it.
-5. Keep `agent-workspace` optional. Its conversation binding and automation
+4. Keep `agent-workspace` optional. Its conversation binding and automation
    are only needed when someone chooses that workflow. Audit callers before
    removing it, particularly workspace links in Taskwarrior and note export.
    Preserve `ty`, `nuwez`, and `nuvim` as independent interfaces.

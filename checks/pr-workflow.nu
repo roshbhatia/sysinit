@@ -97,11 +97,6 @@ def check [
             action: $'PRReview! ($url)'
         }
         {
-            tool: atlas
-            flags: []
-            action: $'Atlas review ($url)'
-        }
-        {
             tool: diffview
             flags: []
             action: $'DiffviewOpen ($base)..($head)'
@@ -125,6 +120,12 @@ def check [
 
         assert ($result.exit_code != 0)
     }
+
+    let retired = ^$nu.current-exe --no-config-file $script $url --tool atlas | complete
+
+    assert ($retired.exit_code != 0)
+
+    assert ($retired.stderr | str contains 'Unknown review tool')
 
     assert (not ($root | path join gh-calls | path exists))
 

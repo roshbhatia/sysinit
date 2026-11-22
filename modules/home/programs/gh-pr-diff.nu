@@ -33,7 +33,6 @@ def main [
 
     if $tool not-in [
         nvim
-        atlas
         diffview
         changes
         hunk
@@ -134,9 +133,7 @@ def main [
     } else {
         let range = $'($merge_base)..($head)'
 
-        let action = if $tool == atlas {
-            $'Atlas review ($url)'
-        } else if $tool == nvim and not $history {
+        let action = if $tool == nvim and not $history {
             $'(if $overview { 'PRReview!' } else { 'PRReview' }) ($url)'
         } else if $history {
             $'DiffviewFileHistory --range=($range)'

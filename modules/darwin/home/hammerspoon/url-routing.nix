@@ -165,7 +165,6 @@ in
               "gh-dash"
               "browser"
               "octo"
-              "atlas"
               "diffview"
               "changes"
               "hunk"
