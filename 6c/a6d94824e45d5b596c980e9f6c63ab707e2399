@@ -1,0 +1,72 @@
+modules/home/programs/utils/dev/ty.nu
+  s_a4a3eea4720821::t_f184f2732ea985 13,90,93,95,102,106-109,481-484
+  s_a4a3eea4720821::t_3626719eeaf035 485-486
+docs/composability-audit.md
+  s_a4a3eea4720821::t_a30e9ce6452149 29-38,45-48,51,77-78
+  s_a4a3eea4720821::t_e262d8c14c09c4 52-53
+  s_a4a3eea4720821::t_9750c6ba782794 54-57
+checks/tq-picker.py
+  s_a4a3eea4720821::t_f7ec071ed8322d 134
+pkgs/tq/main.go
+  s_a4a3eea4720821::t_b4345c8bcd3b39 49-59,106,148
+  s_a4a3eea4720821::t_63f4538aa5b42e 111
+  s_a4a3eea4720821::t_fe73d46d4679f5 40,107-109
+modules/home/programs/llm/runtime/workspace/workspace.nu
+  s_a4a3eea4720821::t_48b8ce97d1ff90 69,198
+pkgs/tq/main_test.go
+  s_a4a3eea4720821::t_d57c57f4876ad8 412-447
+modules/home/programs/llm/runtime/workspace/refresh.ts
+  s_a4a3eea4720821::t_08b9d37bee35b0 1-38
+modules/home/programs/llm/runtime/workspace/default.nix
+  s_a4a3eea4720821::t_04c4364beabf22 11
+checks/diff-pane.nu
+  s_a4a3eea4720821::t_0d177b6911df59 3,12-18
+  s_a4a3eea4720821::t_9cc74782cda3a2 22-25
+  s_a4a3eea4720821::t_5d7947ccd2d35f 19
+modules/home/programs/llm/harnesses/opencode/plugins/sysinit-diff.ts
+  s_a4a3eea4720821::t_c692455dccd856 16
+modules/home/programs/llm/runtime/diff/open.nu
+  s_a4a3eea4720821::t_c5f9cf90357a78 10-11,22-29,108,130,222,339
+checks/agent-workspace.nu
+  s_a4a3eea4720821::t_8c3416a67fcde6 3,12-18
+  s_a4a3eea4720821::t_27f30bdd5e9432 28-29,34
+  s_a4a3eea4720821::t_129e471c153c47 19
+modules/home/programs/llm/skills/ty/SKILL.md
+  s_a4a3eea4720821::t_7c0d5eeaacd7e7 22,29
+checks/native-output.nix
+  s_a4a3eea4720821::t_45c9a814e62b9d 38,46
+  s_a4a3eea4720821::t_654ec794d038e7 16
+docs/review-tools.md
+  s_a4a3eea4720821::t_3e1819b252f242 16,89-91
+  s_a4a3eea4720821::t_964aa759a4c4f7 1-3,7-15,17-37,39-63,76-88,92-95
+  s_a4a3eea4720821::t_d9fdd9b8ddaf5f 38
+  s_a4a3eea4720821::t_da3affc752e2d3 4-6,64-75
+modules/home/programs/llm/skills/taskwarrior/references/queued-execution.md
+  s_a4a3eea4720821::t_67b3ea77bd5715 57-59,64
+modules/home/programs/llm/runtime/workspace/codex.ts
+  s_a4a3eea4720821::t_ad0b6f7fdcfeea 9,148,169-175,177,284
+modules/home/programs/llm/runtime/workspace/observe.ts
+  s_a4a3eea4720821::t_ad0b6f7fdcfeea 1-2,7,15,23,27,45,47
+docs/agent-workspaces.md
+  s_a4a3eea4720821::t_0cd150fbb47a4a 60-62
+modules/home/programs/llm/runtime/diff/default.nix
+  s_a4a3eea4720821::t_e1c13af18b0318 8
+flake.lock
+  s_a4a3eea4720821::t_33a8e115f27363 2006-2007,2010,2016
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6ca6d94824e45d5b596c980e9f6c63ab707e2399",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
