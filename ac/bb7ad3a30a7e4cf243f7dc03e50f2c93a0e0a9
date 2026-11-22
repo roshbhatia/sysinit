@@ -1,13 +1,11 @@
-checks/default.nix
-  s_b6baf4162ed3c9::t_aa5f474f00fc4e 353-364
 modules/darwin/home/hammerspoon/default.nix
-  s_b6baf4162ed3c9::t_4b80480495ecd2 78
-modules/darwin/home/hammerspoon/url-routing.nix
-  s_b6baf4162ed3c9::t_6b3836d009c5e7 226
+  s_b6baf4162ed3c9::t_511267bcda8cdd 78
 modules/home/programs/llm/runtime/default.nix
-  s_b6baf4162ed3c9::t_aabb02b3e83c68 156
-pkgs/utils/internal/ty/terminal.go
-  s_b6baf4162ed3c9::t_69b3c0dd3d4f46 225,227-229,231
+  s_796b0b41a96769::t_28706979cb9a2a 156
+checks/default.nix
+  s_a4a3eea4720821::t_1ef55a1efa2fc5 353-364
+modules/darwin/home/hammerspoon/url-routing.nix
+  s_a4a3eea4720821::t_ec488c94dc0264 226
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -15,6 +13,22 @@ pkgs/utils/internal/ty/terminal.go
   "base_commit_sha": "acbb7ad3a30a7e4cf243f7dc03e50f2c93a0e0a9",
   "prompts": {},
   "sessions": {
+    "s_796b0b41a96769": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
     "s_b6baf4162ed3c9": {
       "agent_id": {
         "tool": "codex",
