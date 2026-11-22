@@ -1,13 +1,11 @@
-hosts/default.nix
-  s_de8d39c3c56992::t_77b84353cc172e 75,91
-modules/nixos/common/default.nix
-  s_de8d39c3c56992::t_77b84353cc172e 69
-modules/home/programs/wezterm/default.nix
-  s_de8d39c3c56992::t_8ba4fc3dc8b3b0 58
-  s_de8d39c3c56992::t_cddf5216e0ebda 53-56,59-61
-  s_de8d39c3c56992::t_77b84353cc172e 6
 flake.lock
-  s_de8d39c3c56992::t_e49f7d198df3e7 51-52,55,1554-1555,1558,1618-1619,1622,1745-1746,1749,2077-2078,2081
+  s_a4a3eea4720821::t_7af75b1df177b2 51-52,55,1554-1555,1558,1618-1619,1622,1745-1746,1749,2077-2078,2081
+modules/home/programs/wezterm/default.nix
+  s_a4a3eea4720821::t_fee080a32b1657 6,53-56,58-61
+modules/nixos/common/default.nix
+  s_c7495a484be0a4::t_bb7c7db8bc9b71 69
+hosts/default.nix
+  s_d2d448cefaa2bf::t_2b67f386b8aa2e 75,91
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -15,11 +13,27 @@ flake.lock
   "base_commit_sha": "3b501b66cc11232c0eee2e845d16c9a333910bc2",
   "prompts": {},
   "sessions": {
-    "s_de8d39c3c56992": {
+    "s_a4a3eea4720821": {
       "agent_id": {
         "tool": "codex",
-        "id": "01a1ad25-3528-7c81-a954-276c13dcabf6",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_c7495a484be0a4": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1a8f5-858f-7852-b00c-9df8f11cdb78",
         "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_d2d448cefaa2bf": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1eb81-5b2b-78b2-84fd-673be95ed315",
+        "model": "unknown"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
