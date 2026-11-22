@@ -6,6 +6,12 @@
       rtt_ms = 60;
       loss = 0;
     };
-    hosts = { };
+    hosts = {
+      arrakis = {
+        aliases = [ "arrakis.stork-eel.ts.net." ];
+        fallback = [ "arrakis.local" ];
+      };
+      lv426.fallback = [ "lv426.local" ];
+    };
   };
 }

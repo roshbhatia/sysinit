@@ -129,6 +129,7 @@
     wezterm-fork.url = "github:roshbhatia/wezterm?dir=nix";
     sysinit-wezterm = {
       url = "github:roshbhatia/sysinit.wezterm/7cd917ed90d92b7ca6276a824d9b82d3ac19edf0";
+      inputs.session-tree.url = "github:roshbhatia/session-tree.wezterm/c6ca78fb5a9ef84c7b97f88a887041ef2f42e930";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     sysinit-nvim = {
@@ -160,7 +161,7 @@
     };
 
     tether = {
-      url = "github:roshbhatia/tether/b5829111d7d190deed70179480f532850a6af95f";
+      url = "github:roshbhatia/tether/3734731ded4f0f8f338f1b338302709a9b0bc6d1";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

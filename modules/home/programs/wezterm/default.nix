@@ -60,6 +60,9 @@ in
       unsetEnvironmentVariables = [ "NO_COLOR" ];
       persistentRemoteHosts = [
         "arrakis"
+        "arrakis.local"
+        "lv426"
+        "lv426.local"
       ];
 
       agents = import ../llm/harnesses/deck-patterns.nix;

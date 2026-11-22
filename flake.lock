@@ -1648,17 +1648,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1795116617,
-        "narHash": "sha256-ndtXZ2QF3pUGcZjQENJQ2eC1OQS+GUxrqpvpFUxH1QM=",
+        "lastModified": 1795309460,
+        "narHash": "sha256-H112/o7mopbFT7iJZhuDcVjrKB3uvItzouHTt/R/oys=",
         "owner": "roshbhatia",
         "repo": "session-tree.wezterm",
-        "rev": "46df457104c3b678c57e6ac5a6ee4b50ef754344",
+        "rev": "c6ca78fb5a9ef84c7b97f88a887041ef2f42e930",
         "type": "github"
       },
       "original": {
         "owner": "roshbhatia",
         "repo": "session-tree.wezterm",
-        "rev": "46df457104c3b678c57e6ac5a6ee4b50ef754344",
+        "rev": "c6ca78fb5a9ef84c7b97f88a887041ef2f42e930",
         "type": "github"
       }
     },
@@ -2003,17 +2003,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1794007939,
-        "narHash": "sha256-ZmXfd+xGdSX//fz3FyRLhdXNJ9V3ig5ERyIdJxN5wvA=",
+        "lastModified": 1795309527,
+        "narHash": "sha256-oT9O4oYmrlcXXjf3tpsYMijVWZ8mFV1T1cuYqA0P86Y=",
         "owner": "roshbhatia",
         "repo": "tether",
-        "rev": "b5829111d7d190deed70179480f532850a6af95f",
+        "rev": "3734731ded4f0f8f338f1b338302709a9b0bc6d1",
         "type": "github"
       },
       "original": {
         "owner": "roshbhatia",
         "repo": "tether",
-        "rev": "b5829111d7d190deed70179480f532850a6af95f",
+        "rev": "3734731ded4f0f8f338f1b338302709a9b0bc6d1",
         "type": "github"
       }
     },
