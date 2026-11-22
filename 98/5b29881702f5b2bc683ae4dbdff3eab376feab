@@ -1,19 +1,11 @@
-flake.nix
-  s_7028fc5da01072::t_3f61f7f6e6ed7c 362
-checks/default.nix
-  s_7028fc5da01072::t_ba20894369c1e5 59
 modules/home/packages.nix
-  s_7028fc5da01072::t_3f61f7f6e6ed7c 153
-overlays/leaf.nix
-  s_7028fc5da01072::t_3f61f7f6e6ed7c 1-53
+  s_a4a3eea4720821::t_299e8cc8d7a241 153
 overlays/default.nix
-  s_7028fc5da01072::t_3f61f7f6e6ed7c 63
-_sources/generated.json
-  s_7028fc5da01072::t_ec7eb14abde953 410-469
-_sources/generated.nix
-  s_7028fc5da01072::t_65960984587da2 226-257
-nvfetcher.toml
-  s_7028fc5da01072::t_dae39ec0d75f3b 204-224
+  s_a4a3eea4720821::t_c2aa75d7cbdc42 63
+checks/default.nix
+  s_a4a3eea4720821::t_5bc450e5281ac4 59
+flake.nix
+  s_a4a3eea4720821::t_f0f65642d534a4 362
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -21,10 +13,10 @@ nvfetcher.toml
   "base_commit_sha": "985b29881702f5b2bc683ae4dbdff3eab376feab",
   "prompts": {},
   "sessions": {
-    "s_7028fc5da01072": {
+    "s_a4a3eea4720821": {
       "agent_id": {
         "tool": "codex",
-        "id": "01a1d0ac-4380-7023-8b2f-a382ea7a16c4",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
         "model": "gpt-6.1-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
