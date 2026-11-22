@@ -1,8 +1,5 @@
 modules/home/programs/llm/lib/instructions.nix
-  s_df142d9d9da5a3::t_052b2dc8d8406f 53-57
-  s_df142d9d9da5a3::t_6384dc9e70b89e 52
-modules/home/programs/llm/lib/output-style.nix
-  s_df142d9d9da5a3::t_052b2dc8d8406f 9
+  s_a4a3eea4720821::t_79876205113a59 52-57
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -10,11 +7,11 @@ modules/home/programs/llm/lib/output-style.nix
   "base_commit_sha": "0abf3ba2018bf1bdef04ae00395ed91ac0f0af9f",
   "prompts": {},
   "sessions": {
-    "s_df142d9d9da5a3": {
+    "s_a4a3eea4720821": {
       "agent_id": {
         "tool": "codex",
-        "id": "01a16643-3c4e-7a42-bf10-32b8d3ca1f79",
-        "model": "gpt-6.1-sol"
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "unknown"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
