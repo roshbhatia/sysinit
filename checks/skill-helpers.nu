@@ -42,11 +42,13 @@ def main [helper: path] {
 
         assert equal $failed.exit_code 1
 
-        let directory = $root | path join managed missing
+        let directory = $root | path join published
 
         mkdir $directory
 
         '' | save ($directory | path join SKILL.md)
+
+        ^ln -s $directory ($root | path join managed missing)
 
         {
             roots: [managed]

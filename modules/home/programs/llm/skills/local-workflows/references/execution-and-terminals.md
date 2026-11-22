@@ -24,7 +24,7 @@ capabilities differ between harnesses; check the available tools rather than
 assuming a particular agent type. A native helper does not require another CLI,
 Pueue job, workspace, or terminal pane merely to exist.
 
-For cross-harness coordination, inspect `~/.config/sysinit/agents.json` for the
+For cross-harness coordination, use `agents list --details` for the
 installed command and context file. Verify its noninteractive flags with installed
 help. Pass the task UUID, exact authorization, relevant instructions, selected
 checkout, bounded ownership, expected result, and acceptance criteria explicitly.
@@ -132,19 +132,19 @@ launcher for that focused context, not a way to select an arbitrary task checkou
 It handles the missing-GUI case. Prefer it over raw `wezterm cli spawn` when the
 owner requests another window.
 
-Use raw WezTerm CLI for specific pane inspection or control after identifying the
-intended pane. Every call passes `--no-auto-start`:
+Load the `ty` skill for pane discovery, captured output, explicit command
+launch, and native WezTerm layout controls. Check `ty clients` when the
+user wants a visible pane. A headless mux can have panes without an attached
+GUI.
 
-```sh
-wezterm cli --no-auto-start list-clients
-wezterm cli --no-auto-start list --format json
-wezterm cli --no-auto-start get-text --pane-id <pane-id>
-```
+## Remote access
 
-A pane ID does not prove a visible GUI exists. Without an attached GUI, a raw
-CLI call can create a headless mux and return an ID without drawing a window.
-Sending text types into a live terminal; verify its target and running process
-before sending, interrupting, or closing it. Preserve unrelated panes and sessions.
+Use `tsh --dry-run HOST` to inspect the cached transport plan for a remote
+shell. Use `tether attach --dry-run HOST` to preview an explicit native
+WezTerm attach. Inspect the selected tier, address, and staleness in the
+plan. A cached plan does not establish live connectivity. When the user
+requests the connection, use `tsh HOST` for a shell or `tether attach HOST`
+for native mux attachment.
 
 ## Agent shells
 

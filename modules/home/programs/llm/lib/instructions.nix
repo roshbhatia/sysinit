@@ -43,6 +43,12 @@ let
       good = "Fix the affected path and its callers; leave unrelated cleanup for its own task.";
     }
     {
+      rule = "Keep shared tools independently usable and compose them at the point of use.";
+      reason = "Use the native owner for state and actions. A UI, bridge, or wrapper earns its place when it improves a real workflow through the same callable interfaces.";
+      bad = "Make an editor or agent workspace the sole way to inspect a patch or resume work.";
+      good = "Pass an ordinary Git patch to a reader, and let the launcher find the checkout or pane.";
+    }
+    {
       rule = "Use precise, professional names for files, directories, scripts, functions, variables, classes, commits, branches, and other artifacts.";
       reason = "Describe the purpose or operation. Avoid slang, casual shorthand, cute or clever names, and chat-culture references. Follow established technical terms and repository naming conventions; leave unrelated existing names unchanged.";
       bad = "Call a dashboard deployment script `yeet-dashboards.sh`.";

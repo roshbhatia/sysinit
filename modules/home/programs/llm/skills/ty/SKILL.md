@@ -1,20 +1,20 @@
 ---
 name: ty
-description: Inspect and control WezTerm panes with ty or nuwez and Neovim editors with nuvim. Use for owner-requested pane or editor operations, including matching an editor to a worktree.
+description: Drive WezTerm from the CLI. Use to find or read a pane, run a command in a split, manage tabs or layout, or target a Neovim editor by worktree.
 ---
 
-# WezTerm session API
+# WezTerm and Neovim control
 
-`ty` composes seshy's session catalog and open plans with WezTerm's mux
-CLI. It is a local command API, not a daemon. Catalog and action responses are
-single-line JSON using `sysinit.ty/v1`; pane reads write terminal text
-directly so they can be piped to other tools.
+WezTerm exposes its mux through `wezterm cli`. Start with `ty` for
+structured targeting and common pane actions. It combines WezTerm's live panes
+with Seshy's session catalog and open plans. Its catalog and action responses
+are JSON using `sysinit.ty/v1`. Pane reads write terminal text to stdout.
 
 In a configured Nushell, `nuwez` accepts the same subcommands and returns
 structured values. Bare `nuwez` lists panes. `nuwez pane read` returns text.
 For example, `nuwez panes | get panes` selects the pane records.
 
-## Inspect
+## Find the target
 
 ```sh
 ty sessions
@@ -26,20 +26,26 @@ ty panes | jq '.panes[] | {pane_id, workspace, cwd, title}'
 ty pane read <pane-id>
 ```
 
-`sessions`, `panes`, and `clients` each return a versioned JSON document. `catalog` combines
-both arrays and requires both sources to be available. The catalog includes
-active seshy sessions and panes visible to the local WezTerm mux. Every pane
-operation requires an explicit pane ID. Commands pass `--no-auto-start` to
-WezTerm, so a missing GUI/mux is an error rather than a headless server launch.
+`catalog` combines the session and pane arrays. Use the target the user
+named. For “here” or “beside you,” use `$WEZTERM_PANE` after confirming it
+appears in `ty panes`. For “my focused pane,” match the intended client’s
+`focused_pane_id` from `ty clients` to a pane record. If the caller has no
+pane or several records match, use the requested directory, workspace, and
+tab to resolve the target. Ask before acting when the target is still
+ambiguous. A running mux can have panes with no attached GUI.
 
-## Act
+Read and act through the same mux connection. Keep pane IDs from discovery
+and action results, including when the next tool call runs in a new shell.
+Recheck the ID after a pane moves or the connection changes.
+
+## Open, run, and interact
 
 ```sh
 ty session switch <session-id-or-name>
 ty session open <session-id-or-name>
 ty session launch <session-id-or-name>
 ty pane split <pane-id> --direction right
-ty pane spawn <pane-id> --direction right -- codex
+ty pane spawn <pane-id> --direction right --percent 45 -- codex
 ty pane send <pane-id> 'text to paste'
 ty pane send --submit <pane-id> 'text to paste and submit'
 ty pane focus <pane-id>
@@ -53,10 +59,49 @@ it opens a window. Its JSON result reports whether it opened a window.
 `session launch` opens a GUI window with the same session plan, starting the GUI
 when necessary. It returns after launching and does not report a pane ID.
 `pane split` creates a shell pane; `pane spawn` creates a pane running the
-explicit command after `--`. Both return the new pane ID. `pane send` reads
-stdin when no text argument is supplied. It pastes without submitting unless
-`--submit` is given. `pane read` returns raw terminal text. Other successful
-actions return JSON.
+explicit command after `--`. Both return the new pane ID and accept
+`--percent` to size the split. Prefer `pane spawn` with argv when running a
+program. Use `pane send` for text intended for an existing interactive
+program. It accepts stdin when text is omitted and pastes without pressing
+Enter. Use `--submit` only when the user requests submission. Inspect the
+new pane by its returned ID.
+
+For a request to open something beside the current work, split the intended
+pane in its existing tab and pass the checkout as `--cwd`. Use the requested
+direction, or split right when there is room and down when the pane is narrow.
+
+```sh
+pane_id=$(ty pane spawn "$WEZTERM_PANE" --direction right --percent 45 --cwd "$PWD" -- nvim . | jq -er '.pane_id')
+```
+
+A returned ID confirms pane creation. The pane can disappear as soon as its
+program exits. Use the shell directly for short commands whose output or exit status
+you need. For a visible long-running command, use `worker` and check its log
+for the expected readiness signal. For a durable attempt, use `tq` and
+check the recorded result. Use `agent-diff --background` for a reusable
+review split when the user wants to keep working in the current pane.
+
+If a split, launch, or send times out, inspect the pane list or the target’s
+output before retrying. The action may have reached WezTerm.
+
+## Read scrollback and arrange panes
+
+For operations outside `ty`, use the native command. Discover verbs with
+`wezterm cli --help` and arguments with `wezterm cli COMMAND --help`.
+Use `--no-auto-start` to avoid starting a mux by inspection. Take IDs from
+`ty panes` or `wezterm cli --no-auto-start list --format json`.
+
+```sh
+wezterm cli --no-auto-start get-text --pane-id "$pane_id" --start-line=-20
+wezterm cli --no-auto-start get-pane-direction --pane-id "$pane_id" Right
+wezterm cli --no-auto-start adjust-pane-size --pane-id "$pane_id" --amount 3 Right
+wezterm cli --no-auto-start zoom-pane --pane-id "$pane_id" --zoom
+wezterm cli --no-auto-start move-pane-to-new-tab --pane-id "$pane_id"
+wezterm cli --no-auto-start activate-tab --tab-id "$tab_id"
+```
+
+Read pane records again after a layout change to verify where the pane landed.
+[WezTerm CLI reference](https://wezterm.org/cli/cli/index.html)
 
 ## Inspect and control Neovim
 
@@ -71,18 +116,13 @@ nuvim open --server $socket $file
 ```
 
 Match the editor's working directory to the intended worktree before changing
-it. Use `nuvim` for buffers, selections, diagnostics, and quickfix. Use
-`agent-diff` for a dedicated working-tree Diffview split from inside WezTerm.
-Use explicit pane IDs with `ty` or `nuwez` for terminal placement.
+it. Use `nuvim` for buffers, selections, diagnostics, and quickfix.
 
-Use `agent-workspace agents` to discover available agent commands. Launch a
-workspace with `open --agent <name> --cwd <directory>` or attach to an existing
-pane with `attach --pane-id <id>`. Use `open -- <command> <args>` for any
-other executable. Keep the returned workspace ID and use `show` and
-`refresh` to identify the pane and review socket. Use `feedback` for
-review-note JSON. When the owner requests it, use `--paste` to stage notes in
-the recorded pane. The optional Codex adapter adds exact thread and turn
-control with `--adapter codex`.
+Launch an agent directly in the selected directory. Run `agents` for
+a searchable picker of commands on the current PATH, or name a harness as
+`agents pi`. Use `agents threads` for captured conversations, and
+`ty pane spawn` when the owner wants a separate pane.
+Use `agents list --details` for harness capabilities and native launch flags.
 
 ## Boundaries
 

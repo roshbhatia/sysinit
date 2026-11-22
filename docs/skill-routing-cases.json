@@ -60,6 +60,31 @@
     "avoid": []
   },
   {
+    "prompt": "Use the WezTerm CLI to put a Neovim diff beside this agent",
+    "expected": ["ty"],
+    "avoid": ["computer-use"]
+  },
+  {
+    "prompt": "Read the last part of the scrollback in this WezTerm pane",
+    "expected": ["ty"],
+    "avoid": ["computer-use"]
+  },
+  {
+    "prompt": "Show the worktree changes since my existing review checkpoint",
+    "expected": ["local-workflows"],
+    "avoid": ["adversarial-review"]
+  },
+  {
+    "prompt": "Watch this PR until required checks finish and report the result",
+    "expected": ["local-workflows"],
+    "avoid": ["gh-stack"]
+  },
+  {
+    "prompt": "Preview an explicit native WezTerm attach to a saved host",
+    "expected": ["local-workflows"],
+    "avoid": ["computer-use"]
+  },
+  {
     "prompt": "Explain what this single expression returns",
     "expected": [],
     "avoid": ["nix-deployment"]

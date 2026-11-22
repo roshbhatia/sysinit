@@ -91,7 +91,7 @@ in
       skills = [ "search-code-routing" ];
     }
     {
-      intent = "WezTerm pane or Neovim editor operations";
+      intent = "Drive WezTerm from the CLI or control a Neovim editor";
       skills = [ "ty" ];
     }
     {

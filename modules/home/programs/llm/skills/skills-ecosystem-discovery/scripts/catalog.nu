@@ -10,7 +10,10 @@ export def inventory [catalog: path, home: path, extra_roots: list<path>] {
     mut missing = {}
 
     for root in $roots {
-        let files = glob --no-dir ($root | path join '*' SKILL.md) | sort
+        let files = glob ($root | path join '*')
+        | each {|directory| $directory | path join SKILL.md}
+        | where {|file| ($file | path exists) and ($file | path expand --strict | path type) == file}
+        | sort
 
         let names = $files | each {|file| $file | path dirname | path basename}
 

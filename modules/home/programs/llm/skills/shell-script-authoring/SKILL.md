@@ -1,24 +1,23 @@
 ---
-description: Use when writing or modifying shell scripts, particularly in the hack/ directory, Taskfile commands, or any bash automation in this repository.
+description: Write and validate Nushell automation and maintain existing shell scripts in sysinit and sysinit.laurel. Use for CLI wrappers, checks, hooks, and repository automation.
 ---
 
 # Shell Scripting
 
-Bash automation in this repo, `hack/` scripts, Taskfile commands, git hooks.
-These rules are prescriptive: each pairs the correct form with the failure it
-prevents. Apply them to every line you write or touch. When editing an existing
-script, match its surrounding style and apply these rules only to lines you change.
+## Choose the runtime
 
-## Decision routing
+Use Nushell for new or substantially changed scripts in sysinit and
+sysinit.laurel. Use the Nix-pinned `nu --no-config-file`, pass lists and
+records between commands, and use JSON at external process boundaries when
+the command offers it. Keep progress and errors on stderr when stdout is data.
+Format with `nufmt` through the repository formatter and check the real script
+with the declared dependencies from `nix develop`.
 
-```
-New script under hack/?       -> start from the boilerplate below, chmod +x, wire into Taskfile
-Editing an existing script?   -> apply rules only to lines you touch; keep its existing shape
-Need output?                  -> diagnostics to stderr, data to stdout (see Output streams)
-Before reporting done?        -> run the validate loop until it passes (see Validate)
-```
+Keep the existing shebang and caller contract for a small Bash repair. Migrate
+Python automation to Nushell. Document the blocker when conversion needs a
+separate utility or library boundary.
 
-## Boilerplate: every script starts with exactly this
+## Bash scripts that remain
 
 ```bash
 #!/usr/bin/env bash
@@ -93,19 +92,10 @@ rm -f "${tmpfile}"             # never reached if do_work fails under set -e
 
 Run `nix fmt` (writes) or `nix fmt -- --check` (verifies). The settings are
 `shfmt -i 2 -ci -sr -s`: 2-space indent, indented case bodies, redirect operators
-followed by a space, simplified. Do not pass other flags. All `.sh` files must be
-executable (`chmod +x`).
+followed by a space, simplified. Preserve the permissions of sourced files.
+Use the executable bit for scripts invoked directly.
 
-## File location
-
-| Type            | Path           |
-|-----------------|----------------|
-| Build scripts   | `hack/nix-*.sh`|
-| Format scripts  | `hack/fmt-*.sh`|
-| Utility scripts | `hack/*.sh`    |
-| Git hooks       | `.githooks/`   |
-
-## Validate before done: loop until clean
+## Validate
 
 1. `nix fmt`, format.
 2. `nix fmt -- --check`, verify formatting.
