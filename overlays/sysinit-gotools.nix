@@ -73,6 +73,18 @@ in
 {
   inherit sysinit-gotools;
 
+  task-board = select {
+    pname = "task-board";
+    package = sysinit-gotools;
+    binary = "task-board";
+    names = [ "task-board" ];
+    meta = {
+      description = "Taskwarrior Kanban with linked queue attempts and workspaces";
+      mainProgram = "task-board";
+      platforms = final.lib.platforms.unix;
+    };
+  };
+
   seshy = select {
     pname = "seshy";
     package = final.seshy-cli;

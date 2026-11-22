@@ -2003,17 +2003,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1795309527,
-        "narHash": "sha256-oT9O4oYmrlcXXjf3tpsYMijVWZ8mFV1T1cuYqA0P86Y=",
+        "lastModified": 1795328057,
+        "narHash": "sha256-U+f3JT2BS8zK7PqrLjWwOW2CvTaM+lDRqTaEsngE2OI=",
         "owner": "roshbhatia",
         "repo": "tether",
-        "rev": "3734731ded4f0f8f338f1b338302709a9b0bc6d1",
+        "rev": "913e2174e2d2c4a1e7c6513fda8d54cf9dba6c1b",
         "type": "github"
       },
       "original": {
         "owner": "roshbhatia",
         "repo": "tether",
-        "rev": "3734731ded4f0f8f338f1b338302709a9b0bc6d1",
+        "rev": "913e2174e2d2c4a1e7c6513fda8d54cf9dba6c1b",
         "type": "github"
       }
     },

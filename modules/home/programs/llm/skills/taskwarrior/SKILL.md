@@ -55,6 +55,11 @@ changes the shared persistent context; agents must continue to use per-command
 overrides. For isolated testing, set `TASKRC` and `TASKDATA` explicitly: existing
 environment values take precedence over the TUI's command-line path options.
 
+Use `task-board` for the Kanban view or `task-board --json` for its projection.
+The board links tasks to queue attempts and agent workspaces by UUID. Use
+`--context`, `--repo`, or `--project` to set a view without changing the
+shared context. A successful attempt moves an unfinished task into Review.
+
 Capture ideas with `taskwarrior add 'Idea' kind:idea +inbox` and reference notes with
 `taskwarrior add 'Note' kind:note`. Use `taskwarrior inbox`, `taskwarrior ideas`, or `taskwarrior notes` to find
 them. Clear `inbox` after triage. Convert an agreed idea with `kind:task -inbox`.

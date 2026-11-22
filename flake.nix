@@ -161,7 +161,7 @@
     };
 
     tether = {
-      url = "github:roshbhatia/tether/3734731ded4f0f8f338f1b338302709a9b0bc6d1";
+      url = "github:roshbhatia/tether/913e2174e2d2c4a1e7c6513fda8d54cf9dba6c1b";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -364,6 +364,7 @@
             "leaf-reader"
             "alerter"
             "sysinit-gotools"
+            "task-board"
             "seshy"
             "changes"
             "changes-providers"

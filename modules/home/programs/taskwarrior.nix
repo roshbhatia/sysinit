@@ -102,6 +102,7 @@ in
     {
       home.packages = [
         pkgs.taskwarrior-tui-private
+        pkgs.task-board
         taskContext
       ];
       programs.taskwarrior = {

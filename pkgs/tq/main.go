@@ -37,18 +37,27 @@ func run(args []string) (int, error) {
 	}
 	args = global.Args()
 	if len(args) == 0 {
-		_, e := fmt.Fprintln(os.Stdout, "Usage: tq [--state DIR] submit|status|browse|thread|reconcile|cancel|resume\nsubmit [--task UUID] [--thread ID] [--session NAME | --cwd DIR] [--group NAME] [--terminal] [--retry] -- COMMAND [ARGS...]\nbrowse [--thread ID]  Browse attempts, terminals, logs, and linked conversations\nthread UUID           Inspect an attempt's captured conversation")
+		_, e := fmt.Fprintln(os.Stdout, "Usage: tq [--state DIR] submit|status|snapshot|browse|thread|reconcile|cancel|resume\nsubmit [--task UUID] [--thread ID] [--session NAME | --cwd DIR] [--group NAME] [--terminal] [--retry] -- COMMAND [ARGS...]\nbrowse [--thread ID]  Browse attempts, terminals, logs, and linked conversations\nthread UUID           Inspect an attempt's captured conversation")
 		return 0, e
 	}
 	*dir, e = filepath.Abs(*dir)
 	if e != nil {
 		return 1, e
 	}
-	if e = os.MkdirAll(*dir, 0700); e != nil {
-		return 1, e
-	}
 	action := args[0]
 	args = args[1:]
+	if action == "snapshot" {
+		if len(args) != 0 {
+			return 1, errors.New("snapshot accepts no arguments")
+		}
+		if _, err := os.Stat(*dir); os.IsNotExist(err) {
+			return 0, output([]attempt{})
+		} else if err != nil {
+			return 1, err
+		}
+	} else if e = os.MkdirAll(*dir, 0700); e != nil {
+		return 1, e
+	}
 	if action == "thread" {
 		if len(args) != 1 {
 			return 1, errors.New("one attempt UUID required")
@@ -91,9 +100,12 @@ func run(args []string) (int, error) {
 		}
 		return execute(a, *dir, false)
 	}
-	guard, e := lock(filepath.Join(*dir, "lock"), false)
-	if e != nil {
-		return 1, e
+	var guard *os.File
+	if action != "snapshot" {
+		guard, e = lock(filepath.Join(*dir, "lock"), false)
+		if e != nil {
+			return 1, e
+		}
 	}
 	defer func() {
 		if guard != nil {
@@ -135,8 +147,10 @@ func run(args []string) (int, error) {
 			a.Result = json.RawMessage(`"Missing"`)
 			a.Review = false
 		}
-		if e = save(path, a); e != nil {
-			return 1, e
+		if action != "snapshot" {
+			if e = save(path, a); e != nil {
+				return 1, e
+			}
 		}
 		records = append(records, a)
 	}
@@ -147,7 +161,7 @@ func run(args []string) (int, error) {
 		}
 		guard = nil
 		return 0, browse(args, records)
-	case "status", "reconcile":
+	case "status", "snapshot", "reconcile":
 		return 0, output(records)
 	case "cancel", "resume":
 		if len(args) != 1 {
