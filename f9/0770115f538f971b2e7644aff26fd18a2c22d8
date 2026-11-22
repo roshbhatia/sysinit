@@ -1,12 +1,11 @@
-lib/builders/nixos.nix
-  s_de8d39c3c56992::t_628268c2386aea 48
-lib/builders/darwin.nix
-  s_de8d39c3c56992::t_628268c2386aea 51
 checks/package-set.nix
-  s_de8d39c3c56992::t_eabdf86fd43638 11-33
-  s_de8d39c3c56992::t_67a2f235bce64d 1-10,34-37
+  s_de8d39c3c56992::t_ff414f54eb8c75 1-37
+lib/builders/darwin.nix
+  s_1cfbbc236f4d97::t_8254c5e1c07eff 51
+lib/builders/nixos.nix
+  s_1cfbbc236f4d97::t_019671a05b7023 48
 checks/default.nix
-  s_de8d39c3c56992::t_2a1adec1790cc4 317-319
+  s_a4a3eea4720821::t_5e332237aa19d9 317-319
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -14,6 +13,22 @@ checks/default.nix
   "base_commit_sha": "f90770115f538f971b2e7644aff26fd18a2c22d8",
   "prompts": {},
   "sessions": {
+    "s_1cfbbc236f4d97": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1b1b5-7f63-7962-8ac1-30c9a92ab568",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "unknown"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
     "s_de8d39c3c56992": {
       "agent_id": {
         "tool": "codex",
