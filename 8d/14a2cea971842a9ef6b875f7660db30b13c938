@@ -1,18 +1,11 @@
-docs/atuin.md
-  s_cccc57401e3d8c::t_d3ecdda869529d 63-64
-  s_cccc57401e3d8c::t_1e80754d3df315 73
-  s_cccc57401e3d8c::t_be5ed204818611 57-62,65-72
 checks/atuin.nix
-  s_cccc57401e3d8c::t_40c52053a305ce 40
+  s_a4a3eea4720821::t_02fba4b09632f9 40
 checks/atuin.py
-  s_cccc57401e3d8c::t_40c52053a305ce 214-227
+  s_cccc57401e3d8c::t_a58e2971447466 214-227
+docs/atuin.md
+  s_cccc57401e3d8c::t_59940505d6a679 57-73
 modules/home/programs/nushell/default.nix
-  s_cccc57401e3d8c::t_d3ecdda869529d 236
-modules/home/programs/nushell/agent-threads.nu
-  s_cccc57401e3d8c::t_ffe301e8dccd02 26-34,36-45,47-49,70,72
-  s_cccc57401e3d8c::t_d3ecdda869529d 1-25,35,46,73-74
-  s_cccc57401e3d8c::t_3650d187492091 59-61
-  s_cccc57401e3d8c::t_b1974cb42b2211 50-58,62-69,71
+  s_a4a3eea4720821::t_68233ab5cad35c 236
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -20,6 +13,14 @@ modules/home/programs/nushell/agent-threads.nu
   "base_commit_sha": "8d14a2cea971842a9ef6b875f7660db30b13c938",
   "prompts": {},
   "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
     "s_cccc57401e3d8c": {
       "agent_id": {
         "tool": "codex",
