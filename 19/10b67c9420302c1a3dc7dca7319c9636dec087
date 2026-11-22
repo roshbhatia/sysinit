@@ -1,0 +1,36 @@
+modules/home/programs/llm/harnesses/opencode/render.nix
+  s_a4a3eea4720821::t_0654dc7bae973f 219,247,250
+modules/home/programs/git/review-checkpoint.nu
+  s_a4a3eea4720821::t_eba816d274ba99 7-9,28,31
+  s_a4a3eea4720821::t_faf359f6cb56f9 12
+docs/review-tools.md
+  s_a4a3eea4720821::t_891a8505b335d6 22-23,26-42
+  s_a4a3eea4720821::t_4aea16db0b6d27 24-25
+checks/default.nix
+  s_a4a3eea4720821::t_faf359f6cb56f9 241
+  s_a4a3eea4720821::t_891a8505b335d6 238-240,242-243
+checks/opencode.nu
+  s_a4a3eea4720821::t_eba816d274ba99 11-13
+  s_a4a3eea4720821::t_0654dc7bae973f 3,10,14
+  s_a4a3eea4720821::t_e31d61c0a50dbe 15
+modules/home/programs/git/default.nix
+  s_a4a3eea4720821::t_faf359f6cb56f9 245-254
+checks/review-checkpoint.nu
+  s_a4a3eea4720821::t_891a8505b335d6 1-62
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1910b67c9420302c1a3dc7dca7319c9636dec087",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
