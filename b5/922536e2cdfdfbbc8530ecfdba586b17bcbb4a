@@ -1,7 +1,7 @@
-pkgs/utils/internal/threads/threads_test.go
-  s_054ded0b315d9c::t_56c51ae2c78ddc 41,75
 pkgs/utils/internal/threads/threads.go
-  s_054ded0b315d9c::t_8ea94d14ba93ff 66-73
+  s_a4a3eea4720821::t_97d79c7acb580f 66-73
+pkgs/utils/internal/threads/threads_test.go
+  s_a4a3eea4720821::t_9b6baa521d8a64 41,75
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -9,11 +9,11 @@ pkgs/utils/internal/threads/threads.go
   "base_commit_sha": "b5922536e2cdfdfbbc8530ecfdba586b17bcbb4a",
   "prompts": {},
   "sessions": {
-    "s_054ded0b315d9c": {
+    "s_a4a3eea4720821": {
       "agent_id": {
         "tool": "codex",
-        "id": "01a18dfe-b616-7fd1-8e18-451e06339323",
-        "model": "gpt-6-luna"
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
