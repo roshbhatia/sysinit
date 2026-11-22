@@ -1,0 +1,64 @@
+modules/home/programs/llm/skills/ty/SKILL.md
+  s_a4a3eea4720821::t_ea8f414ec2ce43 48,62,125
+  s_a4a3eea4720821::t_c052a0e6cff01e 74
+  s_a4a3eea4720821::t_aac52f5e86f2cb 3,6,8-11,17,41,63-67,73,75,83,86-104,119
+  s_a4a3eea4720821::t_a20eb0f0bc676f 77-78
+  s_a4a3eea4720821::t_bd701b983741af 29-35,37-39,69-72,76,79-82,84-85
+  s_a4a3eea4720821::t_f233baf0b66d1b 122
+  s_a4a3eea4720821::t_d2495816d11207 121,123-124
+  s_a4a3eea4720821::t_2d80c5a47b8825 40,68,120
+docs/composability-audit.md
+  s_a4a3eea4720821::t_0e24aab2824c09 13,22-28
+  s_a4a3eea4720821::t_6875a53d86ddb5 3,5-6,8-12,14-18,29-35
+  s_a4a3eea4720821::t_3b8cfcfa278d15 85,95,97-98
+  s_a4a3eea4720821::t_337002bb4975cf 1,36-84,86-92,94,96,99-128
+  s_a4a3eea4720821::t_547da9c338dabb 19-21
+modules/home/programs/llm/default.nix
+  s_a4a3eea4720821::t_aac52f5e86f2cb 94
+modules/home/programs/llm/skills/local-workflows/references/pull-requests.md
+  s_a4a3eea4720821::t_59992987503bb2 22-23,26-31
+  s_a4a3eea4720821::t_925b8180393b73 1-14
+checks/skill-helpers.nu
+  s_a4a3eea4720821::t_f0c44e6385a024 45,51
+  s_a4a3eea4720821::t_bca713828eb398 52
+modules/home/programs/llm/skills/skills-ecosystem-discovery/scripts/catalog.nu
+  s_a4a3eea4720821::t_f0c44e6385a024 13-14,16
+  s_a4a3eea4720821::t_d65863d9381086 15
+modules/home/programs/llm/skills/local-workflows/SKILL.md
+  s_a4a3eea4720821::t_925b8180393b73 3,18-19,27-28
+modules/home/programs/llm/lib/instructions.nix
+  s_a4a3eea4720821::t_0e95819259ab51 46-50
+  s_a4a3eea4720821::t_316a7938242ae1 45
+modules/home/programs/llm/skills/shell-script-authoring/SKILL.md
+  s_a4a3eea4720821::t_72de899854572c 7,95-96,98
+  s_a4a3eea4720821::t_f0c44e6385a024 2,9-14,16-18,20
+docs/skill-maintenance.md
+  s_a4a3eea4720821::t_9659a66de57633 42-76
+docs/skill-routing-cases.json
+  s_a4a3eea4720821::t_aac52f5e86f2cb 63-72
+  s_a4a3eea4720821::t_9f8327c8595d84 62,78-82
+  s_a4a3eea4720821::t_925b8180393b73 73-77,83-86
+modules/home/programs/llm/skills/agent-diff/SKILL.md
+  s_a4a3eea4720821::t_0e95819259ab51 10
+  s_a4a3eea4720821::t_f233baf0b66d1b 9
+modules/home/programs/llm/skills/local-workflows/references/execution-and-terminals.md
+  s_a4a3eea4720821::t_ea8f414ec2ce43 27
+  s_a4a3eea4720821::t_c052a0e6cff01e 135-138
+  s_a4a3eea4720821::t_925b8180393b73 140,142-147
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d51fea9bce94a26af8ce58da2ad904250f5f9896",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
