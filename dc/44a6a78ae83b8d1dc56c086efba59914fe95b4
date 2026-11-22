@@ -1,9 +1,9 @@
-checks/default.nix
-  s_7028fc5da01072::t_ff9ab3187fe056 60
 overlays/default.nix
-  s_7028fc5da01072::t_05e06924a97a36 31
+  s_a4a3eea4720821::t_63396ce123dee9 31
 overlays/opentelemetry-collector-contrib.nix
-  s_7028fc5da01072::t_a3319c67908bfd 1-10
+  s_7028fc5da01072::t_419c6102267d8b 1-10
+checks/default.nix
+  s_a4a3eea4720821::t_f2c4d08506a4c7 60
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -16,6 +16,14 @@ overlays/opentelemetry-collector-contrib.nix
         "tool": "codex",
         "id": "01a1d0ac-4380-7023-8b2f-a382ea7a16c4",
         "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
