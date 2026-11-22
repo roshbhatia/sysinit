@@ -1,0 +1,28 @@
+docs/review-tools.md
+  s_a4a3eea4720821::t_0e95819259ab51 41,95-97
+  s_a4a3eea4720821::t_f233baf0b66d1b 24-27,33-34,40
+  s_a4a3eea4720821::t_d2495816d11207 28-32,35-39
+modules/home/programs/gh-pr-state.nu
+  s_a4a3eea4720821::t_59992987503bb2 115-120,129-130,150
+modules/home/programs/git/review-checkpoint.nu
+  s_a4a3eea4720821::t_9b97ed8d0085de 23
+checks/gh-pr-state.nu
+  s_a4a3eea4720821::t_59992987503bb2 17,27,49-58
+  s_a4a3eea4720821::t_adf483ece1a742 59
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6d65d518400a7279bc811e6651cea702b9331962",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
