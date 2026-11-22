@@ -1,12 +1,11 @@
-modules/home/programs/llm/lib/managed-file-cache.nu
-  s_796b0b41a96769::t_dad7533bf8422b 1-17,24-51,53-58,60-69,71-82,84-87
-modules/home/programs/llm/lib/managed-file.nix
-  s_796b0b41a96769::t_dad7533bf8422b 94,101
-checks/managed-file-cache.nu
-  s_796b0b41a96769::t_db41984e048e01 1-18,20-22,24-70
-  s_796b0b41a96769::t_790474b44eafc6 23
 checks/managed-file-cache.nix
-  s_796b0b41a96769::t_db41984e048e01 25-26
+  s_796b0b41a96769::t_8301f4cbc16e1d 25-26
+checks/managed-file-cache.nu
+  s_a4a3eea4720821::t_139901e43d00d2 1-70
+modules/home/programs/llm/lib/managed-file-cache.nu
+  s_a4a3eea4720821::t_9ad9162fbacf1e 1-87
+modules/home/programs/llm/lib/managed-file.nix
+  s_796b0b41a96769::t_d4e05b38ab06fb 94,101
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -18,6 +17,14 @@ checks/managed-file-cache.nix
       "agent_id": {
         "tool": "codex",
         "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
         "model": "gpt-6.1-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
