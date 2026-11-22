@@ -1,14 +1,7 @@
 checks/atuin-nushell.py
-  s_cccc57401e3d8c::t_028faec02a2712 133
-  s_cccc57401e3d8c::t_89b8b90a5a1932 134-138
-  s_cccc57401e3d8c::t_d34270efa47556 120-122
-modules/home/programs/atuin.nix
-  s_cccc57401e3d8c::t_d34270efa47556 52,63-64
+  s_cccc57401e3d8c::t_c91fac86d1eb0e 120-122,132-138
 docs/atuin.md
-  s_cccc57401e3d8c::t_d34270efa47556 15,27
-modules/home/programs/nushell/atuin-prompt.nu
-  s_cccc57401e3d8c::t_d34270efa47556 1
-  s_cccc57401e3d8c::t_028faec02a2712 2,5-6
+  s_cccc57401e3d8c::t_2b65e90b2c385d 15,27
 ---
 {
   "schema_version": "authorship/3.0.0",
