@@ -79,6 +79,8 @@ in
   changes-providers = inputs.changes.packages.${final.stdenv.hostPlatform.system}.extras;
   changes-provider-git-notes =
     inputs.changes.packages.${final.stdenv.hostPlatform.system}.provider-git-notes;
+  changes-provider-local-notes =
+    inputs.changes.packages.${final.stdenv.hostPlatform.system}.provider-local-notes;
   changes-neovim-plugin = inputs.changes.packages.${final.stdenv.hostPlatform.system}.neovim-plugin;
   seshy-cli = inputs.seshy.packages.${final.stdenv.hostPlatform.system}.default;
   traces-cli = tracesPackages.default;

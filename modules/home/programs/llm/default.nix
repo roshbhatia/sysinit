@@ -182,6 +182,7 @@ in
       pkgs.sysinit-utils
       capture
       (import ./runtime/diff { inherit pkgs; })
+      (import ./runtime/workspace { inherit pkgs; })
       notify.script
       notify.agentRefine
       notify.promptScript

@@ -12,6 +12,7 @@ in
     pkgs.diffnav
     (lib.lowPrio pkgs.changes-providers)
     (lib.lowPrio pkgs.changes-provider-git-notes)
+    (lib.lowPrio pkgs.changes-provider-local-notes)
   ];
 
   xdg.configFile = {
@@ -31,5 +32,7 @@ in
       "${pkgs.changes-providers}/share/changes/providers/calldiff/provider.yaml";
     "changes/providers/git-notes/provider.yaml".source =
       "${pkgs.changes-provider-git-notes}/share/changes/providers/git-notes/provider.yaml";
+    "changes/providers/local-notes/provider.yaml".source =
+      "${pkgs.changes-provider-local-notes}/share/changes/providers/local-notes/provider.yaml";
   };
 }

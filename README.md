@@ -46,6 +46,9 @@ and desktop applications in that order.
 [sysinit.wezterm](https://github.com/roshbhatia/sysinit.wezterm) owns the terminal configuration.
 This flake pins both repositories and supplies host settings.
 
+[Agent workspaces](docs/agent-workspaces.md) describes launching a terminal
+agent with a worktree review split and sending review notes to Codex.
+
 ## Validate changes
 
 ```sh

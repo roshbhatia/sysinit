@@ -10,12 +10,15 @@ import ./native.nix { inherit pkgs; } {
     "claude.ts" = ../modules/home/programs/llm/harnesses/claude/output-mod/hooks/register.ts;
     "opencode.ts" = ../modules/home/programs/llm/harnesses/opencode/plugins/sysinit-output.ts;
     "native-output.test.js" = ./native-output.test.js;
+    "agent-workspace.test.js" = ./agent-workspace.test.js;
+    "workspace-codex.ts" = ../modules/home/programs/llm/runtime/workspace/codex.ts;
   };
   commands = [
     [
       "bun"
       "test"
       "./native-output.test.js"
+      "./agent-workspace.test.js"
     ]
     [
       "nu"
