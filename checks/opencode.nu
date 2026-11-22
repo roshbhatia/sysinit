@@ -1,10 +1,17 @@
 use ./lib/carapace.nu
 use ./lib/process.nu [checked-command with-fixture]
+use std/assert
 
 const schema_check = path self opencode-schema.nu
 
 def main [manifest: path] {
     let fixture = open $manifest
+
+    let tui = open --raw $fixture.tui | from json --strict
+
+    assert equal $tui.keybinds."diff.open" '<leader>d'
+
+    assert equal ($tui.diffs | select source single tree) {source: turn, single: true, tree: true}
 
     checked-command $nu.current-exe --no-config-file $schema_check $fixture.schemas $fixture.main $fixture.tui | ignore
 

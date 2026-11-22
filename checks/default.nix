@@ -235,6 +235,12 @@ in
     ];
   };
   opencode = import ./opencode.nix { inherit pkgs; };
+  review-checkpoint = nuCheck {
+    name = "review-checkpoint";
+    script = "review-checkpoint.nu";
+    arguments = [ ../modules/home/programs/git/review-checkpoint.nu ];
+    inputs = [ pkgs.git ];
+  };
   utility-contracts = import ./utility-contracts.nix { inherit pkgs; };
   notification-assets = import ./notification-assets.nix { inherit pkgs; };
   ty = nuCheck {

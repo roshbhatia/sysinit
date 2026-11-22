@@ -19,6 +19,27 @@ was not measured.
 | PR browser | GitHub's Firefox view | The macOS GitHub picker can route back to GitHub for the canonical PR, review, and Actions records. |
 | FileMerge and Vim | `opendiff`, Xcode FileMerge, `vimdiff` | macOS/Xcode comparison tools. Separate from the Sysinit viewers. |
 
+## Review local edits
+
+In OpenCode, press `Ctrl-a`, then `d`, to open the native diff from the
+conversation. It starts on Last turn with a file tree and one
+file's patch. Press `d` inside the viewer to choose a different scope. Use
+`/nvim-diff` to open a separate Neovim review split.
+
+For changes since you last reviewed, mark the worktree after reading it.
+After the next edit, the command writes a Git patch to stdout.
+
+```sh
+review-checkpoint mark
+review-checkpoint diff | hunk patch
+review-checkpoint clear
+```
+
+The checkpoint captures the on-disk versions of tracked files and untracked
+files Git would add. It preserves the staging area and branch. Each worktree
+has one checkpoint, stored as a local Git tree ref. Marking again replaces it.
+Diffing keeps the same baseline until you mark again.
+
 ## Editor tools
 
 | Tool | Role |

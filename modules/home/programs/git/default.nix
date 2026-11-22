@@ -242,7 +242,16 @@ in
     };
   };
 
-  home.packages = [ pkgs.mergiraf ];
+  home.packages = [
+    pkgs.mergiraf
+    (pkgs.writeShellApplication {
+      name = "review-checkpoint";
+      runtimeInputs = [ pkgs.git ];
+      text = ''
+        exec ${pkgs.nushell}/bin/nu --no-config-file ${./review-checkpoint.nu} "$@"
+      '';
+    })
+  ];
 
   programs.git.attributes = [ "* merge=mergiraf" ];
 }

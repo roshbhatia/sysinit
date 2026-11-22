@@ -216,6 +216,7 @@ in
     };
     keybinds = {
       leader = "ctrl+a";
+      "diff.open" = "<leader>d";
     };
     leader.timeout = 2000;
     mouse = true;
@@ -243,10 +244,10 @@ in
       indicators = "status";
     };
     diffs = {
-      source = "branch";
+      source = "turn";
       wrap = "word";
       tree = true;
-      single = false;
+      single = true;
       view = "auto";
     };
     terminal = {
