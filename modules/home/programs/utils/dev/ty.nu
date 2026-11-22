@@ -10,6 +10,7 @@ Usage:
   ty catalog
   ty sessions
   ty panes
+  ty clients
   ty session open <session-id-or-name>
   ty session launch <session-id-or-name>
   ty session switch <session-id-or-name>
@@ -86,20 +87,24 @@ def list-sessions [] {
     }
 }
 
-def list-panes [] {
+def list-mux [command: string, object: string] {
     let raw = (
         try {
-            call wezterm [cli --no-auto-start list --format json]
+            call wezterm [cli --no-auto-start $command --format json]
         } catch {|error|
-            error make {msg: $"list WezTerm panes: ($error.msg)"}
+            error make {msg: $"list WezTerm ($object): ($error.msg)"}
         }
     )
 
     try {
         $raw | from json | default []
     } catch {
-        error make {msg: "decode WezTerm pane list"}
+        error make {msg: $"decode WezTerm ($object) list"}
     }
+}
+
+def list-panes [] {
+    list-mux list panes
 }
 
 def session [args: list<string>] {
@@ -471,6 +476,12 @@ def --wrapped main [...args: string] {
                 emit {
                     version: $version
                     panes: (list-panes)
+                }
+            }
+            "clients" => {
+                emit {
+                    version: $version
+                    clients: (list-mux list-clients clients)
                 }
             }
             "session" => { session ($args | skip 1) }

@@ -66,7 +66,7 @@ def --wrapped mux [...args: string] {
 }
 
 def panes [] {
-    mux list --format json | from json --strict
+    checked ty panes | from json --strict | get panes
 }
 
 def directory [path: path] {
@@ -195,7 +195,7 @@ def socket-path [socket] {
 }
 
 def ensure-client [] {
-    if (mux list-clients --format json | from json --strict | is-empty) {
+    if (checked ty clients | from json --strict | get clients | is-empty) {
         error make {msg: 'No attached WezTerm client.'}
     }
 }

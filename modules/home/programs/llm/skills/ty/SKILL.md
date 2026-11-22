@@ -19,13 +19,14 @@ For example, `nuwez panes | get panes` selects the pane records.
 ```sh
 ty sessions
 ty panes
+ty clients
 ty catalog
 ty sessions | jq '.sessions'
 ty panes | jq '.panes[] | {pane_id, workspace, cwd, title}'
 ty pane read <pane-id>
 ```
 
-`sessions` and `panes` each return a versioned JSON document. `catalog` combines
+`sessions`, `panes`, and `clients` each return a versioned JSON document. `catalog` combines
 both arrays and requires both sources to be available. The catalog includes
 active seshy sessions and panes visible to the local WezTerm mux. Every pane
 operation requires an explicit pane ID. Commands pass `--no-auto-start` to

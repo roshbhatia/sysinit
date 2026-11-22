@@ -1,6 +1,6 @@
 use std/assert
 
-def main [script: path, fixture: path] {
+def main [script: path, fixture: path, ty: path] {
     let script = $script | path expand --strict
 
     let fixture = $fixture | path expand --strict
@@ -9,7 +9,19 @@ def main [script: path, fixture: path] {
 
     let bin = $root | path join bin
 
+    let ty_command = [
+        'exec'
+        ($nu.current-exe | to json --raw)
+        '--no-config-file'
+        ($ty | path expand --strict | to json --raw)
+        '"$@"'
+    ] | str join ' '
+
     mkdir $bin
+
+    $"#!/bin/sh\n($ty_command)\n" | save ($bin | path join ty)
+
+    chmod +x ($bin | path join ty)
 
     for tool in [wezterm nvim] {
         let command = [

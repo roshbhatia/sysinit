@@ -7,8 +7,8 @@ def run-command [arguments: list<string>] {
     ^timeout 8s $program ...($arguments | skip 1) | complete
 }
 
-def --wrapped wez [...arguments: string] {
-    let result = run-command ([wezterm cli --no-auto-start] | append $arguments)
+def command-output [arguments: list<string>] {
+    let result = run-command $arguments
 
     if $result.exit_code != 0 {
         error make {
@@ -17,6 +17,14 @@ def --wrapped wez [...arguments: string] {
     }
 
     $result.stdout | str trim
+}
+
+def --wrapped wez [...arguments: string] {
+    command-output ([wezterm cli --no-auto-start] | append $arguments)
+}
+
+def panes [] {
+    command-output [ty panes] | from json --strict | get panes
 }
 
 def rpc [socket: path, expression: string] {
@@ -97,7 +105,7 @@ def main [
 
     let baseline = if $against != null { review-file ($against | path expand --strict) $file }
 
-    let clients = wez list-clients --format json | from json --strict
+    let clients = command-output [ty clients] | from json --strict | get clients
 
     if ($clients | is-empty) { error make {msg: 'No attached WezTerm client.'} }
 
@@ -119,7 +127,7 @@ def main [
         $resolved.stdout | str trim
     }
 
-    let panes = wez list --format json | from json --strict
+    let panes = panes
 
     let owners = $panes | where {|pane| ($pane.pane_id | into string) == $parent}
 
@@ -211,7 +219,7 @@ def main [
         {}
     }
 
-    let live = wez list --format json | from json --strict | where {|pane| $pane.pane_id == $saved.pane? and $pane.tab_id == $owner.tab_id}
+    let live = panes | where {|pane| $pane.pane_id == $saved.pane? and $pane.tab_id == $owner.tab_id}
 
     if ($live | is-not-empty) and ($socket | path exists) {
         let probe = rpc $socket 'getcwd()'
@@ -328,7 +336,7 @@ def main [
     )
 
     if $background and $active != null {
-        let selection = wez list --format json | from json --strict | where {|item|
+        let selection = panes | where {|item|
             $item.tab_id == $owner.tab_id and $item.is_active? == true
         } | get 0?
 

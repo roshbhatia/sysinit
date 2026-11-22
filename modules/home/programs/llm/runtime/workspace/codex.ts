@@ -6,6 +6,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { join } from "node:path";
+import { reviewRefresh } from "./refresh";
 
 interface Thread {
   id: string;
@@ -144,7 +145,7 @@ async function launch(
   const endpoint = join(proxyDirectory, "codex.sock");
   let threadId = requestedThreadId;
   let requestId: string | number | undefined;
-  let refresh = Promise.resolve();
+  const refresh = reviewRefresh(directory, workspaceCommand, workspaceId);
   const diffs = new Map<string, string>();
   const activeTurn = join(directory, "active-turn.json");
 
@@ -165,36 +166,15 @@ async function launch(
       rmSync(activeTurn, { force: true });
       const diff = diffs.get(id) ?? "";
       diffs.delete(id);
-      refresh = refresh
-        .then(async () => {
-          writeRecord(directory, "last-turn.json", {
-            version: "sysinit.codex-turn/v1",
-            thread_id: threadId,
-            turn_id: id,
-            status,
-            diff,
-          });
-
-          const child = Bun.spawn([workspaceCommand, "refresh", workspaceId], {
-            stdout: "ignore",
-            stderr: "pipe",
-          });
-          const [result, stderr] = await Promise.all([
-            child.exited,
-            child.stderr.text(),
-          ]);
-          if (result !== 0)
-            throw new Error(
-              stderr.trim() || `Diff refresh exited with code ${result}.`,
-            );
-        })
-        .catch((error) => {
-          writeFileSync(
-            join(directory, "refresh.log"),
-            `${new Date().toISOString()} ${error}\n`,
-            { flag: "a", mode: 0o600 },
-          );
+      refresh.enqueue(() => {
+        writeRecord(directory, "last-turn.json", {
+          version: "sysinit.codex-turn/v1",
+          thread_id: threadId,
+          turn_id: id,
+          status,
+          diff,
         });
+      });
     }
   }
 
@@ -301,7 +281,7 @@ async function launch(
       process.on(signal, () => child.kill(signal));
     }
     process.exitCode = await child.exited;
-    await refresh;
+    await refresh.finished();
   } finally {
     server.stop(true);
     rmSync(activeTurn, { force: true });

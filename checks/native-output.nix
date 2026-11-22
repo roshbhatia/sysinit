@@ -13,6 +13,7 @@ import ./native.nix { inherit pkgs; } {
     "agent-workspace.test.js" = ./agent-workspace.test.js;
     "workspace-codex.ts" = ../modules/home/programs/llm/runtime/workspace/codex.ts;
     "workspace-observe.ts" = ../modules/home/programs/llm/runtime/workspace/observe.ts;
+    "refresh.ts" = ../modules/home/programs/llm/runtime/workspace/refresh.ts;
   };
   commands = [
     [
@@ -34,6 +35,7 @@ import ./native.nix { inherit pkgs; } {
       ./agent-workspace.nu
       ../modules/home/programs/llm/runtime/workspace/workspace.nu
       ./fixtures/review-tools.nu
+      ../modules/home/programs/utils/dev/ty.nu
     ]
     [
       "nu"
@@ -41,6 +43,7 @@ import ./native.nix { inherit pkgs; } {
       ./diff-pane.nu
       ../modules/home/programs/llm/runtime/diff/open.nu
       ./fixtures/review-tools.nu
+      ../modules/home/programs/utils/dev/ty.nu
     ]
   ];
 }

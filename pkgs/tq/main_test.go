@@ -409,6 +409,42 @@ func TestNativeKillAndPause(t *testing.T) {
 	}
 }
 
+func TestStatusProjectsWithoutPersisting(t *testing.T) {
+	f := fixtureFor(t)
+	f.must("pueue", "group", "add", "agents")
+	f.must("pueue", "pause", "--group", "agents")
+	a := f.submit("--", "true")
+	path, err := recordPath(filepath.Join(f.root, "attempt records"), a.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	before, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.must("pueue", "stash", strconv.Itoa(*a.PueueID))
+	status := f.queue("status")
+	if !bytes.Equal(status, f.queue("snapshot")) {
+		t.Fatal("status and snapshot disagree")
+	}
+	var records []attempt
+	if err := json.Unmarshal(status, &records); err != nil {
+		t.Fatal(err)
+	}
+	if len(records) != 1 || state(records[0].Result) != "Stashed" {
+		t.Fatalf("status did not project the live job: %s", status)
+	}
+	after, err := os.ReadFile(path)
+	if err != nil || !bytes.Equal(before, after) {
+		t.Fatalf("inspecting the queue rewrote the attempt: %v", err)
+	}
+	f.queue("reconcile")
+	var persisted attempt
+	if err := read(path, &persisted); err != nil || state(persisted.Result) != "Stashed" {
+		t.Fatalf("reconcile did not persist the live job: %v", err)
+	}
+}
+
 func TestRecoverStashedAndRejectReplay(t *testing.T) {
 	f := fixtureFor(t)
 	f.must("pueue", "group", "add", "agents")

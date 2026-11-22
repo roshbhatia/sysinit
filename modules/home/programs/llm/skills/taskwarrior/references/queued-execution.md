@@ -54,12 +54,14 @@ Add `--terminal` before `--` for an attachable WezTerm mux workspace. Queue outp
 the attempt UUID and Pueue job ID; retain both with the Taskwarrior UUID. A
 Taskwarrior session ownership marker remains coordination metadata, not a lock.
 
-Inspect `tq status`, `pueue status`, and `pueue log <job-id>`. Use
+Inspect `tq status`, `pueue status`, and `pueue log <job-id>`.
+`tq status` and `tq snapshot` read the live queue without rewriting attempts.
+Use `tq reconcile` to persist the current results before queue cleanup. Use
 `tq cancel <attempt-uuid>` for cancellation and
 `tq resume <attempt-uuid>` for an interrupted submission. After a completed
 attempt, inspect its result before submitting a new one with `--retry`.
 
-Successful execution sets `review: true` in the attempt record and leaves the
+Successful execution appears as `review: true` in queue output and leaves the
 Taskwarrior task pending. Inspect the actual diff, artifacts, and checks; record
 verified completion through the task's owning workflow. Imported Linear tasks
 still require their authorized Linear completion workflow followed by sync.

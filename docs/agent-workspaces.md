@@ -57,6 +57,9 @@ It works with the agent's normal input interface.
 For terminal placement use `ty` or `nuwez`. For editor operations use
 `nuvim` with the socket returned by `refresh`. For independent review,
 `agent-diff` accepts `--cwd`, `--pane-id`, `--background`, and `--json`.
+OpenCode exposes its native viewer as `/diff` and the Neovim launcher as
+`/nvim-diff`. Both work with a normal OpenCode launch. See the
+[installed review tools](review-tools.md) for worktree and PR readers.
 
 ## Optional Codex App Server integration
 

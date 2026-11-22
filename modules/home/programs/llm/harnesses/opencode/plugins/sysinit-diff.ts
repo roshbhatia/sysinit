@@ -13,7 +13,7 @@ export default {
           title: "Open Neovim diff",
           group: "Sysinit",
           palette: true,
-          slash: { name: "diff" },
+          slash: { name: "nvim-diff" },
           run: async () => {
             const route = ctx.ui.router.current();
             const session =

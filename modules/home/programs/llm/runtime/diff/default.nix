@@ -5,6 +5,7 @@ pkgs.writeShellApplication {
     pkgs.coreutils
     pkgs.flock
     pkgs.git
+    pkgs.sysinit-utils
     pkgs.wezterm
   ];
   text = ''

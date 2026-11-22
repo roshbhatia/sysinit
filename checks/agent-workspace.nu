@@ -1,6 +1,6 @@
 use std/assert
 
-def main [script: path, fixture: path] {
+def main [script: path, fixture: path, ty: path] {
     let script = $script | path expand --strict
 
     let fixture = $fixture | path expand --strict
@@ -8,6 +8,14 @@ def main [script: path, fixture: path] {
     let root = mktemp --directory --tmpdir-path /tmp | path expand --strict
 
     let bin = $root | path join bin
+
+    let ty_command = [
+        'exec'
+        ($nu.current-exe | to json --raw)
+        '--no-config-file'
+        ($ty | path expand --strict | to json --raw)
+        '"$@"'
+    ] | str join ' '
 
     let config = $root | path join config
 
@@ -17,11 +25,13 @@ def main [script: path, fixture: path] {
 
     mkdir $bin ($config | path join sysinit) ($config | path join nushell) $project
 
+    $"#!/bin/sh\n($ty_command)\n" | save ($bin | path join ty)
+
     $"#!/bin/sh\nexec ($nu.current-exe) --no-config-file --stdin ($fixture) wezterm \"\$@\"\n" | save ($bin | path join wezterm)
 
     "#!/bin/sh\nexit 0\n" | save ($bin | path join fake-agent)
 
-    chmod +x ($bin | path join wezterm) ($bin | path join fake-agent)
+    chmod +x ($bin | path join wezterm) ($bin | path join ty) ($bin | path join fake-agent)
 
     [
         {

@@ -37,7 +37,7 @@ func run(args []string) (int, error) {
 	}
 	args = global.Args()
 	if len(args) == 0 {
-		_, e := fmt.Fprintln(os.Stdout, "Usage: tq [--state DIR] submit|status|snapshot|browse|thread|reconcile|cancel|resume\nsubmit [--task UUID] [--thread ID] [--session NAME | --cwd DIR] [--group NAME] [--terminal] [--retry] -- COMMAND [ARGS...]\nbrowse [--thread ID]  Browse attempts, terminals, logs, and linked conversations\nthread UUID           Inspect an attempt's captured conversation")
+		_, e := fmt.Fprintln(os.Stdout, "Usage: tq [--state DIR] submit|status|snapshot|browse|thread|reconcile|cancel|resume\nsubmit [--task UUID] [--thread ID] [--session NAME | --cwd DIR] [--group NAME] [--terminal] [--retry] -- COMMAND [ARGS...]\nstatus, snapshot      Read live attempt status as JSON\nreconcile             Persist live attempt status and print JSON\nbrowse [--thread ID]  Browse attempts, terminals, logs, and linked conversations\nthread UUID           Inspect an attempt's captured conversation")
 		return 0, e
 	}
 	*dir, e = filepath.Abs(*dir)
@@ -46,14 +46,17 @@ func run(args []string) (int, error) {
 	}
 	action := args[0]
 	args = args[1:]
-	if action == "snapshot" {
-		if len(args) != 0 {
-			return 1, errors.New("snapshot accepts no arguments")
+	readOnly := action == "status" || action == "snapshot" || action == "browse" || action == "thread"
+	if readOnly {
+		if (action == "status" || action == "snapshot") && len(args) != 0 {
+			return 1, fmt.Errorf("%s accepts no arguments", action)
 		}
-		if _, err := os.Stat(*dir); os.IsNotExist(err) {
-			return 0, output([]attempt{})
-		} else if err != nil {
-			return 1, err
+		if action == "status" || action == "snapshot" {
+			if _, err := os.Stat(*dir); os.IsNotExist(err) {
+				return 0, output([]attempt{})
+			} else if err != nil {
+				return 1, err
+			}
 		}
 	} else if e = os.MkdirAll(*dir, 0700); e != nil {
 		return 1, e
@@ -100,18 +103,13 @@ func run(args []string) (int, error) {
 		}
 		return execute(a, *dir, false)
 	}
-	var guard *os.File
-	if action != "snapshot" {
-		guard, e = lock(filepath.Join(*dir, "lock"), false)
-		if e != nil {
-			return 1, e
+	if !readOnly {
+		guard, err := lock(filepath.Join(*dir, "lock"), false)
+		if err != nil {
+			return 1, err
 		}
+		defer func() { _ = guard.Close() }()
 	}
-	defer func() {
-		if guard != nil {
-			_ = guard.Close()
-		}
-	}()
 	var snapshot struct {
 		Tasks map[string]job `json:"tasks"`
 	}
@@ -147,7 +145,7 @@ func run(args []string) (int, error) {
 			a.Result = json.RawMessage(`"Missing"`)
 			a.Review = false
 		}
-		if action != "snapshot" {
+		if !readOnly {
 			if e = save(path, a); e != nil {
 				return 1, e
 			}
@@ -156,10 +154,6 @@ func run(args []string) (int, error) {
 	}
 	switch action {
 	case "browse":
-		if e = guard.Close(); e != nil {
-			return 1, e
-		}
-		guard = nil
 		return 0, browse(args, records)
 	case "status", "snapshot", "reconcile":
 		return 0, output(records)

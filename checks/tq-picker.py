@@ -131,7 +131,7 @@ def check(provider, queue):
                 wait(lambda: (root / "socket").exists() and socket.exists())
                 assert json.loads(run(queue, "status")) == []
                 state = Path(env["XDG_STATE_HOME"])
-                assert (state / "tq").is_dir()
+                assert not (state / "tq").exists()
 
                 state = root / "legacy-state"
                 env["XDG_STATE_HOME"] = str(state)

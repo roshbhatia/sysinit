@@ -8,6 +8,7 @@ pkgs.writeShellApplication {
     pkgs.changes-provider-local-notes
     pkgs.coreutils
     pkgs.git
+    pkgs.sysinit-utils
     pkgs.seshy
     pkgs.wezterm
   ];
