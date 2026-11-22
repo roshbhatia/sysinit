@@ -1,12 +1,9 @@
-checks/default.nix
-  s_796b0b41a96769::t_6080910e73fa8b 68
-  s_796b0b41a96769::t_9baf6c76f589f5 69
 hack/github-release-with-assets.nu
-  s_796b0b41a96769::t_6080910e73fa8b 1-23
-nvfetcher.toml
-  s_796b0b41a96769::t_6080910e73fa8b 143,148
+  s_a4a3eea4720821::t_4400a7cc58c7fd 1-23
 hack/test-github-release-with-assets.nu
-  s_796b0b41a96769::t_6080910e73fa8b 1-46
+  s_a4a3eea4720821::t_72e596af17c5c9 1-46
+checks/default.nix
+  s_a4a3eea4720821::t_4ef40debd54f46 68-69
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -14,10 +11,10 @@ hack/test-github-release-with-assets.nu
   "base_commit_sha": "a73cb95c159e4f31af7bb16000f6fb73ce29b55d",
   "prompts": {},
   "sessions": {
-    "s_796b0b41a96769": {
+    "s_a4a3eea4720821": {
       "agent_id": {
         "tool": "codex",
-        "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
         "model": "gpt-6.1-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
