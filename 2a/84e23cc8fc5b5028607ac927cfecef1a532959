@@ -1,11 +1,11 @@
-modules/home/programs/nushell/functions.nu
-  s_b6baf4162ed3c9::t_23c9ab009fb6b8 264
-checks/default.nix
-  s_b6baf4162ed3c9::t_a765dd5793b091 324-329
 checks/nushell-wezterm.py
-  s_b6baf4162ed3c9::t_25e9bdedbc509a 14-63,78
+  s_b6baf4162ed3c9::t_a37a1f15bc6907 1-101
+modules/home/programs/nushell/functions.nu
+  s_a4a3eea4720821::t_29cee92ea55724 264-283
+checks/default.nix
+  s_a4a3eea4720821::t_bde7bd70a71e1b 321-344
 modules/home/programs/nushell/default.nix
-  s_b6baf4162ed3c9::t_21b73111e148ce 188-190
+  s_a4a3eea4720821::t_b682f034ae9601 188-190
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -13,6 +13,14 @@ modules/home/programs/nushell/default.nix
   "base_commit_sha": "2a84e23cc8fc5b5028607ac927cfecef1a532959",
   "prompts": {},
   "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
     "s_b6baf4162ed3c9": {
       "agent_id": {
         "tool": "codex",
