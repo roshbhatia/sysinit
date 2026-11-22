@@ -1,5 +1,5 @@
 flake.lock
-  s_6a59011b119c6f::t_120a8261158bf8 1745-1746,1749,2077-2078,2081
+  s_a4a3eea4720821::t_a3cb2c406d269a 1745-1746,1749,2077-2078,2081
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -7,11 +7,11 @@ flake.lock
   "base_commit_sha": "53257a587502ca7900dac79f50c8d41a23863c9d",
   "prompts": {},
   "sessions": {
-    "s_6a59011b119c6f": {
+    "s_a4a3eea4720821": {
       "agent_id": {
         "tool": "codex",
-        "id": "01a1a32a-8f2d-7b71-a53f-f90208b124f1",
-        "model": "gpt-6.1-sol"
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
