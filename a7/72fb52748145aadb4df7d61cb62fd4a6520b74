@@ -1,29 +1,15 @@
-modules/home/programs/llm/skills/local-workflows/SKILL.md
-  s_cccc57401e3d8c::t_64dcb568afc730 3
-  s_cccc57401e3d8c::t_5177c0d0b0dad7 51-67
-modules/home/programs/default.nix
-  s_cccc57401e3d8c::t_5177c0d0b0dad7 14
-docs/atuin.md
-  s_cccc57401e3d8c::t_1e6781a6dbfcd2 1-79,85-111
-  s_cccc57401e3d8c::t_0c94ee40fbf40f 80-84
-modules/home/programs/llm/mcp-servers.nix
-  s_cccc57401e3d8c::t_5177c0d0b0dad7 11,13,15-17
-  s_cccc57401e3d8c::t_05233440a450e7 2,12,14
 checks/atuin.nix
-  s_cccc57401e3d8c::t_81834a46b3db85 33
-  s_cccc57401e3d8c::t_50cf0ce4dc8eb5 8-19,34-35,41-45,51,55-57
-  s_cccc57401e3d8c::t_d6cfee9ef72e74 1-7,20-32,36-40,58-59
-  s_cccc57401e3d8c::t_4cbcae1e1136b5 46-50
-  s_cccc57401e3d8c::t_eb4efc08469ba5 52-54
+  s_a4a3eea4720821::t_cf06b52fa74622 1-59
 checks/atuin.py
-  s_cccc57401e3d8c::t_d6cfee9ef72e74 1-89,92-100,102,105-111,114-119,122-130,132,135-150,152-174,176-194,197-208,210-215,218-228
-  s_cccc57401e3d8c::t_64dcb568afc730 216
-modules/home/programs/atuin.nix
-  s_cccc57401e3d8c::t_5177c0d0b0dad7 1-15,51,64-66,71-74
-  s_cccc57401e3d8c::t_7b2c3626ff3102 16-17,52-63,67-70
-  s_cccc57401e3d8c::t_e452a995612302 18-50
+  s_cccc57401e3d8c::t_0dc9a445059fae 1-228
+docs/atuin.md
+  s_cccc57401e3d8c::t_fe5f634acb8f68 1-111
+modules/home/programs/llm/mcp-servers.nix
+  s_4541d03bc240df::t_62d14e48c43ac5 2,11-17
+modules/home/programs/llm/skills/local-workflows/SKILL.md
+  s_a4a3eea4720821::t_a53be72c67d193 3,51-67
 checks/default.nix
-  s_cccc57401e3d8c::t_700af6b9324ae5 186-189
+  s_a4a3eea4720821::t_568cf7a91aa940 186-189
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -31,6 +17,22 @@ checks/default.nix
   "base_commit_sha": "a772fb52748145aadb4df7d61cb62fd4a6520b74",
   "prompts": {},
   "sessions": {
+    "s_4541d03bc240df": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1bd09-f672-7982-8a4f-e1e208a96834",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
     "s_cccc57401e3d8c": {
       "agent_id": {
         "tool": "codex",
