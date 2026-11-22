@@ -46,7 +46,16 @@ func wezterm(args ...string) *exec.Cmd {
 		home, _ := os.UserHomeDir()
 		socket = filepath.Join(home, ".local", "state", "wezterm", "mux.sock")
 	}
-	c.Env = append(envWithout("WEZTERM_PANE"), "WEZTERM_UNIX_SOCKET="+socket)
+	// WezTerm serializes the CLI's environment when spawning a command.
+	c.Env = []string{"WEZTERM_UNIX_SOCKET=" + socket}
+	for _, key := range []string{
+		"HOME", "USER", "LOGNAME", "PATH", "SHELL", "TMPDIR", "LANG", "LC_ALL", "LC_CTYPE",
+		"XDG_CONFIG_HOME", "XDG_DATA_HOME", "XDG_RUNTIME_DIR", "XDG_STATE_HOME", "WEZTERM_CONFIG_FILE",
+	} {
+		if value, ok := os.LookupEnv(key); ok {
+			c.Env = append(c.Env, key+"="+value)
+		}
+	}
 	return c
 }
 
@@ -108,20 +117,6 @@ func ttyForeground(f *os.File, pid int) error {
 }
 
 func execute(a attempt, dir string, terminal bool) (int, error) {
-	if terminal {
-		// A mux pane starts with the server's environment, not the submitter's.
-		var environment []string
-		if e := read(filepath.Join(dir, a.ID+".environment"), &environment); e != nil {
-			return 1, e
-		}
-		os.Clearenv()
-		for _, entry := range environment {
-			key, value, _ := strings.Cut(entry, "=")
-			if e := os.Setenv(key, value); e != nil {
-				return 1, e
-			}
-		}
-	}
 	for k, v := range a.Env {
 		if e := os.Setenv(k, v); e != nil {
 			return 1, e
@@ -252,10 +247,6 @@ func terminalRun(a attempt, dir string) (int, error) {
 	}
 	self, e := os.Executable()
 	if e != nil {
-		return 1, e
-	}
-	environment := envWithout("CODEX_THREAD_ID", "CLAUDECODE", "WEZTERM_PANE")
-	if e = save(filepath.Join(dir, a.ID+".environment"), environment); e != nil {
 		return 1, e
 	}
 	spawn := wezterm("spawn", "--new-window", "--workspace", a.Terminal, "--cwd", a.Cwd, "--", self, "--state", dir, "terminal-child", a.ID)

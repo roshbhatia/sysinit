@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"cmp"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -26,11 +28,13 @@ type task struct {
 }
 
 type attempt struct {
-	ID      string          `json:"id"`
-	Task    string          `json:"task"`
-	PueueID *int            `json:"pueue_id,omitempty"`
-	Result  json.RawMessage `json:"result,omitempty"`
-	Review  bool            `json:"review"`
+	ID        string          `json:"id"`
+	Task      string          `json:"task"`
+	Sequence  uint64          `json:"sequence,omitempty"`
+	CreatedAt time.Time       `json:"created_at,omitzero"`
+	PueueID   *int            `json:"pueue_id,omitempty"`
+	Result    json.RawMessage `json:"result,omitempty"`
+	Review    bool            `json:"review"`
 }
 
 type workspace struct {
@@ -70,15 +74,34 @@ func projectBoard(tasks, blocked []task, attempts []attempt, workspaces []worksp
 	for _, t := range blocked {
 		blockedByDependency[t.UUID] = true
 	}
-	latest := map[string]*attempt{}
+	type selection struct {
+		current *attempt
+		count   int
+		undated bool
+		tied    bool
+	}
+	latest := map[string]selection{}
 	for _, a := range attempts {
 		if a.Task == "" {
 			continue
 		}
-		previous := latest[a.Task]
-		if previous == nil || a.PueueID != nil && (previous.PueueID == nil || *a.PueueID > *previous.PueueID) {
-			latest[a.Task] = &a
+		selected := latest[a.Task]
+		selected.count++
+		selected.undated = selected.undated || (a.Sequence == 0 && a.CreatedAt.IsZero())
+		order := 1
+		if previous := selected.current; previous != nil {
+			order = cmp.Compare(a.Sequence, previous.Sequence)
+			if a.Sequence == 0 && previous.Sequence == 0 {
+				order = a.CreatedAt.Compare(previous.CreatedAt)
+			}
 		}
+		if order > 0 {
+			selected.current = &a
+			selected.tied = false
+		} else if order == 0 {
+			selected.tied = true
+		}
+		latest[a.Task] = selected
 	}
 	byTask := map[string][]workspace{}
 	for _, w := range workspaces {
@@ -88,7 +111,12 @@ func projectBoard(tasks, blocked []task, attempts []attempt, workspaces []worksp
 		if t.Kind == "idea" || t.Kind == "note" || t.LinearAssigned == "no" {
 			continue
 		}
-		c := card{Task: t, Attempt: latest[t.UUID], Workspaces: byTask[t.UUID]}
+		selected := latest[t.UUID]
+		c := card{Task: t, Attempt: selected.current, Workspaces: byTask[t.UUID]}
+		if selected.tied || (selected.count > 1 && selected.undated && selected.current.Sequence == 0) {
+			c.Attempt = nil
+			b.Errors = append(b.Errors, "Queue: unable to determine latest attempt for task "+t.UUID)
+		}
 		index := 0
 		switch {
 		case t.Status == "waiting" || blockedByDependency[t.UUID] || slices.Contains(t.Tags, "blocked"):
@@ -118,23 +146,27 @@ func projectBoard(tasks, blocked []task, attempts []attempt, workspaces []worksp
 
 type filters struct {
 	Context, Repo, Project string
-	All                    bool
+	All, Workspaces        bool
 	Terms                  []string
 }
 
-func runCommand(name string, args ...string) ([]byte, error) {
+func runCommand(name string, args ...string) ([]byte, string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
 	defer cancel()
-	out, err := exec.CommandContext(ctx, name, args...).Output()
-	if e, ok := err.(*exec.ExitError); ok && len(e.Stderr) > 0 {
-		return nil, fmt.Errorf("%s: %s", name, strings.TrimSpace(string(e.Stderr)))
+	var stderr bytes.Buffer
+	cmd := exec.CommandContext(ctx, name, args...)
+	cmd.Stderr = &stderr
+	out, err := cmd.Output()
+	diagnostics := strings.TrimSpace(stderr.String())
+	if err != nil && diagnostics != "" {
+		return nil, "", fmt.Errorf("%s: %s: %w", name, diagnostics, err)
 	}
-	return out, err
+	return out, diagnostics, err
 }
 
 func readJSON[T any](name string, args ...string) (T, error) {
 	var result T
-	out, err := runCommand(name, args...)
+	out, _, err := runCommand(name, args...)
 	if err == nil {
 		err = json.Unmarshal(out, &result)
 	}
@@ -153,7 +185,7 @@ func (f filters) collect() (board, error) {
 	var terms []string
 	repo := f.Repo
 	if repo == "" && f.Project == "" && !f.All && len(f.Terms) == 0 {
-		if root, err := runCommand("git", "rev-parse", "--show-toplevel"); err == nil {
+		if root, _, err := runCommand("git", "rev-parse", "--show-toplevel"); err == nil {
 			repo = strings.TrimSpace(string(root))
 		}
 	}
@@ -184,13 +216,24 @@ func (f filters) collect() (board, error) {
 		return board{}, err
 	}
 	attempts, queueErr := readJSON[[]attempt]("tq", "snapshot")
-	workspaces, workspaceErr := readJSON[[]workspace]("agent-workspace", "list")
+	var workspaces []workspace
+	var diagnostics string
+	var workspaceErr error
+	if f.Workspaces {
+		var workspaceJSON []byte
+		workspaceJSON, diagnostics, workspaceErr = runCommand("agent-workspace", "list")
+		if workspaceErr == nil {
+			workspaceErr = json.Unmarshal(workspaceJSON, &workspaces)
+		}
+	}
 	result := projectBoard(tasks, blocked, attempts, workspaces, scope)
 	if queueErr != nil {
 		result.Errors = append(result.Errors, "Queue: "+queueErr.Error())
 	}
 	if workspaceErr != nil {
 		result.Errors = append(result.Errors, "Workspaces: "+workspaceErr.Error())
+	} else if diagnostics != "" {
+		result.Errors = append(result.Errors, "Workspaces: "+diagnostics)
 	}
 	return result, nil
 }

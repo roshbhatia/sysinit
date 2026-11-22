@@ -76,7 +76,7 @@ func (m model) mutate(id string, args ...string) (tea.Model, tea.Cmd) {
 	m.busy = true
 	command := append(append(m.filters.taskArgs(), "rc.confirmation:no", id), args...)
 	return m, func() tea.Msg {
-		_, err := runCommand("taskwarrior", command...)
+		_, _, err := runCommand("taskwarrior", command...)
 		return acted{err}
 	}
 }
@@ -299,6 +299,7 @@ func main() {
 	flag.StringVar(&selected.Project, "project", "", "Taskwarrior project")
 	flag.StringVar(&selected.Repo, "repo", "", "Taskwarrior repo field")
 	flag.BoolVar(&selected.All, "all", false, "Use the context without inferring the current repository")
+	flag.BoolVar(&selected.Workspaces, "workspaces", false, "Include links from agent-workspace")
 	output := flag.Bool("json", false, "Write the board as JSON")
 	flag.Parse()
 	selected.Terms = flag.Args()

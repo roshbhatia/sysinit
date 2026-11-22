@@ -39,6 +39,9 @@ func browse(args []string, records []attempt) error {
 		if active(left) != active(right) {
 			return active(left)
 		}
+		if left.Sequence != right.Sequence {
+			return left.Sequence > right.Sequence
+		}
 		leftID, rightID := -1, -1
 		if left.PueueID != nil {
 			leftID = *left.PueueID

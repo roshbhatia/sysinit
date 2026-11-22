@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 	"syscall"
+	"time"
 )
 
 type attempt struct {
@@ -21,6 +22,8 @@ type attempt struct {
 	Thread    string            `json:"thread,omitempty"`
 	Group     string            `json:"group"`
 	Terminal  string            `json:"terminal,omitempty"`
+	Sequence  uint64            `json:"sequence,omitempty"`
+	CreatedAt time.Time         `json:"created_at,omitzero"`
 	PueueID   *int              `json:"pueue_id,omitempty"`
 	Result    json.RawMessage   `json:"result"`
 	Review    bool              `json:"review"`
@@ -28,9 +31,10 @@ type attempt struct {
 }
 
 type job struct {
-	ID     int             `json:"id"`
-	Label  string          `json:"label"`
-	Status json.RawMessage `json:"status"`
+	ID        int             `json:"id"`
+	Label     string          `json:"label"`
+	Status    json.RawMessage `json:"status"`
+	CreatedAt time.Time       `json:"created_at"`
 }
 
 const labelPrefix = "tq:"

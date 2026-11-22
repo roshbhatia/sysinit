@@ -51,8 +51,12 @@ the Threads picker's **Queue attempts** action opens this view. Use
 `tq thread <attempt-uuid>` to inspect a linked conversation directly.
 
 Add `--terminal` before `--` for an attachable WezTerm mux workspace. Queue output includes
-the attempt UUID and Pueue job ID; retain both with the Taskwarrior UUID. A
-Taskwarrior session ownership marker remains coordination metadata, not a lock.
+the attempt UUID and Pueue job ID. Retain both with the Taskwarrior UUID. The
+attempt's `sequence` records submission order independently of its Pueue job
+ID. The terminal launch passes only the environment needed to reach and
+start the mux pane. The child applies the attempt's saved launch settings,
+including its `PATH` and Taskwarrior and Pueue configuration paths.
+A Taskwarrior session ownership marker records coordination.
 
 Inspect `tq status`, `pueue status`, and `pueue log <job-id>`.
 `tq status` and `tq snapshot` read the live queue without rewriting attempts.

@@ -10,6 +10,18 @@ import (
 	"strconv"
 )
 
+const usage = `Usage: tq [--state DIR] COMMAND [ARGS...]
+
+  submit [OPTIONS] -- COMMAND [ARGS...]  Queue a command. See tq submit --help.
+  status, snapshot                    Read attempts and live status as JSON.
+  browse [--thread ID]                 Browse attempts, terminals, and logs.
+  thread UUID                          Show an attempt's captured conversation.
+  reconcile                            Save live status to the attempt records.
+  cancel UUID                          Cancel a queued or running attempt.
+  resume UUID                          Resume an attempt that has not started.
+
+Use Taskwarrior UUIDs with submit --task and attempt UUIDs with thread, cancel, and resume.`
+
 func main() {
 	code, e := run(os.Args[1:])
 	if e != nil {
@@ -32,25 +44,53 @@ func run(args []string) (int, error) {
 	}
 	global := flag.NewFlagSet("tq", flag.ContinueOnError)
 	dir := global.String("state", defaultStateDir(base), "Execution record directory")
+	var usageErr error
+	global.Usage = func() { _, usageErr = fmt.Fprintln(os.Stdout, usage) }
 	if e = global.Parse(args); e != nil {
+		if errors.Is(e, flag.ErrHelp) {
+			return 0, usageErr
+		}
 		return 1, e
 	}
 	args = global.Args()
-	if len(args) == 0 {
-		_, e := fmt.Fprintln(os.Stdout, "Usage: tq [--state DIR] submit|status|snapshot|browse|thread|reconcile|cancel|resume\nsubmit [--task UUID] [--thread ID] [--session NAME | --cwd DIR] [--group NAME] [--terminal] [--retry] -- COMMAND [ARGS...]\nstatus, snapshot      Read live attempt status as JSON\nreconcile             Persist live attempt status and print JSON\nbrowse [--thread ID]  Browse attempts, terminals, logs, and linked conversations\nthread UUID           Inspect an attempt's captured conversation")
-		return 0, e
+	if len(args) == 0 || (len(args) == 1 && args[0] == "help") {
+		global.Usage()
+		return 0, usageErr
 	}
+	action := args[0]
+	args = args[1:]
 	*dir, e = filepath.Abs(*dir)
 	if e != nil {
 		return 1, e
 	}
-	action := args[0]
-	args = args[1:]
-	readOnly := action == "status" || action == "snapshot" || action == "browse" || action == "thread"
-	if readOnly {
-		if (action == "status" || action == "snapshot") && len(args) != 0 {
+	var attemptPath string
+	var request submission
+	switch action {
+	case "submit":
+		request, e = parseSubmission(args)
+		if errors.Is(e, flag.ErrHelp) {
+			return 0, nil
+		}
+		if e != nil {
+			return 1, e
+		}
+	case "status", "snapshot", "reconcile":
+		if len(args) != 0 {
 			return 1, fmt.Errorf("%s accepts no arguments", action)
 		}
+	case "thread", "cancel", "resume", "run", "terminal-child":
+		if len(args) != 1 {
+			return 1, errors.New("one attempt UUID required")
+		}
+		if attemptPath, e = recordPath(*dir, args[0]); e != nil {
+			return 1, e
+		}
+	case "browse":
+	default:
+		return 1, fmt.Errorf("unknown action %q; see tq --help", action)
+	}
+	readOnly := action == "status" || action == "snapshot" || action == "browse" || action == "thread"
+	if readOnly {
 		if action == "status" || action == "snapshot" {
 			if _, err := os.Stat(*dir); os.IsNotExist(err) {
 				return 0, output([]attempt{})
@@ -62,16 +102,9 @@ func run(args []string) (int, error) {
 		return 1, e
 	}
 	if action == "thread" {
-		if len(args) != 1 {
-			return 1, errors.New("one attempt UUID required")
-		}
-		path, err := recordPath(*dir, args[0])
-		if err != nil {
-			return 1, err
-		}
 		var a attempt
-		if err = read(path, &a); err != nil {
-			return 1, err
+		if e = read(attemptPath, &a); e != nil {
+			return 1, e
 		}
 		if a.Thread == "" {
 			return 1, errors.New("attempt has no linked conversation; submit with --thread ID")
@@ -79,15 +112,8 @@ func run(args []string) (int, error) {
 		return 0, viewCommand("atuin", "threads", "show", a.Thread)
 	}
 	if action == "run" || action == "terminal-child" {
-		if len(args) != 1 {
-			return 1, errors.New("one attempt UUID required")
-		}
-		path, e := recordPath(*dir, args[0])
-		if e != nil {
-			return 1, e
-		}
 		var a attempt
-		if e = read(path, &a); e != nil {
+		if e = read(attemptPath, &a); e != nil {
 			return 1, e
 		}
 		if action == "terminal-child" {
@@ -138,6 +164,9 @@ func run(args []string) (int, error) {
 			return 1, e
 		}
 		if j, ok := jobs[a.ID]; ok {
+			if a.Sequence == 0 && a.CreatedAt.IsZero() {
+				a.CreatedAt = j.CreatedAt
+			}
 			a.PueueID = &j.ID
 			a.Result = j.Status
 			a.Review = success(j.Status)
@@ -158,15 +187,8 @@ func run(args []string) (int, error) {
 	case "status", "snapshot", "reconcile":
 		return 0, output(records)
 	case "cancel", "resume":
-		if len(args) != 1 {
-			return 1, errors.New("one attempt UUID required")
-		}
-		path, e := recordPath(*dir, args[0])
-		if e != nil {
-			return 1, e
-		}
 		var a attempt
-		if e = read(path, &a); e != nil {
+		if e = read(attemptPath, &a); e != nil {
 			return 1, e
 		}
 		j, found := jobs[a.ID]
@@ -214,9 +236,9 @@ func run(args []string) (int, error) {
 			return 1, e
 		}
 		a.Cancelled = true
-		return 0, save(path, a)
+		return 0, save(attemptPath, a)
 	case "submit":
-		return submit(args, *dir, records)
+		return submit(request, *dir, records)
 	default:
 		return 1, fmt.Errorf("unknown action %q", action)
 	}

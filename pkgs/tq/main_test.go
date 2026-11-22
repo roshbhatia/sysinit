@@ -16,6 +16,38 @@ import (
 
 var testBinary string
 
+func TestHelpAndInvalidCommandsDoNotOpenQueue(t *testing.T) {
+	if testBinary == "" {
+		t.Skip("set TQ_TESTS=1 to build tq")
+	}
+	dir := filepath.Join(t.TempDir(), "attempts")
+	for _, tt := range []struct {
+		args []string
+		want string
+		ok   bool
+	}{
+		{[]string{"--help"}, "tq submit --help", true},
+		{[]string{"help"}, "tq submit --help", true},
+		{[]string{"submit", "--help"}, "tq submit [OPTIONS]", true},
+		{[]string{"submit"}, "pass an explicit command", false},
+		{[]string{"submit", "--session", "work", "--cwd", ".", "--", "echo"}, "choose --session or --cwd", false},
+		{[]string{"reconcile", "extra"}, "reconcile accepts no arguments", false},
+		{[]string{"invalid"}, "unknown action", false},
+	} {
+		t.Run(strings.Join(tt.args, " "), func(t *testing.T) {
+			cmd := exec.Command(testBinary, append([]string{"--state", dir}, tt.args...)...)
+			cmd.Env = append(os.Environ(), "PATH="+t.TempDir())
+			out, err := cmd.CombinedOutput()
+			if (err == nil) != tt.ok || !strings.Contains(string(out), tt.want) {
+				t.Fatalf("command returned %v: %s", err, out)
+			}
+			if _, err := os.Stat(dir); !os.IsNotExist(err) {
+				t.Fatalf("command touched attempt storage: %v", err)
+			}
+		})
+	}
+}
+
 func TestMain(m *testing.M) {
 	if os.Getenv("TQ_TESTS") == "1" {
 		root, e := os.MkdirTemp("", "queue-test-bin-")
@@ -303,6 +335,32 @@ func TestSuccessAndExplicitRetry(t *testing.T) {
 	if b.ID == a.ID || f.finished(b).Review {
 		t.Fatal("retry did not preserve distinct failure")
 	}
+	if a.Sequence == 0 || b.Sequence <= a.Sequence || f.finished(b).Sequence != b.Sequence {
+		t.Fatal("retry did not preserve durable attempt order")
+	}
+}
+
+func TestLegacyAttemptUsesMatchingJobCreationTime(t *testing.T) {
+	f := fixtureFor(t)
+	a := f.finished(f.submit("--", executable(t, "true")))
+	a.Sequence = 0
+	path := filepath.Join(f.root, "attempt records", a.ID+".json")
+	if err := save(path, a); err != nil {
+		t.Fatal(err)
+	}
+	dated := f.finished(a)
+	if dated.CreatedAt.IsZero() {
+		t.Fatal("snapshot did not recover the legacy attempt's creation time")
+	}
+	var stored attempt
+	if err := read(path, &stored); err != nil || !stored.CreatedAt.IsZero() {
+		t.Fatalf("snapshot changed the record: %v, creation time %v", err, stored.CreatedAt)
+	}
+	f.queue("reconcile")
+	f.must("pueue", "remove", strconv.Itoa(*a.PueueID))
+	if reconciled := f.finished(a); !reconciled.CreatedAt.Equal(dated.CreatedAt) {
+		t.Fatalf("reconciled creation time changed: %v", reconciled.CreatedAt)
+	}
 }
 
 func TestBlockedAndDependencies(t *testing.T) {
@@ -341,11 +399,24 @@ func TestLiteralArgumentsAndMissingDirectory(t *testing.T) {
 func TestTerminalInputAndFailure(t *testing.T) {
 	f := fixtureFor(t)
 	ready := filepath.Join(f.root, "input-ready")
-	a := f.submit("--terminal", "--", executable(t, "bash"), "-c", `printf ready > "$1"; read -r value </dev/tty; test "$value" = hello || exit 8; exit 7`, "bash", ready)
+	f.env = append(f.env, "TQ_TEST_QUEUE_CANARY=queue-only", "TASKRC="+filepath.Join(f.root, "custom-taskrc"))
+	a := f.submit("--terminal", "--", executable(t, "bash"), "-c", `
+		if test -n "${TQ_TEST_QUEUE_CANARY+x}"; then
+			printf 'queue-only variable reached the terminal' > "$1"
+		elif test "$TASKRC" != "$2"; then
+			printf 'terminal did not receive the attempt override' > "$1"
+		else
+			printf ready > "$1"
+		fi
+		read -r value </dev/tty; test "$value" = hello || exit 8; exit 7
+	`, "bash", ready, filepath.Join(f.root, "custom-taskrc"))
 	waitFor(t, func() bool {
 		_, err := os.Stat(ready)
 		return err == nil
 	})
+	if value, err := os.ReadFile(ready); err != nil || string(value) != "ready" {
+		t.Fatalf("terminal environment: %s (%v)", value, err)
+	}
 	pane, _ := f.terminalPane(a)
 	f.wezterm("send-text", "--pane-id", pane, "--no-paste", "hello\r")
 	r := f.finished(a)
@@ -354,6 +425,26 @@ func TestTerminalInputAndFailure(t *testing.T) {
 	}
 	if !f.terminalExists(a) {
 		t.Fatal("finished session disappeared")
+	}
+}
+
+func TestFailedTerminalSpawnDoesNotWriteEnvironment(t *testing.T) {
+	f := fixtureFor(t)
+	dir := filepath.Join(f.root, "attempt records")
+	if err := os.Mkdir(dir, 0700); err != nil {
+		t.Fatal(err)
+	}
+	a := attempt{ID: uuid(), Cwd: f.root, Argv: []string{"true"}, Terminal: "failure"}
+	if err := save(filepath.Join(dir, a.ID+".json"), a); err != nil {
+		t.Fatal(err)
+	}
+	f.env = append(f.env, "TQ_WEZTERM_SOCKET="+filepath.Join(f.root, "no-server.sock"), "TQ_TEST_QUEUE_CANARY=fixture-only")
+	out, err := f.command(testBinary, "--state", dir, "run", a.ID)
+	if err == nil || !bytes.Contains(out, []byte("terminal spawn failed")) {
+		t.Fatalf("expected spawn failure: %v\n%s", err, out)
+	}
+	if paths, err := filepath.Glob(filepath.Join(dir, "*.environment*")); err != nil || len(paths) != 0 {
+		t.Fatalf("terminal spawn left an environment file: %v, %v", paths, err)
 	}
 }
 

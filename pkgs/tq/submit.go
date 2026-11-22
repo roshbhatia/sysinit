@@ -4,30 +4,55 @@ import (
 	"encoding/json"
 	"errors"
 	"flag"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 )
 
-func submit(args []string, dir string, records []attempt) (int, error) {
-	var e error
+type submission struct {
+	taskID   string
+	session  string
+	thread   string
+	cwd      string
+	group    string
+	terminal bool
+	retry    bool
+	argv     []string
+}
+
+func parseSubmission(args []string) (submission, error) {
+	var plan submission
 	f := flag.NewFlagSet("submit", flag.ContinueOnError)
-	taskID := f.String("task", "", "Full Taskwarrior UUID")
-	session := f.String("session", "", "Existing seshy session")
-	thread := f.String("thread", "", "Exact Atuin captured-thread ID")
-	cwd := f.String("cwd", "", "Working directory")
-	group := f.String("group", "agents", "Pueue group")
-	terminal := f.Bool("terminal", false, "Attachable WezTerm mux terminal")
-	retry := f.Bool("retry", false, "New attempt after completion")
-	if e = f.Parse(args); e != nil {
-		return 1, e
+	f.Usage = func() {
+		if _, err := fmt.Fprintln(f.Output(), "Usage: tq submit [OPTIONS] -- COMMAND [ARGS...]"); err == nil {
+			f.PrintDefaults()
+		}
 	}
-	argv := f.Args()
-	if len(argv) == 0 {
-		return 1, errors.New("pass an explicit command after --")
+	f.StringVar(&plan.taskID, "task", "", "Full Taskwarrior UUID")
+	f.StringVar(&plan.session, "session", "", "Existing seshy session")
+	f.StringVar(&plan.thread, "thread", "", "Exact Atuin captured-thread ID")
+	f.StringVar(&plan.cwd, "cwd", "", "Working directory")
+	f.StringVar(&plan.group, "group", "agents", "Pueue group")
+	f.BoolVar(&plan.terminal, "terminal", false, "Attachable WezTerm mux terminal")
+	f.BoolVar(&plan.retry, "retry", false, "New attempt after completion")
+	if err := f.Parse(args); err != nil {
+		return plan, err
 	}
-	if *thread != "" {
+	plan.argv = f.Args()
+	if len(plan.argv) == 0 {
+		return plan, errors.New("pass an explicit command after --")
+	}
+	if plan.session != "" && plan.cwd != "" {
+		return plan, errors.New("choose --session or --cwd")
+	}
+	return plan, nil
+}
+
+func submit(plan submission, dir string, records []attempt) (int, error) {
+	var e error
+	if plan.thread != "" {
 		var captured []struct {
 			ID string `json:"atuin_id"`
 		}
@@ -36,42 +61,40 @@ func submit(args []string, dir string, records []attempt) (int, error) {
 		}
 		found := false
 		for _, entry := range captured {
-			found = found || entry.ID == *thread
+			found = found || entry.ID == plan.thread
 		}
 		if !found {
 			return 1, errors.New("use an exact captured-thread ID from threads list --style json")
 		}
 	}
-	*taskID = strings.ToLower(*taskID)
+	taskID := strings.ToLower(plan.taskID)
+	cwd := plan.cwd
 	var t task
-	if *taskID != "" {
-		t, e = validateTask(*taskID)
+	if taskID != "" {
+		t, e = validateTask(taskID)
 		if e != nil {
 			return 1, e
 		}
-		if t.Repo == "" && *cwd == "" && *session == "" {
+		if t.Repo == "" && cwd == "" && plan.session == "" {
 			return 1, errors.New("task has no repo; specify --cwd or --session")
 		}
 	}
 	env := map[string]string{}
-	if *session != "" {
-		if *cwd != "" {
-			return 1, errors.New("choose --session or --cwd")
-		}
-		var plan struct {
+	if plan.session != "" {
+		var session struct {
 			Version string            `json:"version"`
 			Cwd     string            `json:"cwd"`
 			Command []string          `json:"command"`
 			Env     map[string]string `json:"environment"`
 		}
-		if e = jsonCall(&plan, "sy", "open", *session, "--format", "json"); e != nil {
+		if e = jsonCall(&session, "sy", "open", plan.session, "--format", "json"); e != nil {
 			return 1, e
 		}
-		if plan.Version != "seshy.open/v1" || len(plan.Command) != 0 {
+		if session.Version != "seshy.open/v1" || len(session.Command) != 0 {
 			return 1, errors.New("unsupported seshy launch plan")
 		}
-		*cwd = plan.Cwd
-		env = plan.Env
+		cwd = session.Cwd
+		env = session.Env
 	}
 	if env == nil {
 		env = map[string]string{}
@@ -83,34 +106,36 @@ func submit(args []string, dir string, records []attempt) (int, error) {
 			}
 		}
 	}
-	if *cwd == "" {
-		*cwd = t.Repo
+	if cwd == "" {
+		cwd = t.Repo
 	}
-	if *cwd == "" {
-		*cwd, e = os.Getwd()
+	if cwd == "" {
+		cwd, e = os.Getwd()
 		if e != nil {
 			return 1, e
 		}
 	}
-	*cwd, e = filepath.Abs(*cwd)
+	cwd, e = filepath.Abs(cwd)
 	if e != nil {
 		return 1, e
 	}
-	*cwd, e = filepath.EvalSymlinks(*cwd)
+	cwd, e = filepath.EvalSymlinks(cwd)
 	if e != nil {
 		return 1, e
 	}
-	info, e := os.Stat(*cwd)
+	info, e := os.Stat(cwd)
 	if e != nil {
 		return 1, e
 	}
 	if !info.IsDir() {
 		return 1, errors.New("working directory is not a directory")
 	}
+	var lastSequence uint64
 	for _, a := range records {
-		if *taskID != "" && a.Task == *taskID {
+		lastSequence = max(lastSequence, a.Sequence)
+		if taskID != "" && a.Task == taskID {
 			finished := state(a.Result) == "Done" || (a.Cancelled && state(a.Result) == "Missing")
-			if !finished || !*retry {
+			if !finished || !plan.retry {
 				return 1, errors.New("attempt already exists; inspect status, then --retry after completion")
 			}
 		}
@@ -119,23 +144,24 @@ func submit(args []string, dir string, records []attempt) (int, error) {
 	if e = jsonCall(&groups, "pueue", "group", "--json"); e != nil {
 		return 1, e
 	}
-	if _, ok := groups[*group]; !ok {
-		if _, e = call("pueue", "group", "add", *group); e != nil {
+	if _, ok := groups[plan.group]; !ok {
+		if _, e = call("pueue", "group", "add", plan.group); e != nil {
 			return 1, e
 		}
 	}
 	a := attempt{
-		ID:      uuid(),
-		Task:    *taskID,
-		Argv:    argv,
-		Cwd:     *cwd,
-		Env:     env,
-		Session: *session,
-		Thread:  *thread,
-		Group:   *group,
-		Result:  json.RawMessage(`"Preparing"`),
+		ID:       uuid(),
+		Task:     taskID,
+		Argv:     plan.argv,
+		Cwd:      cwd,
+		Env:      env,
+		Session:  plan.session,
+		Thread:   plan.thread,
+		Group:    plan.group,
+		Sequence: lastSequence + 1,
+		Result:   json.RawMessage(`"Preparing"`),
 	}
-	if *terminal {
+	if plan.terminal {
 		a.Terminal = "pq-" + a.ID[:12]
 	}
 	if e = save(filepath.Join(dir, a.ID+".json"), a); e != nil {
