@@ -1,22 +1,15 @@
-modules/home/programs/llm/harnesses/codex.nix
-  s_7028fc5da01072::t_7ba4edce0ef357 5
-  s_7028fc5da01072::t_b00b6684b3b0d5 115-125
-  s_7028fc5da01072::t_7866aabb905464 176,186
-flake.nix
-  s_7028fc5da01072::t_7ba4edce0ef357 21-25
-modules/home/programs/llm/harnesses/claude/mods.nix
-  s_7028fc5da01072::t_03efbae85b0bfa 1-6,33
-checks/default.nix
-  s_7028fc5da01072::t_08529fe707ed9b 334-337
-docs/repository-reference.md
-  s_7028fc5da01072::t_7866aabb905464 18-23
 checks/egm-plugins.nix
-  s_7028fc5da01072::t_03efbae85b0bfa 5,9,25-28
-  s_7028fc5da01072::t_3f745d819085b7 2-4,6-8,10-11,13-24,29-31
-  s_7028fc5da01072::t_d0ff01fb51b2a6 12
-  s_7028fc5da01072::t_08529fe707ed9b 1
+  s_a4a3eea4720821::t_7a2d229859f9db 1-31
+docs/repository-reference.md
+  s_796b0b41a96769::t_047b99921f1c3d 18-23
 flake.lock
-  s_7028fc5da01072::t_eedd0fe3ca32bb 398-413,1483
+  s_a4a3eea4720821::t_3cc3308e0f5212 398-413,1483
+modules/home/programs/llm/harnesses/claude/mods.nix
+  s_7028fc5da01072::t_b1b917bbf4197e 1-6,33
+checks/default.nix
+  s_a4a3eea4720821::t_4cff3072e28417 334-337
+flake.nix
+  s_a4a3eea4720821::t_17454562019605 21-25
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -28,6 +21,22 @@ flake.lock
       "agent_id": {
         "tool": "codex",
         "id": "01a1d0ac-4380-7023-8b2f-a382ea7a16c4",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_796b0b41a96769": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
         "model": "gpt-6.1-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
