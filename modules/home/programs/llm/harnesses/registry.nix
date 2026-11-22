@@ -23,6 +23,10 @@
     transcriptRoot = null;
     exitHook = false;
     launch = {
+      resumeArgs = [
+        "threads"
+        "continue"
+      ];
       # Runs without permission prompts; the shell aliases and session launchers use it.
       fullAccess = {
         args = [ ];
@@ -48,6 +52,7 @@
     glyph = "";
     command = "claude";
     launch = {
+      newSessionArgs = [ "--session-id" ];
       # Continues the most recent session in the working directory.
       continueArgs = [ "--continue" ];
       modelFlag = "--model";
@@ -131,6 +136,7 @@
     transcriptRoot = null;
     exitHook = false;
     launch = {
+      resumeArgs = [ "--resume" ];
       # Runs without permission prompts; the shell aliases and session launchers use it.
       fullAccess = {
         args = [ "--allow-all" ];
@@ -163,6 +169,7 @@
     transcriptRoot = null;
     exitHook = false;
     launch = {
+      resumeArgs = [ "--session" ];
       # Runs without permission prompts; the shell aliases and session launchers use it.
       fullAccess = {
         args = [ "--yolo" ];
@@ -229,6 +236,7 @@
     transcriptRoot = null;
     exitHook = false;
     launch = {
+      resumeArgs = [ "--resume" ];
       # Runs without permission prompts; the shell aliases and session launchers use it.
       fullAccess = {
         args = [
@@ -265,6 +273,10 @@
     transcriptRoot = "~/.fx/sessions";
     exitHook = false;
     launch = {
+      resumeArgs = [
+        "session"
+        "resume"
+      ];
       # Runs without permission prompts; the shell aliases and session launchers use it.
       fullAccess = {
         args = [ ];
@@ -299,6 +311,7 @@
     transcriptRoot = null;
     exitHook = false;
     launch = {
+      resumeArgs = [ "--conversation" ];
       # Runs without permission prompts; the shell aliases and session launchers use it.
       fullAccess = {
         args = [ "--dangerously-skip-permissions" ];
@@ -324,6 +337,12 @@
     glyph = "";
     command = "goose";
     launch = {
+      startArgs = [ "session" ];
+      resumeArgs = [
+        "session"
+        "--resume"
+        "--session-id"
+      ];
       # Continues the most recent session in the working directory.
       continueArgs = [
         "session"
@@ -363,6 +382,7 @@
     glyph = "";
     command = "opencode";
     launch = {
+      resumeArgs = [ "--session" ];
       # Continues the most recent session in the working directory.
       continueArgs = [ "--continue" ];
       # Runs without permission prompts; the shell aliases and session launchers use it.
@@ -397,6 +417,8 @@
     glyph = "󰏿";
     command = "pi";
     launch = {
+      newSessionArgs = [ "--session-id" ];
+      resumeArgs = [ "--session" ];
       # Continues the most recent session in the working directory.
       continueArgs = [ "--continue" ];
       # Runs without permission prompts; the shell aliases and session launchers use it.
@@ -436,6 +458,8 @@
     command = "strands";
     skillRoot = ".claude/skills";
     launch = {
+      newSessionArgs = [ "--session-id" ];
+      resumeArgs = [ "--session-id" ];
       modelFlag = "--model";
       # Runs without permission prompts; the shell aliases and session launchers use it.
       fullAccess = {

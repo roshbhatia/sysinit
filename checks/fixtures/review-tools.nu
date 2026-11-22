@@ -84,6 +84,16 @@ def main --wrapped [tool: string, ...arguments: string] {
                 list => {
                     open ($root | path join panes.json) | to json --raw | print
                 }
+                spawn => {
+                    $arguments | to json | save --force ($root | path join spawn.json)
+
+                    open ($root | path join panes.json) | append {pane_id: 9, tab_id: 3, cwd: ''} | to json | save --force ($root | path join panes.json)
+
+                    print 9
+                }
+                send-text => {
+                    $input | save --force ($root | path join paste.txt)
+                }
                 split-pane => {
                     $arguments | to json | save --force ($root | path join split.json)
 

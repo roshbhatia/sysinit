@@ -1,66 +1,79 @@
 # Agent workspaces
 
-`agent-workspace` creates a WezTerm tab for a worktree and records its Git base,
-pane ID and, when using Codex, thread ID. Run it inside WezTerm or supply an
-existing `--pane-id`. The launcher defaults to the current worktree and pins
-its current commit. Supply `--base` to review against another commit or branch.
-Supply `--session` to select an existing seshy session. For a session with
-multiple repositories, also supply `--cwd`.
+A workspace pairs a directory with a terminal pane and optional review splits.
+The directory can be a Git worktree, part of a worktree, a seshy session, or an
+ordinary folder. The original directory stays the agent's working directory.
 
 ```sh
-agent-workspace open --cwd "$PWD"
-agent-workspace open --session my-feature --cwd "$PWD" --thread <codex-thread-id>
-agent-workspace open --cwd "$PWD" -- <agent-command> <arguments>
-agent-workspace show <workspace-id>
-agent-workspace resume <workspace-id>
+agent-workspace agents
+agent-workspace open --agent pi
+agent-workspace open --agent goose --cwd ~/project -- --model <model>
+agent-workspace open --session my-feature --agent claude
+agent-workspace open --cwd ~/notes -- <command> <arguments>
+agent-workspace attach --pane-id <existing-pane-id>
+agent-workspace list
 ```
 
-`open` prints a JSON record. Use its `id` with subsequent commands. Supply
-`--task <taskwarrior-uuid>` to record a link to an existing task. Use `sy` to
-manage worktrees and `tq` to queue work. Use `ty` or `nuwez` to manage panes and
-`nuvim` to work with the Neovim socket returned by `refresh`.
+Use an agent name or command from the installed registry. Set
+`SYSINIT_WORKSPACE_AGENT` for a personal default. The command after `--` can
+be any executable. `open` creates a new tab. `attach` records an existing
+pane and uses its reported directory unless you supply `--cwd`. Both print a
+workspace ID. Use `--task <taskwarrior-uuid>` to record a link to an existing
+task. Seshy still manages the session and its repositories.
 
-The default launcher connects to the local Codex App Server and opens the
-native Codex TUI on the recorded thread. Set `--socket` to use a different
-local App Server. `show` reports the thread ID after the TUI attaches.
-`resume` focuses a live workspace pane or resumes its exact saved Codex
-thread. Codex saves a new thread when it has conversation history.
-Commands supplied after `--` manage their own process and
-session lifecycle. For those commands, call `refresh` from the terminal or
-the agent's own completion hook.
+`resume <workspace-id>` focuses its live pane. When a launched pane has
+closed, `resume` reopens the exact recorded conversation if the agent has
+one. Use `--conversation <native-id>` to bind an existing conversation at
+launch or when reopening, or `--restart` for a fresh process. Claude, Pi, and
+Strands accept a new conversation ID at launch, so the workspace assigns one.
+For other agents, supply a full native ID when you want to associate a
+conversation. The agent owns saving and resolving that conversation.
 
-## Review changes
+## Review changes and give feedback
 
-When a Codex turn completes with worktree changes, the launcher opens or
-refreshes a Neovim Diffview split against the pinned base. Existing splits
-refresh in place. Use `--focus` to open or select the diff deliberately.
-`last-turn` reads the most recent completed turn observed by the launcher.
-Use `--patch` for the patch Codex reported for that turn.
+Git workspaces pin the current commit and open or refresh Diffview when files
+change, regardless of which agent is running. Use `--base` for a different
+Git revision. File observation is scoped to the launched command's lifetime.
+Use `--no-watch` for manual review or `--watch` to enable observation in an
+ordinary folder. An attached pane supports manual refresh.
+
+An ordinary folder opens in Neovim. Compare matching files with an explicit
+baseline directory when you have one. Use `--directory` on `open` or `attach`
+to choose folder review even inside a Git repository.
 
 ```sh
 agent-workspace refresh <workspace-id> --focus
-agent-workspace last-turn <workspace-id> --patch
-agent-diff --cwd "$PWD" --pane-id <pane-id> --base HEAD --background --json
+agent-workspace refresh <workspace-id> --file notes.txt --against ~/baseline
+agent-workspace note <workspace-id> notes.txt 42 'Clarify the decision here.'
+agent-workspace feedback <workspace-id>
+agent-workspace feedback <workspace-id> --paste
 ```
 
-Add a note with `:ChangesNote` from a saved file on the working-tree side in
-the review split, or use the CLI. The local Changes provider stores review
-notes with their file, line, pinned base, and workspace ID.
+In Diffview, use `:ChangesNote` on the saved working-tree side. In folder
+review, use `:WorkspaceNote` on a saved file. `feedback` exports the notes as
+JSON. `--paste` stages them in the recorded pane for you to review and submit.
+It works with the agent's normal input interface.
+
+For terminal placement use `ty` or `nuwez`. For editor operations use
+`nuvim` with the socket returned by `refresh`. For independent review,
+`agent-diff` accepts `--cwd`, `--pane-id`, `--background`, and `--json`.
+
+## Optional Codex App Server integration
 
 ```sh
-agent-workspace note <workspace-id> path/to/file 42 'Keep the validation next to the write.'
-agent-workspace feedback <workspace-id>
+agent-workspace open --adapter codex
+agent-workspace open --adapter codex --conversation <codex-thread-id>
+agent-workspace last-turn <workspace-id> --patch
 agent-workspace feedback <workspace-id> --send
 agent-workspace feedback <workspace-id> --send --steer <active-turn-id>
 ```
 
-`feedback` prints versioned JSON suitable for piping to another agent's
-input. For Codex, `--send` starts a new turn on the recorded idle thread.
-`--send --steer` sends to the specified active turn. Include the exact turn ID
-reported as `active_turn_id` by `show`. Review notes stay local until explicitly
-submitted.
+This adapter uses native completion notifications, records the exact thread
+ID and captures the patch that Codex reports. `show` exposes the active turn
+ID for steering. `--send` starts a turn on the idle thread or steers the
+specified active turn. A Codex thread becomes resumable once it has saved
+conversation history. Set `--socket` to use a different local App Server.
 
-Workspace and last-turn records live under
-`${XDG_STATE_HOME:-$HOME/.local/state}/agent-workspace`. Codex owns its thread
-history. Changes owns note storage. The commands operate on existing Git
-worktrees and WezTerm sessions.
+Workspace records and plain-file notes live under
+`${XDG_STATE_HOME:-$HOME/.local/state}/agent-workspace`. The Changes local
+provider owns Git review notes. Workspace feedback exports both.

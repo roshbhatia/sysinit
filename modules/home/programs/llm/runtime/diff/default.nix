@@ -8,6 +8,6 @@ pkgs.writeShellApplication {
     pkgs.wezterm
   ];
   text = ''
-    exec ${pkgs.nushell}/bin/nu --no-config-file ${./open.nu} "$@"
+    exec ${pkgs.nushell}/bin/nu --no-config-file ${./.}/open.nu "$@"
   '';
 }

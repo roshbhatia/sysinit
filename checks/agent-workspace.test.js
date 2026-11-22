@@ -3,6 +3,7 @@ import { expect, test } from "bun:test";
 import { Blob } from "node:buffer";
 import {
   chmodSync,
+  mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
@@ -10,6 +11,38 @@ import {
 } from "node:fs";
 import { join } from "node:path";
 import { env } from "node:process";
+
+test("workspace review runs even when a command edits and immediately exits", async () => {
+  const directory = mkdtempSync("/tmp/sysinit-watch-");
+  const root = join(directory, "project");
+  const refresh = join(directory, "refresh");
+  const marker = join(directory, "refreshed");
+  mkdirSync(root);
+  writeFileSync(refresh, `#!/bin/sh\nprintf '%s\\n' "$@" > "${marker}"\n`);
+  chmodSync(refresh, 0o700);
+
+  try {
+    const command = spawn([
+      "bun",
+      "./workspace-observe.ts",
+      root,
+      "git",
+      directory,
+      refresh,
+      "workspace-id",
+      "/bin/sh",
+      "-c",
+      'printf "%s\\n" changed > "$1/file.txt"',
+      "write-file",
+      root,
+    ]);
+    expect(await command.exited).toBe(0);
+    expect(readFileSync(join(root, "file.txt"), "utf8")).toBe("changed\n");
+    expect(readFileSync(marker, "utf8")).toBe("refresh\nworkspace-id\n");
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
 
 test("Codex workspace binds, watches, and sends to the exact thread", async () => {
   const directory = mkdtempSync("/tmp/sysinit-ws-");

@@ -12,6 +12,7 @@ import ./native.nix { inherit pkgs; } {
     "native-output.test.js" = ./native-output.test.js;
     "agent-workspace.test.js" = ./agent-workspace.test.js;
     "workspace-codex.ts" = ../modules/home/programs/llm/runtime/workspace/codex.ts;
+    "workspace-observe.ts" = ../modules/home/programs/llm/runtime/workspace/observe.ts;
   };
   commands = [
     [
@@ -26,6 +27,13 @@ import ./native.nix { inherit pkgs; } {
       ./output-rewrite.nu
       ../modules/home/programs/llm/runtime/output-rewrite/rewrite.nu
       ./fixtures/output-rewrite-tools.nu
+    ]
+    [
+      "nu"
+      "--no-config-file"
+      ./agent-workspace.nu
+      ../modules/home/programs/llm/runtime/workspace/workspace.nu
+      ./fixtures/review-tools.nu
     ]
     [
       "nu"

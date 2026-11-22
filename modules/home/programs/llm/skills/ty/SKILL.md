@@ -74,13 +74,14 @@ it. Use `nuvim` for buffers, selections, diagnostics, and quickfix. Use
 `agent-diff` for a dedicated working-tree Diffview split from inside WezTerm.
 Use explicit pane IDs with `ty` or `nuwez` for terminal placement.
 
-Use `agent-workspace open --cwd <worktree>` when the owner requests a Codex
-tab with automatic Diffview review. Supply `-- <command> <args>` to run another
-agent and call `agent-workspace refresh <workspace-id>` at its completion
-boundary. Keep the returned workspace ID. Use `show` to resolve the exact
-pane and Codex thread, `last-turn --patch` for the Codex patch, and
-`feedback <workspace-id>` to read local review notes. Submit feedback only
-when the owner requests it, using `--send` on the recorded Codex thread.
+Use `agent-workspace agents` to discover available agent commands. Launch a
+workspace with `open --agent <name> --cwd <directory>` or attach to an existing
+pane with `attach --pane-id <id>`. Use `open -- <command> <args>` for any
+other executable. Keep the returned workspace ID and use `show` and
+`refresh` to identify the pane and review socket. Use `feedback` for
+review-note JSON. When the owner requests it, use `--paste` to stage notes in
+the recorded pane. The optional Codex adapter adds exact thread and turn
+control with `--adapter codex`.
 
 ## Boundaries
 
