@@ -1,12 +1,7 @@
 docs/repository-reference.md
-  s_796b0b41a96769::t_7a35f8ea2b0000 80-93
-  s_796b0b41a96769::t_796508cdc8181e 79,94
+  s_796b0b41a96769::t_b212842cc2dd15 79-94
 modules/home/programs/terraform.nix
-  s_796b0b41a96769::t_5a626780b57e96 11-15,17-20,22,29-30
-  s_796b0b41a96769::t_7621df25c9c805 23-28
-  s_796b0b41a96769::t_88554ddba59f90 1-10,16,21,31
-modules/home/programs/default.nix
-  s_796b0b41a96769::t_88554ddba59f90 59
+  s_796b0b41a96769::t_8803f3de97a816 1-31
 ---
 {
   "schema_version": "authorship/3.0.0",
