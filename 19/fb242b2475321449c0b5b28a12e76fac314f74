@@ -1,6 +1,5 @@
 modules/darwin/rift.nix
-  s_b6baf4162ed3c9::t_5e3744b0cd69ad 15-22,26,28-40,80-86,238-240,244-259,328-340
-  s_b6baf4162ed3c9::t_b0c0574173a9eb 53
+  s_62c4cb57de6538::t_a2e4b2e57a65d0 15-22,26,28-40,53,80-86,238-240,244-259,328-340
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -8,10 +7,10 @@ modules/darwin/rift.nix
   "base_commit_sha": "19fb242b2475321449c0b5b28a12e76fac314f74",
   "prompts": {},
   "sessions": {
-    "s_b6baf4162ed3c9": {
+    "s_62c4cb57de6538": {
       "agent_id": {
         "tool": "codex",
-        "id": "01a19cf6-a9c0-7161-abce-266a87939179",
+        "id": "01a1ec00-1de2-7bc2-a676-ca7ded8f2943",
         "model": "gpt-6.1-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
