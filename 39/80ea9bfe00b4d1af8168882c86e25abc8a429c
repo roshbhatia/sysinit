@@ -1,12 +1,9 @@
-overlays/inputs.nix
-  s_c4706d5f7b8e30::t_8c1b1ac02835c9 90
-  s_c4706d5f7b8e30::t_a66511b5174945 88
-checks/default.nix
-  s_c4706d5f7b8e30::t_e76cf2d2d31c63 264-269,272,275-276
-  s_c4706d5f7b8e30::t_0468f1c9e18e60 270-271,273
-  s_c4706d5f7b8e30::t_b4344ce315826a 274
 flake.lock
-  s_c4706d5f7b8e30::t_7ad37c51f5c255 1119-1120,1123
+  s_a4a3eea4720821::t_e8f24c26171d57 1119-1120,1123
+checks/default.nix
+  s_a4a3eea4720821::t_72cc508b04ff9f 264-276
+overlays/inputs.nix
+  s_a4a3eea4720821::t_373eba8b62861e 88,90
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -14,11 +11,11 @@ flake.lock
   "base_commit_sha": "3980ea9bfe00b4d1af8168882c86e25abc8a429c",
   "prompts": {},
   "sessions": {
-    "s_c4706d5f7b8e30": {
+    "s_a4a3eea4720821": {
       "agent_id": {
         "tool": "codex",
-        "id": "01a14114-b1c5-7eb2-8ccd-594dc57f7c79",
-        "model": "gpt-6.1-sol"
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
