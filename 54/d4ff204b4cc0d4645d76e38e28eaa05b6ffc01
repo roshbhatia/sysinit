@@ -1,5 +1,5 @@
 checks/threads-picker.py
-  s_2df4c1d29412fe::t_6d0302f27597dd 183-184
+  s_a4a3eea4720821::t_548b6f51de5fa0 183-184
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -7,11 +7,11 @@ checks/threads-picker.py
   "base_commit_sha": "54d4ff204b4cc0d4645d76e38e28eaa05b6ffc01",
   "prompts": {},
   "sessions": {
-    "s_2df4c1d29412fe": {
+    "s_a4a3eea4720821": {
       "agent_id": {
         "tool": "codex",
-        "id": "01a1a223-7da2-7e93-a06a-44201e93b6bc",
-        "model": "gpt-6.1-sol"
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
