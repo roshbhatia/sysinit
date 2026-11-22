@@ -1,23 +1,17 @@
-pkgs/utils/main.go
-  s_cccc57401e3d8c::t_19328b979ad942 11
-  s_cccc57401e3d8c::t_0e19a8ac1f6e99 22-26,70
-docs/atuin.md
-  s_cccc57401e3d8c::t_19328b979ad942 63-65,72-74
-  s_cccc57401e3d8c::t_4099165e356097 66
-  s_cccc57401e3d8c::t_a24380c241b956 75
-pkgs/utils/internal/threads/threads.go
-  s_cccc57401e3d8c::t_19328b979ad942 1-126,132-166
-  s_cccc57401e3d8c::t_4099165e356097 127-131
 checks/atuin.nix
-  s_cccc57401e3d8c::t_19328b979ad942 49,57
-overlays/sysinit-gotools.nix
-  s_cccc57401e3d8c::t_19328b979ad942 180-181,206
-  s_cccc57401e3d8c::t_6bf1af24ec8ce6 207
-pkgs/utils/internal/threads/threads_test.go
-  s_cccc57401e3d8c::t_5b7701abe7a806 1-69,75-127
-  s_cccc57401e3d8c::t_4099165e356097 70-74
+  s_a4a3eea4720821::t_d3db43e622bd92 49,57
 checks/atuin.py
-  s_cccc57401e3d8c::t_19328b979ad942 219
+  s_cccc57401e3d8c::t_18310921954296 219
+docs/atuin.md
+  s_cccc57401e3d8c::t_549da318d2338e 63-66,72-75
+pkgs/utils/internal/threads/threads.go
+  s_a4a3eea4720821::t_4f6948ad1ed229 1-166
+pkgs/utils/internal/threads/threads_test.go
+  s_a4a3eea4720821::t_410bd8b89018ba 1-127
+pkgs/utils/main.go
+  s_7028fc5da01072::t_3ee6534bc4f7ad 11,22-26,70
+overlays/sysinit-gotools.nix
+  s_a4a3eea4720821::t_4b2571096590ea 180-181,206-207
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -25,6 +19,22 @@ checks/atuin.py
   "base_commit_sha": "d7b44ad47f0368e22aa229fdcab63d2e81c50211",
   "prompts": {},
   "sessions": {
+    "s_7028fc5da01072": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1d0ac-4380-7023-8b2f-a382ea7a16c4",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
     "s_cccc57401e3d8c": {
       "agent_id": {
         "tool": "codex",
