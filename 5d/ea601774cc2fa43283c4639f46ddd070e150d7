@@ -1,10 +1,7 @@
 modules/home/programs/llm/lib/instructions.nix
-  s_cccc57401e3d8c::t_d36b489c26263b 168
-  s_cccc57401e3d8c::t_abf98ac7af5229 174-175
+  s_a8f060c64afc5c::t_b389e9b45a7b70 168,174-175
 modules/home/programs/llm/skills/local-workflows/SKILL.md
-  s_cccc57401e3d8c::t_1d11db61736107 88-89
-  s_cccc57401e3d8c::t_10cd8f89300020 60-61,68-69
-  s_cccc57401e3d8c::t_abf98ac7af5229 1-59,62-67,70-87,90-99
+  s_a4a3eea4720821::t_da5269c647ab29 1-99
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -12,11 +9,19 @@ modules/home/programs/llm/skills/local-workflows/SKILL.md
   "base_commit_sha": "5dea601774cc2fa43283c4639f46ddd070e150d7",
   "prompts": {},
   "sessions": {
-    "s_cccc57401e3d8c": {
+    "s_a4a3eea4720821": {
       "agent_id": {
         "tool": "codex",
-        "id": "01a17e4b-b712-7e82-993b-13c0fa9fac0e",
-        "model": "gpt-6.1-sol"
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a8f060c64afc5c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f577-5612-72f3-9fd8-1d348b20bd7b",
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
