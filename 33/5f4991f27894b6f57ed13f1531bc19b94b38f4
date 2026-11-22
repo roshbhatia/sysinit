@@ -1,14 +1,13 @@
-flake.nix
-  s_df142d9d9da5a3::t_92159349da7629 342
-overlays/fzf.nix
-  s_df142d9d9da5a3::t_92159349da7629 2
 checks/nushell-completions.nix
-  s_df142d9d9da5a3::t_3ce3bcad45b806 24,32,50
-  s_df142d9d9da5a3::t_0ea405ed6b398f 1-5
+  s_a4a3eea4720821::t_55fdc2947462ce 1-5,24,32,50
+flake.nix
+  s_a4a3eea4720821::t_c5e0cee259b486 342
 modules/home/programs/fzf.nix
-  s_df142d9d9da5a3::t_92159349da7629 16
+  s_df142d9d9da5a3::t_34c712d88983d3 16
+overlays/fzf.nix
+  s_7028fc5da01072::t_7fe8d8fc5c8ebc 2
 checks/default.nix
-  s_df142d9d9da5a3::t_92159349da7629 269
+  s_a4a3eea4720821::t_3502a14c06f3dc 269
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -16,6 +15,22 @@ checks/default.nix
   "base_commit_sha": "335f4991f27894b6f57ed13f1531bc19b94b38f4",
   "prompts": {},
   "sessions": {
+    "s_7028fc5da01072": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1d0ac-4380-7023-8b2f-a382ea7a16c4",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
     "s_df142d9d9da5a3": {
       "agent_id": {
         "tool": "codex",
