@@ -1,0 +1,68 @@
+modules/home/programs/llm/skills/search-code-routing/SKILL.md
+  s_a4a3eea4720821::t_bb91b88c133035 2,5
+modules/home/programs/llm/skills/citation-verification/SKILL.md
+  s_a4a3eea4720821::t_bb91b88c133035 2
+modules/home/programs/llm/skills/shell-script-authoring/SKILL.md
+  s_a4a3eea4720821::t_bb91b88c133035 2
+modules/home/programs/llm/skills/nix-cache-audit/SKILL.md
+  s_a4a3eea4720821::t_bb91b88c133035 2,5
+modules/home/programs/llm/skills/writing-doc-design/SKILL.md
+  s_a4a3eea4720821::t_bb91b88c133035 2
+checks/fixtures/skills/invalid-boolean/SKILL.md
+  s_a4a3eea4720821::t_96fc41c31111da 4
+modules/home/programs/llm/lib/skill-package.nix
+  s_a4a3eea4720821::t_9777ae0745dceb 24-26,30,36-38,40-41,45-65,70-75
+modules/home/programs/llm/skills/worklog/SKILL.md
+  s_a4a3eea4720821::t_bb91b88c133035 2
+modules/home/programs/llm/skills/writing-code-comments/SKILL.md
+  s_a4a3eea4720821::t_bb91b88c133035 2,4
+modules/home/programs/llm/skills/diagram-mermaid-render/SKILL.md
+  s_a4a3eea4720821::t_bb91b88c133035 2
+modules/home/programs/llm/skills/writing-pr-description/SKILL.md
+  s_a4a3eea4720821::t_bb91b88c133035 2,4
+modules/home/programs/llm/skills/writing-commit-message/SKILL.md
+  s_a4a3eea4720821::t_bb91b88c133035 2,4
+checks/fixtures/skills/contract-fixture/SKILL.md
+  s_a4a3eea4720821::t_96fc41c31111da 4-6
+checks/skill-catalog.nix
+  s_a4a3eea4720821::t_96fc41c31111da 13-25,31,38,49
+modules/home/programs/llm/skills/adversarial-review/SKILL.md
+  s_a4a3eea4720821::t_bb91b88c133035 2
+modules/home/programs/llm/skills/feature-based-session-manager/SKILL.md
+  s_a4a3eea4720821::t_bb91b88c133035 2,5
+modules/home/programs/llm/skills/calldiff/SKILL.md
+  s_a4a3eea4720821::t_bb91b88c133035 2
+modules/home/programs/llm/skills/writing-doc-rfc/SKILL.md
+  s_a4a3eea4720821::t_bb91b88c133035 2
+checks/skill-catalog.nu
+  s_a4a3eea4720821::t_96fc41c31111da 3-10,14,18-73,75,77,79,81
+modules/home/programs/llm/lib/frontmatter.nix
+  s_a4a3eea4720821::t_b428b446230309 27-30,131,133-135,137
+  s_a4a3eea4720821::t_d5339375b0072f 122
+modules/home/programs/llm/skills/render.nix
+  s_a4a3eea4720821::t_9777ae0745dceb 20-29,33-35,37-38
+modules/home/programs/llm/skills/writing-tone/SKILL.md
+  s_a4a3eea4720821::t_bb91b88c133035 2,4
+modules/home/programs/llm/skills/gh-stack/SKILL.md
+  s_a4a3eea4720821::t_bb91b88c133035 2,5
+modules/home/programs/llm/skills/note/SKILL.md
+  s_a4a3eea4720821::t_bb91b88c133035 2
+docs/skill-maintenance.md
+  s_a4a3eea4720821::t_91316828e54162 16-26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "91c6244613899a454572777614c0eb160c19718d",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
