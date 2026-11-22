@@ -1,0 +1,41 @@
+overlays/sysinit-gotools.nix
+  s_a4a3eea4720821::t_1aef51a0f2d899 76-87
+pkgs/task-board/data.go
+  s_a4a3eea4720821::t_7bc3afeee8c33a 1-106,113-120,123-177,181-188,195-196
+  s_a4a3eea4720821::t_82a823e7818808 107-112,121-122,178-180,189-194
+pkgs/tq/main.go
+  s_a4a3eea4720821::t_7bc3afeee8c33a 40,49-60,103-108,150-153,164
+modules/home/programs/llm/skills/taskwarrior/SKILL.md
+  s_a4a3eea4720821::t_d7f9de555280e4 58-62
+docs/task-board.md
+  s_a4a3eea4720821::t_d26941d44dd6a3 1-32
+pkgs/task-board/data_test.go
+  s_a4a3eea4720821::t_d26941d44dd6a3 1-38
+flake.nix
+  s_a4a3eea4720821::t_ca7ac417124bc2 164
+  s_a4a3eea4720821::t_d7f9de555280e4 367
+docs/composability-audit.md
+  s_a4a3eea4720821::t_f3a1643757cd58 1-80
+pkgs/task-board/main.go
+  s_a4a3eea4720821::t_82a823e7818808 1-324
+modules/home/programs/taskwarrior.nix
+  s_a4a3eea4720821::t_1aef51a0f2d899 105
+flake.lock
+  s_a4a3eea4720821::t_5cf83ff4ddf6c9 2006-2007,2010,2016
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c647fc471fb4ffe8ef5ef8e862dfc52e646feee7",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
