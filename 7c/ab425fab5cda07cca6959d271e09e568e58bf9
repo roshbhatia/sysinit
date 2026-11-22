@@ -1,5 +1,5 @@
 modules/nixos/ere-runners.nix
-  s_00f0f53292bea7::t_91d29eca47fc7a 17,86-87
+  s_796b0b41a96769::t_4dfc2fd9832b1b 17,86-87
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -7,11 +7,11 @@ modules/nixos/ere-runners.nix
   "base_commit_sha": "7cab425fab5cda07cca6959d271e09e568e58bf9",
   "prompts": {},
   "sessions": {
-    "s_00f0f53292bea7": {
+    "s_796b0b41a96769": {
       "agent_id": {
         "tool": "codex",
-        "id": "01a1933c-a6e8-7442-97c4-87ca5f511b94",
-        "model": "gpt-6-luna"
+        "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
+        "model": "gpt-6.1-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
