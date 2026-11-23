@@ -14,7 +14,10 @@ import (
 	"github.com/roshbhatia/go-utils/ui"
 )
 
-const minLaneWidth = 30
+const (
+	minLaneWidth = 40
+	laneGap      = 2
+)
 
 var (
 	palette = ui.TerminalPalette()
@@ -61,9 +64,9 @@ func clean(text string) string {
 }
 
 func laneRange(width, current, total int) (first, last, laneWidth int) {
-	count := min(total, max(1, (width+1)/(minLaneWidth+1)))
+	count := min(total, max(1, (width+laneGap)/(minLaneWidth+laneGap)))
 	first = min(max(0, current-count/2), total-count)
-	return first, first + count, (width - count + 1) / count
+	return first, first + count, (width - (count-1)*laneGap) / count
 }
 
 func attemptStatus(a *attempt) string {
@@ -102,7 +105,46 @@ func attemptStatus(a *attempt) string {
 	return "Unknown"
 }
 
-func (m model) laneView(index, width, rows int) string {
+func cardView(c card, width, height int, selected bool) []string {
+	indent := strings.Repeat(" ", min(2, width-1))
+	marker, style := indent, lipgloss.NewStyle()
+	if selected && width > 2 {
+		marker, style = "> ", accent
+	}
+	textWidth := width - len(indent)
+	titleRows := 1
+	if height == 4 {
+		titleRows = 2
+	}
+	wrapped := strings.SplitN(ansi.Wrap(clean(c.Task.Description), textWidth, ""), "\n", titleRows+1)
+	if len(wrapped) > titleRows {
+		wrapped[titleRows-1] = cell.Truncate(strings.Join(wrapped[titleRows-1:], " "), textWidth)
+		wrapped = wrapped[:titleRows]
+	}
+	lines := make([]string, height)
+	for i, line := range wrapped {
+		prefix := indent
+		if i == 0 {
+			prefix = marker
+		}
+		lines[i] = style.Render(prefix + cell.Truncate(line, textWidth))
+	}
+	if len(wrapped) < height {
+		var metadata []string
+		if c.Task.Project != "" {
+			metadata = append(metadata, clean(c.Task.Project))
+		}
+		if c.Attempt != nil {
+			metadata = append(metadata, clean(attemptStatus(c.Attempt)))
+		}
+		if len(metadata) > 0 {
+			lines[len(wrapped)] = muted.Render(indent + cell.Truncate(strings.Join(metadata, " · "), textWidth))
+		}
+	}
+	return lines
+}
+
+func (m model) laneView(index, width, height int) string {
 	cards := m.cards(index)
 	name := m.board.Lanes[index].Name
 	heading := title
@@ -110,25 +152,23 @@ func (m model) laneView(index, width, rows int) string {
 	if index == m.column {
 		heading, marker = accent, "> "
 	}
-	lines := []string{heading.Render(cell.Truncate(fmt.Sprintf("%s%s (%d)", marker, name, len(cards)), width)), ""}
-	cursor := m.cursors[index]
-	start := max(0, cursor-rows+1)
-	for i := start; i < min(len(cards), start+rows); i++ {
-		c := cards[i]
-		prefix := "  "
-		style := lipgloss.NewStyle()
-		if index == m.column && i == cursor {
-			prefix, style = "> ", accent
-		}
-		label := clean(c.Task.Description)
-		if c.Attempt != nil && width >= minLaneWidth {
-			status := " · " + clean(attemptStatus(c.Attempt))
-			label = cell.Truncate(label, max(1, width-cell.Width(prefix+status))) + muted.Render(status)
-		}
-		lines = append(lines, style.Render(cell.Truncate(prefix+label, width)))
+	lines := []string{
+		heading.Render(cell.Truncate(fmt.Sprintf("%s%s (%d)", marker, name, len(cards)), width)),
+		muted.Render(strings.Repeat("─", width)),
 	}
-	if len(cards) == 0 {
-		lines = append(lines, muted.Render("  No tasks"))
+	rows := max(0, height-len(lines))
+	cardHeight := min(2, max(1, rows))
+	if rows >= 8 {
+		cardHeight = 4
+	}
+	visible := rows / cardHeight
+	cursor := m.cursors[index]
+	start := max(0, cursor-visible+1)
+	for i := start; i < min(len(cards), start+visible); i++ {
+		lines = append(lines, cardView(cards[i], width, cardHeight, index == m.column && i == cursor)...)
+	}
+	if len(cards) == 0 && rows > 0 {
+		lines = append(lines, muted.Render(cell.Truncate("  No tasks", width)))
 	}
 	return lipgloss.NewStyle().Width(width).Render(strings.Join(lines, "\n"))
 }
@@ -206,6 +246,10 @@ func (m model) View() string {
 	if m.confirm {
 		notices = append(notices, cell.Truncate("Complete selected task? y confirm  Esc cancel", m.width))
 	}
+	if len(m.board.Lanes) > 0 && !m.detail && (m.filtering || m.input.Value() != "") {
+		notices = append(notices, m.input.View())
+	}
+	bodyHeight := m.height - 3 - len(notices)
 	bindings := []key.Binding{helpKey, navigate, move, filter, details, diff, note, quit}
 	switch {
 	case len(m.board.Lanes) == 0:
@@ -216,7 +260,7 @@ func (m model) View() string {
 		bindings = []key.Binding{refresh, quit}
 	case m.detail:
 		notes := m.notes
-		notes.Height = max(1, m.height-3-len(notices))
+		notes.Height = bodyHeight
 		content = notes.View()
 		bindings = []key.Binding{helpKey, back, scroll, diff, note, review}
 		if c := m.selection(); c != nil && c.Attempt != nil && c.Attempt.PueueID != nil {
@@ -224,19 +268,27 @@ func (m model) View() string {
 		}
 	default:
 		first, last, width := laneRange(m.width, m.column, len(m.board.Lanes))
-		if m.filtering || m.input.Value() != "" {
-			notices = append(notices, m.input.View())
+		if last-first < len(m.board.Lanes) {
+			header = cell.Truncate(
+				fmt.Sprintf("Tasks · Lanes %d–%d of %d · %s", first+1, last, len(m.board.Lanes), clean(m.board.Scope)),
+				m.width,
+			)
 		}
-		rows := max(0, m.height-5-len(notices))
+		extra := m.width - (last-first)*width - (last-first-1)*laneGap
 		var columns []string
 		for index := first; index < last; index++ {
-			columns = append(columns, m.laneView(index, width, rows))
+			laneWidth := width
+			if index-first < extra {
+				laneWidth++
+			}
+			columns = append(columns, m.laneView(index, laneWidth, bodyHeight))
 			if index+1 < last {
-				columns = append(columns, " ")
+				columns = append(columns, strings.Repeat(" ", laneGap))
 			}
 		}
 		content = lipgloss.JoinHorizontal(lipgloss.Top, columns...)
 	}
+	content = lipgloss.NewStyle().Height(bodyHeight).MaxHeight(bodyHeight).Render(content)
 	lines := append([]string{title.Render(header), "", content}, notices...)
 	return strings.Join(append(lines, hints.ShortHelpView(bindings)), "\n")
 }
