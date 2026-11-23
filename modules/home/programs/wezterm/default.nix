@@ -13,6 +13,7 @@ let
   paths = import ../../../lib/paths.nix { inherit lib; };
   themeConfig = config.sysinit.theme;
   c = themeColors;
+  palette = import ../../../shared/terminal-palette.nix c;
   luaSource = inputs.sysinit-wezterm.lib.luaSource pkgs;
 
   paneName = pkgs.writeShellApplication {
@@ -100,35 +101,9 @@ in
         inherit (themeConfig.transparency) opacity;
         inherit (themeConfig.transparency) blur;
       };
-      colors = {
-        foreground = "#${c.base05}";
-        background = "#${c.base00}";
-        cursor_bg = "#${c.base05}";
-        cursor_fg = "#${c.base00}";
+      colors = palette // {
         cursor_border = "#${c.base05}";
-        selection_bg = "#${c.base02}";
-        selection_fg = "#${c.base05}";
         split = "#${c.base0D}";
-        ansi = [
-          "#${c.base00}"
-          "#${c.base08}"
-          "#${c.base0B}"
-          "#${c.base0A}"
-          "#${c.base0D}"
-          "#${c.base0E}"
-          "#${c.base0C}"
-          "#${c.base05}"
-        ];
-        brights = [
-          "#${c.base03}"
-          "#${c.base08}"
-          "#${c.base0B}"
-          "#${c.base0A}"
-          "#${c.base0D}"
-          "#${c.base0E}"
-          "#${c.base0C}"
-          "#${c.base07}"
-        ];
         tab_bar = {
           background = "#${c.base01}";
           active_tab = {
