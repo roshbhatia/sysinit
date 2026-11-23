@@ -29,11 +29,11 @@ in the same working directory.
    Choose one of the examples below, not all three for the same task.
 
 ```sh
-tq submit --terminal --task <uuid> --cwd /absolute/repository -- \
+tq submit --task <uuid> --cwd /absolute/repository -- \
   goose run --instructions /absolute/task-prompt.md
-tq submit --terminal --task <uuid> --cwd /absolute/repository -- \
+tq submit --task <uuid> --cwd /absolute/repository -- \
   claude --print 'Read /absolute/task-prompt.md and carry out its authorized task.'
-tq submit --terminal --task <uuid> --cwd /absolute/repository -- \
+tq submit --task <uuid> --cwd /absolute/repository -- \
   codex exec 'Read /absolute/task-prompt.md and carry out its authorized task.'
 ```
 
@@ -50,9 +50,11 @@ conversation. `tq browse --thread <id>` filters by exact conversation ID;
 the Threads picker's **Queue attempts** action opens this view. Use
 `tq thread <attempt-uuid>` to inspect a linked conversation directly.
 
-Use `--terminal` for agent runs you want to visit in WezTerm. Each attempt has
-its own tab in the shared `task-queue` workspace. Use `tq attach <attempt-uuid>`
-to jump to one tab. Omit the flag for background commands that only need logs.
+Use `--terminal` when an attempt needs a terminal or you want to inspect its
+live output in WezTerm. The command still determines whether the harness is
+interactive: `codex exec` is noninteractive and `codex` opens the interactive UI.
+Each terminal attempt has its own tab in the shared `task-queue` workspace.
+Use the WezTerm queue picker or `tq attach <attempt-uuid>` to open one tab.
 Queue output includes
 the attempt UUID and Pueue job ID. Retain both with the Taskwarrior UUID. The
 attempt's `sequence` records submission order independently of its Pueue job
@@ -61,10 +63,10 @@ start the mux pane. The child applies the attempt's saved launch settings,
 including its `PATH` and Taskwarrior and Pueue configuration paths.
 A Taskwarrior session ownership marker records coordination.
 
-Inspect `tq status`, `pueue status`, and `pueue log <job-id>`.
 Inspect `tq status` and use `tq logs <attempt-uuid>` for retained Pueue logs.
 The log reader checks the returned job identity before printing output.
-Pass `--pager` to open the terminal viewer.
+Use `--pager` for retained output or `--follow` to watch a running job in the
+same pager. The WezTerm queue picker uses these commands for managed attempts.
 `tq status` and `tq snapshot` read the live queue without rewriting attempts.
 Use `tq reconcile` to persist the current results before queue cleanup. Use
 `tq cancel <attempt-uuid>` for cancellation and

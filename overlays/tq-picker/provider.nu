@@ -132,11 +132,22 @@ def respond [request: record, tq: string, viewer: string] {
         # tq has selected the attempt's tab before the launcher switches workspaces.
         let label = $workspace | default $'Pueue #($identifier)'
 
-        let command = [
-            $viewer
-            $identifier
-            (if (status $job) == Running { 'follow' } else { 'log' })
-        ]
+        let running = (status $job) == Running
+
+        let command = if ($record.id? | default '') != '' {
+            [
+                $tq
+                logs
+                $record.id
+                (if $running { '--follow' } else { '--pager' })
+            ]
+        } else {
+            [
+                $viewer
+                $identifier
+                (if $running { 'follow' } else { 'log' })
+            ]
+        }
 
         let cwd = if ($job.path | path expand | path type) == dir { $job.path } else { $env.HOME }
 

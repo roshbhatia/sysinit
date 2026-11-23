@@ -23,7 +23,7 @@ _tq() {
       _arguments '--thread[Filter by captured-thread ID]:thread ID:'
       ;;
     logs)
-      _arguments '1:execution attempt UUID:' '--pager[Open in the terminal pager]'
+      _arguments '1:execution attempt UUID:' '(-)--pager[Open retained output in the pager]' '(-)--follow[Follow live output in the pager]'
       ;;
     attach)
       _arguments '1:execution attempt UUID:' '--focus-only[Select the tab in the mux]'

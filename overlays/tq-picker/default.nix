@@ -19,17 +19,27 @@ let
       esac
     '';
   };
+  queue = final.writeShellApplication {
+    name = "tq";
+    runtimeInputs = [
+      final.pueue
+      final.taskwarrior-cli
+      final.seshy
+      final.wezterm
+      final.atuin
+      viewer
+    ];
+    text = ''exec ${final.sysinit-gotools}/bin/tq "$@"'';
+  };
   executable = final.writeShellApplication {
     name = "tq-picker";
     runtimeInputs = [
       final.pueue
-      final.wezterm
       final.coreutils
-      viewer
     ];
     text = ''
       exec ${final.lib.getExe final.nushell} --no-config-file --stdin ${./provider.nu} \
-        ${final.sysinit-gotools}/bin/tq ${final.lib.getExe viewer}
+        ${final.lib.getExe queue} ${final.lib.getExe viewer}
     '';
   };
   manifest = final.writeText "tq.json" (
@@ -49,6 +59,7 @@ let
   );
 in
 {
+  tq = queue;
   pueue-task-view = viewer;
   tq-picker = final.symlinkJoin {
     name = "tq-picker";

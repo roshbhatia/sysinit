@@ -202,7 +202,9 @@ def check(provider, queue):
                 assert panes()[pane]["is_active"]
                 wait(lambda: "PICKER_FIXTURE" in mux("get-text", "--pane-id", pane))
                 completed = request("picker.open", "0")["output"]
-                assert completed["command"][-2:] == ["0", "log"], completed
+                assert completed["command"][-3:] == ["logs", legacy_id, "--pager"], (
+                    completed
+                )
                 open_terminal(completed, b"LOG_FIXTURE", b"q")
                 assert request("picker.open", "9999")["status"] == "error"
                 assert request("picker.open", "../0")["status"] == "error"
@@ -210,7 +212,8 @@ def check(provider, queue):
                 wait(lambda: pane not in panes())
                 fallback = request("picker.open", identifier)["output"]
                 assert fallback["label"] != terminal, fallback
-                assert fallback["command"][-1] in ("follow", "log"), fallback
+                assert fallback["command"][-3:-1] == ["logs", record["id"]], fallback
+                assert fallback["command"][-1] in ("--follow", "--pager"), fallback
                 mux("kill-pane", "--pane-id", split)
                 print(
                     "Pueue picker: live discovery, mux workspace attachment, completed logs, stale IDs, and lost-terminal fallback passed"

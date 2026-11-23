@@ -170,6 +170,9 @@ in
         workspace_slots = lib.optionalAttrs config.sysinit.queue.enable {
           task-queue = 99;
         };
+        hidden_workspaces = lib.optionalAttrs config.sysinit.queue.enable {
+          task-queue = true;
+        };
         providers = [
           {
             name = "tether";

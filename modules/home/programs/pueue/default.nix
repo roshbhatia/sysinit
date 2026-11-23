@@ -6,18 +6,6 @@
 }:
 let
   cfg = config.sysinit.queue;
-  queue = pkgs.writeShellApplication {
-    name = "tq";
-    runtimeInputs = [
-      pkgs.pueue
-      pkgs.taskwarrior-cli
-      pkgs.seshy
-      pkgs.wezterm
-      pkgs.atuin
-      pkgs.pueue-task-view
-    ];
-    text = ''exec ${pkgs.sysinit-gotools}/bin/tq "$@"'';
-  };
   completions = pkgs.runCommand "tq-completions" { } ''
     mkdir -p "$out/share/zsh/site-functions"
     cp ${./_tq} "$out/share/zsh/site-functions/_tq"
@@ -46,7 +34,7 @@ in
     launchd.agents.pueued.config.Umask = 63;
     systemd.user.services.pueued.Service.UMask = "0077";
     home.packages = [
-      queue
+      pkgs.tq
       completions
     ];
     xdg.configFile = {

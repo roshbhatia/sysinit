@@ -17,7 +17,7 @@ const usage = `Usage: tq [--state DIR] COMMAND [ARGS...]
   browse [--thread ID]                 Browse attempts, terminals, and logs.
   attach UUID [--focus-only]           Open an attempt's WezTerm tab, or select it in the mux.
   thread UUID                          Show an attempt's captured conversation.
-  logs UUID [--pager]                  Read verified log output for an attempt.
+  logs UUID [--pager | --follow]       Read verified log output for an attempt.
   reconcile                            Save live status to the attempt records.
   cancel UUID                          Cancel a queued or running attempt.
   resume UUID                          Resume an attempt that has not started.
@@ -81,11 +81,16 @@ func run(args []string) (int, error) {
 			return 1, fmt.Errorf("%s accepts no arguments", action)
 		}
 	case "logs", "attach":
-		option := "--pager"
+		if len(args) < 1 || len(args) > 2 {
+			return 1, fmt.Errorf("%s requires one attempt UUID and at most one option", action)
+		}
+		option := "--pager | --follow"
+		valid := len(args) == 1 || args[1] == "--pager" || args[1] == "--follow"
 		if action == "attach" {
 			option = "--focus-only"
+			valid = len(args) == 1 || args[1] == option
 		}
-		if len(args) < 1 || len(args) > 2 || (len(args) == 2 && args[1] != option) {
+		if !valid {
 			return 1, fmt.Errorf("usage: tq %s UUID [%s]", action, option)
 		}
 		if attemptPath, e = recordPath(*dir, args[0]); e != nil {
@@ -204,6 +209,9 @@ func run(args []string) (int, error) {
 		j, live := jobs[target.ID]
 		if !live {
 			return 1, errors.New("attempt has no current Pueue job")
+		}
+		if len(args) == 2 && args[1] == "--follow" && state(j.Status) == "Running" {
+			return 0, followJobLog(j)
 		}
 		return 0, showJobLog(j, len(args) == 2)
 	case "status", "snapshot":
