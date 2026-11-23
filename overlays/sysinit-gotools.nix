@@ -90,19 +90,28 @@ in
 {
   inherit sysinit-gotools;
 
-  task-board = final.writeShellApplication {
-    name = "task-board";
-    runtimeInputs = [ final.taskwarrior-cli ];
-    text = ''
-      export SYSINIT_TERMINAL_PROVIDER="''${SYSINIT_TERMINAL_PROVIDER:-${final.tq-terminal-wezterm}/share/sysinit/terminal-providers/wezterm.json}"
-      exec ${sysinit-gotools}/bin/task-board "$@"
-    '';
-    meta = {
-      description = "Taskwarrior Kanban with linked queue attempts and workspaces";
-      mainProgram = "task-board";
-      platforms = final.lib.platforms.unix;
+  task-board =
+    let
+      board = final.writeShellApplication {
+        name = "task-board";
+        runtimeInputs = [ final.taskwarrior-cli ];
+        text = ''
+          export SYSINIT_TERMINAL_PROVIDER="''${SYSINIT_TERMINAL_PROVIDER:-${final.tq-terminal-wezterm}/share/sysinit/terminal-providers/wezterm.json}"
+          exec ${sysinit-gotools}/bin/task-board "$@"
+        '';
+        meta = {
+          description = "Taskwarrior Kanban with linked queue attempts and workspaces";
+          mainProgram = "task-board";
+          platforms = final.lib.platforms.unix;
+        };
+      };
+    in
+    final.symlinkJoin {
+      name = "task-board";
+      paths = [ board ];
+      postBuild = ''ln -s task-board "$out/bin/tb"'';
+      inherit (board) meta;
     };
-  };
 
   seshy = select {
     pname = "seshy";

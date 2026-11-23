@@ -239,7 +239,7 @@ func (f filters) collect() (board, error) {
 	}
 	var attempts []attempt
 	var queueErr error
-	if path, err := exec.LookPath("tq"); err == nil {
+	if path, err := exec.LookPath("task-queue"); err == nil {
 		attempts, queueErr = readJSON[[]attempt](path, "snapshot")
 	}
 	var workspaces []workspace

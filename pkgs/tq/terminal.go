@@ -315,7 +315,7 @@ func execute(a attempt, dir string, terminal bool) (int, error) {
 			}
 			// Hold the pane open so its output stays attachable after the command ends.
 			_ = ttyForeground(tty, syscall.Getpgrp())
-			_, _ = fmt.Fprintf(tty, "\n[tq] command exited with status %d; press Enter to close\n", code)
+			_, _ = fmt.Fprintf(tty, "\n[task-queue] command exited with status %d; press Enter to close\n", code)
 			_, _ = bufio.NewReader(tty).ReadString('\n')
 			return code, e
 		case s := <-signals:

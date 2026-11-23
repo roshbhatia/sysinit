@@ -74,7 +74,7 @@ def respond [request: record, tq: string, viewer: string] {
     let capability = $request.capability
 
     if $capability == picker.describe {
-        return {title: 'tq · terminals and logs', icon: md_checklist}
+        return {title: 'Task queue · terminals and logs', icon: md_checklist}
     }
 
     let snapshot = command-output pueue [status --json] | from json | get tasks
@@ -163,7 +163,7 @@ def respond [request: record, tq: string, viewer: string] {
     error make {msg: $'unsupported capability: ($capability)'}
 }
 
-def main [tq: string = 'tq', viewer: string = 'pueue-task-view'] {
+def main [tq: string = 'task-queue', viewer: string = 'pueue-task-view'] {
     let input = $in
 
     let parsed = try {

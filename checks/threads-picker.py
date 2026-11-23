@@ -43,7 +43,7 @@ else
 fi
 """)
     fixture.chmod(0o700)
-    queue = root / "tq"
+    queue = root / "task-queue"
     queue.write_text(
         "#!/bin/sh\nprintf '\\nQUEUE:'; printf ' <%s>' \"$@\"; printf '\\n'\n"
     )

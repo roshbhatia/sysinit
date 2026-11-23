@@ -13,7 +13,7 @@ coordinator without taking over the task or creating a duplicate task.
 | --- | --- |
 | Durable work and acceptance evidence | `taskwarrior` |
 | Workspace/worktree lifecycle | `sy`; load `workspace-manage` |
-| Explicit queued attempt | `tq`; read Taskwarrior's queue reference |
+| Explicit queued attempt | `task-queue`; read Taskwarrior's queue reference |
 | Owner-requested visible pane operation | `ty` or `worker`; load `terminal-wezterm` |
 | PR head, CI, and unresolved conversations | `gh-pr-state URL`; to follow closure or merge, use `gh-pr-state watch URL --until closed` |
 | Changes since a review checkpoint | `review-checkpoint diff`; pipe to `hunk patch` for an interactive patch reader |

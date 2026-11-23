@@ -28,7 +28,7 @@ func parseSubmission(args []string) (submission, error) {
 	var plan submission
 	f := flag.NewFlagSet("submit", flag.ContinueOnError)
 	f.Usage = func() {
-		if _, err := fmt.Fprintln(f.Output(), "Usage: tq submit [OPTIONS] -- COMMAND [ARGS...]"); err == nil {
+		if _, err := fmt.Fprintln(f.Output(), "Usage: task-queue submit [OPTIONS] -- COMMAND [ARGS...]"); err == nil {
 			f.PrintDefaults()
 		}
 	}

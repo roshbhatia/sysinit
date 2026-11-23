@@ -12,7 +12,7 @@ let
     inspect-agent-traces = "Requires Traces. Interactive transcript browsing uses the Sysinit Neovim workbench.";
     terminal-wezterm = "Requires WezTerm and the sysinit ty command.";
     workspace-manage = "Requires Git and the seshy sy command.";
-    task-manage = "Requires the managed Taskwarrior database. Queued execution also requires tq and Pueue.";
+    task-manage = "Requires the managed Taskwarrior database. Queued execution also requires task-queue and Pueue.";
     workflow-run-conductor = "Requires the Microsoft Conductor CLI.";
   };
   enabled = lib.filterAttrs (

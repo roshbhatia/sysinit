@@ -106,6 +106,7 @@ let
       ]
       (builtins.readFile ./functions.nu)
   );
+  tasksModule = "${pkgs.writeTextDir "tasks.nu" (builtins.readFile ./tasks.nu)}/tasks.nu";
 
   completersConfig = nushellLib.completers pkgs;
 in
@@ -229,6 +230,7 @@ in
         $env.POSH_SESSION_ID = (random uuid)
 
         use ${functionsFile} *
+        use ${tasksModule}
         use ${./wezterm.nu} *
         use ${./onepassword.nu} *
         use ${./storage.nu} *
@@ -253,4 +255,6 @@ in
 
     eza.enableNushellIntegration = lib.mkForce false;
   };
+
+  xdg.configFile."nushell/tasks.nu".source = tasksModule;
 }

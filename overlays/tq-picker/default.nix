@@ -9,7 +9,7 @@ let
     text = ''exec ${final.lib.getExe final.nushell} --no-config-file ${./view.nu} "$@"'';
   };
   queue = final.writeShellApplication {
-    name = "tq";
+    name = "task-queue";
     runtimeInputs = [
       final.pueue
       final.taskwarrior-cli
@@ -21,6 +21,14 @@ let
       export SYSINIT_TERMINAL_PROVIDER="''${SYSINIT_TERMINAL_PROVIDER:-${terminalManifest}}"
       exec ${final.sysinit-gotools}/bin/tq "$@"
     '';
+  };
+  queuePackage = final.symlinkJoin {
+    name = "task-queue";
+    paths = [ queue ];
+    postBuild = ''ln -s task-queue "$out/bin/tq"'';
+    meta = queue.meta // {
+      mainProgram = "task-queue";
+    };
   };
   executable = final.writeShellApplication {
     name = "tq-picker";
@@ -71,7 +79,8 @@ let
 in
 {
   tq-terminal-wezterm = terminalProvider;
-  tq = queue;
+  task-queue = queuePackage;
+  tq = queuePackage;
   pueue-task-view = viewer;
   tq-picker = final.symlinkJoin {
     name = "tq-picker";

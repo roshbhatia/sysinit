@@ -10,9 +10,9 @@ import (
 	"strconv"
 )
 
-const usage = `Usage: tq [--state DIR] COMMAND [ARGS...]
+const usage = `Usage: task-queue [--state DIR] COMMAND [ARGS...]
 
-  submit [OPTIONS] -- COMMAND [ARGS...]  Queue a command. See tq submit --help.
+  submit [OPTIONS] -- COMMAND [ARGS...]  Queue a command. See task-queue submit --help.
   status, snapshot                    Read attempts and live status as JSON.
   browse [--thread ID]                 Browse attempts, terminals, and logs.
   attach UUID [--focus-only]           Open or focus an attempt in its terminal provider.
@@ -27,7 +27,7 @@ Use Taskwarrior UUIDs with submit --task and attempt UUIDs with thread, cancel, 
 func main() {
 	code, e := run(os.Args[1:])
 	if e != nil {
-		fmt.Fprintln(os.Stderr, "tq:", e)
+		fmt.Fprintln(os.Stderr, "task-queue:", e)
 		if code == 0 {
 			code = 1
 		}
@@ -47,7 +47,7 @@ func run(args []string) (int, error) {
 	if base == "" {
 		base = filepath.Join(home, ".local/state")
 	}
-	global := flag.NewFlagSet("tq", flag.ContinueOnError)
+	global := flag.NewFlagSet("task-queue", flag.ContinueOnError)
 	dir := global.String("state", defaultStateDir(base), "Execution record directory")
 	var usageErr error
 	global.Usage = func() { _, usageErr = fmt.Fprintln(os.Stdout, usage) }
@@ -94,7 +94,7 @@ func run(args []string) (int, error) {
 			valid = len(args) == 1 || args[1] == option
 		}
 		if !valid {
-			return 1, fmt.Errorf("usage: tq %s UUID [%s]", action, option)
+			return 1, fmt.Errorf("usage: task-queue %s UUID [%s]", action, option)
 		}
 		if attemptPath, e = recordPath(*dir, args[0]); e != nil {
 			return 1, e
@@ -108,7 +108,7 @@ func run(args []string) (int, error) {
 		}
 	case "browse":
 	default:
-		return 1, fmt.Errorf("unknown action %q; see tq --help", action)
+		return 1, fmt.Errorf("unknown action %q; see task-queue --help", action)
 	}
 	readOnly := action == "status" || action == "snapshot" || action == "browse" || action == "thread" || action == "logs" || action == "attach"
 	if readOnly {

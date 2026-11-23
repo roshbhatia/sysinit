@@ -17,7 +17,7 @@ Continue directly when a helper would add no useful independence or capability.
 | Mode | Choose it when | Mechanism |
 | --- | --- | --- |
 | Native coordination | Bounded research, implementation, or review fits the current harness's helper tools | Native helpers and the roles actually available in this session |
-| Cross-harness coordination | Work needs another harness's tools or authentication, an independent process, or a durable queued run | Published harness registry and an explicit `tq` attempt |
+| Cross-harness coordination | Work needs another harness's tools or authentication, an independent process, or a durable queued run | Published harness registry and an explicit `task-queue` attempt |
 
 For native coordination, use the current harness's helper API. Names and
 capabilities differ between harnesses; check the available tools rather than
@@ -35,7 +35,7 @@ Selecting a Goose ACP provider alone does not create a multi-harness workflow.
 Native helpers can refer to their coordinator's task UUID without creating another
 task. Separately queued concurrent units need distinct agreed task UUIDs, linked
 back to the coordinator through annotations. Do not submit simultaneous attempts
-for the same UUID; `tq` rejects them. Read `task-manage` for retry semantics.
+for the same UUID; `task-queue` rejects them. Read `task-manage` for retry semantics.
 
 For either mode, give read-only helpers access to the selected checkout; isolate
 concurrent writers through the workspace owner's supported worktree lifecycle.
@@ -67,9 +67,9 @@ Nix owns Atuin settings and its daemon; change sysinit source rather than runnin
 | Durable work and acceptance criteria | `taskwarrior`; read the `task-manage` skill | Task UUID, dependencies, annotations, verified completion |
 | Workspace and worktree lifecycle | `sy`; read `workspace-manage` | Session membership and lifecycle of seshy-owned worktrees |
 | Structured local session and pane API | `ty`; read `terminal-wezterm` | Compose seshy catalogs/open plans with explicit WezTerm pane operations |
-| Explicit queued execution | `tq`; read the submission section of `taskwarrior` | Attempt UUID, exact argv/cwd, Taskwarrior linkage and review state |
-| Queue scheduling and output inspection | Pueue underneath `tq` | Job ID, scheduling, process output and exit status |
-| Attachable queued terminal | `tq submit --terminal` | One tab per attempt in the `task-queue` WezTerm workspace |
+| Explicit queued execution | `task-queue`; read the submission section of `taskwarrior` | Attempt UUID, exact argv/cwd, Taskwarrior linkage and review state |
+| Queue scheduling and output inspection | Pueue underneath `task-queue` | Job ID, scheduling, process output and exit status |
+| Attachable queued terminal | `task-queue submit --terminal` | One tab per attempt in the `task-queue` WezTerm workspace |
 | Visible execution requested by the owner | `worker` | One reusable WezTerm pane and command logs per workspace |
 
 `worker` remains an owner-facing command, excluded from the agent skill registry.
@@ -80,7 +80,7 @@ do not turn every command into a task, attempt, or pane.
 `ty sessions` and `ty panes` return separate versioned JSON
 documents. `ty catalog` combines them. Read `terminal-wezterm` before
 using pane or session actions. Session and worktree lifecycle remains with
-`sy`; task-linked execution remains with `tq`; use `worker` when the
+`sy`; task-linked execution remains with `task-queue`; use `worker` when the
 owner requests a long-running visible command in the current workspace.
 
 ## Compose a task and workspace
@@ -93,7 +93,7 @@ owner requests a long-running visible command in the current workspace.
 3. Choose an exact execution directory. `sy status <name> --format json` describes
    session members; a multi-repository session is not a single repository cwd.
 4. Continue current-session work here, or submit one bounded execution through
-   `tq`. Carry the same UUID, authorized scope, checkout, and acceptance
+   `task-queue`. Carry the same UUID, authorized scope, checkout, and acceptance
    criteria. A queue, session, or terminal does not add authorization.
 5. Inspect the attempt's output and verify its result. Record completion through
    Taskwarrior or the imported task's owning workflow. Exit zero is not acceptance.
@@ -105,16 +105,16 @@ completion.
 
 ## Inspect and control the right execution
 
-Start with `tq status`. Keep the Taskwarrior UUID, attempt UUID, and Pueue
+Start with `task-queue status`. Keep the Taskwarrior UUID, attempt UUID, and Pueue
 job ID distinct. The `taskwarrior` skill documents submission, inspection,
-cancellation, and retry through `tq`; Pueue supplies scheduling and output
+cancellation, and retry through `task-queue`; Pueue supplies scheduling and output
 underneath it. Native helper
 results stay with their coordinator unless an explicit queued attempt is needed.
 
 `--terminal` puts the attempt in a tab in the shared `task-queue` workspace
 on the persistent WezTerm mux. Switch to that workspace to scan the tabs, or
-open a specific attempt with `tq attach <attempt-uuid>`, the WezTerm `tq`
-picker, or `tq browse`. The pane stays open after the command exits until
+open a specific attempt with `task-queue attach <attempt-uuid>`, the WezTerm `task-queue`
+picker, or `task-queue browse`. The pane stays open after the command exits until
 Enter is pressed. Closing that pane and ending the queued process are different
 actions; inspect the attempt state afterwards.
 
@@ -123,9 +123,9 @@ actions; inspect the attempt state afterwards.
 Use `worker` for a long visible command when the owner requests that workflow.
 Its cwd is the caller's checkout; `worker --status` inspects that workspace's pane.
 It requires the caller to be inside WezTerm; a desktop agent should use its normal
-execution tool or `tq` rather than creating a pane to satisfy that condition.
+execution tool or `task-queue` rather than creating a pane to satisfy that condition.
 Waiting can time out while the command continues. Inspect the recorded result,
-not the pane's existence, before claiming completion. Do not replace `tq`
+not the pane's existence, before claiming completion. Do not replace `task-queue`
 with a pane when task-linked execution and review records are required.
 
 `wezspawn` opens a window in the GUI's focused workspace and directory. It is a

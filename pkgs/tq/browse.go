@@ -31,7 +31,7 @@ func browse(args []string, records []attempt, jobs map[string]job, dir string) e
 		}
 	}
 	if len(attempts) == 0 {
-		fmt.Fprintln(os.Stderr, "No queue attempts. Link a command with tq submit --thread ID -- COMMAND.")
+		fmt.Fprintln(os.Stderr, "No queue attempts. Link a command with task-queue submit --thread ID -- COMMAND.")
 		return nil
 	}
 	sort.SliceStable(attempts, func(i, j int) bool {

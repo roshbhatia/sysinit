@@ -27,9 +27,9 @@ func TestHelpAndInvalidCommandsDoNotOpenQueue(t *testing.T) {
 		want string
 		ok   bool
 	}{
-		{[]string{"--help"}, "tq submit --help", true},
-		{[]string{"help"}, "tq submit --help", true},
-		{[]string{"submit", "--help"}, "tq submit [OPTIONS]", true},
+		{[]string{"--help"}, "task-queue submit --help", true},
+		{[]string{"help"}, "task-queue submit --help", true},
+		{[]string{"submit", "--help"}, "task-queue submit [OPTIONS]", true},
 		{[]string{"submit"}, "pass an explicit command", false},
 		{[]string{"submit", "--session", "work", "--cwd", ".", "--", "echo"}, "choose --session or --cwd", false},
 		{[]string{"reconcile", "extra"}, "reconcile accepts no arguments", false},

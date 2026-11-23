@@ -1,8 +1,8 @@
 # Terminal providers
 
-`tq submit --terminal` runs in the configured terminal workspace.
+`task-queue submit --terminal` runs in the configured terminal workspace.
 `TQ_TERMINAL_WORKSPACE` sets its name and defaults to `task-queue`.
-The Sysinit packages wire the WezTerm provider into `tq` and `task-board`.
+The Sysinit packages wire the WezTerm provider into `task-queue` and `task-board`.
 The WezTerm adapter honors `TQ_WEZTERM_SOCKET` and `TQ_WEZTERM_DOMAIN`.
 
 External repositories can supply a local provider manifest through
@@ -25,5 +25,5 @@ implements four actions. All queue requests include the workspace.
 | `terminal.review` | Selected directory in `cwd` | Success after opening review. This action is used by the board. |
 
 A provider verifies its own terminal identity before acting. Pueue owns jobs
-and `tq` supervises the command process. Terminal-specific configuration stays
+and `task-queue` supervises the command process. Terminal-specific configuration stays
 with the provider. The board remains usable with Taskwarrior alone.

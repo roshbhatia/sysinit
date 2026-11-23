@@ -1,6 +1,6 @@
 ---
 name: taskwarrior
-description: Track shared Taskwarrior work and submit or inspect durable commands or agent runs through tq and Pueue. Use for work linked to a task UUID that must outlive the current shell, at durable task intake, or when recording blockers and completion.
+description: Track shared Taskwarrior work and submit or inspect durable commands or agent runs through task-queue and Pueue. Use for work linked to a task UUID that must outlive the current shell, at durable task intake, or when recording blockers and completion.
 ---
 
 # Shared task context
@@ -40,9 +40,9 @@ Taskwarrior holds durable outcomes and unfinished work.
 ## Queued execution
 
 Keep work in this session unless a separate attempt is useful and authorized.
-Submit a task-linked command with `tq submit --task <uuid> --cwd <checkout> -- <command> [args...]`.
-Retain the returned attempt ID and find it in `tq status`.
-Before submitting, resuming, retrying, or cancelling `tq` work, read
+Submit a task-linked command with `task-queue submit --task <uuid> --cwd <checkout> -- <command> [args...]`.
+Retain the returned attempt ID and find it in `task-queue status`.
+Before submitting, resuming, retrying, or cancelling `task-queue` work, read
 [queued execution](references/queued-execution.md). Inspect existing attempts;
 a successful queued command still requires result verification.
 

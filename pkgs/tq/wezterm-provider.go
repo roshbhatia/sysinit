@@ -75,7 +75,7 @@ func spawnWezTerm(input terminalInput, shared bool) (terminalRef, error) {
 		return ref, fmt.Errorf("invalid mux pane ID %q: %w", paneID, err)
 	}
 	if err = wezterm("set-tab-title", "--pane-id", paneID, "--", input.Title).Run(); err != nil {
-		fmt.Fprintln(os.Stderr, "tq: set terminal tab title:", err)
+		fmt.Fprintln(os.Stderr, "task-queue: set terminal tab title:", err)
 	}
 	return ref, nil
 }

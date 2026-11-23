@@ -77,7 +77,7 @@ pane_id=$(ty pane spawn "$WEZTERM_PANE" --direction right --percent 45 --cwd "$P
 A returned ID confirms pane creation. The pane can disappear as soon as its
 program exits. Use the shell directly for short commands whose output or exit status
 you need. For a visible long-running command, use `worker` and check its log
-for the expected readiness signal. For a durable attempt, use `tq` and
+for the expected readiness signal. For a durable attempt, use `task-queue` and
 check the recorded result. Use `agent-diff --background` for a reusable
 review split when the user wants to keep working in the current pane.
 
@@ -130,7 +130,7 @@ Use `agents list --details` for harness capabilities and native launch flags.
   or deleting seshy sessions and their worktrees. `ty` does not own that
   lifecycle.
 - Use `ty` for visible pane work only when the owner requests it. Use
-  `tq` for durable task-linked execution and `worker` for a requested
+  `task-queue` for durable task-linked execution and `worker` for a requested
   long-running visible command in the current workspace.
 - Before sending text, confirm the pane ID belongs to the intended task. Sending
   with `--submit` executes the submitted input in that terminal. Do not send

@@ -30,10 +30,10 @@ newline-delimited JSON record per change and exits 8 when the deadline elapses.
 Report the final observed state and head, including whether a closed PR merged.
 Use a Taskwarrior
 UUID for the outcome and an explicit queued attempt if the wait must survive the
-session. Use `tq status` and the corresponding Pueue job log on resume.
+session. Use `task-queue status` and the corresponding Pueue job log on resume.
 
 ```sh
-tq submit --task UUID -- gh-pr-state watch https://github.com/OWNER/REPO/pull/123
+task-queue submit --task UUID -- gh-pr-state watch https://github.com/OWNER/REPO/pull/123
 ```
 
 To follow only required CI, use `gh pr checks --required --watch`. When

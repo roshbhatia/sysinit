@@ -12,6 +12,7 @@ let
   bridge = pkgs.writeText "queue-bridge.zsh" files."carapace/bridge/zsh/.zshrc".text;
   spec = pkgs.writeText "pueue.yaml" files."carapace/specs/pueue.yaml".text;
   tqSpec = pkgs.writeText "tq.yaml" files."carapace/specs/tq.yaml".text;
+  queueSpec = pkgs.writeText "task-queue.yaml" files."carapace/specs/task-queue.yaml".text;
 in
 import ./lib.nix { inherit pkgs; } {
   name = "tq-test";
@@ -20,7 +21,8 @@ import ./lib.nix { inherit pkgs; } {
     bridge
     spec
     tqSpec
-    (lib.getExe (builtins.head module.config.content.home.packages))
+    queueSpec
+    "${../modules/home/programs/nushell}/tasks.nu"
   ];
   inputs = [
     pkgs.pueue
@@ -29,5 +31,7 @@ import ./lib.nix { inherit pkgs; } {
     pkgs.bash
     pkgs.zsh
     pkgs.carapace
+    pkgs.task-queue
+    pkgs.task-board
   ];
 }

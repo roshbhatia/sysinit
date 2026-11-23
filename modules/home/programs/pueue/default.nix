@@ -10,6 +10,13 @@ let
     mkdir -p "$out/share/zsh/site-functions"
     cp ${./_tq} "$out/share/zsh/site-functions/_tq"
   '';
+  queueSpec = name: ''
+    name: ${name}
+    description: Dispatch explicit execution attempts
+    parsing: disabled
+    completion:
+      positionalany: ["$carapace.bridge.Zsh([${name}])"]
+  '';
 in
 {
   options.sysinit.queue.enable = lib.mkEnableOption "Local Pueue queues and explicit task dispatch";
@@ -34,7 +41,7 @@ in
     launchd.agents.pueued.config.Umask = 63;
     systemd.user.services.pueued.Service.UMask = "0077";
     home.packages = [
-      pkgs.tq
+      pkgs.task-queue
       completions
     ];
     xdg.configFile = {
@@ -49,15 +56,10 @@ in
         fpath=(${pkgs.pueue}/share/zsh/site-functions ${completions}/share/zsh/site-functions $fpath)
         autoload -Uz _pueue _tq
         compdef _pueue pueue
-        compdef _tq tq
+        compdef _tq task-queue tq
       '';
-      "carapace/specs/tq.yaml".text = ''
-        name: tq
-        description: Dispatch explicit execution attempts
-        parsing: disabled
-        completion:
-          positionalany: ["$carapace.bridge.Zsh([tq])"]
-      '';
+      "carapace/specs/task-queue.yaml".text = queueSpec "task-queue";
+      "carapace/specs/tq.yaml".text = queueSpec "tq";
     };
   };
 }

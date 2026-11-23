@@ -9,13 +9,13 @@ separate harness process, scheduling, or an attachable terminal. Continue work a
 by the current session here unless a separate execution is useful. A queue is an
 execution mechanism; it does not expand authorization or approve external actions.
 
-When installed, `tq` records explicit attempts and runs them through Pueue.
+When installed, `task-queue` records explicit attempts and runs them through Pueue.
 Use it instead of a direct `pueue add` for Taskwarrior-linked work. The task must be
 pending, unblocked, and have completed dependencies. The queue rechecks this when
 execution starts. It rejects duplicate attempts and concurrent task-linked runs
 in the same working directory.
 
-1. Read `taskwarrior rc.context:none <uuid> info` and `tq status`. Check
+1. Read `taskwarrior rc.context:none <uuid> info` and `task-queue status`. Check
    ownership, prior attempts, dependencies, repository, and annotations.
 2. Prepare a bounded prompt containing the full UUID, description, relevant
    project and annotations, repository, exact authorization, acceptance criteria,
@@ -29,11 +29,11 @@ in the same working directory.
    Choose one of the examples below, not all three for the same task.
 
 ```sh
-tq submit --task <uuid> --cwd /absolute/repository -- \
+task-queue submit --task <uuid> --cwd /absolute/repository -- \
   goose run --instructions /absolute/task-prompt.md
-tq submit --task <uuid> --cwd /absolute/repository -- \
+task-queue submit --task <uuid> --cwd /absolute/repository -- \
   claude --print 'Read /absolute/task-prompt.md and carry out its authorized task.'
-tq submit --task <uuid> --cwd /absolute/repository -- \
+task-queue submit --task <uuid> --cwd /absolute/repository -- \
   codex exec 'Read /absolute/task-prompt.md and carry out its authorized task.'
 ```
 
@@ -44,17 +44,17 @@ it does not resume the conversation, infer a thread from its folder, or change
 the explicit command. A noninteractive follow-up still needs the harness's
 native resume arguments and a bounded prompt.
 
-`tq browse` opens an inline picker with `j/k` navigation and `/` search.
+`task-queue browse` opens an inline picker with `j/k` navigation and `/` search.
 Select an attempt to attach its terminal, inspect logs, or inspect its linked
-conversation. `tq browse --thread <id>` filters by exact conversation ID;
+conversation. `task-queue browse --thread <id>` filters by exact conversation ID;
 the Threads picker's **Queue attempts** action opens this view. Use
-`tq thread <attempt-uuid>` to inspect a linked conversation directly.
+`task-queue thread <attempt-uuid>` to inspect a linked conversation directly.
 
 Use `--terminal` when an attempt needs a terminal or you want to inspect its
 live output in the configured terminal workspace. The command still determines whether the harness is
 interactive: `codex exec` is noninteractive and `codex` opens the interactive UI.
 Each terminal attempt has its own view in the shared queue workspace.
-Use `tq attach <attempt-uuid>` to open it.
+Use `task-queue attach <attempt-uuid>` to open it.
 Queue output includes
 the attempt UUID and Pueue job ID. Retain both with the Taskwarrior UUID. The
 attempt's `sequence` records submission order independently of its Pueue job
@@ -63,17 +63,17 @@ start the mux pane. The child applies the attempt's saved launch settings,
 including its `PATH` and Taskwarrior and Pueue configuration paths.
 A Taskwarrior session ownership marker records coordination.
 
-Inspect `tq status` and use `tq logs <attempt-uuid>` for retained Pueue logs.
+Inspect `task-queue status` and use `task-queue logs <attempt-uuid>` for retained Pueue logs.
 The log reader checks the returned job identity before printing output.
 Use `--pager` for retained output or `--follow` to watch a running job in the
 same pager. The WezTerm queue picker uses these commands for managed attempts.
-`tq status` and `tq snapshot` read the live queue without rewriting attempts.
+`task-queue status` and `task-queue snapshot` read the live queue without rewriting attempts.
 Submission, cancellation, and resume write the attempt they operate on.
-Run `tq reconcile` before removing completed Pueue jobs when their results
+Run `task-queue reconcile` before removing completed Pueue jobs when their results
 must remain available to the board.
-Use `tq reconcile` to persist the current results before queue cleanup. Use
-`tq cancel <attempt-uuid>` for cancellation and
-`tq resume <attempt-uuid>` for an interrupted submission. After a completed
+Use `task-queue reconcile` to persist the current results before queue cleanup. Use
+`task-queue cancel <attempt-uuid>` for cancellation and
+`task-queue resume <attempt-uuid>` for an interrupted submission. After a completed
 attempt, inspect its result before submitting a new one with `--retry`.
 
 Successful execution appears as `review: true` in queue output. This field

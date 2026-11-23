@@ -27,7 +27,7 @@ Pick a thread, then choose:
   Fork            Create a session in the original harness
   Fork (Switch)   Choose a harness and create a session there
   Inspect         Show its captured conversation
-  Queue attempts  Browse linked executions (when tq is installed)
+  Queue attempts  Browse linked executions (when task-queue is installed)
 
 Switching harnesses always creates a new session through Atuin conversion.
 Every launch adds the harness's registry full-access flags (launch.fullAccess).
@@ -59,7 +59,7 @@ func Run(args []string) int {
 		err = resume(argv)
 	} else if err == nil && len(argv) > 0 {
 		command := "atuin"
-		if argv[0] == "tq" {
+		if argv[0] == "task-queue" {
 			command, argv = argv[0], argv[1:]
 		}
 		var binary string
@@ -274,7 +274,7 @@ func prepareInFolder(args []string, choose func([]picker.Item, string) (int, err
 	}
 	thread := sessions[index]
 	actions := []string{"Resume", "Resume (Switch)", "Fork", "Fork (Switch)", "Inspect"}
-	if _, err := exec.LookPath("tq"); err == nil {
+	if _, err := exec.LookPath("task-queue"); err == nil {
 		actions = append(actions, "Queue attempts")
 	}
 	action, err := choose(picker.Items(actions), "action> ")
@@ -285,7 +285,7 @@ func prepareInFolder(args []string, choose func([]picker.Item, string) (int, err
 		return []string{"threads", "show", thread.ID}, nil
 	}
 	if action == 5 {
-		return []string{"tq", "browse", "--thread", thread.ID}, nil
+		return []string{"task-queue", "browse", "--thread", thread.ID}, nil
 	}
 	argv := []string{"resume", thread.ID}
 	if printCommand {
