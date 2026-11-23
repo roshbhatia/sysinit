@@ -1643,6 +1643,7 @@
     "session-tree": {
       "inputs": {
         "nixpkgs": [
+          "sysinit-wezterm",
           "nixpkgs"
         ]
       },
@@ -1815,17 +1816,17 @@
         "spawn": "spawn"
       },
       "locked": {
-        "lastModified": 1795401365,
-        "narHash": "sha256-wME/8dI5VfUK6mGQLWBQ9hDbSaJxwDTpsA1JADFB5CY=",
+        "lastModified": 1795401840,
+        "narHash": "sha256-gRopz5szAOv+T3PhuQF2GV6ibPW7a0F5y2xkcUHzIDE=",
         "owner": "roshbhatia",
         "repo": "sysinit.wezterm",
-        "rev": "db2a77bbad9da22e7786f1be90eeae09b41a07fc",
+        "rev": "ba7e37de99347dc22018082f23ced74022e9c993",
         "type": "github"
       },
       "original": {
         "owner": "roshbhatia",
         "repo": "sysinit.wezterm",
-        "rev": "db2a77bbad9da22e7786f1be90eeae09b41a07fc",
+        "rev": "ba7e37de99347dc22018082f23ced74022e9c993",
         "type": "github"
       }
     },
