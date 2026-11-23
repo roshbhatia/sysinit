@@ -29,18 +29,19 @@ let
     export PATH=${lib.escapeShellArg profilePath}
     exec ${lib.escapeShellArg "${config.home.profileDirectory}/bin/nvim"} "$@"
   '';
-  # Rex can pass a trailing slash in PWD, which Nushell rejects.
-  shellArgv = [
-    "/usr/bin/env"
-    "-u"
-    "PWD"
-    "PATH=${profilePath}"
-  ]
-  ++ shell;
   settings = {
-    inherit shellArgv;
-    shell = lib.escapeShellArgs shellArgv;
+    # Rex can pass a trailing slash in PWD, which Nushell rejects.
+    shell = lib.escapeShellArgs (
+      [
+        "/usr/bin/env"
+        "-u"
+        "PWD"
+        "PATH=${profilePath}"
+      ]
+      ++ shell
+    );
     themeFile = "${config.xdg.configHome}/rex/themes/Sysinit";
+    transparent = config.sysinit.theme.transparency.enable;
     inherit (config.sysinit.theme) appearance;
     inherit (config.sysinit.theme.font) monospace size symbols;
   };
