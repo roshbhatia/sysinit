@@ -1,0 +1,121 @@
+pkgs/internal/terminalprovider/provider.go
+  s_a4a3eea4720821::t_ae4d12462eb620 1-46
+pkgs/task-board/view.go
+  s_a4a3eea4720821::t_d24f5bc7edf312 12,26-44,47-53,60
+  s_a4a3eea4720821::t_9c5096030bb4f9 175-177,221-224
+  s_a4a3eea4720821::t_578cebe97c7a91 1-11,13-25,45-46,54-59,61-174,178-220,225-242
+pkgs/tq/main_test.go
+  s_a4a3eea4720821::t_fbe218a8fc5c25 252,271,280,308,316
+  s_a4a3eea4720821::t_c916b1fba27325 253-258,281-292
+pkgs/utils/internal/threads/threads_test.go
+  s_a4a3eea4720821::t_d4973f671924c2 11-12,56,58-61
+pkgs/tq/main.go
+  s_a4a3eea4720821::t_8c79c7f1fd7b86 39-41
+  s_a4a3eea4720821::t_9c5096030bb4f9 18
+docs/composability-audit.md
+  s_a4a3eea4720821::t_25788668049d26 3-25
+pkgs/go.mod
+  s_a4a3eea4720821::t_d24f5bc7edf312 9
+docs/terminal-providers.md
+  s_a4a3eea4720821::t_3ea3089e8c94eb 23
+pkgs/internal/picker/picker_test.go
+  s_a4a3eea4720821::t_ef8fdf1d4f9482 17,52,62,70,85
+pkgs/task-board/view_test.go
+  s_a4a3eea4720821::t_d24f5bc7edf312 27-29
+  s_a4a3eea4720821::t_4f9d4557f89c59 1-26,30-64
+pkgs/tq/terminal-provider.go
+  s_a4a3eea4720821::t_3ea3089e8c94eb 25
+  s_a4a3eea4720821::t_c2caa2f5ca35ad 48-52
+  s_a4a3eea4720821::t_0c9db6c6a4b63b 1-9,11-24,26-29,31-34,36-42,47,53-54,56-89
+  s_a4a3eea4720821::t_361d95458c0572 43-46,55
+  s_a4a3eea4720821::t_14ad4760b15e4d 10,30,35
+checks/diff-pane.nu
+  s_a4a3eea4720821::t_f761678d2ade17 108
+pkgs/task-board/main.go
+  s_a4a3eea4720821::t_3ea3089e8c94eb 147
+  s_a4a3eea4720821::t_e3d340109cbd2a 115,137-139,308-311,313-316
+  s_a4a3eea4720821::t_68e9dc6f49acb5 13,15,18,34-36,105-107,121-127,134-136,142-143,145-146,148-156,158,160-163,188-190,205,208-209,211-215,234,242-244,248-250,345
+  s_a4a3eea4720821::t_44e756cee05903 245-247
+  s_a4a3eea4720821::t_d24f5bc7edf312 12,129-130,133,140-141,144,157,159,165,177,184,187,194,198,206-207,210,216,240-241,251,256,261,270,288,294,300
+  s_a4a3eea4720821::t_14ad4760b15e4d 20,275-283
+  s_a4a3eea4720821::t_621bb77fe9d13f 9,257-260,262-269,271-274,286-287
+  s_a4a3eea4720821::t_578cebe97c7a91 217-233
+  s_a4a3eea4720821::t_5738fb9a935e26 318
+modules/home/programs/llm/runtime/diff/open.nu
+  s_a4a3eea4720821::t_9eedb72de416b7 321-326
+  s_a4a3eea4720821::t_f761678d2ade17 320,327-329
+overlays/sysinit-gotools.nix
+  s_a4a3eea4720821::t_361d95458c0572 76-82
+  s_a4a3eea4720821::t_161e13b59de86b 11
+modules/home/programs/llm/skills/taskwarrior/references/queued-execution.md
+  s_a4a3eea4720821::t_7a4504c1a2c736 79-85
+  s_a4a3eea4720821::t_c88815008f27cc 54,56-57
+pkgs/internal/picker/picker.go
+  s_a4a3eea4720821::t_ca2b22517f496a 8,20,33-56,62-65,173,176,181-183,185-191,193,208,212
+pkgs/tq/submit.go
+  s_a4a3eea4720821::t_4051b0ea1d67a3 159,163-165
+  s_a4a3eea4720821::t_9c5096030bb4f9 12-13,166,171,180-188
+  s_a4a3eea4720821::t_b1301521c44318 40,158,160-162,167-170,172-179,189
+flake.nix
+  s_a4a3eea4720821::t_c107a8cb0db617 347-349
+  s_a4a3eea4720821::t_b17635f3aa2c40 381
+  s_a4a3eea4720821::t_361d95458c0572 382
+pkgs/tq/terminal.go
+  s_a4a3eea4720821::t_b17635f3aa2c40 382-386
+  s_a4a3eea4720821::t_4051b0ea1d67a3 43-46,109,129,181
+  s_a4a3eea4720821::t_3ea3089e8c94eb 163-165
+  s_a4a3eea4720821::t_b1301521c44318 137-140,154-162,166-172,194-196,400,404
+pkgs/tq/state.go
+  s_a4a3eea4720821::t_4051b0ea1d67a3 25
+  s_a4a3eea4720821::t_b1301521c44318 26
+pkgs/tq/wezterm-provider.go
+  s_a4a3eea4720821::t_44e756cee05903 16-19,24
+  s_a4a3eea4720821::t_314efedd0e7bd0 1-15,20-23,25-116,118-149
+  s_a4a3eea4720821::t_3ea3089e8c94eb 117
+checks/tq-browser.py
+  s_a4a3eea4720821::t_b93345490bfb29 133-134
+docs/task-board.md
+  s_a4a3eea4720821::t_3ea3089e8c94eb 42
+  s_a4a3eea4720821::t_c88815008f27cc 19-21,24,47-48,54-55,68-70
+  s_a4a3eea4720821::t_7a4504c1a2c736 23,29-32,34-41,43-46,49-53,66
+pkgs/tq/browse.go
+  s_a4a3eea4720821::t_b1301521c44318 94,98
+  s_a4a3eea4720821::t_ca2b22517f496a 57,65,80-83,85,118
+pkgs/task-board/data.go
+  s_a4a3eea4720821::t_5dafef91e81fe8 67,70
+  s_a4a3eea4720821::t_e3d340109cbd2a 240-244
+  s_a4a3eea4720821::t_621bb77fe9d13f 10,29-32,38,59-66,68-69,71-74,146
+modules/home/programs/llm/skills/taskwarrior/SKILL.md
+  s_a4a3eea4720821::t_7a4504c1a2c736 65-75
+  s_a4a3eea4720821::t_c88815008f27cc 63-64
+pkgs/task-board/data_test.go
+  s_a4a3eea4720821::t_5dafef91e81fe8 15-16,33,36,45,50,53,57-78
+  s_a4a3eea4720821::t_387d3ec98c84c8 79-80
+overlays/tq-picker/view.nu
+  s_a4a3eea4720821::t_7875229f08fca8 4,9,12-14,17,22
+  s_a4a3eea4720821::t_287e6d866838a5 1-3,5-8,10-11,15-16,18-21,23-26
+pkgs/utils/internal/threads/threads.go
+  s_a4a3eea4720821::t_ca2b22517f496a 55-56,177,185,232,262-269,271,280,313
+overlays/tq-picker/default.nix
+  s_a4a3eea4720821::t_361d95458c0572 20-23,51-53,55-57,60-62,73
+  s_a4a3eea4720821::t_7875229f08fca8 66-68
+  s_a4a3eea4720821::t_c7bdc89cf33331 54
+  s_a4a3eea4720821::t_c2caa2f5ca35ad 58-59,63-65,69-70
+  s_a4a3eea4720821::t_4051b0ea1d67a3 9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ac2473b7921a54af9e8b6c858a2940dd3f8b348d",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
