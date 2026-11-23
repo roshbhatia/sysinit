@@ -1,0 +1,43 @@
+modules/home/programs/llm/default.nix
+  s_a4a3eea4720821::t_2c181b4059c4c6 101
+modules/home/programs/llm/runtime/diff/open.nu
+  s_a4a3eea4720821::t_2c181b4059c4c6 16,27-28,83,85,169,171,191,216,292,313-318,453-466,468-469,473-474,476-477,480-483,503-507
+modules/darwin/desktop.nix
+  s_a4a3eea4720821::t_2c181b4059c4c6 1
+overlays/sysinit-gotools.nix
+  s_a4a3eea4720821::t_2c181b4059c4c6 99
+overlays/tq-picker/default.nix
+  s_a4a3eea4720821::t_2c181b4059c4c6 21
+modules/home/programs/wezterm/default.nix
+  s_a4a3eea4720821::t_2c181b4059c4c6 143-166
+modules/home/programs/llm/skills/agent-diff/SKILL.md
+  s_a4a3eea4720821::t_2c181b4059c4c6 6,9
+modules/home/programs/llm/skills/local-workflows/SKILL.md
+  s_a4a3eea4720821::t_2c181b4059c4c6 17
+docs/composability-audit.md
+  s_a4a3eea4720821::t_306aeeb356a4cb 113-114
+modules/home/programs/llm/skills/default.nix
+  s_a4a3eea4720821::t_2c181b4059c4c6 10
+modules/home/programs/llm/skills/local-workflows/references/execution-and-terminals.md
+  s_a4a3eea4720821::t_2c181b4059c4c6 121,123
+docs/terminal-providers.md
+  s_a4a3eea4720821::t_2c181b4059c4c6 5
+flake.lock
+  s_a4a3eea4720821::t_d95910d5dc2271 686,725,1086,1301,1510,1604,1742,1770,1863,1923,1938,1954,1969,1984-1998,2155
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "bff59551825734c876ca42c6d40c7dd4c5d1230f",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
