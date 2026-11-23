@@ -15,9 +15,12 @@ let
     exec ${lib.escapeShellArg "${config.home.profileDirectory}/bin/nvim"} "$@"
   '';
   settings = {
+    # Rex can pass a trailing slash in PWD, which Nushell rejects.
     shell = lib.escapeShellArgs (
       [
         "/usr/bin/env"
+        "-u"
+        "PWD"
         "PATH=${profilePath}"
       ]
       ++ shell
