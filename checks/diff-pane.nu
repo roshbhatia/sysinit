@@ -46,7 +46,7 @@ def main [script: path, fixture: path, ty: path] {
         with-env {PATH: ($env.PATH | prepend $bin), REVIEW_FIXTURE: $root, DIFF_ROOT: $project, WEZTERM_PANE: '7', XDG_STATE_HOME: ($root | path join state)} {
             ^git -C $project init --quiet '--template='
             [{pane_id: 7, tab_id: 2}] | to json | save ($root | path join panes.json)
-            let opened = ^$nu.current-exe --no-config-file $script --cwd $project | complete
+            let opened = ^$nu.current-exe --no-config-file $script --cwd $project --review | complete
             assert equal $opened.exit_code 0 $opened.stderr
             assert ($opened.stdout | str starts-with Opened)
             let split = open ($root | path join split.json)
@@ -98,6 +98,18 @@ def main [script: path, fixture: path, ty: path] {
             rm --force ($changed_split | get $changed_index)
 
             [{pane_id: 7, tab_id: 2}] | to json | save --force ($root | path join panes.json)
+            let review = ^$nu.current-exe --no-config-file $script --cwd $project --review | complete
+            assert equal $review.exit_code 0 $review.stderr
+            let review_split = open ($root | path join split.json)
+            assert ('SYSINIT_REVIEW_PANE=7' in $review_split)
+            assert equal ($review_split | last) SysinitAgentReview
+            let review_retry = ^$nu.current-exe --no-config-file $script --cwd $project --review | complete
+            assert equal $review_retry.exit_code 0 $review_retry.stderr
+            assert ($root | path join review-refreshed | path exists)
+            let review_index = ($review_split | enumerate | where item == --listen | first | get index) + 1
+            rm --force ($review_split | get $review_index)
+
+            [{pane_id: 7, tab_id: 2}] | to json | save --force ($root | path join panes.json)
             let directory = with-env {DIFF_ROOT: $plain} {
                 ^$nu.current-exe --no-config-file $script --pane-id 7 --cwd $plain --allow-directory | complete
             }
@@ -132,5 +144,5 @@ def main [script: path, fixture: path, ty: path] {
 
     rm --recursive --force $root
 
-    print 'Diff creation, native flock, headless RPC, reuse, unborn HEAD and tab isolation passed'
+    print 'Diffview and Reviewr creation, native flock, headless RPC, reuse, unborn HEAD and tab isolation passed'
 }

@@ -93,7 +93,7 @@ func weztermAction(capability string, input terminalInput) (terminalResult, erro
 		return terminalResult{Reference: raw}, err
 	}
 	if capability == "terminal.review" {
-		command := exec.Command("agent-diff", "--allow-directory", "--cwd", input.Cwd, "--background")
+		command := exec.Command("agent-diff", "--review", "--allow-directory", "--cwd", input.Cwd, "--background")
 		if out, err := command.CombinedOutput(); err != nil {
 			return terminalResult{}, fmt.Errorf("agent-diff: %w %s", err, strings.TrimSpace(string(out)))
 		}

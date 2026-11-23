@@ -21,6 +21,15 @@ let
   sources = defaultSources // declared;
 in
 {
+  options.sysinit.traces.uiHost = mkOption {
+    type = types.enum [
+      "neovim"
+      "native"
+    ];
+    default = "neovim";
+    description = "Presentation host for interactive Traces sessions.";
+  };
+
   options.sysinit.traces.providers = mkOption {
     type = types.attrsOf (types.listOf types.str);
     default = { };
@@ -47,6 +56,7 @@ in
   };
 
   config = {
+    home.sessionVariables.TRACES_UI_HOST = cfg.uiHost;
     home.packages = [
       (lib.lowPrio pkgs.traces-providers)
     ];

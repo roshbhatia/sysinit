@@ -31,7 +31,7 @@ export default {
             await new Promise<void>((resolve) => {
               execFile(
                 "agent-diff",
-                ["--cwd", cwd],
+                ["--review", "--allow-directory", "--cwd", cwd],
                 { timeout: 16000 },
                 (error, stdout, stderr) => {
                   ctx.ui.toast.show({

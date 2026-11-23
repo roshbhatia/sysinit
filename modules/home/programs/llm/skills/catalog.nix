@@ -18,10 +18,12 @@
     docs-write-technical = "docs-write-technical";
     feature-based-session-manager = "workspace-manage";
     gh-stack = "github-stack-prs";
+    inspect-agent-traces = "inspect-agent-traces";
     local-workflows = "workflow-route-local";
     nix-cache-audit = "nix-audit-cache";
     nix-deployment = "nix-deploy-host";
     note = "review-annotate-diff";
+    review-change-groups = "review-change-groups";
     search-code-routing = "code-search";
     shell-script-authoring = "code-write-shell";
     skills-ecosystem-discovery = "skill-discover";

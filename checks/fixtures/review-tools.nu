@@ -66,6 +66,12 @@ def main --wrapped [tool: string, ...arguments: string] {
                 match $expression {
                     'getcwd()' => { print $env.DIFF_ROOT }
                     "exists(':DiffviewRefresh')" => { print 2 }
+                    'get(g:, "sysinit_review_ready", 0)' => { print 1 }
+                    "luaeval('require(\"sysinit_workbench.review\").refresh()')" => {
+                        touch ($root | path join review-refreshed)
+
+                        print 1
+                    }
                     "execute('checktime | DiffviewRefresh')" => {
                         touch ($root | path join refreshed)
                     }

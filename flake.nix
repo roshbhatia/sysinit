@@ -344,6 +344,7 @@
               "agent-diff"
               "agent-workspace"
               "goose-desktop"
+              "hunk"
               "task-board"
               "tq"
               "tq-terminal-wezterm"

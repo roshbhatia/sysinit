@@ -1,6 +1,22 @@
 { inputs }:
 final: _prev:
 let
+  editorHosted =
+    name: package:
+    final.symlinkJoin {
+      name = "${name}-editor-host-${final.lib.getVersion package}";
+      inherit (package) version;
+      paths = [ package ];
+      nativeBuildInputs = [ final.makeWrapper ];
+      postBuild = ''
+        rm "$out/bin/${name}"
+        makeWrapper ${final.lib.getExe final.nushell} "$out/bin/${name}" \
+          --add-flags "--no-config-file ${../modules/home/programs/neovim/editor-host.nu} ${name} ${package}/bin/${name}"
+      '';
+      meta = package.meta // {
+        mainProgram = name;
+      };
+    };
 
   sysinit-gotools = final.buildGoModule {
     pname = "sysinit-gotools";
@@ -108,9 +124,26 @@ in
     };
   };
 
-  changes = final.changes-cli;
+  changes = editorHosted "changes" final.changes-cli;
 
-  traces = final.traces-cli;
+  traces = editorHosted "traces" final.traces-cli;
+
+  sysinit-reviewr = final.vimUtils.buildVimPlugin {
+    pname = "reviewr.nvim";
+    version = "0-unstable-2026-11-23";
+    src = final.fetchFromGitHub {
+      owner = "paul-enz";
+      repo = "reviewr.nvim";
+      rev = "0c97dcaabcca99b16bb6c68b0c1197e0e8ab08f6";
+      hash = "sha256-V5E8wQf2OlFrtgug3z7chKE3gK9pg+mqjszFCn2ohWM=";
+    };
+  };
+
+  sysinit-editor-workbench = final.vimUtils.buildVimPlugin {
+    pname = "sysinit-editor-workbench";
+    version = "1";
+    src = ../modules/home/programs/neovim/workbench;
+  };
 
   ask =
     let

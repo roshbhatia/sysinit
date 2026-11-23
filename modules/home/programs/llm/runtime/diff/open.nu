@@ -68,6 +68,7 @@ def main [
     --base: string
     --directory
     --allow-directory
+    --review
     --file: string
     --line: int
     --column: int
@@ -127,6 +128,19 @@ def main [
     }
 
     let directory = $directory_mode or $unchanged_file
+
+    let review = if $review and not $directory and $file == null and $base == null and $note_session == null {
+        (run-command [
+            git
+            -C
+            $root
+            rev-parse
+            --verify
+            HEAD
+        ]).exit_code == 0
+    } else {
+        false
+    }
 
     if $note_session != null and ((not $directory and $base == null) or $note_session !~ '^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$') {
         error make {
@@ -202,6 +216,12 @@ def main [
         ($env.WEZTERM_UNIX_SOCKET? | default '')
     ]
 
+    let key_parts = if $review {
+        $key_parts | append reviewr
+    } else {
+        $key_parts
+    }
+
     let key_parts = if $directory {
         $key_parts | append [
             directory
@@ -248,6 +268,7 @@ def main [
             [--cwd $root --pane-id $parent --lock-held]
             | append (if $base != null { [--base $revision] } else { [] })
             | append (if $directory { [--directory] } else { [] })
+            | append (if $review { [--review] } else { [] })
             | append (if $file != null { [$"--file=($target)"] } else { [] })
             | append (if $line != null { [--line ($line | into string)] } else { [] })
             | append (if $column != null { [--column ($column | into string)] } else { [] })
@@ -276,11 +297,15 @@ def main [
         if $probe.exit_code == 0 and ($probe.stdout | str trim | path expand) == $root {
             let refresh = if $directory {
                 rpc $socket "execute('checktime | redraw')"
+            } else if $review {
+                rpc $socket "luaeval('require(\"sysinit_workbench.review\").refresh()')"
             } else {
                 rpc $socket "execute('checktime | DiffviewRefresh')"
             }
 
-            if $refresh.exit_code != 0 { error make {msg: 'The diff editor could not refresh yet. Run /diff again.'} }
+            if $refresh.exit_code != 0 or ($review and ($refresh.stdout | str trim) != '1') {
+                error make {msg: 'The diff editor could not refresh yet. Run /diff again.'}
+            }
 
             if $position != null { jump-to-source $socket $position }
 
@@ -315,7 +340,17 @@ def main [
 
     let state_home = $state | path dirname
 
-    let editor = if $directory {
+    let editor = if $review {
+        [
+            env
+            $"SYSINIT_REVIEW_PANE=($parent)"
+            nvim
+            --listen
+            $socket
+            -c
+            SysinitAgentReview
+        ]
+    } else if $directory {
         let comparison = if $baseline == null {
             if $file == null {
                 [
@@ -453,11 +488,13 @@ def main [
         if ($socket | path exists) {
             let ready = if $directory {
                 rpc $socket 'getcwd()'
+            } else if $review {
+                rpc $socket 'get(g:, "sysinit_review_ready", 0)'
             } else {
                 rpc $socket "exists(':DiffviewRefresh')"
             }
 
-            let expected = if $directory { $root } else { '2' }
+            let expected = if $directory { $root } else if $review { '1' } else { '2' }
 
             if $ready.exit_code == 0 and ($ready.stdout | str trim) == $expected {
                 if $position != null { jump-to-source $socket $position }

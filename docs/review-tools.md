@@ -9,10 +9,11 @@ was not measured.
 
 | Tool | Installed or configured entry point | Role and current callers |
 | --- | --- | --- |
-| Hunk 0.25.0 | `hunk`, `hunkdiff` | Both names resolve to the same executable. Local worktree and patch review, watch mode, GitHub PRs, saved review sessions, and editor-independent navigation. Sysinit configures the commit-log and viewed-file extensions. The macOS GitHub link picker offers Hunk. |
-| Changes 0.13.0 | `changes`, `changes interactive`, `changes workspace` | Diff analysis, structured output, local and committed review notes, and an interactive UI. The PR opener and macOS link picker expose it. Diffview integrations and agent workspaces use its note provider. |
-| diffnav 0.13.1 | `git diff \| diffnav` | Patch pager with a file tree. Changes invokes it as its external interactive reader. |
-| tuicr 0.29.0 | `tuicr -w`, `tuicr pr` | Local or PR review with persistent viewed state, line comments, and export. The PR opener and macOS link picker expose it. |
+| Reviewr.nvim | `agent-diff --review` | Draft worktree review with file navigation and precise feedback to the originating agent pane. |
+| Changes | `changes interactive`, `changes workspace`, `changes note` | Neovim change groups and review notes, a structured snapshot for automation, and durable note storage. |
+| Traces | `traces`, `:Traces [session]` | Find local sessions and read assistant replies in Neovim. Structured output and provider commands remain available from the CLI. |
+| diffnav | `git diff \| diffnav` | Patch pager with a file tree. Also the external reader for the optional native Changes UI. |
+| Hunk and tuicr | `nix shell .#hunk`, `nix shell .#tuicr` | Optional standalone review tools. Set `programs.hunk.enable = true` to install the managed Hunk configuration. |
 | Delta 0.20.1 | `git diff \| delta` | Patch and word-level coloring. Installed as a standalone CLI and referenced by diffnav's Nix package. Git has no configured Delta pager. |
 | Difftastic 0.72.0 | `difft LEFT RIGHT` | Syntax-aware comparison. Git's configured difftool is Neovim. |
 | Git and base utilities | `git diff`, `git show`, `git log -p`, `git range-diff`, `diff`, `sdiff`, `diff3`, `diffstat`, `patch` | Baseline patch, history, and merge plumbing. |
@@ -21,9 +22,19 @@ was not measured.
 
 ## Review local edits
 
-Run `agent-diff --allow-directory` inside WezTerm to open or focus a Neovim
-review split for the shell's current directory. It works in a Git worktree
-or a plain directory. Run it from the remote shell for a remote checkout.
+Run `agent-diff --review --allow-directory` from WezTerm to open or focus a
+Neovim review split. For a Git worktree, Reviewr includes untracked files
+through a temporary Git index and queues comments for explicit delivery.
+Run `:ReviewrTurn` before the next agent edit to mark its baseline, then pick
+Last turn in Reviewr. Plain directories open the directory browser. Run
+the command from the remote shell for a remote checkout.
+
+Run `changes interactive` or `:SysinitChanges` for change groups and durable
+notes. Press Enter to open a changed file, `p` for the rendered patch, and `r`
+to refresh. Run `traces` or `:Traces` to select a session, or
+`traces --session ID` for an exact assistant transcript. Set the corresponding
+`sysinit.changes.uiHost` or `sysinit.traces.uiHost` option to `"native"` to
+use the standalone interactive UI.
 
 `agents` opens a searchable list of registered agents on the shell's PATH.
 Codex, OpenCode, and Claude appear first by default. Selecting an agent
@@ -49,7 +60,7 @@ After the next edit, the command writes a Git patch to stdout.
 
 ```sh
 review-checkpoint mark
-review-checkpoint diff | hunk patch
+review-checkpoint diff | nvim -c 'setfiletype diff' -
 review-checkpoint clear
 ```
 
@@ -77,7 +88,7 @@ Diffing keeps the same baseline until you mark again.
 | OpenCode | Native conversation and diff view. `opencode` and `opencode2` resolve to the same executable. The managed Neovim launcher uses `/nvim-diff` so the native `/diff` has its own entry point. |
 | Pi | Managed `/diff` extension opens a Neovim split and also exposes agent-callable review tools. The separate Git checkpoint extension supports Pi's fork workflow. Plannotator is installed as a Pi extension for plan review. |
 | Codex and Claude Code | Installed native review surfaces. Codex also has an optional App Server adapter that records its reported per-turn patch. The agent registry lists 13 launchable harnesses. |
-| `agent-diff` | Opens or refreshes a Diffview split for an existing WezTerm pane. Can compare ordinary folders against a supplied baseline through the workspace path. |
+| `agent-diff` | Opens or refreshes Reviewr with `--review`. Explicit revisions and source links use Diffview. Can compare ordinary folders against a supplied baseline through the workspace path. |
 | `agent-workspace` | Optional pane, launch, review, and conversation coordination. Can pin a Git base, refresh the review split, and send notes back to a chosen pane. |
 | `ty`, `nuwez`, and `nuvim` | Terminal and editor control. These are the reusable placement and inspection interfaces for ordinary sessions and review splits. |
 | `review`, `gate-provider-review-gate`, and `agent-review` | `review` owns the adversarial review ledger consumed by the gate. `agent-review` is a separate session readiness report for dirty, unpushed, or mid-operation repositories. |
@@ -91,13 +102,12 @@ Diffing keeps the same baseline until you mark again.
 - `gh dash` is the PR dashboard. Laurel adds a team review queue. `gh enhance`
   is for Actions jobs and logs. Installed extensions also include `gh stack`
   for stack navigation and `gh aw` for agentic workflows.
-- `gh-pr-diff` is the shared local launcher. Its backends are Neovim/Atlas,
-  Diffview, Changes, Hunk, and tuicr. The macOS GitHub link picker offers Atlas,
-  Hunk, and the browser by default. Use `nix shell .#tuicr` for standalone
-  tuicr or choose `gh-pr-diff --tool tuicr` directly.
+- `gh-pr-diff` is the shared local launcher. The macOS link picker offers
+  Atlas and the browser by default. Put Hunk or tuicr on PATH to use the
+  corresponding explicit `gh-pr-diff --tool` backend.
 - `gh-pr-state` reads structured PR state and supports bounded, resumable
   polling. The installed GitHub CLI 2.104.0 does not expose `gh event`.
-- Hunk, Changes, GitHub tools and the agent/editor configuration are in the
+- Changes, GitHub tools and the agent/editor configuration are in the
   shared development profile. The Hammerspoon link picker is Darwin-specific.
   Homebrew had no extra diff or review package in the installed formula and
   cask lists.
@@ -113,20 +123,3 @@ Diffing keeps the same baseline until you mark again.
 These checks covered commands on PATH. Editor plugin state, profiles outside
 the standard paths, and desktop applications were checked on the local
 workstation only.
-
-## Pruning options
-
-1. Use native OpenCode for last-turn review, Hunk for the live worktree, and
-   Diffview for Neovim editing, file history, and merge conflicts. All three
-   can work with the agent started normally.
-2. Compare tuicr's local line-comment export with Hunk's review and note
-   workflow before dropping either. Prefer one secondary PR viewer at most.
-3. Keep Changes for its structured output and notes. If the standalone
-   diffnav workflow goes unused, change the configured external reader and
-   verify the patch handoff before removing diffnav. Difftastic and the
-   standalone Delta command have no Git difftool or pager binding. Delta
-   remains in the Nix closure while diffnav uses it.
-4. Keep `agent-workspace` optional. Its conversation binding and automation
-   are only needed when someone chooses that workflow. Audit callers before
-   removing it, particularly workspace links in Taskwarrior and note export.
-   Preserve `ty`, `nuwez`, and `nuvim` as independent interfaces.

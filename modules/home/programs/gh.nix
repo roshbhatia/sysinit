@@ -21,8 +21,6 @@ let
     runtimeInputs = [
       pkgs.gh
       pkgs.git
-      pkgs.hunk
-      pkgs.tuicr
       pkgs.flock
     ];
     text = ''

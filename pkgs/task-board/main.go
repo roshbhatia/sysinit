@@ -283,7 +283,7 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 					return acted{err}
 				}
 			}
-			command := exec.Command("agent-diff", "--allow-directory", "--cwd", dir, "--background")
+			command := exec.Command("agent-diff", "--review", "--allow-directory", "--cwd", dir, "--background")
 			return m, tea.ExecProcess(command, func(err error) tea.Msg { return acted{err} })
 		case key.Matches(msg, complete):
 			if c.Task.LinearID != "" {

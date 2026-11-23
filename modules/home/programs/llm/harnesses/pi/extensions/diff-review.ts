@@ -139,7 +139,12 @@ export default function (pi: ExtensionAPI): void {
   pi.registerCommand("diff", {
     description: "Open the worktree diff in a reusable Neovim split",
     handler: async (_args, ctx) => {
-      const result = await pi.exec("agent-diff", ["--cwd", ctx.cwd]);
+      const result = await pi.exec("agent-diff", [
+        "--review",
+        "--allow-directory",
+        "--cwd",
+        ctx.cwd,
+      ]);
       ctx.ui.notify(
         (result.code === 0 ? result.stdout : result.stderr).trim(),
         result.code === 0 ? "info" : "warning",

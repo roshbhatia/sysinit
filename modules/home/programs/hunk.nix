@@ -1,6 +1,7 @@
 {
   config,
   inputs,
+  lib,
   pkgs,
   ...
 }:
@@ -8,7 +9,6 @@
   imports = [ inputs.hunk.homeManagerModules.default ];
 
   programs.hunk = {
-    enable = true;
     package = pkgs.hunk;
     enableGitIntegration = false;
     enableJujutsuIntegration = false;
@@ -62,7 +62,7 @@
     };
   };
 
-  xdg.configFile = {
+  xdg.configFile = lib.mkIf config.programs.hunk.enable {
     "hunk/extensions/hunk-commit-log".source = inputs.hunk-commit-log;
     "hunk/extensions/hunk-viewed".source = inputs.hunk-viewed;
   };

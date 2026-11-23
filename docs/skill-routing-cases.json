@@ -85,6 +85,16 @@
     "avoid": ["desktop-control"]
   },
   {
+    "prompt": "Show me the logical change groups and existing inline review notes in Neovim",
+    "expected": ["review-change-groups"],
+    "avoid": ["review-adversarial"]
+  },
+  {
+    "prompt": "Find the assistant replies for an exact Traces session and open them in Neovim",
+    "expected": ["inspect-agent-traces"],
+    "avoid": ["review-worktree-diff"]
+  },
+  {
     "prompt": "Explain what this single expression returns",
     "expected": [],
     "avoid": ["nix-deploy-host"]

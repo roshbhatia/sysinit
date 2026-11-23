@@ -58,6 +58,27 @@ let
 in
 {
   pi = pkgs.pi-coding-agent;
+  editor-workbench = nativeCheck {
+    name = "editor-workbench-check";
+    inputs = [
+      pkgs.neovim-unwrapped
+      pkgs.git
+      pkgs.changes
+      pkgs.traces
+    ];
+    commands = [
+      [
+        "nvim"
+        "--headless"
+        "-u"
+        "NONE"
+        "-l"
+        ./editor-workbench.lua
+        pkgs.sysinit-editor-workbench
+        pkgs.sysinit-reviewr
+      ]
+    ];
+  };
   sunshine-apps = nuCheck {
     name = "sunshine-apps-check";
     script = "sunshine-apps.nu";

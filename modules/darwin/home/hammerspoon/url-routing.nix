@@ -164,7 +164,6 @@ in
             providers = [
               "browser"
               "atlas"
-              "hunk"
             ];
           };
           actions = {

@@ -8,6 +8,8 @@ let
   inherit (import ./catalog.nix) names optIn;
   compatibility = {
     review-worktree-diff = "Requires WezTerm, Neovim, and the sysinit agent-diff command.";
+    review-change-groups = "Requires Changes. Interactive review uses the Sysinit Neovim workbench.";
+    inspect-agent-traces = "Requires Traces. Interactive transcript browsing uses the Sysinit Neovim workbench.";
     terminal-wezterm = "Requires WezTerm and the sysinit ty command.";
     workspace-manage = "Requires Git and the seshy sy command.";
     task-manage = "Requires the managed Taskwarrior database. Queued execution also requires tq and Pueue.";

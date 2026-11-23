@@ -1,4 +1,9 @@
-{ config, inputs, ... }:
+{
+  config,
+  inputs,
+  pkgs,
+  ...
+}:
 {
   imports = [
     inputs.sysinit-nvim.homeManagerModules.default
@@ -8,4 +13,8 @@
     enable = true;
     configPath = config.sysinit.neovim.configPath;
   };
+  programs.neovim.plugins = [
+    pkgs.sysinit-reviewr
+    pkgs.sysinit-editor-workbench
+  ];
 }
