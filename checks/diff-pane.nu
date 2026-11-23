@@ -65,6 +65,38 @@ def main [script: path, fixture: path, ty: path] {
             let index = ($split | enumerate | where item == --listen | first | get index) + 1
             rm --force ($split | get $index)
 
+            let linked = $project | path join "linked file.lua"
+
+            'before' | save $linked
+
+            ^git -C $project add -- 'linked file.lua'
+
+            ^git -C $project -c user.name=Fixture -c user.email=fixture@example.invalid commit --quiet -m fixture
+
+            [{pane_id: 7, tab_id: 2}] | to json | save --force ($root | path join panes.json)
+
+            let clean_link = ^$nu.current-exe --no-config-file $script --cwd $project --allow-directory --file $linked --line 2 --column 3 | complete
+            assert equal $clean_link.exit_code 0 $clean_link.stderr
+
+            let clean_split = open ($root | path join split.json)
+            assert equal ($clean_split | last) $linked
+            let clean_index = ($clean_split | enumerate | where item == --listen | first | get index) + 1
+            rm --force ($clean_split | get $clean_index)
+
+            'after' | save --force $linked
+
+            [{pane_id: 7, tab_id: 2}] | to json | save --force ($root | path join panes.json)
+
+            let changed_link = ^$nu.current-exe --no-config-file $script --cwd $project --allow-directory --file $linked | complete
+            assert equal $changed_link.exit_code 0 $changed_link.stderr
+
+            let changed_split = open ($root | path join split.json)
+            let diff_args = $changed_split | where {|arg| $arg | str starts-with 'SYSINIT_DIFFVIEW_ARGS=' } | first | str replace 'SYSINIT_DIFFVIEW_ARGS=' '' | from json
+            assert equal $diff_args [HEAD -- ':(top,literal)linked file.lua']
+            assert (($changed_split | last) | str ends-with '/source-view.lua')
+            let changed_index = ($changed_split | enumerate | where item == --listen | first | get index) + 1
+            rm --force ($changed_split | get $changed_index)
+
             [{pane_id: 7, tab_id: 2}] | to json | save --force ($root | path join panes.json)
             let directory = with-env {DIFF_ROOT: $plain} {
                 ^$nu.current-exe --no-config-file $script --pane-id 7 --cwd $plain --allow-directory | complete

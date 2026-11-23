@@ -1,5 +1,6 @@
 const script = path self
 const directory_notes = path self | path dirname | path join directory-notes.lua
+const source_view = path self | path dirname | path join source-view.lua
 
 def run-command [arguments: list<string>] {
     let program = $arguments | first
@@ -39,6 +40,16 @@ def rpc [socket: path, expression: string] {
     ]
 }
 
+def jump-to-source [socket: path, position: record] {
+    let lua = 'dofile(_A.script).jump(_A.position)'
+
+    let args = {script: $source_view, position: $position} | to json --raw | str replace --all "'" "''"
+
+    let expression = "luaeval('" + $lua + "', json_decode('" + $args + "'))"
+
+    rpc $socket $expression | ignore
+}
+
 def review-file [root: path, file: string] {
     let target = $root | path join $file | path expand --strict
 
@@ -58,6 +69,8 @@ def main [
     --directory
     --allow-directory
     --file: string
+    --line: int
+    --column: int
     --against: path
     --note-session: string
     --note-command: path
@@ -74,27 +87,11 @@ def main [
         run-command [git -C $cwd rev-parse --show-toplevel]
     }
 
-    let directory = $directory or ($allow_directory and $base == null and $git_root.exit_code? != 0)
-
-    if $note_session != null and ((not $directory and $base == null) or $note_session !~ '^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$') {
-        error make {
-            msg: 'Review notes require a workspace UUID and Git review also requires an explicit base.'
-        }
-    }
-
-    if $directory and $base != null { error make {msg: '--base requires Git review.'} }
-
-    if ($directory and $note_session != null) != ($note_command != null) {
-        error make {msg: 'Directory notes require both --note-session and --note-command.'}
-    }
-
-    if ($file != null or $against != null) and not $directory {
-        error make {msg: '--file and --against require directory review.'}
-    }
+    let directory_mode = $directory or ($allow_directory and $base == null and $git_root.exit_code? != 0)
 
     if $against != null and $file == null { error make {msg: '--against also requires --file.'} }
 
-    let root = if $directory {
+    let root = if $directory_mode {
         let resolved = $cwd | path expand --strict
 
         if ($resolved | path type) != dir { error make {msg: 'Expected a directory.'} }
@@ -108,7 +105,52 @@ def main [
 
     let target = if $file != null { review-file $root $file } else { $root }
 
+    let pathspec = if $file != null and not $directory_mode {
+        $target | path relative-to $root | prepend ':(top,literal)' | str join
+    }
+
+    let unchanged_file = if $pathspec != null and $allow_directory and $base == null {
+        let status = run-command [
+            git
+            -C
+            $root
+            status
+            --porcelain
+            --untracked-files=all
+            --
+            $pathspec
+        ]
+
+        $status.exit_code == 0 and ($status.stdout | is-empty)
+    } else {
+        false
+    }
+
+    let directory = $directory_mode or $unchanged_file
+
+    if $note_session != null and ((not $directory and $base == null) or $note_session !~ '^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$') {
+        error make {
+            msg: 'Review notes require a workspace UUID and Git review also requires an explicit base.'
+        }
+    }
+
+    if $directory and $base != null { error make {msg: '--base requires Git review.'} }
+
+    if ($directory and $note_session != null) != ($note_command != null) {
+        error make {msg: 'Directory notes require both --note-session and --note-command.'}
+    }
+
+    if $against != null and not $directory { error make {msg: '--against requires directory review.'} }
+
     let baseline = if $against != null { review-file ($against | path expand --strict) $file }
+
+    let position = if $file != null and ($line | default 0) > 0 {
+        {
+            file: $target
+            line: $line
+            column: ([$column 1] | compact | math max)
+        }
+    }
 
     let clients = command-output [ty clients] | from json --strict | get clients
 
@@ -168,12 +210,12 @@ def main [
             ($note_session | default '')
         ]
     } else if $base == null {
-        $key_parts
+        $key_parts | append (if $file != null { [$target] } else { [] })
     } else {
         $key_parts | append [
             $revision
             ($note_session | default '')
-        ]
+        ] | append (if $file != null { [$target] } else { [] })
     }
 
     let key = $key_parts | str join '|' | hash sha256 | str substring 0..19
@@ -206,7 +248,9 @@ def main [
             [--cwd $root --pane-id $parent --lock-held]
             | append (if $base != null { [--base $revision] } else { [] })
             | append (if $directory { [--directory] } else { [] })
-            | append (if $file != null { [--file $file] } else { [] })
+            | append (if $file != null { [$"--file=($target)"] } else { [] })
+            | append (if $line != null { [--line ($line | into string)] } else { [] })
+            | append (if $column != null { [--column ($column | into string)] } else { [] })
             | append (if $against != null { [--against ($against | path expand --strict)] } else { [] })
             | append (if $note_session != null { [--note-session $note_session] } else { [] })
             | append (if $note_command != null { [--note-command ($note_command | path expand --strict)] } else { [] })
@@ -237,6 +281,8 @@ def main [
             }
 
             if $refresh.exit_code != 0 { error make {msg: 'The diff editor could not refresh yet. Run /diff again.'} }
+
+            if $position != null { jump-to-source $socket $position }
 
             if not $background {
                 command-output [
@@ -302,10 +348,38 @@ def main [
             $revision
         ]
 
-        let action = if $head.exit_code == 0 { $"DiffviewOpen ($revision)" } else { 'DiffviewOpen' }
+        let diff_args = (
+            if $head.exit_code == 0 { [$revision] } else { [] }
+        ) | append (if $pathspec != null { [-- $pathspec] } else { [] })
+
+        let diff = if $pathspec == null {
+            [
+                -c
+                ($diff_args | prepend DiffviewOpen | str join ' ')
+            ]
+        } else {
+            [-S $source_view]
+        }
+
+        let source_env = if $pathspec != null {
+            [$"SYSINIT_DIFFVIEW_ARGS=($diff_args | to json --raw)"]
+        } else {
+            []
+        }
 
         if $note_session == null {
-            [nvim --listen $socket -c $action]
+            if $pathspec == null {
+                [nvim --listen $socket ...$diff]
+            } else {
+                [
+                    env
+                    ...$source_env
+                    nvim
+                    --listen
+                    $socket
+                    ...$diff
+                ]
+            }
         } else {
             let provider_directory = $env.CHANGES_PROVIDERS_DIRECTORY?
 
@@ -321,13 +395,13 @@ def main [
             [
                 env
                 ...$variables
+                ...$source_env
                 nvim
                 --listen
                 $socket
                 -c
                 $configure
-                -c
-                $action
+                ...$diff
             ]
         }
     }
@@ -377,6 +451,8 @@ def main [
             let expected = if $directory { $root } else { '2' }
 
             if $ready.exit_code == 0 and ($ready.stdout | str trim) == $expected {
+                if $position != null { jump-to-source $socket $position }
+
                 if $json {
                     {
                         pane_id: ($pane | into int)

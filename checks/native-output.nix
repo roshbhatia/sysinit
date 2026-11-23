@@ -47,7 +47,7 @@ import ./native.nix { inherit pkgs; } {
       "nu"
       "--no-config-file"
       ./diff-pane.nu
-      ../modules/home/programs/llm/runtime/diff/open.nu
+      "${../modules/home/programs/llm/runtime/diff}/open.nu"
       ./fixtures/review-tools.nu
       ../modules/home/programs/utils/dev/ty.nu
     ]
