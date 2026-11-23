@@ -8,7 +8,7 @@ let
 
     src = ../pkgs;
 
-    vendorHash = "sha256-7ywkgl/3KX+RzkqAyxpy3MirDZHkFQOOnVkI9Yjl02c=";
+    vendorHash = "sha256-sq1Ahs22exa9oPfHoVwVpFk0kDlHVC6odGAfCCZdxu4=";
 
     nativeCheckInputs = [
       final.git
@@ -73,11 +73,13 @@ in
 {
   inherit sysinit-gotools;
 
-  task-board = select {
-    pname = "task-board";
-    package = sysinit-gotools;
-    binary = "task-board";
-    names = [ "task-board" ];
+  task-board = final.writeShellApplication {
+    name = "task-board";
+    runtimeInputs = [ final.taskwarrior-cli ];
+    text = ''
+      export SYSINIT_TERMINAL_PROVIDER="''${SYSINIT_TERMINAL_PROVIDER:-${final.tq-terminal-wezterm}/share/sysinit/terminal-providers/wezterm.json}"
+      exec ${sysinit-gotools}/bin/task-board "$@"
+    '';
     meta = {
       description = "Taskwarrior Kanban with linked queue attempts and workspaces";
       mainProgram = "task-board";

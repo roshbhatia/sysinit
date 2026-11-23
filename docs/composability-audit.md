@@ -1,5 +1,28 @@
 # Sysinit workstation audit
 
+## Terminal UI and scripting boundaries
+
+Use Bubble Tea for terminal input and layout, Bubbles for standard controls,
+and the semantic ANSI palette from `go-utils/ui`. The picker has a
+title/detail contract shared by two Sysinit tools. Move it into `go-utils`
+when a companion tool adopts that same interaction. Review notes and task
+status stay in Taskwarrior. Queue results and process supervision stay in
+`tq`, which is the strongest standalone package candidate. The board can
+work with Taskwarrior alone and load queue and review tools at their command
+or provider boundaries. See [terminal providers](terminal-providers.md).
+
+Use Nushell for shaped data from another command, argument construction,
+and explicit calls to tool owners. The Pueue pager is one such adapter.
+Good next conversions are `hack/generate-cloud.sh` for manifest-driven
+deployment files, the JSON-heavy update helpers, and `agent-sessions` once
+terminal discovery is available through a provider. Keep the session cache
+locking and stale-data behavior when porting the latter.
+
+Keep Go for interactive controls, queue and gateway supervision, and
+foreground process management. Keep Lua or TypeScript near the native editor,
+terminal, and harness APIs. The [Python migration notes](python-migration.md)
+track runtime boundaries that need a native utility before conversion.
+
 ## Building-block follow-up
 
 Start from the command that owns the operation. Add a picker, viewer, or

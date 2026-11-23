@@ -14,7 +14,7 @@ func key(m pickerModel, kind tea.KeyType, runes ...rune) pickerModel {
 }
 
 func TestPickerInsertFirstNavigationAndFiltering(t *testing.T) {
-	m := newPicker([]string{"alpha", "beta", "gamma"}, "thread> ")
+	m := newPicker(Items([]string{"alpha", "beta", "gamma"}), "thread> ")
 	m = key(m, tea.KeyRunes, 'j')
 	if m.input.Value() != "j" || len(m.matches) != 0 {
 		t.Fatal("j should type in insert mode")
@@ -49,7 +49,7 @@ func TestPickerInsertFirstNavigationAndFiltering(t *testing.T) {
 }
 
 func TestPickerCancelAndNoMatches(t *testing.T) {
-	m := newPicker([]string{"alpha"}, "action> ")
+	m := newPicker(Items([]string{"alpha"}), "action> ")
 	m = key(m, tea.KeyRunes, 'z')
 	m = key(m, tea.KeyEnter)
 	if m.done || !strings.Contains(m.View(), "No matches") {
@@ -59,7 +59,7 @@ func TestPickerCancelAndNoMatches(t *testing.T) {
 	if !m.done || m.selected != -1 {
 		t.Fatal("cancel selected an item")
 	}
-	m = newPicker([]string{"alpha"}, "action> ")
+	m = newPicker(Items([]string{"alpha"}), "action> ")
 	m = key(key(m, tea.KeyEsc), tea.KeyEsc)
 	if !m.done || m.selected != -1 {
 		t.Fatal("normal Escape did not cancel")
@@ -67,7 +67,7 @@ func TestPickerCancelAndNoMatches(t *testing.T) {
 }
 
 func TestPickerCoalescedNormalKeys(t *testing.T) {
-	m := newPicker([]string{"alpha", "beta", "gamma"}, "action> ")
+	m := newPicker(Items([]string{"alpha", "beta", "gamma"}), "action> ")
 	m = key(m, tea.KeyEsc)
 	m = key(m, tea.KeyRunes, 'j', 'j')
 	if m.cursor != 2 {
@@ -82,7 +82,7 @@ func TestPickerCoalescedNormalKeys(t *testing.T) {
 func TestPickerFitsInlineAndSanitizesLabels(t *testing.T) {
 	for _, width := range []int{80, 21, 6} {
 		for _, height := range []int{3, 4, 8, 20} {
-			m := newPicker([]string{"wide 界 label\nwith\x1bcontrols", "second"}, "thread> ")
+			m := newPicker(Items([]string{"wide 界 label\nwith\x1bcontrols", "second"}), "thread> ")
 			next, _ := m.Update(tea.WindowSizeMsg{Width: width, Height: height})
 			m = next.(pickerModel)
 			if strings.ContainsAny(m.labels[0], "\n\x1b") {

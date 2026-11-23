@@ -54,7 +54,7 @@ func browse(args []string, records []attempt, jobs map[string]job, dir string) e
 		}
 		return left.ID < right.ID
 	})
-	labels := make([]string, len(attempts))
+	items := make([]picker.Item, len(attempts))
 	for i, a := range attempts {
 		id := "pending"
 		if a.PueueID != nil {
@@ -62,7 +62,7 @@ func browse(args []string, records []attempt, jobs map[string]job, dir string) e
 		}
 		status := state(a.Result)
 		if a.Review {
-			status = "Success · review"
+			status = "Succeeded"
 		} else if status == "Done" {
 			var result struct {
 				Done struct {
@@ -77,9 +77,12 @@ func browse(args []string, records []attempt, jobs map[string]job, dir string) e
 		if a.Thread != "" {
 			link = " · thread " + a.Thread
 		}
-		labels[i] = fmt.Sprintf("%s %s · %s · %s · %s%s", id, status, filepath.Base(a.Cwd), strings.Join(a.Argv, " "), a.ID, link)
+		items[i] = picker.Item{
+			Title:  strings.Join(a.Argv, " "),
+			Detail: fmt.Sprintf("%s %s · %s · %s%s", id, status, filepath.Base(a.Cwd), a.ID, link),
+		}
 	}
-	index, err := picker.Pick(labels, "queue> ", false)
+	index, err := picker.Pick(items, "queue> ", false)
 	if err != nil || index < 0 {
 		return err
 	}
@@ -88,11 +91,11 @@ func browse(args []string, records []attempt, jobs map[string]job, dir string) e
 	var labelsActions []string
 	var commands [][]string
 	if a.Terminal != "" {
-		panes, err := terminalPanes(a, dir)
+		live, err := hasTerminal(a, dir)
 		if err != nil {
 			return err
 		}
-		if len(panes) > 0 {
+		if live {
 			labelsActions = append(labelsActions, "Attach terminal")
 			commands = append(commands, []string{"attach"})
 		}
@@ -112,7 +115,7 @@ func browse(args []string, records []attempt, jobs map[string]job, dir string) e
 	if len(commands) == 0 {
 		return errors.New("attempt has no available terminal, logs, or captured conversation")
 	}
-	selected, err := picker.Pick(labelsActions, "action> ", false)
+	selected, err := picker.Pick(picker.Items(labelsActions), "action> ", false)
 	if err != nil || selected < 0 {
 		return err
 	}

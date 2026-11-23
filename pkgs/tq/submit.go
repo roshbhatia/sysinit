@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/roshbhatia/sysinit/pkgs/internal/terminalprovider"
 )
 
 type submission struct {
@@ -35,7 +37,7 @@ func parseSubmission(args []string) (submission, error) {
 	f.StringVar(&plan.thread, "thread", "", "Exact Atuin captured-thread ID")
 	f.StringVar(&plan.cwd, "cwd", "", "Working directory")
 	f.StringVar(&plan.group, "group", "agents", "Pueue group")
-	f.BoolVar(&plan.terminal, "terminal", false, "Run in a tab in the task-queue WezTerm workspace")
+	f.BoolVar(&plan.terminal, "terminal", false, "Run in the configured terminal workspace")
 	f.BoolVar(&plan.retry, "retry", false, "New attempt after completion")
 	if err := f.Parse(args); err != nil {
 		return plan, err
@@ -140,15 +142,6 @@ func submit(plan submission, dir string, records []attempt) (int, error) {
 			}
 		}
 	}
-	var groups map[string]json.RawMessage
-	if e = jsonCall(&groups, "pueue", "group", "--json"); e != nil {
-		return 1, e
-	}
-	if _, ok := groups[plan.group]; !ok {
-		if _, e = call("pueue", "group", "add", plan.group); e != nil {
-			return 1, e
-		}
-	}
 	a := attempt{
 		ID:       uuid(),
 		Task:     taskID,
@@ -162,7 +155,38 @@ func submit(plan submission, dir string, records []attempt) (int, error) {
 		Result:   json.RawMessage(`"Preparing"`),
 	}
 	if plan.terminal {
-		a.Terminal = queueWorkspace
+		a.Terminal = os.Getenv("TQ_TERMINAL_WORKSPACE")
+		if a.Terminal == "" {
+			a.Terminal = os.Getenv("TQ_WEZTERM_WORKSPACE")
+		}
+		if a.Terminal == "" {
+			a.Terminal = queueWorkspace
+		}
+		a.SharedTerminal = true
+		if path := os.Getenv(terminalprovider.Selection); path != "" {
+			a.TerminalProvider, e = filepath.Abs(path)
+			if e != nil {
+				return 1, e
+			}
+			manifest, err := terminalprovider.Open(a.TerminalProvider)
+			if err != nil {
+				return 1, err
+			}
+			for _, action := range []string{"spawn", "status", "focus", "close"} {
+				if _, ok := manifest.Actions["terminal."+action]; !ok {
+					return 1, fmt.Errorf("terminal provider %s lacks terminal.%s", manifest.Name, action)
+				}
+			}
+		}
+	}
+	var groups map[string]json.RawMessage
+	if e = jsonCall(&groups, "pueue", "group", "--json"); e != nil {
+		return 1, e
+	}
+	if _, ok := groups[plan.group]; !ok {
+		if _, e = call("pueue", "group", "add", plan.group); e != nil {
+			return 1, e
+		}
 	}
 	if e = save(filepath.Join(dir, a.ID+".json"), a); e != nil {
 		return 1, e

@@ -15,7 +15,7 @@ const usage = `Usage: tq [--state DIR] COMMAND [ARGS...]
   submit [OPTIONS] -- COMMAND [ARGS...]  Queue a command. See tq submit --help.
   status, snapshot                    Read attempts and live status as JSON.
   browse [--thread ID]                 Browse attempts, terminals, and logs.
-  attach UUID [--focus-only]           Open an attempt's WezTerm tab, or select it in the mux.
+  attach UUID [--focus-only]           Open or focus an attempt in its terminal provider.
   thread UUID                          Show an attempt's captured conversation.
   logs UUID [--pager | --follow]       Read verified log output for an attempt.
   reconcile                            Save live status to the attempt records.
@@ -36,6 +36,9 @@ func main() {
 }
 
 func run(args []string) (int, error) {
+	if len(args) == 1 && args[0] == "wezterm-provider" {
+		return 0, serveWezTerm()
+	}
 	home, e := os.UserHomeDir()
 	if e != nil {
 		return 1, e

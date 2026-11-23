@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
+	"path/filepath"
 	"slices"
 	"strings"
 	"time"
@@ -25,11 +26,16 @@ type task struct {
 	LinearState    string   `json:"linearstatetype,omitempty"`
 	Tags           []string `json:"tags,omitempty"`
 	Urgency        float64  `json:"urgency"`
+	Annotations    []struct {
+		Entry       string `json:"entry"`
+		Description string `json:"description"`
+	} `json:"annotations,omitempty"`
 }
 
 type attempt struct {
 	ID        string          `json:"id"`
 	Task      string          `json:"task"`
+	Cwd       string          `json:"cwd,omitempty"`
 	Sequence  uint64          `json:"sequence,omitempty"`
 	CreatedAt time.Time       `json:"created_at,omitzero"`
 	PueueID   *int            `json:"pueue_id,omitempty"`
@@ -48,6 +54,22 @@ type card struct {
 	Task       task        `json:"task"`
 	Attempt    *attempt    `json:"attempt,omitempty"`
 	Workspaces []workspace `json:"workspaces,omitempty"`
+}
+
+func (c card) reviewDirectory() (string, error) {
+	dir := c.Task.Repo
+	switch {
+	case c.Attempt != nil && c.Attempt.Cwd != "":
+		dir = c.Attempt.Cwd
+	case len(c.Workspaces) == 1:
+		dir = c.Workspaces[0].Cwd
+	case len(c.Workspaces) > 1:
+		return "", fmt.Errorf("more than one linked workspace; open the intended workspace to review it")
+	}
+	if !filepath.IsAbs(dir) {
+		return "", fmt.Errorf("this task needs an absolute checkout or directory to open review")
+	}
+	return dir, nil
 }
 
 type lane struct {
@@ -121,7 +143,7 @@ func projectBoard(tasks, blocked []task, attempts []attempt, workspaces []worksp
 		switch {
 		case t.Status == "waiting" || blockedByDependency[t.UUID] || slices.Contains(t.Tags, "blocked"):
 			index = 2
-		case c.Attempt != nil && c.Attempt.Review:
+		case slices.Contains(t.Tags, "review"):
 			index = 3
 		case t.Start != "":
 			index = 1
@@ -215,7 +237,11 @@ func (f filters) collect() (board, error) {
 	if err != nil {
 		return board{}, err
 	}
-	attempts, queueErr := readJSON[[]attempt]("tq", "snapshot")
+	var attempts []attempt
+	var queueErr error
+	if path, err := exec.LookPath("tq"); err == nil {
+		attempts, queueErr = readJSON[[]attempt](path, "snapshot")
+	}
 	var workspaces []workspace
 	var diagnostics string
 	var workspaceErr error

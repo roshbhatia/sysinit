@@ -344,6 +344,9 @@
               "agent-diff"
               "agent-workspace"
               "goose-desktop"
+              "task-board"
+              "tq"
+              "tq-terminal-wezterm"
               "tuicr"
             ]
           );
@@ -375,6 +378,8 @@
             "alerter"
             "sysinit-gotools"
             "task-board"
+            "tq"
+            "tq-terminal-wezterm"
             "seshy"
             "changes"
             "changes-providers"

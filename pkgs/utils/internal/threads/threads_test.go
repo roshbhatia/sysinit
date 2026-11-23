@@ -8,6 +8,8 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/roshbhatia/sysinit/pkgs/internal/picker"
 )
 
 func TestThreadActions(t *testing.T) {
@@ -51,8 +53,12 @@ func TestThreadActions(t *testing.T) {
 			t.Setenv("XDG_CONFIG_HOME", root)
 			t.Setenv("PATH", root+string(os.PathListSeparator)+os.Getenv("PATH"))
 			step := 0
-			choose := func(labels []string, prompt string) (int, error) {
+			choose := func(items []picker.Item, prompt string) (int, error) {
 				t.Helper()
+				labels := make([]string, len(items))
+				for i, item := range items {
+					labels[i] = item.Title
+				}
 				if step >= len(tc.choices) {
 					t.Fatal("unexpected picker", prompt)
 				}

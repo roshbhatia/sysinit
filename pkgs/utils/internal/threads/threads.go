@@ -52,8 +52,8 @@ func Run(args []string) int {
 		fmt.Print(help)
 		return 0
 	}
-	argv, err := prepare(args, func(labels []string, prompt string) (int, error) {
-		return picker.Pick(labels, prompt, false)
+	argv, err := prepare(args, func(items []picker.Item, prompt string) (int, error) {
+		return picker.Pick(items, prompt, false)
 	})
 	if err == nil && len(argv) > 0 && argv[0] == "resume" {
 		err = resume(argv)
@@ -174,7 +174,7 @@ func shellQuote(value string) string {
 	return "'" + strings.ReplaceAll(value, "'", `'\''`) + "'"
 }
 
-func prepare(args []string, choose func([]string, string) (int, error)) ([]string, error) {
+func prepare(args []string, choose func([]picker.Item, string) (int, error)) ([]string, error) {
 	root, err := os.Getwd()
 	if err != nil {
 		return nil, fmt.Errorf("get current folder: %w", err)
@@ -182,7 +182,7 @@ func prepare(args []string, choose func([]string, string) (int, error)) ([]strin
 	return prepareInFolder(args, choose, root)
 }
 
-func prepareInFolder(args []string, choose func([]string, string) (int, error), root string) ([]string, error) {
+func prepareInFolder(args []string, choose func([]picker.Item, string) (int, error), root string) ([]string, error) {
 	all, printCommand := false, false
 	var passthrough []string
 	for _, arg := range args {
@@ -229,7 +229,7 @@ func prepareInFolder(args []string, choose func([]string, string) (int, error), 
 		}
 		return nil, nil
 	}
-	labels := make([]string, len(sessions))
+	items := make([]picker.Item, len(sessions))
 	for i, thread := range sessions {
 		preview := []rune(thread.Preview)
 		if len(preview) > 160 {
@@ -259,9 +259,16 @@ func prepareInFolder(args []string, choose func([]string, string) (int, error), 
 		if len(identifier) > 8 {
 			identifier = identifier[len(identifier)-8:]
 		}
-		labels[i] = fmt.Sprintf("[%s] %s · %d msgs · %s · %s · %s", thread.Harness, identifier, thread.MessageCount, updated, folder, string(preview))
+		label := string(preview)
+		if label == "" {
+			label = "Conversation " + identifier
+		}
+		items[i] = picker.Item{
+			Title:  label,
+			Detail: fmt.Sprintf("[%s] %s · %s · %s · %d msgs", thread.Harness, folder, identifier, updated, thread.MessageCount),
+		}
 	}
-	index, err := choose(labels, "thread> ")
+	index, err := choose(items, "thread> ")
 	if err != nil || index < 0 {
 		return nil, err
 	}
@@ -270,7 +277,7 @@ func prepareInFolder(args []string, choose func([]string, string) (int, error), 
 	if _, err := exec.LookPath("tq"); err == nil {
 		actions = append(actions, "Queue attempts")
 	}
-	action, err := choose(actions, "action> ")
+	action, err := choose(picker.Items(actions), "action> ")
 	if err != nil || action < 0 {
 		return nil, err
 	}
@@ -303,7 +310,7 @@ func prepareInFolder(args []string, choose func([]string, string) (int, error), 
 		if len(harnesses) == 0 {
 			return nil, errors.New("no installed harness supports Atuin thread conversion")
 		}
-		target, err := choose(labels, "harness> ")
+		target, err := choose(picker.Items(labels), "harness> ")
 		if err != nil || target < 0 {
 			return nil, err
 		}

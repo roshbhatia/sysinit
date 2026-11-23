@@ -16,18 +16,43 @@ invocation. Taskwarrior filters after `--` pass through to both task queries.
 | Key | Action |
 | --- | --- |
 | `h`, `l` and `j`, `k` | Move between columns and cards |
-| `/` and Enter | Filter and show details |
+| `/` and Enter | Filter and open scrollable details |
+| `a`, then Ctrl-S | Save an annotation on the selected task |
+| `?` | Show key bindings |
 | `s` or `b` | Start or stop work, or toggle the manual blocker |
+| `v` | Toggle readiness for review |
+| `f` | Open the selected task's review in the configured terminal |
 | `w` or `o` | Open a linked workspace or queue log |
 | `d`, then `y` | Complete a local task |
 | `r` and `q` | Refresh and quit |
 
-The board derives Ready, In Progress, Blocked / Waiting, Review, and Backlog
-from Taskwarrior and the latest linked queue attempt. Review means a successful
-attempt is available for inspection. Imported Linear tasks keep their original
-completion workflow. References and unassigned imports stay out of the board.
+Taskwarrior owns the lanes. Manual blockers, dependencies, and waiting take
+precedence over `+review`. The Review lane contains work explicitly marked
+ready for review. Imported Linear tasks keep their original completion
+workflow. References and unassigned imports stay out of the board.
 
-The JSON view reads the same projection as the TUI. Queue data comes from
+Review uses the latest attempt's working directory, a single linked workspace
+when available, or the task's absolute `repo` path. `agent-diff` opens a Git
+diff against HEAD for a checkout or opens a directory view for a plain
+directory. Use an explicit Git base or saved file baseline with
+`agent-diff` when you need to compare against an earlier revision or file.
+
+## Hand off a blocked task
+
+1. Record the question with `taskwarrior rc.context:none UUID annotate -- "…"`.
+   Include the exact checkout or directory, changes, checks, and the next
+   step. Link a local handoff file if it needs more room.
+2. Use `taskwarrior rc.context:none UUID modify +blocked -review`, then stop
+   the task. A queued worker can exit and release its slot.
+3. Annotate the answer on the same UUID, then remove `blocked`. Press Enter
+   to read the full handoff or use `taskwarrior rc.context:none UUID info`.
+4. Open the recorded workspace with the harness of your choice, or submit an
+   explicit retry with `tq submit --retry --task UUID --cwd DIRECTORY -- COMMAND`.
+   When the work is ready, attach the verification evidence and add `+review`.
+   Accept the result through the task's owning workflow.
+
+The JSON view reads the same projection as the TUI. Taskwarrior is the only
+required data source. When available, queue data comes from
 `tq snapshot`, which reads the live queue and stored attempts without rewriting
 attempt records. Pass `--workspaces` with `agent-workspace` available to include
 workspace links. Both sources join by Taskwarrior UUID. The board stores no
@@ -38,5 +63,8 @@ The board uses that sequence even while a new attempt has no Pueue job ID.
 For older attempts, `tq` can read the creation times of matching Pueue jobs
 and preserve them on reconciliation. The board uses those times when it can
 order every older attempt for a task. When the order is uncertain it reports
-that uncertainty and leaves the task in its Taskwarrior lane.
+that uncertainty and omits the attempt link.
 Malformed workspace records appear as diagnostics alongside valid links.
+
+See [terminal providers](terminal-providers.md) to configure the same terminal
+for the board and queued attempts.

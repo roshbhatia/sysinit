@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"unicode"
 
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -16,6 +17,7 @@ import (
 )
 
 type pickerModel struct {
+	items     []Item
 	labels    []string
 	prompt    string
 	input     textinput.Model
@@ -28,19 +30,39 @@ type pickerModel struct {
 	done      bool
 }
 
-func newPicker(labels []string, prompt string) pickerModel {
+// Item keeps the primary label and optional searchable detail separate.
+type Item struct {
+	Title  string
+	Detail string
+}
+
+func Items(labels []string) []Item {
+	items := make([]Item, len(labels))
+	for i, label := range labels {
+		items[i].Title = label
+	}
+	return items
+}
+
+func oneLine(value string) string {
+	return strings.Map(func(r rune) rune {
+		if unicode.IsControl(r) {
+			return ' '
+		}
+		return r
+	}, value)
+}
+
+func newPicker(items []Item, prompt string) pickerModel {
 	input := textinput.New()
 	input.Prompt = prompt
 	input.CharLimit = 256
 	input.Focus()
 	m := pickerModel{prompt: prompt, input: input, selected: -1, width: 80, height: 8, inserting: true}
-	for _, label := range labels {
-		m.labels = append(m.labels, strings.Map(func(r rune) rune {
-			if r < 32 || r == 127 {
-				return ' '
-			}
-			return r
-		}, label))
+	for _, item := range items {
+		item.Title, item.Detail = oneLine(item.Title), oneLine(item.Detail)
+		m.items = append(m.items, item)
+		m.labels = append(m.labels, strings.TrimSpace(item.Title+" "+item.Detail))
 	}
 	m.filter()
 	return m
@@ -148,17 +170,27 @@ func (m pickerModel) View() string {
 	palette := ui.TerminalPalette()
 	accent := lipgloss.NewStyle().Foreground(lipgloss.Color(palette.Accent)).Bold(true)
 	muted := lipgloss.NewStyle().Foreground(lipgloss.Color(palette.Muted))
+	title := lipgloss.NewStyle().Foreground(lipgloss.Color(palette.Title)).Bold(true)
 	rows := m.height - 3
 	start := max(0, m.cursor-rows+1)
-	lines := []string{muted.Render(cell.Truncate(fmt.Sprintf("%s · %d/%d", strings.TrimSuffix(m.prompt, "> "), len(m.matches), len(m.labels)), m.width))}
+	lines := []string{title.Render(cell.Truncate(fmt.Sprintf("%s · %d/%d", strings.TrimSuffix(m.prompt, "> "), len(m.matches), len(m.items)), m.width))}
 	for offset := range rows {
 		index := start + offset
 		line := ""
 		if index < len(m.matches) {
-			line = cell.Truncate("  "+m.labels[m.matches[index]], m.width)
+			item := m.items[m.matches[index]]
+			style := lipgloss.NewStyle()
+			prefix := "  "
 			if index == m.cursor {
-				line = accent.Render(cell.Truncate("> "+m.labels[m.matches[index]], m.width))
+				prefix, style = "> ", accent
 			}
+			labelWidth := m.width
+			detail := ""
+			if item.Detail != "" && m.width >= 28 {
+				detail = "  " + cell.Truncate(item.Detail, m.width/3)
+				labelWidth -= cell.Width(detail)
+			}
+			line = style.Render(cell.Truncate(prefix+item.Title, labelWidth)) + muted.Render(detail)
 		} else if offset == 0 {
 			line = muted.Render(cell.Truncate("  No matches", m.width))
 		}
@@ -173,11 +205,11 @@ func (m pickerModel) View() string {
 }
 
 // Pick displays an inline, searchable list without replacing the caller's screen.
-func Pick(labels []string, prompt string, inserting bool) (int, error) {
+func Pick(items []Item, prompt string, inserting bool) (int, error) {
 	if !terminal.IsTTY(os.Stderr) {
 		return -1, errors.New("the picker needs a terminal; use the command's structured output instead")
 	}
-	model := newPicker(labels, prompt)
+	model := newPicker(items, prompt)
 	model.inserting = inserting
 	if !inserting {
 		model.input.Blur()

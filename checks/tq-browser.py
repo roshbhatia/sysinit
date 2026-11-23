@@ -130,8 +130,8 @@ fi
                 if cancel:
                     os.write(master, b"\x1b")
                 else:
-                    send(b"j", "> #0")
-                    send(b"k", "> #2")
+                    send(b"j", "> printf OLDER")
+                    send(b"k", "> printf NEWER")
                     send(b"/missing", "No matches")
                     os.write(master, b"\r")
                     visible("No matches")

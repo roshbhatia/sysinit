@@ -317,7 +317,16 @@ def main [
 
     let editor = if $directory {
         let comparison = if $baseline == null {
-            [-- $target]
+            if $file == null {
+                [
+                    -c
+                    "lua if vim.fn.exists(':Oil') == 2 then vim.cmd.Oil(vim.fn.getcwd()) end"
+                    --
+                    $target
+                ]
+            } else {
+                [-- $target]
+            }
         } else {
             [-d -- $baseline $target]
         }

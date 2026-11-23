@@ -12,8 +12,8 @@ func TestProjectBoardUsesOwnerStateAndLatestAttempt(t *testing.T) {
 	data := projectBoard([]task{
 		{UUID: "ready", Urgency: 10},
 		{UUID: "working", Start: "now"},
-		{UUID: "blocked", Start: "now"},
-		{UUID: "review", Start: "now"},
+		{UUID: "blocked", Start: "now", Tags: []string{"review"}},
+		{UUID: "review", Start: "now", Tags: []string{"review"}},
 		{UUID: "old-review"},
 		{UUID: "preparing"},
 		{UUID: "uncertain"},
@@ -30,11 +30,10 @@ func TestProjectBoardUsesOwnerStateAndLatestAttempt(t *testing.T) {
 		{ID: "uncertain-a", Task: "uncertain", CreatedAt: older, PueueID: &first, Review: true},
 		{ID: "uncertain-b", Task: "uncertain", PueueID: &second},
 		{ID: "dated-old", Task: "dated", CreatedAt: older, PueueID: &first},
-		{ID: "dated-new", Task: "dated", CreatedAt: newer, PueueID: &second, Review: true},
-		{ID: "accepted", Task: "review", Review: true},
+		{ID: "dated-new", Task: "dated", CreatedAt: newer, PueueID: &second, Review: true, Cwd: "/checkout"},
 		{ID: "blocked-review", Task: "blocked", Review: true},
 	}, []workspace{{ID: "workspace", Task: "review"}}, "test")
-	for i, want := range []string{"ready,old-review,preparing,uncertain", "working", "blocked,wait", "dated,review", "backlog"} {
+	for i, want := range []string{"ready,dated,old-review,preparing,uncertain", "working", "blocked,wait", "review", "backlog"} {
 		var got []string
 		for _, c := range data.Lanes[i].Cards {
 			got = append(got, c.Task.UUID)
@@ -43,15 +42,39 @@ func TestProjectBoardUsesOwnerStateAndLatestAttempt(t *testing.T) {
 			t.Fatalf("lane %s got %s, want %s", data.Lanes[i].Name, joined, want)
 		}
 	}
-	for i, want := range []string{"late", "preparing"} {
+	for i, want := range []string{"dated-new", "late", "preparing"} {
 		if got := data.Lanes[0].Cards[i+1].Attempt; got == nil || got.ID != want {
 			t.Fatalf("wrong latest attempt: %v, want %s", got, want)
 		}
 	}
-	if data.Lanes[0].Cards[3].Attempt != nil || len(data.Errors) != 1 || !strings.Contains(data.Errors[0], "uncertain") {
+	if data.Lanes[0].Cards[4].Attempt != nil || len(data.Errors) != 1 || !strings.Contains(data.Errors[0], "uncertain") {
 		t.Fatalf("ambiguous legacy attempts should be reported: %+v", data)
 	}
-	if workspaces := data.Lanes[3].Cards[1].Workspaces; len(workspaces) != 1 || workspaces[0].ID != "workspace" {
+	if workspaces := data.Lanes[3].Cards[0].Workspaces; len(workspaces) != 1 || workspaces[0].ID != "workspace" {
 		t.Fatalf("incorrect workspace association: %v", workspaces)
+	}
+}
+
+func TestReviewDirectory(t *testing.T) {
+	for _, tc := range []struct {
+		name       string
+		attempt    *attempt
+		workspaces []workspace
+		repo, want string
+	}{
+		{name: "queued checkout", attempt: &attempt{Cwd: "/checkout"}, repo: "/repo", want: "/checkout"},
+		{name: "linked workspace", workspaces: []workspace{{Cwd: "/workspace"}}, repo: "/repo", want: "/workspace"},
+		{name: "plain directory", repo: "/some folder", want: "/some folder"},
+		{name: "missing directory"},
+		{name: "relative directory", repo: "relative"},
+		{name: "ambiguous workspaces", workspaces: []workspace{{Cwd: "/first"}, {Cwd: "/second"}}, repo: "/repo"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			c := card{Task: task{Repo: tc.repo}, Attempt: tc.attempt, Workspaces: tc.workspaces}
+			got, err := c.reviewDirectory()
+			if got != tc.want || (err != nil) != (tc.want == "") {
+				t.Fatalf("reviewDirectory() = %q, %v; want %q", got, err, tc.want)
+			}
+		})
 	}
 }

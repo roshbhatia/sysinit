@@ -60,7 +60,19 @@ environment values take precedence over the TUI's command-line path options.
 Use `task-board` for the Kanban view or `task-board --json` for its projection.
 The board links tasks to queue attempts and agent workspaces by UUID. Use
 `--context`, `--repo`, or `--project` to set a view without changing the
-shared context. A successful attempt moves an unfinished task into Review.
+shared context. Use `f` to open the selected task's review in the configured
+terminal. Enter opens the full handoff and `a` records a new annotation.
+Use `+review` to mark a task ready for human review after recording the
+result and checks. Use `-review` when work resumes. A successful queue exit
+leaves the task in its existing lane.
+
+When a decision blocks progress, annotate the task with the specific question,
+exact workspace, what changed, checks run, and the next step. Link a local
+handoff file from the annotation if more context is needed. Then set
+`+blocked -review`, stop the task, and let a queued attempt exit. Record the
+answer on the same UUID before clearing the blocker. Continue explicitly in
+the same workspace. A fresh harness can read the annotations and inspect the
+workspace before making changes.
 
 Capture ideas with `taskwarrior add 'Idea' kind:idea +inbox` and reference notes with
 `taskwarrior add 'Note' kind:note`. Use `taskwarrior inbox`, `taskwarrior ideas`, or `taskwarrior notes` to find

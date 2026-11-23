@@ -105,6 +105,7 @@ def main [script: path, fixture: path, ty: path] {
             let directory_split = open ($root | path join split.json)
             assert equal ($directory_split | last) $plain
             assert ('DiffviewOpen' not-in $directory_split)
+            assert ($directory_split | any {|arg| $arg | str contains 'vim.cmd.Oil(vim.fn.getcwd())'})
             let socket_index = ($directory_split | enumerate | where item == --listen | first | get index) + 1
             rm --force ($directory_split | get $socket_index)
         }

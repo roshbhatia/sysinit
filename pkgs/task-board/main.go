@@ -6,14 +6,18 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"slices"
 	"strings"
-	"unicode"
 
+	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
+	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/roshbhatia/go-utils/cell"
+	"github.com/roshbhatia/go-utils/terminal"
 	"github.com/roshbhatia/go-utils/ui"
+	"github.com/roshbhatia/sysinit/pkgs/internal/terminalprovider"
 )
 
 type loaded struct {
@@ -27,6 +31,9 @@ type model struct {
 	board                            board
 	input                            textinput.Model
 	filtering, detail, confirm, busy bool
+	showHelp, annotating             bool
+	notes                            viewport.Model
+	annotation                       textarea.Model
 	column, width, height            int
 	cursors                          []int
 	message                          string
@@ -95,6 +102,9 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		for i := range m.cursors {
 			m.cursors[i] = min(m.cursors[i], max(0, len(m.cards(i))-1))
 		}
+		if m.detail {
+			m.updateDetails()
+		}
 		return m, nil
 	case acted:
 		m.busy, m.confirm = false, false
@@ -102,18 +112,57 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 			m.message = msg.err.Error()
 			return m, nil
 		}
+		m.annotating = false
 		m.message = ""
 		m.busy = true
 		return m, m.reload()
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
+		m.input.Width = max(1, m.width-cell.Width(m.input.Prompt)-2)
+		if m.detail {
+			m.updateDetails()
+		}
+		if m.annotating {
+			m.sizeAnnotation()
+		}
 	case tea.KeyMsg:
-		key := msg.String()
-		if key == "ctrl+c" {
+		pressed := msg.String()
+		if pressed == "ctrl+c" {
 			return m, tea.Quit
 		}
+		if terminal.IsControlReply(pressed) {
+			return m, nil
+		}
+		if m.annotating {
+			if m.busy {
+				return m, nil
+			}
+			switch {
+			case key.Matches(msg, cancel):
+				m.annotating = false
+				return m, nil
+			case key.Matches(msg, save):
+				if c := m.selection(); c != nil {
+					if note := strings.TrimSpace(m.annotation.Value()); note != "" {
+						return m.mutate(c.Task.UUID, "annotate", "--", note)
+					}
+				}
+				return m, nil
+			}
+			var cmd tea.Cmd
+			m.annotation, cmd = m.annotation.Update(msg)
+			return m, cmd
+		}
+		if m.showHelp {
+			if key.Matches(msg, helpKey, back) {
+				m.showHelp = false
+			} else if key.Matches(msg, quit) {
+				return m, tea.Quit
+			}
+			return m, nil
+		}
 		if m.filtering {
-			if key == "esc" || key == "enter" {
+			if key.Matches(msg, back, details) {
 				m.filtering = false
 				m.input.Blur()
 				return m, nil
@@ -125,76 +174,130 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		if m.confirm {
 			m.confirm = false
-			if key == "y" {
+			if pressed == "y" {
 				if c := m.selection(); c != nil {
 					return m.mutate(c.Task.UUID, "done")
 				}
 			}
 			return m, nil
 		}
-		if key == "q" {
+		if key.Matches(msg, quit) {
 			return m, tea.Quit
+		}
+		if key.Matches(msg, helpKey) {
+			m.showHelp = true
+			return m, nil
 		}
 		if m.busy {
 			return m, nil
 		}
-		if key == "r" {
+		if key.Matches(msg, refresh) {
 			m.busy, m.message = true, ""
 			return m, m.reload()
 		}
-		if key == "/" {
+		if key.Matches(msg, filter) && !m.detail {
 			m.filtering = true
 			return m, m.input.Focus()
 		}
 		if len(m.cursors) == 0 {
 			return m, nil
 		}
-		switch action, _ := ui.ActionFor(ui.Key{Name: key}); action {
-		case ui.ActionLeft:
-			m.column = max(0, m.column-1)
-		case ui.ActionRight:
-			m.column = min(len(m.cursors)-1, m.column+1)
-		case ui.ActionUp:
-			m.cursors[m.column] = max(0, m.cursors[m.column]-1)
-		case ui.ActionDown:
-			m.cursors[m.column] = min(max(0, len(m.cards(m.column))-1), m.cursors[m.column]+1)
-		case ui.ActionOpen:
-			m.detail = !m.detail
-		case ui.ActionBack:
-			m.detail = false
-			m.input.Reset()
+		if m.detail {
+			switch {
+			case key.Matches(msg, details, back):
+				m.detail = false
+				return m, nil
+			case key.Matches(msg, scroll):
+				var cmd tea.Cmd
+				m.notes, cmd = m.notes.Update(msg)
+				return m, cmd
+			}
+		} else {
+			switch action, _ := ui.ActionFor(ui.Key{Name: pressed}); action {
+			case ui.ActionLeft:
+				m.column = max(0, m.column-1)
+			case ui.ActionRight:
+				m.column = min(len(m.cursors)-1, m.column+1)
+			case ui.ActionUp:
+				m.cursors[m.column] = max(0, m.cursors[m.column]-1)
+			case ui.ActionDown:
+				m.cursors[m.column] = min(max(0, len(m.cards(m.column))-1), m.cursors[m.column]+1)
+			case ui.ActionOpen:
+				if m.selection() != nil {
+					m.detail = true
+					m.updateDetails()
+					m.notes.GotoTop()
+				}
+			case ui.ActionBack:
+				m.detail = false
+				m.input.Reset()
+			}
 		}
 		c := m.selection()
 		if c == nil {
 			return m, nil
 		}
-		switch key {
-		case "s":
+		switch {
+		case key.Matches(msg, note):
+			m.annotation = textarea.New()
+			m.annotation.Placeholder = "Record a question, answer, or verification"
+			m.annotation.ShowLineNumbers = false
+			m.annotation.FocusedStyle.CursorLine = m.annotation.FocusedStyle.Text
+			m.annotation.FocusedStyle.Prompt = accent
+			m.annotation.FocusedStyle.Placeholder = muted
+			m.annotating = true
+			m.sizeAnnotation()
+			return m, m.annotation.Focus()
+		case key.Matches(msg, start):
 			if c.Task.Start == "" {
 				return m.mutate(c.Task.UUID, "start")
 			}
 			return m.mutate(c.Task.UUID, "stop")
-		case "b":
-			tag := "+blocked"
-			for _, current := range c.Task.Tags {
-				if current == "blocked" {
-					tag = "-blocked"
+		case key.Matches(msg, block):
+			if slices.Contains(c.Task.Tags, "blocked") {
+				return m.mutate(c.Task.UUID, "modify", "-blocked")
+			}
+			return m.mutate(c.Task.UUID, "modify", "+blocked", "-review")
+		case key.Matches(msg, review):
+			if slices.Contains(c.Task.Tags, "review") {
+				return m.mutate(c.Task.UUID, "modify", "-review")
+			}
+			if m.board.Lanes[m.column].Name == "Blocked / Waiting" {
+				m.message = "Resolve the blocker before marking work ready for review."
+				return m, nil
+			}
+			return m.mutate(c.Task.UUID, "modify", "+review")
+		case key.Matches(msg, diff):
+			dir, err := c.reviewDirectory()
+			if err != nil {
+				m.message = err.Error()
+				return m, nil
+			}
+			if path := os.Getenv(terminalprovider.Selection); path != "" {
+				m.busy = true
+				return m, func() tea.Msg {
+					manifest, err := terminalprovider.Open(path)
+					if err == nil {
+						err = terminalprovider.Invoke(manifest, c.Task.UUID, "review", map[string]string{"cwd": dir}, nil)
+					}
+					return acted{err}
 				}
 			}
-			return m.mutate(c.Task.UUID, "modify", tag)
-		case "d":
+			command := exec.Command("agent-diff", "--allow-directory", "--cwd", dir, "--background")
+			return m, tea.ExecProcess(command, func(err error) tea.Msg { return acted{err} })
+		case key.Matches(msg, complete):
 			if c.Task.LinearID != "" {
 				m.message = "Complete this imported task in Linear."
 			} else {
 				m.confirm = true
 			}
-		case "w":
+		case key.Matches(msg, workspaceKey):
 			if len(c.Workspaces) != 1 {
 				m.message = "Select a task with exactly one linked workspace."
 				return m, nil
 			}
 			return m, tea.ExecProcess(exec.Command("agent-workspace", "resume", c.Workspaces[0].ID), func(err error) tea.Msg { return acted{err} })
-		case "o":
+		case key.Matches(msg, logs):
 			if c.Attempt == nil || c.Attempt.PueueID == nil {
 				m.message = "This task has no linked Pueue job."
 				return m, nil
@@ -202,94 +305,17 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.ExecProcess(exec.Command("tq", "logs", c.Attempt.ID, "--pager"), func(err error) tea.Msg { return acted{err} })
 		}
 	}
+	if m.annotating {
+		var cmd tea.Cmd
+		m.annotation, cmd = m.annotation.Update(message)
+		return m, cmd
+	}
+	if m.filtering {
+		var cmd tea.Cmd
+		m.input, cmd = m.input.Update(message)
+		return m, cmd
+	}
 	return m, nil
-}
-
-func clean(text string) string {
-	return strings.Map(func(r rune) rune {
-		if unicode.IsControl(r) {
-			return ' '
-		}
-		return r
-	}, text)
-}
-
-func (m model) View() string {
-	if len(m.board.Lanes) == 0 {
-		if m.message != "" {
-			return clean(m.message) + "\nr retry  q quit"
-		}
-		return "Loading tasks…  q quit"
-	}
-	if m.width < 2 {
-		return ""
-	}
-	title := cell.Truncate("Tasks · "+clean(m.board.Scope), m.width)
-	visible := []int{m.column}
-	width := m.width
-	if m.width >= 100 {
-		visible = make([]int, len(m.board.Lanes))
-		for i := range visible {
-			visible[i] = i
-		}
-		width = (m.width - len(visible) + 1) / len(visible)
-	}
-	rows := max(1, m.height-9)
-	if m.detail {
-		rows = max(1, rows-4)
-	}
-	var columns []string
-	for _, i := range visible {
-		cards := m.cards(i)
-		head := fmt.Sprintf("%s (%d)", m.board.Lanes[i].Name, len(cards))
-		heading := lipgloss.NewStyle().Bold(true)
-		if i == m.column {
-			heading = heading.Foreground(lipgloss.Color("12"))
-		}
-		lines := []string{heading.Render(cell.Truncate(head, width))}
-		cursor := m.cursors[i]
-		begin := max(0, cursor-rows+1)
-		for j := begin; j < min(len(cards), begin+rows); j++ {
-			c := cards[j]
-			label := clean(c.Task.Description)
-			if len(c.Workspaces) > 0 {
-				label = "[W] " + label
-			}
-			if c.Attempt != nil {
-				label = "[Q] " + label
-			}
-			label = cell.Truncate(label, width)
-			if i == m.column && j == cursor {
-				label = lipgloss.NewStyle().Reverse(true).Render(label)
-			}
-			lines = append(lines, label)
-		}
-		columns = append(columns, lipgloss.NewStyle().Width(width).Render(strings.Join(lines, "\n")))
-		if i != visible[len(visible)-1] {
-			columns = append(columns, " ")
-		}
-	}
-	lines := []string{title, "", lipgloss.JoinHorizontal(lipgloss.Top, columns...)}
-	if m.filtering || m.input.Value() != "" {
-		lines = append(lines, m.input.View())
-	}
-	if c := m.selection(); m.detail && c != nil {
-		lines = append(lines, "", clean(c.Task.Description), clean(c.Task.Project+"  "+c.Task.UUID))
-		if c.Attempt != nil {
-			lines = append(lines, "Attempt "+clean(c.Attempt.ID)+"  "+clean(string(c.Attempt.Result)))
-		}
-	}
-	for _, warning := range m.board.Errors {
-		lines = append(lines, cell.Truncate(clean(warning), m.width))
-	}
-	if m.message != "" {
-		lines = append(lines, cell.Truncate(clean(m.message), m.width))
-	}
-	if m.confirm {
-		lines = append(lines, "Complete selected task? y confirm  Esc cancel")
-	}
-	lines = append(lines, cell.Truncate("h/l columns  j/k cards  / filter  Enter details  s start/stop  b block  w workspace  o logs  d done  r refresh  q quit", m.width))
-	return strings.Join(lines, "\n")
 }
 
 func main() {
@@ -316,7 +342,7 @@ func main() {
 	input := textinput.New()
 	input.Prompt = "/ "
 	input.CharLimit = 120
-	_, err := tea.NewProgram(model{filters: selected, input: input, width: 80, height: 24, busy: true}, tea.WithAltScreen()).Run()
+	_, err := tea.NewProgram(model{filters: selected, input: input, notes: viewport.New(80, 20), width: 80, height: 24, busy: true}, tea.WithAltScreen()).Run()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

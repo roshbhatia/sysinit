@@ -249,8 +249,13 @@ func (f *fixture) wezterm(args ...string) []byte {
 
 func (f *fixture) terminalPane(a attempt) (string, bool) {
 	var ref terminalRef
-	if a.Terminal == queueWorkspace {
-		err := read(filepath.Join(f.root, "attempt records", a.ID+".terminal"), &ref)
+	if a.usesSharedTerminal() {
+		dir := filepath.Join(f.root, "attempt records")
+		path := filepath.Join(dir, a.ID+".terminal")
+		if a.TerminalProvider != "" {
+			path = providerRefPath(a, dir)
+		}
+		err := read(path, &ref)
 		if errors.Is(err, os.ErrNotExist) {
 			return "", false
 		}
@@ -263,7 +268,7 @@ func (f *fixture) terminalPane(a attempt) (string, bool) {
 		f.t.Fatal(e)
 	}
 	for _, p := range panes {
-		if p.Workspace == a.Terminal && (a.Terminal != queueWorkspace || p.PaneID == ref.PaneID) {
+		if p.Workspace == a.Terminal && (!a.usesSharedTerminal() || p.PaneID == ref.PaneID) {
 			return strconv.Itoa(p.PaneID), true
 		}
 	}
@@ -272,6 +277,19 @@ func (f *fixture) terminalPane(a attempt) (string, bool) {
 
 func TestTerminalAttemptsShareWorkspaceWithoutSharingLifecycle(t *testing.T) {
 	f := fixtureFor(t)
+	const workspace = "fixture-queue"
+	manifest := filepath.Join(f.root, "wezterm-provider.json")
+	actions := map[string]map[string]string{}
+	for _, action := range []string{"terminal.spawn", "terminal.status", "terminal.focus", "terminal.close"} {
+		actions[action] = map[string]string{"description": action}
+	}
+	if err := save(manifest, map[string]any{
+		"version": "provider/v1", "name": "wezterm", "description": "Isolated fixture WezTerm",
+		"command": []string{testBinary, "wezterm-provider"}, "actions": actions,
+	}); err != nil {
+		t.Fatal(err)
+	}
+	f.env = append(f.env, "TQ_TERMINAL_WORKSPACE="+workspace, "SYSINIT_TERMINAL_PROVIDER="+manifest)
 	f.must("pueue", "group", "add", "agents")
 	f.must("pueue", "pause", "--group", "agents")
 	f.must("pueue", "parallel", "--group", "agents", "2")
@@ -287,7 +305,7 @@ func TestTerminalAttemptsShareWorkspaceWithoutSharingLifecycle(t *testing.T) {
 	if err := json.Unmarshal(f.wezterm("list", "--format", "json"), &panes); err != nil {
 		t.Fatal(err)
 	}
-	if len(panes) != 2 || panes[0].Workspace != queueWorkspace || panes[1].Workspace != queueWorkspace ||
+	if len(panes) != 2 || panes[0].Workspace != workspace || panes[1].Workspace != workspace ||
 		panes[0].WindowID != panes[1].WindowID || panes[0].TabID == panes[1].TabID {
 		t.Fatalf("expected distinct tabs in one queue workspace window: %+v", panes)
 	}
@@ -295,7 +313,7 @@ func TestTerminalAttemptsShareWorkspaceWithoutSharingLifecycle(t *testing.T) {
 		if !strings.Contains(panes[0].TabTitle+" "+panes[1].TabTitle, a.ID[:8]) {
 			t.Fatalf("attempt tab title missing for %s: %+v", a.ID, panes)
 		}
-		if got := string(f.queue("attach", a.ID, "--focus-only")); strings.TrimSpace(got) != `"task-queue"` {
+		if got := string(f.queue("attach", a.ID, "--focus-only")); strings.TrimSpace(got) != strconv.Quote(workspace) {
 			t.Fatalf("attach target: %q", got)
 		}
 	}

@@ -13,21 +13,23 @@ import (
 )
 
 type attempt struct {
-	ID        string            `json:"id"`
-	Task      string            `json:"task,omitempty"`
-	Argv      []string          `json:"argv"`
-	Cwd       string            `json:"cwd"`
-	Env       map[string]string `json:"env"`
-	Session   string            `json:"session,omitempty"`
-	Thread    string            `json:"thread,omitempty"`
-	Group     string            `json:"group"`
-	Terminal  string            `json:"terminal,omitempty"`
-	Sequence  uint64            `json:"sequence,omitempty"`
-	CreatedAt time.Time         `json:"created_at,omitzero"`
-	PueueID   *int              `json:"pueue_id,omitempty"`
-	Result    json.RawMessage   `json:"result"`
-	Review    bool              `json:"review"`
-	Cancelled bool              `json:"cancel_requested,omitempty"`
+	ID               string            `json:"id"`
+	Task             string            `json:"task,omitempty"`
+	Argv             []string          `json:"argv"`
+	Cwd              string            `json:"cwd"`
+	Env              map[string]string `json:"env"`
+	Session          string            `json:"session,omitempty"`
+	Thread           string            `json:"thread,omitempty"`
+	Group            string            `json:"group"`
+	Terminal         string            `json:"terminal,omitempty"`
+	SharedTerminal   bool              `json:"shared_terminal,omitempty"`
+	TerminalProvider string            `json:"terminal_provider,omitempty"`
+	Sequence         uint64            `json:"sequence,omitempty"`
+	CreatedAt        time.Time         `json:"created_at,omitzero"`
+	PueueID          *int              `json:"pueue_id,omitempty"`
+	Result           json.RawMessage   `json:"result"`
+	Review           bool              `json:"review"`
+	Cancelled        bool              `json:"cancel_requested,omitempty"`
 }
 
 type job struct {

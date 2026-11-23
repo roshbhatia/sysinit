@@ -51,10 +51,10 @@ the Threads picker's **Queue attempts** action opens this view. Use
 `tq thread <attempt-uuid>` to inspect a linked conversation directly.
 
 Use `--terminal` when an attempt needs a terminal or you want to inspect its
-live output in WezTerm. The command still determines whether the harness is
+live output in the configured terminal workspace. The command still determines whether the harness is
 interactive: `codex exec` is noninteractive and `codex` opens the interactive UI.
-Each terminal attempt has its own tab in the shared `task-queue` workspace.
-Use the WezTerm queue picker or `tq attach <attempt-uuid>` to open one tab.
+Each terminal attempt has its own view in the shared queue workspace.
+Use `tq attach <attempt-uuid>` to open it.
 Queue output includes
 the attempt UUID and Pueue job ID. Retain both with the Taskwarrior UUID. The
 attempt's `sequence` records submission order independently of its Pueue job
@@ -76,7 +76,10 @@ Use `tq reconcile` to persist the current results before queue cleanup. Use
 `tq resume <attempt-uuid>` for an interrupted submission. After a completed
 attempt, inspect its result before submitting a new one with `--retry`.
 
-Successful execution appears as `review: true` in queue output and leaves the
-Taskwarrior task pending. Inspect the actual diff, artifacts, and checks; record
-verified completion through the task's owning workflow. Imported Linear tasks
-still require their authorized Linear completion workflow followed by sync.
+Successful execution appears as `review: true` in queue output. This field
+describes the process result. The board uses the Taskwarrior `review` tag
+for work explicitly handed to a reviewer. Record a blocking question and
+workspace on the task before yielding, and use the recorded answer in the
+next explicit attempt. Inspect the diff, artifacts, and checks before closing
+the task. Imported Linear tasks use their authorized Linear completion
+workflow followed by sync.
