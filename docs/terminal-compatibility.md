@@ -6,9 +6,9 @@ panes, CLI, and left sidebar. The Rex package pins macOS build 2061
 (`0.1.0-preview.21`), and Home Manager generates `~/.config/rex/init.lua`.
 The **Apply Sysinit terminal settings** action in Rex's command palette applies
 the managed Nushell command, profile PATH, sidebar placement, font, and
-terminal palette. The shared transparency setting enables Rex's Glass interface
-and pane material. Rex controls the glass opacity and blur and shows host
-identity in its native session UI.
+terminal palette. The shared transparency setting enables Rex's Glass window
+and tab materials. Panes use the imported theme's background color. Rex shows
+host identity in its native session UI.
 
 | Workflow | WezTerm | Rex |
 | --- | --- | --- |

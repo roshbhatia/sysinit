@@ -14,10 +14,7 @@ return function(rex, settings)
         value = settings.transparent and "glass" or "classic",
       })
       rex.client.queue("client.setting.interface.appearance.tint", { value = true })
-      rex.client.queue(
-        "client.setting.interface.appearance.glass",
-        { value = settings.transparent }
-      )
+      rex.client.queue("client.setting.interface.appearance.glass", { value = false })
       rex.client.queue("client.setting.terminal.typography.font", { value = settings.monospace })
       rex.client.queue("client.setting.terminal.typography.style", { value = "Regular" })
       rex.client.queue("client.font.reset")
