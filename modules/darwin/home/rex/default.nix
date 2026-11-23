@@ -40,7 +40,7 @@ in
     xdg.configFile."rex/init.lua".text = ''
       local settings = rex.json.decode(${builtins.toJSON (builtins.toJSON settings)})
       local reviewr = dofile("${pkgs.sysinit-reviewr}/rex/reviewr/init.lua")
-      reviewr.setup({ nvim = "${editor}", command = "ReviewrOpen" })
+      reviewr.setup({ nvim = "${editor}", command = "lua vim.schedule(vim.cmd.ReviewrOpen)" })
       dofile("${./client.lua}")(rex, settings)
     '';
   };
