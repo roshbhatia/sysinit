@@ -1,0 +1,38 @@
+overlays/tq-picker/provider.nu
+  s_a4a3eea4720821::t_0517a7e5b04c32 135-150
+checks/tq-picker.py
+  s_a4a3eea4720821::t_9396b9bd178a79 206-207,215-216
+flake.nix
+  s_a4a3eea4720821::t_c68c4e6a6e46af 131,133
+modules/home/programs/llm/skills/taskwarrior/references/queued-execution.md
+  s_a4a3eea4720821::t_9396b9bd178a79 68
+  s_a4a3eea4720821::t_0d082a3a81f8b9 53-56
+pkgs/tq/main.go
+  s_a4a3eea4720821::t_0517a7e5b04c32 20,84-88,91,93,213-215
+overlays/tq-picker/default.nix
+  s_a4a3eea4720821::t_0517a7e5b04c32 22-33,42,62
+modules/home/programs/pueue/default.nix
+  s_a4a3eea4720821::t_9396b9bd178a79 37
+modules/home/programs/pueue/_tq
+  s_a4a3eea4720821::t_9396b9bd178a79 26
+modules/home/programs/wezterm/default.nix
+  s_a4a3eea4720821::t_0d082a3a81f8b9 173-175
+flake.lock
+  s_a4a3eea4720821::t_674af9b5f4429f 1650-1651,1654,1660,1818-1819,1822,1828
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e51f4d342eda0b7f5584f275f254fe8640dee1ae",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
