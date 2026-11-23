@@ -1,0 +1,21 @@
+modules/darwin/home/rex/client.lua
+  s_a4a3eea4720821::t_e7f4723f2237c7 2-9
+docs/terminal-compatibility.md
+  s_a4a3eea4720821::t_e7f4723f2237c7 22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8e5f26e2eed4e231d96534a37b3e7813c75a008a",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
