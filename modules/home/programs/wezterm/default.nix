@@ -90,15 +90,7 @@ in
       }) (import ../llm/harnesses/registry.nix);
 
       bin = "${config.home.profileDirectory}/bin";
-      shell = [
-        "${config.home.profileDirectory}/bin/nu"
-        "--config"
-        "${config.xdg.configHome}/nushell/config.nu"
-        "--env-config"
-        "${config.xdg.configHome}/nushell/env.nu"
-        "--plugin-config"
-        "${config.xdg.configHome}/nushell/plugin.msgpackz"
-      ];
+      shell = import ../../../shared/terminal-shell.nix config;
       ssh = lib.optionalAttrs sshCfg.use1PasswordAgent { agent_socket = sshAgentSocket; };
       font = {
         inherit (themeConfig.font) monospace;

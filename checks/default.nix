@@ -289,6 +289,26 @@ in
 
   firefox = import ./firefox.nix { inherit pkgs darwinConfigurations nixosConfigurations; };
   editor-composition = import ./editor-composition.nix { inherit pkgs homeManagerLib; };
+  rex-config =
+    if pkgs.stdenv.hostPlatform.isDarwin then
+      let
+        host = darwinConfigurations.lv426.config;
+        user = host.home-manager.users.${host.system.primaryUser};
+      in
+      nativeCheck {
+        name = "rex-config-check";
+        inputs = [ pkgs.rex ];
+        commands = [
+          [
+            "rex"
+            "config"
+            "check"
+            user.xdg.configFile."rex/init.lua".source
+          ]
+        ];
+      }
+    else
+      evalOnly "rex-config-darwin-only";
   slack-guard = import ./slack-guard.nix { inherit pkgs; };
   pr-workflow = nativeCheck {
     name = "pr-workflow-test";
