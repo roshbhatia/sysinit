@@ -110,11 +110,8 @@ maintenance surfaces. Frequency of use requires separate evidence.
 - His OSC 7501 design puts program status on the terminal stream. Sysinit's
   pinned WezTerm UI already checks native program status before custom
   signals. Prefer that path wherever the actual producer and transport
-  support it. Keep a compatibility fallback where measured. Superlogical
-  and libghostty show why a reusable protocol is useful even with a
-  different terminal application. The current WezTerm mux and remote
-  workflows justify retaining WezTerm.
-  [Program Status Protocol](https://mitchellh.com/writing/program-status-osc7501) · [Superlogical](https://mitchellh.com/writing/superlogical)
+  support it. Keep a compatibility fallback where measured.
+  [Program Status Protocol](https://mitchellh.com/writing/program-status-osc7501)
 
 ## Correctness findings
 

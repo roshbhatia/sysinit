@@ -96,7 +96,7 @@ in
         name = "task-board";
         runtimeInputs = [ final.taskwarrior-cli ];
         text = ''
-          ${final.terminal-provider-selection}
+          export SYSINIT_TERMINAL_PROVIDER="''${SYSINIT_TERMINAL_PROVIDER:-${final.tq-terminal-wezterm}/share/sysinit/terminal-providers/wezterm.json}"
           exec ${sysinit-gotools}/bin/task-board "$@"
         '';
         meta = {

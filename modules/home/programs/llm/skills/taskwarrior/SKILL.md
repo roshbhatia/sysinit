@@ -62,8 +62,6 @@ The board links tasks to queue attempts and agent workspaces by UUID. Use
 `--context`, `--repo`, or `--project` to set a view without changing the
 shared context. Use `f` to open the selected task's review in the configured
 terminal. Enter opens the full handoff and `a` records a new annotation.
-On macOS, a terminal attempt submitted from Rex appears in a tab of its queue
-session. Existing attempts keep the provider recorded at submission.
 Use `+review` to mark a task ready for human review after recording the
 result and checks. Use `-review` when work resumes. A successful queue exit
 leaves the task in its existing lane.

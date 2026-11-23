@@ -13,7 +13,7 @@ def command-output [arguments: list<string>] {
 
     if $result.exit_code != 0 {
         error make {
-            msg: ($result.stderr | str trim | default 'Terminal command failed')
+            msg: ($result.stderr | str trim | default 'WezTerm command failed')
         }
     }
 
@@ -24,37 +24,8 @@ def --wrapped wez [...arguments: string] {
     command-output ([wezterm cli --no-auto-start] | append $arguments)
 }
 
-def --wrapped rex-cli [...arguments: string] {
-    let server = if ($env.REX_SERVER? | is-not-empty) { [--server $env.REX_SERVER] } else { [] }
-
-    command-output ([rex --autostart=false] | append $server | append $arguments)
-}
-
-def panes [rex_session] {
-    if $rex_session == null {
-        return (command-output [ty panes] | from json --strict | get panes)
-    }
-
-    rex-cli session inspect $rex_session --json | from json --strict | get -o windows | default [] | each {|window|
-        $window.layers | each {|layer|
-            $layer.blocks | each {|block|
-                {
-                    pane_id: $block.block_id
-                    tab_id: $window.window_id
-                    is_active: ($block.block_id == $window.focused_block_id)
-                    is_floating: ($layer.kind == 'floating')
-                }
-            }
-        } | flatten
-    } | flatten
-}
-
-def focus-pane [rex_session, pane: string] {
-    if $rex_session == null {
-        command-output [ty pane focus $pane] | ignore
-    } else {
-        rex-cli focus --session $rex_session $pane | ignore
-    }
+def panes [] {
+    command-output [ty panes] | from json --strict | get panes
 }
 
 def rpc [socket: path, expression: string] {
@@ -109,13 +80,9 @@ def main [
     --json
     --lock-held
 ] {
-    let parent = $pane_id | default ($env.REX_BLOCK? | default ($env.WEZTERM_PANE? | default ''))
+    let parent = $pane_id | default ($env.WEZTERM_PANE? | default '')
 
-    let rex_session = if ($parent | str starts-with 'block:') { $env.REX_SESSION? }
-
-    if $rex_session == null and $parent !~ '^\d+$' {
-        error make {msg: 'Run agent-diff from a live Rex or WezTerm pane.'}
-    }
+    if $parent !~ '^\d+$' { error make {msg: 'No WezTerm pane. Run agent-diff from a WezTerm session.'} }
 
     let git_root = if not $directory {
         run-command [git -C $cwd rev-parse --show-toplevel]
@@ -199,11 +166,9 @@ def main [
         }
     }
 
-    if $rex_session == null {
-        let clients = command-output [ty clients] | from json --strict | get clients
+    let clients = command-output [ty clients] | from json --strict | get clients
 
-        if ($clients | is-empty) { error make {msg: 'No attached WezTerm client.'} }
-    }
+    if ($clients | is-empty) { error make {msg: 'No attached WezTerm client.'} }
 
     let revision = if $base == null {
         'HEAD'
@@ -223,7 +188,7 @@ def main [
         $resolved.stdout | str trim
     }
 
-    let panes = panes $rex_session
+    let panes = panes
 
     let owners = $panes | where {|pane| ($pane.pane_id | into string) == $parent}
 
@@ -248,13 +213,7 @@ def main [
     let key_parts = [
         $root
         $parent
-        (
-            if $rex_session == null {
-                $env.WEZTERM_UNIX_SOCKET? | default ''
-            } else {
-                $env.REX_SERVER? | default $rex_session
-            }
-        )
+        ($env.WEZTERM_UNIX_SOCKET? | default '')
     ]
 
     let key_parts = if $review {
@@ -330,7 +289,7 @@ def main [
         {}
     }
 
-    let live = panes $rex_session | where {|pane| $pane.pane_id == $saved.pane? and $pane.tab_id == $owner.tab_id}
+    let live = panes | where {|pane| $pane.pane_id == $saved.pane? and $pane.tab_id == $owner.tab_id}
 
     if ($live | is-not-empty) and ($socket | path exists) {
         let probe = rpc $socket 'getcwd()'
@@ -351,7 +310,12 @@ def main [
             if $position != null { jump-to-source $socket $position }
 
             if not $background {
-                focus-pane $rex_session ($live.0.pane_id | into string)
+                command-output [
+                    ty
+                    pane
+                    focus
+                    ($live.0.pane_id | into string)
+                ] | ignore
             }
 
             if $json {
@@ -486,62 +450,37 @@ def main [
         }
     }
 
-    let pane = if $rex_session != null {
-        let direct = [env ...$editor]
+    let pane = (command-output [
+        ty
+        pane
+        spawn
+        $anchor
+        --direction
+        right
+        --percent
+        '45'
+        --cwd
+        $root
+        --
+        ...$editor
+    ]) | from json --strict | get pane_id
 
-        let focus = if $background { '--focus=false' } else { '--focus=true' }
-
-        (rex-cli
-            split
-            --session
-            $rex_session
-            --block
-            $anchor
-            --split
-            right
-            --ratio
-            45
-            --cwd
-            $root
-            --shell
-            none
-            $focus
-            --json
-            --
-            ...$direct
-        )
-        | from json --strict
-        | get block_ids.0
-    } else {
-        command-output [
-            ty
-            pane
-            spawn
-            $anchor
-            --direction
-            right
-            --percent
-            '45'
-            --cwd
-            $root
-            --
-            ...$editor
-        ] | from json --strict | get pane_id | into int
-    }
-
-    if $rex_session == null and $background and $active != null {
-        let selection = panes $rex_session | where {|item|
+    if $background and $active != null {
+        let selection = panes | where {|item|
             $item.tab_id == $owner.tab_id and $item.is_active? == true
         } | get 0?
 
-        if $selection != null and $selection.pane_id == $pane and (wez get-pane-direction --pane-id $pane Left) == $anchor {
-            focus-pane $rex_session $anchor
+        if $selection != null and ($selection.pane_id | into string) == $pane and (wez get-pane-direction --pane-id $pane Left) == $anchor {
+            command-output [ty pane focus $anchor] | ignore
         }
-    } else if $rex_session == null and not $background {
-        focus-pane $rex_session ($pane | into string)
+    } else if not $background {
+        command-output [ty pane focus $pane] | ignore
     }
 
-    {pane: $pane, root: $root} | to json | save --force $record
+    {
+        pane: ($pane | into int)
+        root: $root
+    } | to json | save --force $record
 
     let deadline = (date now) + 4sec
 
@@ -561,7 +500,11 @@ def main [
                 if $position != null { jump-to-source $socket $position }
 
                 if $json {
-                    {pane_id: $pane, socket: $socket, reused: false} | to json --raw | print
+                    {
+                        pane_id: ($pane | into int)
+                        socket: $socket
+                        reused: false
+                    } | to json --raw | print
                 } else {
                     print 'Opened the Neovim diff pane.'
                 }

@@ -70,11 +70,6 @@
     "avoid": ["desktop-control"]
   },
   {
-    "prompt": "Inspect this Rex session and open a split in the current tab",
-    "expected": ["terminal-rex"],
-    "avoid": ["desktop-control", "terminal-wezterm"]
-  },
-  {
     "prompt": "Show the worktree changes since my existing review checkpoint",
     "expected": ["workflow-route-local"],
     "avoid": ["review-adversarial"]

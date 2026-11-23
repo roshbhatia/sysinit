@@ -28,7 +28,6 @@
     shell-script-authoring = "code-write-shell";
     skills-ecosystem-discovery = "skill-discover";
     taskwarrior = "task-manage";
-    terminal-rex = "terminal-rex";
     ty = "terminal-wezterm";
     untangle-codebase = "code-refactor-architecture";
     worklog = "work-report-activity";

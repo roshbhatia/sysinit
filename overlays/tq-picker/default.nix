@@ -18,7 +18,7 @@ let
       viewer
     ];
     text = ''
-      ${final.terminal-provider-selection}
+      export SYSINIT_TERMINAL_PROVIDER="''${SYSINIT_TERMINAL_PROVIDER:-${terminalManifest}}"
       exec ${final.sysinit-gotools}/bin/tq "$@"
     '';
   };
@@ -76,39 +76,9 @@ let
           });
     }
   );
-  rexProvider = final.writeShellApplication {
-    name = "tq-rex-provider";
-    runtimeInputs = [ final.rex ];
-    text = "exec ${final.lib.getExe final.nushell} --no-config-file --stdin ${./rex.nu}";
-  };
-  rexManifest = "${rexTerminalProvider}/share/sysinit/terminal-providers/rex.json";
-  rexTerminalProvider = final.writeTextDir "share/sysinit/terminal-providers/rex.json" (
-    builtins.toJSON {
-      version = "provider/v1";
-      name = "rex";
-      description = "Run tasks in Rex session tabs and open review beside the caller";
-      command = [ (final.lib.getExe rexProvider) ];
-      actions =
-        final.lib.genAttrs
-          [ "terminal.spawn" "terminal.status" "terminal.focus" "terminal.close" "terminal.review" ]
-          (action: {
-            description = action;
-          });
-    }
-  );
 in
 {
-  terminal-provider-selection = ''
-    provider="${terminalManifest}"
-    ${final.lib.optionalString final.stdenv.hostPlatform.isDarwin ''
-      if [ -n "''${REX_BLOCK:-}" ]; then
-        provider="${rexManifest}"
-      fi
-    ''}
-    export SYSINIT_TERMINAL_PROVIDER="''${SYSINIT_TERMINAL_PROVIDER:-$provider}"
-  '';
   tq-terminal-wezterm = terminalProvider;
-  tq-terminal-rex = rexTerminalProvider;
   task-queue = queuePackage;
   tq = queuePackage;
   pueue-task-view = viewer;
