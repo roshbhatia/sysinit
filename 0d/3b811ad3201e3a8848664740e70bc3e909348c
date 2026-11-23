@@ -1,0 +1,49 @@
+modules/shared/terminal-shell.nix
+  s_a4a3eea4720821::t_70dda4d4bb0390 1-9
+modules/home/programs/wezterm/default.nix
+  s_a4a3eea4720821::t_c5e1ab423379b1 93
+lib/builders/pkgs.nix
+  s_a4a3eea4720821::t_c5e1ab423379b1 40
+modules/home/programs/llm/skills/default.nix
+  s_a4a3eea4720821::t_b3bf7495e26c86 10
+overlays/default.nix
+  s_a4a3eea4720821::t_c5e1ab423379b1 27
+checks/default.nix
+  s_a4a3eea4720821::t_004d5f213dcfe0 292-311
+modules/home/programs/llm/skills/agent-diff/SKILL.md
+  s_a4a3eea4720821::t_b3bf7495e26c86 6-8,10-11
+  s_a4a3eea4720821::t_d59c230e1ccb5f 9
+  s_a4a3eea4720821::t_f880a85b93c88b 23-26
+modules/darwin/home/rex/default.nix
+  s_a4a3eea4720821::t_8c90d12c2f8275 1-4,6-7,9,28-29,39,47
+  s_a4a3eea4720821::t_004d5f213dcfe0 44
+  s_a4a3eea4720821::t_feac3751b6ec0f 5,8,10-17,25-27,30-38,40-43,45-46
+  s_a4a3eea4720821::t_f2da22b36b1431 18-24
+modules/darwin/home/rex/client.lua
+  s_a4a3eea4720821::t_f2da22b36b1431 3-18
+  s_a4a3eea4720821::t_004d5f213dcfe0 1-2,19-20
+overlays/rex.nix
+  s_a4a3eea4720821::t_70dda4d4bb0390 1-32
+docs/terminal-compatibility.md
+  s_a4a3eea4720821::t_d59c230e1ccb5f 13
+  s_a4a3eea4720821::t_f880a85b93c88b 15
+  s_a4a3eea4720821::t_f2da22b36b1431 1-12,14,16-26
+modules/darwin/home/default.nix
+  s_a4a3eea4720821::t_c5e1ab423379b1 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0d3b811ad3201e3a8848664740e70bc3e909348c",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
