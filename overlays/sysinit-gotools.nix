@@ -15,6 +15,7 @@ let
       '';
       meta = package.meta // {
         mainProgram = name;
+        priority = (package.meta.priority or 5) - 1;
       };
     };
 

@@ -63,8 +63,15 @@ in
     inputs = [
       pkgs.neovim-unwrapped
       pkgs.git
-      pkgs.changes
-      pkgs.traces
+      (pkgs.buildEnv {
+        name = "editor-host-profile";
+        paths = [
+          pkgs.changes
+          pkgs.changes-cli
+          pkgs.traces
+          pkgs.traces-cli
+        ];
+      })
     ];
     commands = [
       [
