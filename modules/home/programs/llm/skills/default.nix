@@ -7,7 +7,7 @@ let
   package = import ../lib/skill-package.nix { inherit lib root; };
   inherit (import ./catalog.nix) names optIn;
   compatibility = {
-    review-worktree-diff = "Requires managed Neovim and WezTerm with agent-diff.";
+    review-worktree-diff = "Requires managed Neovim, agent-diff, and Rex or WezTerm.";
     review-change-groups = "Requires Changes. Interactive review uses the Sysinit Neovim workbench.";
     inspect-agent-traces = "Requires Traces. Interactive transcript browsing uses the Sysinit Neovim workbench.";
     terminal-wezterm = "Requires WezTerm and the sysinit ty command.";

@@ -118,9 +118,13 @@ picker, or `task-queue browse`. The pane stays open after the command exits unti
 Enter is pressed. Closing that pane and ending the queued process are different
 actions; inspect the attempt state afterwards.
 
-## WezTerm and visible panes
+## Rex and WezTerm panes
 
-Use `worker` for a long visible command when the owner requests that workflow.
+In Rex, load `terminal-rex` and use the native CLI. Keep pane operations in
+the intended Rex session and tab. Use `agent-diff` when opening local review.
+
+In WezTerm, use `worker` for a long visible command when the owner requests
+that workflow.
 Its cwd is the caller's checkout; `worker --status` inspects that workspace's pane.
 It requires the caller to be inside WezTerm; a desktop agent should use its normal
 execution tool or `task-queue` rather than creating a pane to satisfy that condition.

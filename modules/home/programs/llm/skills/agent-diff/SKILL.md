@@ -3,10 +3,11 @@ name: agent-diff
 description: Open or reuse Reviewr in a Neovim split beside the invoking agent. Use when asked to review this agent’s edits, see a local worktree diff, or draft line feedback to the agent.
 ---
 
-In WezTerm, run `agent-diff --review --allow-directory --cwd <current repository or worktree directory>`.
+In Rex or WezTerm, run `agent-diff --review --allow-directory --cwd <current repository or worktree directory>`.
 Use the current session directory, including its worktree, rather than a parent checkout.
 The command validates the invoking pane and reuses its live Neovim diff pane.
-When the user names a pane or asks to preserve focus, load `terminal-wezterm` for targeting.
+When the user names a pane or asks to preserve focus, load `terminal-rex` or
+`terminal-wezterm` for the terminal that owns the pane.
 Use `--pane-id <id>` for an explicit caller and `--background` to preserve
 focus. Both flags can be used together:
 

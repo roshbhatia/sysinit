@@ -15,6 +15,9 @@ return function(settings)
         "client.setting.interface.appearance.scheme",
         { value = settings.appearance }
       )
+      rex.client.queue("client.setting.interface.appearance.style", { value = "glass" })
+      rex.client.queue("client.setting.interface.appearance.glass", { value = true })
+      rex.client.queue("client.setting.interface.toolbar.layout", { value = "left" })
       rex.client.queue("client.theme.import", { path = settings.themeFile })
       rex.client.queue("client.setting.interface.appearance.tint", { value = true })
       rex.client.queue("client.setting.terminal.typography.font", { value = settings.monospace })

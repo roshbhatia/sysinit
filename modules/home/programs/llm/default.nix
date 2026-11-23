@@ -98,7 +98,11 @@ in
       skills = [ "terminal-wezterm" ];
     }
     {
-      intent = "Open or reuse a live Neovim working-tree diff in WezTerm (load `terminal-wezterm` as well when targeting a specific pane or preserving focus)";
+      intent = "Drive Rex from its CLI or control a Neovim editor running in Rex";
+      skills = [ "terminal-rex" ];
+    }
+    {
+      intent = "Open or reuse a live Neovim working-tree diff in Rex or WezTerm (load the corresponding terminal skill for pane targeting or preserving focus)";
       skills = [ "review-worktree-diff" ];
     }
     {

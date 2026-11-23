@@ -5,14 +5,14 @@ revert. The Rex configuration targets macOS preview build 2061. Use
 **Apply sysinit terminal settings** in Rex's command palette or press
 `Ctrl+Cmd+Shift+A` after activation. New local panes use the resulting startup
 command. Home Manager owns the Lua configuration, and nix-darwin owns the
-preferences for tab placement and window fading.
+preferences for window fading.
 
 | WezTerm workflow | Rex keys or entry point | Behavior in Rex |
 | --- | --- | --- |
 | Managed local shell | New panes, sessions, and scratch panes | Uses the same Nushell executable, config, environment and plugin files, and profile PATH. Clears inherited `PWD` so Nushell can initialize it from the actual working directory. |
 | Terminal colors | Apply sysinit terminal settings | Imports the shared foreground, background, cursor, selection, and 16 ANSI colors as a named Ghostty palette. Uses sysinit's light or dark setting and tints the interface. |
 | Typography and spacing | Apply sysinit terminal settings | Uses the shared monospace family and font size, plus Symbols Nerd Font fallback. Rex uses eight points of horizontal and six points of vertical pane padding. |
-| Bottom tabs and inactive window treatment | Managed Darwin preferences | Tabs appear below the terminal. Inactive pane fading and the separate inactive-window fade are off, as in the restored baseline. Rex renders the window material. |
+| Sidebar tabs and window material | Apply sysinit terminal settings | Tabs appear in the left sidebar. Glass is enabled for the terminal panes. Inactive pane and window fading are controlled independently by Darwin preferences. |
 | Copy on selection | Apply sysinit terminal settings | Mouse selections are copied automatically. |
 | Split down | `Ctrl+S`, `Ctrl+Shift+S` | Creates a pane below the current one. |
 | Split right | `Ctrl+V`, `Ctrl+Shift+V`, `Cmd+Shift+V` | Creates a pane to the right. |
