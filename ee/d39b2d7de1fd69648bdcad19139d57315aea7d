@@ -1,0 +1,144 @@
+modules/home/programs/llm/skills/agent-diff/SKILL.md
+  s_a4a3eea4720821::t_a80e65d2452166 9
+  s_a4a3eea4720821::t_84563ede1f0771 10-16
+modules/home/programs/llm/subagents/code-reviewer.nix
+  s_a4a3eea4720821::t_36eb2fc33869e5 31
+docs/repository-reference.md
+  s_a4a3eea4720821::t_36eb2fc33869e5 151
+modules/home/programs/llm/skills/debugging/SKILL.md
+  s_a4a3eea4720821::t_a80e65d2452166 19
+  s_a4a3eea4720821::t_4221b1bb28ee0d 12-14
+modules/home/programs/llm/skills/change-validation/SKILL.md
+  s_a4a3eea4720821::t_9da513856e01ac 31-34
+  s_a4a3eea4720821::t_4221b1bb28ee0d 18,26-29
+  s_a4a3eea4720821::t_c4677dd494d9be 30,35
+modules/home/programs/llm/skills/adversarial-review/references/harnesses.md
+  s_a4a3eea4720821::t_5e3a3103f89d71 1-12,18-43
+  s_a4a3eea4720821::t_9da513856e01ac 13-17
+modules/home/programs/llm/skills/docs-write-technical/references/voice.md
+  s_a4a3eea4720821::t_a80e65d2452166 1-180
+modules/home/programs/llm/skills/taskwarrior/references/queued-execution.md
+  s_a4a3eea4720821::t_2cfcd788a9ca1e 71-73
+  s_a4a3eea4720821::t_a80e65d2452166 3
+modules/home/programs/llm/skills/untangle-codebase/SKILL.md
+  s_a4a3eea4720821::t_a80e65d2452166 29,33
+docs/skill-maintenance.md
+  s_a4a3eea4720821::t_3769a0f1e0ac1c 22-27,69,79-81,83
+  s_a4a3eea4720821::t_0d25c70a42ddd6 54-65
+  s_a4a3eea4720821::t_bdca7a5c184a58 66
+modules/home/programs/llm/skills/catalog.nix
+  s_a4a3eea4720821::t_c337834d62cb42 1,9-33,35
+  s_a4a3eea4720821::t_7dc192ad7d547f 2-8,34
+modules/home/programs/llm/skills/local-workflows/references/pull-requests.md
+  s_a4a3eea4720821::t_a80e65d2452166 9
+checks/harness-instructions.nix
+  s_a4a3eea4720821::t_7dc192ad7d547f 10-13
+modules/home/programs/llm/skills/ty/SKILL.md
+  s_a4a3eea4720821::t_84563ede1f0771 3
+  s_a4a3eea4720821::t_a80e65d2452166 129
+modules/home/programs/llm/skills/adversarial-review/references/adversarial-review-methodology.md
+  s_a4a3eea4720821::t_0d25c70a42ddd6 28,100-101
+  s_a4a3eea4720821::t_a80e65d2452166 3
+docs/skill-routing-cases.json
+  s_a4a3eea4720821::t_a80e65d2452166 4,9,14,19,24,29,34,39,44,49,54,59,64-65,69-70,74-75,79-80,84-85,90,94
+modules/home/programs/llm/gate.nix
+  s_a4a3eea4720821::t_faffa82c30c317 14
+modules/home/programs/llm/skills/feature-based-session-manager/SKILL.md
+  s_a4a3eea4720821::t_3d1bdbe10c1aae 3
+modules/home/programs/llm/default.nix
+  s_a4a3eea4720821::t_a80e65d2452166 94,98,102,106,110,118,122,127-129,134
+  s_a4a3eea4720821::t_b15e4be5d3b051 101,114
+  s_a4a3eea4720821::t_c337834d62cb42 9-12
+  s_a4a3eea4720821::t_84563ede1f0771 99-100,103-105,107-109
+modules/home/programs/llm/skills/taskwarrior/SKILL.md
+  s_a4a3eea4720821::t_84563ede1f0771 3,43
+  s_a4a3eea4720821::t_6c33f268539753 44
+modules/home/programs/llm/skills/conductor/SKILL.md
+  s_a4a3eea4720821::t_a80e65d2452166 46
+checks/skill-catalog.nix
+  s_a4a3eea4720821::t_7dc192ad7d547f 11-14,17-19,21
+modules/home/programs/llm/skills/default.nix
+  s_a4a3eea4720821::t_c337834d62cb42 1-4,16-17,23-28,32-34
+  s_a4a3eea4720821::t_7dc192ad7d547f 8-15,18,20-22,29-31
+docs/atuin.md
+  s_a4a3eea4720821::t_a80e65d2452166 95
+modules/home/programs/llm/skills/docs-write-technical/references/design.md
+  s_a4a3eea4720821::t_a80e65d2452166 1-137
+AGENTS.md
+  s_a4a3eea4720821::t_a80e65d2452166 32,35
+modules/home/programs/llm/skills/calldiff/SKILL.md
+  s_a4a3eea4720821::t_a80e65d2452166 148
+modules/home/programs/llm/skills/local-workflows/references/execution-and-terminals.md
+  s_a4a3eea4720821::t_a80e65d2452166 31,38,67-69,81,91,136
+modules/home/programs/llm/lib/harness-kit.nix
+  s_a4a3eea4720821::t_c337834d62cb42 13-16
+modules/home/programs/llm/skills/worklog/SKILL.md
+  s_a4a3eea4720821::t_86de90454073da 101
+  s_a4a3eea4720821::t_a80e65d2452166 74
+modules/home/programs/llm/options.nix
+  s_a4a3eea4720821::t_7dc192ad7d547f 12
+  s_a4a3eea4720821::t_c337834d62cb42 11,13-15
+modules/home/programs/llm/runtime/workspace/workspace.nu
+  s_a4a3eea4720821::t_676ca45e19a068 518-520,523-527,554-558,566-570
+modules/home/programs/llm/harnesses/claude/default.nix
+  s_a4a3eea4720821::t_93da52bcdf5bbd 212-221
+  s_a4a3eea4720821::t_faffa82c30c317 211
+modules/home/programs/llm/subagents/review-mediator.nix
+  s_a4a3eea4720821::t_5e3a3103f89d71 2,42-44,61
+modules/home/programs/llm/skills/local-workflows/SKILL.md
+  s_a4a3eea4720821::t_3d1bdbe10c1aae 3
+  s_a4a3eea4720821::t_84563ede1f0771 18-21,38-41
+  s_a4a3eea4720821::t_4221b1bb28ee0d 32-37
+  s_a4a3eea4720821::t_a80e65d2452166 15,17
+  s_a4a3eea4720821::t_f944bf514b33c0 42
+modules/home/programs/llm/skills/docs-write-technical/SKILL.md
+  s_a4a3eea4720821::t_61dcc1c00697d0 18-20
+  s_a4a3eea4720821::t_b15e4be5d3b051 1-17,21-22
+modules/home/programs/llm/skills/docs-write-technical/references/rfc.md
+  s_a4a3eea4720821::t_a80e65d2452166 1-135
+modules/home/programs/llm/gate-defaults.nix
+  s_a4a3eea4720821::t_faffa82c30c317 1-5,119-132
+checks/gate-config.nix
+  s_a4a3eea4720821::t_e58656424310c7 7
+modules/home/programs/llm/lib/instructions.nix
+  s_a4a3eea4720821::t_61dcc1c00697d0 94-97
+  s_a4a3eea4720821::t_b15e4be5d3b051 193
+  s_a4a3eea4720821::t_a80e65d2452166 37,98
+modules/home/programs/llm/skills/writing-pr-description/SKILL.md
+  s_a4a3eea4720821::t_a80e65d2452166 3,19,29,35,170
+modules/home/programs/llm/skills/_shared/doc-voice.md
+  s_a4a3eea4720821::t_b15e4be5d3b051 3
+docs/composability-audit.md
+  s_a4a3eea4720821::t_08d92061c2a7bf 39-40
+  s_a4a3eea4720821::t_2cfcd788a9ca1e 34-38,41-49
+modules/home/programs/llm/skills/render.nix
+  s_a4a3eea4720821::t_c337834d62cb42 4,9,36-40
+modules/home/programs/llm/skills/search-code-routing/SKILL.md
+  s_a4a3eea4720821::t_3d1bdbe10c1aae 3,7,9-15,17-19,21-23,25-27
+modules/home/programs/llm/skills/gh-stack/SKILL.md
+  s_a4a3eea4720821::t_3d1bdbe10c1aae 3
+  s_a4a3eea4720821::t_a80e65d2452166 57,64
+modules/home/programs/llm/skills/adversarial-review/SKILL.md
+  s_a4a3eea4720821::t_5e3a3103f89d71 3,7-18,22-59
+  s_a4a3eea4720821::t_90edc313aa025a 19-21
+  s_a4a3eea4720821::t_0d25c70a42ddd6 4
+modules/home/programs/llm/skills/search-code-routing/references/structural-rewrites.md
+  s_a4a3eea4720821::t_3d1bdbe10c1aae 1-2,9-10
+  s_a4a3eea4720821::t_130855f67d1fe7 3-8,11-27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "eed39b2d7de1fd69648bdcad19139d57315aea7d",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
