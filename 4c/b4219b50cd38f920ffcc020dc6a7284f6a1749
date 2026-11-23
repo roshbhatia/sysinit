@@ -1,0 +1,51 @@
+modules/darwin/home/rex/floating.lua
+  s_a4a3eea4720821::t_19038cc6f5b73f 1-37
+modules/home/programs/wezterm/default.nix
+  s_a4a3eea4720821::t_13a57e0f260da4 18-25,151
+overlays/default.nix
+  s_a4a3eea4720821::t_13a57e0f260da4 27
+modules/darwin/home/rex/init.lua
+  s_a4a3eea4720821::t_70dda4d4bb0390 1-144
+modules/darwin/home/rex/layout.lua
+  s_a4a3eea4720821::t_19038cc6f5b73f 1-34
+lib/builders/pkgs.nix
+  s_a4a3eea4720821::t_13a57e0f260da4 40
+modules/shared/terminal-providers.nix
+  s_a4a3eea4720821::t_19038cc6f5b73f 1-38,40-43
+  s_a4a3eea4720821::t_13a57e0f260da4 39
+modules/darwin/home/rex/sessions.lua
+  s_a4a3eea4720821::t_19038cc6f5b73f 1-96
+modules/darwin/home/default.nix
+  s_a4a3eea4720821::t_13a57e0f260da4 8
+modules/darwin/home/rex/default.nix
+  s_a4a3eea4720821::t_19038cc6f5b73f 1-16,19-77
+  s_a4a3eea4720821::t_13a57e0f260da4 17-18
+modules/darwin/home/rex/appearance.lua
+  s_a4a3eea4720821::t_19038cc6f5b73f 1-32
+flake.nix
+  s_a4a3eea4720821::t_13a57e0f260da4 130-133
+docs/rex-ports.md
+  s_a4a3eea4720821::t_67168b816014db 1-55
+overlays/rex.nix
+  s_a4a3eea4720821::t_19038cc6f5b73f 1-32
+modules/darwin/desktop.nix
+  s_a4a3eea4720821::t_13a57e0f260da4 1,59-66
+flake.lock
+  s_a4a3eea4720821::t_fe5889381bc8a5 534-549,702,741,1058-1079,1124,1339,1532,1549,1643,1781,1809,1888-1902,1917,1963-1978,1993,2008,2024,2039,2210,2297-2319
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4cb4219b50cd38f920ffcc020dc6a7284f6a1749",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
