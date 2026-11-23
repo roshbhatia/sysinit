@@ -1,0 +1,85 @@
+modules/home/programs/llm/skills/default.nix
+  s_a4a3eea4720821::t_160ff953f8fa3e 15
+docs/task-board.md
+  s_a4a3eea4720821::t_6347075ef3d1be 64,70,75,77
+  s_a4a3eea4720821::t_160ff953f8fa3e 11-24
+checks/tq.nu
+  s_a4a3eea4720821::t_6d1527bf7881f3 35-39
+  s_a4a3eea4720821::t_ea1221d829a6b2 8-10,15-19,24,27-34,40
+modules/home/programs/pueue/default.nix
+  s_a4a3eea4720821::t_66b3922a75284f 13-19,61-62
+  s_a4a3eea4720821::t_1ab800e396ef35 44,59
+modules/home/programs/nushell/tasks.nu
+  s_a4a3eea4720821::t_ea1221d829a6b2 1-11
+modules/home/programs/llm/skills/local-workflows/references/pull-requests.md
+  s_a4a3eea4720821::t_6347075ef3d1be 33,36
+modules/home/programs/llm/skills/taskwarrior/SKILL.md
+  s_a4a3eea4720821::t_b2f7bbdcb8b211 3
+  s_a4a3eea4720821::t_6347075ef3d1be 43-45
+pkgs/tq/wezterm-provider.go
+  s_a4a3eea4720821::t_6347075ef3d1be 78
+modules/home/programs/nushell/default.nix
+  s_a4a3eea4720821::t_8689991555a8a9 109,233,259
+  s_a4a3eea4720821::t_ea1221d829a6b2 258
+pkgs/tq/main_test.go
+  s_a4a3eea4720821::t_c12ea779fcce19 30-32
+pkgs/task-board/data.go
+  s_a4a3eea4720821::t_6347075ef3d1be 242
+checks/tq.nix
+  s_a4a3eea4720821::t_8689991555a8a9 25
+  s_a4a3eea4720821::t_ea1221d829a6b2 15,24,34-35
+modules/home/programs/llm/skills/taskwarrior/references/queued-execution.md
+  s_a4a3eea4720821::t_6347075ef3d1be 12,18,32,34,36,47,49,51,57,66,70,72,74-76
+pkgs/tq/submit.go
+  s_a4a3eea4720821::t_6347075ef3d1be 31
+docs/terminal-providers.md
+  s_a4a3eea4720821::t_b2f7bbdcb8b211 3,5,28
+checks/threads-picker.py
+  s_a4a3eea4720821::t_6347075ef3d1be 46
+pkgs/tq/terminal.go
+  s_a4a3eea4720821::t_6347075ef3d1be 318
+pkgs/utils/internal/threads/threads_test.go
+  s_a4a3eea4720821::t_6347075ef3d1be 31,47
+modules/home/programs/llm/skills/ty/SKILL.md
+  s_a4a3eea4720821::t_6347075ef3d1be 80,133
+pkgs/task-board/main.go
+  s_a4a3eea4720821::t_6347075ef3d1be 305
+pkgs/tq/main.go
+  s_a4a3eea4720821::t_6347075ef3d1be 13,15,30,50,97,111
+overlays/tq-picker/provider.nu
+  s_a4a3eea4720821::t_160ff953f8fa3e 77,166
+modules/home/programs/llm/skills/local-workflows/references/execution-and-terminals.md
+  s_a4a3eea4720821::t_6347075ef3d1be 20,38,70-72,83,96,108,110,116-117,126,128
+modules/home/programs/llm/skills/local-workflows/SKILL.md
+  s_a4a3eea4720821::t_6347075ef3d1be 16
+overlays/sysinit-gotools.nix
+  s_a4a3eea4720821::t_66b3922a75284f 93-113
+flake.nix
+  s_a4a3eea4720821::t_66b3922a75284f 349,383
+modules/home/programs/pueue/_tq
+  s_a4a3eea4720821::t_1ab800e396ef35 1,8,18
+modules/home/programs/llm/skills/conductor/SKILL.md
+  s_a4a3eea4720821::t_6347075ef3d1be 50,57
+pkgs/utils/internal/threads/threads.go
+  s_a4a3eea4720821::t_6347075ef3d1be 30,62,277,288
+overlays/tq-picker/default.nix
+  s_a4a3eea4720821::t_1ab800e396ef35 12,25-32,82-83
+pkgs/tq/browse.go
+  s_a4a3eea4720821::t_6347075ef3d1be 34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0ee198385e2a1a6b84298201f44c73d936440ee6",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
