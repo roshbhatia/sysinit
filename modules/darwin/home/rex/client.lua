@@ -1,4 +1,12 @@
 return function(rex, settings)
+  rex.mode("locked")
+  rex.bind("ctrl+g", "client.mode.enter", { name = "locked" })
+  rex.bind("locked/ctrl+g", "client.mode.exit")
+  rex.bind("ctrl+v", "pane.split.right")
+  rex.bind("locked/ctrl+v", "pane.send_key", { key = "ctrl+v" })
+  rex.bind("locked/cmd+r", "pane.send_key", { key = "cmd+r" })
+  rex.bind("locked/escape", "pane.send_key", { key = "escape" })
+
   rex.action({
     name = "sysinit_configure_client",
     title = "Apply Sysinit terminal settings",
