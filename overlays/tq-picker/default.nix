@@ -12,6 +12,7 @@ let
         exit 2
       fi
       case "$2" in
+        stdin) less -R -P "Pueue #$1 | j/k scroll | g/G top/end | q quit" +G ;;
         follow) pueue follow --lines 1000 "$1" | less -R -P "Pueue #$1 | Ctrl-C pause | j/k scroll | F follow | q quit" +F ;;
         log) pueue log --lines 1000 "$1" | less -R -P "Pueue #$1 | j/k scroll | g/G top/end | q quit" +G ;;
         *) echo "pueue-task-view: invalid log mode" >&2; exit 2 ;;
@@ -28,7 +29,7 @@ let
     ];
     text = ''
       exec ${final.lib.getExe final.nushell} --no-config-file --stdin ${./provider.nu} \
-        ${final.lib.getExe final.wezterm} ${final.lib.getExe viewer}
+        ${final.sysinit-gotools}/bin/tq ${final.lib.getExe viewer}
     '';
   };
   manifest = final.writeText "tq.json" (

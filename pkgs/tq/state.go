@@ -37,6 +37,14 @@ type job struct {
 	CreatedAt time.Time       `json:"created_at"`
 }
 
+type queueSnapshot struct {
+	Tasks map[string]job `json:"tasks"`
+}
+
+func (j job) sameIdentity(other job) bool {
+	return j.ID == other.ID && j.Label == other.Label && j.CreatedAt.Equal(other.CreatedAt)
+}
+
 const labelPrefix = "tq:"
 
 func attemptID(label string) (string, bool) {

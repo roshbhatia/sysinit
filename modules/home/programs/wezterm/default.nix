@@ -68,7 +68,10 @@ in
       agents = import ../llm/harnesses/deck-patterns.nix;
 
       # Saved in plain text under the 0700 recovery directory; history copies omit it.
-      persistence.scrollback_lines = 10000;
+      persistence = {
+        scrollback_lines = 10000;
+        exclude_workspaces = lib.optional config.sysinit.queue.enable "task-queue";
+      };
 
       agentResume = lib.mapAttrs (
         _n: h:
@@ -162,31 +165,37 @@ in
         ssh = lib.getExe' pkgs.openssh "ssh";
         mosh = lib.getExe' pkgs.mosh "mosh";
       };
-      picker.placement = "pane";
-      picker.providers = [
-        {
-          name = "tether";
-          key = "@";
-          manifest = "${pkgs.tether-picker}/share/wezterm/providers/tether.json";
-        }
-        {
-          name = "seshy";
-          key = "$";
-          manifest = "${pkgs.seshy-picker}/share/wezterm/providers/seshy.json";
-        }
-        {
-          name = "zoxide";
-          key = "%";
-          manifest = "${pkgs.zoxide-picker}/share/wezterm/providers/zoxide.json";
-        }
-      ]
-      ++ lib.optionals config.sysinit.queue.enable [
-        {
-          name = "tq";
-          key = "&";
-          manifest = "${pkgs.tq-picker}/share/wezterm/providers/tq.json";
-        }
-      ];
+      picker = {
+        placement = "pane";
+        workspace_slots = lib.optionalAttrs config.sysinit.queue.enable {
+          task-queue = 99;
+        };
+        providers = [
+          {
+            name = "tether";
+            key = "@";
+            manifest = "${pkgs.tether-picker}/share/wezterm/providers/tether.json";
+          }
+          {
+            name = "seshy";
+            key = "$";
+            manifest = "${pkgs.seshy-picker}/share/wezterm/providers/seshy.json";
+          }
+          {
+            name = "zoxide";
+            key = "%";
+            manifest = "${pkgs.zoxide-picker}/share/wezterm/providers/zoxide.json";
+          }
+        ]
+        ++ lib.optionals config.sysinit.queue.enable [
+          {
+            name = "tq";
+            key = "&";
+            palette_title = "Queue: browse attempts";
+            manifest = "${pkgs.tq-picker}/share/wezterm/providers/tq.json";
+          }
+        ];
+      };
       cwd_aliases.sy = config.sysinit.paths.resolved.seshySessions;
       passthrough_procs = [
         "caffeinate"

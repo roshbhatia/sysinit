@@ -69,7 +69,7 @@ Nix owns Atuin settings and its daemon; change sysinit source rather than runnin
 | Structured local session and pane API | `ty`; read `ty` | Compose seshy catalogs/open plans with explicit WezTerm pane operations |
 | Explicit queued execution | `tq`; read the submission section of `taskwarrior` | Attempt UUID, exact argv/cwd, Taskwarrior linkage and review state |
 | Queue scheduling and output inspection | Pueue underneath `tq` | Job ID, scheduling, process output and exit status |
-| Attachable queued terminal | `tq submit --terminal` | A workspace on the persistent WezTerm mux, named after the attempt |
+| Attachable queued terminal | `tq submit --terminal` | One tab per attempt in the `task-queue` WezTerm workspace |
 | Visible execution requested by the owner | `worker` | One reusable WezTerm pane and command logs per workspace |
 
 `worker` remains an owner-facing command, excluded from the agent skill registry.
@@ -111,9 +111,10 @@ cancellation, and retry through `tq`; Pueue supplies scheduling and output
 underneath it. Native helper
 results stay with their coordinator unless an explicit queued attempt is needed.
 
-`--terminal` runs the attempt in its own workspace on the persistent WezTerm mux;
-the attempt's `terminal` field names that workspace. Attach from the `tq`
-picker or `tq browse`. The pane stays open after the command exits until
+`--terminal` puts the attempt in a tab in the shared `task-queue` workspace
+on the persistent WezTerm mux. Switch to that workspace to scan the tabs, or
+open a specific attempt with `tq attach <attempt-uuid>`, the WezTerm `tq`
+picker, or `tq browse`. The pane stays open after the command exits until
 Enter is pressed. Closing that pane and ending the queued process are different
 actions; inspect the attempt state afterwards.
 

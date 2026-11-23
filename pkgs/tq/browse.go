@@ -15,7 +15,7 @@ import (
 	"github.com/roshbhatia/sysinit/pkgs/internal/picker"
 )
 
-func browse(args []string, records []attempt) error {
+func browse(args []string, records []attempt, jobs map[string]job, dir string) error {
 	f := flag.NewFlagSet("browse", flag.ContinueOnError)
 	thread := f.String("thread", "", "Show attempts linked to this captured conversation")
 	if err := f.Parse(args); err != nil {
@@ -84,24 +84,25 @@ func browse(args []string, records []attempt) error {
 		return err
 	}
 	a := attempts[index]
+	j, live := jobs[a.ID]
 	var labelsActions []string
 	var commands [][]string
 	if a.Terminal != "" {
-		panes, err := terminalPanes(a.Terminal)
+		panes, err := terminalPanes(a, dir)
 		if err != nil {
 			return err
 		}
 		if len(panes) > 0 {
 			labelsActions = append(labelsActions, "Attach terminal")
-			commands = append(commands, []string{"wezterm", "connect", muxDomain, "--workspace", a.Terminal})
+			commands = append(commands, []string{"attach"})
 		}
 	}
-	if a.PueueID != nil && state(a.Result) != "Missing" {
+	if live {
 		labelsActions = append(labelsActions, "View logs · j/k scroll · q quit")
-		commands = append(commands, []string{"pueue-task-view", strconv.Itoa(*a.PueueID), "log"})
-		if state(a.Result) == "Running" {
+		commands = append(commands, []string{"log"})
+		if state(j.Status) == "Running" {
 			labelsActions = append(labelsActions, "Follow logs · Ctrl-C then j/k scroll · F follow")
-			commands = append(commands, []string{"pueue-task-view", strconv.Itoa(*a.PueueID), "follow"})
+			commands = append(commands, []string{"follow"})
 		}
 	}
 	if a.Thread != "" {
@@ -116,7 +117,50 @@ func browse(args []string, records []attempt) error {
 		return err
 	}
 	command := commands[selected]
+	switch command[0] {
+	case "attach":
+		return attachTerminal(a, dir, false)
+	case "log":
+		return showJobLog(j, true)
+	case "follow":
+		return followJobLog(j)
+	}
 	return viewCommand(command[0], command[1:]...)
+}
+
+func showJobLog(j job, pager bool) error {
+	id := strconv.Itoa(j.ID)
+	var logs map[string]struct {
+		Task   job    `json:"task"`
+		Output string `json:"output"`
+	}
+	if err := jsonCall(&logs, "pueue", "log", "--json", "--lines", "1000", id); err != nil {
+		return err
+	}
+	log, present := logs[id]
+	if !present || !j.sameIdentity(log.Task) {
+		return errors.New("job identity changed before reading Pueue logs")
+	}
+	if !pager {
+		_, err := fmt.Fprint(os.Stdout, log.Output)
+		return err
+	}
+	cmd := exec.Command("pueue-task-view", id, "stdin")
+	cmd.Stdin = strings.NewReader(log.Output)
+	cmd.Stdout, cmd.Stderr = os.Stdout, os.Stderr
+	return cmd.Run()
+}
+
+func followJobLog(j job) error {
+	id := strconv.Itoa(j.ID)
+	var current queueSnapshot
+	if err := jsonCall(&current, "pueue", "status", "--json"); err != nil {
+		return err
+	}
+	if live, ok := current.Tasks[id]; !ok || !j.sameIdentity(live) {
+		return errors.New("job identity changed before following Pueue logs")
+	}
+	return viewCommand("pueue-task-view", id, "follow")
 }
 
 func active(a attempt) bool {

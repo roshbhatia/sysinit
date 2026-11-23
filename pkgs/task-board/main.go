@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 	"unicode"
 
@@ -200,7 +199,7 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 				m.message = "This task has no linked Pueue job."
 				return m, nil
 			}
-			return m, tea.ExecProcess(exec.Command("pueue-task-view", strconv.Itoa(*c.Attempt.PueueID), "log"), func(err error) tea.Msg { return acted{err} })
+			return m, tea.ExecProcess(exec.Command("tq", "logs", c.Attempt.ID, "--pager"), func(err error) tea.Msg { return acted{err} })
 		}
 	}
 	return m, nil

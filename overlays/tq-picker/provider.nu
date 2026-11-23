@@ -6,17 +6,6 @@ def command-output [program: string, arguments: list<string>] {
     $result.stdout
 }
 
-# Each attachable attempt runs in its own workspace on the persistent WezTerm mux.
-def terminal-live [wezterm: string, terminal: string] {
-    let socket = $env.TQ_WEZTERM_SOCKET? | default ($env.HOME | path join .local state wezterm mux.sock)
-
-    let panes = with-env {WEZTERM_UNIX_SOCKET: $socket} {
-        command-output $wezterm [cli --prefer-mux --no-auto-start list --format json]
-    }
-
-    $panes | from json | any {|pane| $pane.workspace == $terminal }
-}
-
 def attempt [job: record] {
     let label = $job.label? | default ''
 
@@ -77,7 +66,7 @@ def status [job: record] {
     }
 }
 
-def respond [request: record, wezterm: string, viewer: string] {
+def respond [request: record, tq: string, viewer: string] {
     if ($request.version? | default '') != provider/v1 or ($request.kind? | default '') != request {
         error make {msg: 'expected a provider/v1 request'}
     }
@@ -132,10 +121,16 @@ def respond [request: record, wezterm: string, viewer: string] {
 
         let record = attempt $job
 
-        let terminal = $record.terminal? | default ''
+        let workspace = if ($record.terminal? | default '') != '' {
+            let focus = ^timeout 4s $tq attach $record.id --focus-only | complete
 
-        # The launcher switches to an existing workspace named by the label and spawns only for a new one.
-        let label = if $terminal != '' and (terminal-live $wezterm $terminal) { $terminal } else { $'Pueue #($identifier)' }
+            if $focus.exit_code == 0 {
+                $focus.stdout | from json
+            }
+        }
+
+        # tq has selected the attempt's tab before the launcher switches workspaces.
+        let label = $workspace | default $'Pueue #($identifier)'
 
         let command = [
             $viewer
@@ -157,7 +152,7 @@ def respond [request: record, wezterm: string, viewer: string] {
     error make {msg: $'unsupported capability: ($capability)'}
 }
 
-def main [wezterm: string = 'wezterm', viewer: string = 'pueue-task-view'] {
+def main [tq: string = 'tq', viewer: string = 'pueue-task-view'] {
     let input = $in
 
     let parsed = try {
@@ -171,7 +166,7 @@ def main [wezterm: string = 'wezterm', viewer: string = 'pueue-task-view'] {
     let result = try {
         {
             status: ok
-            output: (respond $request $wezterm $viewer)
+            output: (respond $request $tq $viewer)
         }
     } catch {|failure|
         {status: error, message: $failure.msg}

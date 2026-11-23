@@ -68,7 +68,7 @@ def check(provider, queue):
 
         def panes():
             return {
-                pane["workspace"]: str(pane["pane_id"])
+                str(pane["pane_id"]): pane
                 for pane in json.loads(mux("list", "--format", "json"))
             }
 
@@ -175,7 +175,11 @@ def check(provider, queue):
                     )
                 )
                 terminal = record["terminal"]
-                wait(lambda: terminal in panes())
+                assert terminal == "task-queue", record
+                ref = legacy / f"{record['id']}.terminal"
+                wait(ref.exists)
+                pane = str(json.loads(ref.read_text())["pane_id"])
+                wait(lambda: panes().get(pane, {}).get("workspace") == terminal)
                 identifier = str(record["pueue_id"])
                 jobs = json.loads(run("pueue", "status", "--json"))["tasks"]
                 assert jobs[identifier]["label"] == f"tq:{record['id']}"
@@ -187,25 +191,27 @@ def check(provider, queue):
                 assert "Running" in items[0]["segments"][0]["text"], items
                 assert "terminal/logs" in items[0]["segments"][1]["text"], items
                 assert "Legacy session" in items[1]["segments"][0]["text"], items
+                split = mux(
+                    "split-pane", "--pane-id", pane, "--", "sleep", "120"
+                ).strip()
+                mux("activate-pane", "--pane-id", split)
+                assert not panes()[pane]["is_active"]
                 plan = request("picker.open", identifier)["output"]
                 assert plan["label"] == terminal, plan
                 assert plan["cwd"] == str(root), plan
-                wait(
-                    lambda: (
-                        "PICKER_FIXTURE"
-                        in mux("get-text", "--pane-id", panes()[terminal])
-                    )
-                )
+                assert panes()[pane]["is_active"]
+                wait(lambda: "PICKER_FIXTURE" in mux("get-text", "--pane-id", pane))
                 completed = request("picker.open", "0")["output"]
                 assert completed["command"][-2:] == ["0", "log"], completed
                 open_terminal(completed, b"LOG_FIXTURE", b"q")
                 assert request("picker.open", "9999")["status"] == "error"
                 assert request("picker.open", "../0")["status"] == "error"
-                mux("kill-pane", "--pane-id", panes()[terminal])
-                wait(lambda: terminal not in panes())
+                mux("kill-pane", "--pane-id", pane)
+                wait(lambda: pane not in panes())
                 fallback = request("picker.open", identifier)["output"]
                 assert fallback["label"] != terminal, fallback
                 assert fallback["command"][-1] in ("follow", "log"), fallback
+                mux("kill-pane", "--pane-id", split)
                 print(
                     "Pueue picker: live discovery, mux workspace attachment, completed logs, stale IDs, and lost-terminal fallback passed"
                 )

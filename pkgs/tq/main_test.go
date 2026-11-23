@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -247,19 +248,65 @@ func (f *fixture) wezterm(args ...string) []byte {
 }
 
 func (f *fixture) terminalPane(a attempt) (string, bool) {
-	var panes []struct {
-		PaneID    int    `json:"pane_id"`
-		Workspace string `json:"workspace"`
+	var ref terminalRef
+	if a.Terminal == queueWorkspace {
+		err := read(filepath.Join(f.root, "attempt records", a.ID+".terminal"), &ref)
+		if errors.Is(err, os.ErrNotExist) {
+			return "", false
+		}
+		if err != nil {
+			f.t.Fatal(err)
+		}
 	}
+	var panes []muxPane
 	if e := json.Unmarshal(f.wezterm("list", "--format", "json"), &panes); e != nil {
 		f.t.Fatal(e)
 	}
 	for _, p := range panes {
-		if p.Workspace == a.Terminal {
+		if p.Workspace == a.Terminal && (a.Terminal != queueWorkspace || p.PaneID == ref.PaneID) {
 			return strconv.Itoa(p.PaneID), true
 		}
 	}
 	return "", false
+}
+
+func TestTerminalAttemptsShareWorkspaceWithoutSharingLifecycle(t *testing.T) {
+	f := fixtureFor(t)
+	f.must("pueue", "group", "add", "agents")
+	f.must("pueue", "pause", "--group", "agents")
+	f.must("pueue", "parallel", "--group", "agents", "2")
+	first := f.submit("--terminal", "--", executable(t, "sleep"), "60")
+	second := f.submit("--terminal", "--", executable(t, "sleep"), "60")
+	f.must("pueue", "start", "--group", "agents")
+	waitFor(t, func() bool { return f.terminalExists(first) && f.terminalExists(second) })
+	var panes []struct {
+		muxPane
+		TabID    int    `json:"tab_id"`
+		TabTitle string `json:"tab_title"`
+	}
+	if err := json.Unmarshal(f.wezterm("list", "--format", "json"), &panes); err != nil {
+		t.Fatal(err)
+	}
+	if len(panes) != 2 || panes[0].Workspace != queueWorkspace || panes[1].Workspace != queueWorkspace ||
+		panes[0].WindowID != panes[1].WindowID || panes[0].TabID == panes[1].TabID {
+		t.Fatalf("expected distinct tabs in one queue workspace window: %+v", panes)
+	}
+	for _, a := range []attempt{first, second} {
+		if !strings.Contains(panes[0].TabTitle+" "+panes[1].TabTitle, a.ID[:8]) {
+			t.Fatalf("attempt tab title missing for %s: %+v", a.ID, panes)
+		}
+		if got := string(f.queue("attach", a.ID, "--focus-only")); strings.TrimSpace(got) != `"task-queue"` {
+			t.Fatalf("attach target: %q", got)
+		}
+	}
+	f.queue("cancel", first.ID)
+	f.finished(first)
+	f.queueError("attach", first.ID, "--focus-only")
+	if !f.terminalExists(second) {
+		t.Fatal("cancelling the first attempt closed the second tab")
+	}
+	f.queue("cancel", second.ID)
+	f.finished(second)
 }
 
 func (f *fixture) terminalExists(a attempt) bool {
@@ -315,6 +362,48 @@ func TestStatesAndIdentity(t *testing.T) {
 	}
 	if !success(json.RawMessage(`{"Done":{"result":"Success"}}`)) {
 		t.Fatal("success lost")
+	}
+}
+
+func TestJobIdentityDistinguishesReusedNumericID(t *testing.T) {
+	original := job{ID: 7, Label: "tq:original", CreatedAt: time.Unix(10, 0)}
+	relabelled := original
+	relabelled.Label = "tq:replacement"
+	recreated := original
+	recreated.CreatedAt = original.CreatedAt.Add(time.Second)
+	if !original.sameIdentity(original) || original.sameIdentity(relabelled) || original.sameIdentity(recreated) {
+		t.Fatal("job identity lost the attempt label or creation time")
+	}
+}
+
+func TestRetiredAttemptIgnoresReusedPueueID(t *testing.T) {
+	first := fixtureFor(t)
+	old := first.finished(first.submit("--", executable(t, "sh"), "-c", "printf ORIGINAL"))
+	first.queue("reconcile")
+	if output := first.queue("logs", old.ID); !bytes.Contains(output, []byte("ORIGINAL")) {
+		t.Fatalf("live log output is missing: %q", output)
+	}
+
+	second := fixtureFor(t)
+	replacement := second.finished(second.submit("--", executable(t, "sh"), "-c", "printf REPLACEMENT; exit 1"))
+	if old.ID == replacement.ID || *old.PueueID != *replacement.PueueID {
+		t.Fatalf("fixture did not reuse the numeric job ID: %v, %v", old.PueueID, replacement.PueueID)
+	}
+	oldPath := filepath.Join(second.root, "attempt records", old.ID+".json")
+	if err := save(oldPath, old); err != nil {
+		t.Fatal(err)
+	}
+	if view := second.finished(old); !view.Review || !success(view.Result) {
+		t.Fatalf("replacement job changed the retired attempt: %+v", view)
+	}
+	second.queueError("cancel", old.ID)
+	second.queueError("resume", old.ID)
+	second.queueError("logs", old.ID)
+	if output := second.queue("logs", replacement.ID); !bytes.Contains(output, []byte("REPLACEMENT")) {
+		t.Fatalf("replacement log output is missing: %q", output)
+	}
+	if view := second.finished(replacement); view.Cancelled || view.Review {
+		t.Fatalf("old attempt controlled the replacement job: %+v", view)
 	}
 }
 
@@ -529,6 +618,18 @@ func TestStatusProjectsWithoutPersisting(t *testing.T) {
 	if err != nil || !bytes.Equal(before, after) {
 		t.Fatalf("inspecting the queue rewrote the attempt: %v", err)
 	}
+	f.queueError("submit", "--cwd", filepath.Join(f.root, "missing directory"), "--", "true")
+	after, err = os.ReadFile(path)
+	if err != nil || !bytes.Equal(before, after) {
+		t.Fatalf("rejected submission rewrote an unrelated attempt: %v", err)
+	}
+
+	f.submit("--", "true")
+	after, err = os.ReadFile(path)
+	if err != nil || !bytes.Equal(before, after) {
+		t.Fatalf("new submission rewrote an unrelated attempt: %v", err)
+	}
+
 	f.queue("reconcile")
 	var persisted attempt
 	if err := read(path, &persisted); err != nil || state(persisted.Result) != "Stashed" {
@@ -542,7 +643,6 @@ func TestRecoverStashedAndRejectReplay(t *testing.T) {
 	f.must("pueue", "pause", "--group", "agents")
 	a := f.submit("--", "true")
 	f.must("pueue", "stash", strconv.Itoa(*a.PueueID))
-	f.queue("reconcile")
 	f.queue("resume", a.ID)
 	f.must("pueue", "start", "--group", "agents")
 	if !f.finished(a).Review {

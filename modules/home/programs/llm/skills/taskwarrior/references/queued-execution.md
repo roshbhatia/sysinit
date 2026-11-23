@@ -29,11 +29,11 @@ in the same working directory.
    Choose one of the examples below, not all three for the same task.
 
 ```sh
-tq submit --task <uuid> --cwd /absolute/repository -- \
+tq submit --terminal --task <uuid> --cwd /absolute/repository -- \
   goose run --instructions /absolute/task-prompt.md
-tq submit --task <uuid> --cwd /absolute/repository -- \
+tq submit --terminal --task <uuid> --cwd /absolute/repository -- \
   claude --print 'Read /absolute/task-prompt.md and carry out its authorized task.'
-tq submit --task <uuid> --cwd /absolute/repository -- \
+tq submit --terminal --task <uuid> --cwd /absolute/repository -- \
   codex exec 'Read /absolute/task-prompt.md and carry out its authorized task.'
 ```
 
@@ -50,7 +50,10 @@ conversation. `tq browse --thread <id>` filters by exact conversation ID;
 the Threads picker's **Queue attempts** action opens this view. Use
 `tq thread <attempt-uuid>` to inspect a linked conversation directly.
 
-Add `--terminal` before `--` for an attachable WezTerm mux workspace. Queue output includes
+Use `--terminal` for agent runs you want to visit in WezTerm. Each attempt has
+its own tab in the shared `task-queue` workspace. Use `tq attach <attempt-uuid>`
+to jump to one tab. Omit the flag for background commands that only need logs.
+Queue output includes
 the attempt UUID and Pueue job ID. Retain both with the Taskwarrior UUID. The
 attempt's `sequence` records submission order independently of its Pueue job
 ID. The terminal launch passes only the environment needed to reach and
@@ -59,6 +62,9 @@ including its `PATH` and Taskwarrior and Pueue configuration paths.
 A Taskwarrior session ownership marker records coordination.
 
 Inspect `tq status`, `pueue status`, and `pueue log <job-id>`.
+Inspect `tq status` and use `tq logs <attempt-uuid>` for retained Pueue logs.
+The log reader checks the returned job identity before printing output.
+Pass `--pager` to open the terminal viewer.
 `tq status` and `tq snapshot` read the live queue without rewriting attempts.
 Use `tq reconcile` to persist the current results before queue cleanup. Use
 `tq cancel <attempt-uuid>` for cancellation and

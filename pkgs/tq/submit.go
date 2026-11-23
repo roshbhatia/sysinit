@@ -35,7 +35,7 @@ func parseSubmission(args []string) (submission, error) {
 	f.StringVar(&plan.thread, "thread", "", "Exact Atuin captured-thread ID")
 	f.StringVar(&plan.cwd, "cwd", "", "Working directory")
 	f.StringVar(&plan.group, "group", "agents", "Pueue group")
-	f.BoolVar(&plan.terminal, "terminal", false, "Attachable WezTerm mux terminal")
+	f.BoolVar(&plan.terminal, "terminal", false, "Run in a tab in the task-queue WezTerm workspace")
 	f.BoolVar(&plan.retry, "retry", false, "New attempt after completion")
 	if err := f.Parse(args); err != nil {
 		return plan, err
@@ -162,7 +162,7 @@ func submit(plan submission, dir string, records []attempt) (int, error) {
 		Result:   json.RawMessage(`"Preparing"`),
 	}
 	if plan.terminal {
-		a.Terminal = "pq-" + a.ID[:12]
+		a.Terminal = queueWorkspace
 	}
 	if e = save(filepath.Join(dir, a.ID+".json"), a); e != nil {
 		return 1, e

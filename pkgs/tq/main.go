@@ -15,7 +15,9 @@ const usage = `Usage: tq [--state DIR] COMMAND [ARGS...]
   submit [OPTIONS] -- COMMAND [ARGS...]  Queue a command. See tq submit --help.
   status, snapshot                    Read attempts and live status as JSON.
   browse [--thread ID]                 Browse attempts, terminals, and logs.
+  attach UUID [--focus-only]           Open an attempt's WezTerm tab, or select it in the mux.
   thread UUID                          Show an attempt's captured conversation.
+  logs UUID [--pager]                  Read verified log output for an attempt.
   reconcile                            Save live status to the attempt records.
   cancel UUID                          Cancel a queued or running attempt.
   resume UUID                          Resume an attempt that has not started.
@@ -78,6 +80,17 @@ func run(args []string) (int, error) {
 		if len(args) != 0 {
 			return 1, fmt.Errorf("%s accepts no arguments", action)
 		}
+	case "logs", "attach":
+		option := "--pager"
+		if action == "attach" {
+			option = "--focus-only"
+		}
+		if len(args) < 1 || len(args) > 2 || (len(args) == 2 && args[1] != option) {
+			return 1, fmt.Errorf("usage: tq %s UUID [%s]", action, option)
+		}
+		if attemptPath, e = recordPath(*dir, args[0]); e != nil {
+			return 1, e
+		}
 	case "thread", "cancel", "resume", "run", "terminal-child":
 		if len(args) != 1 {
 			return 1, errors.New("one attempt UUID required")
@@ -89,7 +102,7 @@ func run(args []string) (int, error) {
 	default:
 		return 1, fmt.Errorf("unknown action %q; see tq --help", action)
 	}
-	readOnly := action == "status" || action == "snapshot" || action == "browse" || action == "thread"
+	readOnly := action == "status" || action == "snapshot" || action == "browse" || action == "thread" || action == "logs" || action == "attach"
 	if readOnly {
 		if action == "status" || action == "snapshot" {
 			if _, err := os.Stat(*dir); os.IsNotExist(err) {
@@ -101,10 +114,13 @@ func run(args []string) (int, error) {
 	} else if e = os.MkdirAll(*dir, 0700); e != nil {
 		return 1, e
 	}
-	if action == "thread" {
+	if action == "thread" || action == "attach" {
 		var a attempt
 		if e = read(attemptPath, &a); e != nil {
 			return 1, e
+		}
+		if action == "attach" {
+			return 0, attachTerminal(a, *dir, len(args) == 2)
 		}
 		if a.Thread == "" {
 			return 1, errors.New("attempt has no linked conversation; submit with --thread ID")
@@ -136,9 +152,7 @@ func run(args []string) (int, error) {
 		}
 		defer func() { _ = guard.Close() }()
 	}
-	var snapshot struct {
-		Tasks map[string]job `json:"tasks"`
-	}
+	var snapshot queueSnapshot
 	if e = jsonCall(&snapshot, "pueue", "status", "--json"); e != nil {
 		return 1, e
 	}
@@ -154,6 +168,7 @@ func run(args []string) (int, error) {
 		}
 	}
 	records := []attempt{}
+	var target *attempt
 	paths, e := filepath.Glob(filepath.Join(*dir, "*.json"))
 	if e != nil {
 		return 1, e
@@ -174,34 +189,50 @@ func run(args []string) (int, error) {
 			a.Result = json.RawMessage(`"Missing"`)
 			a.Review = false
 		}
-		if !readOnly {
-			if e = save(path, a); e != nil {
-				return 1, e
-			}
+		if path == attemptPath {
+			target = &a
 		}
 		records = append(records, a)
 	}
 	switch action {
 	case "browse":
-		return 0, browse(args, records)
-	case "status", "snapshot", "reconcile":
+		return 0, browse(args, records, jobs, *dir)
+	case "logs":
+		if target == nil {
+			return 1, fmt.Errorf("attempt %s: %w", args[0], os.ErrNotExist)
+		}
+		j, live := jobs[target.ID]
+		if !live {
+			return 1, errors.New("attempt has no current Pueue job")
+		}
+		return 0, showJobLog(j, len(args) == 2)
+	case "status", "snapshot":
+		return 0, output(records)
+	case "reconcile":
+		for i, a := range records {
+			if e = save(paths[i], a); e != nil {
+				return 1, e
+			}
+		}
 		return 0, output(records)
 	case "cancel", "resume":
-		var a attempt
-		if e = read(attemptPath, &a); e != nil {
-			return 1, e
+		if target == nil {
+			return 1, fmt.Errorf("attempt %s: %w", args[0], os.ErrNotExist)
 		}
+		a := target
 		j, found := jobs[a.ID]
 		if action == "resume" {
 			if a.Cancelled {
 				return 1, errors.New("attempt cancelled; submit --retry")
 			}
 			if !found && a.PueueID == nil {
-				if e = enqueue(&a, *dir); e != nil {
+				if e = enqueue(a, *dir); e != nil {
 					return 1, e
 				}
 			} else if !found || state(j.Status) != "Stashed" {
 				return 1, errors.New("only a stashed attempt can resume")
+			} else if e = save(attemptPath, a); e != nil {
+				return 1, e
 			}
 			_, e = call("pueue", "enqueue", strconv.Itoa(*a.PueueID))
 			return 0, e
@@ -211,7 +242,7 @@ func run(args []string) (int, error) {
 		}
 		s := state(j.Status)
 		if a.Terminal != "" && (s == "Running" || s == "Paused") {
-			if e = killTerminal(a.Terminal); e != nil {
+			if e = killTerminal(*a, *dir); e != nil {
 				return 1, e
 			}
 		}
@@ -222,11 +253,9 @@ func run(args []string) (int, error) {
 		default:
 			_, e = call("pueue", "kill", strconv.Itoa(j.ID))
 			if e != nil && a.Terminal != "" {
-				var current struct {
-					Tasks map[string]job `json:"tasks"`
-				}
+				var current queueSnapshot
 				if queryErr := jsonCall(&current, "pueue", "status", "--json"); queryErr == nil {
-					if finished, ok := current.Tasks[strconv.Itoa(j.ID)]; ok && state(finished.Status) == "Done" {
+					if finished, ok := current.Tasks[strconv.Itoa(j.ID)]; ok && j.sameIdentity(finished) && state(finished.Status) == "Done" {
 						e = nil
 					}
 				}

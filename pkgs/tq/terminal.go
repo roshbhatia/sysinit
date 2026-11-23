@@ -35,19 +35,25 @@ func envWithout(keys ...string) []string {
 	return out
 }
 
-// The persistent WezTerm mux hosts attachable terminals, one workspace per attempt.
-const muxDomain = "unix"
+const (
+	muxDomain      = "unix"
+	queueWorkspace = "task-queue"
+)
 
-func wezterm(args ...string) *exec.Cmd {
-	c := exec.Command("wezterm", append([]string{"cli", "--prefer-mux", "--no-auto-start"}, args...)...)
+func muxSocket() string {
 	socket := os.Getenv("TQ_WEZTERM_SOCKET")
 	if socket == "" {
 		// The socket path configured by the sysinit-wezterm module.
 		home, _ := os.UserHomeDir()
 		socket = filepath.Join(home, ".local", "state", "wezterm", "mux.sock")
 	}
+	return socket
+}
+
+func wezterm(args ...string) *exec.Cmd {
+	c := exec.Command("wezterm", append([]string{"cli", "--prefer-mux", "--no-auto-start"}, args...)...)
 	// WezTerm serializes the CLI's environment when spawning a command.
-	c.Env = []string{"WEZTERM_UNIX_SOCKET=" + socket}
+	c.Env = []string{"WEZTERM_UNIX_SOCKET=" + muxSocket()}
 	for _, key := range []string{
 		"HOME", "USER", "LOGNAME", "PATH", "SHELL", "TMPDIR", "LANG", "LC_ALL", "LC_CTYPE",
 		"XDG_CONFIG_HOME", "XDG_DATA_HOME", "XDG_RUNTIME_DIR", "XDG_STATE_HOME", "WEZTERM_CONFIG_FILE",
@@ -59,36 +65,156 @@ func wezterm(args ...string) *exec.Cmd {
 	return c
 }
 
-func terminalPanes(name string) ([]int, error) {
+type muxPane struct {
+	PaneID    int    `json:"pane_id"`
+	WindowID  int    `json:"window_id"`
+	Workspace string `json:"workspace"`
+}
+
+type terminalRef struct {
+	PaneID int    `json:"pane_id"`
+	Mux    string `json:"mux"`
+}
+
+// Pane numbers are local to one mux server and can be reused after a restart.
+func muxIdentity() (string, error) {
+	info, err := os.Stat(muxSocket())
+	if err != nil {
+		return "", err
+	}
+	stat := info.Sys().(*syscall.Stat_t)
+	return fmt.Sprintf("%d:%d:%d", stat.Dev, stat.Ino, info.ModTime().UnixNano()), nil
+}
+
+func muxPanes() ([]muxPane, error) {
 	b, e := wezterm("list", "--format", "json").Output()
 	if e != nil {
 		return nil, fmt.Errorf("terminal mux unavailable: %w", e)
 	}
-	var panes []struct {
-		PaneID    int    `json:"pane_id"`
-		Workspace string `json:"workspace"`
-	}
+	var panes []muxPane
 	if e = json.Unmarshal(b, &panes); e != nil {
 		return nil, e
 	}
-	ids := []int{}
-	for _, p := range panes {
-		if p.Workspace == name {
-			ids = append(ids, p.PaneID)
-		}
-	}
-	return ids, nil
+	return panes, nil
 }
 
-func killTerminal(name string) error {
-	ids, e := terminalPanes(name)
+func terminalPanes(a attempt, dir string) ([]muxPane, error) {
+	if a.Terminal == "" {
+		return nil, nil
+	}
+	var ref terminalRef
+	if a.Terminal == queueWorkspace {
+		if err := read(filepath.Join(dir, a.ID+".terminal"), &ref); err != nil {
+			if errors.Is(err, os.ErrNotExist) {
+				return nil, nil
+			}
+			return nil, err
+		}
+		mux, err := muxIdentity()
+		if errors.Is(err, os.ErrNotExist) || (err == nil && mux != ref.Mux) {
+			return nil, nil
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
+	panes, err := muxPanes()
+	if err != nil {
+		return nil, err
+	}
+	var matches []muxPane
+	for _, pane := range panes {
+		if a.Terminal == queueWorkspace {
+			if pane.PaneID == ref.PaneID {
+				return []muxPane{pane}, nil
+			}
+		} else if pane.Workspace == a.Terminal {
+			matches = append(matches, pane)
+		}
+	}
+	return matches, nil
+}
+
+func killTerminal(a attempt, dir string) error {
+	panes, e := terminalPanes(a, dir)
 	if e != nil {
 		return e
 	}
-	for _, id := range ids {
-		if e = wezterm("kill-pane", "--pane-id", strconv.Itoa(id)).Run(); e != nil {
+	for _, pane := range panes {
+		if e = wezterm("kill-pane", "--pane-id", strconv.Itoa(pane.PaneID)).Run(); e != nil {
 			return e
 		}
+	}
+	return nil
+}
+
+func attachTerminal(a attempt, dir string, focusOnly bool) error {
+	panes, err := terminalPanes(a, dir)
+	if err != nil {
+		return err
+	}
+	if len(panes) == 0 {
+		return errors.New("attempt has no live terminal")
+	}
+	pane := panes[0]
+	if a.Terminal == queueWorkspace {
+		if err = wezterm("activate-pane", "--pane-id", strconv.Itoa(pane.PaneID)).Run(); err != nil {
+			return err
+		}
+	}
+	if focusOnly {
+		return output(pane.Workspace)
+	}
+	return viewCommand("wezterm", "connect", muxDomain, "--workspace", pane.Workspace)
+}
+
+func spawnTerminal(a attempt, dir, self string) error {
+	placement := []string{"--new-window", "--workspace", a.Terminal}
+	var ref terminalRef
+	if a.Terminal == queueWorkspace {
+		// Parallel workers can start together when the workspace has no tabs.
+		guard, err := lock(filepath.Join(dir, "terminal.lock"), false)
+		if err != nil {
+			return err
+		}
+		defer func() { _ = guard.Close() }()
+		ref.Mux, err = muxIdentity()
+		if err != nil {
+			return err
+		}
+		panes, err := muxPanes()
+		if err != nil {
+			return err
+		}
+		for _, pane := range panes {
+			if pane.Workspace == queueWorkspace {
+				placement = []string{"--window-id", strconv.Itoa(pane.WindowID)}
+				break
+			}
+		}
+	}
+	args := append([]string{"spawn"}, placement...)
+	args = append(args, "--cwd", a.Cwd, "--", self, "--state", dir, "terminal-child", a.ID)
+	command := wezterm(args...)
+	command.Stderr = os.Stderr
+	out, err := command.Output()
+	if err != nil {
+		return err
+	}
+	if a.Terminal != queueWorkspace {
+		return nil
+	}
+	paneID := strings.TrimSpace(string(out))
+	ref.PaneID, err = strconv.Atoi(paneID)
+	if err != nil {
+		return fmt.Errorf("invalid mux pane ID %q: %w", paneID, err)
+	}
+	title := fmt.Sprintf("%s · %s · %s", filepath.Base(a.Argv[0]), filepath.Base(a.Cwd), a.ID[:8])
+	if err = wezterm("set-tab-title", "--pane-id", paneID, "--", title).Run(); err != nil {
+		fmt.Fprintln(os.Stderr, "tq: set terminal tab title:", err)
+	}
+	if err = save(filepath.Join(dir, a.ID+".terminal"), ref); err != nil {
+		return errors.Join(err, wezterm("kill-pane", "--pane-id", paneID).Run())
 	}
 	return nil
 }
@@ -249,9 +375,7 @@ func terminalRun(a attempt, dir string) (int, error) {
 	if e != nil {
 		return 1, e
 	}
-	spawn := wezterm("spawn", "--new-window", "--workspace", a.Terminal, "--cwd", a.Cwd, "--", self, "--state", dir, "terminal-child", a.ID)
-	spawn.Stderr = os.Stderr
-	if e = spawn.Run(); e != nil {
+	if e = spawnTerminal(a, dir, self); e != nil {
 		return 1, fmt.Errorf("terminal spawn failed: %w", e)
 	}
 	signals := make(chan os.Signal, 1)
@@ -266,12 +390,12 @@ func terminalRun(a attempt, dir string) (int, error) {
 	for {
 		select {
 		case s := <-signals:
-			return 128 + int(s.(syscall.Signal)), errors.Join(errors.New("queue job cancelled"), killTerminal(a.Terminal))
+			return 128 + int(s.(syscall.Signal)), errors.Join(errors.New("queue job cancelled"), killTerminal(a, dir))
 		case <-ticker.C:
 			if read(exitRecord, &result) == nil {
 				return result.Code, nil
 			}
-			panes, e := terminalPanes(a.Terminal)
+			panes, e := terminalPanes(a, dir)
 			if e != nil {
 				return 1, e
 			}
