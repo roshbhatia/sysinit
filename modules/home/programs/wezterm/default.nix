@@ -193,7 +193,6 @@ in
         ++ lib.optionals config.sysinit.queue.enable [
           {
             name = "tq";
-            key = "&";
             palette_title = "Queue: browse attempts";
             manifest = "${pkgs.tq-picker}/share/wezterm/providers/tq.json";
           }

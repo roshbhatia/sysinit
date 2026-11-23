@@ -130,7 +130,7 @@
     sysinit-wezterm = {
       url = "github:roshbhatia/sysinit.wezterm/db2a77bbad9da22e7786f1be90eeae09b41a07fc";
       inputs.session-tree = {
-        url = "github:roshbhatia/session-tree.wezterm/2803f40e9f0166e950c72d2d05979720359edb2a";
+        url = "github:roshbhatia/session-tree.wezterm/8270ce1aabfc34fceeee9324eb60c32c623c030a";
         inputs.nixpkgs.follows = "nixpkgs";
       };
       inputs.nixpkgs.follows = "nixpkgs";
