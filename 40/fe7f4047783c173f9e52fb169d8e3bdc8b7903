@@ -1,0 +1,97 @@
+modules/home/programs/neovim/workbench/lua/sysinit_workbench/changes.lua
+  s_a4a3eea4720821::t_778be897618eba 120-125
+  s_a4a3eea4720821::t_b9e9effe209448 1-31,33-91,93-108,111-115,117-119,126-180
+  s_a4a3eea4720821::t_750717b62412ff 32,109-110,116
+  s_a4a3eea4720821::t_efd8f21e03c0a4 92
+flake.nix
+  s_a4a3eea4720821::t_298c925d693294 347
+checks/editor-workbench.lua
+  s_a4a3eea4720821::t_4804e0700aee82 6
+  s_a4a3eea4720821::t_4eac237624b9ff 25,50-53
+  s_a4a3eea4720821::t_5ec453047590f1 17-19,43-46,54-56
+  s_a4a3eea4720821::t_750717b62412ff 28
+  s_a4a3eea4720821::t_fd33bd3940f570 115-133
+  s_a4a3eea4720821::t_cc79075ff7a824 1-5,7-16,20-24,26-27,29-42,47-49,57-101,108-114
+pkgs/tq/wezterm-provider.go
+  s_a4a3eea4720821::t_7dd9180d16920d 96
+modules/home/programs/llm/harnesses/pi/extensions/diff-review.ts
+  s_a4a3eea4720821::t_efd8f21e03c0a4 142-145,147
+modules/home/programs/neovim/workbench/lua/sysinit_workbench/view.lua
+  s_a4a3eea4720821::t_b4e44ada5d75eb 1-43,45-51
+  s_a4a3eea4720821::t_8b613e3a386b75 44
+modules/home/programs/neovim/workbench/lua/sysinit_workbench/review.lua
+  s_a4a3eea4720821::t_3a5d4cce2fcff9 1-26,28-45,56-64,70-72,74-76
+  s_a4a3eea4720821::t_8b613e3a386b75 51-55
+  s_a4a3eea4720821::t_7dd9180d16920d 65-69
+  s_a4a3eea4720821::t_298c925d693294 46-50,73
+  s_a4a3eea4720821::t_5ec453047590f1 27
+modules/home/programs/llm/skills/default.nix
+  s_a4a3eea4720821::t_ef68e12184f93a 11-12
+modules/home/programs/traces.nix
+  s_a4a3eea4720821::t_efd8f21e03c0a4 24-32,59
+modules/home/programs/neovim/workbench/lua/sysinit_workbench/traces.lua
+  s_a4a3eea4720821::t_750717b62412ff 10-12,39,41-42,44,49-55,97
+  s_a4a3eea4720821::t_b9e9effe209448 1-9,13-38,40,43,45-48,56-96,98-129
+modules/home/programs/llm/skills/agent-diff/SKILL.md
+  s_a4a3eea4720821::t_ef68e12184f93a 3,6,14,17-24
+modules/home/programs/neovim/editor-host.nu
+  s_a4a3eea4720821::t_b4e44ada5d75eb 1-9,11-15,22-39
+  s_a4a3eea4720821::t_298c925d693294 10
+  s_a4a3eea4720821::t_5ec453047590f1 16-21
+modules/home/programs/neovim/workbench/plugin/sysinit-workbench.lua
+  s_a4a3eea4720821::t_b4e44ada5d75eb 1-18
+modules/home/programs/neovim/default.nix
+  s_a4a3eea4720821::t_778be897618eba 1-6,16-19
+overlays/sysinit-gotools.nix
+  s_a4a3eea4720821::t_778be897618eba 4-7,9-19,127-140,142-146
+  s_a4a3eea4720821::t_750717b62412ff 8
+modules/home/programs/llm/runtime/diff/open.nu
+  s_a4a3eea4720821::t_7dd9180d16920d 71,219-224,271,300-301,343-353,491-492,497
+  s_a4a3eea4720821::t_58e76d1d1ce174 133-140
+  s_a4a3eea4720821::t_d7d7c6b97031f9 306-308
+  s_a4a3eea4720821::t_c9cad2c1e5c585 132,141-143
+modules/home/programs/changes.nix
+  s_a4a3eea4720821::t_efd8f21e03c0a4 11-27,29-37,40-48
+modules/home/programs/llm/skills/catalog.nix
+  s_a4a3eea4720821::t_ef68e12184f93a 21,26
+modules/home/programs/hunk.nix
+  s_a4a3eea4720821::t_298c925d693294 4,65
+checks/default.nix
+  s_a4a3eea4720821::t_cc79075ff7a824 61-81
+checks/diff-pane.nu
+  s_a4a3eea4720821::t_d7d7c6b97031f9 101-111
+  s_a4a3eea4720821::t_c9cad2c1e5c585 49,147
+  s_a4a3eea4720821::t_3f0d22c9276663 100
+checks/fixtures/review-tools.nu
+  s_a4a3eea4720821::t_f2236946face19 72
+  s_a4a3eea4720821::t_d7d7c6b97031f9 70-71,73-74
+  s_a4a3eea4720821::t_e8ab9f6e66b9fe 69
+modules/home/programs/llm/harnesses/opencode/plugins/sysinit-diff.ts
+  s_a4a3eea4720821::t_efd8f21e03c0a4 34
+pkgs/task-board/main.go
+  s_a4a3eea4720821::t_7dd9180d16920d 286
+docs/review-tools.md
+  s_a4a3eea4720821::t_6146fb2b7ee4e4 12-16,25-37,63,91,105-107,110
+docs/skill-routing-cases.json
+  s_a4a3eea4720821::t_298c925d693294 87-96
+modules/home/programs/llm/skills/inspect-agent-traces/SKILL.md
+  s_a4a3eea4720821::t_1e54328a03a3d3 1-23
+modules/home/programs/llm/skills/review-change-groups/SKILL.md
+  s_a4a3eea4720821::t_166901493a04d1 1-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "40fe7f4047783c173f9e52fb169d8e3bdc8b7903",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
