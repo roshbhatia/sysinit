@@ -28,7 +28,7 @@
        change is Nix-only. It prints the call paths the change added or dropped,
        which is what a line diff hides. A new path into the network, the file
        system, or a shell, and no mention of it in the description, is a finding.
-       calldiff does not parse Nix; load the `calldiff` skill for the rest.
+       calldiff does not parse Nix; load the `review-call-graph` skill for the rest.
     3. Every finding carries a severity, a `file:line`, and a concrete fix.
     4. Sort by severity: CRITICAL, then WARNING, then GOOD.
     5. If you find nothing wrong, say so plainly — do not manufacture findings.

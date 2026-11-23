@@ -11,6 +11,7 @@ let
   defaults = import ./gate-defaults.nix {
     rulesFile = "${llmLib.guards.rulesFile pkgs}";
     styleFile = "${pkgs.vale-styles}/vale.ini";
+    reviewFailureHook = pkgs.gate-cli.supportsPostToolUseFailure or false;
   };
   yamlFormat = pkgs.formats.yaml { };
 

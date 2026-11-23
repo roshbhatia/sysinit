@@ -26,11 +26,11 @@ change-coupling hypothesis, but co-change alone does not establish ownership.
 
 Use the installed tools rather than reconstructing their analysis manually:
 
-- Load `search-code-routing` to choose the search surface. Use `ast-grep outline`
+- Load `code-search` to choose the search surface. Use `ast-grep outline`
   to map declarations, ast-grep patterns for code shapes, and `rg` for literal
   names, configuration, and prose. Read the `ast-grep-outline` or `ast-grep` skill
   for the installed command syntax.
-- Load `calldiff` when caller relationships or their before/after changes matter.
+- Load `review-call-graph` when caller relationships or their before/after changes matter.
   A declaration outline does not establish call edges. Check dynamic edges
   against registrations and representative runtime behavior.
 - For a structural replacement spanning several sites, use ast-grep's rewrite

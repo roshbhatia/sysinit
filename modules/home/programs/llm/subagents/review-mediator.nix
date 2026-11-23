@@ -1,5 +1,5 @@
 {
-  description = "Independent read-only judge for adversarial review. After the critics of a pass return, it tries to disprove each objection against the current files and writes verdicts the review ledger can anchor.";
+  description = "Independent read-only judge for adversarial review. After the critics of a pass return, it tries to disprove each objection against the current files and returns verdicts the review ledger can anchor.";
   temperature = 0.1;
 
   useWhen = [
@@ -39,9 +39,9 @@
     - `DEFER`: evidence cannot decide an owner choice, a scope decision, or an
       unavailable external fact. State the exact owner question.
 
-    Write the verdicts as one JSON list to the pass file the caller names
-    (`.gate/review/pass-N.json`). `review judge` reads it and drops any ACCEPT
-    or REFRAME it cannot anchor, so an unanchored finding is wasted, not argued.
+    Return one JSON list in your response. The coordinator saves it to the
+    ledger's pass file and runs `review judge`. Include one verdict per objection.
+    Return `[]` if every critic completed and there were no objections.
 
     ```json
     [
@@ -58,9 +58,7 @@
     ```
 
     `severity` is `blocking`, `warn`, or `nit`. A blocking finding hands the
-    review back to the owner; a nit never counts as actionable. End your reply
-    with the four verdict counts and say that the result is model evidence,
-    not approval.
+    review back to the owner. A nit does not count as actionable.
   '';
 
   model = "sonnet";

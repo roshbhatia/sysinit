@@ -1,6 +1,6 @@
 # Adversarial review methodology (reference)
 
-This reference grounds the `adversarial-review` skill in published methods. Every
+This reference grounds the `review-adversarial` skill in published methods. Every
 citation was verified against arXiv. Read the skill's `SKILL.md` for the
 operating procedure; read this file for the WHY and the exact loop.
 
@@ -25,7 +25,7 @@ control, not a claim from the cited papers.
    non-goals into a written rubric. A critic MUST cite a specific rubric item it
    believes is violated, not give a global score. Source: Constitutional AI
    (Bai et al., 2022, arXiv:2212.08073), principle anchoring.
-3. Spawn N independent adversaries (default N=3). Each critic is a fresh
+3. Use the critic count selected by the ledger's tier. Each critic is a fresh
    instance or a different model, with the artifact's authorship hidden. Each is
    prompted to REFUTE: "Produce a concrete scenario in which this artifact fails.
    Name the rubric item it violates. If you cannot, reply `NO SURVIVING
@@ -97,7 +97,8 @@ mandatory for this skill.
 3. Self-preference / self-enhancement bias. Judges favor their own
    generations. Panickssery et al., 2024 (arXiv:2404.13076); Zheng et al., 2023
    (arXiv:2306.05685). → The critic MUST be a different model or a fresh instance
-   with no generation context.
+   with no generation context. A separate context limits anchoring to the
+   author's reasoning. Models can still share failure modes.
 4. Position and verbosity bias. Judges reward order and length over quality.
    Zheng et al., 2023 (arXiv:2306.05685). → Judge objections on the concrete
    failing scenario, not on which draft reads better.

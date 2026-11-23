@@ -1,11 +1,12 @@
 {
   pkgs,
   lib ? pkgs.lib,
+  enabledOptInSkills ? [ ],
   ...
 }:
 
 let
-  registry = import ./. { inherit lib; };
+  registry = import ./. { inherit lib enabledOptInSkills; };
   vocab = import ../lib/vocab.nix { inherit lib; };
   frontmatter = import ../lib/frontmatter.nix { inherit lib; };
 
@@ -32,7 +33,11 @@ let
         inherit (skill) description;
         license = skill.license or null;
         compatibility = skill.compatibility or null;
-        metadata = skill.metadata or null;
+        metadata = {
+          sysinit-owner = "sysinit";
+          sysinit-scope = "shared";
+        }
+        // (skill.metadata or { });
         allowed-tools = skill."allowed-tools" or null;
       }
       // lib.optionalAttrs (harness == "claude") claudeFields;

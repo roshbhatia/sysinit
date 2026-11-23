@@ -19,6 +19,12 @@ that says what the skill does and when it applies. The Nix reader accepts
 single-line scalars and a JSON-style YAML map for `metadata`. Unknown fields,
 duplicate fields, and invalid values fail evaluation.
 
+The shared catalog maps source directories to published domain-and-action
+names. The published frontmatter name matches the installed directory. Use
+`sysinit.llm.enabledOptInSkills` to select a specialist skill from the catalog.
+Skill names and CLI commands are separate interfaces. Include actual command
+names in the description and examples so agents can discover them.
+
 Store Claude-specific settings as string values under namespaced `metadata`
 keys, such as `sysinit-claude-model`. The Claude renderer translates those
 values to native fields. Other renders use the standard fields. The catalog
@@ -45,9 +51,22 @@ model selection, adherence, or reliability. No model judge or external eval
 service is required. Add broader evaluation machinery only when observed
 regressions justify its maintenance cost.
 
+Treat a skill as a workflow contract. Give it a short trigger description.
+Keep command contracts, authorization boundaries, and required evidence in the
+entrypoint. Put specialist procedure and tool syntax in references loaded for
+the selected branch. Let the active harness choose the model unless a specific
+model requirement has been measured.
+
+Record the capabilities the workflow needs: direct skill-file reads, native
+skill loading, delegated read-only context, or enforced lifecycle hooks.
+Verify them in the active session before relying on them. For example, the
+judged review uses Claude Code's configured critic and mediator roles and
+hook events. Other harnesses can perform ordinary reviews with evidence
+from the current checkout.
+
 ## Workstation audit
 
-The installed manifest declares 44 skill names across four harness roots. The
+The pre-taxonomy manifest declared 44 skill names across four harness roots. The
 inventory found all 44 in each root after resolving symlinked skill directories.
 Including `~/.agents/skills` and `~/.codex/skills`, it found 116 names and 20
 with byte differences. Nine of the 20 had copies only in managed roots.
@@ -57,11 +76,11 @@ copy's provenance and content before treating a difference as a conflict.
 
 | Workflow | Default route | Keep the supporting skill for |
 | --- | --- | --- |
-| Code discovery and structural edits | `search-code-routing` routes literal search to `rg` and code shapes to `ast-grep`. | Upstream ast-grep references for rule and outline syntax. Use `calldiff` when call relationships matter. |
-| Checkout, agent, and execution | `local-workflows` routes to `sy`, `agents`, `taskwarrior`, `tq`, and `ty`. | `conductor` for an explicit reusable Conductor YAML workflow. |
-| Changes and PRs | The review reference selects Git, review checkpoints, Hunk, Diffview, or Atlas. The observation reference uses `gh` and `gh-pr-state`. | `gh-stack` for stack operations, and a writing skill for drafting the corresponding artifact. |
+| Code discovery and structural edits | `code-search` routes literal search to `rg` and code shapes to `ast-grep`. | Upstream ast-grep references for rule and outline syntax. Use `review-call-graph` when call relationships matter. |
+| Checkout, agent, and execution | `workflow-route-local` routes to `sy`, `agents`, `taskwarrior`, `tq`, and `ty`. | `workflow-run-conductor` for a reusable Conductor YAML workflow. |
+| Changes and PRs | The review reference selects Git, review checkpoints, Hunk, Diffview, or Atlas. The observation reference uses `gh` and `gh-pr-state`. | `github-stack-prs` for stack operations and `github-write-pr` for the description. |
 | Remote access | `tsh` for a remote shell and `tether attach` for an explicit native WezTerm attachment. | Preview the plan through the existing CLI before connecting when the transport matters. |
-| Scripts and machine configuration | `shell-script-authoring` uses Nushell and the repository toolchain. `nix-deployment` covers activation of a Nix-managed host. | Bash conventions for retained scripts and the consuming repository's skills for production deployments. |
+| Scripts and machine configuration | `code-write-shell` uses Nushell and the repository toolchain. `nix-deploy-host` covers activation of a Nix-managed host. | Bash conventions for retained scripts and the consuming repository's skills for production deployments. |
 
 The audit corrected the inventory's false missing reports and the Bash-first
 script guidance. It also added review and remote-access routes to

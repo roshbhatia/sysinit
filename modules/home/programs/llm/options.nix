@@ -8,6 +8,11 @@ let
 in
 {
   options.sysinit.llm = {
+    enabledOptInSkills = mkOption {
+      type = types.listOf (types.enum (import ./skills/catalog.nix).optIn);
+      default = [ ];
+      description = "Specialist skills to publish in the managed skill roots.";
+    };
     agentFavorites = mkOption {
       type = types.listOf (types.enum (builtins.attrNames (import ./harnesses/registry.nix)));
       default = [

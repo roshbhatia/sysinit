@@ -145,5 +145,5 @@ fallback fire on a language this machine parses often.
   appeared and is not mentioned in the description is the finding.
 - Writing the PR body: `calldiff diff` in a fenced block when the change moved
   control flow, in place of a paragraph describing it.
-- Finding code in the first place: that is `search-code-routing`. calldiff reads
+- Finding code in the first place: that is `code-search`. calldiff reads
   call edges, not text and not shapes.

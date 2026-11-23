@@ -15,12 +15,23 @@ observable that distinguishes correct behavior from the original defect.
 | Configuration or packaging | Native parser/evaluation, generated output, and affected runtime behavior |
 | API or persisted data | Producer/consumer compatibility and the owning migration procedure |
 | UI | Affected user flow, relevant viewport/input state, and existing accessibility checks |
+| Agent skill or routing | Rendered discovery, positive and adjacent negative prompts, observed skill loads, and the required tool behavior |
 | Documentation only | Commands, paths, and factual claims affected by the edit |
 
 Inspect the complete diff. Run required gates, then the affected flow. A test of
 a copied algorithm is not evidence about the production implementation. Avoid
 new tests that merely restate a reversible low-impact edit. Broaden testing when
 failures, new changes, or unresolved risks justify it, rather than by repetition.
+
+For agent workflows, separate selection, command plans, tool execution, and
+end-to-end results. Inspect tool events to confirm a skill or reference was
+read. Exercise a synthetic input with the permissions of the target harness
+before treating one harness's result as evidence for another.
+
+For stateful changes, name an invariant and test it through the real
+implementation. Use a bounded model checker when event order produces
+cases that are hard to enumerate. Declare the modeled assumptions and turn
+counterexamples into implementation regression tests.
 
 Preserve a failed check's log, investigate its cause, fix within scope, and rerun
 the same check. Record a baseline failure separately from a regression. Do not

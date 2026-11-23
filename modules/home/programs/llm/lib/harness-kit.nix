@@ -10,7 +10,10 @@
       llmLib = {
         instructions = import ./instructions.nix { inherit lib; };
       };
-      skillsLib = import ../skills/render.nix { inherit pkgs; };
+      skillsLib = import ../skills/render.nix {
+        inherit pkgs;
+        inherit (config.sysinit.llm) enabledOptInSkills;
+      };
       mcpServers = import ./mcp-catalog.nix {
         inherit lib;
         routeServer = import ./mcp-routing.nix { inherit lib pkgs; };

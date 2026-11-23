@@ -515,10 +515,16 @@ def "main refresh" [
 ] {
     let workspace = load-workspace $id
 
-    if $against != null and $file == null { error make {msg: '--against also requires --file.'} }
+    if $against != null and $file == null {
+        error make {msg: '--against also requires --file.'}
+    }
 
     with-mux $workspace {||
-        if not (panes | any {|pane| $pane.pane_id == $workspace.pane_id and $pane.tab_id == $workspace.tab_id }) {
+        let agent_pane_is_present = panes | any {|pane|
+            $pane.pane_id == $workspace.pane_id and $pane.tab_id == $workspace.tab_id
+        }
+
+        if not $agent_pane_is_present {
             error make {msg: 'The agent pane is no longer in its recorded tab.'}
         }
 
@@ -545,7 +551,11 @@ def "main refresh" [
 
             let base = $workspace.base
 
-            let commits = if $base != null { checked git -C $workspace.root diff --name-only $base HEAD } else { '' }
+            let commits = if $base != null {
+                checked git -C $workspace.root diff --name-only $base HEAD
+            } else {
+                ''
+            }
 
             let base_flags = if $base == null {
                 []
@@ -553,7 +563,11 @@ def "main refresh" [
                 [--base $base --note-session $id]
             }
 
-            let visibility = if not $focus and ($status | is-empty) and ($commits | is-empty) { [--if-open] } else { [] }
+            let visibility = if not $focus and ($status | is-empty) and ($commits | is-empty) {
+                [--if-open]
+            } else {
+                []
+            }
 
             [...$base_flags ...$visibility]
         }

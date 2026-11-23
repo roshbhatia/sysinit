@@ -43,7 +43,7 @@ Verify each client's noninteractive flags before authoring the step.
 
 ## Queue and inspect
 
-Read the `taskwarrior` skill before submitting a task-linked execution. Keep the
+Read the `task-manage` skill before submitting a task-linked execution. Keep the
 workflow in the foreground so Pueue observes its actual completion:
 
 ```sh

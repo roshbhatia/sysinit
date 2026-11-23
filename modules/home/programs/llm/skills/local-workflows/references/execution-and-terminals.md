@@ -28,14 +28,14 @@ For cross-harness coordination, use `agents list --details` for the
 installed command and context file. Verify its noninteractive flags with installed
 help. Pass the task UUID, exact authorization, relevant instructions, selected
 checkout, bounded ownership, expected result, and acceptance criteria explicitly.
-Read `taskwarrior` for submission and review. The ACP capability is a transport
+Read `task-manage` for submission and review. The ACP capability is a transport
 capability; it does not establish native helper support or delegation permission.
 Selecting a Goose ACP provider alone does not create a multi-harness workflow.
 
 Native helpers can refer to their coordinator's task UUID without creating another
 task. Separately queued concurrent units need distinct agreed task UUIDs, linked
 back to the coordinator through annotations. Do not submit simultaneous attempts
-for the same UUID; `tq` rejects them. Read `taskwarrior` for retry semantics.
+for the same UUID; `tq` rejects them. Read `task-manage` for retry semantics.
 
 For either mode, give read-only helpers access to the selected checkout; isolate
 concurrent writers through the workspace owner's supported worktree lifecycle.
@@ -64,9 +64,9 @@ Nix owns Atuin settings and its daemon; change sysinit source rather than runnin
 
 | Need | Entry point | Owns |
 | --- | --- | --- |
-| Durable work and acceptance criteria | `taskwarrior`; read the `taskwarrior` skill | Task UUID, dependencies, annotations, verified completion |
-| Workspace and worktree lifecycle | `sy`; read `feature-based-session-manager` | Session membership and lifecycle of seshy-owned worktrees |
-| Structured local session and pane API | `ty`; read `ty` | Compose seshy catalogs/open plans with explicit WezTerm pane operations |
+| Durable work and acceptance criteria | `taskwarrior`; read the `task-manage` skill | Task UUID, dependencies, annotations, verified completion |
+| Workspace and worktree lifecycle | `sy`; read `workspace-manage` | Session membership and lifecycle of seshy-owned worktrees |
+| Structured local session and pane API | `ty`; read `terminal-wezterm` | Compose seshy catalogs/open plans with explicit WezTerm pane operations |
 | Explicit queued execution | `tq`; read the submission section of `taskwarrior` | Attempt UUID, exact argv/cwd, Taskwarrior linkage and review state |
 | Queue scheduling and output inspection | Pueue underneath `tq` | Job ID, scheduling, process output and exit status |
 | Attachable queued terminal | `tq submit --terminal` | One tab per attempt in the `task-queue` WezTerm workspace |
@@ -78,7 +78,7 @@ Keep short commands inline. Use a queued attempt when separate execution is usef
 do not turn every command into a task, attempt, or pane.
 
 `ty sessions` and `ty panes` return separate versioned JSON
-documents. `ty catalog` combines them. Read `ty` before
+documents. `ty catalog` combines them. Read `terminal-wezterm` before
 using pane or session actions. Session and worktree lifecycle remains with
 `sy`; task-linked execution remains with `tq`; use `worker` when the
 owner requests a long-running visible command in the current workspace.
@@ -88,7 +88,7 @@ owner requests a long-running visible command in the current workspace.
 1. Inspect the relevant Taskwarrior UUID, ownership, dependencies, and prior attempts.
 2. Reuse the selected checkout. `sy current --path --quiet` looks up its session;
    a checkout outside seshy can still be used directly. Do not create a workspace
-   merely to run a command. Read `feature-based-session-manager` before changing
+   merely to run a command. Read `workspace-manage` before changing
    worktrees or registering an app-owned checkout by reference.
 3. Choose an exact execution directory. `sy status <name> --format json` describes
    session members; a multi-repository session is not a single repository cwd.
@@ -133,7 +133,7 @@ launcher for that focused context, not a way to select an arbitrary task checkou
 It handles the missing-GUI case. Prefer it over raw `wezterm cli spawn` when the
 owner requests another window.
 
-Load the `ty` skill for pane discovery, captured output, explicit command
+Load the `terminal-wezterm` skill for pane discovery, captured output, explicit command
 launch, and native WezTerm layout controls. Check `ty clients` when the
 user wants a visible pane. A headless mux can have panes without an attached
 GUI.

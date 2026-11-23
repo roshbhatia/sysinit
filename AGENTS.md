@@ -29,10 +29,10 @@ Retained Bash uses `set -euo pipefail` and
 
 - Harnesses, skills, hooks, MCP, or agent instructions: read
   `modules/home/programs/llm/AGENTS.md` before editing.
-- Nix activation or downstream input pins: load `nix-deployment`.
+- Nix activation or downstream input pins: load `nix-deploy-host`.
 - Darwin keybindings or WezTerm integration: read the matching sections of
   `docs/repository-reference.md`; inspect live symbolic hotkeys before editing.
-- Overlay build workarounds: load `nix-cache-audit` before adding or retaining one.
+- Overlay build workarounds: load `nix-audit-cache` before adding or retaining one.
 - Dependency updates: use the owning `hack/update-*` script.
 
 ## Ownership and boundaries

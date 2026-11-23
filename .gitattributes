@@ -1,4 +1,2 @@
 
-# Use bd merge for beads JSONL files
-.beads/issues.jsonl merge=beads
 *.snapshot whitespace=-trailing-space

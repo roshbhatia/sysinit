@@ -1,7 +1,6 @@
 ## Voice
 
-Load the `writing-tone` skill for the full voice contract; it is not restated
-here. The rules that bind hardest in a doc. Open with an explicit in-scope and
+Open with an explicit in-scope and
 out-of-scope list. Pair every claim with how it is validated, and with its
 inverse where one exists. Frame decision asks as `Owner:` / `By:` / `Done
 when:`. Cut hedges, marketing adjectives, throat-clearing, rhetorical devices,

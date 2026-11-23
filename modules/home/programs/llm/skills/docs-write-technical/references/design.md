@@ -1,8 +1,3 @@
----
-name: writing-doc-design
-description: 'Structures a technical design doc from the Kubernetes KEP skeleton: Summary, Goals/Non-Goals, Proposal, Design Details, Validation, Drawbacks, Alternatives. Use when the open question is HOW to build something already agreed on, not whether to. When the question is whether or which, use `writing-doc-rfc` instead. Use when drafting or reviewing a design doc or technical proposal.'
----
-
 # Writing a design doc
 
 A structure and voice guide for technical design docs, documents that describe
@@ -14,19 +9,6 @@ Provenance: the section skeleton comes from the Kubernetes KEP template,
 Kubernetes-specific machinery: release signoff, graduation criteria, version
 skew, the production-readiness questionnaire, and feature gates. It is tuned to
 Roshan's working voice.
-
-## Decision routing
-
-```
-Open question is *how*, not *whether*?          -> design doc (this skill)
-Open question is *whether* / *which*?            -> writing-doc-rfc instead
-Change small enough the PR description carries?   -> skip both
-Where does it land?                               -> see Step 0
-```
-
-<!-- include: doc-destination.md kind=design -->
-
-<!-- include: doc-voice.md -->
 
 ```
 # good — leads with the finding, claim paired with how it is validated

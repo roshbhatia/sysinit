@@ -92,7 +92,7 @@ The native `atuin resume` picker starts in the current workspace and falls back 
 that workspace has none. It inherits the eight-row inline height. `--print`
 reviews a resume command without starting a harness. Resuming does not change Taskwarrior task
 ownership, select a new `sy` workspace, or create a Pueue attempt. The
-`local-workflows` skill describes those execution boundaries.
+`workflow-route-local` skill describes those execution boundaries.
 
 The shared MCP catalog registers `atuin mcp` for the installed harnesses through
 the existing routing layer. Its tools search local shell history and captured

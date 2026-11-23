@@ -1,6 +1,6 @@
 ---
 name: writing-pr-description
-description: Writes GitHub PR descriptions in a terse, opinionated style. Delegates body shape to the repo PR template when one exists; falls back to `## Summary` plus an optional ad-hoc validating-changes block. Never mutates an existing checklist. A change carrying more than one reviewable concern is stacked by default, one PR per concern, via the `gh-stack` skill. Use when drafting a `gh pr create` body, opening a PR, or when the user says 'PR body' / 'pull request description'.
+description: Writes GitHub PR descriptions in a terse, opinionated style. Delegates body shape to the repo PR template when one exists; falls back to `## Summary` plus an optional ad-hoc validating-changes block. Never mutates an existing checklist. A change carrying more than one reviewable concern is stacked by default, one PR per concern, via the `github-stack-prs` skill. Use when drafting a `gh pr create` body, opening a PR, or when the user says 'PR body' / 'pull request description'.
 metadata: {"sysinit-claude-model":"haiku","sysinit-claude-effort":"low"}
 ---
 
@@ -16,7 +16,7 @@ Provenance: derived from a personal-OSS corpus of 295 PRs authored before
 ## Decision routing
 
 ```
-Change carries more than one concern?    -> stack it; `gh-stack` skill owns the shape
+Change carries more than one concern?    -> stack it; `github-stack-prs` skill owns the shape
 Repo has a PR template?                 -> fill it verbatim; add no sections, no checklist items
 No template?                             -> ## Summary + optional ## Validating Changes
 Change tracks an external issue?         -> issue URL alone on line 1, nothing before it
@@ -26,13 +26,13 @@ Creating the PR?                          -> gh pr create --web; never auto-subm
 
 Stacked is the default shape for a change with more than one reviewable concern,
 which is the same rule as one concern per commit. One PR per concern, each based
-on the one below. Route to the `gh-stack` skill for the commands; the body of each
+on the one below. Route to the `github-stack-prs` skill for the commands; the body of each
 layer is still written here. A change with one concern is an ordinary PR: a stack
 of one is just a PR.
 
 ## PR title
 
-A PR title is a commit subject, so compose it with the `writing-commit-message`
+A PR title is a commit subject, so compose it with the `git-write-commit`
 skill. The shape is `<type>(<scope>): <TICKET>: <description>`, with the ticket
 after the scope and before the description, never as a trailing suffix. PR-specific addition:
 multiple tickets join with `/` (`INF-2291/INF-2493`).
@@ -167,7 +167,7 @@ describing the same thing in prose.
 This is a block inside `## Summary`, not a new section. Do not add a
 `## Call graph` heading; the rule against invented sections still holds. Skip it
 for a Nix-only change, which calldiff cannot parse, and for a change that only
-edits bodies without moving edges. Load the `calldiff` skill for the flags.
+edits bodies without moving edges. Load the `review-call-graph` skill for the flags.
 
 ````markdown
 <!-- good, the tree carries the claim -->

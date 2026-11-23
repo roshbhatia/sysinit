@@ -208,6 +208,17 @@ in
             ];
           }
         ];
+        PostToolUseFailure = lib.optionals (pkgs.gate-cli.supportsPostToolUseFailure or false) [
+          {
+            matcher = "Agent|Task";
+            hooks = [
+              {
+                type = "command";
+                command = gateHook "PostToolUseFailure";
+              }
+            ];
+          }
+        ];
         SubagentStart = [
           {
 

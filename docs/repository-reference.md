@@ -148,7 +148,7 @@ every push to `main` and every pull request. It evaluates every host and each
 standalone Home Manager profile. The explicit evaluations fire module
 assertions without building host closures that exceed hosted runner storage.
 
-`sy` is machine-wide. Its `feature-based-session-manager` skill carries the
+`sy` is machine-wide. Its `workspace-manage` skill carries the
 subcommands.
 Nushell's `storage` and `attribution` subcommands return structured diagnostics;
 see [docs/storage.md](storage.md) for usage and retention boundaries.

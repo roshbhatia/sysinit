@@ -1,8 +1,3 @@
----
-name: writing-doc-rfc
-description: 'Structures a request-for-comments from the Rust RFC skeleton: Motivation, Guide-level and Reference-level explanation, Drawbacks, Alternatives, Prior art. Use when the open question is WHETHER or WHICH, so the doc has to win a decision. When the approach is already agreed and only the how is open, use `writing-doc-design` instead. Use when drafting or reviewing an RFC that solicits a decision.'
----
-
 # Writing a request-for-comments (RFC)
 
 A structure and voice guide for RFCs, documents that exist to *solicit a
@@ -15,20 +10,8 @@ Provenance: the section skeleton comes from the Rust RFC template,
 meaning the compiler, the language, Rust teams, and the rust-lang issue
 tracker. It is tuned to Roshan's working voice.
 
-## Decision routing
-
-```
-Open question is *whether* / *which*, cross-team audience?  -> RFC (this skill)
-Direction agreed, only *how* remains?                        -> writing-doc-design instead
-Where does it land?                                           -> see Step 0
-```
-
 The two share a core (Summary, Motivation, Drawbacks, alternatives). The RFC adds
 a teaching pass, prior art, open questions, and future possibilities.
-
-<!-- include: doc-destination.md kind=rfc -->
-
-<!-- include: doc-voice.md -->
 
 ```
 # good — teaches the idea concretely, frames the open question as a decision contract

@@ -7,7 +7,10 @@ let
   instructions = import ../modules/home/programs/llm/lib/instructions.nix { inherit lib; };
   registry = import ../modules/home/programs/llm/harnesses/registry.nix;
   harnesses = builtins.attrNames registry;
-  skills = import ../modules/home/programs/llm/skills/render.nix { inherit pkgs; };
+  skills = import ../modules/home/programs/llm/skills/render.nix {
+    inherit pkgs;
+    inherit (home.sysinit.llm) enabledOptInSkills;
+  };
   render =
     renderer: harness:
     renderer {

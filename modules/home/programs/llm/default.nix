@@ -6,7 +6,10 @@
   ...
 }:
 let
-  skills = import ./skills/render.nix { inherit pkgs; };
+  skills = import ./skills/render.nix {
+    inherit pkgs;
+    inherit (config.sysinit.llm) enabledOptInSkills;
+  };
 
   skillFiles = lib.mapAttrs' (
     name: path: lib.nameValuePair ".claude/skills/${name}/SKILL.md" { source = path; }
@@ -88,38 +91,47 @@ in
   sysinit.llm.instructions.skillRoutes = lib.mkBefore [
     {
       intent = "Code discovery";
-      skills = [ "search-code-routing" ];
+      skills = [ "code-search" ];
     }
     {
       intent = "Drive WezTerm from the CLI or control a Neovim editor";
-      skills = [ "ty" ];
+      skills = [ "terminal-wezterm" ];
+    }
+    {
+      intent = "Open or reuse a live Neovim working-tree diff in WezTerm (load `terminal-wezterm` as well when targeting a specific pane or preserving focus)";
+      skills = [ "review-worktree-diff" ];
+    }
+    {
+      intent = "Inspect or watch GitHub PR state, read changes since a review checkpoint, or plan a remote shell or native WezTerm attach";
+      skills = [ "workflow-route-local" ];
+    }
+    {
+      intent = "Submit or inspect durable queued work linked to a task UUID";
+      skills = [ "task-manage" ];
     }
     {
       intent = "Design decisions or agreed implementation plans";
-      skills = [
-        "writing-doc-rfc"
-        "writing-doc-design"
-      ];
+      skills = [ "docs-write-technical" ];
     }
     {
       intent = "Reproduce and fix a defect";
-      skills = [ "debugging" ];
+      skills = [ "code-debug" ];
     }
     {
       intent = "Plan and verify checks for a change";
-      skills = [ "change-validation" ];
+      skills = [ "code-validate-change" ];
     }
     {
       intent = "Commits and pull requests";
       skills = [
-        "writing-commit-message"
-        "writing-pr-description"
-        "gh-stack"
+        "git-write-commit"
+        "github-write-pr"
+        "github-stack-prs"
       ];
     }
     {
       intent = "Nix builds, input pins, or activation";
-      skills = [ "nix-deployment" ];
+      skills = [ "nix-deploy-host" ];
     }
   ];
 

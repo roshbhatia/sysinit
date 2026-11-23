@@ -6,7 +6,7 @@
   relative to the index or HEAD. For changes since an existing review
   checkpoint, use `review-checkpoint diff`. The patch can be piped to
   `hunk patch` when the user wants an interactive reader.
-- For a live Neovim working-tree split, load `agent-diff` and target the
+- For a live Neovim working-tree split, load `review-worktree-diff` and target the
   current checkout and intended WezTerm pane.
 - For a GitHub PR patch, use `gh pr diff URL`. To open an interactive PR
   review, use `gh-pr-diff URL`, which opens Atlas inside Neovim.

@@ -8,14 +8,17 @@ let
   fixture = package.load "contract-fixture" "directory";
   renderer = import ../modules/home/programs/llm/skills/render.nix { inherit pkgs; };
   registry = import ../modules/home/programs/llm/harnesses/registry.nix;
-  skills = import ../modules/home/programs/llm/skills { inherit lib; };
+  skills = import ../modules/home/programs/llm/skills {
+    inherit lib;
+    inherit (home.sysinit.llm) enabledOptInSkills;
+  };
   roots = lib.unique (map (h: h.skillRoot) (builtins.attrValues registry));
   names = builtins.attrNames skills;
-  sources = map (name: {
-    inherit name;
-    path = "${../modules/home/programs/llm/skills}/${name}/SKILL.md";
+  sources = lib.mapAttrsToList (_: skill: {
+    name = skill.sourceName;
+    path = "${../modules/home/programs/llm/skills}/${skill.sourceName}/SKILL.md";
     claude = false;
-  }) names;
+  }) skills;
   published = lib.concatMap (
     root:
     map (name: {

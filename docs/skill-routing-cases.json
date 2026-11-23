@@ -1,97 +1,97 @@
 [
   {
     "prompt": "Find callers of this function",
-    "expected": ["search-code-routing"],
+    "expected": ["code-search"],
     "avoid": []
   },
   {
     "prompt": "Diagnose this failing test",
-    "expected": ["debugging"],
+    "expected": ["code-debug"],
     "avoid": []
   },
   {
     "prompt": "Decide between two designs",
-    "expected": ["writing-doc-rfc"],
+    "expected": ["docs-write-technical"],
     "avoid": []
   },
   {
     "prompt": "Write the agreed technical design",
-    "expected": ["writing-doc-design"],
+    "expected": ["docs-write-technical"],
     "avoid": []
   },
   {
     "prompt": "Validate this configuration change",
-    "expected": ["change-validation"],
+    "expected": ["code-validate-change"],
     "avoid": []
   },
   {
     "prompt": "Commit these changes",
-    "expected": ["writing-commit-message"],
+    "expected": ["git-write-commit"],
     "avoid": []
   },
   {
     "prompt": "Prepare a pull request description",
-    "expected": ["writing-pr-description"],
+    "expected": ["github-write-pr"],
     "avoid": []
   },
   {
     "prompt": "Inspect the PR stack",
-    "expected": ["gh-stack"],
+    "expected": ["github-stack-prs"],
     "avoid": []
   },
   {
     "prompt": "Switch this Nix host to the new revision",
-    "expected": ["nix-deployment"],
+    "expected": ["nix-deploy-host"],
     "avoid": []
   },
   {
     "prompt": "Group these existing worktrees",
-    "expected": ["feature-based-session-manager"],
+    "expected": ["workspace-manage"],
     "avoid": []
   },
   {
     "prompt": "Record this durable task",
-    "expected": ["taskwarrior"],
+    "expected": ["task-manage"],
     "avoid": []
   },
   {
     "prompt": "Inspect a visible terminal pane",
-    "expected": ["ty"],
+    "expected": ["terminal-wezterm"],
     "avoid": []
   },
   {
     "prompt": "Use the WezTerm CLI to put a Neovim diff beside this agent",
-    "expected": ["ty"],
-    "avoid": ["computer-use"]
+    "expected": ["terminal-wezterm"],
+    "avoid": ["desktop-control"]
   },
   {
     "prompt": "Read the last part of the scrollback in this WezTerm pane",
-    "expected": ["ty"],
-    "avoid": ["computer-use"]
+    "expected": ["terminal-wezterm"],
+    "avoid": ["desktop-control"]
   },
   {
     "prompt": "Show the worktree changes since my existing review checkpoint",
-    "expected": ["local-workflows"],
-    "avoid": ["adversarial-review"]
+    "expected": ["workflow-route-local"],
+    "avoid": ["review-adversarial"]
   },
   {
     "prompt": "Watch this PR until required checks finish and report the result",
-    "expected": ["local-workflows"],
-    "avoid": ["gh-stack"]
+    "expected": ["workflow-route-local"],
+    "avoid": ["github-stack-prs"]
   },
   {
     "prompt": "Preview an explicit native WezTerm attach to a saved host",
-    "expected": ["local-workflows"],
-    "avoid": ["computer-use"]
+    "expected": ["workflow-route-local"],
+    "avoid": ["desktop-control"]
   },
   {
     "prompt": "Explain what this single expression returns",
     "expected": [],
-    "avoid": ["nix-deployment"]
+    "avoid": ["nix-deploy-host"]
   },
   {
     "prompt": "Click the Export button in the Preview app and pick PDF",
-    "expected": ["computer-use"],
+    "expected": ["desktop-control"],
     "avoid": []
   }
 ]

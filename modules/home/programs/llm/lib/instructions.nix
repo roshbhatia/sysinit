@@ -34,7 +34,7 @@ let
       rule = "Load a skill when its domain matches the task.";
       reason = "Keep global instructions for shared decisions; load domain workflows and repository details only when needed.";
       bad = "Carry every commit, review, and documentation rule in global context.";
-      good = "Load `writing-commit-message` before you create a commit.";
+      good = "Load `git-write-commit` before you create a commit.";
     }
     {
       rule = "Make the smallest complete change that meets the request, using existing patterns.";
@@ -91,7 +91,11 @@ let
       good = "Fix the hook failure and use a recoverable Git operation.";
     }
     {
-      rule = "Reuse the selected task worktree. Load `feature-based-session-manager` before creating or cleaning worktrees.";
+      rule = "Use a short code comment only when it explains a non-obvious invariant, constraint, or workaround.";
+      reason = "Let names and structure carry what the code does.";
+    }
+    {
+      rule = "Reuse the selected task worktree. Load `workspace-manage` before creating or cleaning worktrees.";
       reason = "One lifecycle owner prevents duplicate checkouts and conflicting cleanup.";
       bad = "Create another nested checkout inside a harness-owned worktree for the same task.";
       good = "Use the selected checkout, isolate concurrent writers, and register external worktrees by reference when grouping them.";
@@ -186,7 +190,7 @@ let
 
         ## Shared tasks
 
-        For durable multi-step work, load `local-workflows` and `taskwarrior`, inspect
+        For durable multi-step work, load `workflow-route-local` and `task-manage`, inspect
         relevant tasks, and record agreed work, blockers, and verified completion by UUID.
         Bounded delegates use the supplied task and return evidence without taking over
         its lifecycle. Delegation and queue selection do not grant authorization.

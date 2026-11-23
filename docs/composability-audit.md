@@ -31,6 +31,22 @@ Keep runtime state with its existing owners. The useful shared boundaries are
 the harness catalog, Git patches, explicit pane IDs, and Taskwarrior and
 attempt UUIDs. Each works from a shell and can feed another tool directly.
 
+## End-to-end verification
+
+| Workflow | Observed result |
+| --- | --- |
+| Agent launch | The installed `agents` command discovered all 13 registered harnesses on PATH. An isolated catalog launched a harmless command in a directory containing a space and preserved its argument. |
+| Session and pane | `ty session open` used a Seshy plan to open an isolated WezTerm workspace and returned its pane ID. `ty pane spawn` opened a sibling pane in the selected checkout. |
+| Local review | A Git checkpoint produced a patch without changing the fixture checkout's index. Git accepted the patch in a reverse-apply check. Hunk rendered the changed line in the isolated WezTerm pane. |
+| Durable execution | An isolated Taskwarrior UUID went from Ready to Review after a real Pueue job completed. The board used the linked attempt UUID and left the task pending. Explicit `tq reconcile` preserved the result after the Pueue job was removed. |
+| PR observation | `gh-pr-state` and `watch --until closed` returned the same head and merged state for a real closed PR. |
+| Remote access | `tsh` executed a noninteractive command on the development host through SSH. The native WezTerm attach preview selected the mux without opening a window. |
+
+The queue check reproduced a failed submission rewriting another attempt.
+`tq reconcile` now owns bulk persistence. Submission, cancellation, and
+resume write the attempt they operate on. Queue tests exercise accepted and
+rejected submissions, resume from projected state, and explicit reconciliation.
+
 ## Earlier workstation inventory
 
 The audit covers the Darwin workstation, the shared Nix profiles, and the

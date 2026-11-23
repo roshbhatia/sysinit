@@ -1,6 +1,6 @@
 ---
 name: ty
-description: Drive WezTerm from the CLI. Use to find or read a pane, run a command in a split, manage tabs or layout, or target a Neovim editor by worktree.
+description: Drive WezTerm from the CLI. Use to find or read a pane, run a command in a split, manage tabs or layout, or target a Neovim editor by worktree. Use with agent-diff when the user names a caller pane or asks to preserve focus.
 ---
 
 # WezTerm and Neovim control
@@ -126,7 +126,7 @@ Use `agents list --details` for harness capabilities and native launch flags.
 
 ## Boundaries
 
-- Use `sy` and `feature-based-session-manager` for creating, grouping, archiving,
+- Use `sy` and `workspace-manage` for creating, grouping, archiving,
   or deleting seshy sessions and their worktrees. `ty` does not own that
   lifecycle.
 - Use `ty` for visible pane work only when the owner requests it. Use

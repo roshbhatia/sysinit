@@ -1,6 +1,6 @@
 ## Submit agent work
 
-Use `local-workflows` to distinguish native helpers from separate harness runs.
+Use `workflow-route-local` to distinguish native helpers from separate harness runs.
 Native helpers use their harness's API and return results to their coordinator;
 they do not need a Pueue attempt for every delegated question.
 
@@ -68,6 +68,9 @@ The log reader checks the returned job identity before printing output.
 Use `--pager` for retained output or `--follow` to watch a running job in the
 same pager. The WezTerm queue picker uses these commands for managed attempts.
 `tq status` and `tq snapshot` read the live queue without rewriting attempts.
+Submission, cancellation, and resume write the attempt they operate on.
+Run `tq reconcile` before removing completed Pueue jobs when their results
+must remain available to the board.
 Use `tq reconcile` to persist the current results before queue cleanup. Use
 `tq cancel <attempt-uuid>` for cancellation and
 `tq resume <attempt-uuid>` for an interrupted submission. After a completed

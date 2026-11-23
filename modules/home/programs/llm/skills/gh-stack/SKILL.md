@@ -1,8 +1,7 @@
 ---
 name: gh-stack
-description: Operates stacked pull requests with `gh stack`, one branch and one PR per reviewable concern. Use when opening a PR for a multi-concern change, when a PR grows past one concern, or when the user says 'stack', 'split this PR', or 'rebase the stack'.
+description: Manage stacked GitHub PRs with gh stack. Use for stack creation, repair, rebasing, or splitting reviewable changes.
 allowed-tools: Bash(gh:*) Bash(git:*)
-metadata: {"sysinit-claude-model":"haiku","sysinit-claude-effort":"low"}
 ---
 
 # Stacked pull requests
@@ -55,14 +54,14 @@ word. The real gate is `lib/allowlist.nix`, which carries the reading and
 navigation forms and deliberately carries none of the forms that reach GitHub.
 
 `gh stack submit` pushes branches and creates or updates PRs on GitHub. That is
-outward-facing, so the rule from `writing-pr-description` applies unchanged:
+outward-facing, so the rule from `github-write-pr` applies unchanged:
 never submit unless the user authorized submission within the current task scope.
 Keep that authorization valid across implementation and verification turns.
 
 Prepare the stack, show `gh stack view`, and let the owner submit. Same for
 `gh stack merge`, `gh stack push`, `gh stack unstack`, and `gh stack delete`.
 
-Each layer's body is written with the `writing-pr-description` skill. The bottom
+Each layer's body is written with the `github-write-pr` skill. The bottom
 layer carries the issue URL; a layer above it does not repeat it.
 
 ## Ordering a stack

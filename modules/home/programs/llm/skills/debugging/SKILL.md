@@ -9,11 +9,14 @@ description: Reproduce, diagnose, and verify a software defect from logs, errors
    expected behavior, affected version, and smallest reproducible input.
 2. Preserve the original error and reproduction before resets or dependency changes.
    Trace the input through its owning boundary; distinguish evidence from hypotheses.
+   For agent workflows, check the resolved config, available tools, and the tool
+   event that failed. A parsed setting or a plausible final reply leaves runtime
+   behavior unverified.
 3. Run a bounded check that separates the leading hypotheses. When evidence changes,
    change the approach; repeating a failed command is not a diagnosis.
 4. Fix the owning cause with the smallest complete change. Do not add retries,
    compatibility branches, or adjacent refactors without a demonstrated requirement.
-5. Load `change-validation`. Re-run the original reproduction and the relevant
+5. Load `code-validate-change`. Re-run the original reproduction and the relevant
    failure case against the actual implementation. Add a regression test when
    the defect warrants durable coverage; do not copy implementation logic into it.
 6. Report cause, change, evidence, and remaining uncertainty. If reproduction was

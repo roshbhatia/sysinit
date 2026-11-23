@@ -71,7 +71,7 @@ Git context always lives in `repos[]`, there is no scalar `repo`/`branch`/
 
 - `repo`, `cwd` was a single git worktree; `repos[]` has one entry.
 - `seshy-session`, `cwd` was under a seshy session (see the
-  `feature-based-session-manager` skill) spanning many repos. Identity is
+  `workspace-manage` skill) spanning many repos. Identity is
   `session_name`; `repos[]` holds one entry per nested git child.
 - `dir`, neither; `repos[]` is empty (survived only because it had a `first_prompt`).
 
@@ -98,7 +98,7 @@ The transcript is the source of truth; the log line is just the index.
 All worklog I/O runs through the deterministic helper shipped with this skill:
 
 ```bash
-Q=~/.claude/skills/worklog/scripts/worklog-query.sh
+Q=~/.claude/skills/work-report-activity/scripts/worklog-query.sh
 ```
 
 ### 1. Read and filter

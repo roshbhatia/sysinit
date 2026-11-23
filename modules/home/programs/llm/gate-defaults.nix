@@ -1,4 +1,8 @@
-{ rulesFile, styleFile }:
+{
+  rulesFile,
+  styleFile,
+  reviewFailureHook ? false,
+}:
 let
   bulkRead = import ./bulk-read.nix;
   outputStyle = import ./lib/output-style.nix;
@@ -112,7 +116,20 @@ in
         };
       }
     ];
-  };
+  }
+  // (
+    if reviewFailureHook then
+      {
+        PostToolUseFailure = [
+          {
+            provider = "review-gate";
+            match = "^(Agent|Task)$";
+          }
+        ];
+      }
+    else
+      { }
+  );
 
   review = {
     tiers = {
