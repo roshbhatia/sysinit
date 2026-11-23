@@ -1816,17 +1816,17 @@
         "spawn": "spawn"
       },
       "locked": {
-        "lastModified": 1795406718,
-        "narHash": "sha256-4UxkgxHyp2IUTiIRCwTUQitPJVjo2y5yWat2gCyDlXE=",
+        "lastModified": 1795460986,
+        "narHash": "sha256-h+CbGKS9Zx83pN7+wlxudasW0v/aF3hp0ge8qgTySVs=",
         "owner": "roshbhatia",
         "repo": "sysinit.wezterm",
-        "rev": "1bbc8a578eb1c1c1be83870c2d3709cecf289aaf",
+        "rev": "b480c2b0618c41b8d9ffdf10a008dee83bd7cf9b",
         "type": "github"
       },
       "original": {
         "owner": "roshbhatia",
         "repo": "sysinit.wezterm",
-        "rev": "1bbc8a578eb1c1c1be83870c2d3709cecf289aaf",
+        "rev": "b480c2b0618c41b8d9ffdf10a008dee83bd7cf9b",
         "type": "github"
       }
     },
