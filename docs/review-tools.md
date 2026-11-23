@@ -29,7 +29,7 @@ Run `:ReviewrTurn` before the next agent edit to mark its baseline, then pick
 Last turn in Reviewr. Plain directories open the directory browser. Run
 the command from the remote shell for a remote checkout.
 
-Run `changes interactive` or `:SysinitChanges` for change groups and durable
+Run `changes` in a terminal, `changes interactive`, or `:SysinitChanges` for change groups and durable
 notes. Press Enter to open a changed file, `p` for the rendered patch, and `r`
 to refresh. Run `traces` or `:Traces` to select a session, or
 `traces --session ID` for an exact assistant transcript. Set the corresponding

@@ -10,14 +10,18 @@ def --wrapped main [tool: string, program: string, ...args: string] {
     | where {|arg| $arg | str starts-with '-'}
     | each {|arg| $arg | split row '=' | first | str trim --left --char '-'}
 
+    let terminal = (is-terminal --stdin) and (is-terminal --stdout)
+
     let interactive = if $tool == changes {
-        ($args | get 0?) == 'interactive' and not ('help' in $flags or '-h' in $args)
+        (
+            (($args | is-empty) and $terminal)
+            or (($args | get 0?) == 'interactive' and not ('help' in $flags or '-h' in $args))
+        )
     } else {
         (
             not (($args | get 0?) in [provider generate completion help])
             and not ($flags | any {|flag| $flag in [json once list view format version help h]})
-            and (is-terminal --stdin)
-            and (is-terminal --stdout)
+            and $terminal
         )
     }
 
@@ -33,7 +37,9 @@ def --wrapped main [tool: string, program: string, ...args: string] {
         error make {msg: $"($tool): managed Neovim is required for the neovim UI host"}
     }
 
-    $env.SYSINIT_EDITOR_QUERY = {tool: $tool, program: $program, args: $args} | to json --raw
+    let query = if $tool == changes and ($args | is-empty) { [interactive] } else { $args }
+
+    $env.SYSINIT_EDITOR_QUERY = {tool: $tool, program: $program, args: $query} | to json --raw
 
     exec nvim -c "lua if vim.fn.exists(':SysinitEditorQuery') == 2 then vim.cmd.SysinitEditorQuery() else io.stderr:write('The Sysinit Neovim workbench is required\\n'); vim.cmd.cquit() end"
 }

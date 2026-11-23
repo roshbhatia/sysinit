@@ -122,12 +122,19 @@ vim.ui.select = function(sessions, _opts, select)
   end
   error("Traces did not discover the second session")
 end
-local previous = vim.api.nvim_get_current_buf()
 require("sysinit_workbench.traces").open({
   program = "traces",
   args = { "--all", "--file", file, "--config", config },
 })
 assert(vim.wait(10000, function()
-  return vim.api.nvim_get_current_buf() ~= previous
+  return vim.api.nvim_buf_get_name(0):find("traces://transcript/example-session-other", 1, true)
 end))
 await_text(vim.api.nvim_get_current_buf(), "Other assistant reply")
+
+local empty = vim.fn.tempname()
+vim.fn.writefile({ "{}" }, empty)
+require("sysinit_workbench.traces").open({
+  program = "traces",
+  args = { "--all", "--file", empty, "--config", config },
+})
+await_text(vim.api.nvim_get_current_buf(), "No Traces sessions in this scope")

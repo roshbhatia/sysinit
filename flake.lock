@@ -1793,11 +1793,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1795457658,
-        "narHash": "sha256-p08ijU16eVaKHx2vFp+4lVJaCj26bQDm+VXIbeh7Boc=",
+        "lastModified": 1795477900,
+        "narHash": "sha256-sAN//anuO/UMh/AiS/S4JafPjqstLKg+HTss1GC8DBU=",
         "owner": "roshbhatia",
         "repo": "sysinit.nvim",
-        "rev": "280b8c4193bd4a968c83d0823eaa2036d55993ac",
+        "rev": "239a214364b07e50f43fa7fea0619ec48d419933",
         "type": "github"
       },
       "original": {
