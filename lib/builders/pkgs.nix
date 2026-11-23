@@ -37,7 +37,6 @@
             "nvidia-settings"
             "nvidia-x11"
             "obsidian"
-            "rex"
             "steam"
             "steam-unwrapped"
             "upbound"

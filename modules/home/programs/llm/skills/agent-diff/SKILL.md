@@ -3,11 +3,6 @@ name: agent-diff
 description: Open or reuse Reviewr in a Neovim split beside the invoking agent. Use when asked to review this agent’s edits, see a local worktree diff, or draft line feedback to the agent.
 ---
 
-In a managed Rex terminal, use `Cmd+R` or
-`rex do reviewr_open --session "$REX_SESSION" --block "$REX_BLOCK"` with the
-verified caller IDs. Reviewr uses Rex program-status events to track an
-identified agent's turns. Open untracked files directly in Neovim.
-
 In WezTerm, run `agent-diff --review --allow-directory --cwd <current repository or worktree directory>`.
 Use the current session directory, including its worktree, rather than a parent checkout.
 The command validates the invoking pane and reuses its live Neovim diff pane.
