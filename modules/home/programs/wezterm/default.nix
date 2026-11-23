@@ -15,6 +15,14 @@ let
   c = themeColors;
   palette = import ../../../shared/terminal-palette.nix c;
   luaSource = inputs.sysinit-wezterm.lib.luaSource pkgs;
+  terminalProviders = import ../../../shared/terminal-providers.nix {
+    inherit
+      config
+      inputs
+      lib
+      pkgs
+      ;
+  };
 
   paneName = pkgs.writeShellApplication {
     name = "wezterm-pane-name";
@@ -140,30 +148,7 @@ in
         hidden_workspaces = lib.optionalAttrs config.sysinit.queue.enable {
           task-queue = true;
         };
-        providers = [
-          {
-            name = "tether";
-            key = "@";
-            manifest = "${pkgs.tether-picker}/share/wezterm/providers/tether.json";
-          }
-          {
-            name = "seshy";
-            key = "$";
-            manifest = "${pkgs.seshy-picker}/share/wezterm/providers/seshy.json";
-          }
-          {
-            name = "zoxide";
-            key = "%";
-            manifest = "${pkgs.zoxide-picker}/share/wezterm/providers/zoxide.json";
-          }
-        ]
-        ++ lib.optionals config.sysinit.queue.enable [
-          {
-            name = "tq";
-            palette_title = "Queue: browse attempts";
-            manifest = "${pkgs.tq-picker}/share/wezterm/providers/tq.json";
-          }
-        ];
+        inherit (terminalProviders) providers;
       };
       cwd_aliases.sy = config.sysinit.paths.resolved.seshySessions;
       passthrough_procs = [

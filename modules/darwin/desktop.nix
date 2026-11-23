@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, lib, ... }:
 
 {
   system = {
@@ -56,6 +56,14 @@
       };
 
       CustomUserPreferences = {
+        "com.superlogical.rex" =
+          lib.mkIf (config.home-manager.users.${config.system.primaryUser}.sysinit.rex.enable or false)
+            {
+              "Workspace.tabStyle" = "horizontal";
+              "Workspace.tabBarEdge" = "bottom";
+              "Workspace.inactivePaneFadeMode" = "off";
+              "Workspace.usesStandardInactiveWindowPaneStyles" = false;
+            };
         "NSGlobalDomain" = {
           AppleActionOnDoubleClick = "None";
           "com.apple.sound.beep.flash" = 0;
