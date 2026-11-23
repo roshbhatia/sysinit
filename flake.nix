@@ -128,7 +128,7 @@
     # Keep the fork's dependency lock so consumers match its CI cache paths.
     wezterm-fork.url = "github:roshbhatia/wezterm?dir=nix";
     sysinit-wezterm = {
-      url = "github:roshbhatia/sysinit.wezterm/7e3380c8ef4408e5cab2eea13db88c846b3b9b60";
+      url = "github:roshbhatia/sysinit.wezterm/1bbc8a578eb1c1c1be83870c2d3709cecf289aaf";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     sysinit-nvim = {
