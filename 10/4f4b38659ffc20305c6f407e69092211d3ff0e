@@ -1,0 +1,25 @@
+pkgs/task-board/view.go
+  s_a4a3eea4720821::t_cd6b8432bb5202 17-20,67,69,108-147,155-164,166-168,170-171,249-252,263,277,280-284,286,291
+  s_a4a3eea4720821::t_156ff16ef29376 271-275
+pkgs/task-board/view_test.go
+  s_a4a3eea4720821::t_156ff16ef29376 23-25,33,84-94
+  s_a4a3eea4720821::t_f82c7d1aaa3ec9 70
+  s_a4a3eea4720821::t_16d729e06678b1 69,73
+  s_a4a3eea4720821::t_f2f8b5508a4826 67-68,71-72,74-83,95-96
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "104f4b38659ffc20305c6f407e69092211d3ff0e",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
