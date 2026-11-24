@@ -1,27 +1,25 @@
-overlays/sysinit-gotools.nix
-  s_a4a3eea4720821::t_1aef51a0f2d899 76-87
-pkgs/task-board/data.go
-  s_a4a3eea4720821::t_7bc3afeee8c33a 1-106,113-120,123-177,181-188,195-196
-  s_a4a3eea4720821::t_82a823e7818808 107-112,121-122,178-180,189-194
-pkgs/tq/main.go
-  s_a4a3eea4720821::t_7bc3afeee8c33a 40,49-60,103-108,150-153,164
-modules/home/programs/llm/skills/taskwarrior/SKILL.md
-  s_a4a3eea4720821::t_d7f9de555280e4 58-62
-docs/task-board.md
-  s_a4a3eea4720821::t_d26941d44dd6a3 1-32
-pkgs/task-board/data_test.go
-  s_a4a3eea4720821::t_d26941d44dd6a3 1-38
-flake.nix
-  s_a4a3eea4720821::t_ca7ac417124bc2 164
-  s_a4a3eea4720821::t_d7f9de555280e4 367
-docs/composability-audit.md
-  s_a4a3eea4720821::t_f3a1643757cd58 1-80
-pkgs/task-board/main.go
-  s_a4a3eea4720821::t_82a823e7818808 1-324
-modules/home/programs/taskwarrior.nix
-  s_a4a3eea4720821::t_1aef51a0f2d899 105
 flake.lock
-  s_a4a3eea4720821::t_5cf83ff4ddf6c9 2006-2007,2010,2016
+  s_a4a3eea4720821::t_0bb126ea1c10dc 2006-2007,2010,2016
+modules/home/programs/llm/skills/taskwarrior/SKILL.md
+  s_a4a3eea4720821::t_b8faf6613e1fe5 58-62
+pkgs/task-board/data.go
+  s_a4a3eea4720821::t_134c12cb3f7684 1-196
+pkgs/task-board/main.go
+  s_a4a3eea4720821::t_7a70073eed4374 1-324
+pkgs/tq/main.go
+  s_a4a3eea4720821::t_0cc9e4144f2de1 40,49-60,103-108,150-153,164
+docs/composability-audit.md
+  s_a4a3eea4720821::t_878ead4e146fab 1-80
+docs/task-board.md
+  s_a4a3eea4720821::t_9e593e753b1bd9 1-32
+flake.nix
+  s_a4a3eea4720821::t_3b27003cdc6adc 164,367
+modules/home/programs/taskwarrior.nix
+  s_a4a3eea4720821::t_663c9e1b0fbb5b 105
+overlays/sysinit-gotools.nix
+  s_a4a3eea4720821::t_a5cc6b0ba24759 76-87
+pkgs/task-board/data_test.go
+  s_a4a3eea4720821::t_617e148338482a 1-38
 ---
 {
   "schema_version": "authorship/3.0.0",
