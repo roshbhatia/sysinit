@@ -1,7 +1,7 @@
-modules/home/programs/llm/default.nix
-  s_a4a3eea4720821::t_719fa3de298941 23
 checks/default.nix
-  s_a4a3eea4720821::t_8230189b2d07bf 113
+  s_a4a3eea4720821::t_cea7bd1f80e525 113
+modules/home/programs/llm/default.nix
+  s_a4a3eea4720821::t_50456bc50e02fb 23
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -13,7 +13,7 @@ checks/default.nix
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.2-sol"
+        "model": "unknown"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
