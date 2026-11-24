@@ -1,35 +1,27 @@
-overlays/sysinit-gotools.nix
-  s_a4a3eea4720821::t_23965c0ebb6106 99
-overlays/tq-picker/default.nix
-  s_a4a3eea4720821::t_90e843cd5ed7a5 21,79-98,101-109,111
-overlays/tq-picker/rex.nu
-  s_a4a3eea4720821::t_1f93381aad8d21 1-104
-docs/rex-ports.md
-  s_a4a3eea4720821::t_4adb1177b33465 8,15
 docs/skill-routing-cases.json
-  s_a4a3eea4720821::t_29976576597d8f 72-76
+  s_a4a3eea4720821::t_969992a693b00c 72-76
 docs/terminal-providers.md
-  s_a4a3eea4720821::t_d3664cd4fc16bc 5-9,18-27
-modules/darwin/home/rex/appearance.lua
-  s_a4a3eea4720821::t_aedb202256dd4c 18-20
+  s_a4a3eea4720821::t_adabab6b091c25 5-9,18-27
 modules/home/programs/llm/default.nix
-  s_a4a3eea4720821::t_acd2a49fd0d604 101-105
-modules/home/programs/llm/runtime/diff/open.nu
-  s_a4a3eea4720821::t_e4513580b9854d 16,27-57,112-114,116-118,202-203,205-206,226,251-257,333,354,489-530,532-533,537-538,540-541,544,564
+  s_a4a3eea4720821::t_bf027ddb1b8b6a 101-105
 modules/home/programs/llm/skills/agent-diff/SKILL.md
-  s_a4a3eea4720821::t_86cd79590bb394 6,9-10
+  s_a4a3eea4720821::t_1950d6d9ee7b2c 6,9-10
 modules/home/programs/llm/skills/catalog.nix
-  s_a4a3eea4720821::t_b3012739d0af8d 31
-modules/home/programs/llm/skills/default.nix
-  s_a4a3eea4720821::t_965900f7808cf8 10
+  s_a4a3eea4720821::t_6833ff79fa0e9a 31
 modules/home/programs/llm/skills/local-workflows/SKILL.md
-  s_a4a3eea4720821::t_13530ac81f6195 17
+  s_a4a3eea4720821::t_517c3a7107ac77 17
 modules/home/programs/llm/skills/local-workflows/references/execution-and-terminals.md
-  s_a4a3eea4720821::t_81320417f1cc80 121,123-127
+  s_a4a3eea4720821::t_5637ca15b1af34 121,123-127
 modules/home/programs/llm/skills/taskwarrior/SKILL.md
-  s_a4a3eea4720821::t_055895acc9f85b 65-66
-modules/home/programs/llm/skills/terminal-rex/SKILL.md
-  s_a4a3eea4720821::t_94d36a2b89f46a 1-44
+  s_a4a3eea4720821::t_891680728ef95c 65-66
+overlays/tq-picker/default.nix
+  s_a4a3eea4720821::t_9e6d0eb3fa0235 21,79-98,101-109,111
+modules/home/programs/llm/runtime/diff/open.nu
+  s_a4a3eea4720821::t_68b564c89a2af6 16,27-57,112-114,116-118,202-203,205-206,226,251-257,333,354,489-530,532-533,537-538,540-541,544,564
+modules/home/programs/llm/skills/default.nix
+  s_a4a3eea4720821::t_efa21c7a0bfa83 10
+overlays/sysinit-gotools.nix
+  s_a4a3eea4720821::t_56d0a5de336a11 99
 ---
 {
   "schema_version": "authorship/3.0.0",
