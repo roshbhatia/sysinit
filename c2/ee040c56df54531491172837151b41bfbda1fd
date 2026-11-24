@@ -1,7 +1,7 @@
-modules/home/programs/llm/default.nix
-  s_a4a3eea4720821::t_10ffcdcc4b703c 133
 modules/home/programs/llm/runtime/macos-notifier.nix
-  s_796b0b41a96769::t_1f61b956a6c29c 21,30,40-42
+  s_796b0b41a96769::t_ee7fab189a5afa 21,30,40-42
+modules/home/programs/llm/default.nix
+  s_a4a3eea4720821::t_25dd1ff2bdde31 133
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -21,7 +21,7 @@ modules/home/programs/llm/runtime/macos-notifier.nix
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.2-sol"
+        "model": "unknown"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
