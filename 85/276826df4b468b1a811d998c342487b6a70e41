@@ -1,11 +1,11 @@
-checks/default.nix
-  s_a4a3eea4720821::t_a5b9dac3c149cb 59-72
 checks/sunshine-apps.nu
-  s_a4a3eea4720821::t_fa57591ad74f69 1-63
+  s_a4a3eea4720821::t_2bc1cfc5b44c38 1-63
 modules/nixos/home/streaming.nix
-  s_796b0b41a96769::t_b6e18ea401146f 1,121-122,125
+  s_796b0b41a96769::t_447975908c4ca3 1,121-122,125
 modules/nixos/home/sunshine-apps-gen.nu
-  s_a4a3eea4720821::t_35ec8aed44841d 1-134
+  s_a4a3eea4720821::t_f98cf8aeb7c2f3 1-134
+checks/default.nix
+  s_a4a3eea4720821::t_ab0f6380421238 59-72
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -25,7 +25,7 @@ modules/nixos/home/sunshine-apps-gen.nu
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.2-sol"
+        "model": "gpt-6.1-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
