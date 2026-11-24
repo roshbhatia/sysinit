@@ -1,7 +1,10 @@
 { pkgs }:
 pkgs.writeShellApplication {
   name = "agent-review-link";
-  runtimeInputs = [ pkgs.coreutils ];
+  runtimeInputs = [
+    pkgs.coreutils
+    pkgs.git
+  ];
   text = ''
     if [[ "''${1:-}" == --hook ]]; then
       exec ${pkgs.nushell}/bin/nu --no-config-file --stdin ${./review-link.nu} --hook

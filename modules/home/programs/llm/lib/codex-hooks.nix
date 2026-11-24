@@ -43,6 +43,7 @@ in
         hooks = [
           (commandHook "${profileBin}/agent-state codex working submit")
           (commandHook "${profileBin}/gate-hook-codex-userpromptsubmit")
+          (commandHook "${profileBin}/agent-review-link --hook")
         ];
       }
     ];
@@ -51,6 +52,7 @@ in
         hooks = [
           (commandHook "${profileBin}/agent-notify codex done ${profileBin}/agent-focus")
           (commandHook "${profileBin}/agent-state codex done \"your move\"")
+          (commandHook "${profileBin}/agent-review-link --hook")
         ];
       }
     ];

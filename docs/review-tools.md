@@ -17,18 +17,20 @@
 
 ## Review local edits
 
-Command-click the **Review diff** link after a successful Codex or Claude Code edit, or ask the
-agent **“Open a review of your changes.”** Both use `agent-diff` and open or
-reuse the review to the agent's right. From a shell in the same pane, run
-`agent-diff` directly or print a link with `agent-review-link`.
+Command-click the link in the **Review changes** notice after an editing turn
+in Codex or Claude Code. From any local WezTerm pane, choose **Open Worktree
+Review** in the command palette. Both use `agent-diff` and open or reuse the
+review to the pane's right. Run `agent-diff` directly from the shell or use
+`agent-review-link` to print a link for the current directory.
 Reviewr includes untracked files through a temporary Git index.
 Run `:ReviewrTurn` before the next agent edit to mark its baseline, then pick
 Last turn in Reviewr. Plain directories open the directory browser. Run
 the command from the remote shell for a remote checkout.
 
 Ordinary file links open text in Neovim at the linked line and use the
-system's file associations for other files. The `review://worktree/` link opens
-the current worktree diff. An explicit `--base` opens Diffview.
+system's file associations for other files. A `review://changes/` link names
+the repository and branch or worktree, then identifies the exact checkout
+with its final segment. An explicit `--base` opens Diffview.
 
 Reviewr uses Neovim's local leader, `,`. Press `,c` to comment on a line or
 selection and save with `:w`. Press `,s` to paste the draft into the

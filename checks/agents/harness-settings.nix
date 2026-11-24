@@ -11,6 +11,9 @@ let
     darwinConfigurations.lv426.config
     nixosConfigurations.arrakis.config
   ];
+  hasReviewLink = lib.any (
+    group: lib.any (hook: lib.hasSuffix "/bin/agent-review-link --hook" hook.command) group.hooks
+  );
   managedHooksValid =
     system:
     let
@@ -22,12 +25,14 @@ let
     &&
       builtins.length (
         lib.concatMap (group: group.hooks) (lib.concatLists (builtins.attrValues document.hooks))
-      ) == 7
+      ) == 9
     && builtins.any (
       group:
       (group.matcher or "") == "^apply_patch$"
       && builtins.any (hook: lib.hasSuffix "/bin/agent-review-link --hook" hook.command) group.hooks
-    ) document.hooks.PostToolUse;
+    ) document.hooks.PostToolUse
+    && hasReviewLink document.hooks.UserPromptSubmit
+    && hasReviewLink document.hooks.Stop;
 in
 assert builtins.all managedHooksValid systems;
 assert home.programs.claude-code.settings.permissions.defaultMode == "bypassPermissions";
@@ -36,6 +41,8 @@ assert builtins.any (
   group.matcher == "Edit|Write|MultiEdit|NotebookEdit"
   && builtins.any (hook: lib.hasSuffix "/bin/agent-review-link --hook" hook.command) group.hooks
 ) home.programs.claude-code.settings.hooks.PostToolUse;
+assert hasReviewLink home.programs.claude-code.settings.hooks.UserPromptSubmit;
+assert hasReviewLink home.programs.claude-code.settings.hooks.Stop;
 assert !(home.programs.claude-code.settings ? dangerouslySkipPermissions);
 assert !(home.programs.claude-code.settings ? disabledMcpServers);
 assert home.programs.codex.settings.web_search == "live";
