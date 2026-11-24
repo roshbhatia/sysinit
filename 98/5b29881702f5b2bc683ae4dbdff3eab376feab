@@ -1,11 +1,11 @@
-modules/home/packages.nix
-  s_a4a3eea4720821::t_299e8cc8d7a241 153
-overlays/default.nix
-  s_a4a3eea4720821::t_c2aa75d7cbdc42 63
 checks/default.nix
-  s_a4a3eea4720821::t_5bc450e5281ac4 59
+  s_a4a3eea4720821::t_c7f2b834676793 59
 flake.nix
-  s_a4a3eea4720821::t_f0f65642d534a4 362
+  s_a4a3eea4720821::t_c23e1ce5cd60b9 362
+modules/home/packages.nix
+  s_a4a3eea4720821::t_b74417b72e1177 153
+overlays/default.nix
+  s_a4a3eea4720821::t_9d63ee18ed46d8 63
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -17,7 +17,7 @@ flake.nix
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.1-sol"
+        "model": "unknown"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
