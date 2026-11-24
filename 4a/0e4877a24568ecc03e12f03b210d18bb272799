@@ -1,19 +1,14 @@
 checks/editor-config.nix
-  s_a4a3eea4720821::t_a08299cf415772 58
+  h_9ee7ffa72fd255 58
 ---
 {
   "schema_version": "authorship/3.0.0",
   "git_ai_version": "1.7.5",
   "base_commit_sha": "4a0e4877a24568ecc03e12f03b210d18bb272799",
   "prompts": {},
-  "sessions": {
-    "s_a4a3eea4720821": {
-      "agent_id": {
-        "tool": "codex",
-        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "unknown"
-      },
-      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+  "humans": {
+    "h_9ee7ffa72fd255": {
+      "author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
   }
 }
