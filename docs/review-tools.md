@@ -10,8 +10,8 @@ was not measured.
 | Tool | Installed or configured entry point | Role and current callers |
 | --- | --- | --- |
 | Reviewr.nvim | `agent-diff --review` | Draft worktree review with file navigation and precise feedback to the originating agent pane. |
-| Changes | `changes interactive`, `changes workspace`, `changes note` | Neovim change groups and review notes, a structured snapshot for automation, and durable note storage. |
-| Traces | `traces`, `:Traces [session]` | Find local sessions and read assistant replies in Neovim. Structured output and provider commands remain available from the CLI. |
+| Changes | `changes`, `changes workspace`, `changes note` | Native review workspace, a structured snapshot for automation, and durable note storage. |
+| Traces | `traces`, `traces --session ID` | Native activity viewer, structured output, and provider commands. |
 | diffnav | `git diff \| diffnav` | Patch pager with a file tree. Also the external reader for the optional native Changes UI. |
 | Hunk and tuicr | `nix shell .#hunk`, `nix shell .#tuicr` | Optional standalone review tools. Set `programs.hunk.enable = true` to install the managed Hunk configuration. |
 | Delta 0.20.1 | `git diff \| delta` | Patch and word-level coloring. Installed as a standalone CLI and referenced by diffnav's Nix package. Git has no configured Delta pager. |
@@ -29,12 +29,10 @@ Run `:ReviewrTurn` before the next agent edit to mark its baseline, then pick
 Last turn in Reviewr. Plain directories open the directory browser. Run
 the command from the remote shell for a remote checkout.
 
-Run `changes` in a terminal, `changes interactive`, or `:SysinitChanges` for change groups and durable
-notes. Press Enter to open a changed file, `p` for the rendered patch, and `r`
-to refresh. Run `traces` or `:Traces` to select a session, or
-`traces --session ID` for an exact assistant transcript. Set the corresponding
-`sysinit.changes.uiHost` or `sysinit.traces.uiHost` option to `"native"` to
-use the standalone interactive UI.
+Run `changes` in a terminal or `changes interactive` to open change groups
+and review notes. Use `?` for the viewer's keymap. Run `traces` to browse
+activity for the current checkout or `traces --session ID` to select a specific
+session.
 
 `agents` opens a searchable list of registered agents on the shell's PATH.
 Codex, OpenCode, and Claude appear first by default. Selecting an agent

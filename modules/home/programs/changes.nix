@@ -8,17 +8,7 @@ let
   yamlFormat = pkgs.formats.yaml { };
 in
 {
-  options.sysinit.changes.uiHost = lib.mkOption {
-    type = lib.types.enum [
-      "neovim"
-      "native"
-    ];
-    default = "neovim";
-    description = "Presentation host for changes interactive.";
-  };
-
   config = {
-    home.sessionVariables.CHANGES_UI_HOST = config.sysinit.changes.uiHost;
     home.packages = [
       pkgs.diffnav
       (lib.lowPrio pkgs.changes-providers)

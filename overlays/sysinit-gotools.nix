@@ -1,24 +1,6 @@
 { inputs }:
 final: _prev:
 let
-  editorHosted =
-    name: package:
-    final.symlinkJoin {
-      name = "${name}-editor-host-${final.lib.getVersion package}";
-      inherit (package) version;
-      paths = [ package ];
-      nativeBuildInputs = [ final.makeWrapper ];
-      postBuild = ''
-        rm "$out/bin/${name}"
-        makeWrapper ${final.lib.getExe final.nushell} "$out/bin/${name}" \
-          --add-flags "--no-config-file ${../modules/home/programs/neovim/editor-host.nu} ${name} ${package}/bin/${name}"
-      '';
-      meta = package.meta // {
-        mainProgram = name;
-        priority = (package.meta.priority or 5) - 1;
-      };
-    };
-
   sysinit-gotools = final.buildGoModule {
     pname = "sysinit-gotools";
     version = "0.1.0";
@@ -134,9 +116,23 @@ in
     };
   };
 
-  changes = editorHosted "changes" final.changes-cli;
+  changes = final.symlinkJoin {
+    name = "changes-terminal-${final.lib.getVersion final.changes-cli}";
+    inherit (final.changes-cli) version;
+    paths = [ final.changes-cli ];
+    nativeBuildInputs = [ final.makeWrapper ];
+    postBuild = ''
+      rm "$out/bin/changes"
+      makeWrapper ${final.lib.getExe final.nushell} "$out/bin/changes" \
+        --add-flags "--no-config-file ${../modules/home/programs/changes-entry.nu} ${final.lib.getExe final.changes-cli}"
+    '';
+    meta = final.changes-cli.meta // {
+      mainProgram = "changes";
+      priority = (final.changes-cli.meta.priority or 5) - 1;
+    };
+  };
 
-  traces = editorHosted "traces" final.traces-cli;
+  traces = final.traces-cli;
 
   inherit (final.callPackage (inputs.sysinit-nvim + /workbench) { })
     sysinit-reviewr

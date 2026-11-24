@@ -1,11 +1,11 @@
 ---
 name: inspect-agent-traces
-description: Inspect local agent activity and captured assistant replies with Traces. Use when the user asks what a specific agent session did, wants to read a conversation in Neovim, or needs structured trace output.
+description: Inspect local agent activity and captured assistant replies with Traces. Use when the user asks what a specific agent session did, wants to browse a conversation, or needs structured trace output.
 ---
 
-Use `traces` or `:Traces` to browse the current checkout's sessions in
-Neovim. Use `traces --all` for machine-wide discovery and
-`:Traces EXACT_SESSION_ID` to open a specific transcript.
+Use `traces` to browse the current checkout's sessions in the native viewer,
+`traces --all` for machine-wide discovery, and `traces --session ID` for a
+specific session.
 
 For automation, use the exact native conversation ID:
 

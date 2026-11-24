@@ -1,6 +1,6 @@
 ---
 name: review-change-groups
-description: Inspect grouped Git changes, changed calls, and saved review notes with Changes. Use for structured diff analysis or to open changes and durable notes in Neovim.
+description: Inspect grouped Git changes, changed calls, and saved review notes with Changes. Use for structured diff analysis or to open the interactive review workspace.
 ---
 
 Use `changes workspace` from the selected repository for structured
@@ -8,9 +8,8 @@ Use `changes workspace` from the selected repository for structured
 `failures` before drawing conclusions. Files and note anchors are scoped to
 the returned repository and comparison.
 
-Use `changes interactive` or `:SysinitChanges` for the Neovim view. Enter
-opens the selected file or working-tree location, `p` shows the rendered
-diff with call analysis, and `r` refreshes. For staged comparisons use
+Run `changes` from a terminal or use `changes interactive` to open the native
+review workspace. Use `?` for its keymap. For staged comparisons use
 `changes interactive --staged`. Select a checkout through
 `changes interactive --recursive --root DIRECTORY` for multi-repo work.
 
