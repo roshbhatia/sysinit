@@ -1,9 +1,9 @@
 hack/github-release-with-assets.nu
-  s_a4a3eea4720821::t_4400a7cc58c7fd 1-23
+  s_a4a3eea4720821::t_82098a62607b04 1-23
 hack/test-github-release-with-assets.nu
-  s_a4a3eea4720821::t_72e596af17c5c9 1-46
+  s_a4a3eea4720821::t_d8b4312c232d4f 1-46
 checks/default.nix
-  s_a4a3eea4720821::t_4ef40debd54f46 68-69
+  s_a4a3eea4720821::t_bc8a2dd22ce83a 68-69
 ---
 {
   "schema_version": "authorship/3.0.0",
