@@ -3,6 +3,7 @@ local handler, routed, notice, default_path
 local domain = "unix"
 
 package.loaded.wezterm = {
+  action = { OpenLinkAtMouseCursor = "open", Nop = "nop" },
   on = function(event, callback)
     assert(event == "open-uri")
     handler = callback
@@ -59,7 +60,25 @@ local pane = {
   end,
 }
 
-dofile(router).setup({
+local links = dofile(router)
+local function click(event, mouse_reporting, action)
+  return {
+    event = { [event] = { streak = 1, button = "Left" } },
+    mods = "SUPER",
+    mouse_reporting = mouse_reporting,
+    action = action,
+  }
+end
+
+local captured_down = click("Down", true, "nop")
+local captured_up = click("Up", true, "open")
+local normal_up = click("Up", false, "open")
+links.configure_mouse({ mouse_bindings = { captured_down, captured_up, normal_up } })
+assert(captured_down.action == "open")
+assert(captured_up.action == "nop")
+assert(normal_up.action == "open")
+
+links.setup({
   bin = "/profile/bin",
   home = "/home/test",
   file = "/bin/file",

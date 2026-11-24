@@ -85,7 +85,7 @@ def main [script: path, fixture: path, ty: path] {
             assert ($opened.stdout | str starts-with Opened)
             let split = open ($root | path join split.json)
             assert equal ($split | last) DiffviewOpen
-            assert ('--left' in $split)
+            assert ('--right' in $split)
             assert ($split | window 2 | any {|pair| $pair == [--percent '45'] })
             assert ($split | window 2 | any {|pair| $pair == [--cmd 'let g:sysinit_pr_review = v:true'] })
             let reused = with-env {WEZTERM_UNIX_SOCKET: $socket} {

@@ -516,7 +516,7 @@ def main [
         spawn
         $parent
         --direction
-        left
+        right
         --percent
         '45'
         --cwd

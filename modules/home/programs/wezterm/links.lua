@@ -3,6 +3,20 @@ local M = {}
 
 local local_domains = { ["local"] = true, unix = true, TermWizTerminalDomain = true }
 
+function M.configure_mouse(config)
+  for _, binding in ipairs(config.mouse_bindings) do
+    if binding.mods == "SUPER" and binding.mouse_reporting then
+      local down, up = binding.event.Down, binding.event.Up
+      -- WezTerm can reset a mouse-reporting pane's viewport between press and release.
+      if down and down.button == "Left" and down.streak == 1 then
+        binding.action = wezterm.action.OpenLinkAtMouseCursor
+      elseif up and up.button == "Left" and up.streak == 1 then
+        binding.action = wezterm.action.Nop
+      end
+    end
+  end
+end
+
 local function parse_file(uri)
   local ok, url = pcall(wezterm.url.parse, uri)
   if not ok or not url.file_path then

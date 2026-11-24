@@ -19,7 +19,7 @@
 
 Command-click the **Review diff** link after a successful Codex or Claude Code edit, or ask the
 agent **“Open a review of your changes.”** Both use `agent-diff` and open or
-reuse the review to the agent's left. From a shell in the same pane, run
+reuse the review to the agent's right. From a shell in the same pane, run
 `agent-diff` directly or print a link with `agent-review-link`.
 Reviewr includes untracked files through a temporary Git index.
 Run `:ReviewrTurn` before the next agent edit to mark its baseline, then pick
