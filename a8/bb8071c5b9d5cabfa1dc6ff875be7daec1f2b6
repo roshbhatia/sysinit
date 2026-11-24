@@ -1,71 +1,73 @@
 AGENTS.md
-  s_796b0b41a96769::t_8941150a67d4b9 3-5,9,11-16,18-49
-checks/fixtures/skills/contract-fixture/SKILL.md
-  s_4541d03bc240df::t_04cc2c59c461da 1-8
+  s_a4a3eea4720821::t_5f4a1c81621f24 3-5,9,11-16,18-49
 checks/fixtures/skills/contract-fixture/data.json
-  s_4541d03bc240df::t_2cf14a8d103f6d 1
+  s_4541d03bc240df::t_1e0cb0d46170c7 1
 checks/fixtures/skills/contract-fixture/references/nested/details.md
-  s_4541d03bc240df::t_9ca58811a6234e 1-3
-checks/fixtures/skills/invalid-boolean/SKILL.md
-  s_4541d03bc240df::t_519b07039663e5 1-7
+  s_4541d03bc240df::t_71979f647031ac 1-3
 checks/fixtures/skills/invalid-metadata/SKILL.md
-  s_4541d03bc240df::t_e9829f8fc5c9eb 1-7
-checks/harness-instructions.nix
-  s_796b0b41a96769::t_2363bfdb2f4937 47-49,51
-checks/skill-catalog.nix
-  s_a4a3eea4720821::t_7253650ddd244c 1-56
+  s_4541d03bc240df::t_121dea762d4690 1-7
 docs/skill-maintenance.md
-  s_4541d03bc240df::t_f75256e67376d4 1-41
+  s_a4a3eea4720821::t_698085c0f1a4a8 1-41
+docs/skill-routing-cases.json
+  s_a4a3eea4720821::t_9f3e499823ecd7 1-67
 modules/home/programs/llm/AGENTS.md
-  s_7028fc5da01072::t_a1b2a7e0ce92a4 1-23
-modules/home/programs/llm/default.nix
-  s_a4a3eea4720821::t_1a843500ac632c 19,103,158-163,184-188
-modules/home/programs/llm/harnesses/publish.nix
-  s_4541d03bc240df::t_57acf73311e459 25-26
+  s_7028fc5da01072::t_0c881cc9fc21f1 1-23
 modules/home/programs/llm/lib/frontmatter.nix
-  s_62c4cb57de6538::t_4feda7b31449eb 108-126
-modules/home/programs/llm/lib/harness-kit.nix
-  s_4541d03bc240df::t_3c4a4500b1b506 35-36,39,49-50,53
-modules/home/programs/llm/lib/instructions.nix
-  s_a8f060c64afc5c::t_006c8db2a7aa8a 7,139,165-174,177-181
+  s_a4a3eea4720821::t_d6823f338b793c 108-126
 modules/home/programs/llm/lib/skill-package.nix
-  s_4541d03bc240df::t_565364d9467db8 1-63
-modules/home/programs/llm/options.nix
-  s_a8f060c64afc5c::t_cc44be44c24d7b 137-149,151-207,209-223
+  s_a4a3eea4720821::t_654587ed9a8a05 1-63
 modules/home/programs/llm/skills/change-validation/SKILL.md
-  s_4541d03bc240df::t_5ac65889bf7312 1-31
-modules/home/programs/llm/skills/debugging/SKILL.md
-  s_4541d03bc240df::t_e3296b128cee61 1-24
-modules/home/programs/llm/skills/default.nix
-  s_4541d03bc240df::t_fd39d981ea9b66 4-5,9
+  s_a4a3eea4720821::t_49fc9dd1f9de03 1-31
 modules/home/programs/llm/skills/gh-stack/SKILL.md
-  s_4541d03bc240df::t_91337b75183e1a 59-60
+  s_a4a3eea4720821::t_7ace7195bfe26c 59-60
 modules/home/programs/llm/skills/local-workflows/SKILL.md
-  s_a4a3eea4720821::t_499a4fbdf34d6e 8-29
+  s_a4a3eea4720821::t_16e04f0ca9093f 8-29
 modules/home/programs/llm/skills/local-workflows/references/execution-and-terminals.md
-  s_a4a3eea4720821::t_1b319a0c3ffc86 1-169
+  s_a4a3eea4720821::t_2f19ad907362be 1-169
 modules/home/programs/llm/skills/nix-deployment/SKILL.md
-  s_796b0b41a96769::t_41461e0c8be5d7 1-35
-modules/home/programs/llm/skills/render.nix
-  s_4541d03bc240df::t_00c46c13fb5b17 27,57
+  s_796b0b41a96769::t_24b62818338fdc 1-35
 modules/home/programs/llm/skills/skills-ecosystem-discovery/SKILL.md
-  s_796b0b41a96769::t_6126f0fa748795 22-30
+  s_796b0b41a96769::t_7677109faa5c65 22-30
 modules/home/programs/llm/skills/taskwarrior/SKILL.md
-  s_a4a3eea4720821::t_c2a0456cdb67a3 40,42-45
+  s_a4a3eea4720821::t_a6c70929aa0cda 40,42-45
 modules/home/programs/llm/skills/taskwarrior/references/queued-execution.md
-  s_a4a3eea4720821::t_6a13650ef10510 1-53
+  s_a4a3eea4720821::t_544bd25ca7e822 1-53
 modules/home/programs/llm/skills/writing-pr-description/SKILL.md
-  s_4541d03bc240df::t_06b66629cdd113 104-105
+  s_a4a3eea4720821::t_43f41ed688af6e 104-105
 modules/home/programs/llm/subagents/code-reviewer.nix
-  s_4541d03bc240df::t_db3ab9043237f4 24-26
+  s_a4a3eea4720821::t_02a655d851183c 24-26
 modules/home/programs/llm/subagents/librarian.nix
-  s_4541d03bc240df::t_741b323398eb28 2
+  s_4541d03bc240df::t_dad1dc1f9ad34e 2
 checks/default.nix
-  s_a4a3eea4720821::t_a557e7dd44f21c 289-292
+  s_a4a3eea4720821::t_0a3427e2dd7809 289-292
+checks/fixtures/skills/contract-fixture/SKILL.md
+  s_a4a3eea4720821::t_768d74a24cde64 1-8
+checks/fixtures/skills/invalid-boolean/SKILL.md
+  s_a4a3eea4720821::t_56eed69d72ac4c 1-7
+checks/harness-instructions.nix
+  s_a4a3eea4720821::t_fc3fb29020dac6 47-49,51
+checks/skill-catalog.nix
+  s_a4a3eea4720821::t_24d5e01d776221 1-56
 docs/repository-reference.md
-  s_a4a3eea4720821::t_060340b8a4ff6d 1-257
+  s_a4a3eea4720821::t_a399f493b388f5 1-257
+modules/home/programs/llm/default.nix
+  s_a4a3eea4720821::t_7afa520bb1aabd 19,103,158-163,184-188
+modules/home/programs/llm/harnesses/publish.nix
+  s_a4a3eea4720821::t_776bc17d790d1e 25-26
 modules/home/programs/llm/harnesses/registry.nix
-  s_a4a3eea4720821::t_7212af064548aa 18,45,73,101,128,154,182,209,235,264,290,316,346
+  s_a4a3eea4720821::t_e1cb9937564625 18,45,73,101,128,154,182,209,235,264,290,316,346
+modules/home/programs/llm/lib/harness-kit.nix
+  s_a4a3eea4720821::t_20fd3ed4a8a8c8 35-36,39,49-50,53
+modules/home/programs/llm/lib/instructions.nix
+  s_a4a3eea4720821::t_9b6549947af1a3 7,139,165-174,177-181
+modules/home/programs/llm/options.nix
+  s_a4a3eea4720821::t_3e36fe44f489e3 137-149,151-207,209-223
+modules/home/programs/llm/skills/debugging/SKILL.md
+  s_a4a3eea4720821::t_64a0459be98be0 1-24
+modules/home/programs/llm/skills/default.nix
+  s_a4a3eea4720821::t_40f56e15d9e663 4-5,9
+modules/home/programs/llm/skills/render.nix
+  s_a4a3eea4720821::t_eff53378e1ba6c 27,57
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -77,14 +79,6 @@ modules/home/programs/llm/harnesses/registry.nix
       "agent_id": {
         "tool": "codex",
         "id": "01a1bd09-f672-7982-8a4f-e1e208a96834",
-        "model": "gpt-6.1-sol"
-      },
-      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
-    },
-    "s_62c4cb57de6538": {
-      "agent_id": {
-        "tool": "codex",
-        "id": "01a1ec00-1de2-7bc2-a676-ca7ded8f2943",
         "model": "gpt-6.1-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
@@ -109,14 +103,6 @@ modules/home/programs/llm/harnesses/registry.nix
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.1-sol"
-      },
-      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
-    },
-    "s_a8f060c64afc5c": {
-      "agent_id": {
-        "tool": "codex",
-        "id": "01a1f577-5612-72f3-9fd8-1d348b20bd7b",
         "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
