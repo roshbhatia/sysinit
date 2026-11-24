@@ -1,15 +1,15 @@
 checks/nixos-launcher.lua
-  s_de8d39c3c56992::t_ae437c3e5f9d21 1-58
+  s_de8d39c3c56992::t_8d8a6c07cdff5f 1-58
 checks/nixos-launcher.nix
-  s_62c4cb57de6538::t_253f67a93c2be7 1-15
-modules/home/programs/llm/skills/ty/SKILL.md
-  s_a4a3eea4720821::t_d3aacc2c9ed5a2 35,48-49
+  s_62c4cb57de6538::t_b5ce93b47d7ad5 1-15
 modules/nixos/home/launcher.nix
-  s_de8d39c3c56992::t_4b1cf88cc3f1cf 27-28,56,61,64,67,72
+  s_de8d39c3c56992::t_bfde790f2b5490 27-28,56,61,64,67,72
 modules/nixos/home/launcher/sessions.lua
-  s_1cfbbc236f4d97::t_59591ce998ab51 4,11,19-20
+  s_1cfbbc236f4d97::t_6e64dd9589dabe 4,11,19-20
 checks/default.nix
-  s_a4a3eea4720821::t_a27f1d9af92688 320-323
+  s_a4a3eea4720821::t_1bc3d913a58a80 320-323
+modules/home/programs/llm/skills/ty/SKILL.md
+  s_a4a3eea4720821::t_d23b0da410fa7e 35,48-49
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -37,7 +37,7 @@ checks/default.nix
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.2-sol"
+        "model": "unknown"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     },
