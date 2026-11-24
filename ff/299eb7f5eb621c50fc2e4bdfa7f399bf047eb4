@@ -1,7 +1,7 @@
 AGENTS.md
-  s_796b0b41a96769::t_9e608e79661114 21-26
+  s_a4a3eea4720821::t_b97a102a840150 21-26
 modules/home/programs/llm/lib/instructions.nix
-  s_a8f060c64afc5c::t_8890b13cbee356 75-80
+  s_a4a3eea4720821::t_bcf478d70fa1f1 75-80
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -9,18 +9,10 @@ modules/home/programs/llm/lib/instructions.nix
   "base_commit_sha": "ff299eb7f5eb621c50fc2e4bdfa7f399bf047eb4",
   "prompts": {},
   "sessions": {
-    "s_796b0b41a96769": {
+    "s_a4a3eea4720821": {
       "agent_id": {
         "tool": "codex",
-        "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
-        "model": "gpt-6.1-sol"
-      },
-      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
-    },
-    "s_a8f060c64afc5c": {
-      "agent_id": {
-        "tool": "codex",
-        "id": "01a1f577-5612-72f3-9fd8-1d348b20bd7b",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
         "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
