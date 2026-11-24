@@ -1,71 +1,65 @@
-modules/home/programs/llm/skills/default.nix
-  s_a4a3eea4720821::t_160ff953f8fa3e 15
-docs/task-board.md
-  s_a4a3eea4720821::t_6347075ef3d1be 64,70,75,77
-  s_a4a3eea4720821::t_160ff953f8fa3e 11-24
-checks/tq.nu
-  s_a4a3eea4720821::t_6d1527bf7881f3 35-39
-  s_a4a3eea4720821::t_ea1221d829a6b2 8-10,15-19,24,27-34,40
-modules/home/programs/pueue/default.nix
-  s_a4a3eea4720821::t_66b3922a75284f 13-19,61-62
-  s_a4a3eea4720821::t_1ab800e396ef35 44,59
-modules/home/programs/nushell/tasks.nu
-  s_a4a3eea4720821::t_ea1221d829a6b2 1-11
-modules/home/programs/llm/skills/local-workflows/references/pull-requests.md
-  s_a4a3eea4720821::t_6347075ef3d1be 33,36
-modules/home/programs/llm/skills/taskwarrior/SKILL.md
-  s_a4a3eea4720821::t_b2f7bbdcb8b211 3
-  s_a4a3eea4720821::t_6347075ef3d1be 43-45
-pkgs/tq/wezterm-provider.go
-  s_a4a3eea4720821::t_6347075ef3d1be 78
-modules/home/programs/nushell/default.nix
-  s_a4a3eea4720821::t_8689991555a8a9 109,233,259
-  s_a4a3eea4720821::t_ea1221d829a6b2 258
-pkgs/tq/main_test.go
-  s_a4a3eea4720821::t_c12ea779fcce19 30-32
-pkgs/task-board/data.go
-  s_a4a3eea4720821::t_6347075ef3d1be 242
-checks/tq.nix
-  s_a4a3eea4720821::t_8689991555a8a9 25
-  s_a4a3eea4720821::t_ea1221d829a6b2 15,24,34-35
-modules/home/programs/llm/skills/taskwarrior/references/queued-execution.md
-  s_a4a3eea4720821::t_6347075ef3d1be 12,18,32,34,36,47,49,51,57,66,70,72,74-76
-pkgs/tq/submit.go
-  s_a4a3eea4720821::t_6347075ef3d1be 31
-docs/terminal-providers.md
-  s_a4a3eea4720821::t_b2f7bbdcb8b211 3,5,28
 checks/threads-picker.py
-  s_a4a3eea4720821::t_6347075ef3d1be 46
-pkgs/tq/terminal.go
-  s_a4a3eea4720821::t_6347075ef3d1be 318
-pkgs/utils/internal/threads/threads_test.go
-  s_a4a3eea4720821::t_6347075ef3d1be 31,47
-modules/home/programs/llm/skills/ty/SKILL.md
-  s_a4a3eea4720821::t_6347075ef3d1be 80,133
-pkgs/task-board/main.go
-  s_a4a3eea4720821::t_6347075ef3d1be 305
-pkgs/tq/main.go
-  s_a4a3eea4720821::t_6347075ef3d1be 13,15,30,50,97,111
-overlays/tq-picker/provider.nu
-  s_a4a3eea4720821::t_160ff953f8fa3e 77,166
-modules/home/programs/llm/skills/local-workflows/references/execution-and-terminals.md
-  s_a4a3eea4720821::t_6347075ef3d1be 20,38,70-72,83,96,108,110,116-117,126,128
-modules/home/programs/llm/skills/local-workflows/SKILL.md
-  s_a4a3eea4720821::t_6347075ef3d1be 16
-overlays/sysinit-gotools.nix
-  s_a4a3eea4720821::t_66b3922a75284f 93-113
+  s_a4a3eea4720821::t_74c892a5817037 46
+docs/terminal-providers.md
+  s_a4a3eea4720821::t_48835a9d7b2585 3,5,28
 flake.nix
-  s_a4a3eea4720821::t_66b3922a75284f 349,383
-modules/home/programs/pueue/_tq
-  s_a4a3eea4720821::t_1ab800e396ef35 1,8,18
+  s_a4a3eea4720821::t_364dfa5d00a00b 349,383
 modules/home/programs/llm/skills/conductor/SKILL.md
-  s_a4a3eea4720821::t_6347075ef3d1be 50,57
-pkgs/utils/internal/threads/threads.go
-  s_a4a3eea4720821::t_6347075ef3d1be 30,62,277,288
+  s_a4a3eea4720821::t_e940c4411f62a0 50,57
+modules/home/programs/llm/skills/local-workflows/SKILL.md
+  s_a4a3eea4720821::t_56e364cf4174d1 16
+modules/home/programs/llm/skills/local-workflows/references/execution-and-terminals.md
+  s_a4a3eea4720821::t_7e48ce7c3fc9e0 20,38,70-72,83,96,108,110,116-117,126,128
+modules/home/programs/llm/skills/local-workflows/references/pull-requests.md
+  s_a4a3eea4720821::t_26291ac60bbe6d 33,36
+modules/home/programs/llm/skills/taskwarrior/SKILL.md
+  s_a4a3eea4720821::t_7e545896c48d25 3,43-45
+modules/home/programs/llm/skills/taskwarrior/references/queued-execution.md
+  s_a4a3eea4720821::t_2504b72afa9430 12,18,32,34,36,47,49,51,57,66,70,72,74-76
+modules/home/programs/llm/skills/ty/SKILL.md
+  s_a4a3eea4720821::t_0e9f2aceb98c55 80,133
+modules/home/programs/nushell/tasks.nu
+  s_a4a3eea4720821::t_1e96378873eb7f 1-11
 overlays/tq-picker/default.nix
-  s_a4a3eea4720821::t_1ab800e396ef35 12,25-32,82-83
+  s_a4a3eea4720821::t_1cf13209e6ef1e 12,25-32,82-83
+pkgs/task-board/data.go
+  s_a4a3eea4720821::t_29033540fd7d9d 242
+pkgs/task-board/main.go
+  s_a4a3eea4720821::t_9736080e9a3fb3 305
 pkgs/tq/browse.go
-  s_a4a3eea4720821::t_6347075ef3d1be 34
+  s_a4a3eea4720821::t_bd30273d4126b2 34
+pkgs/tq/main.go
+  s_a4a3eea4720821::t_e5642142dda5d0 13,15,30,50,97,111
+pkgs/tq/submit.go
+  s_a4a3eea4720821::t_0c15c241a99fde 31
+pkgs/tq/terminal.go
+  s_a4a3eea4720821::t_db381a6bf1b010 318
+pkgs/tq/wezterm-provider.go
+  s_a4a3eea4720821::t_0fc5da4de2569b 78
+pkgs/utils/internal/threads/threads.go
+  s_a4a3eea4720821::t_1f40ce7a16aedf 30,62,277,288
+pkgs/utils/internal/threads/threads_test.go
+  s_a4a3eea4720821::t_68d34827434b24 31,47
+checks/tq.nix
+  s_a4a3eea4720821::t_c664aaf69e7b3e 15,24-25,34-35
+checks/tq.nu
+  s_a4a3eea4720821::t_249ba74bd7ee08 8-10,15-19,24,27-40
+docs/task-board.md
+  s_a4a3eea4720821::t_b70d890c9d6fba 11-24,64,70,75,77
+modules/home/programs/llm/skills/default.nix
+  s_a4a3eea4720821::t_98fa89e78ff198 15
+modules/home/programs/nushell/default.nix
+  s_a4a3eea4720821::t_b32d33a7649ff8 109,233,258-259
+modules/home/programs/pueue/_tq
+  s_a4a3eea4720821::t_440b3035438c5e 1,8,18
+modules/home/programs/pueue/default.nix
+  s_a4a3eea4720821::t_ae87374f43bd45 13-19,44,59,61-62
+overlays/sysinit-gotools.nix
+  s_a4a3eea4720821::t_e16630ac20ece3 93-113
+overlays/tq-picker/provider.nu
+  s_a4a3eea4720821::t_d74be1bada8905 77,166
+pkgs/tq/main_test.go
+  s_a4a3eea4720821::t_a4d1e411b81b1b 30-32
 ---
 {
   "schema_version": "authorship/3.0.0",
