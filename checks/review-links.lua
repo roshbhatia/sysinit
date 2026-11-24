@@ -1,4 +1,4 @@
-local router, review_uri, root = table.unpack(arg)
+local router, review_uri, root, file_uri = table.unpack(arg)
 local handler, routed, notice, default_path
 local domain = "unix"
 
@@ -10,6 +10,7 @@ package.loaded.wezterm = {
   hostname = function()
     return "host"
   end,
+  log_error = function() end,
   url = {
     parse = function(uri)
       local host, path = uri:match("^file://([^/]*)(/[^#]*)")
@@ -25,6 +26,13 @@ package.loaded.wezterm = {
   run_child_process = function(args)
     if args[1] == "/bin/file" then
       return true, args[#args]:match("%.png$") and "image/png" or "text/plain"
+    end
+    if args[3] == "/profile/bin/agent-review-link" then
+      assert(args[4] == "--resolve")
+      if args[5] == review_uri then
+        return true, root .. "\n", ""
+      end
+      return false, "", "Invalid review link"
     end
     routed = args
     return true, "", ""
@@ -70,7 +78,6 @@ assert(handler(window, pane, review_uri) == false)
 assert(routed == nil and notice:find("remote shell", 1, true))
 domain = "unix"
 
-local file_uri = "file:" .. review_uri:sub(8)
 assert(handler(window, pane, file_uri .. "/file.nu#L10") == false)
 local source = assert(routed)
 assert(source[3] == "/profile/bin/ty")

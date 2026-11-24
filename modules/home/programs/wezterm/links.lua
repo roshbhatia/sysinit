@@ -38,24 +38,28 @@ function M.setup(options)
     for _, arg in ipairs(command) do
       args[#args + 1] = arg
     end
-    local ok, _, err = wezterm.run_child_process(args)
-    if not ok then
-      local message = err and err ~= "" and err or "Command failed"
-      wezterm.log_error(title .. ": " .. message)
-      window:toast_notification(title, message, nil, 4000)
+    local ok, output, err = wezterm.run_child_process(args)
+    if ok then
+      return output
     end
+    local message = err and err ~= "" and err or "Command failed"
+    wezterm.log_error(title .. ": " .. message)
+    window:toast_notification(title, message, nil, 4000)
   end
 
   wezterm.on("open-uri", function(window, pane, uri)
     if uri:match("^review://") then
-      local url = uri:match("^review:///") and parse_file("file:" .. uri:sub(8))
       if not local_domains[pane:get_domain_name()] then
         window:toast_notification("Review diff", "Run agent-diff in the remote shell", nil, 4000)
-      elseif url then
+        return false
+      end
+      local directory =
+        run(window, "Review diff", { options.bin .. "/agent-review-link", "--resolve", uri })
+      if directory then
         run(window, "Review diff", {
           options.bin .. "/agent-diff",
           "--pane-id=" .. pane:pane_id(),
-          "--cwd=" .. url.file_path,
+          "--cwd=" .. directory:gsub("\n$", ""),
         })
       end
       return false
