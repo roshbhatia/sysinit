@@ -1,15 +1,15 @@
-overlays/sysinit-gotools.nix
-  s_a4a3eea4720821::t_86a3d1400a62e7 119-133,135
-modules/home/programs/changes-entry.nu
-  s_a4a3eea4720821::t_86a3d1400a62e7 1-7
-modules/home/programs/llm/skills/inspect-agent-traces/SKILL.md
-  s_a4a3eea4720821::t_86a3d1400a62e7 3,6-8
 docs/review-tools.md
-  s_a4a3eea4720821::t_86a3d1400a62e7 13-14,32-35
+  s_a4a3eea4720821::t_9667e12ab174c2 13-14,32-35
+modules/home/programs/changes-entry.nu
+  s_a4a3eea4720821::t_61476aeb9ebfb8 1-7
 modules/home/programs/llm/skills/default.nix
-  s_a4a3eea4720821::t_86a3d1400a62e7 11-12
+  s_a4a3eea4720821::t_104425e132924d 11-12
+modules/home/programs/llm/skills/inspect-agent-traces/SKILL.md
+  s_a4a3eea4720821::t_2416ac3b6d2c74 3,6-8
 modules/home/programs/llm/skills/review-change-groups/SKILL.md
-  s_a4a3eea4720821::t_86a3d1400a62e7 3,11-12
+  s_a4a3eea4720821::t_20b7f6d601f3db 3,11-12
+overlays/sysinit-gotools.nix
+  s_a4a3eea4720821::t_beaeb221179b35 119-133,135
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -21,7 +21,7 @@ modules/home/programs/llm/skills/review-change-groups/SKILL.md
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.2-sol"
+        "model": "unknown"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
