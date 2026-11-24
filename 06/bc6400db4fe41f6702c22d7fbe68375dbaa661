@@ -1,15 +1,15 @@
-checks/default.nix
-  s_a4a3eea4720821::t_00bf210667ebcb 59-65
 checks/fixtures/runner-kubectl.nu
-  s_a4a3eea4720821::t_784ee7bce3f37a 1-10
+  s_a4a3eea4720821::t_686b32f2280168 1-10
 checks/runner-operator.nu
-  s_a4a3eea4720821::t_89dfce2871ce8f 1-43
+  s_a4a3eea4720821::t_fe17ddb9896d02 1-43
 docs/python-migration.md
-  s_a4a3eea4720821::t_67560ccbb5ca9e 1-19
+  s_a4a3eea4720821::t_d1ccd556e96b39 1-19
 modules/nixos/ere-runners.nix
-  s_796b0b41a96769::t_d0c52887990ad5 85-86
+  s_796b0b41a96769::t_105a75d2d4b654 85-86
 modules/nixos/runner-operator.nu
-  s_a4a3eea4720821::t_42a2a553a3df4a 1-18
+  s_a4a3eea4720821::t_d20a2fde8f1258 1-18
+checks/default.nix
+  s_a4a3eea4720821::t_4be09fe1f5e9f1 59-65
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -29,7 +29,7 @@ modules/nixos/runner-operator.nu
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.2-sol"
+        "model": "gpt-6.1-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
