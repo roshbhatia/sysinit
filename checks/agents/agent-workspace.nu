@@ -23,7 +23,11 @@ def main [script: path, fixture: path, ty: path] {
 
     let state = $root | path join state
 
+    let socket = $root | path join mux.sock
+
     mkdir $bin ($config | path join sysinit) ($config | path join nushell) $project
+
+    touch $socket
 
     $"#!/bin/sh\n($ty_command)\n" | save ($bin | path join ty)
 
@@ -62,6 +66,7 @@ def main [script: path, fixture: path, ty: path] {
             XDG_STATE_HOME: $state
             XDG_CONFIG_HOME: $config
             REVIEW_FIXTURE: $root
+            WEZTERM_UNIX_SOCKET: $socket
             PATH: ($env.PATH | prepend $bin)
         } {
             let invalid_id = random uuid
@@ -99,11 +104,21 @@ def main [script: path, fixture: path, ty: path] {
             let invalid_show = ^$nu.current-exe --no-config-file $script show $invalid_id | complete
             assert ($invalid_show.exit_code != 0)
 
-            open ($root | path join panes.json) | where pane_id != 9 | to json | save --force ($root | path join panes.json)
+            mv $socket ($root | path join previous.sock)
+            touch $socket
+            for action in [resume refresh] {
+                let stale = ^$nu.current-exe --no-config-file $script $action $id | complete
+                assert ($stale.exit_code != 0)
+            }
+            rm ($root | path join paste.txt)
+            let stale = ^$nu.current-exe --no-config-file $script feedback $id --paste | complete
+            assert ($stale.exit_code != 0)
+            assert (not ($root | path join paste.txt | path exists))
             let resumed = ^$nu.current-exe --no-config-file $script resume $id --conversation fixture-conversation --pane-id 7 | from json --strict
             assert equal $resumed.id $id
             assert equal $resumed.argv [fake-agent interactive --resume fixture-conversation --model fixture-model]
             assert equal $resumed.conversation fixture-conversation
+            assert ($resumed.mux_identity != $launched.mux_identity)
         }
     } catch {|failure|
         rm --recursive --force $root

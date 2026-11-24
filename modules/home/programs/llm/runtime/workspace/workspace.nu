@@ -1,4 +1,5 @@
 use ../agents/catalog.nu agent-catalog
+use ../diff/wezterm-mux.nu [wezterm-socket wezterm-mux-identity]
 
 const runtime = path self | path dirname
 const client = $runtime | path join codex.ts
@@ -69,6 +70,28 @@ def --wrapped mux [...args: string] {
 
 def panes [] {
     checked ty panes | from json --strict | get panes
+}
+
+def require-mux [] {
+    let socket = wezterm-socket
+
+    let identity = wezterm-mux-identity $socket
+
+    if $identity == null {
+        error make {
+            msg: 'Cannot identify the WezTerm mux. Run from a WezTerm pane or specify WEZTERM_UNIX_SOCKET.'
+        }
+    }
+
+    {mux: $socket, mux_identity: $identity}
+}
+
+def workspace-pane-live [workspace: record] {
+    let identity = wezterm-mux-identity (wezterm-socket)
+
+    if $identity == null or $identity != $workspace.mux_identity? { return false }
+
+    panes | any {|pane| $pane.pane_id == $workspace.pane_id and $pane.tab_id == $workspace.tab_id }
 }
 
 def directory [path: path] {
@@ -201,6 +224,8 @@ def ensure-client [] {
 }
 
 def spawn-agent [workspace: record, parent] {
+    let connection = require-mux
+
     let target = $parent | default $env.WEZTERM_PANE?
 
     let args = if $target == null {
@@ -226,11 +251,13 @@ def spawn-agent [workspace: record, parent] {
         ]
     }
 
-    let pane_id = mux spawn ...$args --cwd $workspace.cwd -- ...$command | into int
+    let pane = with-env {WEZTERM_UNIX_SOCKET: $connection.mux} {
+        let pane_id = mux spawn ...$args --cwd $workspace.cwd -- ...$command | into int
 
-    let pane = panes | where pane_id == $pane_id | first
+        panes | where pane_id == $pane_id | first
+    }
 
-    let updated = $workspace | merge {pane_id: $pane_id, tab_id: $pane.tab_id}
+    let updated = $workspace | merge $connection | merge {pane_id: $pane.pane_id, tab_id: $pane.tab_id}
 
     save-workspace $updated
 
@@ -399,6 +426,8 @@ def "main attach" [
 ] {
     ensure-client
 
+    let connection = require-mux
+
     let owner = $pane_id | default (
         try {
             $env.WEZTERM_PANE | into int
@@ -407,7 +436,9 @@ def "main attach" [
 
     if $owner == null { error make {msg: 'Select an existing pane with --pane-id.'} }
 
-    let tab = panes | where pane_id == $owner | get 0?
+    let tab = with-env {WEZTERM_UNIX_SOCKET: $connection.mux} {
+        panes | where pane_id == $owner | get 0?
+    }
 
     if $tab == null { error make {msg: 'The selected pane is no longer live.'} }
 
@@ -419,7 +450,7 @@ def "main attach" [
         error make {msg: 'The pane has no local directory. Supply --cwd.'}
     }
 
-    let workspace = workspace-context $session $path $base $directory | merge {
+    let workspace = workspace-context $session $path $base $directory | merge $connection | merge {
         task: $task
         pane_id: $owner
         tab_id: $tab.tab_id
@@ -441,7 +472,13 @@ def "main show" [id: string] {
 }
 
 def with-mux [workspace: record, action: closure] {
-    with-env {WEZTERM_UNIX_SOCKET: $workspace.mux} { do $action }
+    let socket = $workspace.mux?
+
+    if $socket != null and ($socket | path exists) {
+        with-env {WEZTERM_UNIX_SOCKET: $socket} { do $action }
+    } else {
+        do $action
+    }
 }
 
 def "main resume" [
@@ -459,7 +496,7 @@ def "main resume" [
     with-mux $workspace {||
         ensure-client
 
-        if (panes | any {|pane| $pane.pane_id == $workspace.pane_id and $pane.tab_id == $workspace.tab_id }) {
+        if (workspace-pane-live $workspace) {
             if $restart or $conversation != null {
                 error make {msg: 'The existing workspace pane is still live.'}
             }
@@ -520,12 +557,10 @@ def "main refresh" [
     }
 
     with-mux $workspace {||
-        let agent_pane_is_present = panes | any {|pane|
-            $pane.pane_id == $workspace.pane_id and $pane.tab_id == $workspace.tab_id
-        }
-
-        if not $agent_pane_is_present {
-            error make {msg: 'The agent pane is no longer in its recorded tab.'}
+        if not (workspace-pane-live $workspace) {
+            error make {
+                msg: 'The recorded workspace pane is unavailable. Resume or attach the workspace first.'
+            }
         }
 
         let owner = $workspace.pane_id | into string
@@ -731,8 +766,8 @@ def "main feedback" [
 
     if $paste {
         return (with-mux $workspace {||
-            if not (panes | any {|pane| $pane.pane_id == $workspace.pane_id and $pane.tab_id == $workspace.tab_id }) {
-                error make {msg: 'The agent pane is no longer in its recorded tab.'}
+            if not (workspace-pane-live $workspace) {
+                error make {msg: 'The recorded workspace pane is unavailable. Resume or attach the workspace first.'}
             }
             let text = [$instruction ($comments | to json --raw)] | str join ' '
             $text | mux send-text --pane-id ($workspace.pane_id | into string) | ignore
