@@ -1,0 +1,48 @@
+pkgs/tq/main.go
+  s_a4a3eea4720821::t_d618c66fdea6a8 16
+  s_a4a3eea4720821::t_aca68fa5b0cfd4 24,103,230,236-242
+checks/workflows/tq-picker.nix
+  s_a4a3eea4720821::t_469cb410f98a23 18
+docs/terminal-providers.md
+  s_a4a3eea4720821::t_d9cde44d883af7 9-11,18-20
+docs/task-board.md
+  s_a4a3eea4720821::t_d9cde44d883af7 70
+pkgs/tq/submit.go
+  s_a4a3eea4720821::t_d618c66fdea6a8 163-177
+modules/home/programs/llm/skills/taskwarrior/references/queued-execution.md
+  s_a4a3eea4720821::t_01c49767c78337 75-77
+  s_a4a3eea4720821::t_53550b9912e639 72,79-80
+  s_a4a3eea4720821::t_0510061a2757b5 78
+  s_a4a3eea4720821::t_d9cde44d883af7 70-71
+pkgs/tq/main_test.go
+  s_a4a3eea4720821::t_0510061a2757b5 690-691,693-714
+  s_a4a3eea4720821::t_f0d3d1a6b1cf68 537
+  s_a4a3eea4720821::t_d9cde44d883af7 187,197,279-281,292-307,715
+  s_a4a3eea4720821::t_56c3a0a4a1f9dc 692
+  s_a4a3eea4720821::t_c9b67fc4f24a2b 716
+checks/workflows/tq-picker.py
+  s_a4a3eea4720821::t_469cb410f98a23 179
+pkgs/task-board/data.go
+  s_a4a3eea4720821::t_d618c66fdea6a8 243
+pkgs/task-board/main.go
+  s_a4a3eea4720821::t_d618c66fdea6a8 276-285,287
+checks/packages/utility-contracts.nix
+  s_a4a3eea4720821::t_68efaa7f195a61 2,6,8-21,38,50,62
+  s_a4a3eea4720821::t_138dbacbe64572 3-5,7,55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f2c0c3a7a7b4502bbb4bc3f5054afd1fbce7966c",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
