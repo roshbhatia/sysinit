@@ -1,59 +1,53 @@
-checks/mail.el
-  s_b6baf4162ed3c9::t_ef7caaca63dd88 308
-checks/threads-picker.py
-  s_a4a3eea4720821::t_4d4bb8bafc9bb8 20,22
 flake.lock
-  s_a4a3eea4720821::t_2bee841a9b37b0 51-52,55,1615-1616,1619,1638-1639,1642,1950-1951,1954
+  s_a4a3eea4720821::t_0ca05021684983 51-52,55,1615-1616,1619,1638-1639,1642,1950-1951,1954
 modules/darwin/home/default-apps.nix
-  s_7028fc5da01072::t_730ab20bc610dd 10,147,149,151
+  s_7028fc5da01072::t_b0b297db8eef87 10,147,149,151
 modules/darwin/home/hammerspoon/lua/sysinit/pkg/url_routing.lua
-  s_a4a3eea4720821::t_e8e402f6ca6b6b 111-118,121-127,130-138,140-143,146-159
+  s_a4a3eea4720821::t_7b871159a235e3 111-118,121-127,130-138,140-143,146-159
 modules/darwin/home/neovim-file-opener.swift
-  s_7028fc5da01072::t_5b2f86ca74b830 9-21,103-114
+  s_7028fc5da01072::t_4e6e1280a2e65a 9-21,103-114
 modules/darwin/rift.nix
-  s_62c4cb57de6538::t_25b1cca2e1b456 74-75
-modules/home/programs/llm/harnesses/pi/extensions/diff-review.ts
-  s_b6baf4162ed3c9::t_fa009923b01e19 41-42,44-49,117,151
+  s_62c4cb57de6538::t_591472ef98099e 74-75
 modules/home/programs/llm/runtime/agent-prompt.sh
-  s_b6baf4162ed3c9::t_24996dc1c6c101 1
+  s_b6baf4162ed3c9::t_e8dcde4a8baa44 1
 modules/home/programs/llm/runtime/agent-review.sh
-  s_1cfbbc236f4d97::t_0849ba4de50697 112,114-115,117
+  s_1cfbbc236f4d97::t_9197ae78469745 112,114-115,117
 modules/home/programs/llm/runtime/agent-sessions.jq
-  s_b6baf4162ed3c9::t_f80a3bd7d61f94 33
+  s_a4a3eea4720821::t_8b8ec01edd5532 33
 modules/home/programs/llm/runtime/agent-sessions.sh
-  s_b6baf4162ed3c9::t_80db869df009ab 43-47,50-51,54
+  s_a4a3eea4720821::t_8635908eab46e3 43-47,50-51,54
 modules/home/programs/llm/runtime/default.nix
-  s_796b0b41a96769::t_6ab2e35f4255ed 73,92,132
+  s_796b0b41a96769::t_01def6f71433a3 73,92,132
 modules/home/programs/llm/skills/local-workflows/SKILL.md
-  s_a4a3eea4720821::t_93b64f60b8b5ba 124,128,134,137-140,143-146
+  s_a4a3eea4720821::t_111dce5a2a8cbe 124,128,134,137-140,143-146
 modules/home/programs/mail/emacs/sysinit-mail-images.el
-  s_b6baf4162ed3c9::t_69d8f4d7b7874c 19,39,41-43,45
+  s_b6baf4162ed3c9::t_194ff4aea47329 19,39,41-43,45
 modules/home/programs/nushell/functions.nu
-  s_a4a3eea4720821::t_23a3aa08b08909 141,181-187,265-266,276-277,284,288
+  s_a4a3eea4720821::t_8a94a60aca043b 141,181-187,265-266,276-277,284,288
 modules/home/programs/utils/default.nix
-  s_7028fc5da01072::t_b2ac3e23f490d4 53
+  s_7028fc5da01072::t_593cfa16ef71b3 53
 modules/home/programs/utils/dev/connect.nu
-  s_a4a3eea4720821::t_b01a8a4c5dde0b 4
-modules/home/programs/wezterm/default.nix
-  s_a4a3eea4720821::t_f86b58cce830b0 39,41
+  s_a4a3eea4720821::t_aa7e09404b3adc 4
 modules/home/programs/zsh/integrations/ask.zsh
-  s_b6baf4162ed3c9::t_74916825a3bf9b 9-10,12-13
+  s_b6baf4162ed3c9::t_ce067e865c10aa 9-10,12-13
 modules/nixos/home/desktop.nix
-  s_b6baf4162ed3c9::t_8b7b683f4c1378 220
+  s_b6baf4162ed3c9::t_5091a5256b29a1 220
 modules/nixos/home/launcher.nix
-  s_de8d39c3c56992::t_06208cfb82fc63 12,57,64
+  s_de8d39c3c56992::t_c93f26e04b48e0 12,57,64
 modules/nixos/home/launcher/panes.lua
-  s_1cfbbc236f4d97::t_d2a386082ad593 2,4,10,12-14
+  s_1cfbbc236f4d97::t_7cf2f8db321f9a 2,4,10,12-14
 modules/nixos/home/launcher/sessions.lua
-  s_1cfbbc236f4d97::t_51555cd1f83f78 4
-checks/url-routing.lua
-  s_a4a3eea4720821::t_bfa2bcc5b94b6a 120,206,208-211,213,246-247,249-250,256-260,280-284,295-304,309,313,317-320,325,331-334,336
+  s_1cfbbc236f4d97::t_b1b2de1c331a1a 4
 modules/darwin/home/hammerspoon/url-routing.nix
-  s_a4a3eea4720821::t_7fedf08717142a 57,226
+  s_a4a3eea4720821::t_4a8b266e1971ef 57,226
+modules/home/programs/llm/harnesses/pi/extensions/diff-review.ts
+  s_a4a3eea4720821::t_6b401893110259 41-42,44-49,117,151
 modules/home/programs/llm/runtime/diff/default.nix
-  s_a4a3eea4720821::t_e1226d18824b0d 7-8
+  s_a4a3eea4720821::t_7c086dab6f866b 7-8
+modules/home/programs/wezterm/default.nix
+  s_a4a3eea4720821::t_eabda464e78802 39,41
 overlays/sysinit-gotools.nix
-  s_a4a3eea4720821::t_8f24eed31abcfb 201,218
+  s_a4a3eea4720821::t_00e5c72e6414b9 201,218
 ---
 {
   "schema_version": "authorship/3.0.0",
