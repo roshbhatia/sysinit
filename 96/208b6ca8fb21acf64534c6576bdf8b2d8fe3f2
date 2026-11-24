@@ -1,63 +1,59 @@
 AGENTS.md
-  s_796b0b41a96769::t_c3f18826706b6e 56-60
-checks/agent-sessions.nix
-  s_796b0b41a96769::t_6c9f1e2a999d62 2-8,20
-checks/mail.el
-  s_b6baf4162ed3c9::t_107dcf9bec6570 308
-flake.lock
-  s_a4a3eea4720821::t_f2b07870727764 51-52,55,1615-1616,1619,1638-1639,1642,1950-1951,1954
-flake.nix
-  s_a4a3eea4720821::t_36a321f0a25959 481
-modules/darwin/home/default-apps.nix
-  s_7028fc5da01072::t_182631255cf49a 10,147,149,151
-modules/darwin/home/hammerspoon/lua/sysinit/pkg/url_routing.lua
-  s_a4a3eea4720821::t_83f2713663b342 111-118,121-127,130-142,144-146,149-166
-modules/darwin/home/neovim-file-opener.swift
-  s_7028fc5da01072::t_e88ee75b1035ea 9-21,103-114
-modules/home/programs/llm/harnesses/pi/extensions/diff-review.ts
-  s_b6baf4162ed3c9::t_3e8f2fb58116c8 41-56
-modules/home/programs/llm/runtime/agent-prompt.sh
-  s_b6baf4162ed3c9::t_02f1268f056b30 1
-modules/home/programs/llm/runtime/agent-review.sh
-  s_1cfbbc236f4d97::t_d24573587a48ff 117-119
-modules/home/programs/llm/runtime/agent-sessions.sh
-  s_b6baf4162ed3c9::t_845f151b2f904a 64-76,90-92
-modules/home/programs/llm/runtime/default.nix
-  s_796b0b41a96769::t_bf31d5ac4228ce 73,76-77,82-86,89-105,114,155
-modules/home/programs/llm/skills/local-workflows/SKILL.md
-  s_a4a3eea4720821::t_d2cd054b1b53e6 3,77,119-122
-modules/home/programs/llm/skills/taskwarrior/SKILL.md
-  s_a4a3eea4720821::t_461d795790ddc7 80
-modules/home/programs/llm/skills/ty/SKILL.md
-  s_a4a3eea4720821::t_d287241ec962e0 3,6,8-11,28-30,45-48,63-78
-modules/home/programs/mail/emacs/sysinit-mail-images.el
-  s_b6baf4162ed3c9::t_a53c8bcc7627dd 19,39,41-43,45
-modules/home/programs/nushell/functions.nu
-  s_a4a3eea4720821::t_88f90970f0e421 140-142,145,248-249,259-260,267,271-275
-modules/home/programs/wezterm/default.nix
-  s_a4a3eea4720821::t_030f7ef0036db6 61,134
-modules/home/programs/zsh/integrations/ask.zsh
-  s_b6baf4162ed3c9::t_19ba6f63be2062 9-10,12-17
-modules/nixos/home/desktop.nix
-  s_b6baf4162ed3c9::t_5484c8df90f464 220
-modules/nixos/home/launcher.nix
-  s_de8d39c3c56992::t_46e5011ce97911 12,57,64
-modules/nixos/home/launcher/panes.lua
-  s_1cfbbc236f4d97::t_315d186c73f87d 2,4,10,12-14
-modules/nixos/home/launcher/sessions.lua
-  s_1cfbbc236f4d97::t_109d41072e4347 4
+  s_a4a3eea4720821::t_8325ac7a9e97ab 56-60
 checks/default.nix
-  s_a4a3eea4720821::t_9d8310e103bec4 349-357,360-361,365
-checks/url-routing.lua
-  s_a4a3eea4720821::t_75b77bddffdf11 120,206,208-211,213,246-247,249-250,256-260,280-284,295-304,309,313,317-320,325,331-334,336
+  s_a4a3eea4720821::t_1129e04a2cdfcc 349-357,360-361,365
+flake.lock
+  s_a4a3eea4720821::t_3b9f7a9782b2d2 51-52,55,1615-1616,1619,1638-1639,1642,1950-1951,1954
+flake.nix
+  s_a4a3eea4720821::t_614eafa417e8a1 481
+modules/darwin/home/default-apps.nix
+  s_7028fc5da01072::t_c768db540a5631 10,147,149,151
+modules/darwin/home/hammerspoon/lua/sysinit/pkg/url_routing.lua
+  s_a4a3eea4720821::t_2830e2f0fa6be4 111-118,121-127,130-142,144-146,149-166
+modules/darwin/home/neovim-file-opener.swift
+  s_7028fc5da01072::t_069bd4e0f38f0c 9-21,103-114
+modules/home/programs/llm/runtime/agent-prompt.sh
+  s_b6baf4162ed3c9::t_6e2cc0053bd493 1
+modules/home/programs/llm/runtime/agent-review.sh
+  s_1cfbbc236f4d97::t_868bf29278602b 117-119
+modules/home/programs/llm/runtime/agent-sessions.sh
+  s_a4a3eea4720821::t_f9768c8ec24e78 64-76,90-92
+modules/home/programs/llm/runtime/default.nix
+  s_796b0b41a96769::t_c021c3ba82ab1d 73,76-77,82-86,89-105,114,155
+modules/home/programs/llm/skills/local-workflows/SKILL.md
+  s_a4a3eea4720821::t_f9b23a80cb8ff3 3,77,119-122
+modules/home/programs/llm/skills/taskwarrior/SKILL.md
+  s_a4a3eea4720821::t_ca948d246b15c6 80
+modules/home/programs/mail/emacs/sysinit-mail-images.el
+  s_b6baf4162ed3c9::t_69eff616d08351 19,39,41-43,45
+modules/home/programs/nushell/functions.nu
+  s_a4a3eea4720821::t_d399a8781746a4 140-142,145,248-249,259-260,267,271-275
+modules/home/programs/zsh/integrations/ask.zsh
+  s_b6baf4162ed3c9::t_2d017be1413681 9-10,12-17
+modules/nixos/home/desktop.nix
+  s_b6baf4162ed3c9::t_b341ab42e9930f 220
+modules/nixos/home/launcher.nix
+  s_de8d39c3c56992::t_01c053e928a4e5 12,57,64
+modules/nixos/home/launcher/panes.lua
+  s_1cfbbc236f4d97::t_98c335c4830c19 2,4,10,12-14
+modules/nixos/home/launcher/sessions.lua
+  s_1cfbbc236f4d97::t_01c1b6094f7fcf 4
 modules/darwin/home/hammerspoon/url-routing.nix
-  s_a4a3eea4720821::t_e45ebfbc68ee07 57,226
+  s_a4a3eea4720821::t_12d7417a1579a5 57,226
+modules/home/programs/llm/harnesses/pi/extensions/diff-review.ts
+  s_a4a3eea4720821::t_f0f756dd6b31b1 41-56
 modules/home/programs/llm/runtime/diff/default.nix
-  s_a4a3eea4720821::t_ef27cffbea56d2 7-8
+  s_a4a3eea4720821::t_86e9b35cdc57d8 7-8
+modules/home/programs/llm/skills/ty/SKILL.md
+  s_a4a3eea4720821::t_5f766c1e27d2b5 3,6,8-11,28-30,45-48,63-78
 modules/home/programs/pueue/default.nix
-  s_a4a3eea4720821::t_b48d0a5b712393 15
+  s_a4a3eea4720821::t_3e0aeae47fb5dd 15
+modules/home/programs/wezterm/default.nix
+  s_a4a3eea4720821::t_0935f02c941a16 61,134
+modules/home/tools.toml
+  s_a4a3eea4720821::t_3cfa0954dc9b9b 149
 overlays/sysinit-gotools.nix
-  s_a4a3eea4720821::t_983005c93c41bd 18,202-203,221-222
+  s_a4a3eea4720821::t_48a2d6d8bb798d 18,202-203,221-222
 ---
 {
   "schema_version": "authorship/3.0.0",
