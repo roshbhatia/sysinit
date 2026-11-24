@@ -1,11 +1,11 @@
 checks/wezterm-shell.nix
-  s_4541d03bc240df::t_8cae433f9f00af 1-22
-modules/home/programs/wezterm/default.nix
-  s_a4a3eea4720821::t_0d11e4dc8344dd 71
-checks/default.nix
-  s_a4a3eea4720821::t_01000565cb6883 349-351
+  s_4541d03bc240df::t_07e40c8b1baba1 1-22
 docs/repository-reference.md
-  s_a4a3eea4720821::t_c78ebf6d3c185c 241-245
+  s_a4a3eea4720821::t_825f59cae5037b 241-245
+checks/default.nix
+  s_a4a3eea4720821::t_549de10cef8e37 349-351
+modules/home/programs/wezterm/default.nix
+  s_a4a3eea4720821::t_c161a99f2cf244 71
 ---
 {
   "schema_version": "authorship/3.0.0",
