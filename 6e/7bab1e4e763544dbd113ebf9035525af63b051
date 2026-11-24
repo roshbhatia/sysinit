@@ -1,14 +1,7 @@
-modules/darwin/home/rex/appearance.lua
-  s_a4a3eea4720821::t_e5ae51004a2b85 2,4-6,8-10,25,28
 modules/home/programs/wezterm/default.nix
-  s_a4a3eea4720821::t_e5ae51004a2b85 87
-modules/darwin/home/rex/default.nix
-  s_a4a3eea4720821::t_e5ae51004a2b85 25-34,46
-docs/terminal-capability-audit.md
-  s_a4a3eea4720821::t_e5ae51004a2b85 16
-  s_a4a3eea4720821::t_af4d2304a2c714 30-45
+  s_a4a3eea4720821::t_83327d22e0e0d3 87
 modules/shared/terminal-shell.nix
-  s_a4a3eea4720821::t_e5ae51004a2b85 1-9
+  s_a4a3eea4720821::t_686af50c1c888f 1-9
 ---
 {
   "schema_version": "authorship/3.0.0",
