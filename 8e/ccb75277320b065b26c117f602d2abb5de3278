@@ -1,5 +1,5 @@
 modules/home/programs/llm/skills/ty/SKILL.md
-  s_a4a3eea4720821::t_9a46e87028bd67 72
+  s_a4a3eea4720821::t_47c05ffac51186 72
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -11,7 +11,7 @@ modules/home/programs/llm/skills/ty/SKILL.md
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.2-sol"
+        "model": "unknown"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
