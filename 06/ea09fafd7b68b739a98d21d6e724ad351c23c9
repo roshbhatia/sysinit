@@ -1,233 +1,233 @@
 checks/README.md
-  s_a4a3eea4720821::t_ea386fcd36f0c2 1-31
+  s_a4a3eea4720821::t_ab1d461e4ae11e 1-31
 checks/agent-sessions.nu
-  s_a4a3eea4720821::t_e8c124d3b0da0a 14,16,28,31,34,38,41,43,50,57,105,108,111
+  s_a4a3eea4720821::t_125490271d513b 14,16,28,31,34,38,41,43,50,57,105,108,111
 checks/app-copy-state.nu
-  s_a4a3eea4720821::t_e20ddec3eacbc4 5,7,9,11,13,15,17,19,33,44,50,52,58,60,62,64,70,72,74,76,80,82,84,86,88,90,94,96,98,102,104,106,110,112,114,118,120,122,126,128,130,132,137,139,141,143,145,147,149,151,153,158,160,162,164,168,170,172,174,179,183,185,187,189,194,198,200,205,209,214,218,220,222,227,229
+  s_a4a3eea4720821::t_1241d648d3537e 5,7,9,11,13,15,17,19,33,44,50,52,58,60,62,64,70,72,74,76,80,82,84,86,88,90,94,96,98,102,104,106,110,112,114,118,120,122,126,128,130,132,137,139,141,143,145,147,149,151,153,158,160,162,164,168,170,172,174,179,183,185,187,189,194,198,200,205,209,214,218,220,222,227,229
 checks/ast-grep.nix
-  s_62c4cb57de6538::t_78e4ff462ff337 11-19
+  s_62c4cb57de6538::t_fdb55e02dff23e 11-19
 checks/ast-grep.nu
-  s_a4a3eea4720821::t_5da56fa583ba65 1-26
+  s_a4a3eea4720821::t_c43dbd2a0e5b18 1-26
 checks/atuin-bindings.nu
-  s_a4a3eea4720821::t_cf25f51350f861 1-14
+  s_a4a3eea4720821::t_edef192315da78 1-14
 checks/atuin.nix
-  s_a4a3eea4720821::t_c0cc4d1fa316ed 42-79
+  s_a4a3eea4720821::t_f1889e35491498 42-79
 checks/changes-integration.nix
-  s_a4a3eea4720821::t_1ccb9b8fd31baf 2-17
+  s_a4a3eea4720821::t_7edd85538417e9 2-17
 checks/changes-integration.nu
-  s_a4a3eea4720821::t_6ca4e2f4615ec5 1-95
+  s_a4a3eea4720821::t_6374ba7842efc6 1-95
 checks/cloud-files.nix
-  s_62c4cb57de6538::t_241bccb98f62c6 5-15
+  s_62c4cb57de6538::t_dade45d3b7aeb4 5-15
 checks/cloud-files.nu
-  s_a4a3eea4720821::t_48d58420fb610b 1-27
+  s_a4a3eea4720821::t_8012770af49b37 1-27
 checks/codex-config.nix
-  s_a4a3eea4720821::t_b6b679e738ec9e 41,50-60
+  s_a4a3eea4720821::t_92f0e3e8ba255e 41,50-60
 checks/codex-config.nu
-  s_a4a3eea4720821::t_28a40a7fb99923 1-119
+  s_a4a3eea4720821::t_86223626ece052 1-119
 checks/codex-plugin-hooks.nu
-  s_a4a3eea4720821::t_32565e69eabb6c 5,8,10,12,37,39,41,43,45,47,55,57,59,61,63,65,67,69,71,73,75,77,79,81,85,88,90
+  s_a4a3eea4720821::t_be28e8a1d19371 5,8,10,12,37,39,41,43,45,47,55,57,59,61,63,65,67,69,71,73,75,77,79,81,85,88,90
 checks/command-contracts.nu
-  s_a4a3eea4720821::t_fa7eb14b58fac6 1-50
+  s_a4a3eea4720821::t_3357e2e4eb4ef0 1-50
 checks/completion-cache.nu
-  s_a4a3eea4720821::t_6d6569b0e5165d 5,9,11,14,16,18,20,27,38,41,43
-checks/default.nix
-  s_a4a3eea4720821::t_4c4063226f2997 11-12,61-92,95,102-111,115-123,126-145,186-235,239-253,258-317,518-536,543-550,553-563
+  s_a4a3eea4720821::t_fa1ed4ffa8e806 5,9,11,14,16,18,20,27,38,41,43
 checks/diff-pane.nu
-  s_a4a3eea4720821::t_1d11aa61f797f3 5,7,9,11,13,23,25,28,53,61,64,66,69,71
+  s_a4a3eea4720821::t_60e93ec39b12f7 5,7,9,11,13,23,25,28,53,61,64,66,69,71
 checks/editor-composition.nix
-  s_a4a3eea4720821::t_fe892baeb8c92f 20-39
+  s_a4a3eea4720821::t_cec9cd5df58032 20-39
 checks/editor-composition.nu
-  s_62c4cb57de6538::t_e39c84e0849aba 1-22
-checks/editor-config.nix
-  s_a4a3eea4720821::t_9bb2f64bd870b0 7-83
+  s_62c4cb57de6538::t_720ea65b06151a 1-22
 checks/editor-config.nu
-  s_a4a3eea4720821::t_fd50c25ec42f68 1-40
+  s_a4a3eea4720821::t_515406f6a2dae1 1-40
 checks/egm-plugins-runner.nu
-  s_a4a3eea4720821::t_30b61fb01419cc 1-21
+  s_a4a3eea4720821::t_311c396b28cedb 1-21
 checks/egm-plugins.nix
-  s_a4a3eea4720821::t_fa7887967dea86 2-13
+  s_a4a3eea4720821::t_04fdece34b566e 2-13
 checks/egm-plugins.nu
-  s_a4a3eea4720821::t_57c272d142bc64 5,7,9,11,13,23,31,36,38,40,42,45,48
+  s_a4a3eea4720821::t_ac4fd637ad8a8f 5,7,9,11,13,23,31,36,38,40,42,45,48
 checks/firefox.nu
-  s_a4a3eea4720821::t_354116640a0f0e 7,9,11,14,18,21,23,30,32,38,44,46,49,54,57,60,62,64,71
+  s_a4a3eea4720821::t_c8ea36e8a6b9b0 7,9,11,14,18,21,23,30,32,38,44,46,49,54,57,60,62,64,71
 checks/fixtures/agent-sessions-command.nu
-  s_a4a3eea4720821::t_bb814c157ae0e8 6,8,10,13,15
+  s_a4a3eea4720821::t_092ae7b4d96dc9 6,8,10,13,15
 checks/fixtures/app-copy-command.nu
-  s_a4a3eea4720821::t_14181096aa58c7 3,5,8,11
+  s_a4a3eea4720821::t_648b21be4f50b5 3,5,8,11
 checks/fixtures/defaults-command.nu
-  s_a4a3eea4720821::t_53a402ed24456c 3,5,8,11,13,15,18,22,27,31,33,36,39,41,44,47,50,52,54,56,66,68
+  s_a4a3eea4720821::t_a3f0d12e1686ed 3,5,8,11,13,15,18,22,27,31,33,36,39,41,44,47,50,52,54,56,66,68
 checks/fixtures/homebrew-command.nu
-  s_a4a3eea4720821::t_8fb03eb8db3f29 5,8,15,20,22,27,29,31,33,35,40,54,56
+  s_a4a3eea4720821::t_c78e2d16a0b8ee 5,8,15,20,22,27,29,31,33,35,40,54,56
 checks/fixtures/nh-command.nu
-  s_a4a3eea4720821::t_ee04935300c846 6,9,11,14,23,25,27,31,33,36-38
+  s_a4a3eea4720821::t_4085e566a34d51 6,9,11,14,23,25,27,31,33,36-38
 checks/fixtures/notifier-command.nu
-  s_a4a3eea4720821::t_933a4f86385017 4,7,9,12,14,16,19
+  s_a4a3eea4720821::t_5998dbd1066bc7 4,7,9,12,14,16,19
 checks/fixtures/nushell-extern-command.nu
-  s_a4a3eea4720821::t_2fce9b29f41fde 3,6,9,16-18
+  s_a4a3eea4720821::t_6de081d4ea88f5 3,6,9,16-18
 checks/fixtures/onepassword-command.nu
-  s_a4a3eea4720821::t_953f41599e6a0f 4,7,9,22,25,29-31
+  s_a4a3eea4720821::t_987e89d9bd3218 4,7,9,22,25,29-31
 checks/fixtures/output-rewrite-tools.nu
-  s_a4a3eea4720821::t_d3921769e89b42 3,6-9,28,32
+  s_a4a3eea4720821::t_8d169da69f884a 3,6-9,28,32
 checks/fixtures/racing-nix-env.nu
-  s_a4a3eea4720821::t_01e3e8179776da 1-19
-checks/fixtures/review-tools.nu
-  s_a4a3eea4720821::t_125623229eb61d 3,5,9-12,14,29,31,39,54,63,65,73,81,89,91,93,103
+  s_a4a3eea4720821::t_716bf6bd83d7b4 1-19
 checks/fixtures/runner-kubectl.nu
-  s_a4a3eea4720821::t_ccf74cfe878c25 4,6,9,11,13
+  s_a4a3eea4720821::t_d59fe6bd239f9f 4,6,9,11,13
 checks/fixtures/sketchybar-command.nu
-  s_a4a3eea4720821::t_2f8fa9ca8e1866 3,5,9,12,15,17,32
+  s_a4a3eea4720821::t_d3fcb82ce40b53 3,5,9,12,15,17,32
 checks/fixtures/utility-command.nu
-  s_a4a3eea4720821::t_cab35e650f57f3 6,9,14,21,23,28
+  s_a4a3eea4720821::t_ff35e1e0f64838 6,9,14,21,23,28
 checks/fixtures/wait-for-file.nu
-  s_a4a3eea4720821::t_661ede1502fd87 3,6
+  s_a4a3eea4720821::t_ed880fb3ef0043 3,6
 checks/gate-config.nix
-  s_a4a3eea4720821::t_cfba20397b955f 41-59
+  s_a4a3eea4720821::t_500dc19003dbfb 41-59
 checks/gate-config.nu
-  s_a4a3eea4720821::t_676fdd6ffb4f40 1-176
+  s_a4a3eea4720821::t_a52d2d97c87063 1-176
 checks/generated-format.nix
-  s_62c4cb57de6538::t_ed8ed23f8635ff 18-29
+  s_62c4cb57de6538::t_173bc6cac015fd 18-29
 checks/generated-format.nu
-  s_a4a3eea4720821::t_1fa6ed0fd802ca 1-10
+  s_a4a3eea4720821::t_1a9ed52d323f42 1-10
 checks/git-ai-integration.nu
-  s_a4a3eea4720821::t_515d0498a72f38 5,7,13,19,25,45,47,59,61,64,66,68,220,222,225,227,229
+  s_a4a3eea4720821::t_09aa8bc46cc609 5,7,13,19,25,45,47,59,61,64,66,68,220,222,225,227,229
 checks/git-ai-maintenance.nu
-  s_a4a3eea4720821::t_dfe65ff291dc35 5,11,13,19,22,29,32,34,46,59,61,63,65,67,69,71,73,75,77,79,100,105,108,110,112,114,116,118,120,126,128,130,132,134,140,142,144,146,148,150,152,155,160,162,164,166,168,170,172,174,176,178,181,186,190,193,195,197,200,202,204,206,208,210,212,214,221,223,225,229,232,234
+  s_a4a3eea4720821::t_b48c6236b529c6 5,11,13,19,22,29,32,34,46,59,61,63,65,67,69,71,73,75,77,79,100,105,108,110,112,114,116,118,120,126,128,130,132,134,140,142,144,146,148,150,152,155,160,162,164,166,168,170,172,174,176,178,181,186,190,193,195,197,200,202,204,206,208,210,212,214,221,223,225,229,232,234
 checks/github-runner-guard.nix
-  s_62c4cb57de6538::t_2ab3697d0512cf 2-7
+  s_62c4cb57de6538::t_4faab096e4f425 2-7
 checks/github-runner-guard.nu
-  s_62c4cb57de6538::t_6a86ce7714ccca 1-32
+  s_62c4cb57de6538::t_709788642cc0a4 1-32
 checks/hammerspoon.lua
-  s_a4a3eea4720821::t_b8560c74b349a4 179-182,185-188
+  s_a4a3eea4720821::t_3daec7b515f760 179-182,185-188
 checks/harness-instructions.nu
-  s_a4a3eea4720821::t_b6440acc994d9b 5,8-11,14,16,18,21,24
+  s_a4a3eea4720821::t_77ed981decb1a3 5,8-11,14,16,18,21,24
 checks/harness-settings-setup.nu
-  s_a4a3eea4720821::t_4bff6ca507615a 1-34
+  s_a4a3eea4720821::t_a07d8f4a68015e 1-34
 checks/harness-settings.nix
-  s_a4a3eea4720821::t_7283321ee47e41 37-51
+  s_a4a3eea4720821::t_0b7f6df153203e 37-51
 checks/harness-settings.nu
-  s_a4a3eea4720821::t_13e2660aa0e2c4 5,7,9,11,13,15,27,31,33,36
+  s_a4a3eea4720821::t_ad8490c9b760d9 5,7,9,11,13,15,27,31,33,36
 checks/homebrew-reconcile.nu
-  s_a4a3eea4720821::t_7e6872de8cd123 10,14,18,21,55,58,61
+  s_a4a3eea4720821::t_91c24d48146cea 10,14,18,21,55,58,61
 checks/host-state.nu
-  s_a4a3eea4720821::t_794a01dce4b86e 5,40,43,45
+  s_a4a3eea4720821::t_0ba0f12227c0fb 5,40,43,45
 checks/incremental-defaults.nu
-  s_a4a3eea4720821::t_c2df20ebfed28d 9,11,13,17,19,21,23,28,30,32,34,37,40,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,94,101,103,105,112,114,116,119,121,123,125,127,130,132,134,136,138,141,143,155,157,159,161,163,165,167,169,171,178,180,182,184,186,188,190,193
+  s_a4a3eea4720821::t_1a0e8141b3344b 9,11,13,17,19,21,23,28,30,32,34,37,40,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,94,101,103,105,112,114,116,119,121,123,125,127,130,132,134,136,138,141,143,155,157,159,161,163,165,167,169,171,178,180,182,184,186,188,190,193
 checks/lib.nix
-  s_a4a3eea4720821::t_cdfc20ce369cfb 1-29
+  s_a4a3eea4720821::t_d59aacff681693 1-29
 checks/lib/carapace.nu
-  s_a4a3eea4720821::t_006befebbd4779 1-25
+  s_a4a3eea4720821::t_980532885cb12c 1-25
 checks/lib/process.nu
-  s_a4a3eea4720821::t_d2fb9ac3f4d0f2 1-23
+  s_a4a3eea4720821::t_3ad3700190807f 1-23
 checks/llm-composition.nix
-  s_a4a3eea4720821::t_b9270e3e1da851 91-102
+  s_a4a3eea4720821::t_ae289c8cbe6f13 91-102
 checks/llm-composition.nu
-  s_a4a3eea4720821::t_d697ab0b51633e 1-32
+  s_a4a3eea4720821::t_2b206644f081d7 1-32
 checks/log-retention.nu
-  s_62c4cb57de6538::t_62838a555d5dd6 1-47
+  s_62c4cb57de6538::t_26d6901363b36b 1-47
 checks/macos-notifier.nu
-  s_a4a3eea4720821::t_9b0108f8ec838a 5,7,16,19,21,29,32,34,38,40,60,63,65
+  s_a4a3eea4720821::t_b5c2d7230ab641 5,7,16,19,21,29,32,34,38,40,60,63,65
 checks/mail.nix
-  s_a4a3eea4720821::t_091458e9155be3 7-29
+  s_a4a3eea4720821::t_e80e46f9f34a5d 7-29
 checks/managed-file-cache.nu
-  s_a4a3eea4720821::t_53e7632a1f98a7 5,8,10,12,16,18,20,22,24,26,28,30,32,34,36,38,40,45,47,49,51,53,55,57,59,61,63,65,67,69,71,73,77,81,83,87,89,91,93,96,98,101,103,105,107,109,111,113-116,118,120
+  s_a4a3eea4720821::t_7f2042d0705e15 5,8,10,12,16,18,20,22,24,26,28,30,32,34,36,38,40,45,47,49,51,53,55,57,59,61,63,65,67,69,71,73,77,81,83,87,89,91,93,96,98,101,103,105,107,109,111,113-116,118,120
 checks/managed-tool-files.nu
-  s_a4a3eea4720821::t_1e0ce5b04eb59b 1-5
+  s_a4a3eea4720821::t_7edfde3797ac76 1-5
 checks/native-output.nix
-  s_a4a3eea4720821::t_2fa20d30266479 2-35
+  s_a4a3eea4720821::t_de926add146d09 2-35
 checks/native-probes.nu
-  s_a4a3eea4720821::t_1b7fe7e6351d98 1-39
+  s_a4a3eea4720821::t_1f3a4fa462d37f 1-39
 checks/native.nix
-  s_62c4cb57de6538::t_7b9566ac2f7ec4 1-17
+  s_62c4cb57de6538::t_f608f0bc2286a7 1-17
 checks/nh.nu
-  s_a4a3eea4720821::t_2719bf7e152170 5,8,10,12,14,32,35,37,39,68,70,73,75
+  s_a4a3eea4720821::t_ecb13ea06f393a 5,8,10,12,14,32,35,37,39,68,70,73,75
 checks/nixos-launcher.nix
-  s_62c4cb57de6538::t_c80b0b237f61f4 12-25
+  s_62c4cb57de6538::t_887c845e1de7b2 12-25
 checks/notification-assets.nu
-  s_a4a3eea4720821::t_c667262c2fab2e 5,8,10,12,14,16,25,27,30,32,34,36,38,40,42,44,46,48,50,52,54,56,60,62,64,66,68,72,75,77
+  s_a4a3eea4720821::t_2ea011844eedea 5,8,10,12,14,16,25,27,30,32,34,36,38,40,42,44,46,48,50,52,54,56,60,62,64,66,68,72,75,77
 checks/nushell-completions-runner.nu
-  s_a4a3eea4720821::t_fdee87c24d4f1f 1-17
+  s_a4a3eea4720821::t_e129bbe6dca838 1-17
 checks/nushell-completions.nix
-  s_a4a3eea4720821::t_b37cfa6fd983ea 73-84
+  s_a4a3eea4720821::t_4cb58fa3bf9bc0 73-84
 checks/nushell-externs.nix
-  s_62c4cb57de6538::t_02f347e29beb1d 5-14
+  s_62c4cb57de6538::t_c246a053bf0da4 5-14
 checks/nushell-externs.nu
-  s_a4a3eea4720821::t_a1340d6716a3f9 9,11,13,23,25,31,33,35,37,39,41,43,49,52,54,56,65,69,72,74,186,188,191,193,195
+  s_a4a3eea4720821::t_9b63d132622e7e 9,11,13,23,25,31,33,35,37,39,41,43,49,52,54,56,65,69,72,74,186,188,191,193,195
 checks/nushell-managed-tools.nix
-  s_a4a3eea4720821::t_ae0e403a8ac890 27-80
+  s_a4a3eea4720821::t_249c340f6f54dd 27-80
 checks/nushell-utilities.nu
-  s_a4a3eea4720821::t_9e49268449488d 10,20,24,28,32,41,50,57,59,61,85,87,94,96,98,100,107,109,111,115,117,119,123,125,127,129,131,142,144,148,150,152
+  s_a4a3eea4720821::t_8e4cf3f292e16b 10,20,24,28,32,41,50,57,59,61,85,87,94,96,98,100,107,109,111,115,117,119,123,125,127,129,131,142,144,148,150,152
 checks/onepassword.nu
-  s_a4a3eea4720821::t_1f2d88baf3077b 9,13,17,20,22,24,62,65,67
+  s_a4a3eea4720821::t_daa83b16dccff8 9,13,17,20,22,24,62,65,67
 checks/opencode-schema.nu
-  s_a4a3eea4720821::t_ce25a6018ff358 9,11,13,15,17,19,22
+  s_a4a3eea4720821::t_358729ce965b2b 9,11,13,15,17,19,22
 checks/opencode.nix
-  s_92fd0f3961f64c::t_5154529b5102ef 18-31,33-44
+  s_92fd0f3961f64c::t_b6aadad79d0987 18-31,33-44
 checks/opencode.nu
-  s_a4a3eea4720821::t_e82e6253d06f34 1-38
+  s_a4a3eea4720821::t_45ef1e3ed1820e 1-38
 checks/output-rewrite.nu
-  s_a4a3eea4720821::t_4461946f66f93a 5,16,18,21,27,29,40,42,50,52,54,58,63,69,72,77,79,83,86,88
+  s_a4a3eea4720821::t_b266c588ca667f 5,16,18,21,27,29,40,42,50,52,54,58,63,69,72,77,79,83,86,88
 checks/pi-extensions.nix
-  s_a4a3eea4720821::t_cb3f659f07ddb7 2-16
-checks/runner-operator.nu
-  s_a4a3eea4720821::t_be025b96e4fad9 5,8,10,12,14,16,18,33,35,57,60,62
-checks/shell-completions.nix
-  s_a4a3eea4720821::t_4d66740e4e74e5 7-69
-checks/shell-completions.nu
-  s_a4a3eea4720821::t_e94fb8dbc2a9c4 1-7
-checks/sketchybar-health.nu
-  s_a4a3eea4720821::t_e909f1d6605138 15,17,23,25,27,29,31,33,35,37,43,45,47,49,51,53,56,58,60,62,64,66,113,116,118
-checks/skill-catalog.nix
-  s_a4a3eea4720821::t_ac1d30a1ea1eeb 43-66
-checks/skill-catalog.nu
-  s_a4a3eea4720821::t_1b24a4f1ac8240 5,9,11,13,15,17,19,21,24,29,32,37
-checks/skill-helpers.nu
-  s_a4a3eea4720821::t_90a2a2d7724a06 5,8,13,19,21,24,26,28,30,32,34,36,38,40,42,44,46,48,50,55,57,61,64,66
-checks/slack-guard.nix
-  s_62c4cb57de6538::t_747e1a14974454 7-18,22-23
-checks/slack-guard.nu
-  s_a4a3eea4720821::t_a2c582287c8a2d 1-25
-checks/slk.nu
-  s_a4a3eea4720821::t_66effa6c67f6b1 1-58
-checks/sunshine-apps.nu
-  s_a4a3eea4720821::t_5369450c1467c2 5,7,13,16,18,20,65,68,70
-checks/system-generation-prune.nix
-  s_a4a3eea4720821::t_dc8e2b31ea4974 3,5,8-23
-checks/system-generation-prune.nu
-  s_a4a3eea4720821::t_e33c5f37cf9525 1-128
-checks/task-commands.nix
-  s_62c4cb57de6538::t_502fdc7dadf764 2-14
-checks/task-commands.nu
-  s_62c4cb57de6538::t_9968b53845afeb 1-41
-checks/ty.nu
-  s_a4a3eea4720821::t_3edebe98ae281d 4,6,9,11,13,16,18,20,27,38,42,46,50,56,58,72,74,85,87,99,105,107,113,115,124,126,130,132,141,152,160,170,174,176,187,202,209,211,215,217
-checks/url-routing.lua
-  s_a4a3eea4720821::t_23e736d76a8ba7 247-251,258-261
-checks/utility-contracts.nix
-  s_a4a3eea4720821::t_16a1a993e8a8b4 2-43
-checks/utility-contracts.nu
-  s_a4a3eea4720821::t_78b38f9faca84f 9,22,26,29,31,117,120,122
-checks/zsh-agent-shell.nu
-  s_a4a3eea4720821::t_f7647f617ddd26 10,16,55,87,90,92
-flake/formatter.nix
-  s_92fd0f3961f64c::t_248ff2ebab8fec 23,25-27
-hack/check-script-blocks.nu
-  s_a4a3eea4720821::t_5766a16c766958 1-2,4-27,29-37
-hack/check-script-blocks.sh
-  s_a4a3eea4720821::t_a0ce62165c3408 2-3
-hack/format.nu
-  s_a4a3eea4720821::t_f4bedb8d389399 1-35
-hack/format.sh
-  s_a4a3eea4720821::t_36ad14797f680f 3
-hack/lint.nu
-  s_a4a3eea4720821::t_617c84cbb3ac23 1-278
-hack/lint.sh
-  s_a4a3eea4720821::t_3fca22c1a8f563 3
-nufmt.nuon
-  s_62c4cb57de6538::t_ad67197df613af 1-6
-stylua.toml
-  s_62c4cb57de6538::t_edef0246831d37 3
+  s_a4a3eea4720821::t_b2808b63d00c65 2-16
 checks/pr-workflow.nu
-  s_a4a3eea4720821::t_a7c46ccc844b29 5,7,13,15,39,41,43,45,47,49,51,54,56,59,61,63,65,67,69,71,73,75,77,79,81,83,87,111,114,116,118,125,128,130,132,134,136,139,142,145,149,151,154,156,158,160,162,164,166,168,172,174,176,178,180,182,191,200,202,204,206,209,211-213,215,219,225,232,235,237,239,241,243,247,249,251,255,257,261,263,269,271,286,288,291,293,295,297,299,301,312,314,316,318,320,322,324,342,344,347,367,370,372
+  s_a4a3eea4720821::t_22838a92b88fb8 5,7,13,15,39,41,43,45,47,49,51,54,56,59,61,63,65,67,69,71,73,75,77,79,81,83,87,111,114,116,118,125,128,130,132,134,136,139,142,145,149,151,154,156,158,160,162,164,166,168,172,174,176,178,180,182,191,200,202,204,206,209,211-213,215,219,225,232,235,237,239,241,243,247,249,251,255,257,261,263,269,271,286,288,291,293,295,297,299,301,312,314,316,318,320,322,324,342,344,347,367,370,372
+checks/runner-operator.nu
+  s_a4a3eea4720821::t_e712f3e2503864 5,8,10,12,14,16,18,33,35,57,60,62
+checks/shell-completions.nix
+  s_a4a3eea4720821::t_7749e3b305a335 7-69
+checks/shell-completions.nu
+  s_a4a3eea4720821::t_4f14db6fa05e26 1-7
+checks/sketchybar-health.nu
+  s_a4a3eea4720821::t_e68ea82c6e7c6c 15,17,23,25,27,29,31,33,35,37,43,45,47,49,51,53,56,58,60,62,64,66,113,116,118
+checks/skill-catalog.nu
+  s_a4a3eea4720821::t_949d1664c45bc7 5,9,11,13,15,17,19,21,24,29,32,37
+checks/slack-guard.nix
+  s_62c4cb57de6538::t_ae61d2bc3e4de9 7-18,22-23
+checks/slack-guard.nu
+  s_a4a3eea4720821::t_fa59fa241c5d3b 1-25
+checks/slk.nu
+  s_a4a3eea4720821::t_1c90958ba0ba4f 1-58
+checks/sunshine-apps.nu
+  s_a4a3eea4720821::t_4347da4378a84c 5,7,13,16,18,20,65,68,70
+checks/system-generation-prune.nix
+  s_a4a3eea4720821::t_a3863d54a802df 3,5,8-23
+checks/system-generation-prune.nu
+  s_a4a3eea4720821::t_57a0a701f671ad 1-128
+checks/task-commands.nix
+  s_62c4cb57de6538::t_36e4753bc9cd23 2-14
+checks/task-commands.nu
+  s_62c4cb57de6538::t_a2805184fd4f5a 1-41
+checks/ty.nu
+  s_a4a3eea4720821::t_6f54cb9905fbb2 4,6,9,11,13,16,18,20,27,38,42,46,50,56,58,72,74,85,87,99,105,107,113,115,124,126,130,132,141,152,160,170,174,176,187,202,209,211,215,217
+checks/utility-contracts.nix
+  s_a4a3eea4720821::t_8ec14a2b39632a 2-43
+checks/utility-contracts.nu
+  s_a4a3eea4720821::t_d3e69fea07fb70 9,22,26,29,31,117,120,122
+checks/zsh-agent-shell.nu
+  s_a4a3eea4720821::t_a0abf8d656d5ac 10,16,55,87,90,92
+flake/formatter.nix
+  s_92fd0f3961f64c::t_c8952d54219316 23,25-27
+hack/check-script-blocks.nu
+  s_a4a3eea4720821::t_e4c5838fa13f01 1-2,4-27,29-37
+hack/check-script-blocks.sh
+  s_a4a3eea4720821::t_cd9c853dd2ec4b 2-3
+hack/format.nu
+  s_a4a3eea4720821::t_8bcd4ee041d4bc 1-35
+hack/format.sh
+  s_a4a3eea4720821::t_68aae01407f83c 3
+hack/lint.nu
+  s_a4a3eea4720821::t_6a2155329c200c 1-278
+hack/lint.sh
+  s_a4a3eea4720821::t_cbd0e1effcee87 3
+nufmt.nuon
+  s_62c4cb57de6538::t_e3cd8eda838335 1-6
+stylua.toml
+  s_62c4cb57de6538::t_ed3d2d63bac273 3
+checks/default.nix
+  s_a4a3eea4720821::t_b4aa42bbb5533c 11-12,61-92,95,102-111,115-123,126-145,186-235,239-253,258-317,518-536,543-550,553-563
+checks/editor-config.nix
+  s_a4a3eea4720821::t_ff81c4bc147399 7-83
+checks/fixtures/review-tools.nu
+  s_a4a3eea4720821::t_e3efe9c4f46dc4 3,5,9-12,14,29,31,39,54,63,65,73,81,89,91,93,103
+checks/skill-catalog.nix
+  s_a4a3eea4720821::t_a7482c0a95db5e 43-66
+checks/skill-helpers.nu
+  s_a4a3eea4720821::t_1d6e415dbbbd24 5,8,13,19,21,24,26,28,30,32,34,36,38,40,42,44,46,48,50,55,57,61,64,66
+checks/url-routing.lua
+  s_a4a3eea4720821::t_563b9e509277dc 247-251,258-261
 ---
 {
   "schema_version": "authorship/3.0.0",
