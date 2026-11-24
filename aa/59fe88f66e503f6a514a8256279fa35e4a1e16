@@ -1,9 +1,9 @@
-checks/default.nix
-  s_a4a3eea4720821::t_88c5715934be10 59-71
 checks/runner-operator.nu
-  s_a4a3eea4720821::t_12036d06f7a68e 13-24
+  s_a4a3eea4720821::t_073c36fba9010d 13-24
 modules/nixos/runner-operator.nu
-  s_a4a3eea4720821::t_a68a07ecc9b712 3,5-8
+  s_a4a3eea4720821::t_710cbb9355604e 3,5-8
+checks/default.nix
+  s_a4a3eea4720821::t_d3d64f9858fc6a 59-71
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -15,7 +15,7 @@ modules/nixos/runner-operator.nu
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.2-sol"
+        "model": "gpt-6.1-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
