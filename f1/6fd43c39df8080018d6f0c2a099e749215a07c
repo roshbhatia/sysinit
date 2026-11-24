@@ -1,9 +1,9 @@
 modules/darwin/home/default-apps.nix
-  s_7028fc5da01072::t_30cd0ca15b8d9c 1-169
+  s_7028fc5da01072::t_c82cc95b5878e8 1-169
 modules/darwin/home/default.nix
-  s_a4a3eea4720821::t_9016e173948803 6
+  s_a4a3eea4720821::t_8a9d2c669870a0 6
 modules/darwin/home/neovim-file-opener.swift
-  s_7028fc5da01072::t_793c9fce78835e 1-116
+  s_7028fc5da01072::t_8204abf3d93d2a 1-116
 ---
 {
   "schema_version": "authorship/3.0.0",
