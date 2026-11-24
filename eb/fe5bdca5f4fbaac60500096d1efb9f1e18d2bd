@@ -1,0 +1,48 @@
+checks/ty.nu
+  s_a4a3eea4720821::t_0695fed542881a 224-240,243-248,254-262
+  s_a4a3eea4720821::t_3d916c7ead57e9 159-166,174-181,253
+  s_a4a3eea4720821::t_91e5b23785d42b 169-171,184-188
+modules/home/programs/llm/runtime/agent-sessions.sh
+  s_a4a3eea4720821::t_2cd35b0e89ea29 7-12,18
+modules/home/programs/llm/runtime/agent-sessions.jq
+  s_a4a3eea4720821::t_2cd35b0e89ea29 36-40
+modules/home/programs/llm/runtime/agents/default.nix
+  s_a4a3eea4720821::t_c44da7d6ac593e 4-7
+checks/agent-sessions.nu
+  s_a4a3eea4720821::t_91e5b23785d42b 6,73-74,77-78
+checks/agents.nu
+  s_a4a3eea4720821::t_6b68da36269f35 58,97-100
+  s_a4a3eea4720821::t_c32988b76851f0 38-57
+modules/home/programs/utils/dev/ty.nu
+  s_a4a3eea4720821::t_7e1f62131bfcd7 340-344,359
+  s_a4a3eea4720821::t_c32988b76851f0 17-18,339,345,348
+  s_a4a3eea4720821::t_c44da7d6ac593e 20,42-47,50-51,53,55,433-486,488,498,500
+  s_a4a3eea4720821::t_3d916c7ead57e9 346
+modules/home/programs/llm/runtime/agents/launch.nu
+  s_a4a3eea4720821::t_2cd35b0e89ea29 6,41-42
+  s_a4a3eea4720821::t_4077a9d2e35bff 2
+  s_a4a3eea4720821::t_f5b809608f3906 43-44
+modules/home/programs/llm/skills/ty/SKILL.md
+  s_a4a3eea4720821::t_222072cbd56463 49,64-66
+modules/home/programs/llm/runtime/agents/attention.nu
+  s_a4a3eea4720821::t_91e5b23785d42b 49,51-52
+  s_a4a3eea4720821::t_c44da7d6ac593e 5
+  s_a4a3eea4720821::t_4077a9d2e35bff 33
+  s_a4a3eea4720821::t_2cd35b0e89ea29 1-4,6-9,12-23,26-32,35-48,53-82
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ebfe5bdca5f4fbaac60500096d1efb9f1e18d2bd",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
