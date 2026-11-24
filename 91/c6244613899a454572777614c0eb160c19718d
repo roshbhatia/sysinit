@@ -1,54 +1,45 @@
-modules/home/programs/llm/skills/search-code-routing/SKILL.md
-  s_a4a3eea4720821::t_bb91b88c133035 2,5
-modules/home/programs/llm/skills/citation-verification/SKILL.md
-  s_a4a3eea4720821::t_bb91b88c133035 2
-modules/home/programs/llm/skills/shell-script-authoring/SKILL.md
-  s_a4a3eea4720821::t_bb91b88c133035 2
-modules/home/programs/llm/skills/nix-cache-audit/SKILL.md
-  s_a4a3eea4720821::t_bb91b88c133035 2,5
-modules/home/programs/llm/skills/writing-doc-design/SKILL.md
-  s_a4a3eea4720821::t_bb91b88c133035 2
-checks/fixtures/skills/invalid-boolean/SKILL.md
-  s_a4a3eea4720821::t_96fc41c31111da 4
-modules/home/programs/llm/lib/skill-package.nix
-  s_a4a3eea4720821::t_9777ae0745dceb 24-26,30,36-38,40-41,45-65,70-75
-modules/home/programs/llm/skills/worklog/SKILL.md
-  s_a4a3eea4720821::t_bb91b88c133035 2
-modules/home/programs/llm/skills/writing-code-comments/SKILL.md
-  s_a4a3eea4720821::t_bb91b88c133035 2,4
-modules/home/programs/llm/skills/diagram-mermaid-render/SKILL.md
-  s_a4a3eea4720821::t_bb91b88c133035 2
-modules/home/programs/llm/skills/writing-pr-description/SKILL.md
-  s_a4a3eea4720821::t_bb91b88c133035 2,4
-modules/home/programs/llm/skills/writing-commit-message/SKILL.md
-  s_a4a3eea4720821::t_bb91b88c133035 2,4
-checks/fixtures/skills/contract-fixture/SKILL.md
-  s_a4a3eea4720821::t_96fc41c31111da 4-6
-checks/skill-catalog.nix
-  s_a4a3eea4720821::t_96fc41c31111da 13-25,31,38,49
-modules/home/programs/llm/skills/adversarial-review/SKILL.md
-  s_a4a3eea4720821::t_bb91b88c133035 2
-modules/home/programs/llm/skills/feature-based-session-manager/SKILL.md
-  s_a4a3eea4720821::t_bb91b88c133035 2,5
-modules/home/programs/llm/skills/calldiff/SKILL.md
-  s_a4a3eea4720821::t_bb91b88c133035 2
-modules/home/programs/llm/skills/writing-doc-rfc/SKILL.md
-  s_a4a3eea4720821::t_bb91b88c133035 2
 checks/skill-catalog.nu
-  s_a4a3eea4720821::t_96fc41c31111da 3-10,14,18-73,75,77,79,81
-modules/home/programs/llm/lib/frontmatter.nix
-  s_a4a3eea4720821::t_b428b446230309 27-30,131,133-135,137
-  s_a4a3eea4720821::t_d5339375b0072f 122
-modules/home/programs/llm/skills/render.nix
-  s_a4a3eea4720821::t_9777ae0745dceb 20-29,33-35,37-38
-modules/home/programs/llm/skills/writing-tone/SKILL.md
-  s_a4a3eea4720821::t_bb91b88c133035 2,4
-modules/home/programs/llm/skills/gh-stack/SKILL.md
-  s_a4a3eea4720821::t_bb91b88c133035 2,5
-modules/home/programs/llm/skills/note/SKILL.md
-  s_a4a3eea4720821::t_bb91b88c133035 2
+  s_a4a3eea4720821::t_538626c1ed00e1 3-10,14,18-73,75,77,79,81
 docs/skill-maintenance.md
-  s_a4a3eea4720821::t_91316828e54162 16-26
+  s_a4a3eea4720821::t_ce764a5941f97f 16-26
+modules/home/programs/llm/lib/frontmatter.nix
+  s_a4a3eea4720821::t_bafae98d6e3d98 27-30,122,131,133-135,137
+modules/home/programs/llm/lib/skill-package.nix
+  s_a4a3eea4720821::t_cdd1c97d47a6f9 24-26,30,36-38,40-41,45-65,70-75
+modules/home/programs/llm/skills/adversarial-review/SKILL.md
+  s_a4a3eea4720821::t_a25d21e8eb428d 2
+modules/home/programs/llm/skills/calldiff/SKILL.md
+  s_a4a3eea4720821::t_aa738df041cfae 2
+modules/home/programs/llm/skills/citation-verification/SKILL.md
+  s_a4a3eea4720821::t_dcbb06b2fdd2ff 2
+modules/home/programs/llm/skills/diagram-mermaid-render/SKILL.md
+  s_a4a3eea4720821::t_3951d0aa79acbb 2
+modules/home/programs/llm/skills/feature-based-session-manager/SKILL.md
+  s_a4a3eea4720821::t_0162980dfbb473 2,5
+modules/home/programs/llm/skills/gh-stack/SKILL.md
+  s_a4a3eea4720821::t_da91db402d4979 2,5
+modules/home/programs/llm/skills/nix-cache-audit/SKILL.md
+  s_a4a3eea4720821::t_a18fc5f07e35cd 2,5
+modules/home/programs/llm/skills/note/SKILL.md
+  s_a4a3eea4720821::t_54f078a91f8bce 2
+modules/home/programs/llm/skills/search-code-routing/SKILL.md
+  s_a4a3eea4720821::t_d414a502a334cf 2,5
+modules/home/programs/llm/skills/shell-script-authoring/SKILL.md
+  s_a4a3eea4720821::t_beb3e040542b7f 2
+modules/home/programs/llm/skills/worklog/SKILL.md
+  s_a4a3eea4720821::t_dfcce7fe1ee913 2
+modules/home/programs/llm/skills/writing-commit-message/SKILL.md
+  s_a4a3eea4720821::t_09cf0470f9b5ec 2,4
+modules/home/programs/llm/skills/writing-pr-description/SKILL.md
+  s_a4a3eea4720821::t_402d83f3f4afcd 2,4
+checks/fixtures/skills/contract-fixture/SKILL.md
+  s_a4a3eea4720821::t_22a6c19db454a3 4-6
+checks/fixtures/skills/invalid-boolean/SKILL.md
+  s_a4a3eea4720821::t_3833555b47d55b 4
+checks/skill-catalog.nix
+  s_a4a3eea4720821::t_5e44bca3f2958a 13-25,31,38,49
+modules/home/programs/llm/skills/render.nix
+  s_a4a3eea4720821::t_31767838684216 20-29,33-35,37-38
 ---
 {
   "schema_version": "authorship/3.0.0",
