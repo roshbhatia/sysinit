@@ -1,5 +1,5 @@
 checks/pr-workflow.nu
-  s_a4a3eea4720821::t_13cccf4a3f55ee 157-159
+  s_a4a3eea4720821::t_7a8df5a7e7cf8e 157-159
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -11,7 +11,7 @@ checks/pr-workflow.nu
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "unknown"
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
