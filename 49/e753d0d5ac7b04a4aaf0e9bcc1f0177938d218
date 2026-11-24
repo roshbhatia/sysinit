@@ -1,0 +1,31 @@
+modules/home/programs/llm/runtime/diff/review-link.nix
+  s_a4a3eea4720821::t_4fd730c5ec3388 4
+modules/home/programs/llm/runtime/diff/review-link.nu
+  s_a4a3eea4720821::t_4fd730c5ec3388 1-4,8-10,12,14,16-17,19,21-22,24-25,29-32,34-38,40-42,44-48,50
+  s_a4a3eea4720821::t_099c52bdf5ae06 11,13,15,18,20,23,33,39,43,49
+checks/review-links.nu
+  s_a4a3eea4720821::t_6cb65260f6f95e 23,34-40
+  s_a4a3eea4720821::t_46e6622b266124 10-11
+checks/review-links.lua
+  s_a4a3eea4720821::t_6cb65260f6f95e 1,13,30-36
+modules/home/programs/wezterm/links.lua
+  s_a4a3eea4720821::t_6cb65260f6f95e 45-47
+  s_a4a3eea4720821::t_099c52bdf5ae06 56-57
+  s_a4a3eea4720821::t_4fd730c5ec3388 41-43,54-55,58,62
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "49e753d0d5ac7b04a4aaf0e9bcc1f0177938d218",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
