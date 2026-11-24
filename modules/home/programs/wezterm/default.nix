@@ -49,7 +49,7 @@ in
 
   imports = [ inputs.sysinit-wezterm.homeManagerModules.default ];
   home.packages = [ paneName ];
-  programs.wezterm.extraConfig = lib.mkBefore ''
+  programs.wezterm.extraConfig = lib.mkForce ''
     dofile("${./links.lua}").setup(wezterm.json_parse(${
       builtins.toJSON (
         builtins.toJSON {
@@ -60,6 +60,20 @@ in
         }
       )
     }))
+    package.path = package.path .. ";${luaSource}/?.lua;${luaSource}/?/init.lua"
+    local config = require("sysinit.pkg.bootstrap").build()
+    ${lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
+      local clipboard = {
+        c = wezterm.action.CopyTo("Clipboard"),
+        v = wezterm.action.PasteFrom("Clipboard"),
+      }
+      for _, binding in ipairs(config.keys) do
+        if binding.mods == "SUPER" and clipboard[binding.key] then
+          binding.action = clipboard[binding.key]
+        end
+      end
+    ''}
+    return config
   '';
   programs.sysinit-wezterm = {
     enable = true;
