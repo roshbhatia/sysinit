@@ -1,17 +1,17 @@
 checks/host-state.nu
-  s_a4a3eea4720821::t_428afa7d2dd464 1-43
-checks/skill-catalog.nix
-  s_a4a3eea4720821::t_fa06cdc39076b9 48-49,54-57
-checks/skill-helpers.nu
-  s_a4a3eea4720821::t_2658604fb2920e 1-44
+  s_a4a3eea4720821::t_802c42f215a289 1-43
 modules/home/programs/llm/skills/nix-deployment/SKILL.md
-  s_796b0b41a96769::t_d9c063ce8bc2d8 13,15,26
+  s_796b0b41a96769::t_0ed5db4db16b1d 13,15,26
 modules/home/programs/llm/skills/nix-deployment/scripts/host-state.nu
-  s_a4a3eea4720821::t_32da87ea036c0c 1-42
+  s_a4a3eea4720821::t_d7f931c151412f 1-42
 modules/home/programs/llm/skills/skills-ecosystem-discovery/SKILL.md
-  s_796b0b41a96769::t_beb13068c8df5a 25,27-28
+  s_796b0b41a96769::t_ad2a781f2a4f6d 25,27-28
 modules/home/programs/llm/skills/skills-ecosystem-discovery/scripts/catalog.nu
-  s_a4a3eea4720821::t_6c12cecfa6f7ac 1-25,27,29-40,42-54
+  s_a4a3eea4720821::t_00e6f23fcb63bc 1-25,27,29-40,42-54
+checks/skill-catalog.nix
+  s_a4a3eea4720821::t_09376f0ef35696 48-49,54-57
+checks/skill-helpers.nu
+  s_a4a3eea4720821::t_71753a59f670f0 1-44
 ---
 {
   "schema_version": "authorship/3.0.0",
