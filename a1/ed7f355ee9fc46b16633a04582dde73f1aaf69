@@ -1,7 +1,7 @@
 flake.lock
-  s_a4a3eea4720821::t_4c8e07a49ac244 1916-1917,1920,1926
+  s_a4a3eea4720821::t_449b8c1d3f4d93 1916-1917,1920,1926
 flake.nix
-  s_a4a3eea4720821::t_05bc3a57f21088 160
+  s_a4a3eea4720821::t_98fdb12e453a5b 160
 ---
 {
   "schema_version": "authorship/3.0.0",
