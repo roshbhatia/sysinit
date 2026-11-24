@@ -1,7 +1,9 @@
-overlays/default.nix
-  s_a4a3eea4720821::t_d074dbd05eaf04 59
 checks/default.nix
-  s_a4a3eea4720821::t_ec23f05811dcd3 113-127
+  s_a4a3eea4720821::t_d1b55209e9fb73 113-127
+modules/home/programs/wezterm/default.nix
+  s_a4a3eea4720821::t_54934878128459 183-189
+overlays/default.nix
+  s_a4a3eea4720821::t_92474d6da8ca18 59
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -13,7 +15,7 @@ checks/default.nix
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.2-sol"
+        "model": "unknown"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
