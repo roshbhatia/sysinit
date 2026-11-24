@@ -1,7 +1,7 @@
 checks/nushell-completions.nix
-  s_a4a3eea4720821::t_7a7ae0afef3cc0 8,12-15,38-49
+  s_a4a3eea4720821::t_3f797d31c9d037 8,12-15,38-49
 modules/home/programs/nushell/externs/agents.nu
-  s_7028fc5da01072::t_c54723b34acaa3 1-50
+  s_7028fc5da01072::t_0ebbc75f7f9449 1-50
 ---
 {
   "schema_version": "authorship/3.0.0",
