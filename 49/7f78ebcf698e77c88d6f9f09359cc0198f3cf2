@@ -1,0 +1,50 @@
+checks/agents/pi-router.test.js
+  s_a4a3eea4720821::t_53550b9912e639 81-83
+.github/workflows/update-sources.yml
+  s_a4a3eea4720821::t_b94450990bdd84 55,89
+checks/agents/pi-types.nix
+  s_a4a3eea4720821::t_227ed8dd5ebed2 3,13
+  s_a4a3eea4720821::t_63f5e0662242aa 1-2,4-12,14-30
+checks/agents/pi-types/package.json
+  s_a4a3eea4720821::t_db6fab5fc92ac7 1-11
+checks/README.md
+  s_a4a3eea4720821::t_b94450990bdd84 29-31
+  s_a4a3eea4720821::t_63f5e0662242aa 28,32
+hack/update-pi-types.nu
+  s_a4a3eea4720821::t_b94450990bdd84 2,4-20,28,36,38,40-47
+  s_a4a3eea4720821::t_af49c65a43ff0d 29,31-32,34-35,39
+  s_a4a3eea4720821::t_227ed8dd5ebed2 27,33
+  s_a4a3eea4720821::t_0bb8e7563f69ed 23,30
+  s_a4a3eea4720821::t_1717b2ed69c3a6 1,3
+  s_a4a3eea4720821::t_e142695928b69f 21-22,24-26,37
+checks/agents/default.nix
+  s_a4a3eea4720821::t_63f5e0662242aa 36-37
+checks/agents/pi-types/npm-deps-hash
+  s_a4a3eea4720821::t_b94450990bdd84 1
+checks/agents/pi-types/tsconfig.json
+  s_a4a3eea4720821::t_db6fab5fc92ac7 1-12
+modules/home/programs/llm/harnesses/pi/extensions/sysinit-notify.ts
+  s_a4a3eea4720821::t_01c49767c78337 54-58
+modules/home/programs/llm/harnesses/pi/extensions/sysinit-ui.ts
+  s_a4a3eea4720821::t_01c49767c78337 36
+modules/home/programs/llm/harnesses/pi/extensions/fm-router.ts
+  s_a4a3eea4720821::t_01c49767c78337 22,24,57
+checks/agents/pi-types/package-lock.json
+  s_a4a3eea4720821::t_939dee63c158d0 1-2867
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "497f78ebcf698e77c88d6f9f09359cc0198f3cf2",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
