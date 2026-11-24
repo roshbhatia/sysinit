@@ -1,11 +1,9 @@
-checks/url-routing.lua
-  s_a4a3eea4720821::t_6e802e55044f80 32,119,207-211,227,230,232-234,236-237,240-243,247-248,251-252,256,260-261,263-265,268,272-275,280-282,286-287,294-295,300,305-306,309,315,326,330,333-334
 flake.lock
-  s_a4a3eea4720821::t_c704707123cb56 1618-1619,1622,1745-1746,1749
+  s_a4a3eea4720821::t_49e794c8659ad6 1618-1619,1622,1745-1746,1749
 modules/darwin/home/hammerspoon/lua/sysinit/pkg/url_routing.lua
-  s_a4a3eea4720821::t_a4adeadaa320b1 111-124,127
+  s_a4a3eea4720821::t_1a0288a7d9ffef 111-124,127
 modules/darwin/home/hammerspoon/url-routing.nix
-  s_7028fc5da01072::t_6443fe3b00f1dd 227
+  s_a4a3eea4720821::t_0eef193cb11a22 227
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -13,19 +11,11 @@ modules/darwin/home/hammerspoon/url-routing.nix
   "base_commit_sha": "af7b54c1cce647e2ff6ca725a63d8ec3f32ea184",
   "prompts": {},
   "sessions": {
-    "s_7028fc5da01072": {
-      "agent_id": {
-        "tool": "codex",
-        "id": "01a1d0ac-4380-7023-8b2f-a382ea7a16c4",
-        "model": "gpt-6.1-sol"
-      },
-      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
-    },
     "s_a4a3eea4720821": {
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.1-sol"
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
