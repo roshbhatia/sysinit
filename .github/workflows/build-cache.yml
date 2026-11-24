@@ -10,6 +10,7 @@ on:
       - "lib/**"
       - "overlays/**"
       - "pkgs/**"
+      - "modules/**"
       - "_sources/**"
       - "nvfetcher.toml"
       - ".github/workflows/build-cache.yml"
