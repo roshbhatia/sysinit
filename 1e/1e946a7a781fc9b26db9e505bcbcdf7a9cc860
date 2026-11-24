@@ -1,17 +1,13 @@
-checks/atuin.nix
-  s_a4a3eea4720821::t_8f6e01abb6f267 47,50,58
-checks/atuin.py
-  s_cccc57401e3d8c::t_b0db0c957bbe1d 214-215,221
 docs/atuin.md
-  s_cccc57401e3d8c::t_101ed34406db5d 63-67,72-75
+  s_a4a3eea4720821::t_0003d64a117daa 63-67,72-75
 pkgs/utils/internal/threads/threads.go
-  s_a4a3eea4720821::t_df76c504af9c8d 1-170
+  s_a4a3eea4720821::t_426cd7b293a9a6 1-170
 pkgs/utils/internal/threads/threads_test.go
-  s_a4a3eea4720821::t_9ca53fcd62e23c 1-133
+  s_a4a3eea4720821::t_70ac07a3a82888 1-133
 pkgs/utils/main.go
-  s_7028fc5da01072::t_20291ebc2803f7 11,37-41,74
+  s_7028fc5da01072::t_b969d9b3c74292 11,37-41,74
 overlays/sysinit-gotools.nix
-  s_a4a3eea4720821::t_d76208adce1872 11,180-181,206-207
+  s_a4a3eea4720821::t_e12146a334b94c 11,180-181,206-207
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -31,15 +27,7 @@ overlays/sysinit-gotools.nix
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.1-sol"
-      },
-      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
-    },
-    "s_cccc57401e3d8c": {
-      "agent_id": {
-        "tool": "codex",
-        "id": "01a17e4b-b712-7e82-993b-13c0fa9fac0e",
-        "model": "gpt-6.1-sol"
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
