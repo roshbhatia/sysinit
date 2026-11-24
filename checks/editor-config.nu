@@ -27,14 +27,19 @@ def main [
 
     assert equal (open --raw $marker | str trim) passed
 
-    assert ($keys | str contains "{ key = 'h', mods = 'CTRL'")
-
-    assert ($keys | str contains "{ key = 'phys:1', mods = 'SHIFT|CTRL|SUPER'")
-
-    assert ((
+    let bindings = (
         $keys
         | lines
-        | where $it =~ '^    \{ key ='
-        | length
-    ) >= 80)
+        | where $it =~ '^    \{ (key|mods) ='
+    )
+
+    assert ($bindings | any {|binding|
+        ($binding | str contains "key = 'h'") and ($binding | str contains "mods = 'CTRL'")
+    })
+
+    assert ($bindings | any {|binding|
+        ($binding | str contains "key = 'phys:1'") and ($binding | str contains "mods = 'SHIFT|CTRL|SUPER'")
+    })
+
+    assert (($bindings | length) >= 80)
 }

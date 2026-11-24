@@ -15,7 +15,9 @@ import pyte
 
 binary = sys.argv[1]
 with tempfile.TemporaryDirectory() as directory:
-    root = Path(directory)
+    # The folder name is included in the picker's searchable labels.
+    root = Path(directory) / "fixture"
+    root.mkdir()
     (root / "threads.json").write_text(
         json.dumps(
             [
@@ -95,8 +97,8 @@ fi
                 dict(
                     os.environ,
                     TERM="xterm-256color",
-                    XDG_CONFIG_HOME=directory,
-                    PATH=directory + os.pathsep + os.environ["PATH"],
+                    XDG_CONFIG_HOME=str(root),
+                    PATH=str(root) + os.pathsep + os.environ["PATH"],
                 ),
             )
         rows = 12 if name == "Resize" else 30
