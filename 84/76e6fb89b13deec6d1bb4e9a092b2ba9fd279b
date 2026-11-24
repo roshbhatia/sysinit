@@ -1,78 +1,45 @@
-checks/diff-pane.nu
-  s_a4a3eea4720821::t_d89fe3faa7ffdf 13
-  s_a4a3eea4720821::t_179a44fa32a20e 69-71
-  s_a4a3eea4720821::t_ea8f414ec2ce43 54
-  s_a4a3eea4720821::t_86f304a82b39aa 12,14-15,24,46-47,49,56,62,67-68,72-77
-checks/native-output.nix
-  s_a4a3eea4720821::t_87094f47fcf5c6 35
-  s_a4a3eea4720821::t_a71a0198319373 42
-  s_a4a3eea4720821::t_d1fca8a3050396 36-37
-  s_a4a3eea4720821::t_5159dbf7b1f8a6 32-34
-docs/agent-workspaces.md
-  s_a4a3eea4720821::t_0e95819259ab51 7-11
-  s_a4a3eea4720821::t_5313032a3284b8 88-89
-modules/home/programs/llm/runtime/agents/default.nix
-  s_a4a3eea4720821::t_a71a0198319373 1-2,4-7
-  s_a4a3eea4720821::t_87094f47fcf5c6 3
-modules/home/programs/llm/harnesses/publish.nix
-  s_a4a3eea4720821::t_bd4efbd8be28c0 1-6
-  s_a4a3eea4720821::t_d243b70b5b8e30 81
-docs/atuin.md
-  s_a4a3eea4720821::t_d2495816d11207 63-64
-modules/home/programs/utils/dev/ty.nu
-  s_a4a3eea4720821::t_e43d15365a7eca 17-18,283,291,295,298-308
-  s_a4a3eea4720821::t_62b3f978220d66 282,344
-docs/repository-reference.md
-  s_a4a3eea4720821::t_399119e3640a15 19
-  s_a4a3eea4720821::t_282e01f77cd791 21-22
-  s_a4a3eea4720821::t_f233baf0b66d1b 20
-  s_a4a3eea4720821::t_0e95819259ab51 13-16,23
-  s_a4a3eea4720821::t_889bc7c531f4ea 17-18
-checks/agents.nu
-  s_a4a3eea4720821::t_ea8f414ec2ce43 41-48,61-63
-  s_a4a3eea4720821::t_18dafdecf7281c 19-26,68-70
-  s_a4a3eea4720821::t_87094f47fcf5c6 1-18,27-40,49-60,64-67,71-87
-checks/ty.nu
-  s_a4a3eea4720821::t_ea8f414ec2ce43 183-184,191,199-215
-modules/home/programs/llm/options.nix
-  s_a4a3eea4720821::t_db3ac0f695cb09 21-22,27-28
-  s_a4a3eea4720821::t_bd4efbd8be28c0 19-20
-  s_a4a3eea4720821::t_d243b70b5b8e30 11-18
-  s_a4a3eea4720821::t_cd311a201ba063 5-7,23-26
-modules/home/programs/llm/runtime/agents/catalog.nu
-  s_a4a3eea4720821::t_a71a0198319373 1-11
 checks/agent-workspace.nu
-  s_a4a3eea4720821::t_f5a3c140bf4e32 67-74
-  s_a4a3eea4720821::t_84fe188690dd1b 95-101,116
-flake.nix
-  s_a4a3eea4720821::t_a05bb60286d336 340-343,346-350,423,426-427,472-474
-  s_a4a3eea4720821::t_87094f47fcf5c6 344,424
-  s_a4a3eea4720821::t_d243b70b5b8e30 345,425
-modules/home/programs/llm/runtime/workspace/default.nix
-  s_a4a3eea4720821::t_a71a0198319373 17
-modules/home/programs/llm/runtime/diff/open.nu
-  s_a4a3eea4720821::t_e43d15365a7eca 242-247,335-338,340-341,343,348,356,359
-  s_a4a3eea4720821::t_db3ac0f695cb09 59,73-78
-overlays/sysinit-gotools.nix
-  s_a4a3eea4720821::t_282e01f77cd791 136
-  s_a4a3eea4720821::t_b8cba83fbfa8cc 122-125
-modules/home/programs/llm/runtime/workspace/workspace.nu
-  s_a4a3eea4720821::t_e43d15365a7eca 467
-  s_a4a3eea4720821::t_a71a0198319373 1-2,121
-  s_a4a3eea4720821::t_e7956ef9dcd579 182-188
-modules/home/packages.nix
-  s_a4a3eea4720821::t_db3ac0f695cb09 4,151
-  s_a4a3eea4720821::t_cd311a201ba063 11,149
-modules/home/programs/llm/runtime/agents/launch.nu
-  s_a4a3eea4720821::t_87094f47fcf5c6 35-38,49,51-59,63
-  s_a4a3eea4720821::t_a71a0198319373 1-2,10-17,19-24,33-34,39,46-48,60,65-73
-  s_a4a3eea4720821::t_18dafdecf7281c 3-9,40-45
-  s_a4a3eea4720821::t_350d919bce6e77 50
-  s_a4a3eea4720821::t_e43d15365a7eca 25-32
-  s_a4a3eea4720821::t_f233baf0b66d1b 18,61
-  s_a4a3eea4720821::t_0978f6225f11f8 62,64
+  s_a4a3eea4720821::t_7f232151322664 67-74,95-101,116
+checks/agents.nu
+  s_a4a3eea4720821::t_0d9b0a9e4bb5d7 1-87
+checks/native-output.nix
+  s_a4a3eea4720821::t_b5342083aa909e 32-37,42
+checks/ty.nu
+  s_a4a3eea4720821::t_ef321275a5134e 183-184,191,199-215
+docs/agent-workspaces.md
+  s_a4a3eea4720821::t_605358b6ac27a1 7-11,88-89
+docs/atuin.md
+  s_a4a3eea4720821::t_b71448c60b9031 63-64
+docs/repository-reference.md
+  s_a4a3eea4720821::t_efb7fdfbee4b14 13-23
 modules/home/programs/llm/default.nix
-  s_a4a3eea4720821::t_552cd281fd2082 184,194,198-199
+  s_a4a3eea4720821::t_bb058c090b2baa 184,194,198-199
+modules/home/programs/llm/runtime/agents/launch.nu
+  s_a4a3eea4720821::t_80868dfa278924 1-73
+modules/home/programs/llm/runtime/workspace/workspace.nu
+  s_a4a3eea4720821::t_ea5ccabfda23db 1-2,121,182-188,467
+modules/home/programs/utils/dev/ty.nu
+  s_a4a3eea4720821::t_4d7a4a34092446 17-18,282-283,291,295,298-308,344
+checks/diff-pane.nu
+  s_a4a3eea4720821::t_6859bd1aac7a95 12-15,24,46-47,49,54,56,62,67-77
+flake.nix
+  s_a4a3eea4720821::t_7a1704e0559bf8 340-350,423-427,472-474
+modules/home/packages.nix
+  s_a4a3eea4720821::t_a8fd46f60a5236 4,11,149,151
+modules/home/programs/llm/harnesses/publish.nix
+  s_a4a3eea4720821::t_c41b33725dbc6d 1-6,81
+modules/home/programs/llm/options.nix
+  s_a4a3eea4720821::t_84c40ca9ea8402 5-7,11-28
+modules/home/programs/llm/runtime/agents/catalog.nu
+  s_a4a3eea4720821::t_3653879500c387 1-11
+modules/home/programs/llm/runtime/agents/default.nix
+  s_a4a3eea4720821::t_bdb8fe6d7528b1 1-7
+modules/home/programs/llm/runtime/diff/open.nu
+  s_a4a3eea4720821::t_c7d753035a2ea3 59,73-78,242-247,335-338,340-341,343,348,356,359
+modules/home/programs/llm/runtime/workspace/default.nix
+  s_a4a3eea4720821::t_d37ae7171e5af1 17
+overlays/sysinit-gotools.nix
+  s_a4a3eea4720821::t_f9f64ad9ca9ebe 122-125,136
 ---
 {
   "schema_version": "authorship/3.0.0",
