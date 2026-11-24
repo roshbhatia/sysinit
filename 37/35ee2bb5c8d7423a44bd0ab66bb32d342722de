@@ -1,19 +1,14 @@
 checks/threads-picker.py
-  s_a4a3eea4720821::t_e9301a3a3e933b 19-34,38,84
+  h_9ee7ffa72fd255 19-34,38,84
 ---
 {
   "schema_version": "authorship/3.0.0",
   "git_ai_version": "1.7.5",
   "base_commit_sha": "3735ee2bb5c8d7423a44bd0ab66bb32d342722de",
   "prompts": {},
-  "sessions": {
-    "s_a4a3eea4720821": {
-      "agent_id": {
-        "tool": "codex",
-        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.2-sol"
-      },
-      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+  "humans": {
+    "h_9ee7ffa72fd255": {
+      "author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
   }
 }
