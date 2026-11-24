@@ -1,0 +1,46 @@
+checks/editor/default.nix
+  s_a4a3eea4720821::t_991944b9ae572b 12-15
+modules/home/programs/wezterm/default.nix
+  s_a4a3eea4720821::t_d60e7e34bcb6cf 54,65,67
+modules/home/programs/llm/runtime/diff/review-link.nu
+  s_a4a3eea4720821::t_d81b486e656bf0 63-69
+  s_a4a3eea4720821::t_16e60100eb7010 9-14,18,20,22,27,35-38,47,70,110,116,123,125,131,133-136,138,160
+  s_a4a3eea4720821::t_8b282e2a1e853a 5-8,15-17,19,21,23-26,28-34,39-40,46,48,59,62,71,76,105-109,111-115,117-122,124,126-130,132,137,139-140,159,161
+modules/home/programs/llm/lib/codex-hooks.nix
+  s_a4a3eea4720821::t_d81b486e656bf0 46,55
+docs/review-tools.md
+  s_a4a3eea4720821::t_5e9934b19bfbff 20-24,31-33
+modules/home/programs/llm/harnesses/claude/default.nix
+  s_a4a3eea4720821::t_d81b486e656bf0 165-168,306-309
+checks/editor/review-links.nu
+  s_a4a3eea4720821::t_991944b9ae572b 12,19,24-38,42-45,47,49-51,59,61-76
+modules/home/programs/wezterm/links.lua
+  s_a4a3eea4720821::t_16e60100eb7010 110-114,202-207
+  s_a4a3eea4720821::t_d60e7e34bcb6cf 20-47,95,98-99,119,121,191-194,198,208-210
+  s_a4a3eea4720821::t_8b34492bdd8df3 92-94,96-97,100-107,115,195-197,199-201
+modules/home/programs/llm/runtime/diff/review-link.nix
+  s_a4a3eea4720821::t_8b282e2a1e853a 4-7
+checks/agents/harness-settings.nix
+  s_a4a3eea4720821::t_d81b486e656bf0 28
+  s_a4a3eea4720821::t_d6d92c1bc0facf 14-16,33-35,44-45
+checks/editor/review-links.lua
+  s_a4a3eea4720821::t_991944b9ae572b 2,7-9,11-16,88,99-111
+  s_a4a3eea4720821::t_a7e50ccb32b213 112-115
+  s_a4a3eea4720821::t_1262e41547c20a 116
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "55b0b877902dee434801645ac9da4a48f31e8797",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
