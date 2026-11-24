@@ -1,15 +1,15 @@
 .github/workflows/update-sources.yml
-  s_796b0b41a96769::t_18650d6807b928 60-63,88
-checks/default.nix
-  s_a4a3eea4720821::t_d79c07a48fcf2b 59-72
+  s_796b0b41a96769::t_31322857f104ea 60-63,88
 hack/fixtures/update-flakes-command.nu
-  s_a4a3eea4720821::t_2e077e6a908c12 1-40
+  s_a4a3eea4720821::t_5c255a4dffa7f9 1-40
 hack/test-update-flakes.nu
-  s_a4a3eea4720821::t_e68afbd71f1a28 1-53
+  s_a4a3eea4720821::t_c1a6abc42b6c35 1-53
 hack/update-flakes.nu
-  s_a4a3eea4720821::t_13a62c58a06c62 1-57
+  s_a4a3eea4720821::t_2aed6767c13954 1-57
 hack/update-pi.sh
-  s_796b0b41a96769::t_23d807410224b7 76
+  s_796b0b41a96769::t_3ac793814ca4a6 76
+checks/default.nix
+  s_a4a3eea4720821::t_5e0728b27e7380 59-72
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -29,7 +29,7 @@ hack/update-pi.sh
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.2-sol"
+        "model": "gpt-6.1-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
