@@ -1,5 +1,5 @@
 checks/threads-picker.py
-  s_a4a3eea4720821::t_548b6f51de5fa0 183-184
+  s_a4a3eea4720821::t_f2e0010ad119dc 183-184
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -11,7 +11,7 @@ checks/threads-picker.py
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.2-sol"
+        "model": "unknown"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
