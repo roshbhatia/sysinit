@@ -209,7 +209,7 @@ see [docs/storage.md](storage.md) for usage and retention boundaries.
   `modules/home/programs/llm/gate.nix`; every provider comes from the `gate`
   flake input, and `gate-defaults.nix` holds prose-gate's rule set and every
   text it injects as step arguments. `gate log tail` shows what
-  each provider decided on the last calls, and `checks/gate-config.nix` fails
+  each provider decided on the last calls, and `checks/agents/gate-config.nix` fails
   the build when a chain names a provider with no manifest.
 - An adversarial review is one judged pass recorded by `review`, in `.gate/`
   next to the work. `review-gate` denies a critic spawned outside an open

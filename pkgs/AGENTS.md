@@ -22,7 +22,7 @@ Go is for hot paths (the status line), process supervision, terminal UIs, and
 `exec`-in-place launchers. Command-and-JSON glue is nushell under
 `modules/home/programs/utils/`: `ty`, `audio-switcher`, `task-context`,
 `ere-setup`, and `cache-maintain` moved there in 2026-11, with tests in
-`checks/nushell-utilities.nu` and `checks/ty.nu`.
+`checks/shell/nushell-utilities.nu` and `checks/workflows/ty.nu`.
 
 `ask`, `changes`, `traces`, `seshy`, `specutil`, and `colchis` used to live
 here as sibling directories. Each is now its own repository, pinned as a flake

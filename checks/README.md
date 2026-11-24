@@ -1,13 +1,15 @@
 # Repository checks
 
-`default.nix` owns the check inventory. Nushell owns fixture setup, process
-orchestration, and ordinary assertions. Nix supplies pinned dependencies and
-configuration fixtures.
+`default.nix` composes the agent, desktop, editor, host, package, shell, and
+workflow suites. Each suite's `default.nix` exports its flake checks and calls
+the probes in that directory. Use `nix build .#checks.<system>.<check>` for one
+check or `nix flake check` for the host's full suite.
 
-Use `lib.nix` for a Nushell check and `native.nix` for a sequence of runtime
-probes. The native runner creates an isolated home and XDG directories, copies
-declared fixtures, and fails when a probe fails. Keep relative Nushell imports
-inside the source directory passed to the interpreter.
+Use `lib/nushell.nix` for a Nushell probe and `lib/native.nix` for a sequence
+of runtime probes. Declare a Nushell probe's relative imports in `sources` so
+its store input contains just the probe and its dependencies. The native
+runner creates an isolated home and XDG directories and copies declared
+fixtures. Both runners use Nix-pinned runtimes.
 
 Native probes retain the API they exercise:
 
@@ -19,13 +21,10 @@ Native probes retain the API they exercise:
 | Bash, Zsh, and Fish | Each shell's completion API |
 | Python | PTYs, terminal emulation, asynchronous MCP stdio, and Unix WebSockets |
 
-The retained Python files are `atuin.py`, `atuin-nushell.py`,
-`threads-picker.py`, `tq-browser.py`, `tq-picker.py`,
-`nushell-wezterm.py`, `codex-mcp-capabilities.py`, and `codex-daemon.py`.
-Replacing these probes requires an equivalent terminal or protocol test
-utility. Ordinary filesystem and configuration checks belong in Nushell.
+The [Python migration notes](../docs/python-migration.md) record the remaining
+terminal and protocol probes. Use Nushell for ordinary filesystem and
+configuration checks.
 
 `hack/lint.nu` runs semantic checks, including the Statix and Deadnix diagnostics
 used by none-ls. `hack/format.nu --check` formats a temporary copy of tracked
-files and leaves the checkout unchanged. Their `.sh` entrypoints preserve the
-commands used by hooks and CI.
+files and leaves the checkout unchanged. Hooks and CI use `hack/lint.sh`.

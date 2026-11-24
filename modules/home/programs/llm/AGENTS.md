@@ -13,7 +13,7 @@ root before changing a harness, hook, renderer, or skill installation path.
   list changes the auto-approval surface; follow existing authorization scope.
 - `gate.nix` owns hook chains, `gate-defaults.nix` owns injected prose, and the
   gate input owns providers. Inspect `gate log tail` when diagnosing decisions.
-- Run `checks/skill-catalog.nix` and `checks/harness-instructions.nix` through
+- Run `checks/agents/skill-catalog.nix` and `checks/agents/harness-instructions.nix` through
   their flake checks when changing metadata, resources, routing, or renderers.
   Use `docs/skill-routing-cases.json` for manual selection checks; static checks
   cannot establish model adherence.
