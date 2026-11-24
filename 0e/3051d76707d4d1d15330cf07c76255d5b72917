@@ -1,9 +1,9 @@
 checks/codex-plugin-hooks.nu
-  s_a4a3eea4720821::t_dc4f618d867034 1-65
+  s_a4a3eea4720821::t_c85f9ccd9fa409 1-65
 checks/utility-contracts.nix
-  s_a4a3eea4720821::t_7ccbaffeb27eb4 19
+  s_a4a3eea4720821::t_9f7691659c46d3 19
 modules/home/programs/llm/harnesses/codex-plugin-hooks.nu
-  s_a4a3eea4720821::t_0a3218152df765 1-33
+  s_a4a3eea4720821::t_f92cb0e40be27c 1-33
 ---
 {
   "schema_version": "authorship/3.0.0",
