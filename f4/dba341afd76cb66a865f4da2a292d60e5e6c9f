@@ -1,5 +1,5 @@
 flake.lock
-  s_a4a3eea4720821::t_68a99ec9fd2836 1745-1746,1749
+  s_a4a3eea4720821::t_7fc2e5b7fa14ba 1745-1746,1749
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -11,7 +11,7 @@ flake.lock
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.2-sol"
+        "model": "unknown"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
