@@ -1,5 +1,6 @@
 vim.opt.runtimepath:append(assert(arg[1]))
 vim.opt.runtimepath:append(assert(arg[2]))
+vim.cmd.runtime("plugin/sysinit-workbench.lua")
 
 local root = vim.fn.tempname()
 vim.fn.mkdir(root)
@@ -69,14 +70,30 @@ local function await_text(buffer, target)
   return contents()
 end
 
-require("sysinit_workbench.changes").open({
-  program = "changes",
-  args = { "interactive", "--no-groups", "--no-symbols", "--no-calls", "--no-notes", "--quiet" },
+vim.cmd.Changes({
+  args = { "--no-groups", "--no-symbols", "--no-calls", "--no-notes", "--quiet" },
 })
 local buffer = vim.api.nvim_get_current_buf()
 local contents = await_text(buffer, "tracked.txt")
 assert(contents:find("Changes · ", 1, true))
 assert(not vim.bo[buffer].modifiable)
+
+for _, mapping in ipairs(vim.api.nvim_buf_get_keymap(buffer, "n")) do
+  if mapping.lhs == "p" then
+    mapping.callback()
+    break
+  end
+end
+assert(vim.api.nvim_buf_get_name(0):find("changes://diff", 1, true))
+assert(vim.bo.filetype == "diff")
+await_text(vim.api.nvim_get_current_buf(), "+ working")
+vim.cmd.tabclose()
+assert(vim.api.nvim_get_current_buf() == buffer)
+
+vim.cmd.Changes({
+  args = { "--staged", "--no-groups", "--no-symbols", "--no-calls", "--no-notes", "--quiet" },
+})
+await_text(vim.api.nvim_get_current_buf(), "· staged")
 
 local function message(session, body)
   return {
@@ -106,8 +123,7 @@ vim.fn.writefile({
     },
   }),
 }, file)
-require("sysinit_workbench.traces").open({
-  program = "traces",
+vim.cmd.Traces({
   args = { "--file", file, "--config", config, "--session", "example-session" },
 })
 contents = await_text(vim.api.nvim_get_current_buf(), "Expected assistant reply")
@@ -122,8 +138,7 @@ vim.ui.select = function(sessions, _opts, select)
   end
   error("Traces did not discover the second session")
 end
-require("sysinit_workbench.traces").open({
-  program = "traces",
+vim.cmd.Traces({
   args = { "--all", "--file", file, "--config", config },
 })
 assert(vim.wait(10000, function()
@@ -133,8 +148,7 @@ await_text(vim.api.nvim_get_current_buf(), "Other assistant reply")
 
 local empty = vim.fn.tempname()
 vim.fn.writefile({ "{}" }, empty)
-require("sysinit_workbench.traces").open({
-  program = "traces",
+vim.cmd.Traces({
   args = { "--all", "--file", empty, "--config", config },
 })
 await_text(vim.api.nvim_get_current_buf(), "No Traces sessions in this scope")

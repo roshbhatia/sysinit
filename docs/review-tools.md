@@ -34,6 +34,10 @@ and review notes. Use `?` for the viewer's keymap. Run `traces` to browse
 activity for the current checkout or `traces --session ID` to select a specific
 session.
 
+Inside Neovim, use `<leader>gg` for Neogit and `<leader>dd` for Diffview.
+Use `:Changes` for grouped changes, `:Traces` for sessions in the current
+checkout, and `:Traces --all` for sessions across checkouts.
+
 `agents` opens a searchable list of registered agents on the shell's PATH.
 Codex, OpenCode, and Claude appear first by default. Selecting an agent
 runs its native command in the current pane and directory. Select
