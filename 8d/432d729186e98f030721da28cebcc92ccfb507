@@ -1,29 +1,29 @@
 checks/agent-sessions.nix
-  s_796b0b41a96769::t_57889670b81e48 6,13-16
+  s_796b0b41a96769::t_56f23d3211a4a9 6,13-16
 checks/agent-sessions.nu
-  s_a4a3eea4720821::t_d1f6c58f783236 1,3-10,12-16,18-39,41-90,92-100
+  s_a4a3eea4720821::t_bc2faff9cbbf3f 1,3-10,12-16,18-39,41-90,92-100
 checks/fixtures/agent-sessions-command.nu
-  s_a4a3eea4720821::t_af660ff45a8562 1-12
+  s_a4a3eea4720821::t_2d612c2019b399 1-12
 checks/fixtures/nh-command.nu
-  s_a4a3eea4720821::t_f668fc06fd9eaa 1-28
+  s_a4a3eea4720821::t_24038a0215eb7b 1-28
 checks/fixtures/nushell-extern-cases.nuon
-  s_796b0b41a96769::t_44477afd8e446f 1-28
+  s_796b0b41a96769::t_17ae710a5aa711 1-28
 checks/fixtures/nushell-extern-command.nu
-  s_a4a3eea4720821::t_2dd53db31d45a2 1-14
+  s_a4a3eea4720821::t_7288ceb7a2c0e1 1-14
 checks/fixtures/utility-command.nu
-  s_a4a3eea4720821::t_ecb98f9f7ba36a 1-28
+  s_a4a3eea4720821::t_18f8746a2c5e16 1-28
 checks/nh.nix
-  s_796b0b41a96769::t_8cc3ca2753b065 2-19
+  s_796b0b41a96769::t_8d9583464943a5 2-19
 checks/nh.nu
-  s_a4a3eea4720821::t_e7b1d4eb3428c0 1-64
+  s_a4a3eea4720821::t_96603427723130 1-64
 checks/nushell-externs.nix
-  s_62c4cb57de6538::t_af57edcd79600c 9,14-15
+  s_62c4cb57de6538::t_2cac209943dc0d 9,14-15
 checks/nushell-externs.nu
-  s_a4a3eea4720821::t_4e9c7f0e8b6cfb 1-172
+  s_a4a3eea4720821::t_25e00e16271bb6 1-172
 checks/utility-contracts.nix
-  s_a4a3eea4720821::t_125bacd3a55fc4 18
+  s_a4a3eea4720821::t_72ae355e26a233 18
 checks/utility-contracts.nu
-  s_a4a3eea4720821::t_dd79a84babf1fd 1-116
+  s_a4a3eea4720821::t_b3ad452324e729 1-116
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -51,7 +51,7 @@ checks/utility-contracts.nu
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.1-sol"
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
