@@ -1,0 +1,25 @@
+docs/review-tools.md
+  s_a4a3eea4720821::t_479b3635d98b34 37-40
+checks/editor-workbench.lua
+  s_a4a3eea4720821::t_cab0dc52e1601f 81-88,90-97
+  s_a4a3eea4720821::t_ae2f2a5eca1118 3,73-74,126,141,151
+  s_a4a3eea4720821::t_479b3635d98b34 89
+flake.lock
+  s_a4a3eea4720821::t_7dc62c01384500 1796-1797,1800
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7cd8e412b0dd4b389cb03b045d0bb3ba139e278c",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
