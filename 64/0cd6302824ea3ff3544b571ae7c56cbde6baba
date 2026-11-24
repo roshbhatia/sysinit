@@ -1,11 +1,11 @@
-modules/home/programs/tether/default.nix
-  s_a4a3eea4720821::t_51a92867fb55d7 9-15
-modules/home/programs/wezterm/default.nix
-  s_a4a3eea4720821::t_51a92867fb55d7 63-65
-flake.nix
-  s_a4a3eea4720821::t_b820f3a089010e 164
 flake.lock
-  s_a4a3eea4720821::t_c749087cb7e63e 1651-1652,1655,1661,2006-2007,2010,2016
+  s_a4a3eea4720821::t_9342ab2aea9ef2 1651-1652,1655,1661,2006-2007,2010,2016
+modules/home/programs/tether/default.nix
+  s_a4a3eea4720821::t_939cf9e03fd6f3 9-15
+modules/home/programs/wezterm/default.nix
+  s_a4a3eea4720821::t_524e940af7c638 63-65
+flake.nix
+  s_a4a3eea4720821::t_08131f8769fdc6 132,164
 ---
 {
   "schema_version": "authorship/3.0.0",
