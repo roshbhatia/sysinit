@@ -167,12 +167,6 @@ def check [
 
     assert (not ($root | path join gh-calls | path exists))
 
-    review $script $url [--tool tuicr] | ignore
-
-    assert equal (git-command $directory remote get-url origin) $'file://($source)'
-
-    assert equal (open ($directory | path join tuicr.json)) [pr '1']
-
     let request = {
         prompt: 'Extract URLs'
         input: data
@@ -318,7 +312,6 @@ def main [
         changes
         nvim
         hunk
-        tuicr
         provider
         ask
     ] {

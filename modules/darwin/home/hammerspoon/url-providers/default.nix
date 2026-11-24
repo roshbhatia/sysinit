@@ -41,5 +41,4 @@ in
   diffview = editor "Neovim (Diff)" "Read the patch in Diffview" "diffview";
   changes = editor "Changes" "Browse the patch and authorship in Changes" "changes";
   hunk = editor "Hunk" "Review the PR in Hunk" "hunk";
-  tuicr = editor "tuicr" "Review the PR in tuicr with line comments" "tuicr";
 }

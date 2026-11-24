@@ -34,9 +34,12 @@ PATH. Installing Ask does not expose their agent commands globally.
   while refreshing the plugin.
 - Codex's shared app-server uses the Nix-pinned CLI through a user service.
   See [docs/codex-daemon.md](codex-daemon.md) for its socket, ownership, and checks
-- Nix-owned Codex hooks live in `/etc/codex/hooks.json` and are trusted by native
-  system policy. [docs/harness-settings.md](harness-settings.md) records the
-  installed-version settings audit and standalone Home Manager behavior
+- On nix-darwin and NixOS, the managed Codex configuration installs its hooks
+  in `/etc/codex/hooks.json`. Codex trusts that system source by policy. Hook
+  commands use the stable user profile path. Standalone Home Manager uses
+  user-layer hooks with native review and trust. Project and plugin hooks
+  retain their native trust rules. The `harness-settings` check verifies
+  managed hook placement on both platforms.
 - `registry.nix` carries what each harness can do, not just who it is: `guard`,
   `notify`, `editBus`, `acp`, `exitHook`, `projectDir`, `transcriptRoot`.
   `harnesses/default.nix` rejects a null on the ones that must be answered,
@@ -69,18 +72,17 @@ PATH. Installing Ask does not expose their agent commands globally.
   Neovim handles Git or directory review, and any terminal agent can receive
   staged feedback through its ordinary input. Protocol adapters add optional
   provider capabilities. See [agent workspaces](agent-workspaces.md).
-- `hack/` scripts are bash with `set -euo pipefail`, formatted by
-  `shfmt -i 2 -ci -sr -s`
+- `hack/` uses Nushell for automation. Retained Bash entry points use
+  `set -euo pipefail` and `shfmt -i 2 -ci -sr -s`.
 - Nix formatter is `nixfmt-rfc-style`
 - Custom packages that `cache.nixos.org` never serves are published to
   `roshbhatia.cachix.org`. Its public key is
   `roshbhatia.cachix.org-1:K7Kq2esJYhrV/aCH8Xl7h54y8NULg/k+7WkObNT9VDk=`. The
   token is in the 1Password item "Cachix" and the `CACHIX_AUTH_TOKEN` repo
   secret. The producer is `.github/workflows/build-cache.yml`. It builds the
-  `cacheBundle` `symlinkJoin` from `flake.nix` on every push to main touching
-  flake, overlays, or `_sources`. Add a package by appending its attr name to
-  `cacheAttrs`; a flake-input package goes to `inputPkgsFor`. Over-including is
-  harmless, because only genuinely-built paths upload. The consumer substituter
+  `cacheBundle` from `flake/cache.nix` on pushes to main that touch the relevant
+  build sources. Add an overlay package to `cacheAttrs` and keep standalone
+  CLI exports in `flake/packages.nix`. The consumer substituter
   is declared in `modules/darwin/system.nix` and
   `modules/nixos/common/default.nix`; Lima needs none, it pulls from the host
   store

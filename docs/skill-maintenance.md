@@ -24,6 +24,7 @@ names. The published frontmatter name matches the installed directory. Use
 `sysinit.llm.enabledOptInSkills` to select a specialist skill from the catalog.
 Skill names and CLI commands are separate interfaces. Include actual command
 names in the description and examples so agents can discover them.
+Opting into `workflow-run-conductor` also installs the Conductor CLI.
 
 Store Claude-specific settings as string values under namespaced `metadata`
 keys, such as `sysinit-claude-model`. The Claude renderer translates those
@@ -63,38 +64,3 @@ Verify them in the active session before relying on them. For example, the
 judged review uses Claude Code's configured critic and mediator roles and
 hook events. Other harnesses can perform ordinary reviews with evidence
 from the current checkout.
-
-## Workstation audit
-
-The pre-taxonomy manifest declared 44 skill names across four harness roots. The
-inventory found all 44 in each root after resolving symlinked skill directories.
-Including `~/.agents/skills` and `~/.codex/skills`, it found 116 names and 20
-with byte differences. Nine of the 20 had copies only in managed roots.
-Spot checks of `search-code-routing`, `gh-stack`, and `writing-tone` showed
-the expected renderer differences in model and effort metadata. Inspect a
-copy's provenance and content before treating a difference as a conflict.
-
-| Workflow | Default route | Keep the supporting skill for |
-| --- | --- | --- |
-| Code discovery and structural edits | `code-search` routes literal search to `rg` and code shapes to `ast-grep`. | Upstream ast-grep references for rule and outline syntax. Use `review-call-graph` when call relationships matter. |
-| Checkout, agent, and execution | `workflow-route-local` routes to `sy`, `agents`, `taskwarrior`, `tq`, and `ty`. | `workflow-run-conductor` for a reusable Conductor YAML workflow. |
-| Changes and PRs | The review reference selects Git, review checkpoints, Hunk, Diffview, or Atlas. The observation reference uses `gh` and `gh-pr-state`. | `github-stack-prs` for stack operations and `github-write-pr` for the description. |
-| Remote access | `tsh` for a remote shell and `tether attach` for an explicit native WezTerm attachment. | Preview the plan through the existing CLI before connecting when the transport matters. |
-| Scripts and machine configuration | `code-write-shell` uses Nushell and the repository toolchain. `nix-deploy-host` covers activation of a Nix-managed host. | Bash conventions for retained scripts and the consuming repository's skills for production deployments. |
-
-The audit corrected the inventory's false missing reports and the Bash-first
-script guidance. It also added review and remote-access routes to
-`local-workflows`. On this machine, both dry-run remote entry points returned
-valid cached plans. The generic shell selected SSH and the explicit attach
-selected native mux.
-
-| Decision | Evidence and acceptance check |
-| --- | --- |
-| Consolidate PR maintenance guidance at its existing owner. | `autopilot` and `babysit` in the additional catalog have identical descriptions and different procedures. Keep one intake for authorized repair and use the managed PR reference for observation. Check explicit repair, watch-only, and merge-only prompts before removing a copy. |
-| Keep structural search references pinned with their tools. | `search-code-routing` already points to the ast-grep outline skill. Keep that handoff and review upstream copies independently of machine-specific workflow decisions. |
-| Review specialist skills for opt-in use. | The tutoring skill is pinned and published to the same roots as everyday workflows. Decide its default from explicit use and ownership. The inventory measures presence and content differences. |
-| Keep work-only skills in the consuming repository. | The consuming manifest supplies work-specific skills, upstream requirements, and overrides. Compare their corrected behavior with the upstream owner before removing an override or replacing its source. |
-
-Use the existing prompt corpus to verify selection in fresh harnesses before
-pruning. The relevant cases here are a local checkpoint review, a PR watch, a
-requested repair, and a native attach preview.

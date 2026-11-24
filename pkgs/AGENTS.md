@@ -13,7 +13,8 @@ pkgs/
   go.mod  go.sum
   utils/            agent-statusline and threads (one binary, two names)
   mcp-gateway/      session-preserving MCP gateway supervisor and probe
-  tq/       Taskwarrior work submitted to Pueue and reconciled
+  tq/               Taskwarrior work submitted to Pueue and reconciled
+  task-board/       Taskwarrior and queue status view
   url-route/        URL provider routing for Hammerspoon
 ```
 

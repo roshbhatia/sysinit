@@ -35,7 +35,6 @@ def main [
         diffview
         changes
         hunk
-        tuicr
     ] { error make {msg: 'Unknown review tool'} }
 
     if $history and $tool != nvim { error make {msg: '--history uses Neovim'} }
@@ -85,21 +84,6 @@ def main [
     }
 
     git-command $directory [init --quiet '--template=']
-
-    if $tool == tuicr {
-        let remotes = ^git remote | lines
-
-        git-command $directory [
-            remote
-            (if origin in $remotes { 'set-url' } else { 'add' })
-            origin
-            $repository
-        ]
-
-        ^tuicr pr $pr.number
-
-        exit $env.LAST_EXIT_CODE
-    }
 
     let endpoint = $'repos/($pr.owner)/($pr.repo)'
 

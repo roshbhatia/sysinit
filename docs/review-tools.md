@@ -1,9 +1,4 @@
-# Installed review tools
-
-This inventory covers the active macOS workstation's shell, editor, agent,
-GitHub, and desktop entry points. It also includes read-only executable
-discovery on the remote hosts used by the terminal workflow. Usage frequency
-was not measured.
+# Review tools
 
 ## Patch readers and review UI
 
@@ -13,9 +8,9 @@ was not measured.
 | Changes | `changes`, `changes workspace`, `changes note` | Native review workspace, a structured snapshot for automation, and durable note storage. |
 | Traces | `traces`, `traces --session ID` | Native activity viewer, structured output, and provider commands. |
 | diffnav | `git diff \| diffnav` | Patch pager with a file tree. Also the external reader for the optional native Changes UI. |
-| Hunk and tuicr | `nix shell .#hunk`, `nix shell .#tuicr` | Optional standalone review tools. Set `programs.hunk.enable = true` to install the managed Hunk configuration. |
-| Delta 0.20.1 | `git diff \| delta` | Patch and word-level coloring. Installed as a standalone CLI and referenced by diffnav's Nix package. Git has no configured Delta pager. |
-| Difftastic 0.72.0 | `difft LEFT RIGHT` | Syntax-aware comparison. Git's configured difftool is Neovim. |
+| Hunk | `nix shell .#hunk` | Optional standalone patch reader. Set `programs.hunk.enable = true` to install the managed Hunk configuration. |
+| Delta | `git diff \| delta` | Patch and word-level coloring. Installed as a standalone CLI and referenced by diffnav's Nix package. Git has no configured Delta pager. |
+| Difftastic | `difft LEFT RIGHT` | Syntax-aware comparison. Git's configured difftool is Neovim. |
 | Git and base utilities | `git diff`, `git show`, `git log -p`, `git range-diff`, `diff`, `sdiff`, `diff3`, `diffstat`, `patch` | Baseline patch, history, and merge plumbing. |
 | PR browser | GitHub's Firefox view | The macOS GitHub picker can route back to GitHub for the canonical PR, review, and Actions records. |
 | FileMerge and Vim | `opendiff`, Xcode FileMerge, `vimdiff` | macOS/Xcode comparison tools. Separate from the Sysinit viewers. |
@@ -138,23 +133,9 @@ Taskwarrior and Pueue retain ownership of durable queue work.
   is for Actions jobs and logs. Installed extensions also include `gh stack`
   for stack navigation and `gh aw` for agentic workflows.
 - `gh-pr-diff` is the shared local launcher. The macOS link picker offers
-  Atlas and the browser by default. Put Hunk or tuicr on PATH to use the
-  corresponding explicit `gh-pr-diff --tool` backend.
+  Atlas and the browser by default. Put Hunk on PATH to use
+  `gh-pr-diff --tool hunk`.
 - `gh-pr-state` reads structured PR state and supports bounded, resumable
-  polling. The installed GitHub CLI 2.104.0 does not expose `gh event`.
+  polling.
 - Changes, GitHub tools and the agent/editor configuration are in the
   shared development profile. The Hammerspoon link picker is Darwin-specific.
-  Homebrew had no extra diff or review package in the installed formula and
-  cask lists.
-
-## Remote hosts
-
-| Host | Observed commands |
-| --- | --- |
-| `arrakis` | Hunk, Changes, diffnav, tuicr, Delta, Difftastic, Git AI, calldiff, ast-grep, Neovim, Helix, Emacs, GitHub CLI, `gh-pr-diff`, `agent-diff`, `agent-review`, `review`, `ty`, OpenCode, Codex, Claude Code, Pi, and Mergiraf. |
-| `vorgossos` | Neovim, GitHub CLI, OpenCode, and Claude Code were found on the probed PATH and standard Nix profile paths. |
-| `lv426` | SSH timed out. The shared workstation profile declares the same review packages as the other managed hosts. |
-
-These checks covered commands on PATH. Editor plugin state, profiles outside
-the standard paths, and desktop applications were checked on the local
-workstation only.

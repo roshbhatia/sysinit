@@ -71,7 +71,7 @@ def run-checks [scope: string, temporary: path] {
     let formatting = (files-for
         $scope
         '.'
-        '(treefmt\.toml|nufmt\.nuon|flake/formatter\.nix|hack/format\.(sh|nu))$'
+        '(treefmt\.toml|nufmt\.nuon|flake/formatter\.nix|hack/format\.nu)$'
     )
 
     if ($formatting | is-not-empty) and (available treefmt) {

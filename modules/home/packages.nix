@@ -115,7 +115,6 @@ in
         claude-agent-acp
         codex-acp
         copilot-language-server
-        conductor-cli
         lsp-ai
         traces
 
@@ -145,6 +144,7 @@ in
         yamllint
       ]
       ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ alerter ]
+      ++ lib.optional (builtins.elem "workflow-run-conductor" config.sysinit.llm.enabledOptInSkills) conductor-cli
       ++ map (name: pkgs.${harnesses.${name}.package}) config.sysinit.llm.harnessPackages;
 
       workstation = lib.optionals pkgs.stdenv.hostPlatform.isLinux [ hyprpicker ];

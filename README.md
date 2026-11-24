@@ -29,6 +29,7 @@ Use the installed `nh` for routine builds and switches.
 
 | Path | Purpose |
 | --- | --- |
+| `flake.nix`, `flake/` | Dependency declarations and output assembly, including package exports, cache bundles, and development shells |
 | `hosts/` | Host identities, profiles, and machine settings |
 | `modules/darwin/` | macOS system and desktop configuration |
 | `modules/nixos/` | NixOS system configuration |
@@ -46,8 +47,8 @@ and desktop applications in that order.
 [sysinit.wezterm](https://github.com/roshbhatia/sysinit.wezterm) owns the terminal configuration.
 This flake pins both repositories and supplies host settings.
 
-[Agent workspaces](docs/agent-workspaces.md) describes launching a terminal
-agent with a worktree review split and sending review notes to Codex.
+[Local review](docs/review-tools.md#review-local-edits) describes opening a
+worktree review beside a terminal agent and sending feedback.
 
 ## Validate changes
 

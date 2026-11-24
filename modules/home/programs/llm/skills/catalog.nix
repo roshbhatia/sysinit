@@ -4,6 +4,7 @@
     "docs-render-mermaid"
     "code-refactor-architecture"
     "skill-discover"
+    "workflow-run-conductor"
   ];
   names = {
     adversarial-review = "review-adversarial";

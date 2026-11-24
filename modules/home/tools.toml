@@ -90,7 +90,7 @@ nix = "glow"
 
 [[tool]]
 nix = "go-grip"
-none = "installs through `go install` only, which the bootstrap does for utils alone"
+none = "no declared installer for this profile"
 
 # Dropped from the ephemeral set, which is the outcome this phase's TERMINAL
 [[tool]]

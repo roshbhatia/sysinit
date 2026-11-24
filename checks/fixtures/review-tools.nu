@@ -54,9 +54,6 @@ def main --wrapped [tool: string, ...arguments: string] {
 
             exit ($env.HUNK_EXIT? | default '0' | into int)
         }
-        tuicr => {
-            $arguments | to json | save --force tuicr.json
-        }
         nvim => {
             if '--headless' in $arguments {
                 let expression = $arguments | last
