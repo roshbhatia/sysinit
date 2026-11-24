@@ -1,7 +1,7 @@
 docs/python-migration.md
-  s_a4a3eea4720821::t_66481a22d5576a 5-9
+  s_a4a3eea4720821::t_71bd95a78a9e85 5-9
 overlays/python-tools.nix
-  s_796b0b41a96769::t_7b97d5a2990e0c 66
+  s_796b0b41a96769::t_7b69a1e024b18c 66
 ---
 {
   "schema_version": "authorship/3.0.0",
