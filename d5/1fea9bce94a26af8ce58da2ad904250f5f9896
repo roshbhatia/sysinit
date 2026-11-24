@@ -1,50 +1,29 @@
-modules/home/programs/llm/skills/ty/SKILL.md
-  s_a4a3eea4720821::t_ea8f414ec2ce43 48,62,125
-  s_a4a3eea4720821::t_c052a0e6cff01e 74
-  s_a4a3eea4720821::t_aac52f5e86f2cb 3,6,8-11,17,41,63-67,73,75,83,86-104,119
-  s_a4a3eea4720821::t_a20eb0f0bc676f 77-78
-  s_a4a3eea4720821::t_bd701b983741af 29-35,37-39,69-72,76,79-82,84-85
-  s_a4a3eea4720821::t_f233baf0b66d1b 122
-  s_a4a3eea4720821::t_d2495816d11207 121,123-124
-  s_a4a3eea4720821::t_2d80c5a47b8825 40,68,120
-docs/composability-audit.md
-  s_a4a3eea4720821::t_0e24aab2824c09 13,22-28
-  s_a4a3eea4720821::t_6875a53d86ddb5 3,5-6,8-12,14-18,29-35
-  s_a4a3eea4720821::t_3b8cfcfa278d15 85,95,97-98
-  s_a4a3eea4720821::t_337002bb4975cf 1,36-84,86-92,94,96,99-128
-  s_a4a3eea4720821::t_547da9c338dabb 19-21
-modules/home/programs/llm/default.nix
-  s_a4a3eea4720821::t_aac52f5e86f2cb 94
-modules/home/programs/llm/skills/local-workflows/references/pull-requests.md
-  s_a4a3eea4720821::t_59992987503bb2 22-23,26-31
-  s_a4a3eea4720821::t_925b8180393b73 1-14
-checks/skill-helpers.nu
-  s_a4a3eea4720821::t_f0c44e6385a024 45,51
-  s_a4a3eea4720821::t_bca713828eb398 52
-modules/home/programs/llm/skills/skills-ecosystem-discovery/scripts/catalog.nu
-  s_a4a3eea4720821::t_f0c44e6385a024 13-14,16
-  s_a4a3eea4720821::t_d65863d9381086 15
-modules/home/programs/llm/skills/local-workflows/SKILL.md
-  s_a4a3eea4720821::t_925b8180393b73 3,18-19,27-28
-modules/home/programs/llm/lib/instructions.nix
-  s_a4a3eea4720821::t_0e95819259ab51 46-50
-  s_a4a3eea4720821::t_316a7938242ae1 45
-modules/home/programs/llm/skills/shell-script-authoring/SKILL.md
-  s_a4a3eea4720821::t_72de899854572c 7,95-96,98
-  s_a4a3eea4720821::t_f0c44e6385a024 2,9-14,16-18,20
 docs/skill-maintenance.md
-  s_a4a3eea4720821::t_9659a66de57633 42-76
+  s_a4a3eea4720821::t_4bc5a8a2fc6ee0 42-76
 docs/skill-routing-cases.json
-  s_a4a3eea4720821::t_aac52f5e86f2cb 63-72
-  s_a4a3eea4720821::t_9f8327c8595d84 62,78-82
-  s_a4a3eea4720821::t_925b8180393b73 73-77,83-86
+  s_a4a3eea4720821::t_2e24e2c9d2e33c 62-86
+modules/home/programs/llm/default.nix
+  s_a4a3eea4720821::t_af6010dedd40e6 94
 modules/home/programs/llm/skills/agent-diff/SKILL.md
-  s_a4a3eea4720821::t_0e95819259ab51 10
-  s_a4a3eea4720821::t_f233baf0b66d1b 9
+  s_a4a3eea4720821::t_c18ab974fd59fb 9-10
+modules/home/programs/llm/skills/local-workflows/SKILL.md
+  s_a4a3eea4720821::t_192e5e441d0310 3,18-19,27-28
 modules/home/programs/llm/skills/local-workflows/references/execution-and-terminals.md
-  s_a4a3eea4720821::t_ea8f414ec2ce43 27
-  s_a4a3eea4720821::t_c052a0e6cff01e 135-138
-  s_a4a3eea4720821::t_925b8180393b73 140,142-147
+  s_a4a3eea4720821::t_246e8cfacd7246 27,135-138,140,142-147
+modules/home/programs/llm/skills/local-workflows/references/pull-requests.md
+  s_a4a3eea4720821::t_2646dacbd4e2a0 1-14,22-23,26-31
+modules/home/programs/llm/skills/shell-script-authoring/SKILL.md
+  s_a4a3eea4720821::t_8da1ac7b1e99cb 2,7,9-14,16-18,20,95-96,98
+modules/home/programs/llm/skills/skills-ecosystem-discovery/scripts/catalog.nu
+  s_a4a3eea4720821::t_e81515b300d368 13-16
+modules/home/programs/llm/skills/ty/SKILL.md
+  s_a4a3eea4720821::t_a4efbea3f7fb19 3,6,8-11,17,29-35,37-41,48,62-104,119-125
+checks/skill-helpers.nu
+  s_a4a3eea4720821::t_2c6cd4c3ce34c1 45,51-52
+docs/composability-audit.md
+  s_a4a3eea4720821::t_6dd1c3a0e4c7fb 1,3,5-6,8-92,94-128
+modules/home/programs/llm/lib/instructions.nix
+  s_a4a3eea4720821::t_95148daf25d491 45-50
 ---
 {
   "schema_version": "authorship/3.0.0",
