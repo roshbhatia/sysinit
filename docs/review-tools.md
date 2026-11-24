@@ -9,7 +9,7 @@ was not measured.
 
 | Tool | Installed or configured entry point | Role and current callers |
 | --- | --- | --- |
-| Reviewr.nvim | `agent-diff --review` | Draft worktree review with file navigation and precise feedback to the originating agent pane. |
+| Reviewr.nvim | `agent-diff` | Draft worktree review with file navigation and precise feedback to the originating agent pane. |
 | Changes | `changes`, `changes workspace`, `changes note` | Native review workspace, a structured snapshot for automation, and durable note storage. |
 | Traces | `traces`, `traces --session ID` | Native activity viewer, structured output, and provider commands. |
 | diffnav | `git diff \| diffnav` | Patch pager with a file tree. Also the external reader for the optional native Changes UI. |
@@ -22,12 +22,23 @@ was not measured.
 
 ## Review local edits
 
-Run `agent-diff --review --allow-directory` from WezTerm to open or focus a
-Neovim review split. For a Git worktree, Reviewr includes untracked files
-through a temporary Git index and queues comments for explicit delivery.
+Click **Review diff** after a successful Codex or Claude Code edit, or ask the
+agent **“Open a review of your changes.”** Both use `agent-diff` and open or
+reuse the review to the agent's left. From a shell in the same pane, run
+`agent-diff` directly or print a link with `agent-review-link`.
+Reviewr includes untracked files through a temporary Git index.
 Run `:ReviewrTurn` before the next agent edit to mark its baseline, then pick
 Last turn in Reviewr. Plain directories open the directory browser. Run
 the command from the remote shell for a remote checkout.
+
+Ordinary file links open text in Neovim at the linked line and use the
+system's file associations for other files. The `review://` link opens
+the current worktree diff. An explicit `--base` opens Diffview.
+
+Reviewr uses Neovim's local leader, `,`. Press `,c` to comment on a line or
+selection and save with `:w`. Press `,s` to paste the draft into the
+originating agent's input for you to submit. Use `,y` to copy it and `,?`
+to see the available keys.
 
 Run `changes` in a terminal or `changes interactive` to open change groups
 and review notes. Use `?` for the viewer's keymap. Run `traces` to browse
@@ -71,6 +82,28 @@ files Git would add. It preserves the staging area and branch. Each worktree
 has one checkpoint, stored as a local Git tree ref. Marking again replaces it.
 Diffing keeps the same baseline until you mark again.
 
+## Find an agent or wait for output
+
+Use **Session tree: Agent panes** or **Session tree: Blocked agents** in the
+WezTerm command palette to focus a pane in an attached mux. Use
+`agents attention arrakis` to include hook-reported status on Arrakis before
+attaching. The picker opens the native host connection for a remote result.
+The host's pane ID belongs to its mux, so use the session tree after attachment
+to select the exact pane. With `--json`, unavailable hosts have their own
+status and reachable hosts still return rows.
+
+Direct focus from an unattached host needs the mux's existing server-to-client
+pane mapping exposed to callers. Tether can attach the host, then `ty` can
+focus the mapped pane. The same mapping can route a remote source link to its
+owning host.
+
+`ty pane spawn` returns the new pane ID and accepts `left`, `right`, `down`,
+`up`, and `float`. Percent sizing applies to tiled splits. Use
+`ty pane wait <pane-id> <text> --timeout 10sec` for a readiness marker, and
+`ty pane read` for output. A marker is a literal match in the pane's text.
+For a command whose exit code matters, use the existing `worker -w` interface.
+Taskwarrior and Pueue retain ownership of durable queue work.
+
 ## Editor tools
 
 | Tool | Role |
@@ -90,7 +123,7 @@ Diffing keeps the same baseline until you mark again.
 | OpenCode | Native conversation and diff view. `opencode` and `opencode2` resolve to the same executable. The managed Neovim launcher uses `/nvim-diff` so the native `/diff` has its own entry point. |
 | Pi | Managed `/diff` extension opens a Neovim split and also exposes agent-callable review tools. The separate Git checkpoint extension supports Pi's fork workflow. Plannotator is installed as a Pi extension for plan review. |
 | Codex and Claude Code | Installed native review surfaces. Codex also has an optional App Server adapter that records its reported per-turn patch. The agent registry lists 13 launchable harnesses. |
-| `agent-diff` | Opens or refreshes Reviewr with `--review`. Explicit revisions and source links use Diffview. Can compare ordinary folders against a supplied baseline through the workspace path. |
+| `agent-diff` | Opens or refreshes Reviewr for a worktree. Explicit revisions use Diffview. Can compare ordinary folders against a supplied baseline through the workspace path. |
 | `agent-workspace` | Optional pane, launch, review, and conversation coordination. Can pin a Git base, refresh the review split, and send notes back to a chosen pane. |
 | `ty`, `nuwez`, and `nuvim` | Terminal and editor control. These are the reusable placement and inspection interfaces for ordinary sessions and review splits. |
 | `review`, `gate-provider-review-gate`, and `agent-review` | `review` owns the adversarial review ledger consumed by the gate. `agent-review` is a separate session readiness report for dirty, unpushed, or mid-operation repositories. |

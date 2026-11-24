@@ -31,7 +31,13 @@ in
   ];
   hooks = {
     PreToolUse = [ { hooks = [ (commandHook "${profileBin}/codex-gate-hook") ]; } ];
-    PostToolUse = [ { hooks = [ (commandHook "${profileBin}/gate-hook-codex-posttooluse") ]; } ];
+    PostToolUse = [
+      { hooks = [ (commandHook "${profileBin}/gate-hook-codex-posttooluse") ]; }
+      {
+        matcher = "^apply_patch$";
+        hooks = [ (commandHook "${profileBin}/agent-review-link --hook") ];
+      }
+    ];
     UserPromptSubmit = [
       {
         hooks = [

@@ -51,6 +51,7 @@ def main [script: path, fixture: path, ty: path] {
             assert ($opened.stdout | str starts-with Opened)
             let split = open ($root | path join split.json)
             assert equal ($split | last) DiffviewOpen
+            assert ('--left' in $split)
             assert ($split | window 2 | any {|pair| $pair == [--percent '45'] })
             assert ($split | window 2 | any {|pair| $pair == [--cmd 'let g:sysinit_pr_review = v:true'] })
             let reused = ^$nu.current-exe --no-config-file $script --cwd $project | complete
@@ -92,22 +93,25 @@ def main [script: path, fixture: path, ty: path] {
 
             [{pane_id: 7, tab_id: 2}] | to json | save --force ($root | path join panes.json)
 
-            let changed_link = ^$nu.current-exe --no-config-file $script --cwd $project --allow-directory --file $linked | complete
+            let changed_link = ^$nu.current-exe --no-config-file $script --cwd $project --allow-directory --file $linked --line 4 | complete
             assert equal $changed_link.exit_code 0 $changed_link.stderr
 
             let changed_split = open ($root | path join split.json)
-            let diff_args = $changed_split | where {|arg| $arg | str starts-with 'SYSINIT_DIFFVIEW_ARGS=' } | first | str replace 'SYSINIT_DIFFVIEW_ARGS=' '' | from json
-            assert equal $diff_args [HEAD -- ':(top,literal)linked file.lua']
-            assert (($changed_split | last) | str ends-with '/source-view.lua')
-            let changed_index = ($changed_split | enumerate | where item == --listen | first | get index) + 1
-            rm --force ($changed_split | get $changed_index)
+            assert (($changed_split | last) | str ends-with '.open_review()')
+            assert (open --raw ($root | path join source-jump.txt) | str contains '"line":4')
 
-            [{pane_id: 7, tab_id: 2}] | to json | save --force ($root | path join panes.json)
-            let review = ^$nu.current-exe --no-config-file $script --cwd $project --review | complete
+            let second = $project | path join 'untracked.lua'
+            'new file' | save $second
+            let second_link = ^$nu.current-exe --no-config-file $script --cwd $project --allow-directory --file $second --json | complete
+            assert equal $second_link.exit_code 0 $second_link.stderr
+            assert ($second_link.stdout | from json | get reused)
+            assert (open --raw ($root | path join source-jump.txt) | str contains 'untracked.lua')
+
+            let review = ^$nu.current-exe --no-config-file $script --cwd $project | complete
             assert equal $review.exit_code 0 $review.stderr
+            assert ($review.stdout | str starts-with Reused)
             let review_split = open ($root | path join split.json)
-            assert ('SYSINIT_REVIEW_PANE=7' in $review_split)
-            assert equal ($review_split | last) SysinitAgentReview
+            assert (($review_split | last) | str ends-with '.open_review()')
             let review_retry = ^$nu.current-exe --no-config-file $script --cwd $project --review | complete
             assert equal $review_retry.exit_code 0 $review_retry.stderr
             assert ($root | path join review-refreshed | path exists)
@@ -116,7 +120,7 @@ def main [script: path, fixture: path, ty: path] {
 
             [{pane_id: 7, tab_id: 2}] | to json | save --force ($root | path join panes.json)
             let directory = with-env {DIFF_ROOT: $plain} {
-                ^$nu.current-exe --no-config-file $script --pane-id 7 --cwd $plain --allow-directory | complete
+                ^$nu.current-exe --no-config-file $script --pane-id 7 --cwd $plain | complete
             }
             assert equal $directory.exit_code 0 $directory.stderr
             let directory_split = open ($root | path join split.json)

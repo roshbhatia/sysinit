@@ -22,10 +22,20 @@ let
     &&
       builtins.length (
         lib.concatMap (group: group.hooks) (lib.concatLists (builtins.attrValues document.hooks))
-      ) == 6;
+      ) == 7
+    && builtins.any (
+      group:
+      (group.matcher or "") == "^apply_patch$"
+      && builtins.any (hook: lib.hasSuffix "/bin/agent-review-link --hook" hook.command) group.hooks
+    ) document.hooks.PostToolUse;
 in
 assert builtins.all managedHooksValid systems;
 assert home.programs.claude-code.settings.permissions.defaultMode == "bypassPermissions";
+assert builtins.any (
+  group:
+  group.matcher == "Edit|Write|MultiEdit|NotebookEdit"
+  && builtins.any (hook: lib.hasSuffix "/bin/agent-review-link --hook" hook.command) group.hooks
+) home.programs.claude-code.settings.hooks.PostToolUse;
 assert !(home.programs.claude-code.settings ? dangerouslySkipPermissions);
 assert !(home.programs.claude-code.settings ? disabledMcpServers);
 assert home.programs.codex.settings.web_search == "live";

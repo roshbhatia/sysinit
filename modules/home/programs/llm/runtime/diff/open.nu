@@ -1,6 +1,8 @@
 const script = path self
 const directory_notes = path self | path dirname | path join directory-notes.lua
 const source_view = path self | path dirname | path join source-view.lua
+const review_ready = "luaeval('require(\"reviewr.ui\").is_open() and 1 or 0')"
+const review_refresh = "luaeval('(function() require(\"sysinit_workbench.review\").refresh(); return require(\"reviewr.ui\").is_open() and 1 or 0 end)()')"
 const diffview_ready = 'luaeval("(function() local ok, lib = pcall(require, \x27diffview.lib\x27); local view = ok and lib.get_current_view(); return view and view.ready and 1 or 0 end)()")'
 
 def run-command [arguments: list<string>] {
@@ -21,12 +23,25 @@ def command-output [arguments: list<string>] {
     $result.stdout | str trim
 }
 
-def --wrapped wez [...arguments: string] {
-    command-output ([wezterm cli --no-auto-start] | append $arguments)
-}
-
 def panes [] {
     command-output [ty panes] | from json --strict | get panes
+}
+
+def restore-focus [previous: record, owner: record, review_pane: string] {
+    let selected = panes | where {|item|
+        $item.tab_id == $owner.tab_id and $item.is_active? == true
+    } | get -o 0.pane_id
+
+    if $selected == null or $selected == $previous.pane_id { return }
+
+    if $selected == $owner.pane_id or ($selected | into string) == $review_pane {
+        command-output [
+            ty
+            pane
+            focus
+            ($previous.pane_id | into string)
+        ] | ignore
+    }
 }
 
 def rpc [socket: path, expression: string] {
@@ -41,14 +56,18 @@ def rpc [socket: path, expression: string] {
     ]
 }
 
-def jump-to-source [socket: path, position: record] {
-    let lua = 'dofile(_A.script).jump(_A.position)'
+def jump-to-source [socket: path, position: record, review: bool] {
+    let lua = 'dofile(_A.script).jump(_A.position, _A.review) and 1 or 0'
 
-    let args = {script: $source_view, position: $position} | to json --raw | str replace --all "'" "''"
+    let args = {script: $source_view, position: $position, review: $review} | to json --raw | str replace --all "'" "''"
 
     let expression = "luaeval('" + $lua + "', json_decode('" + $args + "'))"
 
-    rpc $socket $expression | ignore
+    let result = rpc $socket $expression
+
+    if $result.exit_code != 0 or ($result.stdout | str trim) != '1' {
+        error make {msg: $"The review editor could not open ($position.file)."}
+    }
 }
 
 def review-file [root: path, file: string] {
@@ -89,7 +108,7 @@ def main [
         run-command [git -C $cwd rev-parse --show-toplevel]
     }
 
-    let directory_mode = $directory or ($allow_directory and $base == null and $git_root.exit_code? != 0)
+    let directory_mode = $directory or (($allow_directory or $file == null) and $base == null and $git_root.exit_code? != 0)
 
     if $against != null and $file == null { error make {msg: '--against also requires --file.'} }
 
@@ -130,7 +149,7 @@ def main [
 
     let directory = $directory_mode or $unchanged_file
 
-    let review = if $review and not $directory and $file == null and $base == null and $note_session == null {
+    let review = if ($review or $file == null or $allow_directory) and not $directory and $base == null and $note_session == null {
         (run-command [
             git
             -C
@@ -159,10 +178,10 @@ def main [
 
     let baseline = if $against != null { review-file ($against | path expand --strict) $file }
 
-    let position = if $file != null and ($line | default 0) > 0 {
+    let position = if $file != null {
         {
             file: $target
-            line: $line
+            line: (if ($line | default 0) > 0 { $line })
             column: ([$column 1] | compact | math max)
         }
     }
@@ -201,12 +220,6 @@ def main [
         $pane.tab_id == $owner.tab_id and $pane.is_active? == true and $pane.is_floating? != true
     } | get 0?
 
-    let anchor = if $background and $active != null {
-        $active.pane_id | into string
-    } else {
-        $parent
-    }
-
     let state = ($env.XDG_STATE_HOME? | default ($env.HOME | path join .local state)) | path join agent-diff
 
     mkdir $state
@@ -219,11 +232,7 @@ def main [
 
     let key_parts = if $review {
         $key_parts | append reviewr
-    } else {
-        $key_parts
-    }
-
-    let key_parts = if $directory {
+    } else if $directory {
         $key_parts | append [
             directory
             $target
@@ -299,7 +308,7 @@ def main [
             let refresh = if $directory {
                 rpc $socket "execute('checktime | redraw')"
             } else if $review {
-                rpc $socket "luaeval('require(\"sysinit_workbench.review\").refresh()')"
+                rpc $socket $review_refresh
             } else {
                 let visible = rpc $socket $diffview_ready
 
@@ -310,11 +319,11 @@ def main [
                 rpc $socket "execute('checktime | DiffviewRefresh')"
             }
 
-            if $refresh.exit_code != 0 or ($review and ($refresh.stdout | str trim) != '1') {
+            if $refresh.exit_code != 0 or ($review and $position == null and ($refresh.stdout | str trim) != '1') {
                 error make {msg: 'The diff editor could not refresh yet. Run /diff again.'}
             }
 
-            if $position != null { jump-to-source $socket $position }
+            if $position != null { jump-to-source $socket $position $review }
 
             if not $background {
                 command-output [
@@ -351,11 +360,9 @@ def main [
 
     let editor = if $review {
         [
-            env
-            $"SYSINIT_REVIEW_PANE=($parent)"
             ...$nvim
             -c
-            SysinitAgentReview
+            ('lua dofile(' + ($source_view | to json --raw) + ').open_review()')
         ]
     } else if $directory {
         let comparison = if $baseline == null {
@@ -455,9 +462,9 @@ def main [
         ty
         pane
         spawn
-        $anchor
+        $parent
         --direction
-        right
+        left
         --percent
         '45'
         --cwd
@@ -466,15 +473,7 @@ def main [
         ...$editor
     ]) | from json --strict | get pane_id
 
-    if $background and $active != null {
-        let selection = panes | where {|item|
-            $item.tab_id == $owner.tab_id and $item.is_active? == true
-        } | get 0?
-
-        if $selection != null and ($selection.pane_id | into string) == $pane and (wez get-pane-direction --pane-id $pane Left) == $anchor {
-            command-output [ty pane focus $anchor] | ignore
-        }
-    } else if not $background {
+    if not $background {
         command-output [ty pane focus $pane] | ignore
     }
 
@@ -490,7 +489,7 @@ def main [
             let ready = if $directory {
                 rpc $socket 'getcwd()'
             } else if $review {
-                rpc $socket 'get(g:, "sysinit_review_ready", 0)'
+                rpc $socket $review_ready
             } else {
                 rpc $socket $diffview_ready
             }
@@ -498,7 +497,9 @@ def main [
             let expected = if $directory { $root } else { '1' }
 
             if $ready.exit_code == 0 and ($ready.stdout | str trim) == $expected {
-                if $position != null { jump-to-source $socket $position }
+                if $background and $active != null { restore-focus $active $owner $pane }
+
+                if $position != null { jump-to-source $socket $position $review }
 
                 if $json {
                     {
@@ -516,6 +517,8 @@ def main [
 
         sleep 50ms
     }
+
+    if $background and $active != null { restore-focus $active $owner $pane }
 
     error make {msg: 'The split opened, but Neovim did not expose its socket yet. Run /diff again.'}
 }

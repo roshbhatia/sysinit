@@ -49,6 +49,18 @@ in
 
   imports = [ inputs.sysinit-wezterm.homeManagerModules.default ];
   home.packages = [ paneName ];
+  programs.wezterm.extraConfig = lib.mkBefore ''
+    dofile("${./links.lua}").setup(wezterm.json_parse(${
+      builtins.toJSON (
+        builtins.toJSON {
+          bin = "${config.home.profileDirectory}/bin";
+          file = lib.getExe pkgs.file;
+          home = config.home.homeDirectory;
+          path = paths.getPathString config.home.username config.home.homeDirectory;
+        }
+      )
+    }))
+  '';
   programs.sysinit-wezterm = {
     enable = true;
     persistence = {

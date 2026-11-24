@@ -2,6 +2,8 @@ vim.opt.runtimepath:append(assert(arg[1]))
 vim.opt.runtimepath:append(assert(arg[2]))
 vim.opt.runtimepath:append(assert(arg[3]))
 vim.cmd.runtime("plugin/sysinit-workbench.lua")
+vim.g.maplocalleader = ","
+dofile(assert(arg[5]))
 
 local root = vim.fn.tempname()
 vim.fn.mkdir(root)
@@ -56,6 +58,22 @@ assert(
 assert(reviewr.set_scope("turn"))
 assert(require("reviewr.state").get().base_ref == baseline)
 assert(not vim.inspect(require("reviewr.state").get().files):find("new file.txt", 1, true))
+local source = dofile(assert(arg[4]))
+assert(source.jump({ file = root .. "/new file.txt", line = 1, column = 999 }, true))
+local review_panes = require("reviewr.ui").panes()
+assert(review_panes.file == "new file.txt")
+assert(vim.api.nvim_get_current_win() == review_panes.right_win)
+assert(vim.deep_equal(vim.api.nvim_win_get_cursor(review_panes.right_win), { 1, 17 }))
+local function has_buffer_map(buf, mode, lhs)
+  return vim.iter(vim.api.nvim_buf_get_keymap(buf, mode)):any(function(mapping)
+    return mapping.lhs == lhs
+  end)
+end
+assert(has_buffer_map(review_panes.right_buf, "n", ",s"))
+assert(has_buffer_map(review_panes.right_buf, "x", ",c"))
+assert(has_buffer_map(review_panes.right_buf, "n", "]c"))
+assert(not has_buffer_map(review_panes.right_buf, "n", "s"))
+assert(require("reviewr.ui").hint(1):find(",s", 1, true))
 vim.env.GIT_INDEX_FILE = nil
 
 local function await_text(buffer, target)

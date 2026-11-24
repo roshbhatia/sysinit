@@ -198,12 +198,20 @@ in
         ];
         PostToolUse = [
           {
-
             matcher = "";
             hooks = [
               {
                 type = "command";
                 command = gateHook "PostToolUse";
+              }
+            ];
+          }
+          {
+            matcher = "Edit|Write|MultiEdit|NotebookEdit";
+            hooks = [
+              {
+                type = "command";
+                command = "${profileBin}/agent-review-link --hook";
               }
             ];
           }
