@@ -1,25 +1,17 @@
-checks/diff-pane.nu
-  s_a4a3eea4720821::t_b0b2b1d69fa00d 38,42
 modules/home/programs/llm/default.nix
-  s_a4a3eea4720821::t_06c9a0be41c4d0 94-96
-  s_a4a3eea4720821::t_a527fae74d566e 93
+  s_a4a3eea4720821::t_bbb8d0d0e0398c 93-96
 modules/home/programs/llm/skills/ty/SKILL.md
-  s_a4a3eea4720821::t_06c9a0be41c4d0 3,13-16,60-75
-  s_a4a3eea4720821::t_c70bbc01fb6af6 76
-checks/fixtures/review-tools.nu
-  s_a4a3eea4720821::t_b0b2b1d69fa00d 66-74
-modules/home/programs/nushell/default.nix
-  s_a4a3eea4720821::t_eb72229661e6a0 232
-checks/default.nix
-  s_a4a3eea4720821::t_992fd375255387 233
+  s_a4a3eea4720821::t_fa93a744b474f5 3,13-16,60-76
 modules/home/programs/nushell/wezterm.nu
-  s_a4a3eea4720821::t_eb72229661e6a0 1-12,18-22
-  s_a4a3eea4720821::t_0edb853662ce58 13-17
-modules/home/programs/llm/runtime/diff/open.nu
-  s_a4a3eea4720821::t_b0b2b1d69fa00d 99,160
-checks/ty.nu
-  s_a4a3eea4720821::t_992fd375255387 2,216-218,228-233,235-237
-  s_a4a3eea4720821::t_6812ab351b86d9 220-226,234
+  s_a4a3eea4720821::t_3bfaa278cb6746 1-22
+checks/default.nix
+  s_a4a3eea4720821::t_950da21f13c44b 233
+checks/diff-pane.nu
+  s_a4a3eea4720821::t_8bdcf4aaeb46f3 38,42
+checks/fixtures/review-tools.nu
+  s_a4a3eea4720821::t_2c3af8fc4e9df3 66-74
+modules/home/programs/nushell/default.nix
+  s_a4a3eea4720821::t_a4be7548b10265 232
 ---
 {
   "schema_version": "authorship/3.0.0",
