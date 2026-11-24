@@ -1,15 +1,19 @@
 checks/threads-picker.py
-  s_a4a3eea4720821::t_64bd78520824cb 46-50,77,151,195
+  s_8680d1b5147c01::t_bb4528a69cd9e9 46-50,77,151,195
 modules/home/programs/llm/skills/taskwarrior/references/queued-execution.md
-  s_a4a3eea4720821::t_87bff7c47262b5 41-52
+  s_a4a3eea4720821::t_0cf3da152341d6 41-52
+pkgs/internal/picker/picker_test.go
+  s_a4a3eea4720821::t_8dae7775ee49bf 1
 pkgs/utils/internal/threads/threads.go
-  s_a4a3eea4720821::t_65e417078bcdcd 16,30,38,55-57,61-64,66,68,258-262,269-273,280-282
+  s_a4a3eea4720821::t_619832731ec6db 16,30,38,55-57,61-64,66,68,258-262,269-273,280-282
 pkgs/utils/internal/threads/threads_test.go
-  s_a4a3eea4720821::t_a98cf01ef5a6ee 29,45,63
+  s_a4a3eea4720821::t_f92911d02efc74 29,45,63
 checks/default.nix
-  s_a4a3eea4720821::t_61b4f5b9c54a71 114-125
+  s_a4a3eea4720821::t_716486b3d40c47 114-125
 modules/home/programs/pueue/default.nix
-  s_a4a3eea4720821::t_b692f6cf3a892e 16-17
+  s_a4a3eea4720821::t_27be91810fb8d2 16-17
+pkgs/internal/picker/picker.go
+  s_a4a3eea4720821::t_5eb88322bb5ddd 1,175-176,178,180-185
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -17,6 +21,14 @@ modules/home/programs/pueue/default.nix
   "base_commit_sha": "05af1a7bc829105c8202cdb6d0f3e163704582c7",
   "prompts": {},
   "sessions": {
+    "s_8680d1b5147c01": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a20bb3-c9d2-79b0-95de-9322d62dbfa8",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
     "s_a4a3eea4720821": {
       "agent_id": {
         "tool": "codex",
