@@ -1,31 +1,31 @@
 checks/app-copy-state.nu
-  s_a4a3eea4720821::t_9995a6555eb00d 1-156
+  s_a4a3eea4720821::t_c3ba514a75abc8 1-156
 checks/fixtures/app-copy-command.nu
-  s_a4a3eea4720821::t_26f38e65d27368 1-9
+  s_a4a3eea4720821::t_a78bda7e23298e 1-9
 checks/fixtures/defaults-command.nu
-  s_a4a3eea4720821::t_c145dd6f8e1a78 1-48
+  s_a4a3eea4720821::t_9c9035db69aea9 1-48
 checks/incremental-defaults.nu
-  s_a4a3eea4720821::t_f9c2ee8191dc0d 1-128
+  s_a4a3eea4720821::t_d4cd7ae8c92e50 1-128
 hack/check-nushell.nu
-  s_796b0b41a96769::t_7505d03131cf35 1-3
+  s_796b0b41a96769::t_417c135a4b3952 1-3
 hack/lint.sh
-  s_a4a3eea4720821::t_7c2aa9f9a4ca5a 179,181-184,186-187
+  s_a4a3eea4720821::t_b5060f00e86021 179,181-184,186-187
 modules/darwin/codesign.nix
-  s_796b0b41a96769::t_ab501ae6852c3b 10
+  s_796b0b41a96769::t_4d1ee9e36be7ef 10
 modules/darwin/defaults-incremental.nix
-  s_a4a3eea4720821::t_7e36b50674c75a 53
+  s_a4a3eea4720821::t_9cb69584749878 53
 modules/darwin/defaults-incremental.nu
-  s_a4a3eea4720821::t_63b77483b56b98 1-44
+  s_a4a3eea4720821::t_66951863dd33cd 1-44
 modules/home/app-copy-state.nu
-  s_a4a3eea4720821::t_72245b0c9a589a 1-128
+  s_a4a3eea4720821::t_d7d775fe101b36 1-128
 modules/home/codesign.nix
-  s_796b0b41a96769::t_85e395756331c7 46-53
+  s_796b0b41a96769::t_23b6f039e71b83 46-53
 overlays/nushell.nix
-  s_796b0b41a96769::t_7a5c0815abb1f9 24-29
+  s_796b0b41a96769::t_0fd08efa3be5ad 24-29
 checks/default.nix
-  s_a4a3eea4720821::t_9fdb5c08d74825 278-288,290,306-310,314-315,320
+  s_a4a3eea4720821::t_1c8ce03fe772df 278-288,290,306-310,314-315,320
 flake.nix
-  s_a4a3eea4720821::t_7e2aa3fce66f6d 498
+  s_a4a3eea4720821::t_3bd81bd149bbc8 498
 ---
 {
   "schema_version": "authorship/3.0.0",
