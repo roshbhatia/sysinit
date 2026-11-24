@@ -1,0 +1,11 @@
+{
+  "name": "sysinit-pi-extension-typecheck",
+  "private": true,
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "1.5.2",
+    "@earendil-works/pi-tui": "1.5.2",
+    "@modelcontextprotocol/sdk": "1.25.2",
+    "@types/node": "22.20.5"
+  },
+  "type": "module"
+}

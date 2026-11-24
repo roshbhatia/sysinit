@@ -33,6 +33,8 @@ in
 
   pi-extensions = import ./pi-extensions.nix { inherit pkgs; };
 
+  pi-types = import ./pi-types.nix { inherit pkgs; };
+
   strands = pkgs.strands-cli;
 
   opencode = import ./opencode.nix { inherit pkgs; };

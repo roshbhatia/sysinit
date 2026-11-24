@@ -51,15 +51,11 @@ export default function (pi: ExtensionAPI) {
   });
 
   pi.on("tool_call", (event) => {
-    const name = event?.toolName ?? "";
-    const args = event?.input ?? {};
-    const detail =
-      args.command ??
-      args.file_path ??
-      args.path ??
-      args.description ??
-      args.pattern ??
-      "";
+    const name = event.toolName;
+    const args: Record<string, unknown> = event.input;
+    const detail = ["command", "file_path", "path", "description", "pattern"]
+      .map((key) => args[key])
+      .find((value) => typeof value === "string");
     const reason = name && detail ? `${name}: ${detail}` : name || "working";
     state("working", reason);
   });

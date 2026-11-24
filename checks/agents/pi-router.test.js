@@ -78,7 +78,9 @@ test("simple planning, first successful edit, persisted implementation, direct r
 });
 test("complex tasks route to sol", async () => {
   const s = setup("complex");
-  expect((await s.router.route(s.req, s.ctx)).model.id).toBe("gpt-5.6-sol");
+  expect(
+    (await s.router.route({ ...s.req, signal: undefined }, s.ctx)).model.id,
+  ).toBe("gpt-5.6-sol");
 });
 test("invalid classification fails and cleans temporary file", async () => {
   const s = setup("invalid");

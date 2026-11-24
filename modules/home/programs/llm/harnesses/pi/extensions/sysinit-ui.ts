@@ -33,7 +33,7 @@ export default function (pi: ExtensionAPI): void {
   pi.on("agent_start", (_event, ctx) => apply(ctx));
   pi.registerCommand("animation", {
     description: "Toggle the working animation: /animation [on|off]",
-    handler: (args, ctx) => {
+    handler: async (args, ctx) => {
       const value = args.trim();
       if (value && value !== "on" && value !== "off") {
         ctx.ui.notify("Usage: /animation [on|off]", "warning");
