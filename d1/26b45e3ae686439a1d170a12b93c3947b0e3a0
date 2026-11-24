@@ -1,23 +1,23 @@
 checks/nushell-completions.nix
-  s_a4a3eea4720821::t_0acc5a81681f85 10,13-16,19-23
+  s_a4a3eea4720821::t_a03d552eb86d53 10,13-16,19-23
 checks/nushell-externs.nix
-  s_62c4cb57de6538::t_13e15a274944de 1-16
+  s_62c4cb57de6538::t_aa6e99ffb7d8b6 1-16
 docs/nushell-externs.md
-  s_4541d03bc240df::t_82eb661f1a4aa3 1-86
+  s_4541d03bc240df::t_140ae81291df48 1-86
 modules/home/programs/nushell/completers.nu.tmpl
-  s_4541d03bc240df::t_c0d007da53154f 63-66
+  s_4541d03bc240df::t_0307f5076c1d9c 63-66
 modules/home/programs/nushell/externs/git.nu
-  s_4541d03bc240df::t_72e05ec126e8bc 1-86
+  s_4541d03bc240df::t_f7fcbeca3cbcab 1-86
 modules/home/programs/nushell/externs/tools.nu
-  s_4541d03bc240df::t_8be37c296eb006 1-234
-overlays/default.nix
-  s_a4a3eea4720821::t_e200d318ff82a0 47
+  s_4541d03bc240df::t_edc43c598cd2b4 1-234
 overlays/nushell.nix
-  s_796b0b41a96769::t_8bc661fd98de28 1-24
+  s_796b0b41a96769::t_062ecbf25c29b3 1-24
 checks/default.nix
-  s_a4a3eea4720821::t_cf9cd8b1ecc1d0 345-348
+  s_a4a3eea4720821::t_3f76acdd0365e8 345-348
 modules/home/programs/nushell/default.nix
-  s_a4a3eea4720821::t_eeecc6230e47f1 220-221
+  s_a4a3eea4720821::t_b33077b67745a1 220-221
+overlays/default.nix
+  s_a4a3eea4720821::t_881410c73a4b89 47
 ---
 {
   "schema_version": "authorship/3.0.0",
