@@ -1,12 +1,5 @@
-checks/editor-workbench.lua
-  s_a4a3eea4720821::t_92fc36e1caa3dc 130,133-140
-docs/review-tools.md
-  s_a4a3eea4720821::t_53bb636a7ac290 32
-modules/home/programs/neovim/editor-host.nu
-  s_a4a3eea4720821::t_53bb636a7ac290 13-14,24,40-42
-  s_a4a3eea4720821::t_bed8a2224e2544 16-19
 flake.lock
-  s_a4a3eea4720821::t_4f5b4f92acef35 1796-1797,1800
+  s_a4a3eea4720821::t_b1c0ecb06b28da 1796-1797,1800
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -18,7 +11,7 @@ flake.lock
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.2-sol"
+        "model": "unknown"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
