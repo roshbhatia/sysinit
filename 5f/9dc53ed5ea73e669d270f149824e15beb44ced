@@ -1,7 +1,7 @@
 flake.lock
-  s_a4a3eea4720821::t_88fd2106c83ff1 1819-1820,1823,1829
+  s_a4a3eea4720821::t_de387097d00346 1819-1820,1823,1829
 flake.nix
-  s_a4a3eea4720821::t_1a92a6c3f430e5 131
+  s_a4a3eea4720821::t_6a89ccba4cea7d 131
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -13,7 +13,7 @@ flake.nix
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "unknown"
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
