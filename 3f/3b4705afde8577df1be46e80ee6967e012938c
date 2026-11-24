@@ -1,31 +1,33 @@
 AGENTS.md
-  s_796b0b41a96769::t_28591110625df2 31
+  s_a4a3eea4720821::t_82cb6333318e37 31
 checks/nushell-managed-tools.nix
-  s_a4a3eea4720821::t_8da4cc2ce4797f 17
+  s_a4a3eea4720821::t_6636fd39acbda4 17
 checks/pi-extensions.nix
-  s_a4a3eea4720821::t_3820571de0dbcf 5
+  s_a4a3eea4720821::t_a40c52ee6991bb 5
 docs/repository-reference.md
-  s_796b0b41a96769::t_28f346dee67df1 120-121,137
-modules/home/programs/llm/default.nix
-  s_a4a3eea4720821::t_02ea8033762cee 132
+  s_a4a3eea4720821::t_03a175cb817fa0 120-121,137
+docs/skill-routing-cases.json
+  s_a4a3eea4720821::t_92e1a4caf1b88e 65
 modules/home/programs/llm/harnesses/cursor/rules/nix.mdc
-  s_7028fc5da01072::t_eb20876cf7a3b9 24
+  s_7028fc5da01072::t_85bf115850c725 24
 modules/home/programs/llm/harnesses/pi/default.nix
-  s_7028fc5da01072::t_02a21900ed0925 98-99
+  s_7028fc5da01072::t_e58a78fd315530 98-99
 modules/home/programs/llm/skills/adversarial-review/SKILL.md
-  s_7028fc5da01072::t_81e558e7a40c66 2-3,32-33,42-43
+  s_a4a3eea4720821::t_767708645f98aa 2-3,32-33,42-43
 modules/home/programs/llm/skills/citation-verification/SKILL.md
-  s_7028fc5da01072::t_85ed89a263325f 2,13-14
+  s_a4a3eea4720821::t_952b96c89fe58a 2,13-14
 modules/home/programs/llm/skills/diagram-mermaid-render/SKILL.md
-  s_7028fc5da01072::t_c47562d357b99f 11,55,176
+  s_a4a3eea4720821::t_8fec5cf48c2262 11,55,176
 modules/home/programs/llm/skills/nix-cache-audit/SKILL.md
-  s_7028fc5da01072::t_a925cfc3078dc0 82
+  s_a4a3eea4720821::t_d65c489f210d71 82
 modules/home/programs/llm/skills/writing-commit-message/SKILL.md
-  s_7028fc5da01072::t_e0172eb7f04674 55,67
+  s_a4a3eea4720821::t_fcf75c88c6bf70 55,67
 modules/home/programs/seshy/default.nix
-  s_7028fc5da01072::t_35fc340937682a 18
+  s_7028fc5da01072::t_4aae68e70f33b9 18
+modules/home/programs/llm/default.nix
+  s_a4a3eea4720821::t_7a8453d6dd2418 132
 modules/home/programs/llm/harnesses/registry.nix
-  s_a4a3eea4720821::t_66063f174f0549 19,63,102,159,200,225,261,295,342,376,410,450
+  s_a4a3eea4720821::t_94ae19ca54c0b1 19,63,102,159,200,225,261,295,342,376,410,450
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -41,19 +43,11 @@ modules/home/programs/llm/harnesses/registry.nix
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     },
-    "s_796b0b41a96769": {
-      "agent_id": {
-        "tool": "codex",
-        "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
-        "model": "gpt-6.1-sol"
-      },
-      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
-    },
     "s_a4a3eea4720821": {
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.1-sol"
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
