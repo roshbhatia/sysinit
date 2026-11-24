@@ -22,17 +22,19 @@ def review-link [cwd: path] {
     }
 
     if ($path | path expand --strict) == $directory {
-        $"Review diff <review://($id)>"
+        $"Review diff\n<review://worktree/($id)>"
     }
 }
 
 def resolve-link [uri: string] {
-    if $uri !~ '^review://[0-9a-f]{16}$' {
+    let parts = $uri | parse --regex '^review://(?:worktree/)?(?<id>[0-9a-f]{16})$'
+
+    if ($parts | is-empty) {
         error make {msg: 'Invalid review link'}
     }
 
     let directory = try {
-        link-directory | path join ($uri | str substring 9..) | path expand --strict
+        link-directory | path join $parts.0.id | path expand --strict
     } catch {
         error make {msg: 'The review checkout is unavailable'}
     }

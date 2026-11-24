@@ -71,7 +71,8 @@ assert(routed[4] == "--pane-id=42")
 assert(routed[5] == "--cwd=" .. root)
 
 routed = nil
-assert(handler(window, pane, "review://other/path") == false)
+assert(handler(window, pane, "review://worktree/0000000000000000") == false)
+assert(handler(window, pane, "review://other/path") == nil)
 assert(routed == nil)
 domain = "remote"
 assert(handler(window, pane, review_uri) == false)

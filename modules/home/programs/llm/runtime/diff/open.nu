@@ -82,6 +82,46 @@ def review-file [root: path, file: string] {
     $target
 }
 
+def wezterm-socket [] {
+    let explicit = $env.WEZTERM_UNIX_SOCKET? | default ''
+
+    if $explicit != '' {
+        return (
+            try {
+                $explicit | path expand --strict
+            } catch {
+                $explicit
+            }
+        )
+    }
+
+    let fallback = $env.HOME | path join .local share wezterm
+
+    let sockets = if $nu.os-info.name == macos {
+        [
+            ($fallback | path join default-org.wezfurlong.wezterm)
+        ]
+    } else {
+        let runtime = if $env.XDG_RUNTIME_DIR? != null {
+            $env.XDG_RUNTIME_DIR | path join wezterm
+        } else {
+            $fallback
+        }
+
+        let display = $env.DISPLAY? | default ':0'
+
+        let names = if $env.WAYLAND_DISPLAY? != null {
+            [$"wayland-($env.WAYLAND_DISPLAY)-org.wezfurlong.wezterm"]
+        } else {
+            []
+        }
+
+        $names | append $"x11-($display)-org.wezfurlong.wezterm" | each {|name| $runtime | path join $name }
+    }
+
+    $sockets | each {|socket| try { $socket | path expand --strict } } | first | default ''
+}
+
 def main [
     --cwd: path = '.'
     --pane-id: string
@@ -186,6 +226,12 @@ def main [
         }
     }
 
+    let connection = wezterm-socket
+
+    if $connection != '' {
+        $env.WEZTERM_UNIX_SOCKET = $connection
+    }
+
     let clients = command-output [ty clients] | from json --strict | get clients
 
     if ($clients | is-empty) { error make {msg: 'No attached WezTerm client.'} }
@@ -227,7 +273,7 @@ def main [
     let key_parts = [
         $root
         $parent
-        ($env.WEZTERM_UNIX_SOCKET? | default '')
+        $connection
     ]
 
     let key_parts = if $review {

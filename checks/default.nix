@@ -282,6 +282,19 @@ in
       ./review-links.lua
     ];
   };
+  diff-pane = nuCheck {
+    name = "diff-pane";
+    script = "diff-pane.nu";
+    inputs = [
+      pkgs.flock
+      pkgs.git
+    ];
+    arguments = [
+      ../modules/home/programs/llm/runtime/diff
+      ./fixtures/review-tools.nu
+      ../modules/home/programs/utils/dev/ty.nu
+    ];
+  };
   utility-contracts = import ./utility-contracts.nix { inherit pkgs; };
   notification-assets = import ./notification-assets.nix { inherit pkgs; };
   ty = nuCheck {

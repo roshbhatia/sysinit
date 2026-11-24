@@ -30,10 +30,10 @@ def main [emitter: path, router: path, probe: path] {
         assert equal ($edit | update hook_event_name PostToolUseFailure | to json --raw | ^$emitter --hook | str trim) ''
         assert equal ($edit | update tool_name Bash | to json --raw | ^$emitter --hook | str trim) ''
 
-        let uri = $link | parse 'Review diff <{uri}>' | get 0.uri
-        assert ($uri =~ '^review://[0-9a-f]{16}$')
+        let uri = $link | lines | last | parse '<{uri}>' | get 0.uri
+        assert ($uri =~ '^review://worktree/[0-9a-f]{16}$')
         assert equal (^$emitter --resolve $uri | str trim) $cwd
-        let unknown = ^$emitter --resolve 'review://0000000000000000' | complete
+        let unknown = ^$emitter --resolve 'review://worktree/0000000000000000' | complete
         assert ($unknown.exit_code != 0)
 
         let file_uri = $"file://($cwd | url encode)"

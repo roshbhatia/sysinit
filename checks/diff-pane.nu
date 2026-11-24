@@ -1,7 +1,11 @@
 use std/assert
 
 def main [script: path, fixture: path, ty: path] {
-    let script = $script | path expand --strict
+    let script = if ($script | path type) == dir {
+        $script | path join open.nu
+    } else {
+        $script
+    } | path expand --strict
 
     let fixture = $fixture | path expand --strict
 
@@ -13,6 +17,22 @@ def main [script: path, fixture: path, ty: path] {
 
     let plain = $root | path join 'plain directory'
 
+    let home = $root | path join home
+
+    let runtime = $root | path join runtime
+
+    let gui_directory = if $nu.os-info.name == macos {
+        $home | path join .local share wezterm
+    } else {
+        $runtime | path join wezterm
+    }
+
+    let alias_name = if $nu.os-info.name == macos { 'default-org.wezfurlong.wezterm' } else { 'x11-:0-org.wezfurlong.wezterm' }
+
+    let socket = $gui_directory | path join gui-sock-fixture
+
+    let other_socket = $gui_directory | path join gui-sock-other
+
     let ty_command = [
         'exec'
         ($nu.current-exe | to json --raw)
@@ -21,7 +41,11 @@ def main [script: path, fixture: path, ty: path] {
         '"$@"'
     ] | str join ' '
 
-    mkdir $bin $project $plain
+    mkdir $bin $project $plain $gui_directory
+
+    touch $socket $other_socket
+
+    ^ln -s $socket ($gui_directory | path join $alias_name)
 
     $"#!/bin/sh\n($ty_command)\n" | save ($bin | path join ty)
 
@@ -43,7 +67,17 @@ def main [script: path, fixture: path, ty: path] {
     }
 
     try {
-        with-env {PATH: ($env.PATH | prepend $bin), REVIEW_FIXTURE: $root, DIFF_ROOT: $project, WEZTERM_PANE: '7', XDG_STATE_HOME: ($root | path join state)} {
+        with-env {
+            PATH: ($env.PATH | prepend $bin)
+            REVIEW_FIXTURE: $root
+            DIFF_ROOT: $project
+            WEZTERM_PANE: '7'
+            WEZTERM_UNIX_SOCKET: ''
+            HOME: $home
+            XDG_RUNTIME_DIR: $runtime
+            XDG_STATE_HOME: ($root | path join state)
+            DISPLAY: ':0'
+        } {
             ^git -C $project init --quiet '--template='
             [{pane_id: 7, tab_id: 2}] | to json | save ($root | path join panes.json)
             let opened = ^$nu.current-exe --no-config-file $script --cwd $project --review | complete
@@ -54,11 +88,18 @@ def main [script: path, fixture: path, ty: path] {
             assert ('--left' in $split)
             assert ($split | window 2 | any {|pair| $pair == [--percent '45'] })
             assert ($split | window 2 | any {|pair| $pair == [--cmd 'let g:sysinit_pr_review = v:true'] })
-            let reused = ^$nu.current-exe --no-config-file $script --cwd $project | complete
+            let reused = with-env {WEZTERM_UNIX_SOCKET: $socket} {
+                ^$nu.current-exe --no-config-file $script --cwd $project | complete
+            }
             assert equal $reused.exit_code 0 $reused.stderr
             assert ($reused.stdout | str starts-with Reused)
             assert ($root | path join refreshed | path exists)
             assert ($root | path join activation.json | path exists)
+            let other = with-env {WEZTERM_UNIX_SOCKET: $other_socket} {
+                ^$nu.current-exe --no-config-file $script --cwd $project --if-open | complete
+            }
+            assert equal $other.exit_code 0 $other.stderr
+            assert equal ($other.stdout | str trim) ''
             touch ($root | path join diffview-inactive)
             let inactive = ^$nu.current-exe --no-config-file $script --cwd $project | complete
             assert ($inactive.exit_code != 0)

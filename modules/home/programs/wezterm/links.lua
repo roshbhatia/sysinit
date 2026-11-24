@@ -48,7 +48,8 @@ function M.setup(options)
   end
 
   wezterm.on("open-uri", function(window, pane, uri)
-    if uri:match("^review://") then
+    local legacy_id = uri:match("^review://([0-9a-f]+)$")
+    if uri:match("^review://worktree/") or (legacy_id and #legacy_id == 16) then
       if not local_domains[pane:get_domain_name()] then
         window:toast_notification("Review diff", "Run agent-diff in the remote shell", nil, 4000)
         return false

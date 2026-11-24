@@ -22,7 +22,7 @@ was not measured.
 
 ## Review local edits
 
-Click **Review diff** after a successful Codex or Claude Code edit, or ask the
+Command-click the **Review diff** link after a successful Codex or Claude Code edit, or ask the
 agent **“Open a review of your changes.”** Both use `agent-diff` and open or
 reuse the review to the agent's left. From a shell in the same pane, run
 `agent-diff` directly or print a link with `agent-review-link`.
@@ -32,7 +32,7 @@ Last turn in Reviewr. Plain directories open the directory browser. Run
 the command from the remote shell for a remote checkout.
 
 Ordinary file links open text in Neovim at the linked line and use the
-system's file associations for other files. The `review://` link opens
+system's file associations for other files. The `review://worktree/` link opens
 the current worktree diff. An explicit `--base` opens Diffview.
 
 Reviewr uses Neovim's local leader, `,`. Press `,c` to comment on a line or
