@@ -156,6 +156,36 @@ def main [script: path, nuwez_module: path] {
         $"read altered the pane text: ($read.stdout)"
     )
 
+    let matched = do $ty [
+        pane
+        wait
+        5
+        raw
+        --timeout
+        '1sec'
+    ]
+
+    (do
+        $check
+        ($matched.exit_code == 0 and ($matched.stdout | from json | get matched) == raw)
+        'pane wait did not match the literal'
+    )
+
+    let missing = do $ty [
+        pane
+        wait
+        5
+        absent
+        --timeout
+        '200ms'
+    ]
+
+    (do
+        $check
+        ($missing.exit_code != 0 and ($missing.stderr | str contains 'Timed out'))
+        'pane wait did not time out'
+    )
+
     do $reset
 
     let split = (do $ty [
@@ -191,11 +221,45 @@ def main [script: path, nuwez_module: path] {
         (do $calls | last) == "wezterm cli --no-auto-start split-pane --pane-id 5 --bottom --percent 45 -- echo two words" and ($spawned.stdout | from json | get action) == "pane.spawn"
     ) $"spawn ($spawned)"
 
+    for placement in [
+        {direction: left, command: 'split-pane --pane-id 5 --left'}
+        {direction: up, command: 'split-pane --pane-id 5 --top'}
+        {direction: float, command: 'spawn --pane-id 5 --floating-pane'}
+    ] {
+        let created = do $ty [
+            pane
+            spawn
+            5
+            --direction
+            $placement.direction
+            --
+            echo
+            hello
+        ]
+
+        do $check ($created.exit_code == 0) $created.stderr
+
+        (do
+            $check
+            ((do $calls | last) == $"wezterm cli --no-auto-start ($placement.command) -- echo hello")
+            $"placement ($placement.direction)"
+        )
+    }
+
     for usage in [
         [pane read]
         [pane read -1]
         [pane focus x]
-        [pane split 5 --direction left]
+        [pane split 5 --direction upward]
+        [
+            pane
+            split
+            5
+            --direction
+            float
+            --percent
+            45
+        ]
         [
             pane
             split

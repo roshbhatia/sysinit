@@ -3,7 +3,7 @@ use std/assert
 def seed [root: path, statuses: list<string>] {
     $statuses | enumerate | each {|row|
         let pane = $row.index | into string
-        {pane: $pane, status: $row.item, repo: '/repo with spaces', since: 1}
+        {pane: $pane, status: $row.item, repo: '/repo with spaces', agent: codex, since: 1}
             | to json | save --force ($root | path join panes ($pane + '.json'))
         {pane_id: $row.index, workspace: 'session with spaces', is_active: ($row.index == 0)}
     } | to json
@@ -70,9 +70,12 @@ def main [
                             {statuses: [working waiting], status: waiting, blocked: 1, attention: 1}
                         ] {
                             with-env {LIVE: (seed $root $expected.statuses)} {
-                                let session = status $script | get sessions | first
+                                let payload = status $script
+                                let session = $payload.sessions | first
                                 assert equal ($session | select status blocked attention) ($expected | select status blocked attention)
                                 assert equal $session.repo '/repo with spaces'
+                                assert equal ($payload.agents | get status) $expected.statuses
+                                assert equal ($payload.agents | get pane_id) [0 1]
                             }
                         }
                     }

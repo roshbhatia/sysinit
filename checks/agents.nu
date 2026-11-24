@@ -35,6 +35,27 @@ def --wrapped main [...args: string] {
             chmod +x ($bin | path join $command)
         }
 
+        let attention_fixture = '#!NU --no-config-file
+def --wrapped main [...args: string] {
+    let agents = if ($args | is-empty) {
+        [{pane_id: 7, workspace: project, agent: pi, status: done}]
+    } else if $args.5? == arrakis {
+        [{pane_id: 7, workspace: remote, agent: codex, status: waiting}]
+    } else {
+        exit 255
+    }
+
+    {discovery_state: fresh, agents: $agents} | to json --raw
+}'
+
+        for command in [agent-sessions ssh] {
+            let path = $bin | path join $command
+
+            $attention_fixture | str replace NU $nu.current-exe | save $path
+
+            chmod +x $path
+        }
+
         {
             favorites: [missing codex]
             agents: [
@@ -72,6 +93,11 @@ def --wrapped main [...args: string] {
             let threads = ^$nu.current-exe --no-config-file $script threads --all --print | from json --strict
             assert equal $threads.args [--all --print]
             assert equal $threads.cwd $worktree
+
+            let attention = ^$nu.current-exe --no-config-file $script attention --json arrakis offline | from json --strict
+            assert equal ($attention.agents | get host) [arrakis local]
+            assert equal ($attention.agents | get pane_id) [7 7]
+            assert equal ($attention.hosts | where host == offline | get 0.state) unavailable
 
             let unavailable = ^$nu.current-exe --no-config-file $script missing | complete
             assert ($unavailable.exit_code != 0)

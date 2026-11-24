@@ -1,7 +1,9 @@
 use catalog.nu agent-catalog
+use attention.nu
 
 const usage = 'Usage: agents [HARNESS [ARGS...]]
        agents list [--all] [--details]
+       agents attention [--json] [HOST...]
        agents threads [ARGS...]
 
 Run without arguments to choose an installed harness or a captured conversation.
@@ -34,6 +36,10 @@ def "main list" [--all, --details] {
 
 def --wrapped "main threads" [...args: string] {
     exec threads ...$args
+}
+
+def "main attention" [--json, ...hosts: string] {
+    attention --json=$json ...$hosts
 }
 
 def --wrapped main [name?: string, ...args: string] {

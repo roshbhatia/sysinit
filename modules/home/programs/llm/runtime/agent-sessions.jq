@@ -33,4 +33,8 @@ def attention_rank:
 | {selected: (if $selected == null then null else
       ([$records[] | select($panes[.pane].is_active == true) | .session] | first // $selected) end),
     selection_state: $selstate, discovery_state: "fresh",
-    sessions: (($active + $idle) | sort_by(-.rank, .name))}
+    sessions: (($active + $idle) | sort_by(-.rank, .name)),
+    agents: ($records | map(select((.agent | type) == "string" and (.agent | length) > 0)
+      | select(.status == "waiting" or .status == "working" or .status == "done")
+      | {pane_id: $panes[.pane].pane_id, tty: $panes[.pane].tty_name, workspace: .session,
+         agent, status, reason, repo, since}))}

@@ -4,12 +4,18 @@ selected_file="$state_dir/selected.json"
 cache_file="$state_dir/sessions.json"
 lock_dir="$state_dir/sessions.lock"
 
+if [ "${1:-}" = --mux ]; then
+  export WEZTERM_UNIX_SOCKET="$HOME/.local/state/wezterm/mux.sock"
+  cache_file="$state_dir/mux-sessions.json"
+  lock_dir="$state_dir/mux-sessions.lock"
+fi
+
 STALE_AFTER=${AGENT_SESSIONS_STALE_AFTER:-10}
 PROBE_TIMEOUT=${AGENT_SESSIONS_PROBE_TIMEOUT:-2}
 LOCK_STALE_AFTER=${AGENT_SESSIONS_LOCK_STALE_AFTER:-30}
 
 emit_empty() {
-  printf '{"selected":null,"selection_state":"absent","discovery_state":"unavailable","sessions":[]}\n'
+  printf '{"selected":null,"selection_state":"absent","discovery_state":"unavailable","sessions":[],"agents":[]}\n'
   exit 0
 }
 

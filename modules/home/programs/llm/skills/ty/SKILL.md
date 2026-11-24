@@ -46,6 +46,7 @@ ty session open <session-id-or-name>
 ty session launch <session-id-or-name>
 ty pane split <pane-id> --direction right
 ty pane spawn <pane-id> --direction right --percent 45 -- codex
+ty pane wait <pane-id> 'ready marker' --timeout 10sec
 ty pane send <pane-id> 'text to paste'
 ty pane send --submit <pane-id> 'text to paste and submit'
 ty pane focus <pane-id>
@@ -60,7 +61,9 @@ it opens a window. Its JSON result reports whether it opened a window.
 when necessary. It returns after launching and does not report a pane ID.
 `pane split` creates a shell pane; `pane spawn` creates a pane running the
 explicit command after `--`. Both return the new pane ID and accept
-`--percent` to size the split. Prefer `pane spawn` with argv when running a
+`left`, `right`, `down`, `up`, and `float`. Use `--percent` for tiled
+splits. `pane wait` waits for literal pane text within the given
+duration. Prefer `pane spawn` with argv when running a
 program. Use `pane send` for text intended for an existing interactive
 program. It accepts stdin when text is omitted and pastes without pressing
 Enter. Use `--submit` only when the user requests submission. Inspect the

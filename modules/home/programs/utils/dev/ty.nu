@@ -14,9 +14,10 @@ Usage:
   ty session open <session-id-or-name>
   ty session launch <session-id-or-name>
   ty session switch <session-id-or-name>
-  ty pane split <pane-id> --direction right|down [--cwd PATH] [--percent N]
-  ty pane spawn <pane-id> --direction right|down [--cwd PATH] [--percent N] -- <command> [args...]
+  ty pane split <pane-id> --direction left|right|down|up|float [--cwd PATH] [--percent N]
+  ty pane spawn <pane-id> --direction left|right|down|up|float [--cwd PATH] [--percent N] -- <command> [args...]
   ty pane read <pane-id>
+  ty pane wait <pane-id> <text> [--timeout <duration>]
   ty pane send [--submit] <pane-id> [text...]
   ty pane focus <pane-id>
   ty pane close <pane-id>
@@ -38,14 +39,20 @@ def tool [name: string] {
     }
 }
 
-# Runs a tool with the same 15-second bound for every call, returning stdout.
-def call [name: string, args: list<string>, input?: string] {
+def call [
+    name: string
+    args: list<string>
+    input?: string
+    --timeout: duration = 15sec
+] {
     let binary = (tool $name)
 
+    let seconds = ($timeout / 1sec) | into string
+
     let result = if $input == null {
-        ^timeout 15 $binary ...$args | complete
+        ^timeout $seconds $binary ...$args | complete
     } else {
-        $input | ^timeout 15 $binary ...$args | complete
+        $input | ^timeout $seconds $binary ...$args | complete
     }
 
     if $result.exit_code != 0 {
@@ -329,7 +336,16 @@ def split [args: list<string>, spawn: bool] {
 
     pane-id $pane | ignore
 
-    if $direction not-in [right down] { usage-error "--direction must be right or down" }
+    let placement = match $direction {
+        left => "--left"
+        right => "--right"
+        down => "--bottom"
+        up => "--top"
+        float => "--floating-pane"
+        _ => { usage-error "--direction must be left, right, down, up, or float" }
+    }
+
+    if $direction == float and ($percent | is-not-empty) { usage-error "--percent applies only to tiled splits" }
 
     if ($cwd | is-not-empty) and not ($cwd | str starts-with "/") { usage-error "--cwd must be an absolute path" }
 
@@ -340,7 +356,7 @@ def split [args: list<string>, spawn: bool] {
     if ($command | any {|arg| $arg | str contains (char nul) }) { usage-error "command contains a null byte" }
 
     let wez = (
-        [cli --no-auto-start split-pane --pane-id $pane (if $direction == "right" { "--right" } else { "--bottom" })]
+        [cli --no-auto-start (if $direction == float { "spawn" } else { "split-pane" }) --pane-id $pane $placement]
         ++ (if ($percent | is-empty) { [] } else { [--percent $percent] })
         ++ (if ($cwd | is-empty) { [] } else { [--cwd $cwd] })
         ++ (if ($command | is-empty) { [] } else { ["--"] ++ $command })
@@ -414,8 +430,62 @@ def send [args: list<string>] {
     emit {version: $version, action: "pane.send", pane_id: $pane}
 }
 
+def pane-text [id: string, --timeout: duration = 15sec] {
+    try {
+        call wezterm [cli --no-auto-start get-text --pane-id $id] --timeout $timeout
+    } catch {|error|
+        error make {msg: $"read pane ($id): ($error.msg)"}
+    }
+}
+
+def wait-for-text [args: list<string>] {
+    let limit = match ($args | length) {
+        2 => { 10sec }
+        4 if $args.2 == '--timeout' => {
+            try {
+                $args.3 | into duration
+            } catch {
+                usage-error 'expected a timeout such as 5sec or 1min'
+            }
+        }
+        _ => { usage-error 'usage: ty pane wait <pane-id> <text> [--timeout <duration>]' }
+    }
+
+    let id = pane-id $args.0
+
+    let needle = $args.1
+
+    if ($needle | is-empty) or $limit <= 0sec { usage-error 'pane wait requires text and a positive timeout' }
+
+    let deadline = (date now) + $limit
+
+    loop {
+        let remaining = $deadline - (date now)
+
+        if $remaining <= 0sec {
+            error make {msg: $"Timed out waiting for text in pane ($id)."}
+        }
+
+        if (pane-text $id --timeout $remaining | str contains $needle) {
+            emit {
+                version: $version
+                action: 'pane.wait'
+                pane_id: $id
+                matched: $needle
+            }
+
+            return
+        }
+
+        sleep ([
+            $remaining
+            150ms
+        ] | math min)
+    }
+}
+
 def pane [args: list<string>] {
-    if ($args | is-empty) { usage-error "expected pane subcommand: split, spawn, read, send, focus, or close" }
+    if ($args | is-empty) { usage-error "expected pane subcommand: split, spawn, read, wait, send, focus, or close" }
 
     let rest = $args | skip 1
 
@@ -425,16 +495,9 @@ def pane [args: list<string>] {
         "read" => {
             if ($rest | length) != 1 { usage-error "usage: ty pane read <pane-id>" }
 
-            let pane = (pane-id $rest.0)
-
-            print --no-newline (
-                try {
-                    call wezterm [cli --no-auto-start get-text --pane-id $pane]
-                } catch {|error|
-                    error make {msg: $"read pane ($pane): ($error.msg)"}
-                }
-            )
+            print --no-newline (pane-text (pane-id $rest.0))
         }
+        "wait" => { wait-for-text $rest }
         "send" => { send $rest }
         "focus" | "close" => {
             let action = $args.0
