@@ -1,0 +1,30 @@
+modules/home/programs/vivid.nix
+  s_a4a3eea4720821::t_c9e125c116ede8 1-11,16,20-23
+modules/home/programs/mise.nix
+  s_a4a3eea4720821::t_c9e125c116ede8 1,22-25
+  s_8680d1b5147c01::t_44d5735fb6ac99 26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "19b1f2c62d71ccabf975751265627b9ddecde9df",
+  "prompts": {},
+  "sessions": {
+    "s_8680d1b5147c01": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a20bb3-c9d2-79b0-95de-9322d62dbfa8",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    },
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
