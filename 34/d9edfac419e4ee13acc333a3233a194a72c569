@@ -1,13 +1,13 @@
-checks/default.nix
-  s_a4a3eea4720821::t_265e85a274287d 170-177,179
 checks/fixtures/wait-for-file.nu
-  s_a4a3eea4720821::t_0fb95616c8e3ad 1-7
+  s_a4a3eea4720821::t_0882ce62a4d0f6 1-7
 checks/git-ai-maintenance.nu
-  s_a4a3eea4720821::t_4b48bc9a899c59 1-164
+  s_a4a3eea4720821::t_ac149d45ed348d 1-164
 modules/home/programs/git-ai/default.nix
-  s_796b0b41a96769::t_901339d356e40a 25-29
+  s_796b0b41a96769::t_25232f83c56ecf 25-29
 modules/home/programs/git-ai/maintain-metrics.nu
-  s_a4a3eea4720821::t_6dd9ab595b41c0 1-138
+  s_a4a3eea4720821::t_f9576b3773e931 1-138
+checks/default.nix
+  s_a4a3eea4720821::t_2630dc2fef0bdf 170-177,179
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -27,7 +27,7 @@ modules/home/programs/git-ai/maintain-metrics.nu
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.2-sol"
+        "model": "gpt-6.1-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
