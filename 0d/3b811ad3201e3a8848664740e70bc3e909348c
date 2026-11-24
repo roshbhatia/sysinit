@@ -1,35 +1,17 @@
-modules/shared/terminal-shell.nix
-  s_a4a3eea4720821::t_70dda4d4bb0390 1-9
-modules/home/programs/wezterm/default.nix
-  s_a4a3eea4720821::t_c5e1ab423379b1 93
-lib/builders/pkgs.nix
-  s_a4a3eea4720821::t_c5e1ab423379b1 40
-modules/home/programs/llm/skills/default.nix
-  s_a4a3eea4720821::t_b3bf7495e26c86 10
-overlays/default.nix
-  s_a4a3eea4720821::t_c5e1ab423379b1 27
 checks/default.nix
-  s_a4a3eea4720821::t_004d5f213dcfe0 292-311
-modules/home/programs/llm/skills/agent-diff/SKILL.md
-  s_a4a3eea4720821::t_b3bf7495e26c86 6-8,10-11
-  s_a4a3eea4720821::t_d59c230e1ccb5f 9
-  s_a4a3eea4720821::t_f880a85b93c88b 23-26
-modules/darwin/home/rex/default.nix
-  s_a4a3eea4720821::t_8c90d12c2f8275 1-4,6-7,9,28-29,39,47
-  s_a4a3eea4720821::t_004d5f213dcfe0 44
-  s_a4a3eea4720821::t_feac3751b6ec0f 5,8,10-17,25-27,30-38,40-43,45-46
-  s_a4a3eea4720821::t_f2da22b36b1431 18-24
-modules/darwin/home/rex/client.lua
-  s_a4a3eea4720821::t_f2da22b36b1431 3-18
-  s_a4a3eea4720821::t_004d5f213dcfe0 1-2,19-20
-overlays/rex.nix
-  s_a4a3eea4720821::t_70dda4d4bb0390 1-32
-docs/terminal-compatibility.md
-  s_a4a3eea4720821::t_d59c230e1ccb5f 13
-  s_a4a3eea4720821::t_f880a85b93c88b 15
-  s_a4a3eea4720821::t_f2da22b36b1431 1-12,14,16-26
+  s_a4a3eea4720821::t_dca9f875649030 292-311
+lib/builders/pkgs.nix
+  s_a4a3eea4720821::t_6ec59b93464dd2 40
 modules/darwin/home/default.nix
-  s_a4a3eea4720821::t_c5e1ab423379b1 8
+  s_a4a3eea4720821::t_c384119e7a12c8 8
+modules/home/programs/llm/skills/agent-diff/SKILL.md
+  s_a4a3eea4720821::t_23c28a2f3c9c61 6-11,23-26
+modules/home/programs/wezterm/default.nix
+  s_a4a3eea4720821::t_04ea8fc2fc650b 93
+modules/shared/terminal-shell.nix
+  s_a4a3eea4720821::t_451572fe11067a 1-9
+modules/home/programs/llm/skills/default.nix
+  s_a4a3eea4720821::t_d7cc30bdec92c6 10
 ---
 {
   "schema_version": "authorship/3.0.0",
