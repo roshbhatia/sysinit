@@ -65,6 +65,16 @@ local function foreground_group(tty)
 end
 
 local function open_review()
+  if vim.v.vim_did_enter == 0 then
+    vim.api.nvim_create_autocmd("VimEnter", {
+      once = true,
+      callback = function()
+        vim.schedule(open_review)
+      end,
+    })
+    return
+  end
+
   -- The GUI and a persistent mux number the same panes independently.
   -- This editor sees the owning mux, where its right neighbor is the source.
   local pane = vim.env.WEZTERM_PANE
@@ -96,10 +106,23 @@ local function open_review()
   end
 end
 
+local function select_review(refresh)
+  local ui = require("reviewr.ui")
+  if not ui.is_open() then
+    return 0
+  end
+  ui.focus_tab()
+  if refresh then
+    require("sysinit_workbench.review").refresh()
+  end
+  local review_tab = vim.api.nvim_win_get_tabpage(ui.panes().right_win)
+  return vim.api.nvim_get_current_tabpage() == review_tab and 1 or 0
+end
+
 if vim.env.SYSINIT_DIFFVIEW_ARGS then
   local args = vim.json.decode(vim.env.SYSINIT_DIFFVIEW_ARGS)
   vim.env.SYSINIT_DIFFVIEW_ARGS = nil
   require("diffview").open(args)
 end
 
-return { jump = jump, open_review = open_review }
+return { jump = jump, open_review = open_review, select_review = select_review }

@@ -1,8 +1,6 @@
 const script = path self
 const directory_notes = path self | path dirname | path join directory-notes.lua
 const source_view = path self | path dirname | path join source-view.lua
-const review_ready = "luaeval('require(\"reviewr.ui\").is_open() and 1 or 0')"
-const review_refresh = "luaeval('(function() require(\"sysinit_workbench.review\").refresh(); return require(\"reviewr.ui\").is_open() and 1 or 0 end)()')"
 const diffview_ready = 'luaeval("(function() local ok, lib = pcall(require, \x27diffview.lib\x27); local view = ok and lib.get_current_view(); return view and view.ready and 1 or 0 end)()")'
 
 def run-command [arguments: list<string>] {
@@ -54,6 +52,14 @@ def rpc [socket: path, expression: string] {
         --remote-expr
         $expression
     ]
+}
+
+def select-review [socket: path, refresh: bool] {
+    let lua = 'dofile(_A.script).select_review(_A.refresh)'
+
+    let args = {script: $source_view, refresh: $refresh} | to json --raw | str replace --all "'" "''"
+
+    rpc $socket ("luaeval('" + $lua + "', json_decode('" + $args + "'))")
 }
 
 def jump-to-source [socket: path, position: record, review: bool] {
@@ -354,7 +360,7 @@ def main [
             let refresh = if $directory {
                 rpc $socket "execute('checktime | redraw')"
             } else if $review {
-                rpc $socket $review_refresh
+                select-review $socket true
             } else {
                 let visible = rpc $socket $diffview_ready
 
@@ -535,7 +541,7 @@ def main [
             let ready = if $directory {
                 rpc $socket 'getcwd()'
             } else if $review {
-                rpc $socket $review_ready
+                select-review $socket false
             } else {
                 rpc $socket $diffview_ready
             }

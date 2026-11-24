@@ -74,6 +74,13 @@ assert(has_buffer_map(review_panes.right_buf, "x", ",c"))
 assert(has_buffer_map(review_panes.right_buf, "n", "]c"))
 assert(not has_buffer_map(review_panes.right_buf, "n", "s"))
 assert(require("reviewr.ui").hint(1):find(",s", 1, true))
+local review_tab = vim.api.nvim_get_current_tabpage()
+vim.cmd.tabnew()
+local dashboard_tab = vim.api.nvim_get_current_tabpage()
+vim.bo.filetype = "snacks_dashboard"
+assert(source.select_review(true) == 1)
+assert(vim.api.nvim_get_current_tabpage() == review_tab)
+vim.cmd.tabclose(vim.api.nvim_tabpage_get_number(dashboard_tab))
 vim.env.GIT_INDEX_FILE = nil
 
 local function await_text(buffer, target)
