@@ -1,13 +1,13 @@
-modules/home/programs/llm/default.nix
-  s_a4a3eea4720821::t_122759be567cdb 131-135,201-202
-modules/home/programs/llm/runtime/default.nix
-  s_796b0b41a96769::t_b92c1eed4ebb68 6,49-69,71,157,175
-modules/home/programs/llm/runtime/macos-notifier.nix
-  s_796b0b41a96769::t_6898da0c68679e 1-49
-modules/home/programs/llm/runtime/macos-notifier.sh
-  s_de8d39c3c56992::t_836b681f5af4aa 1-60
 checks/default.nix
-  s_a4a3eea4720821::t_8395392659d0f9 169-180
+  s_a4a3eea4720821::t_616431af6d8e98 169-180
+modules/home/programs/llm/runtime/default.nix
+  s_796b0b41a96769::t_0c134988453353 6,49-69,71,157,175
+modules/home/programs/llm/runtime/macos-notifier.nix
+  s_796b0b41a96769::t_4f26f8a4e253e6 1-49
+modules/home/programs/llm/runtime/macos-notifier.sh
+  s_de8d39c3c56992::t_a5fa545d441b54 1-60
+modules/home/programs/llm/default.nix
+  s_a4a3eea4720821::t_9a8dcad76e8f3b 131-135,201-202
 ---
 {
   "schema_version": "authorship/3.0.0",
