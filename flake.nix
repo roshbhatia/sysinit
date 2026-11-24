@@ -404,7 +404,6 @@
             "wumpusMono"
             "bookerly"
             "mise-nix"
-            "zoetrope"
             "sysinit-fx"
             "meat"
             "amp-cli"

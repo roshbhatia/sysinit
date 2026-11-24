@@ -143,7 +143,6 @@ in
         vale
         yaml-language-server
         yamllint
-        zoetrope
       ]
       ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ alerter ]
       ++ map (name: pkgs.${harnesses.${name}.package}) config.sysinit.llm.harnessPackages;

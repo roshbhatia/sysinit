@@ -64,7 +64,6 @@
   (import ./jankyborders)
   (import ./sheets.nix)
   (import ./leaf.nix)
-  (import ./zoetrope.nix)
   (import ./mise-nix.nix)
   (
     final: prev:
