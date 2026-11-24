@@ -1,11 +1,9 @@
-checks/nushell-wezterm.py
-  s_b6baf4162ed3c9::t_a37a1f15bc6907 1-101
-modules/home/programs/nushell/functions.nu
-  s_a4a3eea4720821::t_29cee92ea55724 264-283
 checks/default.nix
-  s_a4a3eea4720821::t_bde7bd70a71e1b 321-344
+  s_a4a3eea4720821::t_93f762a9ffe370 321-344
+modules/home/programs/nushell/functions.nu
+  s_a4a3eea4720821::t_c32b03c65d6e9f 264-283
 modules/home/programs/nushell/default.nix
-  s_a4a3eea4720821::t_b682f034ae9601 188-190
+  s_a4a3eea4720821::t_78cdb15ce5db66 188-190
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -17,15 +15,7 @@ modules/home/programs/nushell/default.nix
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.1-sol"
-      },
-      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
-    },
-    "s_b6baf4162ed3c9": {
-      "agent_id": {
-        "tool": "codex",
-        "id": "01a19cf6-a9c0-7161-abce-266a87939179",
-        "model": "gpt-6.1-sol"
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
