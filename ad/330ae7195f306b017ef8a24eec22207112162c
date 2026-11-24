@@ -1,19 +1,19 @@
 checks/completion-cache.nu
-  s_a4a3eea4720821::t_1ffd6b4a29dc8c 1-34
-checks/default.nix
-  s_a4a3eea4720821::t_cc7a463c0b1e66 92,94,98,263,265,269
+  s_a4a3eea4720821::t_04bef169e29942 1-34
 checks/firefox.nix
-  s_796b0b41a96769::t_7412a4ee35170e 28,31
+  s_796b0b41a96769::t_e3feba5917832a 28,31
 checks/firefox.nu
-  s_a4a3eea4720821::t_155c221a023561 1-54
+  s_a4a3eea4720821::t_d22fa6b0a009e9 1-54
 checks/fixtures/skills/contract-fixture/scripts/probe.nu
-  s_796b0b41a96769::t_e5b6244b5c6174 1
-checks/skill-catalog.nix
-  s_a4a3eea4720821::t_21005bc334f77e 41,52
+  s_796b0b41a96769::t_6f0f63fc7771e1 1
 checks/skill-catalog.nu
-  s_a4a3eea4720821::t_e135c4d719f23d 1-27
+  s_a4a3eea4720821::t_6d9a7efdd4359a 1-27
 checks/zsh-agent-shell.nu
-  s_a4a3eea4720821::t_d9836edeb80096 1-88
+  s_a4a3eea4720821::t_36137673191787 1-88
+checks/default.nix
+  s_a4a3eea4720821::t_a4dc0d29a41ca7 92,94,98,263,265,269
+checks/skill-catalog.nix
+  s_a4a3eea4720821::t_e3911ae551a69d 41,52
 ---
 {
   "schema_version": "authorship/3.0.0",
