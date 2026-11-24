@@ -1,7 +1,7 @@
 modules/darwin/home/hammerspoon/emoji-data.nu
-  s_a4a3eea4720821::t_93ca6f29356e0c 1-23,25-27,29-59
+  s_a4a3eea4720821::t_b766734f503a49 1-23,25-27,29-59
 modules/darwin/home/hammerspoon/emoji.nix
-  s_796b0b41a96769::t_1db1e7465525d9 5,9
+  s_796b0b41a96769::t_4573f88fda2050 5,9
 ---
 {
   "schema_version": "authorship/3.0.0",
