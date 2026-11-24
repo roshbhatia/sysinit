@@ -1,15 +1,15 @@
 checks/egm-plugins.nix
-  s_a4a3eea4720821::t_7a2d229859f9db 1-31
+  s_a4a3eea4720821::t_642255a0032752 1-31
 docs/repository-reference.md
-  s_796b0b41a96769::t_047b99921f1c3d 18-23
+  s_a4a3eea4720821::t_dde78c4358b2bc 18-23
 flake.lock
-  s_a4a3eea4720821::t_3cc3308e0f5212 398-413,1483
+  s_a4a3eea4720821::t_91d257f3007c4e 398-413,1483
 modules/home/programs/llm/harnesses/claude/mods.nix
-  s_7028fc5da01072::t_b1b917bbf4197e 1-6,33
+  s_7028fc5da01072::t_25bfe5ba586b94 1-6,33
 checks/default.nix
-  s_a4a3eea4720821::t_4cff3072e28417 334-337
+  s_a4a3eea4720821::t_3d6bfad6fd9aaa 334-337
 flake.nix
-  s_a4a3eea4720821::t_17454562019605 21-25
+  s_a4a3eea4720821::t_9f342c6cf2cfa0 21-25
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -21,14 +21,6 @@ flake.nix
       "agent_id": {
         "tool": "codex",
         "id": "01a1d0ac-4380-7023-8b2f-a382ea7a16c4",
-        "model": "gpt-6.1-sol"
-      },
-      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
-    },
-    "s_796b0b41a96769": {
-      "agent_id": {
-        "tool": "codex",
-        "id": "01a1e530-4adf-7a10-879b-2ed1876f1c1f",
         "model": "gpt-6.1-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
