@@ -1,7 +1,7 @@
 modules/darwin/desktop.nix
-  s_a4a3eea4720821::t_0067fc6e54f0c1 39-40
+  s_a4a3eea4720821::t_b01089d17eb022 39-40
 modules/darwin/rift.nix
-  s_62c4cb57de6538::t_ddf7214aa708b1 83,96,105,162,165,186,192,216-221,275-276
+  s_62c4cb57de6538::t_f77cd7a14ea2cb 83,96,105,162,165,186,192,216-221,275-276
 ---
 {
   "schema_version": "authorship/3.0.0",
