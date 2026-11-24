@@ -1,17 +1,17 @@
-checks/harness-settings.nix
-  s_a4a3eea4720821::t_25d46e16490a83 34-36,68
 modules/home/programs/llm/harnesses/amp.nix
-  s_a4a3eea4720821::t_d167e634be3b52 19
+  s_a4a3eea4720821::t_04c1d0ffc6ba3c 19
 modules/home/programs/llm/harnesses/copilot-cli.nix
-  s_4541d03bc240df::t_7effe6c90e2ed3 13,50
+  s_4541d03bc240df::t_d5f475b38c2b1d 13,50
 modules/home/programs/llm/harnesses/devin.nix
-  s_4541d03bc240df::t_e6a7f2f3a4bb44 37,59-62
+  s_4541d03bc240df::t_4752c44fc99546 37,59-62
 modules/home/programs/llm/harnesses/fx.nix
-  s_4541d03bc240df::t_8c9da8392e87d3 38,45
+  s_4541d03bc240df::t_5a15f0213ed762 38,45
 modules/lib/shell/aliases.nix
-  s_7028fc5da01072::t_9e8c01d0b1b90d 4-24
+  s_7028fc5da01072::t_554e6efd4d2852 4-24
+checks/harness-settings.nix
+  s_a4a3eea4720821::t_a07440ebc97ea6 34-36,68
 modules/home/programs/llm/harnesses/registry.nix
-  s_a4a3eea4720821::t_ad7f208d547d51 5,85
+  s_a4a3eea4720821::t_c4ee97d2df0c95 5,85
 ---
 {
   "schema_version": "authorship/3.0.0",
