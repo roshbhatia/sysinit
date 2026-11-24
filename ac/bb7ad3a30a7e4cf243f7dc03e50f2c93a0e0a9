@@ -1,11 +1,11 @@
-modules/darwin/home/hammerspoon/default.nix
-  s_b6baf4162ed3c9::t_511267bcda8cdd 78
-modules/home/programs/llm/runtime/default.nix
-  s_796b0b41a96769::t_28706979cb9a2a 156
 checks/default.nix
-  s_a4a3eea4720821::t_1ef55a1efa2fc5 353-364
+  s_a4a3eea4720821::t_8bbe48249958e1 353-364
+modules/darwin/home/hammerspoon/default.nix
+  s_b6baf4162ed3c9::t_fcb09329f84b41 78
+modules/home/programs/llm/runtime/default.nix
+  s_796b0b41a96769::t_8f28caa2eff160 156
 modules/darwin/home/hammerspoon/url-routing.nix
-  s_a4a3eea4720821::t_ec488c94dc0264 226
+  s_a4a3eea4720821::t_97473ae3b7c06b 226
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -25,7 +25,7 @@ modules/darwin/home/hammerspoon/url-routing.nix
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "unknown"
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     },
