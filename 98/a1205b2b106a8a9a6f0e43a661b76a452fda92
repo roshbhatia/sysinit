@@ -1,7 +1,7 @@
-modules/home/programs/nushell/functions.nu
-  s_a4a3eea4720821::t_d8042f28badc8e 160,162,167,172
 checks/default.nix
-  s_a4a3eea4720821::t_5ca0e5623ab00a 373,378
+  s_a4a3eea4720821::t_e584453f941bb5 373,378
+modules/home/programs/nushell/functions.nu
+  s_a4a3eea4720821::t_3bf626b7277ec1 160,162,167,172
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -13,7 +13,7 @@ checks/default.nix
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.1-sol"
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
