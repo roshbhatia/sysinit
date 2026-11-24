@@ -1,0 +1,25 @@
+checks/threads-picker.py
+  s_a4a3eea4720821::t_708d8d1110f657 18-20,100-101
+flake.nix
+  s_a4a3eea4720821::t_1843cc231de77c 129
+checks/editor-config.nu
+  s_a4a3eea4720821::t_ebe7692a13b0c9 30,33-44
+flake.lock
+  s_a4a3eea4720821::t_4b192f9a94e487 1197-1198,1201,1563-1564,1567,2173-2174,2177,2184
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ff6b6ce1bd9ce1faf63fc507f02181ada479f039",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
