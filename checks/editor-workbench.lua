@@ -1,5 +1,6 @@
 vim.opt.runtimepath:append(assert(arg[1]))
 vim.opt.runtimepath:append(assert(arg[2]))
+vim.opt.runtimepath:append(assert(arg[3]))
 vim.cmd.runtime("plugin/sysinit-workbench.lua")
 
 local root = vim.fn.tempname()

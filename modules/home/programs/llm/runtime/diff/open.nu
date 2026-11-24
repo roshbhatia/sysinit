@@ -1,6 +1,7 @@
 const script = path self
 const directory_notes = path self | path dirname | path join directory-notes.lua
 const source_view = path self | path dirname | path join source-view.lua
+const diffview_ready = 'luaeval("(function() local ok, lib = pcall(require, \x27diffview.lib\x27); local view = ok and lib.get_current_view(); return view and view.ready and 1 or 0 end)()")'
 
 def run-command [arguments: list<string>] {
     let program = $arguments | first
@@ -300,6 +301,12 @@ def main [
             } else if $review {
                 rpc $socket "luaeval('require(\"sysinit_workbench.review\").refresh()')"
             } else {
+                let visible = rpc $socket $diffview_ready
+
+                if $visible.exit_code != 0 or ($visible.stdout | str trim) != '1' {
+                    error make {msg: 'The diff editor has no active Diffview tab.'}
+                }
+
                 rpc $socket "execute('checktime | DiffviewRefresh')"
             }
 
@@ -340,13 +347,13 @@ def main [
 
     let state_home = $state | path dirname
 
+    let nvim = [nvim --cmd 'let g:sysinit_pr_review = v:true' --listen $socket]
+
     let editor = if $review {
         [
             env
             $"SYSINIT_REVIEW_PANE=($parent)"
-            nvim
-            --listen
-            $socket
+            ...$nvim
             -c
             SysinitAgentReview
         ]
@@ -367,16 +374,14 @@ def main [
         }
 
         if $note_session == null {
-            [nvim --listen $socket ...$comparison]
+            [...$nvim ...$comparison]
         } else {
             [
                 env
                 $"XDG_STATE_HOME=($state_home)"
                 $"SYSINIT_REVIEW_NOTE_COMMAND=($note_command)"
                 $"SYSINIT_REVIEW_NOTE_WORKSPACE=($note_session)"
-                nvim
-                --listen
-                $socket
+                ...$nvim
                 -S
                 $directory_notes
                 ...$comparison
@@ -413,14 +418,12 @@ def main [
 
         if $note_session == null {
             if $pathspec == null {
-                [nvim --listen $socket ...$diff]
+                [...$nvim ...$diff]
             } else {
                 [
                     env
                     ...$source_env
-                    nvim
-                    --listen
-                    $socket
+                    ...$nvim
                     ...$diff
                 ]
             }
@@ -440,9 +443,7 @@ def main [
                 env
                 ...$variables
                 ...$source_env
-                nvim
-                --listen
-                $socket
+                ...$nvim
                 -c
                 $configure
                 ...$diff
@@ -491,10 +492,10 @@ def main [
             } else if $review {
                 rpc $socket 'get(g:, "sysinit_review_ready", 0)'
             } else {
-                rpc $socket "exists(':DiffviewRefresh')"
+                rpc $socket $diffview_ready
             }
 
-            let expected = if $directory { $root } else if $review { '1' } else { '2' }
+            let expected = if $directory { $root } else { '1' }
 
             if $ready.exit_code == 0 and ($ready.stdout | str trim) == $expected {
                 if $position != null { jump-to-source $socket $position }

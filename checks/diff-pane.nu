@@ -52,12 +52,17 @@ def main [script: path, fixture: path, ty: path] {
             let split = open ($root | path join split.json)
             assert equal ($split | last) DiffviewOpen
             assert ($split | window 2 | any {|pair| $pair == [--percent '45'] })
-            assert ('--cmd' not-in $split)
+            assert ($split | window 2 | any {|pair| $pair == [--cmd 'let g:sysinit_pr_review = v:true'] })
             let reused = ^$nu.current-exe --no-config-file $script --cwd $project | complete
             assert equal $reused.exit_code 0 $reused.stderr
             assert ($reused.stdout | str starts-with Reused)
             assert ($root | path join refreshed | path exists)
             assert ($root | path join activation.json | path exists)
+            touch ($root | path join diffview-inactive)
+            let inactive = ^$nu.current-exe --no-config-file $script --cwd $project | complete
+            assert ($inactive.exit_code != 0)
+            assert ($inactive.stderr | str contains 'no active Diffview tab')
+            rm ($root | path join diffview-inactive)
             open ($root | path join panes.json) | update 1 {pane_id: 8, tab_id: 3} | to json | save --force ($root | path join panes.json)
             let refused = ^$nu.current-exe --no-config-file $script --cwd $project | complete
             assert ($refused.exit_code != 0)

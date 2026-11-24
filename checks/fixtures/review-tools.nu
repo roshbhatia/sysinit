@@ -65,7 +65,9 @@ def main --wrapped [tool: string, ...arguments: string] {
 
                 match $expression {
                     'getcwd()' => { print $env.DIFF_ROOT }
-                    "exists(':DiffviewRefresh')" => { print 2 }
+                    $expression if ($expression | str contains 'get_current_view()') => {
+                        print (if ($root | path join diffview-inactive | path exists) { 0 } else { 1 })
+                    }
                     'get(g:, "sysinit_review_ready", 0)' => { print 1 }
                     "luaeval('require(\"sysinit_workbench.review\").refresh()')" => {
                         touch ($root | path join review-refreshed)

@@ -83,6 +83,7 @@ in
         ./editor-workbench.lua
         pkgs.sysinit-editor-workbench
         pkgs.sysinit-reviewr
+        pkgs.changes-neovim-plugin
       ]
     ];
   };
