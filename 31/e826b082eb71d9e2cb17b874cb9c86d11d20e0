@@ -1,9 +1,9 @@
 checks/agent-sessions.nix
-  s_796b0b41a96769::t_fb8cab47c813c4 5,13
+  s_796b0b41a96769::t_79d2d835bb5a01 5,13
 modules/home/programs/llm/runtime/agent-review.sh
-  s_1cfbbc236f4d97::t_a3213e13a20458 117
+  s_1cfbbc236f4d97::t_aeeb6e8770495e 117
 modules/nixos/home/launcher/panes.lua
-  s_1cfbbc236f4d97::t_dee28715d3483e 4,10
+  s_1cfbbc236f4d97::t_087e0b059896e6 4,10
 ---
 {
   "schema_version": "authorship/3.0.0",
