@@ -1,0 +1,94 @@
+modules/home/programs/llm/harnesses/claude/default.nix
+  s_a4a3eea4720821::t_0f4ad6d58ada5d 209-213
+  s_a4a3eea4720821::t_a3065247cbbdce 214
+  s_a4a3eea4720821::t_8fda4ac3df6df8 215-217
+checks/review-links.lua
+  s_a4a3eea4720821::t_62b05c8c34b9da 75-79,81-83
+  s_a4a3eea4720821::t_81c7622a75dcb8 1-74,80,84-86
+modules/home/programs/neovim/review-keys.lua
+  s_a4a3eea4720821::t_73f57ca52429ec 1-9,11-28
+  s_a4a3eea4720821::t_c394f1c1b037d5 10
+modules/home/programs/wezterm/links.lua
+  s_a4a3eea4720821::t_0d689c082817b9 1-42,44-69,74-91,93-96,99-116,120-131
+  s_a4a3eea4720821::t_62b05c8c34b9da 92
+  s_a4a3eea4720821::t_68083606b5a2d2 43,70-73,97-98,117-119
+checks/diff-pane.nu
+  s_a4a3eea4720821::t_73f57ca52429ec 110,123
+  s_a4a3eea4720821::t_3d916c7ead57e9 54
+  s_a4a3eea4720821::t_2016a4ec710a5d 100,114
+  s_a4a3eea4720821::t_0ee0c0df97bd8a 96,101,103-109,112
+modules/home/programs/llm/runtime/diff/source-view.lua
+  s_a4a3eea4720821::t_0ee0c0df97bd8a 19-22
+  s_a4a3eea4720821::t_543d4033cd85fd 1-5,7-8,10-17,23-28,30-51
+  s_a4a3eea4720821::t_2016a4ec710a5d 67-70,72-75,86-87,105
+  s_a4a3eea4720821::t_ec024ba25c22b0 55-66,71,76-85,88-97
+  s_a4a3eea4720821::t_d1ef7737920b7d 98
+checks/review-links.nu
+  s_a4a3eea4720821::t_81c7622a75dcb8 1-39
+modules/home/programs/llm/skills/agent-diff/SKILL.md
+  s_a4a3eea4720821::t_e6f54024f63e4b 30-32
+  s_a4a3eea4720821::t_9766e0a8c53b4b 6-7,15,21-23
+  s_a4a3eea4720821::t_91e5b23785d42b 26-29
+modules/home/programs/llm/runtime/diff/review-link.nix
+  s_a4a3eea4720821::t_0d689c082817b9 1-4,6-10
+  s_a4a3eea4720821::t_68083606b5a2d2 5
+checks/harness-settings.nix
+  s_a4a3eea4720821::t_0f4ad6d58ada5d 25-30,34-38
+modules/home/programs/llm/runtime/diff/open.nu
+  s_a4a3eea4720821::t_73f57ca52429ec 111,152
+  s_a4a3eea4720821::t_ac0c3f55b78ea2 30-37,44,476,500,521
+  s_a4a3eea4720821::t_543d4033cd85fd 59-60,62,66-70,181,184,326,465,502
+  s_a4a3eea4720821::t_0ee0c0df97bd8a 322
+  s_a4a3eea4720821::t_2016a4ec710a5d 365
+  s_a4a3eea4720821::t_3d916c7ead57e9 467
+  s_a4a3eea4720821::t_75211701122a14 4-5,311,492
+  s_a4a3eea4720821::t_7f43dace885b03 38-43
+  s_a4a3eea4720821::t_e524d126ea7125 235
+  s_a4a3eea4720821::t_e06fa377e683de 45-46,501,522
+modules/home/programs/llm/default.nix
+  s_a4a3eea4720821::t_0f4ad6d58ada5d 198
+modules/home/programs/llm/lib/codex-hooks.nix
+  s_a4a3eea4720821::t_0f4ad6d58ada5d 34-37,39-40
+  s_a4a3eea4720821::t_a3065247cbbdce 38
+docs/review-tools.md
+  s_a4a3eea4720821::t_a48d5692323ae5 85-105
+  s_a4a3eea4720821::t_e6f54024f63e4b 25-28,34-36,126
+  s_a4a3eea4720821::t_9766e0a8c53b4b 12,29,38-41
+  s_a4a3eea4720821::t_91e5b23785d42b 37,42
+  s_a4a3eea4720821::t_eb8cb4f08118c0 106
+modules/home/programs/neovim/default.nix
+  s_a4a3eea4720821::t_73f57ca52429ec 4,16-18
+checks/fixtures/review-tools.nu
+  s_a4a3eea4720821::t_75211701122a14 71,77
+  s_a4a3eea4720821::t_0ee0c0df97bd8a 72-76
+modules/home/programs/llm/runtime/diff/review-link.nu
+  s_a4a3eea4720821::t_0d689c082817b9 1-23,28-42
+  s_a4a3eea4720821::t_50103fdf293bb6 25-27
+  s_a4a3eea4720821::t_4d26610d5d6846 24
+modules/home/programs/wezterm/default.nix
+  s_a4a3eea4720821::t_68083606b5a2d2 52-63
+checks/editor-workbench.lua
+  s_a4a3eea4720821::t_0ee0c0df97bd8a 61-66
+  s_a4a3eea4720821::t_73f57ca52429ec 5-6,67-76
+checks/default.nix
+  s_a4a3eea4720821::t_0ee0c0df97bd8a 87
+  s_a4a3eea4720821::t_3e98c61344e5df 275-283
+  s_a4a3eea4720821::t_73f57ca52429ec 88
+  s_a4a3eea4720821::t_54b21ebb5000d5 284
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "bc708a631e8b1269c70174f1d8c6202d3f762d94",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
