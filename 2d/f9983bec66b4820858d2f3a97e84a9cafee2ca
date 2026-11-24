@@ -1,19 +1,15 @@
-checks/atuin.nix
-  s_a4a3eea4720821::t_3ece10943c70fb 60
-checks/threads-picker.py
-  s_a4a3eea4720821::t_cd5ad9875bb45d 1-189
 docs/atuin.md
-  s_cccc57401e3d8c::t_a38e16ca901f30 63,76-80,104-117
+  s_a4a3eea4720821::t_af5e992791f9c2 63,76-80,104-117
 pkgs/go.mod
-  s_cccc57401e3d8c::t_95f627fcdbb0d5 5-10,13-14,17-24,26-32,34-36,39-41
+  s_a4a3eea4720821::t_68029a94aedc82 5-10,13-14,17-24,26-32,34-36,39-41
 pkgs/go.sum
-  s_cccc57401e3d8c::t_88cae1b1425a41 1-6,11-32,35-36,39-54,59-60,63-64,67-68,73-82
+  s_cccc57401e3d8c::t_a959ed15dcd229 1-6,11-32,35-36,39-54,59-60,63-64,67-68,73-82
 pkgs/utils/internal/threads/threads.go
-  s_a4a3eea4720821::t_4c67cd0962e7a5 43,58,85,90,120
+  s_a4a3eea4720821::t_d8eb3ae187e6ab 43,58,85,90,120
 pkgs/utils/internal/threads/threads_test.go
-  s_a4a3eea4720821::t_2847882d7a17f2 8,15-18,20-31,41,44,48-55,57-59,61-62,64-65,67-77,82-105
+  s_a4a3eea4720821::t_9ce70bc2aea030 8,15-18,20-31,41,44,48-55,57-59,61-62,64-65,67-77,82-105
 overlays/sysinit-gotools.nix
-  s_a4a3eea4720821::t_fe561d8152aa21 11
+  s_a4a3eea4720821::t_9d15133c8182b7 11
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -25,7 +21,7 @@ overlays/sysinit-gotools.nix
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.1-sol"
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     },
