@@ -1,63 +1,57 @@
-checks/mail.el
-  s_b6baf4162ed3c9::t_e4473c79049cc2 308
-checks/threads-picker.py
-  s_a4a3eea4720821::t_193730f02da5d8 20,22
 flake.lock
-  s_a4a3eea4720821::t_57f79c96b219cf 51-52,55,1615-1616,1619,1638-1639,1642,1950-1951,1954
+  s_a4a3eea4720821::t_9a905cd1ea2f96 51-52,55,1615-1616,1619,1638-1639,1642,1950-1951,1954
 modules/darwin/home/default-apps.nix
-  s_7028fc5da01072::t_5c85b34a97e818 146,148
+  s_7028fc5da01072::t_b93f160db9e1c8 146,148
 modules/darwin/home/hammerspoon/default.nix
-  s_b6baf4162ed3c9::t_1be3d428c22a3a 78
+  s_b6baf4162ed3c9::t_b848322b629f3c 78
 modules/darwin/home/hammerspoon/lua/sysinit/pkg/url_routing.lua
-  s_a4a3eea4720821::t_d22516cd43ffba 111-116,119-124,126,128-144,146,149-166,168
+  s_a4a3eea4720821::t_c4afd6239be20e 111-116,119-124,126,128-144,146,149-166,168
 modules/darwin/home/neovim-file-opener.swift
-  s_7028fc5da01072::t_2cf6cb9216db3e 89-100,102
+  s_7028fc5da01072::t_06f80805ee9131 89-100,102
 modules/darwin/rift.nix
-  s_62c4cb57de6538::t_d70136c3b522da 74-77
-modules/home/programs/llm/harnesses/pi/extensions/diff-review.ts
-  s_b6baf4162ed3c9::t_cd5e6dce880225 41,43-47,115,149
+  s_62c4cb57de6538::t_4ad05b4eb8ba26 74-77
 modules/home/programs/llm/runtime/agent-prompt.sh
-  s_b6baf4162ed3c9::t_2d47d701fb552d 1
+  s_b6baf4162ed3c9::t_5b60126da3f686 1
 modules/home/programs/llm/runtime/agent-review.sh
-  s_1cfbbc236f4d97::t_c29777eb5f6492 112,114-115,117
+  s_1cfbbc236f4d97::t_7ea4cd2c0db40c 112,114-115,117
 modules/home/programs/llm/runtime/agent-sessions.jq
-  s_b6baf4162ed3c9::t_8dc57734b8a249 33-34
+  s_a4a3eea4720821::t_59cb8bb1b44b39 33-34
 modules/home/programs/llm/runtime/agent-sessions.sh
-  s_b6baf4162ed3c9::t_0bd54520bd2715 3,7,47-52,55-60,63-67
+  s_a4a3eea4720821::t_eead44a15cc5d5 3,7,47-52,55-60,63-67
 modules/home/programs/llm/runtime/default.nix
-  s_796b0b41a96769::t_76ffb9e672218f 73,92,132
+  s_796b0b41a96769::t_687f9178b47d48 73,92,132
 modules/home/programs/llm/skills/local-workflows/SKILL.md
-  s_a4a3eea4720821::t_af755d3556ab31 124,128,134-140,143-145,148-151
+  s_a4a3eea4720821::t_5a112683dd1261 124,128,134-140,143-145,148-151
 modules/home/programs/mail/emacs/sysinit-mail-images.el
-  s_b6baf4162ed3c9::t_519cb286ff6de5 19,39,41-43,45
+  s_b6baf4162ed3c9::t_83e0c87503ce18 19,39,41-43,45
 modules/home/programs/nushell/functions.nu
-  s_a4a3eea4720821::t_95bf44747d0527 141,181,259-260,270-271,278,282
+  s_a4a3eea4720821::t_45cf06c330cb9c 141,181,259-260,270-271,278,282
 modules/home/programs/utils/default.nix
-  s_7028fc5da01072::t_356ed91901f483 53
+  s_7028fc5da01072::t_1526b939f5476c 53
 modules/home/programs/utils/dev/connect.nu
-  s_a4a3eea4720821::t_5c8efc011c0c4b 4
-modules/home/programs/wezterm/default.nix
-  s_a4a3eea4720821::t_5e555753b3741c 39-45
+  s_a4a3eea4720821::t_4de6a18eadd0b5 4
 modules/home/programs/zsh/integrations/ask.zsh
-  s_b6baf4162ed3c9::t_de859598ac9309 9-10,12-13
+  s_b6baf4162ed3c9::t_ea8ba1f43339e1 9-10,12-13
 modules/nixos/home/desktop.nix
-  s_b6baf4162ed3c9::t_47abd9021898dc 220
+  s_b6baf4162ed3c9::t_bbee0c55c1171b 220
 modules/nixos/home/launcher.nix
-  s_de8d39c3c56992::t_becbb9fd66ad0d 12,57,64
+  s_de8d39c3c56992::t_2c349d5bc78f83 12,57,64
 modules/nixos/home/launcher/panes.lua
-  s_1cfbbc236f4d97::t_31d2e96f84b8de 2,4,10,12-14
+  s_1cfbbc236f4d97::t_6efc85bfcb79dd 2,4,10,12-14
 modules/nixos/home/launcher/sessions.lua
-  s_1cfbbc236f4d97::t_5b90109e3df20c 4
-checks/url-routing.lua
-  s_a4a3eea4720821::t_578a760a1c037c 120,206,208-216,218-220,253-254,256-257,263-264,284-285,296-352,357,364-366,371,377,379
+  s_1cfbbc236f4d97::t_981876e185b451 4
 modules/darwin/home/hammerspoon/url-routing.nix
-  s_a4a3eea4720821::t_c6911b0b1f0b6a 57,226
+  s_a4a3eea4720821::t_5b95062bec8667 57,226
+modules/home/programs/llm/harnesses/pi/extensions/diff-review.ts
+  s_a4a3eea4720821::t_aa41a2f87771c1 41,43-47,115,149
 modules/home/programs/llm/runtime/diff/default.nix
-  s_a4a3eea4720821::t_165d2923dd24ce 7
+  s_a4a3eea4720821::t_be201f28174132 7
 modules/home/programs/nushell/default.nix
-  s_a4a3eea4720821::t_3c4553618509bf 188-200
+  s_a4a3eea4720821::t_3103bee8a51e9b 188-200
+modules/home/programs/wezterm/default.nix
+  s_a4a3eea4720821::t_3f77d81c5c3b90 39-45
 overlays/sysinit-gotools.nix
-  s_a4a3eea4720821::t_7a9ac5485bf7e6 201,218
+  s_a4a3eea4720821::t_e5100e90fd95bf 201,218
 ---
 {
   "schema_version": "authorship/3.0.0",
