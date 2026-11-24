@@ -1,12 +1,5 @@
-docs/terminal-capability-audit.md
-  s_a4a3eea4720821::t_8e0b1cfcba8c15 20
-modules/darwin/home/rex/sessions.lua
-  s_a4a3eea4720821::t_db46498719dc21 51,58,74
 modules/darwin/desktop.nix
-  s_a4a3eea4720821::t_fc79a11bb0d0fc 1,59-63,66
-  s_a4a3eea4720821::t_72d03aa5e382e0 64-65
-modules/darwin/home/rex/init.lua
-  s_a4a3eea4720821::t_de11cd003b4f48 48-52,55,60-62,64-67
+  s_a4a3eea4720821::t_a96cff41e21489 1,59-66
 ---
 {
   "schema_version": "authorship/3.0.0",
