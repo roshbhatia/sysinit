@@ -1,24 +1,23 @@
-overlays/tq-picker/provider.nu
-  s_a4a3eea4720821::t_0517a7e5b04c32 135-150
-checks/tq-picker.py
-  s_a4a3eea4720821::t_9396b9bd178a79 206-207,215-216
-flake.nix
-  s_a4a3eea4720821::t_c68c4e6a6e46af 131,133
-modules/home/programs/llm/skills/taskwarrior/references/queued-execution.md
-  s_a4a3eea4720821::t_9396b9bd178a79 68
-  s_a4a3eea4720821::t_0d082a3a81f8b9 53-56
-pkgs/tq/main.go
-  s_a4a3eea4720821::t_0517a7e5b04c32 20,84-88,91,93,213-215
-overlays/tq-picker/default.nix
-  s_a4a3eea4720821::t_0517a7e5b04c32 22-33,42,62
-modules/home/programs/pueue/default.nix
-  s_a4a3eea4720821::t_9396b9bd178a79 37
-modules/home/programs/pueue/_tq
-  s_a4a3eea4720821::t_9396b9bd178a79 26
-modules/home/programs/wezterm/default.nix
-  s_a4a3eea4720821::t_0d082a3a81f8b9 173-175
 flake.lock
-  s_a4a3eea4720821::t_674af9b5f4429f 1650-1651,1654,1660,1818-1819,1822,1828
+  s_a4a3eea4720821::t_8e5bdc77bb9d9e 1650-1651,1654,1660,1818-1819,1822,1828
+modules/home/programs/llm/skills/taskwarrior/references/queued-execution.md
+  s_a4a3eea4720821::t_0c5f3999389ed0 32,34,36,53-57,68-69
+modules/home/programs/wezterm/default.nix
+  s_a4a3eea4720821::t_ce3a81c58c9015 173-175
+overlays/tq-picker/default.nix
+  s_a4a3eea4720821::t_31674512cf0200 22-33,42,62
+pkgs/tq/main.go
+  s_a4a3eea4720821::t_a8aa9004fae081 20,84-88,91,93,213-215
+checks/tq-picker.py
+  s_a4a3eea4720821::t_b49d07ae19f488 205-207,215-216
+flake.nix
+  s_a4a3eea4720821::t_c951594c51c144 131,133
+modules/home/programs/pueue/_tq
+  s_a4a3eea4720821::t_08dd7da43f2225 26
+modules/home/programs/pueue/default.nix
+  s_a4a3eea4720821::t_8d5ff2c048add7 37
+overlays/tq-picker/provider.nu
+  s_a4a3eea4720821::t_462ca6511ebf33 135-150
 ---
 {
   "schema_version": "authorship/3.0.0",
