@@ -1,5 +1,5 @@
 hosts/default.nix
-  s_d2d448cefaa2bf::t_4e7a7180b3e9fa 76,78,80,82,87
+  s_d2d448cefaa2bf::t_c71cf767d5ef85 76,78,80,82,87
 ---
 {
   "schema_version": "authorship/3.0.0",
