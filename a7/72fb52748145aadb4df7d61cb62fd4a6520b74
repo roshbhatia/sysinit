@@ -1,15 +1,11 @@
-checks/atuin.nix
-  s_a4a3eea4720821::t_cf06b52fa74622 1-59
-checks/atuin.py
-  s_cccc57401e3d8c::t_0dc9a445059fae 1-228
-docs/atuin.md
-  s_cccc57401e3d8c::t_fe5f634acb8f68 1-111
-modules/home/programs/llm/mcp-servers.nix
-  s_4541d03bc240df::t_62d14e48c43ac5 2,11-17
-modules/home/programs/llm/skills/local-workflows/SKILL.md
-  s_a4a3eea4720821::t_a53be72c67d193 3,51-67
 checks/default.nix
-  s_a4a3eea4720821::t_568cf7a91aa940 186-189
+  s_a4a3eea4720821::t_40205f327103a8 186-189
+docs/atuin.md
+  s_a4a3eea4720821::t_275bf15cf8fe95 1-111
+modules/home/programs/llm/mcp-servers.nix
+  s_4541d03bc240df::t_91b122691355c8 2,11-17
+modules/home/programs/llm/skills/local-workflows/SKILL.md
+  s_a4a3eea4720821::t_b78fd5dbb10b7b 3,51-67
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -29,15 +25,7 @@ checks/default.nix
       "agent_id": {
         "tool": "codex",
         "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
-        "model": "gpt-6.1-sol"
-      },
-      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
-    },
-    "s_cccc57401e3d8c": {
-      "agent_id": {
-        "tool": "codex",
-        "id": "01a17e4b-b712-7e82-993b-13c0fa9fac0e",
-        "model": "gpt-6.1-sol"
+        "model": "gpt-6.2-sol"
       },
       "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
     }
