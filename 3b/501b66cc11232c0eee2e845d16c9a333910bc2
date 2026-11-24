@@ -1,11 +1,11 @@
 flake.lock
-  s_a4a3eea4720821::t_7af75b1df177b2 51-52,55,1554-1555,1558,1618-1619,1622,1745-1746,1749,2077-2078,2081
-modules/home/programs/wezterm/default.nix
-  s_a4a3eea4720821::t_fee080a32b1657 6,53-56,58-61
+  s_a4a3eea4720821::t_9ac653afd5f8ca 51-52,55,1554-1555,1558,1618-1619,1622,1745-1746,1749,2077-2078,2081
 modules/nixos/common/default.nix
-  s_c7495a484be0a4::t_bb7c7db8bc9b71 69
+  s_c7495a484be0a4::t_91122fcb15d735 69
 hosts/default.nix
-  s_d2d448cefaa2bf::t_2b67f386b8aa2e 75,91
+  s_d2d448cefaa2bf::t_f027efdf1c04fb 75,91
+modules/home/programs/wezterm/default.nix
+  s_a4a3eea4720821::t_18c4381234af7c 6,53-56,58-61
 ---
 {
   "schema_version": "authorship/3.0.0",
