@@ -1,7 +1,7 @@
 flake.lock
-  s_a4a3eea4720821::t_05ddefefc59398 51-52,55,1821-1822,1825
+  s_a4a3eea4720821::t_23f9e6f0b27d62 51-52,55,1821-1822,1825
 modules/home/programs/wezterm/default.nix
-  s_a4a3eea4720821::t_93b6d0f23dea18 79-80
+  s_a4a3eea4720821::t_b35f4b6960d456 79-80
 ---
 {
   "schema_version": "authorship/3.0.0",
