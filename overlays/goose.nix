@@ -48,6 +48,7 @@ lib.optionalAttrs platform.isDarwin {
     sourceRoot = ".";
     nativeBuildInputs = [ final.unzip ];
     dontStrip = true;
+    dontPatchShebangs = true;
     installPhase = ''
       runHook preInstall
       mkdir -p "$out/Applications"
@@ -58,6 +59,7 @@ lib.optionalAttrs platform.isDarwin {
     installCheckPhase = ''
       runHook preInstallCheck
       test -x "$out/Applications/Goose.app/Contents/MacOS/Goose"
+      /usr/bin/codesign --verify --deep --strict "$out/Applications/Goose.app"
       test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$out/Applications/Goose.app/Contents/Info.plist")" = "${
         desktopSources.${platform.system}.version
       }"

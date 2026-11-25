@@ -63,8 +63,8 @@ let
       mkFetchedNpmPackage "pi-context" "2.3.0"
         "sha256-jhzTPMVHFoVQfXghRq1ap/8Z+iNoYyH2tnAzuO1Ev/g=";
     subagents =
-      (mkBuiltNpmPackage "pi-subagents" "0.83.0" "sha256-3eQP8L6QoYPrTjlH3e7lyr5+xVNJudfXRdUJH4UgUvs="
-        "sha256-4nLUfr9DMGk7z8tJmwN5NLOX2tEF7h0KNlShabGgtKI="
+      (mkBuiltNpmPackage "pi-subagents" "0.90.0" "sha256-mf/FM8IR7ZQlsLaUHnUAYVyudxCeaFUbjegz3jmjRgo="
+        "sha256-n7Bcd+IwYcp/3q0I3F8pWQmfYEn5LDBhMw9mzR1CsGM="
         ./locks/pi-subagents.lock.json
       ).overrideAttrs
         {
@@ -92,16 +92,16 @@ let
     webAccess = pkgs.buildNpmPackage {
       pname = "pi-web-access";
       passthru.npmName = "pi-web-access";
-      version = "0.45.0";
+      version = "0.48.0";
       src = fetchNpmPkg {
         name = "pi-web-access";
-        version = "0.45.0";
-        hash = "sha256-Z1T4u1Qb1cnNC3ieVsp+AHEdYQH+/udtaT4dLueSw1I=";
+        version = "0.48.0";
+        hash = "sha256-De0UuQ7E6FDA6fjRld/iV04/YxvdC43M85OgsbmNboo=";
       };
       postPatch = ''
         cp ${./locks/pi-web-access.lock.json} package-lock.json
       '';
-      npmDepsHash = "sha256-XO5eW0ilnlkC7CIAD9lU3a+0pRuhUaeGVzDrHUyzSUE=";
+      npmDepsHash = "sha256-5qPDamXFMbkRgqwyFK29PvRoIhti62Imze2Lul6HZ+Y=";
       npmFlags = [
         "--ignore-scripts"
         "--legacy-peer-deps"
@@ -121,13 +121,13 @@ let
         "sha256-ZsuEnt7D7chVVNqZmMkwglkbIVe67BbcVS9I3iaNuaI=";
 
     piVcc =
-      mkFetchedNpmPackage "@monotykamary/pi-vcc" "0.8.15"
-        "sha256-Vc+SM+EtSRy4sSzmQKWi1rmHXRtLKJ3spEyWH/W62yQ=";
+      mkFetchedNpmPackage "@monotykamary/pi-vcc" "0.8.17"
+        "sha256-EfiUJDIRVPgNDTCLw8/GDdNBoieh19xO1eI9cmcjcfs=";
 
     piPermissionSystem =
-      (mkBuiltNpmPackage "@gotgenes/pi-permission-system" "41.0.0"
-        "sha256-JzkkxWi/fsoLRuVYYpG3MBB7JWCUwOvOow8uJs9jDDg="
-        "sha256-hmXxECmgpzQuSCaiQSOP1NTFu2gV1A2dLiVc9A7OZSY="
+      (mkBuiltNpmPackage "@gotgenes/pi-permission-system" "42.2.1"
+        "sha256-NuUWegdmBY29f8uJspqifc881BSjey+thha4uAA5aAY="
+        "sha256-PtE3B+nRYN8idXFQ7VJLb6lhwHKJ91RpAH6hCfjwDqg="
         ./locks/pi-permission-system.lock.json
       ).overrideAttrs
         {
@@ -146,9 +146,9 @@ let
         "sha256-S5bqq5L6rr08OQ3S8UMru8uagRmMhEWYs1Emwaa5r/o=";
 
     plannotator =
-      mkBuiltNpmPackage "@plannotator/pi-extension" "0.28.33"
-        "sha256-paPZE4pg4vYRkeONzVgH1Jq685QgZN5cxqRxT5q8Lio="
-        "sha256-XYD4Rf+dPryeoi2LkTuRQCHLZJaLPEFzEeNf3s+z/o0="
+      mkBuiltNpmPackage "@plannotator/pi-extension" "0.29.3"
+        "sha256-E4qLa+himqF5fmjGABTNyuAhqKrEA25gUxJstTlLgFw="
+        "sha256-JJrgm3gR+dQvILgCrxb2fmC52ED/G2IR5hja4fJ3dAU="
         ./locks/plannotator.lock.json;
 
     piReverseLast =

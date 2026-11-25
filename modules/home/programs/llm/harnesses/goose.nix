@@ -135,6 +135,7 @@ let
   };
 
   gooseDesktopSettings = {
+    disableAutoDownload = true;
     keyboardShortcuts.quickLauncher = "CommandOrControl+Alt+Enter";
   };
 
@@ -242,6 +243,7 @@ in
       path = "Library/Application Support/Goose/settings.json";
       format = "json";
       content = gooseDesktopSettings;
+      enforce = [ "disableAutoDownload" ];
     };
   };
 

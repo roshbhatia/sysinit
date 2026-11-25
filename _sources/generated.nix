@@ -40,58 +40,58 @@
   };
   amp-cli = {
     pname = "amp-cli";
-    version = "0.0.1794916837-g564d50";
+    version = "0.0.1795579235-g370682";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1794916837-g564d50/amp-darwin-arm64.gz";
-      sha256 = "sha256-pjQZRSIlr3S4Ucwb7lE0Rjf7sueqCSRwH7qhDROe7c8=";
+      url = "https://static.ampcode.com/cli/0.0.1795579235-g370682/amp-darwin-arm64.gz";
+      sha256 = "sha256-pB0kvrdezntjAJmFLwV4Nf+DD4SvOij57qbSuWSgDMI=";
     };
   };
   amp-cli-aarch64-linux = {
     pname = "amp-cli-aarch64-linux";
-    version = "0.0.1794916837-g564d50";
+    version = "0.0.1795579235-g370682";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1794916837-g564d50/amp-linux-arm64.gz";
-      sha256 = "sha256-cJxSVT162Ep5Gxa+DPHMTCp7J/ObjAlZNtdDkZwUgxc=";
+      url = "https://static.ampcode.com/cli/0.0.1795579235-g370682/amp-linux-arm64.gz";
+      sha256 = "sha256-Unimh5Zw8dJxkfokAhLr95bZT7WgFj13pPZyesJYZ/8=";
     };
   };
   amp-cli-x86_64-linux = {
     pname = "amp-cli-x86_64-linux";
-    version = "0.0.1794916837-g564d50";
+    version = "0.0.1795579235-g370682";
     src = fetchurl {
-      url = "https://static.ampcode.com/cli/0.0.1794916837-g564d50/amp-linux-x64-baseline.gz";
-      sha256 = "sha256-snK8XFx9tP33gXRS+U4dnqnubMDPyxZaAVuQbhd8dYA=";
+      url = "https://static.ampcode.com/cli/0.0.1795579235-g370682/amp-linux-x64-baseline.gz";
+      sha256 = "sha256-CWzLFpgSsYY7FPybkfMMBxc57ePcxh0oI4xe6dau5nQ=";
     };
   };
   crush = {
     pname = "crush";
-    version = "0.101.0";
+    version = "0.102.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.101.0/crush_0.101.0_Darwin_arm64.tar.gz";
-      sha256 = "sha256-ncZ6S1EKeIgqIoFaQpK72IkCoQtnjbeuRzaxmZUgXgs=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.102.0/crush_0.102.0_Darwin_arm64.tar.gz";
+      sha256 = "sha256-Ow17zlEGW+4J+iGs3DKEZ6SZZQmuIh5gHziPt9F6/xY=";
     };
   };
   crush-aarch64-linux = {
     pname = "crush-aarch64-linux";
-    version = "0.101.0";
+    version = "0.102.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.101.0/crush_0.101.0_Linux_arm64.tar.gz";
-      sha256 = "sha256-67wUHoCtGdMhuJVYwlE/rFvrq9l1MFcM50mQLcRBHwU=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.102.0/crush_0.102.0_Linux_arm64.tar.gz";
+      sha256 = "sha256-MR4KW2flla0rbyJ2GBvOp4w5asIgVBVE/dG0GcS6YtE=";
     };
   };
   crush-x86_64-darwin = {
     pname = "crush-x86_64-darwin";
-    version = "0.101.0";
+    version = "0.102.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.101.0/crush_0.101.0_Darwin_x86_64.tar.gz";
-      sha256 = "sha256-S0koTtwWDfGcW5+QuumA0xpjVu5kYQP0tA+OR3Srvy8=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.102.0/crush_0.102.0_Darwin_x86_64.tar.gz";
+      sha256 = "sha256-Sq4X7fxd6+13z+v0uc+zjAS6zKM1inKCJehYfiE+gmI=";
     };
   };
   crush-x86_64-linux = {
     pname = "crush-x86_64-linux";
-    version = "0.101.0";
+    version = "0.102.0";
     src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.101.0/crush_0.101.0_Linux_x86_64.tar.gz";
-      sha256 = "sha256-zyNJSOPXxSNtGKBIo48lp9+cokuguP2qUl1FxfcF+Zo=";
+      url = "https://github.com/charmbracelet/crush/releases/download/v0.102.0/crush_0.102.0_Linux_x86_64.tar.gz";
+      sha256 = "sha256-eTDMFKLew6hX3dIHDIY8HF1+2zNdIM37ZaW0TmKgyh4=";
     };
   };
   devin-cli = {
@@ -182,6 +182,30 @@
       sha256 = "sha256-9s2gy0PByaPWjn7+LXlXdoDqbzgsMb82ohYpBvk/bBw=";
     };
   };
+  github-copilot-cli-aarch64-darwin = {
+    pname = "github-copilot-cli-aarch64-darwin";
+    version = "1.0.115";
+    src = fetchurl {
+      url = "https://github.com/github/copilot-cli/releases/download/v1.0.115/github-copilot-1.0.115-darwin-arm64.tgz";
+      sha256 = "sha256-ft8Y7B3g/CFaXMbV6lGor6q+pWK5BgOOdl3NUkICcNM=";
+    };
+  };
+  github-copilot-cli-aarch64-linux = {
+    pname = "github-copilot-cli-aarch64-linux";
+    version = "1.0.115";
+    src = fetchurl {
+      url = "https://github.com/github/copilot-cli/releases/download/v1.0.115/github-copilot-1.0.115-linux-arm64.tgz";
+      sha256 = "sha256-QQ2b3F0tZX+n5keVw+RpTSBpm31lC4tnsFotFdMr70M=";
+    };
+  };
+  github-copilot-cli-x86_64-linux = {
+    pname = "github-copilot-cli-x86_64-linux";
+    version = "1.0.115";
+    src = fetchurl {
+      url = "https://github.com/github/copilot-cli/releases/download/v1.0.115/github-copilot-1.0.115-linux-x64.tgz";
+      sha256 = "sha256-5BhfqVgXdLlHkkFYOiXdv9MOkSlPSNI3knncBMC2Mmc=";
+    };
+  };
   gomvp = {
     pname = "gomvp";
     version = "v0.0.4";
@@ -195,50 +219,50 @@
   };
   goose-cli-bin = {
     pname = "goose-cli-bin";
-    version = "1.59.2";
+    version = "1.61.0";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.59.2/goose-aarch64-apple-darwin.tar.gz";
-      sha256 = "sha256-fn9ayL01kKKf3cD1EhppdekH+1fydNPEQxlj7lRvtDU=";
+      url = "https://github.com/block/goose/releases/download/v1.61.0/goose-aarch64-apple-darwin.tar.gz";
+      sha256 = "sha256-2YzExi2tpciHgwVSvzmtwo2HmU2xqN1/nKe9YEQfOno=";
     };
   };
   goose-cli-bin-aarch64-linux = {
     pname = "goose-cli-bin-aarch64-linux";
-    version = "1.59.2";
+    version = "1.61.0";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.59.2/goose-aarch64-unknown-linux-gnu.tar.gz";
-      sha256 = "sha256-7C4K3tHiq6jTEHJ6UTjy48zgdp8mEfvhlu0BTDHONwo=";
+      url = "https://github.com/block/goose/releases/download/v1.61.0/goose-aarch64-unknown-linux-gnu.tar.gz";
+      sha256 = "sha256-7Ay8tmdtzE0Tj6Eq1Lr+/buYnZdzTWKnvpFiHsh50/k=";
     };
   };
   goose-cli-bin-x86_64-darwin = {
     pname = "goose-cli-bin-x86_64-darwin";
-    version = "1.59.2";
+    version = "1.61.0";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.59.2/goose-x86_64-apple-darwin.tar.gz";
-      sha256 = "sha256-zL9ApYWkDA+yIa+8zucl4pPOjDLRDYa6OL5WQ8X1TX0=";
+      url = "https://github.com/block/goose/releases/download/v1.61.0/goose-x86_64-apple-darwin.tar.gz";
+      sha256 = "sha256-LxcP666htVPFglxvnsCKKfa0sjjTyBsL4yMdzk8iYDA=";
     };
   };
   goose-cli-bin-x86_64-linux = {
     pname = "goose-cli-bin-x86_64-linux";
-    version = "1.59.2";
+    version = "1.61.0";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.59.2/goose-x86_64-unknown-linux-gnu.tar.gz";
-      sha256 = "sha256-xjz4KVPpaNhLdULrOKYh39tQULlnco7TY1F75c3GZuo=";
+      url = "https://github.com/block/goose/releases/download/v1.61.0/goose-x86_64-unknown-linux-gnu.tar.gz";
+      sha256 = "sha256-RCvHzleeEvAbyXJSlURb/ErFDuSaATMaMYhKvW5Z97c=";
     };
   };
   goose-desktop = {
     pname = "goose-desktop";
-    version = "1.59.2";
+    version = "1.61.0";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.59.2/Goose-darwin-arm64.zip";
-      sha256 = "sha256-COXVqWKR31nk4Q8ZsmfoeUQUx1Se8DvdRFKEcE/lBvY=";
+      url = "https://github.com/block/goose/releases/download/v1.61.0/Goose-darwin-arm64.zip";
+      sha256 = "sha256-uoixaRiAfr7EJIIoQupJjDkf+DBExFiH9YkDuSMrDSk=";
     };
   };
   goose-desktop-x86_64-darwin = {
     pname = "goose-desktop-x86_64-darwin";
-    version = "1.59.2";
+    version = "1.61.0";
     src = fetchurl {
-      url = "https://github.com/block/goose/releases/download/v1.59.2/Goose-darwin-x64.zip";
-      sha256 = "sha256-/vPRVGppmd7gRIDwAYnsxwi/KL+Yca1Nn0KyFMmNG94=";
+      url = "https://github.com/block/goose/releases/download/v1.61.0/Goose-darwin-x64.zip";
+      sha256 = "sha256-niz35J+U3B29ot4iw7cZJl6saqjrzVJkfyegjbPhBYw=";
     };
   };
   hererocks = {
@@ -348,34 +372,34 @@
   };
   pi-coding-agent = {
     pname = "pi-coding-agent";
-    version = "1.5.2";
+    version = "1.6.0";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v1.5.2/pi-darwin-arm64.tar.gz";
-      sha256 = "sha256-VrXhlNSFztVVZnuLoydhV6gnLp7N6eAB5CivgJhb3Zs=";
+      url = "https://github.com/earendil-works/pi/releases/download/v1.6.0/pi-darwin-arm64.tar.gz";
+      sha256 = "sha256-ZCkoe3rpjXJuxXeBXRT9aA58WH6J7MUVO0oUXcStujM=";
     };
   };
   pi-coding-agent-aarch64-linux = {
     pname = "pi-coding-agent-aarch64-linux";
-    version = "1.5.2";
+    version = "1.6.0";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v1.5.2/pi-linux-arm64.tar.gz";
-      sha256 = "sha256-QoBc1WFZUvy7/JxWsE+P64Q5UTSVLhaabNyNdnaXVmY=";
+      url = "https://github.com/earendil-works/pi/releases/download/v1.6.0/pi-linux-arm64.tar.gz";
+      sha256 = "sha256-VARUe5c5vlltUK5xQsUlNYmejn3Tenus6b5ZPgNVtGg=";
     };
   };
   pi-coding-agent-x86_64-darwin = {
     pname = "pi-coding-agent-x86_64-darwin";
-    version = "1.5.2";
+    version = "1.6.0";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v1.5.2/pi-darwin-x64.tar.gz";
-      sha256 = "sha256-+ZegiGE1FKyX2ROu6nZCCU2E/m1GhU/35k4sEuU23FA=";
+      url = "https://github.com/earendil-works/pi/releases/download/v1.6.0/pi-darwin-x64.tar.gz";
+      sha256 = "sha256-W2nNh8OwDnTM4tFJnfO3oexzYy8Rq/ZGltEQ8PTcQZI=";
     };
   };
   pi-coding-agent-x86_64-linux = {
     pname = "pi-coding-agent-x86_64-linux";
-    version = "1.5.2";
+    version = "1.6.0";
     src = fetchurl {
-      url = "https://github.com/earendil-works/pi/releases/download/v1.5.2/pi-linux-x64.tar.gz";
-      sha256 = "sha256-gRxvLJ56ruJStUBCUuVW+3E6ognB9/kkImqnfU73DLU=";
+      url = "https://github.com/earendil-works/pi/releases/download/v1.6.0/pi-linux-x64.tar.gz";
+      sha256 = "sha256-73fb5DebO960JaHhuGL6PJFcJVAA3+SWXJju6WpXZdE=";
     };
   };
 }
