@@ -63,6 +63,7 @@ in
     }))
     package.path = package.path .. ";${luaSource}/?.lua;${luaSource}/?/init.lua"
     local config = links.build_config(require("sysinit.pkg.bootstrap").build, review)
+    config.visual_bell_on_copy = true
     links.configure_mouse(config)
     links.configure_hyperlinks(config)
     ${lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''

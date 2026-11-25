@@ -2051,18 +2051,18 @@
       },
       "locked": {
         "dir": "nix",
-        "lastModified": 1795583399,
-        "narHash": "sha256-tMR3POGoZaV9rIWSQ78016BKL/vi5nSIflH2F/eFDmM=",
+        "lastModified": 1795585484,
+        "narHash": "sha256-I8R2TXheKdCe9jO8+CQyKHCHJKOLF1p6W3GlXtzgTfI=",
         "owner": "roshbhatia",
         "repo": "wezterm",
-        "rev": "4a6991fa10a8ae32029ca0283746d4c273a53689",
+        "rev": "fcf6050d0d833386804dd5fe228f7f9213e5ab11",
         "type": "github"
       },
       "original": {
         "dir": "nix",
         "owner": "roshbhatia",
         "repo": "wezterm",
-        "rev": "4a6991fa10a8ae32029ca0283746d4c273a53689",
+        "rev": "fcf6050d0d833386804dd5fe228f7f9213e5ab11",
         "type": "github"
       }
     },
