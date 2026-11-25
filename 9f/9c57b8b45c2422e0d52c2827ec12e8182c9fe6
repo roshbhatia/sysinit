@@ -1,0 +1,25 @@
+modules/home/programs/llm/harnesses/pi/default.nix
+  s_a4a3eea4720821::t_4f371499e8411d 285
+modules/home/programs/llm/harnesses/pi/extensions/sysinit-ui.ts
+  s_a4a3eea4720821::t_ca4b4fa46945b3 9-11,20-51,61
+modules/home/programs/llm/harnesses/shared/pi-packages.nix
+  s_a4a3eea4720821::t_dce5e70b8290c5 86-87,117
+modules/home/programs/llm/harnesses/pi/settings-keys.nix
+  s_a4a3eea4720821::t_4f371499e8411d 10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9f9c57b8b45c2422e0d52c2827ec12e8182c9fe6",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
