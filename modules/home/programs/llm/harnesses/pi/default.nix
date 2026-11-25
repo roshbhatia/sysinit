@@ -218,7 +218,6 @@ let
     plannotator
     btw
     piReverseLast
-    toolDisplay
     diff
     webAccess
     context
@@ -283,6 +282,7 @@ let
 
     quietStartup = "header";
     tuiMode = "fullscreen";
+    fullscreenCopyOnSelect = true;
     fullscreenExitOutput = "resume-hint";
     fullscreenScrollbar = "auto";
     editorPaddingX = 1;
@@ -418,20 +418,6 @@ in
           force = true;
         };
 
-        ".pi/agent/extensions/pi-tool-display/config.json" = {
-          source = pkgs.sysinit.writeJSON "pi-default.json" {
-            registerToolOverrides = {
-              read = true;
-              grep = true;
-              find = true;
-              ls = true;
-              bash = true;
-              edit = false;
-              write = false;
-            };
-          };
-          force = true;
-        };
       };
 
     sessionVariables = {

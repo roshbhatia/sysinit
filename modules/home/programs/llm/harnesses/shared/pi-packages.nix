@@ -83,11 +83,8 @@ let
       mkFetchedNpmPackage "pi-librarian" "1.3.7"
         "sha256-Obn+DyQD1WCptZO5t0YgUOdpGULNYfPxUA7NeGT7GfQ=";
     askUser =
-      mkFetchedNpmPackage "pi-ask-user" "0.17.0"
-        "sha256-VVdGQq9YARn3t971kMFtbXF+azP/mMsX8rqGq4lsLDA=";
-    toolDisplay =
-      mkFetchedNpmPackage "pi-tool-display" "0.5.0"
-        "sha256-HP4Hb57+0BoVv4YJ4TjW7tzEXgvR3SZaVSE6lWmmSFg=";
+      mkFetchedNpmPackage "pi-ask-user" "0.17.2"
+        "sha256-klpWruz50S62kC/GyHNoQgwnpBCgWJxJyzN4eRNxQiA=";
     subdirContext =
       mkFetchedNpmPackage "pi-subdir-context" "1.1.7"
         "sha256-nPHuANl4j5Ank2ccLUQFLxRIxTPJCLF3G73NpU8xHnI=";
@@ -117,7 +114,7 @@ let
       '';
     };
 
-    btw = mkFetchedNpmPackage "pi-btw" "0.8.0" "sha256-rY16r38X528qPOrFq7Xtca8jn/RZuB1KjJJCYMNkL9w=";
+    btw = mkFetchedNpmPackage "pi-btw" "0.8.1" "sha256-dFZcjS7H74QnrjxYyoKZbaBD/cCbav+G900z5hfBEfQ=";
 
     piRetry =
       mkFetchedNpmPackage "@narumitw/pi-retry" "0.31.0"

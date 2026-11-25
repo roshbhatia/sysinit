@@ -27,7 +27,6 @@ declare -a TRACKED=(
   "pi-threads"
   "pi-librarian"
   "pi-ask-user"
-  "pi-tool-display"
   "pi-subdir-context"
   "pi-web-access"
   "pi-acp"
