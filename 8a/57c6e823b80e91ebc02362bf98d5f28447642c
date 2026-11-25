@@ -1,0 +1,23 @@
+flake.nix
+  s_a4a3eea4720821::t_4bb454cb48eae6 129
+modules/home/programs/wezterm/default.nix
+  s_a4a3eea4720821::t_4bb454cb48eae6 66
+flake.lock
+  s_a4a3eea4720821::t_d8107c342e6285 2054-2055,2058,2065
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8a57c6e823b80e91ebc02362bf98d5f28447642c",
+  "prompts": {},
+  "sessions": {
+    "s_a4a3eea4720821": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f4ef-68fa-7c11-b609-3f16bf1d9bf7",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
