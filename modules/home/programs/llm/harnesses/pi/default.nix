@@ -259,7 +259,7 @@ let
     src = fetchNpmPkg {
       name = "pi-acp";
       version = "0.0.35";
-      hash = "sha256-yAuqy2KXWrkGqSBjJG7d/PqhXXtr9/4jWh7EDI8/cJ4=";
+      hash = "sha256-tRJ4CuhLUx+z2UnIjjn1f2BoCynms71OmCK+1AJ90tA=";
     };
     postPatch = ''
       cp ${./locks/pi-acp.lock.json} package-lock.json

@@ -63,7 +63,7 @@ let
       mkFetchedNpmPackage "pi-context" "2.3.0"
         "sha256-jhzTPMVHFoVQfXghRq1ap/8Z+iNoYyH2tnAzuO1Ev/g=";
     subagents =
-      (mkBuiltNpmPackage "pi-subagents" "0.90.0" "sha256-mf/FM8IR7ZQlsLaUHnUAYVyudxCeaFUbjegz3jmjRgo="
+      (mkBuiltNpmPackage "pi-subagents" "0.90.0" "sha256-oZs1RSGZOY/gOlvNYl+w3CRDrfu3A8dRJ74CZ1xZeyA="
         "sha256-n7Bcd+IwYcp/3q0I3F8pWQmfYEn5LDBhMw9mzR1CsGM="
         ./locks/pi-subagents.lock.json
       ).overrideAttrs
@@ -96,7 +96,7 @@ let
       src = fetchNpmPkg {
         name = "pi-web-access";
         version = "0.48.0";
-        hash = "sha256-De0UuQ7E6FDA6fjRld/iV04/YxvdC43M85OgsbmNboo=";
+        hash = "sha256-jEsoEm+Yre+vzbjCYpSsY1tID4Z6AiEZPuq86BkKLx8=";
       };
       postPatch = ''
         cp ${./locks/pi-web-access.lock.json} package-lock.json
@@ -126,7 +126,7 @@ let
 
     piPermissionSystem =
       (mkBuiltNpmPackage "@gotgenes/pi-permission-system" "42.2.1"
-        "sha256-NuUWegdmBY29f8uJspqifc881BSjey+thha4uAA5aAY="
+        "sha256-+cizwqZEKAxEO5ii5OPzNBCMeZW+c8MuTXRV2kzfy3I="
         "sha256-PtE3B+nRYN8idXFQ7VJLb6lhwHKJ91RpAH6hCfjwDqg="
         ./locks/pi-permission-system.lock.json
       ).overrideAttrs
@@ -147,7 +147,7 @@ let
 
     plannotator =
       mkBuiltNpmPackage "@plannotator/pi-extension" "0.29.3"
-        "sha256-E4qLa+himqF5fmjGABTNyuAhqKrEA25gUxJstTlLgFw="
+        "sha256-EkGNFNE4hmpLBiqdz2LiX8pIy/HiwCxhKoZAoG1pfzc="
         "sha256-JJrgm3gR+dQvILgCrxb2fmC52ED/G2IR5hja4fJ3dAU="
         ./locks/plannotator.lock.json;
 
