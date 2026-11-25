@@ -62,8 +62,10 @@ PATH. Installing Ask does not expose their agent commands globally.
   hook executes: notifier, state bus, gates, guard bodies. `skills/` is the
   scanned skill registry, and `subagents/` is the teammate definitions
 - ACP adapter commands live in one registry, `lib/acp.nix`, rendered to
-  `~/.config/acp/agents.json`. Goose provider settings derive from the supported
-  provider mappings in that registry; Goose Desktop is installed on supported workstations
+  `~/.config/acp/agents.json`. Local clients can launch Goose using the command
+  and args in `agent_servers.goose`. The client starts and owns the stdio
+  process. Goose's own provider choices derive from the provider mappings in
+  the same registry. macOS workstations with Goose enabled also install Goose Desktop.
 - `harnesses/deck-patterns.nix` is how the wezterm agent-deck plugin recognises
   an agent in a pane, and it renders into `wezterm/config.json` as `agents`.
   `harnesses/publish.nix` asserts the file covers the registry exactly

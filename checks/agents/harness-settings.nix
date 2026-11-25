@@ -7,8 +7,10 @@
 let
   inherit (pkgs) lib;
   copilot = pkgs.sysinit.writeJSON "copilot-settings.json" home.sysinit.llm.managedFiles.copilot.content;
+  darwin = darwinConfigurations.lv426.config;
+  darwinHome = darwin.home-manager.users.${darwin.sysinit.user.username};
   systems = [
-    darwinConfigurations.lv426.config
+    darwin
     nixosConfigurations.arrakis.config
   ];
   hasReviewLink = lib.any (
@@ -34,6 +36,7 @@ let
     && hasReviewLink document.hooks.UserPromptSubmit
     && hasReviewLink document.hooks.Stop;
 in
+assert lib.any (package: lib.getName package == "goose-desktop") darwinHome.home.packages;
 assert builtins.all managedHooksValid systems;
 assert home.programs.claude-code.settings.permissions.defaultMode == "bypassPermissions";
 assert builtins.any (
@@ -61,6 +64,8 @@ assert home.sysinit.llm.managedFiles.fx.content.permission_mode == "full-access"
     "${pkgs.gate-providers}/share/gate/providers"
     ./harness-settings.nu
     "${pkgs.coreutils}/bin/timeout"
+    home.xdg.configFile."acp/agents.json".source
+    "${home.home.profileDirectory}/bin/goose"
   ];
   inputs = [
     pkgs.github-copilot-cli

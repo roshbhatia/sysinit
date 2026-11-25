@@ -147,7 +147,11 @@ in
       ++ lib.optional (builtins.elem "workflow-run-conductor" config.sysinit.llm.enabledOptInSkills) conductor-cli
       ++ map (name: pkgs.${harnesses.${name}.package}) config.sysinit.llm.harnessPackages;
 
-      workstation = lib.optionals pkgs.stdenv.hostPlatform.isLinux [ hyprpicker ];
+      workstation =
+        lib.optionals pkgs.stdenv.hostPlatform.isLinux [ hyprpicker ]
+        ++ lib.optional (
+          pkgs.stdenv.hostPlatform.isDarwin && builtins.elem "goose" config.sysinit.llm.harnessPackages
+        ) goose-desktop;
     }
     ++ map (name: pkgs.${name}) (values.packages or [ ]);
 }
