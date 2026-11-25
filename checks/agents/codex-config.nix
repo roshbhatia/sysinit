@@ -41,6 +41,7 @@ let
 
 in
 assert home.programs.codex.settings.features.hooks;
+assert home.programs.codex.settings.features.code_mode;
 assert builtins.all (event: home.programs.codex.settings.hooks.${event} != [ ]) [
   "PreToolUse"
   "PostToolUse"
