@@ -122,9 +122,12 @@ if [[ ${drift_count} -gt 0 ]]; then
 To update a package:
   1. Bump version in modules/home/programs/llm/harnesses/shared/pi-packages.nix
      (pi-acp and pi-gemini-auth live in harnesses/pi/default.nix instead)
-  2. Prefetch the unpacked source used by fetchNpmPkg:
+  2. Prefetch the source using the flags for its declared fetcher:
        url='https://registry.npmjs.org/<pkg>/-/<basename>-<ver>.tgz'
+     For fetchNpmPkg and fetchzip:
        nix store prefetch-file --unpack --json "$url" | jq -r .hash
+     For fetchurl:
+       nix store prefetch-file --json "$url" | jq -r .hash
   3. If buildNpmPackage: regenerate lockfile
        tmp=$(mktemp -d); cd "$tmp"; curl -sf "$url" | tar xz --strip-components=1
        npm install --package-lock-only --ignore-scripts

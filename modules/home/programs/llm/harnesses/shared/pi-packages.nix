@@ -168,7 +168,7 @@ let
       postPatch = ''
         cp ${./locks/pi-diff.lock.json} package-lock.json
       '';
-      npmDepsHash = "sha256-pEAEa18G7jduRCiWrb3qd1ggPSJkKgopoHBsplVgx1M=";
+      npmDepsHash = "sha256-a7lMtLuJFiwRnCwcY3IO3tJ87n0XnbrMMvUOLGoO49A=";
       npmFlags = "--ignore-scripts";
       dontNpmBuild = true;
       installPhase = ''
