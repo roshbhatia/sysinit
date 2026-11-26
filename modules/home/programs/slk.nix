@@ -46,6 +46,7 @@ in
       sidebar = {
         width = lib.mkDefault 26;
         hide_inactive_after_days = lib.mkDefault 30;
+        active_only = lib.mkDefault true;
       };
       compose.editor = lib.mkDefault "nvim";
     };
