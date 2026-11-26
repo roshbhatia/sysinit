@@ -64,6 +64,11 @@ in
 
         "urth" = beforeStork {
           HostName = "urth.stork-eel.ts.net";
+          User = "rshnbhatia";
+        };
+
+        "hyperion" = beforeStork {
+          HostName = "hyperion.stork-eel.ts.net";
           User = "roshan";
         };
 

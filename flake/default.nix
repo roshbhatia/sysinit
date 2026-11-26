@@ -6,7 +6,8 @@ let
     inherit lib nixpkgs inputs;
   };
 
-  hostConfigs = import ../hosts { };
+  personal = import ../hosts/personal.nix;
+  hostConfigs = import ../hosts { inherit personal; };
   inherit (sysinitLib) builders;
   inherit (sysinitLib) outputBuilders;
 
@@ -30,9 +31,21 @@ let
     inherit buildConfig;
   };
 
-  nixosConfigurations = outputBuilders.mkConfigurations {
+  workstationConfigurations = outputBuilders.mkConfigurations {
     configs = nixosConfigs;
     inherit buildConfig;
+  };
+  nixosConfigurations = workstationConfigurations // {
+    vorgossos = lib.nixosSystem {
+      system = "x86_64-linux";
+      specialArgs = {
+        inherit (inputs) k0s-nix;
+        inherit (personal) authorizedKeys;
+        terminalColors = personal.rosePine;
+        wezterm = inputs.wezterm-fork.packages.x86_64-linux.default;
+      };
+      modules = [ ../hosts/vorgossos ];
+    };
   };
 
   systems = [
@@ -57,7 +70,7 @@ in
       lib.filterAttrs (name: _: hostConfigs.${name}.system == system) darwinConfigurations
     );
     nixos = lib.mapAttrs (_: cfg: cfg.config.system.build.toplevel.drvPath) (
-      lib.filterAttrs (name: _: hostConfigs.${name}.system == system) nixosConfigurations
+      lib.filterAttrs (_: cfg: cfg.config.nixpkgs.hostPlatform.system == system) nixosConfigurations
     );
     home = lib.genAttrs [ "dev" "minimal" ] (
       profile: inputs.self.homeConfigurations.${profile + "-" + system}.activationPackage.drvPath
@@ -91,10 +104,10 @@ in
             name = "${profile}-${system}";
             value = buildHome {
               inherit system profile;
-              inherit (hostConfigs.lv426) username;
+              inherit (personal) username;
               hostname = "standalone";
               values = {
-                inherit (hostConfigs.lv426.values) git;
+                inherit (personal) git;
               };
             };
           }) systems

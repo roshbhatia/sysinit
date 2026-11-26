@@ -3,6 +3,10 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    k0s-nix = {
+      url = "github:nix-community/k0s-nix/e7670c30f5e24cf46296bb3fd9fef3cd3febe97b";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     systems.url = "github:nix-systems/default";
 

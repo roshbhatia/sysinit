@@ -866,6 +866,27 @@
         "type": "github"
       }
     },
+    "k0s-nix": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1795573110,
+        "narHash": "sha256-5rAYfpROuTOVxUd/hOKfqFF7Rh8oELLa3+PzOYPtD6A=",
+        "owner": "nix-community",
+        "repo": "k0s-nix",
+        "rev": "e7670c30f5e24cf46296bb3fd9fef3cd3febe97b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "k0s-nix",
+        "rev": "e7670c30f5e24cf46296bb3fd9fef3cd3febe97b",
+        "type": "github"
+      }
+    },
     "libpng": {
       "flake": false,
       "locked": {
@@ -1349,6 +1370,7 @@
         "hunk-commit-log": "hunk-commit-log",
         "hunk-viewed": "hunk-viewed",
         "janestreet-skills": "janestreet-skills",
+        "k0s-nix": "k0s-nix",
         "meat": "meat",
         "nix-claude-code": "nix-claude-code",
         "nix-gaming": "nix-gaming",

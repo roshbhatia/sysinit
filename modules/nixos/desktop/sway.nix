@@ -1,10 +1,12 @@
 {
   pkgs,
   config,
+  lib,
   ...
 }:
 
 let
+  nvidia = builtins.elem "nvidia" config.services.xserver.videoDrivers;
   swayWrapped = pkgs.sysinit.writeShellScriptBin "sway-wrapped" ''
     set -euo pipefail
 
@@ -13,9 +15,11 @@ let
     export PATH="/run/wrappers/bin:/run/current-system/sw/bin:$HOME/.nix-profile/bin:$PATH"
     export WLR_NO_HARDWARE_CURSORS=1
     export WLR_RENDERER=vulkan
-    export GBM_BACKEND=nvidia-drm
-    export __GLX_VENDOR_LIBRARY_NAME=nvidia
-    export LIBVA_DRIVER_NAME=nvidia
+    ${lib.optionalString nvidia ''
+      export GBM_BACKEND=nvidia-drm
+      export __GLX_VENDOR_LIBRARY_NAME=nvidia
+      export LIBVA_DRIVER_NAME=nvidia
+    ''}
     export XDG_CURRENT_DESKTOP=sway
     export XDG_SESSION_TYPE=wayland
     export NIXOS_OZONE_WL=1
@@ -25,7 +29,7 @@ let
 
     ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd --all || true
 
-    exec ${pkgs.sysinit-swayfx}/bin/sway --unsupported-gpu "$@"
+    exec ${pkgs.sysinit-swayfx}/bin/sway ${lib.optionalString nvidia "--unsupported-gpu"} "$@"
   '';
 in
 {

@@ -8,5 +8,5 @@
     ./common
   ]
   ++ lib.optional values.isDesktop ./desktop
-  ++ lib.optional values.isDesktop ./k3s.nix;
+  ++ lib.optional (values.k3s.enable or false) ./k3s.nix;
 }
