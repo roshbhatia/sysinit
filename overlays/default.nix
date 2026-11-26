@@ -42,8 +42,6 @@
   (import ./amp-acp.nix)
   (import ./devin-cli.nix)
   (import ./goose.nix)
-  (import ./crush.nix)
-  (import ./fx.nix)
   (import ./fzf.nix)
   (import ./nushell.nix)
   (import ./contextive.nix)

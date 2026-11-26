@@ -62,38 +62,6 @@
       sha256 = "sha256-CWzLFpgSsYY7FPybkfMMBxc57ePcxh0oI4xe6dau5nQ=";
     };
   };
-  crush = {
-    pname = "crush";
-    version = "0.102.0";
-    src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.102.0/crush_0.102.0_Darwin_arm64.tar.gz";
-      sha256 = "sha256-Ow17zlEGW+4J+iGs3DKEZ6SZZQmuIh5gHziPt9F6/xY=";
-    };
-  };
-  crush-aarch64-linux = {
-    pname = "crush-aarch64-linux";
-    version = "0.102.0";
-    src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.102.0/crush_0.102.0_Linux_arm64.tar.gz";
-      sha256 = "sha256-MR4KW2flla0rbyJ2GBvOp4w5asIgVBVE/dG0GcS6YtE=";
-    };
-  };
-  crush-x86_64-darwin = {
-    pname = "crush-x86_64-darwin";
-    version = "0.102.0";
-    src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.102.0/crush_0.102.0_Darwin_x86_64.tar.gz";
-      sha256 = "sha256-Sq4X7fxd6+13z+v0uc+zjAS6zKM1inKCJehYfiE+gmI=";
-    };
-  };
-  crush-x86_64-linux = {
-    pname = "crush-x86_64-linux";
-    version = "0.102.0";
-    src = fetchurl {
-      url = "https://github.com/charmbracelet/crush/releases/download/v0.102.0/crush_0.102.0_Linux_x86_64.tar.gz";
-      sha256 = "sha256-eTDMFKLew6hX3dIHDIY8HF1+2zNdIM37ZaW0TmKgyh4=";
-    };
-  };
   devin-cli = {
     pname = "devin-cli";
     version = "3000.14.30821";
@@ -116,38 +84,6 @@
     src = fetchurl {
       url = "https://static.devin.ai/cli/3000.14.30821/devin-3000.14.30821-x86_64-unknown-linux.tar.gz";
       sha256 = "sha256-TcQ+PkOIus5g/iqoAQy7OZQC5ySJLXF1hFsc3vAOfds=";
-    };
-  };
-  fx = {
-    pname = "fx";
-    version = "0.0.17";
-    src = fetchurl {
-      url = "https://github.com/vercel-labs/fx/releases/download/v0.0.17/fx-macos-aarch64.tar.gz";
-      sha256 = "sha256-XKy1s2JKeduP1OMdy8WdapM9fl7Uw5d3bZXfa2GClqk=";
-    };
-  };
-  fx-aarch64-linux = {
-    pname = "fx-aarch64-linux";
-    version = "0.0.17";
-    src = fetchurl {
-      url = "https://github.com/vercel-labs/fx/releases/download/v0.0.17/fx-linux-aarch64.tar.gz";
-      sha256 = "sha256-tGM7iYfsQ/G5RU5GKfO1pPHghqrja4SuT+/qzWpTdh8=";
-    };
-  };
-  fx-x86_64-darwin = {
-    pname = "fx-x86_64-darwin";
-    version = "0.0.17";
-    src = fetchurl {
-      url = "https://github.com/vercel-labs/fx/releases/download/v0.0.17/fx-macos-x86_64.tar.gz";
-      sha256 = "sha256-mE7vZjLXvSf/e3W++1K52zLCUoeQUAnbWCL2pmmGH+w=";
-    };
-  };
-  fx-x86_64-linux = {
-    pname = "fx-x86_64-linux";
-    version = "0.0.17";
-    src = fetchurl {
-      url = "https://github.com/vercel-labs/fx/releases/download/v0.0.17/fx-linux-x86_64.tar.gz";
-      sha256 = "sha256-eMFV1Z+lnkL9VtkwN/11BBhoycZ4ZejH8MptzfrCPnU=";
     };
   };
   git-ai = {

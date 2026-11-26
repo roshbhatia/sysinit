@@ -33,7 +33,6 @@ let
     mcp.formatForAntigravity
     mcp.formatForGoose
     mcp.formatForCopilot
-    mcp.formatForCrush
     (mcp.formatForOpencode [ ])
   ];
   normalize = servers: servers.servers or servers;

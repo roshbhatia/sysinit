@@ -51,14 +51,6 @@
     status_patterns = { };
   };
 
-  crush = {
-    patterns = [ "crush" ];
-    executable_patterns = [ "/crush$" ];
-    argv_patterns = [ "^crush%s*$" ];
-    title_patterns = [ "crush" ];
-    status_patterns = { };
-  };
-
   cursor = {
     patterns = [
       "cursor%-agent"
@@ -75,14 +67,6 @@
     executable_patterns = [ "/devin$" ];
     argv_patterns = [ "^devin%s*$" ];
     title_patterns = [ "devin" ];
-    status_patterns = { };
-  };
-
-  fx = {
-    patterns = [ "^fx$" ];
-    executable_patterns = [ "/fx$" ];
-    argv_patterns = [ "^fx%s*$" ];
-    title_patterns = [ "^fx$" ];
     status_patterns = { };
   };
 

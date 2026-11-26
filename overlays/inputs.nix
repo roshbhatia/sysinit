@@ -17,9 +17,14 @@ in
 final: _prev:
 let
   askExtras = inputs.ask.packages.${final.stdenv.hostPlatform.system}.extras;
-  askProviders = askExtras.providers // {
-    devin = askExtras.providers.devin.override { inherit (final) devin-cli; };
-  };
+  askProviders =
+    builtins.removeAttrs askExtras.providers [
+      "crush"
+      "fx"
+    ]
+    // {
+      devin = askExtras.providers.devin.override { inherit (final) devin-cli; };
+    };
   tracesPackages = inputs.traces.packages.${final.stdenv.hostPlatform.system};
   tracesProviderPackages =
     final.lib.mapAttrs' (
@@ -90,17 +95,6 @@ in
     passthru.providers = tracesProviderPackages;
   };
   traces-tools = tracesToolPackages;
-  slk = inputs.slk.packages.${final.stdenv.hostPlatform.system}.default.overrideAttrs (
-    finalAttrs: old: {
-      version = "0.29.0";
-      src = inputs.slk;
-      ldflags = (old.ldflags or [ ]) ++ [
-        "-X=main.version=${finalAttrs.version}"
-        "-X=main.commit=${inputs.slk.rev or "none"}"
-        "-X=main.date=${inputs.slk.lastModifiedDate or "unknown"}"
-      ];
-    }
-  );
   nuvim = inputs.nuvim.packages.${final.stdenv.hostPlatform.system}.default;
 
   nu-plugin-nuvim = final.nuvim;
@@ -113,5 +107,4 @@ in
     };
   };
 
-  inherit (inputs.cupcake.packages.${final.stdenv.hostPlatform.system}) cupcake-cli;
 }

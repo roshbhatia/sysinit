@@ -10,7 +10,6 @@ runtime dependencies.
 | `checks/shell/atuin.py`, `checks/shell/atuin-nushell.py`, `checks/shell/nushell-wezterm.py`, `checks/workflows/tq-browser.py`, `checks/workflows/tq-picker.py`, `checks/agents/threads-picker.py` | PTY allocation, terminal resize ioctls, multiplexed input/output, and terminal-screen assertions. Preserve real interactive behavior rather than replacing these checks with static assertions. |
 | `checks/agents/codex-daemon.py` | Stateful WebSocket RPC over a Unix socket, correlated responses, and server process lifetime. |
 | `checks/agents/codex-mcp-capabilities.py` | Duplex JSON-RPC over child stdin/stdout with correlated responses and timeouts. |
-| `modules/home/programs/slk-setup.py` | Lossless TOML edits that preserve user comments and formatting. Assess an existing native utility built on `toml_edit` before designing another editor. |
 
 Private machine transport and authorization deferrals are recorded separately in
 sysinit.laurel. Revisit these items when the corresponding native utility API is

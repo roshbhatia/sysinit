@@ -25,28 +25,6 @@ fetch.github = "luarocks/hererocks"
 src.github_tag = "ahatem/IoskeleyMono"
 fetch.url = "https://github.com/ahatem/IoskeleyMono/releases/download/$ver/IoskeleyMono-TTF-Hinted.zip"
 
-# Binary release packages - crush (one entry per platform asset) Tags are v0.47.2, strip
-# prefix so $ver = 0.47.2 for URL construction
-[crush]
-src.github = "charmbracelet/crush"
-src.prefix = "v"
-fetch.url = "https://github.com/charmbracelet/crush/releases/download/v$ver/crush_$ver_Darwin_arm64.tar.gz"
-
-[crush-x86_64-darwin]
-src.github = "charmbracelet/crush"
-src.prefix = "v"
-fetch.url = "https://github.com/charmbracelet/crush/releases/download/v$ver/crush_$ver_Darwin_x86_64.tar.gz"
-
-[crush-aarch64-linux]
-src.github = "charmbracelet/crush"
-src.prefix = "v"
-fetch.url = "https://github.com/charmbracelet/crush/releases/download/v$ver/crush_$ver_Linux_arm64.tar.gz"
-
-[crush-x86_64-linux]
-src.github = "charmbracelet/crush"
-src.prefix = "v"
-fetch.url = "https://github.com/charmbracelet/crush/releases/download/v$ver/crush_$ver_Linux_x86_64.tar.gz"
-
 # Binary release packages - pi-coding-agent (one entry per platform asset)
 [pi-coding-agent]
 src.github = "earendil-works/pi"
@@ -201,31 +179,6 @@ fetch.url = "https://github.com/github/copilot-cli/releases/download/v$ver/githu
 src.webpage = "https://registry.npmjs.org/amp-acp/latest"
 src.regex = '(?<="version":")[0-9]+\.[0-9]+\.[0-9]+'
 fetch.url = "https://registry.npmjs.org/amp-acp/-/amp-acp-$ver.tgz"
-
-# Binary release packages - fx (one entry per platform asset)
-# Asset names carry no version, so every URL is the same shape per platform.
-# Git tags run ahead of releases (v0.4.5 exists as a tag, v0.0.5 is the latest
-# release), so this tracks `src.github` releases, not `src.github_tag`.
-# https://releases.fx.sh/latest.txt agrees with the release tag.
-[fx]
-src.github = "vercel-labs/fx"
-src.prefix = "v"
-fetch.url = "https://github.com/vercel-labs/fx/releases/download/v$ver/fx-macos-aarch64.tar.gz"
-
-[fx-x86_64-darwin]
-src.github = "vercel-labs/fx"
-src.prefix = "v"
-fetch.url = "https://github.com/vercel-labs/fx/releases/download/v$ver/fx-macos-x86_64.tar.gz"
-
-[fx-aarch64-linux]
-src.github = "vercel-labs/fx"
-src.prefix = "v"
-fetch.url = "https://github.com/vercel-labs/fx/releases/download/v$ver/fx-linux-aarch64.tar.gz"
-
-[fx-x86_64-linux]
-src.github = "vercel-labs/fx"
-src.prefix = "v"
-fetch.url = "https://github.com/vercel-labs/fx/releases/download/v$ver/fx-linux-x86_64.tar.gz"
 
 # Binary release packages - git-ai (git-ai-project/git-ai). Tags are v1.7.4,
 # strip prefix so $ver = 1.7.4. Assets are single static binaries per platform,

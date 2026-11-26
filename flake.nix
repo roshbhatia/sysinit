@@ -53,12 +53,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    cupcake = {
-      url = "github:eqtylab/cupcake";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.rust-overlay.follows = "rust-overlay";
-    };
-
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -162,11 +156,6 @@
 
     citelock = {
       url = "github:roshbhatia/citelock/v0.1.0";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    slk = {
-      url = "github:gammons/slk/v0.39.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
