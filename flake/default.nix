@@ -41,7 +41,7 @@ let
       specialArgs = {
         inherit (inputs) k0s-nix;
         inherit (personal) authorizedKeys;
-        terminalColors = personal.rosePine;
+        base16 = inputs.stylix.inputs.base16.lib;
         wezterm = inputs.wezterm-fork.packages.x86_64-linux.default;
       };
       modules = [ ../hosts/vorgossos ];

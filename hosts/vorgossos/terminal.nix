@@ -1,7 +1,7 @@
 {
+  base16,
   lib,
   pkgs,
-  terminalColors,
   wezterm,
   ...
 }:
@@ -10,7 +10,10 @@ let
   inherit (lib) getExe;
   user = "rshnbhatia";
   kubeconfig = "/home/${user}/.kube/config";
-  palette = import ../../modules/shared/terminal-palette.nix terminalColors;
+  colors =
+    (base16 { inherit lib pkgs; }).mkSchemeAttrs
+      "${pkgs.base16-schemes}/share/themes/gruvbox-dark-soft.yaml";
+  palette = import ../../modules/shared/terminal-palette.nix colors;
   ansiNames = [
     "black"
     "red"
@@ -60,6 +63,8 @@ let
   '';
 in
 {
+  console.colors = map (lib.removePrefix "#") (palette.ansi ++ palette.brights);
+
   environment.systemPackages = [
     remote
     pkgs.k9s
