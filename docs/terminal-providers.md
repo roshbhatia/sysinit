@@ -6,15 +6,18 @@ The Sysinit packages wire the WezTerm provider into `task-queue` and `task-board
 The WezTerm adapter honors `TQ_WEZTERM_SOCKET` and `TQ_WEZTERM_DOMAIN`.
 
 External repositories can supply a local provider manifest through
-`SYSINIT_TERMINAL_PROVIDER`. An attempt retains the manifest selected at
+`SYSINIT_TERMINAL_PROVIDER`. Set it explicitly when calling the unwrapped
+binaries to submit a terminal attempt or open a review from the board.
+An attempt retains the manifest selected at
 submission. Keep that manifest available while the attempt still needs terminal
 access. Existing WezTerm attempts remain attachable through the original mux
 configuration.
 
 ## Provider actions
 
-Use the `provider/v1` manifest and JSONL protocol. A queue provider
-implements four actions. All queue requests include the workspace.
+Use the `provider/v1` manifest and JSONL protocol. A queue provider implements
+spawn, status, focus, and close. All queue requests include the workspace.
+Implement review to support opening a diff from the board.
 
 | Action | Request | Result |
 | --- | --- | --- |

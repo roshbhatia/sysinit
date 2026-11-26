@@ -7,6 +7,7 @@
     "externalEditor"
     "quietStartup"
     "tuiMode"
+    "fullscreenCopyOnSelect"
     "fullscreenExitOutput"
     "fullscreenScrollbar"
     "editorPaddingX"

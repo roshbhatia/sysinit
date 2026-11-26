@@ -67,7 +67,7 @@ directory. Use an explicit Git base or saved file baseline with
 
 The JSON view reads the same projection as the TUI. Taskwarrior is the only
 required data source. When available, queue data comes from
-`task-queue snapshot`, which reads the live queue and stored attempts without rewriting
+`task-queue status`, which reads the live queue and stored attempts without rewriting
 attempt records. Pass `--workspaces` with `agent-workspace` available to include
 workspace links. Both sources join by Taskwarrior UUID. The board stores no
 tasks or workflow state of its own.

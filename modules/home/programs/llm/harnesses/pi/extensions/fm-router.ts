@@ -19,9 +19,9 @@ const implementation = "gpt-5.6-luna";
 export async function classify(
   pi: Pick<ExtensionAPI, "exec">,
   prompt: string,
-  signal: AbortSignal,
+  signal?: AbortSignal,
 ): Promise<"simple" | "complex"> {
-  signal.throwIfAborted();
+  signal?.throwIfAborted();
   const directory = await mkdtemp(join(tmpdir(), "pi-fm-"));
   try {
     const schema = join(directory, "schema.json");
@@ -54,7 +54,7 @@ export async function classify(
       ],
       { signal, timeout: 15_000 },
     );
-    signal.throwIfAborted();
+    signal?.throwIfAborted();
     if (result.code !== 0 || result.killed) {
       throw new Error(
         `FM classification failed: ${result.stderr.trim() || "process interrupted"}`,

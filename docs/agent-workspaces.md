@@ -7,7 +7,9 @@ ordinary folder. The original directory stays the agent's working directory.
 Use `nix shell .#agent-workspace` from Sysinit or set
 `sysinit.llm.workspace.enable = true` in Home Manager for routine use. Pass
 `--workspaces` to `task-board` when you want workspace discovery.
-Normal agent launches and `agent-diff` use independent entry points.
+Launch an agent directly and run `agent-diff` from its pane for ordinary
+review. Enable agent workspaces when you want to save an exact conversation
+and its review baseline or keep review notes across sessions.
 
 ```sh
 agent-workspace agents
@@ -26,9 +28,11 @@ pane and uses its reported directory unless you supply `--cwd`. Both print a
 workspace ID. Use `--task <taskwarrior-uuid>` to record a link to an existing
 task. Seshy still manages the session and its repositories.
 
-`resume <workspace-id>` focuses its live pane. When a launched pane has
-closed, `resume` reopens the exact recorded conversation if the agent has
-one. Use `--conversation <native-id>` to bind an existing conversation at
+`resume <workspace-id>` focuses its live pane when the recorded mux still
+owns it. After a mux restart or for an older record without a mux identity,
+resume the recorded conversation or attach the intended live pane again.
+When a launched pane has closed, `resume` reopens its exact recorded
+conversation when one is available. Use `--conversation <native-id>` to bind an existing conversation at
 launch or when reopening, or `--restart` for a fresh process. Claude, Pi, and
 Strands accept a new conversation ID at launch, so the workspace assigns one.
 For other agents, supply a full native ID when you want to associate a

@@ -157,25 +157,24 @@ func submit(plan submission, dir string, records []attempt) (int, error) {
 	if plan.terminal {
 		a.Terminal = os.Getenv("TQ_TERMINAL_WORKSPACE")
 		if a.Terminal == "" {
-			a.Terminal = os.Getenv("TQ_WEZTERM_WORKSPACE")
-		}
-		if a.Terminal == "" {
 			a.Terminal = queueWorkspace
 		}
 		a.SharedTerminal = true
-		if path := os.Getenv(terminalprovider.Selection); path != "" {
-			a.TerminalProvider, e = filepath.Abs(path)
-			if e != nil {
-				return 1, e
-			}
-			manifest, err := terminalprovider.Open(a.TerminalProvider)
-			if err != nil {
-				return 1, err
-			}
-			for _, action := range []string{"spawn", "status", "focus", "close"} {
-				if _, ok := manifest.Actions["terminal."+action]; !ok {
-					return 1, fmt.Errorf("terminal provider %s lacks terminal.%s", manifest.Name, action)
-				}
+		path := os.Getenv(terminalprovider.Selection)
+		if path == "" {
+			return 1, fmt.Errorf("set %s to submit a terminal attempt", terminalprovider.Selection)
+		}
+		a.TerminalProvider, e = filepath.Abs(path)
+		if e != nil {
+			return 1, e
+		}
+		manifest, err := terminalprovider.Open(a.TerminalProvider)
+		if err != nil {
+			return 1, err
+		}
+		for _, action := range []string{"spawn", "status", "focus", "close"} {
+			if _, ok := manifest.Actions["terminal."+action]; !ok {
+				return 1, fmt.Errorf("terminal provider %s lacks terminal.%s", manifest.Name, action)
 			}
 		}
 	}

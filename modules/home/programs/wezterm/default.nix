@@ -50,7 +50,8 @@ in
   imports = [ inputs.sysinit-wezterm.homeManagerModules.default ];
   home.packages = [ paneName ];
   programs.wezterm.extraConfig = lib.mkForce ''
-    dofile("${./links.lua}").setup(wezterm.json_parse(${
+    local links = dofile("${./links.lua}")
+    local review = links.setup(wezterm.json_parse(${
       builtins.toJSON (
         builtins.toJSON {
           bin = "${config.home.profileDirectory}/bin";
@@ -61,7 +62,10 @@ in
       )
     }))
     package.path = package.path .. ";${luaSource}/?.lua;${luaSource}/?/init.lua"
-    local config = require("sysinit.pkg.bootstrap").build()
+    local config = links.build_config(require("sysinit.pkg.bootstrap").build, review)
+    config.visual_bell_on_copy = true
+    links.configure_mouse(config)
+    links.configure_hyperlinks(config)
     ${lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
       local clipboard = {
         c = wezterm.action.CopyTo("Clipboard"),

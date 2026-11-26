@@ -62,8 +62,10 @@ PATH. Installing Ask does not expose their agent commands globally.
   hook executes: notifier, state bus, gates, guard bodies. `skills/` is the
   scanned skill registry, and `subagents/` is the teammate definitions
 - ACP adapter commands live in one registry, `lib/acp.nix`, rendered to
-  `~/.config/acp/agents.json`. Goose provider settings derive from the supported
-  provider mappings in that registry; Goose Desktop is installed on supported workstations
+  `~/.config/acp/agents.json`. Local clients can launch Goose using the command
+  and args in `agent_servers.goose`. The client starts and owns the stdio
+  process. Goose's own provider choices derive from the provider mappings in
+  the same registry. macOS workstations with Goose enabled also install Goose Desktop.
 - `harnesses/deck-patterns.nix` is how the wezterm agent-deck plugin recognises
   an agent in a pane, and it renders into `wezterm/config.json` as `agents`.
   `harnesses/publish.nix` asserts the file covers the registry exactly
@@ -209,7 +211,7 @@ see [docs/storage.md](storage.md) for usage and retention boundaries.
   `modules/home/programs/llm/gate.nix`; every provider comes from the `gate`
   flake input, and `gate-defaults.nix` holds prose-gate's rule set and every
   text it injects as step arguments. `gate log tail` shows what
-  each provider decided on the last calls, and `checks/gate-config.nix` fails
+  each provider decided on the last calls, and `checks/agents/gate-config.nix` fails
   the build when a chain names a provider with no manifest.
 - An adversarial review is one judged pass recorded by `review`, in `.gate/`
   next to the work. `review-gate` denies a critic spawned outside an open

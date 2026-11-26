@@ -27,7 +27,6 @@ declare -a TRACKED=(
   "pi-threads"
   "pi-librarian"
   "pi-ask-user"
-  "pi-tool-display"
   "pi-subdir-context"
   "pi-web-access"
   "pi-acp"
@@ -123,20 +122,18 @@ if [[ ${drift_count} -gt 0 ]]; then
 To update a package:
   1. Bump version in modules/home/programs/llm/harnesses/shared/pi-packages.nix
      (pi-acp and pi-gemini-auth live in harnesses/pi/default.nix instead)
-  2. Recompute src hash:
-     for fetchzip (mkFetchedNpmPackage):
+  2. Prefetch the source using the flags for its declared fetcher:
        url='https://registry.npmjs.org/<pkg>/-/<basename>-<ver>.tgz'
-       raw=$(nix-prefetch-url --unpack "$url"); nix hash convert --hash-algo sha256 --from nix32 --to sri "$raw"
-     for fetchurl (inline buildNpmPackage):
-       nix store prefetch-file --json --hash-type sha256 "$url" | jq -r .hash
+     For fetchNpmPkg and fetchzip:
+       nix store prefetch-file --unpack --json "$url" | jq -r .hash
+     For fetchurl:
+       nix store prefetch-file --json "$url" | jq -r .hash
   3. If buildNpmPackage: regenerate lockfile
        tmp=$(mktemp -d); cd "$tmp"; curl -sf "$url" | tar xz --strip-components=1
        npm install --package-lock-only --ignore-scripts
        cp package-lock.json $REPO/modules/home/programs/llm/harnesses/shared/locks/<pkg>.lock.json
-  4. If buildNpmPackage: harvest npmDepsHash
-       set npmDepsHash to "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
-       nix build .#darwinConfigurations.<host>.system --no-link 2>&1 | grep got:
-       replace with the reported hash
+  4. If buildNpmPackage: run prefetch-npm-deps package-lock.json for npmDepsHash.
+  5. Build the affected host to verify the packages in its profile.
 EOF
   exit 1
 fi

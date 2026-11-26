@@ -79,7 +79,7 @@ uses the local declarations and Carapace completion.
 commands; commands such as `git branch` retain their existing completion
 signature because they also perform mutations.
 
-`checks/nushell-externs.nix` exercises real Git repositories and CLI fixtures
+`checks/shell/nushell-externs.nix` exercises real Git repositories and CLI fixtures
 through the actual Nushell declarations. The checks cover format argument
 injection, variable capture, native output, caret escape, filenames, renames,
 empty results, invalid JSON, external failures, and completion. They do not

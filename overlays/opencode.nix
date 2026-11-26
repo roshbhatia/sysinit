@@ -1,27 +1,27 @@
 final: _prev:
 let
-  version = "2.2.0";
+  version = "2.4.1";
   targets = {
     aarch64-darwin = {
       name = "darwin-arm64";
-      hash = "sha512-y3q/sghk/xCengTlv1pH2+5t9j0cuxXcEAY9yvyM7loKLQIYE1eSLEkDacCAVNyfnATd3D2JpueFSEB/i6A0Qg==";
+      hash = "sha512-r6PIZl5wqFxVYfVFjm2JK4uf1a3YT7FMEVTODJF/1hKe6wBdK7THzbAM1SSyuRuMnSkDb9+dd8xNOk9zQK6trg==";
     };
     x86_64-darwin = {
       name = "darwin-x64";
-      hash = "sha512-oK46aktdkYIAlkFs72I4JNgFS+cEgrks/HAykoKXwcZTW3XlGY1GlhTfdp55XRw9XTfTCqHvtCtvD9IgCnGhQA==";
+      hash = "sha512-J/khLpe0pisTGDD5jpddQjqb5e8qUsWYpiRkqIBN3a/P4S5asfP2ErLKSevmpGzhg9fC1TpLJnGVXwgN+JJgKg==";
     };
     aarch64-linux = {
       name = "linux-arm64";
-      hash = "sha512-NCCltb8h/8WL30X9o2KTm3UFX0lmfk48lG8tglXJN9moscxeB7w2qOmfHVa32iFngk0iVAKH4xRPlBc88Y0qlw==";
+      hash = "sha512-olNKfoAuHaDtHrWrlqxh2RPSonSfAZPGJlru7tMNeNTlHyLSrTbDe/+HJ6vdYRp7g4yKLSQ8SG264U/IC7Pgtw==";
     };
     x86_64-linux = {
       name = "linux-x64";
-      hash = "sha512-XTGFTiZTgugps6rgTXp4mPjOM8klsa5uHn/Shcms2o3k1bjSA3Sgl6O4yJ48y18WWxn9My5Pxt7JKcLID7LOHg==";
+      hash = "sha512-FYQAnneVlLmqy862674vvRVkj8yHuZAFHJGV3UCGQxo8aKG58IHPKrspbxruVajnIEpb0t8PeO63H/oW4vJG5A==";
     };
   };
   target = targets.${final.stdenv.hostPlatform.system};
   # The website schemas change independently of the pinned CLI release.
-  schemaDirectory = ./opencode-schemas + "/${version}";
+  schemaDirectory = ./opencode-schemas/2.2.0;
 in
 {
   opencode = final.stdenv.mkDerivation {

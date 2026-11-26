@@ -64,12 +64,14 @@ local function foreground_group(tty)
   return result.code == 0 and (result.stdout or ""):match("^%s*([1-9]%d*)") or nil
 end
 
-local function open_review()
+local function open_review(range)
   if vim.v.vim_did_enter == 0 then
     vim.api.nvim_create_autocmd("VimEnter", {
       once = true,
       callback = function()
-        vim.schedule(open_review)
+        vim.schedule(function()
+          open_review(range)
+        end)
       end,
     })
     return
@@ -96,6 +98,10 @@ local function open_review()
   vim.env.SYSINIT_REVIEW_PANE = origin
   vim.cmd.SysinitAgentReview()
 
+  if range then
+    require("reviewr").open({ range[1], range[2], "turn" })
+  end
+
   local transport = require("reviewr.transport")
   local detect = transport.detect
   transport.detect = function()
@@ -106,13 +112,21 @@ local function open_review()
   end
 end
 
-local function select_review(refresh)
+local function select_review(refresh, range)
   local ui = require("reviewr.ui")
   if not ui.is_open() then
     return 0
   end
   ui.focus_tab()
-  if refresh then
+  local state = require("reviewr.state").get()
+  if range then
+    if state.base_ref ~= range[1] or state.head_ref ~= range[2] then
+      require("reviewr").open({ range[1], range[2], "turn" })
+    end
+  elseif refresh then
+    if state.head_ref and state.scope.name == "turn" then
+      require("reviewr").set_scope("uncommitted")
+    end
     require("sysinit_workbench.review").refresh()
   end
   local review_tab = vim.api.nvim_win_get_tabpage(ui.panes().right_win)

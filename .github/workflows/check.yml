@@ -40,11 +40,6 @@ jobs:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: nix develop --command bash hack/lint.sh --all
 
-      - name: Release policy tests
-        env:
-          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
-        run: nix develop .#release --command node --test checks/releases.mjs checks/release-publishing.mjs
-
       - name: nix flake check
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
@@ -55,7 +50,7 @@ jobs:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: |
           codex_path=$(nix build --no-link --print-out-paths .#darwinConfigurations.lv426.pkgs.codex)
-          nix develop --command python3 checks/codex-mcp-capabilities.py "$codex_path/bin/codex"
+          nix develop --command python3 checks/agents/codex-mcp-capabilities.py "$codex_path/bin/codex"
           if [[ -n "${CACHIX_DAEMON_DIR:-}" ]]; then
             cachix daemon push --socket "$CACHIX_DAEMON_DIR/daemon.sock" --wait "$codex_path"
           fi
@@ -83,12 +78,11 @@ jobs:
       fail-fast: false
       matrix:
         system: [aarch64-darwin, x86_64-linux, aarch64-linux]
-    runs-on: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && fromJSON('["self-hosted", "Linux", "X64", "arrakis", "nix"]') || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
       - uses: DeterminateSystems/nix-installer-action@v23
-        if: runner.environment != 'self-hosted'
       - uses: ./.github/actions/cachix
         with:
           auth-token: ${{ secrets.CACHIX_AUTH_TOKEN }}

@@ -184,7 +184,7 @@ func fixtureFor(t *testing.T) *fixture {
 		t.Fatal(e)
 	}
 	f.env = append(
-		envWithout("WEZTERM_PANE", "WEZTERM_UNIX_SOCKET", "PUEUE_CONFIG_PATH", "TASKRC", "TASKDATA", "SESHY_CONFIG"),
+		envWithout("WEZTERM_PANE", "WEZTERM_UNIX_SOCKET", "PUEUE_CONFIG_PATH", "TASKRC", "TASKDATA", "SESHY_CONFIG", "SYSINIT_TERMINAL_PROVIDER"),
 		"HOME="+root,
 		"XDG_CONFIG_HOME="+filepath.Join(root, "config"),
 		"XDG_STATE_HOME="+filepath.Join(root, "state"),
@@ -194,6 +194,7 @@ func fixtureFor(t *testing.T) *fixture {
 		"TQ_WEZTERM_SOCKET="+socket,
 		"WEZTERM_UNIX_SOCKET="+socket,
 		"SHELL="+shell,
+		"SYSINIT_TERMINAL_PROVIDER="+weztermManifest(t, root),
 	)
 	log, e := os.Create(filepath.Join(root, "daemon.log"))
 	if e != nil {
@@ -275,10 +276,9 @@ func (f *fixture) terminalPane(a attempt) (string, bool) {
 	return "", false
 }
 
-func TestTerminalAttemptsShareWorkspaceWithoutSharingLifecycle(t *testing.T) {
-	f := fixtureFor(t)
-	const workspace = "fixture-queue"
-	manifest := filepath.Join(f.root, "wezterm-provider.json")
+func weztermManifest(t *testing.T, root string) string {
+	t.Helper()
+	manifest := filepath.Join(root, "wezterm-provider.json")
 	actions := map[string]map[string]string{}
 	for _, action := range []string{"terminal.spawn", "terminal.status", "terminal.focus", "terminal.close"} {
 		actions[action] = map[string]string{"description": action}
@@ -289,7 +289,22 @@ func TestTerminalAttemptsShareWorkspaceWithoutSharingLifecycle(t *testing.T) {
 	}); err != nil {
 		t.Fatal(err)
 	}
-	f.env = append(f.env, "TQ_TERMINAL_WORKSPACE="+workspace, "SYSINIT_TERMINAL_PROVIDER="+manifest)
+	return manifest
+}
+
+func TestTerminalSubmissionRequiresProvider(t *testing.T) {
+	f := fixtureFor(t)
+	f.env = append(f.env, "SYSINIT_TERMINAL_PROVIDER=")
+	f.queueError("submit", "--terminal", "--", "true")
+	if attempts := string(f.queue("status")); strings.TrimSpace(attempts) != "[]" {
+		t.Fatalf("submission without a provider created attempts: %s", attempts)
+	}
+}
+
+func TestTerminalAttemptsShareWorkspaceWithoutSharingLifecycle(t *testing.T) {
+	f := fixtureFor(t)
+	const workspace = "fixture-queue"
+	f.env = append(f.env, "TQ_TERMINAL_WORKSPACE="+workspace)
 	f.must("pueue", "group", "add", "agents")
 	f.must("pueue", "pause", "--group", "agents")
 	f.must("pueue", "parallel", "--group", "agents", "2")
@@ -519,7 +534,7 @@ func TestTerminalInputAndFailure(t *testing.T) {
 	`, "bash", ready, filepath.Join(f.root, "custom-taskrc"))
 	waitFor(t, func() bool {
 		_, err := os.Stat(ready)
-		return err == nil
+		return err == nil && f.terminalExists(a)
 	})
 	if value, err := os.ReadFile(ready); err != nil || string(value) != "ready" {
 		t.Fatalf("terminal environment: %s (%v)", value, err)
@@ -669,6 +684,33 @@ func TestRecoverStashedAndRejectReplay(t *testing.T) {
 	f.must("pueue", "restart", "--in-place", strconv.Itoa(*a.PueueID))
 	if f.finished(a).Review {
 		t.Fatal("replayed attempt accepted")
+	}
+}
+
+func TestAbandonMissingAttemptAllowsRetry(t *testing.T) {
+	f := fixtureFor(t)
+	id := f.task()
+	f.must("pueue", "group", "add", "agents")
+	f.must("pueue", "pause", "--group", "agents")
+	a := f.submit("--task", id, "--", "true")
+	f.queueError("abandon", a.ID)
+	f.must("pueue", "remove", strconv.Itoa(*a.PueueID))
+
+	f.queueError("resume", a.ID)
+	f.queueError("cancel", a.ID)
+	f.queueError("submit", "--retry", "--task", id, "--", "true")
+	f.queue("abandon", a.ID)
+	retry := f.submit("--retry", "--task", id, "--", "true")
+	if retry.ID == a.ID {
+		t.Fatal("retry reused the abandoned attempt")
+	}
+	path, err := recordPath(filepath.Join(f.root, "attempt records"), a.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var retired attempt
+	if err := read(path, &retired); err != nil || !retired.Cancelled || state(retired.Result) != "Missing" {
+		t.Fatalf("missing attempt record was not preserved: %+v, %v", retired, err)
 	}
 }
 

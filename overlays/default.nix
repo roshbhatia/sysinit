@@ -52,6 +52,7 @@
   (import ./bookerly.nix)
   (import ./cm-web-fonts.nix)
   (import ./codex.nix)
+  (import ./copilot.nix)
   (import ./opencode.nix)
   (import ./python-tools.nix { inherit inputs; })
   (import ./localias.nix)

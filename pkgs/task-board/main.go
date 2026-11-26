@@ -273,18 +273,19 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 				m.message = err.Error()
 				return m, nil
 			}
-			if path := os.Getenv(terminalprovider.Selection); path != "" {
-				m.busy = true
-				return m, func() tea.Msg {
-					manifest, err := terminalprovider.Open(path)
-					if err == nil {
-						err = terminalprovider.Invoke(manifest, c.Task.UUID, "review", map[string]string{"cwd": dir}, nil)
-					}
-					return acted{err}
-				}
+			path := os.Getenv(terminalprovider.Selection)
+			if path == "" {
+				m.message = "Configure a terminal provider to open a review."
+				return m, nil
 			}
-			command := exec.Command("agent-diff", "--review", "--allow-directory", "--cwd", dir, "--background")
-			return m, tea.ExecProcess(command, func(err error) tea.Msg { return acted{err} })
+			m.busy = true
+			return m, func() tea.Msg {
+				manifest, err := terminalprovider.Open(path)
+				if err == nil {
+					err = terminalprovider.Invoke(manifest, c.Task.UUID, "review", map[string]string{"cwd": dir}, nil)
+				}
+				return acted{err}
+			}
 		case key.Matches(msg, complete):
 			if c.Task.LinearID != "" {
 				m.message = "Complete this imported task in Linear."
