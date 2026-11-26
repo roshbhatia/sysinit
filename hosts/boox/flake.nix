@@ -1,5 +1,5 @@
 {
-  description = "Nix-on-Droid configuration for the BOOX Go Color 7";
+  description = "Nix-on-Droid configuration for Arda, the BOOX Go Color 7";
   nixConfig = {
     extra-substituters = [ "https://nix-on-droid.cachix.org" ];
     extra-trusted-public-keys = [
@@ -27,14 +27,22 @@
       nix-on-droid,
       ...
     }:
-    {
-      nixOnDroidConfigurations.boox = nix-on-droid.lib.nixOnDroidConfiguration {
+    let
+      hostName = "arda";
+      arda = nix-on-droid.lib.nixOnDroidConfiguration {
         pkgs = import nixpkgs {
           system = "aarch64-linux";
           overlays = [ nix-on-droid.overlays.default ];
         };
+        extraSpecialArgs = { inherit hostName; };
         home-manager-path = home-manager.outPath;
         modules = [ ./configuration.nix ];
+      };
+    in
+    {
+      nixOnDroidConfigurations = {
+        ${hostName} = arda;
+        boox = arda;
       };
     };
 }

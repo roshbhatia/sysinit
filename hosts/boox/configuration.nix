@@ -1,8 +1,10 @@
-{ pkgs, ... }:
+{ hostName, pkgs, ... }:
 let
   personal = import ../personal.nix;
 in
 {
+  environment.etc."hostname".text = "${hostName}\n";
+
   environment.packages = with pkgs; [
     curl
     git
