@@ -1,3 +1,5 @@
+use ../../../git/review-checkpoint.nu snapshot
+
 def link-directory [] {
     $env.XDG_STATE_HOME? | default ($env.HOME | path join .local state) | path join agent-diff links
 }
@@ -73,7 +75,7 @@ def review-link [cwd: path] {
 }
 
 def resolve-link [uri: string] {
-    let parts = $uri | parse --regex '^review://(?:(?:changes/(?:[A-Za-z0-9._~%-]+/){1,2})|worktree/)?(?<id>[0-9a-f]{16})$'
+    let parts = $uri | parse --regex '^review://(?:(?:changes/(?:[A-Za-z0-9._~%-]+/){1,2})|worktree/)?(?<id>[0-9a-f]{16})(?:\?turn=[0-9a-f]{16})?$'
 
     if ($parts | is-empty) {
         error make {msg: 'Invalid review link'}
@@ -90,6 +92,25 @@ def resolve-link [uri: string] {
     }
 
     $directory
+}
+
+def turn-link [baseline: record] {
+    cd $baseline.directory
+
+    let tree = snapshot
+
+    if $tree == $baseline.tree { return }
+
+    let link = review-link $baseline.directory
+
+    let turn = [$baseline.tree $tree] | str join ':' | hash sha256 | str substring 0..<16
+
+    let ref = $'refs/worktree/sysinit/turn-reviews/($turn)'
+
+    # Keep both trees reachable for links read after later edits or Git maintenance.
+    let updated = $"update ($ref)/before ($baseline.tree)\nupdate ($ref)/after ($tree)\n" | ^git update-ref --stdin | complete
+
+    if $updated.exit_code == 0 { $"($link)?turn=($turn)" }
 }
 
 def main [target: string = '.', --hook, --resolve] {
@@ -110,23 +131,59 @@ def main [target: string = '.', --hook, --resolve] {
 
         let marker = $pending | path join ($session | hash sha256)
 
+        let baseline_path = $'($marker).baseline.json'
+
         match $event.hook_event_name? {
             'UserPromptSubmit' => {
-                rm --force $marker
+                rm --force $marker $baseline_path
+
+                let cwd = $event.cwd? | default $env.PWD
+
+                let root = ^git -C $cwd rev-parse --show-toplevel | complete
+
+                if $root.exit_code == 0 {
+                    let directory = $root.stdout | str replace --regex '\n$' '' | path expand --strict
+
+                    cd $directory
+
+                    let tree = snapshot
+
+                    mkdir $pending
+
+                    ^chmod 700 (link-directory)
+
+                    {directory: $directory, tree: $tree} | to json --raw | save $baseline_path
+                }
 
                 return
             }
             'Stop' => {
-                if not ($marker | path exists) { return }
+                let link = if ($baseline_path | path exists) {
+                    let baseline = open $baseline_path
 
-                let link = open --raw $marker
+                    rm $baseline_path
 
-                rm $marker
+                    turn-link $baseline
+                } else if ($marker | path exists) {
+                    let link = open --raw $marker
 
-                let label = if ($env.WEZTERM_PANE? | default '') =~ '^\d+$' {
-                    'Review changes · ⌘-click below'
+                    rm $marker
+
+                    $link
+                }
+
+                if $link == null { return }
+
+                let scope = if ($link | str contains '?turn=') {
+                    'Review changes from this turn'
                 } else {
                     'Review changes'
+                }
+
+                let label = if ($env.WEZTERM_PANE? | default '') =~ '^\d+$' {
+                    $"($scope) · ⌘-click below"
+                } else {
+                    $scope
                 }
 
                 let rule = '----------------------------------------'
@@ -152,7 +209,7 @@ def main [target: string = '.', --hook, --resolve] {
             _ => false
         }
 
-        if $edited {
+        if $edited and not ($baseline_path | path exists) {
             let link = review-link ($event.cwd? | default $env.PWD)
 
             if $link != null {

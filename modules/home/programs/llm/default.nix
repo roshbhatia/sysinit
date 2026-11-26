@@ -195,7 +195,7 @@ in
       capture
       (import ./runtime/agents { inherit pkgs; })
       (import ./runtime/diff { inherit pkgs; })
-      (import ./runtime/diff/review-link.nix { inherit pkgs; })
+      (import ./runtime/diff/review-link.nix { inherit lib pkgs; })
       notify.script
       notify.agentRefine
       notify.promptScript

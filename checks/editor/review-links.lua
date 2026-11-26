@@ -1,4 +1,4 @@
-local router, review_uri, root, file_uri = table.unpack(arg)
+local router, review_uri, root, file_uri, turn = table.unpack(arg)
 local handler, palette, routed, notice, default_path
 local domain = "unix"
 
@@ -95,6 +95,7 @@ assert(handler(window, pane, review_uri) == false)
 assert(routed[3] == "/profile/bin/agent-diff")
 assert(routed[4] == "--pane-id=42")
 assert(routed[5] == "--cwd=" .. root)
+assert(routed[6] == (turn and "--turn=" .. turn or nil))
 
 local config = links.build_config(function()
   require("wezterm").on("augment-command-palette", function()
@@ -113,6 +114,7 @@ local palette_route = assert(routed)
 assert(palette_route[3] == "/profile/bin/agent-diff")
 assert(palette_route[4] == "--pane-id=42")
 assert(palette_route[5] == "--cwd=" .. root)
+assert(palette_route[6] == nil)
 
 routed = nil
 assert(handler(window, pane, "review://worktree/0000000000000000") == false)

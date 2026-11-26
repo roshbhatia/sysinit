@@ -56,10 +56,10 @@ def rpc [socket: path, expression: string] {
     ]
 }
 
-def select-review [socket: path, refresh: bool] {
-    let lua = 'dofile(_A.script).select_review(_A.refresh)'
+def select-review [socket: path, refresh: bool, range?: list<string>] {
+    let lua = 'dofile(_A.script).select_review(_A.refresh, _A.range)'
 
-    let args = {script: $source_view, refresh: $refresh} | to json --raw | str replace --all "'" "''"
+    let args = {script: $source_view, refresh: $refresh} | merge (if $range != null { {range: $range} } else { {} }) | to json --raw | str replace --all "'" "''"
 
     rpc $socket ("luaeval('" + $lua + "', json_decode('" + $args + "'))")
 }
@@ -96,7 +96,7 @@ def resolve-target [options: record] {
     }
 
     let directory_mode = $options.directory or (
-        ($options.allow_directory or $options.file == null) and $options.base == null and $git_root.exit_code? != 0
+        ($options.allow_directory or $options.file == null) and $options.base == null and $options.turn == null and $git_root.exit_code? != 0
     )
 
     if $options.against != null and $options.file == null { error make {msg: '--against also requires --file.'} }
@@ -139,7 +139,7 @@ def resolve-target [options: record] {
     let directory = $directory_mode or $unchanged_file
 
     let review = if ($options.review or $options.file == null or $options.allow_directory) and not $directory and $options.base == null and $options.note_session == null {
-        (run-command [
+        $options.turn != null or (run-command [
             git
             -C
             $root
@@ -193,14 +193,21 @@ def editor-command [
     revision: string
     note_session
     note_command
+    range: list<string>
 ] {
     let nvim = [nvim --cmd 'let g:sysinit_pr_review = v:true' --listen $socket]
 
     if $target.review {
+        let args = if ($range | is-not-empty) {
+            'vim.json.decode(' + ($range | to json --raw | to json --raw) + ')'
+        } else {
+            ''
+        }
+
         [
             ...$nvim
             -c
-            ('lua dofile(' + ($source_view | to json --raw) + ').open_review()')
+            ('lua dofile(' + ($source_view | to json --raw) + ').open_review(' + $args + ')')
         ]
     } else if $target.directory {
         let comparison = if $target.baseline == null {
@@ -301,6 +308,7 @@ def main [
     --cwd: path = '.'
     --pane-id: string
     --base: string
+    --turn: string
     --directory
     --allow-directory
     --review
@@ -319,11 +327,16 @@ def main [
 
     if $parent !~ '^\d+$' { error make {msg: 'No WezTerm pane. Run agent-diff from a WezTerm session.'} }
 
+    if $turn != null and ($turn !~ '^[0-9a-f]{16}$' or $directory or $base != null or $file != null or $note_session != null) {
+        error make {msg: 'Expected a turn review ID for a Git worktree.'}
+    }
+
     let request = resolve-target {
         cwd: $cwd
         directory: $directory
         allow_directory: $allow_directory
         base: $base
+        turn: $turn
         review: $review
         file: $file
         line: $line
@@ -334,6 +347,20 @@ def main [
     }
 
     let root = $request.root
+
+    let range = if $turn != null {
+        [before after] | each {|side|
+            let ref = $'refs/worktree/sysinit/turn-reviews/($turn)/($side)'
+
+            let resolved = run-command [git -C $root rev-parse --verify $'($ref)^{tree}']
+
+            if $resolved.exit_code != 0 { error make {msg: 'The recorded turn diff is unavailable.'} }
+
+            $resolved.stdout | str trim
+        }
+    } else {
+        []
+    }
 
     let target = $request.target
 
@@ -442,6 +469,7 @@ def main [
         let args = (
             [--cwd $root --pane-id $parent --lock-held]
             | append (if $base != null { [--base $revision] } else { [] })
+            | append (if $turn != null { [--turn $turn] } else { [] })
             | append (if $directory { [--directory] } else { [] })
             | append (if $review { [--review] } else { [] })
             | append (if $file != null { [$"--file=($target)"] } else { [] })
@@ -473,7 +501,7 @@ def main [
             let refresh = if $directory {
                 rpc $socket "execute('checktime | redraw')"
             } else if $review {
-                select-review $socket true
+                if $turn != null { select-review $socket true $range } else { select-review $socket true }
             } else {
                 let visible = rpc $socket $diffview_ready
 
@@ -521,7 +549,7 @@ def main [
 
     let state_home = $state | path dirname
 
-    let editor = editor-command $request $socket $state_home $revision $note_session $note_command
+    let editor = editor-command $request $socket $state_home $revision $note_session $note_command $range
 
     let pane = (command-output [
         ty

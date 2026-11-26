@@ -1,4 +1,14 @@
-{ pkgs }:
+{ lib, pkgs }:
+let
+  source = lib.fileset.toSource {
+    root = ../../..;
+    fileset = lib.fileset.unions [
+      ./review-link.nu
+      ../../../git/review-checkpoint.nu
+    ];
+  };
+  script = "${source}/llm/runtime/diff/review-link.nu";
+in
 pkgs.writeShellApplication {
   name = "agent-review-link";
   runtimeInputs = [
@@ -7,8 +17,8 @@ pkgs.writeShellApplication {
   ];
   text = ''
     if [[ "''${1:-}" == --hook ]]; then
-      exec ${pkgs.nushell}/bin/nu --no-config-file --stdin ${./review-link.nu} --hook
+      exec ${pkgs.nushell}/bin/nu --no-config-file --stdin ${script} --hook
     fi
-    exec ${pkgs.nushell}/bin/nu --no-config-file ${./review-link.nu} "$@"
+    exec ${pkgs.nushell}/bin/nu --no-config-file ${script} "$@"
   '';
 }

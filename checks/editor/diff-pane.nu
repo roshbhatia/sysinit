@@ -159,6 +159,27 @@ def main [script: path, fixture: path, ty: path] {
             let review_index = ($review_split | enumerate | where item == --listen | first | get index) + 1
             rm --force ($review_split | get $review_index)
 
+            let turn = '1234567890abcdef'
+            let ref = $'refs/worktree/sysinit/turn-reviews/($turn)'
+            let missing = ^$nu.current-exe --no-config-file $script --cwd $project --turn $turn | complete
+            assert ($missing.exit_code != 0)
+            assert ($missing.stderr | str contains 'recorded turn diff is unavailable')
+            let before = ^git -C $project rev-parse 'HEAD^{tree}' | str trim
+            ^git -C $project add -- 'linked file.lua'
+            let after = ^git -C $project write-tree | str trim
+            ^git -C $project update-ref $'($ref)/before' $before
+            ^git -C $project update-ref $'($ref)/after' $after
+            [{pane_id: 7, tab_id: 2}] | to json | save --force ($root | path join panes.json)
+            let snapshot = ^$nu.current-exe --no-config-file $script --cwd $project --turn $turn | complete
+            assert equal $snapshot.exit_code 0 $snapshot.stderr
+            let snapshot_split = open ($root | path join split.json)
+            assert (($snapshot_split | last) | str contains ([$before $after] | to json --raw | to json --raw)) ($snapshot_split | last)
+            let snapshot_retry = ^$nu.current-exe --no-config-file $script --cwd $project --turn $turn | complete
+            assert equal $snapshot_retry.exit_code 0 $snapshot_retry.stderr
+            assert ($snapshot_retry.stdout | str starts-with Reused)
+            let snapshot_index = ($snapshot_split | enumerate | where item == --listen | first | get index) + 1
+            rm --force ($snapshot_split | get $snapshot_index)
+
             [{pane_id: 7, tab_id: 2}] | to json | save --force ($root | path join panes.json)
             let directory = with-env {DIFF_ROOT: $plain} {
                 ^$nu.current-exe --no-config-file $script --pane-id 7 --cwd $plain | complete

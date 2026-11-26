@@ -74,5 +74,36 @@ def main [emitter: path, router: path, probe: path] {
         assert ($worktree_link =~ '^review://changes/sysinit/review%20links/[0-9a-f]{16}$')
         assert equal (^$emitter --resolve $branch_link | str trim) ($repo | path expand --strict)
         assert equal (^$emitter --resolve $worktree_link | str trim) ($worktree | path expand --strict)
+
+        let turn = $post | merge {cwd: $nested, hook_event_name: UserPromptSubmit}
+        let stop = $turn | update hook_event_name Stop
+        'existing dirty file' | save ($repo | path join existing.txt)
+        $turn | to json --raw | ^$emitter --hook
+        'committed edit' | save ($repo | path join committed.txt)
+        ^git -C $repo add -- committed.txt
+        ^git -C $repo -c user.name=Fixture -c user.email=fixture@example.invalid commit --quiet -m edit
+        'uncommitted edit' | save ($repo | path join uncommitted.txt)
+        let notice = $stop | to json --raw | ^$emitter --hook | from json
+        assert equal ($notice.systemMessage | lines | get 1) 'Review changes from this turn'
+        let uri = $notice.systemMessage | lines | get 2
+        assert ($uri =~ '^review://changes/sysinit/feature%2Freview/[0-9a-f]{16}\?turn=[0-9a-f]{16}$')
+        assert equal (^$emitter --resolve $uri | str trim) $repo
+        let id = $uri | split row '=' | last
+        let ref = $'refs/worktree/sysinit/turn-reviews/($id)'
+        assert equal (^git -C $repo diff --name-only $'($ref)/before' $'($ref)/after' -- | lines) [
+            committed.txt
+            uncommitted.txt
+        ]
+        'later edit' | save --force ($repo | path join uncommitted.txt)
+        assert equal (^git -C $repo show $'($ref)/after:uncommitted.txt') 'uncommitted edit'
+        assert equal (^git -C $repo diff --cached --name-only | str trim) ''
+        assert equal (^git -C $repo ls-files --others --exclude-standard | lines) [
+            existing.txt
+            uncommitted.txt
+        ]
+        $turn | to json --raw | ^$emitter --hook
+        assert equal ($stop | to json --raw | ^$emitter --hook | str trim) ''
+
+        ^lua $probe $router $uri $repo $"file://($repo | url encode)" $id
     }
 }

@@ -18,9 +18,14 @@
 ## Review local edits
 
 Command-click the link in the **Review changes** notice after an editing turn
-in Codex or Claude Code. From any local WezTerm pane, choose **Open Worktree
-Review** in the command palette. Both use `agent-diff` and open or reuse the
-review to the pane's right. Run `agent-diff` directly from the shell or use
+in Codex or Claude Code. In a Git worktree, the link opens the diff between
+the start and end of the turn, including edits committed during it. Later
+edits leave that diff unchanged. The snapshots include tracked files and
+untracked files Git would add.
+
+From any local WezTerm pane, choose **Open Worktree Review** in the command
+palette to view current edits. Both actions open a Reviewr split to the pane's
+right. Run `agent-diff` directly from the shell or use
 `agent-review-link` to print a link for the current directory.
 Reviewr includes untracked files through a temporary Git index.
 Run `:ReviewrTurn` before the next agent edit to mark its baseline, then pick

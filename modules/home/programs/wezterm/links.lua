@@ -19,7 +19,7 @@ end
 
 function M.configure_hyperlinks(config)
   table.insert(config.hyperlink_rules, 1, {
-    regex = [[(review://changes/(?:[A-Za-z0-9._~%-]+/){1,2}[0-9a-f]{16})(?![A-Za-z0-9._~%/-])]],
+    regex = [[(review://changes/(?:[A-Za-z0-9._~%-]+/){1,2}[0-9a-f]{16}(?:\?turn=[0-9a-f]{16})?)(?![A-Za-z0-9._~%/?=-])]],
     format = "$1",
   })
 end
@@ -97,12 +97,16 @@ function M.setup(options)
     return false
   end
 
-  local function open_review(window, pane, directory)
-    run(window, "Review changes", {
+  local function open_review(window, pane, directory, turn)
+    local command = {
       options.bin .. "/agent-diff",
       "--pane-id=" .. pane:pane_id(),
       "--cwd=" .. directory,
-    })
+    }
+    if turn then
+      command[#command + 1] = "--turn=" .. turn
+    end
+    run(window, "Review changes", command)
   end
 
   wezterm.on("open-uri", function(window, pane, uri)
@@ -118,7 +122,7 @@ function M.setup(options)
       local directory =
         run(window, "Review changes", { options.bin .. "/agent-review-link", "--resolve", uri })
       if directory then
-        open_review(window, pane, directory:gsub("\n$", ""))
+        open_review(window, pane, directory:gsub("\n$", ""), uri:match("%?turn=([0-9a-f]+)$"))
       end
       return false
     end
