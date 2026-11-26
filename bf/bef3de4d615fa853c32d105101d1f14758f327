@@ -1,0 +1,44 @@
+checks/host/app-copy-state.nix
+  s_8db7fc35d14233::t_5fe162ae1c0689 17-18
+checks/host/app-copy-state.nu
+  s_8db7fc35d14233::t_32b142a6224e77 79-82,99-102,109-114,119-122,139-141
+  s_8db7fc35d14233::t_048287d362f3e1 34,115
+  s_8db7fc35d14233::t_568c0be7e237f6 116-117
+  s_8db7fc35d14233::t_c22e3d6de3946b 118
+  s_8db7fc35d14233::t_e3e4fa050e54fb 142
+modules/home/app-copy-state.nu
+  s_8db7fc35d14233::t_f7c9d6efc620a2 122,126-147
+  s_8db7fc35d14233::t_a52c852e1e3e1a 148-150
+  s_8db7fc35d14233::t_b0b8aec3b9eba9 151-154,175
+modules/home/programs/wezterm/clipboard.lua
+  s_8db7fc35d14233::t_e2c7f7b540005b 1-41
+modules/darwin/codesign.nix
+  s_8db7fc35d14233::t_4d9ce2020a8d4a 59-62,64-65,67-72,74-100
+  s_8db7fc35d14233::t_b2155a97df9162 58,101
+  s_8db7fc35d14233::t_747c87a481c5c5 30-55
+modules/home/programs/wezterm/default.nix
+  s_8db7fc35d14233::t_25fb2cce2368b5 18,90
+  s_8db7fc35d14233::t_5191315d21d2e9 56-61
+  s_8db7fc35d14233::t_e2c7f7b540005b 80
+  s_8db7fc35d14233::t_44f49676b81ca5 55
+  s_8db7fc35d14233::t_6566328762da88 19
+  s_8db7fc35d14233::t_dda86046f67272 20-21
+modules/home/codesign.nix
+  s_8db7fc35d14233::t_114836362dbe83 118
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "bfbef3de4d615fa853c32d105101d1f14758f327",
+  "prompts": {},
+  "sessions": {
+    "s_8db7fc35d14233": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a215ce-24da-7591-890e-c407374c6ce4",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
