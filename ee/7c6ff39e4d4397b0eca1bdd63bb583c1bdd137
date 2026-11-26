@@ -1,0 +1,24 @@
+flake/default.nix
+  s_8db7fc35d14233::t_dd8b802569759e 44
+hosts/vorgossos/terminal.nix
+  s_8db7fc35d14233::t_dd8b802569759e 2,13-16
+  s_8db7fc35d14233::t_fbfd54fb30b151 66-67
+hosts/urth/default.nix
+  s_8db7fc35d14233::t_dd8b802569759e 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ee7c6ff39e4d4397b0eca1bdd63bb583c1bdd137",
+  "prompts": {},
+  "sessions": {
+    "s_8db7fc35d14233": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a215ce-24da-7591-890e-c407374c6ce4",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
