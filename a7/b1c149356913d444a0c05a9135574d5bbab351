@@ -1,0 +1,31 @@
+hosts/vorgossos/storage.nix
+  s_8db7fc35d14233::t_74d9fbe1201165 1,4-8,20-26,28-30,33
+hosts/vorgossos/backups.nix
+  s_8db7fc35d14233::t_74d9fbe1201165 1-64
+hosts/vorgossos/default.nix
+  s_8db7fc35d14233::t_74d9fbe1201165 5
+hosts/vorgossos/cluster.nix
+  s_8db7fc35d14233::t_387f095ba64c26 1-85
+hosts/vorgossos/hardware.nix
+  s_8db7fc35d14233::t_2b4fba7f1c493b 1-43
+hosts/vorgossos/lan-aliases.nix
+  s_8db7fc35d14233::t_5d8d6d6f5eb71a 7-17
+hosts/vorgossos/terminal.nix
+  s_8db7fc35d14233::t_8fb20fc6613031 63-66
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a7b1c149356913d444a0c05a9135574d5bbab351",
+  "prompts": {},
+  "sessions": {
+    "s_8db7fc35d14233": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a215ce-24da-7591-890e-c407374c6ce4",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
