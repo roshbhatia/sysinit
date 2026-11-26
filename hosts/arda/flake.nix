@@ -29,7 +29,9 @@
     }:
     let
       hostName = "arda";
-      arda = nix-on-droid.lib.nixOnDroidConfiguration {
+    in
+    {
+      nixOnDroidConfigurations.${hostName} = nix-on-droid.lib.nixOnDroidConfiguration {
         pkgs = import nixpkgs {
           system = "aarch64-linux";
           overlays = [ nix-on-droid.overlays.default ];
@@ -37,12 +39,6 @@
         extraSpecialArgs = { inherit hostName; };
         home-manager-path = home-manager.outPath;
         modules = [ ./configuration.nix ];
-      };
-    in
-    {
-      nixOnDroidConfigurations = {
-        ${hostName} = arda;
-        boox = arda;
       };
     };
 }
