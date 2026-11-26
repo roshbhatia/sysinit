@@ -17,9 +17,14 @@ in
 final: _prev:
 let
   askExtras = inputs.ask.packages.${final.stdenv.hostPlatform.system}.extras;
-  askProviders = askExtras.providers // {
-    devin = askExtras.providers.devin.override { inherit (final) devin-cli; };
-  };
+  askProviders =
+    builtins.removeAttrs askExtras.providers [
+      "crush"
+      "fx"
+    ]
+    // {
+      devin = askExtras.providers.devin.override { inherit (final) devin-cli; };
+    };
   tracesPackages = inputs.traces.packages.${final.stdenv.hostPlatform.system};
   tracesProviderPackages =
     final.lib.mapAttrs' (
