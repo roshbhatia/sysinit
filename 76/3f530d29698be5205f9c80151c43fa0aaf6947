@@ -1,0 +1,25 @@
+AGENTS.md
+  s_8db7fc35d14233::t_b20a9be6eb1807 33-34
+checks/README.md
+  s_8db7fc35d14233::t_b20a9be6eb1807 24
+checks/agents/skill-catalog.nix
+  s_8db7fc35d14233::t_b20a9be6eb1807 40
+modules/home/programs/llm/AGENTS.md
+  s_8db7fc35d14233::t_b20a9be6eb1807 15,17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "763f530d29698be5205f9c80151c43fa0aaf6947",
+  "prompts": {},
+  "sessions": {
+    "s_8db7fc35d14233": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a215ce-24da-7591-890e-c407374c6ce4",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
