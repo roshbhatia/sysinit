@@ -119,9 +119,39 @@ def main [
     --rsync: string = 'rsync'
     --protect-running: string = '[]'
     --pgrep: string = '/usr/bin/pgrep'
+    --touch: string = '/usr/bin/touch'
 ] {
     try {
         match $operation {
+            check-permission => {
+                if ($target | path type) != dir { return }
+
+                let installed = app-names $target | where {|name| $name | str ends-with '.app' }
+
+                if ($installed | is-empty) { return }
+
+                let unchanged = if ($source | path exists) {
+                    unchanged-apps $source $target $state $codesign
+                } else {
+                    []
+                }
+
+                for name in $installed {
+                    if $name in $unchanged { continue }
+
+                    let app = $target | path join $name
+
+                    if ($app | path type) != dir { continue }
+
+                    let result = (^$touch ($app | path join .DS_Store) | complete)
+
+                    if $result.exit_code != 0 {
+                        error make {
+                            msg: $"Cannot update ($app). Run activation from a terminal with App Management permission.\n($result.stderr | str trim)"
+                        }
+                    }
+                }
+            }
             preflight | sync => {
                 let unchanged = unchanged-apps $source $target $state $codesign
 
@@ -142,7 +172,7 @@ def main [
             _ => { error make {msg: $"Unknown application operation ($operation)"} }
         }
     } catch {|error|
-        if $operation in [preflight sync] { print --stderr $"sysinit: ($error.msg)" }
+        if $operation in [check-permission preflight sync] { print --stderr $"sysinit: ($error.msg)" }
 
         exit 1
     }

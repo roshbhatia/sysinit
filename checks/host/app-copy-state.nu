@@ -31,7 +31,7 @@ def fixture [name: string = 'Test App.app'] {
 def run-state [fixture: record, operation: string, ...extra: string] {
     let shell = $nu.current-exe
 
-    ^$shell --no-config-file $env.APP_COPY_TEST_HELPER $operation $fixture.source $fixture.target $fixture.state --codesign $env.APP_COPY_TEST_COMMAND ...$extra | complete
+    ^$shell --no-config-file $env.APP_COPY_TEST_HELPER $operation $fixture.source $fixture.target $fixture.state --codesign $env.APP_COPY_TEST_COMMAND --touch $env.APP_COPY_TEST_TOUCH ...$extra | complete
 }
 
 def expect-code [
@@ -76,6 +76,10 @@ def main [helper: path, command: path] {
 
     record $unchanged
 
+    expect-code 0 $unchanged check-permission
+
+    assert (not ($unchanged.app | path join .DS_Store | path exists))
+
     let tampered = fixture
 
     record $tampered
@@ -92,11 +96,29 @@ def main [helper: path, command: path] {
 
     let source_changed = fixture
 
+    mkdir ($source_changed.source | path join 'Existing.app') ($source_changed.target | path join 'Existing.app')
+
+    'signed' | save ($source_changed.target | path join 'Existing.app' payload)
+
     record $source_changed
 
     update-source $source_changed updated
 
     expect-code 1 $source_changed check
+
+    expect-code 0 $source_changed check-permission
+
+    assert ($source_changed.app | path join .DS_Store | path exists)
+
+    assert (not ($source_changed.target | path join 'Existing.app' .DS_Store | path exists))
+
+    let denied = (with-env {APP_COPY_TEST_TOUCH: $env.APP_COPY_TEST_FALSE} {
+        run-state $source_changed check-permission
+    })
+
+    assert equal $denied.exit_code 1
+
+    assert ($denied.stderr | str contains 'App Management permission')
 
     let missing = fixture
 
@@ -113,6 +135,10 @@ def main [helper: path, command: path] {
     mkdir ($extra.target | path join Extra.app)
 
     expect-code 1 $extra check
+
+    expect-code 0 $extra check-permission
+
+    assert ($extra.target | path join Extra.app .DS_Store | path exists)
 
     let corrupt = fixture
 

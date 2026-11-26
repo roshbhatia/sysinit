@@ -15,6 +15,10 @@ let
   c = themeColors;
   palette = import ../../../shared/terminal-palette.nix c;
   luaSource = inputs.sysinit-wezterm.lib.luaSource pkgs;
+  weztermMacOS = "${config.home.homeDirectory}/${config.targets.darwin.copyApps.directory}/WezTerm.app/Contents/MacOS";
+  weztermLauncher = pkgs.writeShellScriptBin "wezterm" ''
+    exec ${lib.escapeShellArg "${weztermMacOS}/wezterm"} "$@"
+  '';
 
   paneName = pkgs.writeShellApplication {
     name = "wezterm-pane-name";
@@ -48,7 +52,13 @@ in
 {
 
   imports = [ inputs.sysinit-wezterm.homeManagerModules.default ];
-  home.packages = [ paneName ];
+  # The CLI launches the GUI beside its own executable.
+  home.packages = [
+    paneName
+  ]
+  ++ lib.optional (pkgs.stdenv.hostPlatform.isDarwin && config.targets.darwin.copyApps.enable) (
+    lib.hiPrio weztermLauncher
+  );
   programs.wezterm.extraConfig = lib.mkForce ''
     local links = dofile("${./links.lua}")
     local review = links.setup(wezterm.json_parse(${
@@ -67,15 +77,7 @@ in
     links.configure_mouse(config)
     links.configure_hyperlinks(config)
     ${lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
-      local clipboard = {
-        c = wezterm.action.CopyTo("Clipboard"),
-        v = wezterm.action.PasteFrom("Clipboard"),
-      }
-      for _, binding in ipairs(config.keys) do
-        if binding.mods == "SUPER" and clipboard[binding.key] then
-          binding.action = clipboard[binding.key]
-        end
-      end
+      dofile("${./clipboard.lua}")(config)
     ''}
     return config
   '';
@@ -85,7 +87,7 @@ in
       enable = true;
       service = values.wezterm.remoteMux or false;
       # The copied bundle keeps one path and one signing identity across updates.
-      muxBinary = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin "${config.home.homeDirectory}/${config.targets.darwin.copyApps.directory}/WezTerm.app/Contents/MacOS/wezterm-mux-server";
+      muxBinary = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin "${weztermMacOS}/wezterm-mux-server";
     };
     settings = {
       unsetEnvironmentVariables = [ "NO_COLOR" ];

@@ -57,22 +57,6 @@ let
     runtimeInputs = [ pkgs.openssl ];
     text = signerScript;
   };
-  appManagementCheck = pkgs.sysinit.writeShellApplication {
-    name = "sysinit-check-app-management";
-    text = ''
-      if ${appState} check ${appStateArgs}; then
-        exit 0
-      fi
-
-      for appBundle in ${lib.escapeShellArg "${home}/${config.targets.darwin.copyApps.directory}"}/*.app; do
-        if [[ -d "$appBundle" ]] && ! /usr/bin/touch "$appBundle/.DS_Store"; then
-          printf 'sysinit: cannot update application %s\n' "$appBundle" >&2
-          printf 'Run activation from a terminal with App Management permission.\n' >&2
-          exit 1
-        fi
-      done
-    '';
-  };
 in
 {
   options.sysinit.codesign = {
@@ -131,7 +115,7 @@ in
           checkAppManagementPermission = lib.mkIf config.targets.darwin.copyApps.enableChecks (
             lib.mkForce (
               lib.hm.dag.entryBefore [ "copyApps" ] ''
-                run ${lib.getExe appManagementCheck}
+                run ${appState} check-permission ${appStateArgs}
               ''
             )
           );

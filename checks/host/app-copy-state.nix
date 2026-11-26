@@ -14,6 +14,8 @@ pkgs.runCommand "app-copy-state-test"
     ];
   }
   ''
+    export APP_COPY_TEST_TOUCH=${lib.getExe' pkgs.coreutils "touch"}
+    export APP_COPY_TEST_FALSE=${lib.getExe' pkgs.coreutils "false"}
     nu --no-config-file ${./app-copy-state.nu} ${../../modules/home/app-copy-state.nu} ${command}
     touch "$out"
   ''
