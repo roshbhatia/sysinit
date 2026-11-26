@@ -1,13 +1,18 @@
 docs/atuin.md
   s_a4a3eea4720821::t_0003d64a117daa 63-67,72-75
+  s_a4a3eea4720821::t_b177801cceedfa 63-65,72-75
 pkgs/utils/internal/threads/threads.go
   s_a4a3eea4720821::t_426cd7b293a9a6 1-170
+  s_a4a3eea4720821::t_e98219594b76f5 1-126,132-170
 pkgs/utils/internal/threads/threads_test.go
   s_a4a3eea4720821::t_70ac07a3a82888 1-133
+  s_a4a3eea4720821::t_593894db90d12b 1-27,30-71,77-133
 pkgs/utils/main.go
   s_7028fc5da01072::t_b969d9b3c74292 11,37-41,74
+  s_7028fc5da01072::t_a8917419219df0 11
 overlays/sysinit-gotools.nix
   s_a4a3eea4720821::t_e12146a334b94c 11,180-181,206-207
+  s_a4a3eea4720821::t_245af807141aae 180-181,206-207
 ---
 {
   "schema_version": "authorship/3.0.0",
