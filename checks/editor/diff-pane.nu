@@ -43,6 +43,21 @@ def main [script: path, fixture: path, ty: path] {
 
     mkdir $bin $project $plain $gui_directory
 
+    let config = $home | path join .config
+
+    let ftplugin = $config | path join nvim after ftplugin
+
+    mkdir $ftplugin
+
+    'error("the full editor filetype hook was loaded")' | save ($ftplugin | path join nu.lua)
+
+    with-env {HOME: $home, XDG_CONFIG_HOME: $config, NVIM_APPNAME: nvim} {
+        let init = $script | path dirname | path join review-init.lua
+        let editor = (^nvim --headless -u $init '+setfiletype nu' '+lua assert(vim.v.errmsg == "", vim.v.errmsg); assert(vim.wo.number)' '+qa!' | complete)
+        assert equal $editor.exit_code 0 $editor.stderr
+        assert equal ($editor.stderr | str trim) ''
+    }
+
     touch $socket $other_socket
 
     ^ln -s $socket ($gui_directory | path join $alias_name)
@@ -132,12 +147,14 @@ def main [script: path, fixture: path, ty: path] {
 
             'after' | save --force $linked
 
-            [{pane_id: 7, tab_id: 2}] | to json | save --force ($root | path join panes.json)
+            [{pane_id: 7, tab_id: 2, size: {cols: 204, rows: 35}}] | to json | save --force ($root | path join panes.json)
 
             let changed_link = ^$nu.current-exe --no-config-file $script --cwd $project --allow-directory --file $linked --line 4 | complete
             assert equal $changed_link.exit_code 0 $changed_link.stderr
 
             let changed_split = open ($root | path join split.json)
+            assert ('--right' in $changed_split)
+            assert ($changed_split | window 2 | any {|pair| $pair == [--percent '60'] })
             assert (($changed_split | last) | str ends-with '.open_review()')
             assert (open --raw ($root | path join source-jump.txt) | str contains '"line":4')
 
@@ -169,16 +186,37 @@ def main [script: path, fixture: path, ty: path] {
             let after = ^git -C $project write-tree | str trim
             ^git -C $project update-ref $'($ref)/before' $before
             ^git -C $project update-ref $'($ref)/after' $after
-            [{pane_id: 7, tab_id: 2}] | to json | save --force ($root | path join panes.json)
-            let snapshot = ^$nu.current-exe --no-config-file $script --cwd $project --turn $turn | complete
+            [{pane_id: 7, tab_id: 2, size: {cols: 132, rows: 70}}] | to json | save --force ($root | path join panes.json)
+            let snapshot = ^$nu.current-exe --no-config-file $script --cwd $project --turn $turn --fullscreen | complete
             assert equal $snapshot.exit_code 0 $snapshot.stderr
             let snapshot_split = open ($root | path join split.json)
+            assert ('--bottom' in $snapshot_split)
+            assert ($snapshot_split | window 2 | any {|pair| $pair == [--percent '67'] })
             assert (($snapshot_split | last) | str contains ([$before $after] | to json --raw | to json --raw)) ($snapshot_split | last)
             let snapshot_retry = ^$nu.current-exe --no-config-file $script --cwd $project --turn $turn | complete
             assert equal $snapshot_retry.exit_code 0 $snapshot_retry.stderr
             assert ($snapshot_retry.stdout | str starts-with Reused)
             let snapshot_index = ($snapshot_split | enumerate | where item == --listen | first | get index) + 1
             rm --force ($snapshot_split | get $snapshot_index)
+
+            for dimensions in [{cols: 240, percent: '67'}, {cols: 204, percent: '64'}] {
+                [{pane_id: 7, tab_id: 2, size: {cols: $dimensions.cols, rows: 40}}] | to json | save --force ($root | path join panes.json)
+                let fullscreen = ^$nu.current-exe --no-config-file $script --cwd $project --turn $turn --fullscreen | complete
+                assert equal $fullscreen.exit_code 0 $fullscreen.stderr
+                let fullscreen_split = open ($root | path join split.json)
+                assert ('--right' in $fullscreen_split)
+                assert ($fullscreen_split | window 2 | any {|pair| $pair == [--percent $dimensions.percent] })
+                let fullscreen_index = ($fullscreen_split | enumerate | where item == --listen | first | get index) + 1
+                rm --force ($fullscreen_split | get $fullscreen_index)
+            }
+
+            [{pane_id: 7, tab_id: 2, size: {cols: 88, rows: 31}}] | to json | save --force ($root | path join panes.json)
+            let compact = ^$nu.current-exe --no-config-file $script --cwd $project --turn $turn | complete
+            assert equal $compact.exit_code 0 $compact.stderr
+            assert ('--zoom' in (open ($root | path join zoom.json)))
+            let compact_split = open ($root | path join split.json)
+            let compact_index = ($compact_split | enumerate | where item == --listen | first | get index) + 1
+            rm --force ($compact_split | get $compact_index)
 
             [{pane_id: 7, tab_id: 2}] | to json | save --force ($root | path join panes.json)
             let directory = with-env {DIFF_ROOT: $plain} {

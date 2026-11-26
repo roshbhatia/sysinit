@@ -94,10 +94,8 @@ def resolve-link [uri: string] {
     $directory
 }
 
-def turn-link [baseline: record] {
+def turn-link [baseline: record, tree: string] {
     cd $baseline.directory
-
-    let tree = snapshot
 
     if $tree == $baseline.tree { return }
 
@@ -110,7 +108,40 @@ def turn-link [baseline: record] {
     # Keep both trees reachable for links read after later edits or Git maintenance.
     let updated = $"update ($ref)/before ($baseline.tree)\nupdate ($ref)/after ($tree)\n" | ^git update-ref --stdin | complete
 
-    if $updated.exit_code == 0 { $"($link)?turn=($turn)" }
+    if $updated.exit_code == 0 {
+        let changed = ^git diff --name-only -z $baseline.tree $tree -- | complete
+
+        let files = if $changed.exit_code == 0 {
+            $changed.stdout | split row (char nul) | where {|path| $path != ''} | length
+        }
+
+        {
+            uri: $"($link)?turn=($turn)"
+            files: $files
+        }
+    }
+}
+
+def notice [link: record, title: string] {
+    let files = $link.files?
+
+    let scope = match $files {
+        null => $title
+        1 => $"($title) · 1 file"
+        _ => $"($title) · ($files) files"
+    }
+
+    let label = if ($env.WEZTERM_PANE? | default '') =~ '^\d+$' {
+        $"($scope) · ⌘-click below"
+    } else {
+        $scope
+    }
+
+    let rule = '----------------------------------------'
+
+    {
+        systemMessage: ([$rule $label $link.uri $rule] | str join "\n")
+    } | to json --raw
 }
 
 def main [target: string = '.', --hook, --resolve] {
@@ -161,36 +192,22 @@ def main [target: string = '.', --hook, --resolve] {
                 let link = if ($baseline_path | path exists) {
                     let baseline = open $baseline_path
 
-                    rm $baseline_path
+                    rm --force $baseline_path $marker
 
-                    turn-link $baseline
+                    cd $baseline.directory
+
+                    turn-link $baseline (snapshot)
                 } else if ($marker | path exists) {
                     let link = open --raw $marker
 
                     rm $marker
 
-                    $link
+                    {uri: $link}
                 }
 
                 if $link == null { return }
 
-                let scope = if ($link | str contains '?turn=') {
-                    'Review changes from this turn'
-                } else {
-                    'Review changes'
-                }
-
-                let label = if ($env.WEZTERM_PANE? | default '') =~ '^\d+$' {
-                    $"($scope) · ⌘-click below"
-                } else {
-                    $scope
-                }
-
-                let rule = '----------------------------------------'
-
-                return ({
-                    systemMessage: ([$rule $label $link $rule] | str join "\n")
-                } | to json --raw)
+                return (notice $link 'Review turn edits')
             }
             'PostToolUse' => { }
             _ => { return }
@@ -209,13 +226,33 @@ def main [target: string = '.', --hook, --resolve] {
             _ => false
         }
 
-        if $edited and not ($baseline_path | path exists) {
+        if not $edited { return }
+
+        if ($baseline_path | path exists) {
+            let baseline = open $baseline_path
+
+            let previous = if ($marker | path exists) { open --raw $marker } else { $baseline.tree }
+
+            cd $baseline.directory
+
+            let tree = snapshot
+
+            let link = turn-link ($baseline | update tree $previous) $tree
+
+            if $link != null {
+                $tree | save --force $marker
+
+                return (notice $link 'Review edit')
+            }
+        } else if not ($marker | path exists) {
             let link = review-link ($event.cwd? | default $env.PWD)
 
             if $link != null {
                 mkdir $pending
 
                 $link | save --force $marker
+
+                return (notice {uri: $link} 'Review edit')
             }
         }
     }

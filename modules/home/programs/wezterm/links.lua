@@ -106,6 +106,9 @@ function M.setup(options)
     if turn then
       command[#command + 1] = "--turn=" .. turn
     end
+    if window:get_dimensions().is_full_screen then
+      command[#command + 1] = "--fullscreen"
+    end
     run(window, "Review changes", command)
   end
 

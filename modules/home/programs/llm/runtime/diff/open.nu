@@ -3,6 +3,7 @@ use ./wezterm-mux.nu wezterm-socket
 const script = path self
 const directory_notes = path self | path dirname | path join directory-notes.lua
 const source_view = path self | path dirname | path join source-view.lua
+const review_init = path self | path dirname | path join review-init.lua
 const diffview_ready = 'luaeval("(function() local ok, lib = pcall(require, \x27diffview.lib\x27); local view = ok and lib.get_current_view(); return view and view.ready and 1 or 0 end)()")'
 
 def run-command [arguments: list<string>] {
@@ -206,6 +207,8 @@ def editor-command [
 
         [
             ...$nvim
+            -u
+            $review_init
             -c
             ('lua dofile(' + ($source_view | to json --raw) + ').open_review(' + $args + ')')
         ]
@@ -318,10 +321,10 @@ def main [
     --against: path
     --note-session: string
     --note-command: path
+    --fullscreen # Use the fullscreen review size for a new split.
     --background
     --if-open
     --json
-    --lock-held
 ] {
     let parent = $pane_id | default ($env.WEZTERM_PANE? | default '')
 
@@ -378,10 +381,6 @@ def main [
         $env.WEZTERM_UNIX_SOCKET = $connection
     }
 
-    let clients = command-output [ty clients] | from json --strict | get clients
-
-    if ($clients | is-empty) { error make {msg: 'No attached WezTerm client.'} }
-
     let revision = if $base == null {
         'HEAD'
     } else {
@@ -399,18 +398,6 @@ def main [
 
         $resolved.stdout | str trim
     }
-
-    let panes = panes
-
-    let owners = $panes | where {|pane| ($pane.pane_id | into string) == $parent}
-
-    if ($owners | is-empty) { error make {msg: 'The invoking pane is no longer live.'} }
-
-    let owner = $owners | first
-
-    let active = $panes | where {|pane|
-        $pane.tab_id == $owner.tab_id and $pane.is_active? == true and $pane.is_floating? != true
-    } | get 0?
 
     let state = ($env.XDG_STATE_HOME? | default ($env.HOME | path join .local state)) | path join agent-diff
 
@@ -442,7 +429,111 @@ def main [
 
     let key = $key_parts | str join '|' | hash sha256 | str substring 0..19
 
-    let record = $state | path join $'($key).json'
+    let plan = {
+        request: $request
+        parent: $parent
+        state: $state
+        key: $key
+        revision: $revision
+        range: $range
+        note_session: $note_session
+        note_command: (
+            if $note_command != null {
+                $note_command | path expand --strict
+            }
+        )
+        background: $background
+        fullscreen: $fullscreen
+        if_open: $if_open
+        json: $json
+    }
+
+    exec flock --exclusive ($state | path join $'($key).lock') $nu.current-exe --no-config-file $script open-locked ($plan | to json --raw)
+}
+
+def split-percent [
+    cells: int
+    review: int
+    source: int
+    preferred: int
+] {
+    let minimum = (100 * $review / $cells) | math ceil
+
+    # WezTerm rounds the target down and reserves one cell for the divider.
+    let maximum = ((100 * ($cells - $source) / $cells) | math ceil) - 1
+
+    [
+        $maximum
+        ([$minimum $preferred] | math max)
+    ] | math min | into string
+}
+
+def review-placement [owner: record, fullscreen: bool] {
+    let cols = $owner.size?.cols? | default 0
+
+    let rows = $owner.size?.rows? | default 0
+
+    if $cols == 0 {
+        return {direction: right, percent: '45', zoom: false}
+    }
+
+    let preferred = if $fullscreen { 67 } else { 60 }
+
+    if $cols >= 182 and $rows >= 20 {
+        {
+            direction: right
+            percent: (split-percent $cols 104 72 $preferred)
+            zoom: false
+        }
+    } else if $rows >= 48 and $cols >= 104 {
+        {
+            direction: down
+            percent: (split-percent $rows 28 18 $preferred)
+            zoom: false
+        }
+    } else {
+        {direction: down, percent: '60', zoom: true}
+    }
+}
+
+def focus-review [pane: string, zoom: bool] {
+    command-output [ty pane focus $pane] | ignore
+
+    if $zoom {
+        command-output [
+            wezterm
+            cli
+            --no-auto-start
+            zoom-pane
+            --pane-id
+            $pane
+            --zoom
+        ] | ignore
+    }
+}
+
+def "main open-locked" [input: string] {
+    let plan = $input | from json --strict
+
+    let request = $plan.request
+
+    let root = $request.root
+
+    let record = $plan.state | path join $'($plan.key).json'
+
+    let clients = command-output [ty clients] | from json --strict | get clients
+
+    if ($clients | is-empty) { error make {msg: 'No attached WezTerm client.'} }
+
+    let panes = panes
+
+    let owner = $panes | where {|pane| ($pane.pane_id | into string) == $plan.parent} | get -o 0
+
+    if $owner == null { error make {msg: 'The invoking pane is no longer live.'} }
+
+    let active = $panes | where {|pane|
+        $pane.tab_id == $owner.tab_id and $pane.is_active? == true and $pane.is_floating? != true
+    } | get -o 0
 
     # Keep the socket below the Unix-domain path limit, even with a long XDG path.
     let uid = ^id -u | str trim
@@ -463,28 +554,7 @@ def main [
         error make {msg: 'The diff socket directory is not private.'}
     }
 
-    let socket = $socket_dir | path join $'($key).sock'
-
-    if not $lock_held {
-        let args = (
-            [--cwd $root --pane-id $parent --lock-held]
-            | append (if $base != null { [--base $revision] } else { [] })
-            | append (if $turn != null { [--turn $turn] } else { [] })
-            | append (if $directory { [--directory] } else { [] })
-            | append (if $review { [--review] } else { [] })
-            | append (if $file != null { [$"--file=($target)"] } else { [] })
-            | append (if $line != null { [--line ($line | into string)] } else { [] })
-            | append (if $column != null { [--column ($column | into string)] } else { [] })
-            | append (if $against != null { [--against ($against | path expand --strict)] } else { [] })
-            | append (if $note_session != null { [--note-session $note_session] } else { [] })
-            | append (if $note_command != null { [--note-command ($note_command | path expand --strict)] } else { [] })
-            | append (if $background { [--background] } else { [] })
-            | append (if $if_open { [--if-open] } else { [] })
-            | append (if $json { [--json] } else { [] })
-        )
-
-        exec flock --exclusive ($state | path join $'($key).lock') $nu.current-exe --no-config-file $script ...$args
-    }
+    let socket = $socket_dir | path join $'($plan.key).sock'
 
     let saved = try {
         open --raw $record | from json --strict
@@ -492,16 +562,18 @@ def main [
         {}
     }
 
-    let live = panes | where {|pane| $pane.pane_id == $saved.pane? and $pane.tab_id == $owner.tab_id}
+    let prior = $panes | where pane_id == $saved.pane?
+
+    let live = $prior | where tab_id == $owner.tab_id
 
     if ($live | is-not-empty) and ($socket | path exists) {
         let probe = rpc $socket 'getcwd()'
 
         if $probe.exit_code == 0 and ($probe.stdout | str trim | path expand) == $root {
-            let refresh = if $directory {
+            let refresh = if $request.directory {
                 rpc $socket "execute('checktime | redraw')"
-            } else if $review {
-                if $turn != null { select-review $socket true $range } else { select-review $socket true }
+            } else if $request.review {
+                if ($plan.range | is-not-empty) { select-review $socket true $plan.range } else { select-review $socket true }
             } else {
                 let visible = rpc $socket $diffview_ready
 
@@ -512,22 +584,21 @@ def main [
                 rpc $socket "execute('checktime | DiffviewRefresh')"
             }
 
-            if $refresh.exit_code != 0 or ($review and $position == null and ($refresh.stdout | str trim) != '1') {
+            if $refresh.exit_code != 0 or ($request.review and $request.position == null and ($refresh.stdout | str trim) != '1') {
                 error make {msg: 'The diff editor could not refresh yet. Run /diff again.'}
             }
 
-            if $position != null { jump-to-source $socket $position $review }
+            if $request.position != null { jump-to-source $socket $request.position $request.review }
 
-            if not $background {
-                command-output [
-                    ty
-                    pane
-                    focus
-                    ($live.0.pane_id | into string)
-                ] | ignore
+            if not $plan.background {
+                let cols = $live.0.size?.cols? | default 104
+
+                let rows = $live.0.size?.rows? | default 20
+
+                focus-review ($live.0.pane_id | into string) ($request.review and ($cols < 104 or $rows < 20))
             }
 
-            if $json {
+            if $plan.json {
                 {pane_id: $live.0.pane_id, socket: $socket, reused: true} | to json --raw | print
             } else {
                 print 'Reused the Neovim diff pane.'
@@ -537,37 +608,63 @@ def main [
         }
     }
 
-    if $if_open { return }
+    if $plan.if_open { return }
 
     if ($socket | path exists) {
-        if (rpc $socket 'getpid()').exit_code == 0 {
+        if $saved.root? == $root and ($prior | is-empty) and (rpc $socket 'getpid()').exit_code == 0 {
+            let closing = (date now) + 1500ms
+
+            while ($socket | path exists) and (date now) < $closing { sleep 50ms }
+        }
+
+        if ($socket | path exists) and (rpc $socket 'getpid()').exit_code == 0 {
             error make {msg: 'A live diff editor exists outside this tab; close it before opening another.'}
         }
 
-        rm $socket
+        if ($socket | path exists) { rm $socket }
     }
 
-    let state_home = $state | path dirname
+    let state_home = $plan.state | path dirname
 
-    let editor = editor-command $request $socket $state_home $revision $note_session $note_command $range
+    let editor = (editor-command
+        $request
+        $socket
+        $state_home
+        $plan.revision
+        $plan.note_session
+        $plan.note_command
+        $plan.range
+    )
+
+    let placement = if $request.review {
+        review-placement $owner $plan.fullscreen
+    } else {
+        {direction: right, percent: '45', zoom: false}
+    }
+
+    let editor = if $request.review and $placement.direction == down {
+        [env SYSINIT_REVIEW_SPLIT=down ...$editor]
+    } else {
+        $editor
+    }
 
     let pane = (command-output [
         ty
         pane
         spawn
-        $parent
+        $plan.parent
         --direction
-        right
+        $placement.direction
         --percent
-        '45'
+        $placement.percent
         --cwd
         $root
         --
         ...$editor
     ]) | from json --strict | get pane_id
 
-    if not $background {
-        command-output [ty pane focus $pane] | ignore
+    if not $plan.background {
+        focus-review $pane false
     }
 
     {
@@ -579,22 +676,26 @@ def main [
 
     while (date now) < $deadline {
         if ($socket | path exists) {
-            let ready = if $directory {
+            let ready = if $request.directory {
                 rpc $socket 'getcwd()'
-            } else if $review {
+            } else if $request.review {
                 select-review $socket false
             } else {
                 rpc $socket $diffview_ready
             }
 
-            let expected = if $directory { $root } else { '1' }
+            let expected = if $request.directory { $root } else { '1' }
 
             if $ready.exit_code == 0 and ($ready.stdout | str trim) == $expected {
-                if $background and $active != null { restore-focus $active $owner $pane }
+                if $placement.zoom and not $plan.background {
+                    focus-review $pane true
+                }
 
-                if $position != null { jump-to-source $socket $position $review }
+                if $plan.background and $active != null { restore-focus $active $owner $pane }
 
-                if $json {
+                if $request.position != null { jump-to-source $socket $request.position $request.review }
+
+                if $plan.json {
                     {
                         pane_id: ($pane | into int)
                         socket: $socket
@@ -611,7 +712,7 @@ def main [
         sleep 50ms
     }
 
-    if $background and $active != null { restore-focus $active $owner $pane }
+    if $plan.background and $active != null { restore-focus $active $owner $pane }
 
     error make {msg: 'The split opened, but Neovim did not expose its socket yet. Run /diff again.'}
 }

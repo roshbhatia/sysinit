@@ -125,6 +125,9 @@ def main --wrapped [tool: string, ...arguments: string] {
                 activate-pane => {
                     $arguments | to json | save --force ($root | path join activation.json)
                 }
+                zoom-pane => {
+                    $arguments | to json | save --force ($root | path join zoom.json)
+                }
             }
         }
         lock => {

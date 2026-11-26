@@ -17,15 +17,20 @@
 
 ## Review local edits
 
-Command-click the link in the **Review changes** notice after an editing turn
-in Codex or Claude Code. In a Git worktree, the link opens the diff between
-the start and end of the turn, including edits committed during it. Later
-edits leave that diff unchanged. The snapshots include tracked files and
-untracked files Git would add.
+Command-click **Review edit** after a supported edit tool runs, or **Review turn
+edits** when Codex or Claude Code finishes the turn. In a Git worktree, each
+edit link compares against the previous edit snapshot. The turn link compares
+against the start of the turn and includes edits committed during it. Both
+links show the changed-file count and keep their diffs as later edits arrive.
+The snapshots include tracked files and untracked files Git would add.
 
 From any local WezTerm pane, choose **Open Worktree Review** in the command
-palette to view current edits. Both actions open a Reviewr split to the pane's
-right. Run `agent-diff` directly from the shell or use
+palette to view current edits. Reviewr opens to the right when there is enough
+width and below the source pane otherwise. Split sizing uses the available
+columns and rows, so it responds to window size, display scaling, and font size.
+Fullscreen reviews aim for two-thirds of the source pane, with room reserved
+for the source. In a compact window, a foreground review opens zoomed.
+Run `agent-diff` directly from the shell or use
 `agent-review-link` to print a link for the current directory.
 Reviewr includes untracked files through a temporary Git index.
 Run `:ReviewrTurn` before the next agent edit to mark its baseline, then pick
@@ -41,6 +46,11 @@ Reviewr uses Neovim's local leader, `,`. Press `,c` to comment on a line or
 selection and save with `:w`. Press `,s` to paste the draft into the
 originating agent's input for you to submit. Use `,y` to copy it and `,?`
 to see the available keys.
+
+Press `,w` to cycle the file tree through left, right, top, bottom, and
+automatic placement. Use `:ReviewFiles left` (or `right`, `top`, `bottom`,
+or `auto`) to pick a position directly. Automatic placement follows the
+editor width, and narrow review panes stack the before and after views.
 
 Run `changes` in a terminal or `changes interactive` to open change groups
 and review notes. Use `?` for the viewer's keymap. Run `traces` to browse

@@ -64,6 +64,95 @@ local function foreground_group(tty)
   return result.code == 0 and (result.stdout or ""):match("^%s*([1-9]%d*)") or nil
 end
 
+local file_edges = { "left", "right", "top", "bottom", "auto" }
+local edge_moves = { left = "H", right = "L", top = "K", bottom = "J" }
+local file_edge = "auto"
+
+local function setup_layout()
+  local ui = require("reviewr.ui")
+  local last_edge
+  ui.equalize = function()
+    if not ui.is_open() then
+      return
+    end
+    local diff, panel = ui.panes(), ui.files_panel()
+    if not panel.win or not vim.api.nvim_win_is_valid(panel.win) then
+      return
+    end
+    local cols, rows = vim.o.columns, vim.o.lines
+    local edge = file_edge == "auto" and (cols >= 136 and "left" or "bottom") or file_edge
+    local side = edge == "left" or edge == "right"
+    local width = math.min(36, math.max(16, math.floor(cols * 0.22)))
+    local stack = cols - (side and width or 0) < 100 and rows >= 22
+    local diff_tab = vim.api.nvim_win_get_tabpage(diff.left_win)
+    vim.api.nvim_win_call(diff.left_win, function()
+      local left = vim.api.nvim_win_get_position(diff.left_win)
+      local right = vim.api.nvim_win_get_position(diff.right_win)
+      local move_diff = stack ~= (left[1] ~= right[1])
+      if move_diff then
+        vim.fn.win_splitmove(
+          diff.right_win,
+          diff.left_win,
+          { vertical = not stack, rightbelow = true }
+        )
+      end
+      if edge ~= last_edge or move_diff then
+        vim.api.nvim_win_call(panel.win, function()
+          vim.cmd.wincmd(edge_moves[edge])
+        end)
+      end
+      last_edge = edge
+      vim.wo[panel.win].winfixwidth = side
+      vim.wo[panel.win].winfixheight = not side
+      if side then
+        vim.api.nvim_win_set_width(panel.win, width)
+      else
+        vim.api.nvim_win_set_height(panel.win, math.min(8, math.max(3, math.floor(rows * 0.19))))
+      end
+      if #vim.api.nvim_tabpage_list_wins(diff_tab) == 3 then
+        local size = stack and vim.api.nvim_win_get_height or vim.api.nvim_win_get_width
+        local resize = stack and vim.api.nvim_win_set_height or vim.api.nvim_win_set_width
+        resize(diff.left_win, math.floor((size(diff.left_win) + size(diff.right_win)) / 2))
+      end
+    end)
+  end
+  local render = ui.open_files_panel
+  ui.open_files_panel = function(files)
+    local previous = ui.files_panel().win
+    if not previous or not vim.api.nvim_win_is_valid(previous) then
+      last_edge = nil
+    end
+    render(files)
+  end
+  local function place(edge)
+    file_edge = edge
+    ui.equalize()
+  end
+  vim.api.nvim_create_user_command("ReviewFiles", function(command)
+    if not vim.tbl_contains(file_edges, command.args) then
+      error("Expected left, right, top, bottom, or auto")
+    end
+    place(command.args)
+  end, {
+    nargs = 1,
+    complete = function()
+      return file_edges
+    end,
+  })
+  vim.keymap.set("n", "<LocalLeader>w", function()
+    for index, edge in ipairs(file_edges) do
+      if edge == file_edge then
+        place(file_edges[index % #file_edges + 1])
+        return
+      end
+    end
+  end, { desc = "Move review file tree" })
+  table.insert(require("reviewr.keymaps").legend, {
+    (vim.g.maplocalleader or "\\") .. "w",
+    "move the file tree",
+  })
+end
+
 local function open_review(range)
   if vim.v.vim_did_enter == 0 then
     vim.api.nvim_create_autocmd("VimEnter", {
@@ -77,29 +166,49 @@ local function open_review(range)
     return
   end
 
-  -- The GUI and a persistent mux number the same panes independently.
-  -- This editor sees the owning mux, where its right neighbor is the source.
+  -- Resolve the adjacent pane in the editor's mux, whose IDs may differ
+  -- from those in the GUI that requested the split.
   local pane = vim.env.WEZTERM_PANE
-  local result = pane and mux_cli({ "get-pane-direction", "--pane-id", pane, "Right" })
-  local origin = result and result.code == 0 and vim.trim(result.stdout or "")
-  if not origin or not origin:match("^%d+$") then
-    origin = "unavailable"
-  end
   local listed = mux_cli({ "list", "--format", "json" })
   local ok, panes = pcall(vim.json.decode, listed.stdout or "")
-  local owner = ok
-    and type(panes) == "table"
-    and vim.iter(panes):find(function(candidate)
-      return tostring(candidate.pane_id) == origin
+  local owner
+  if pane and ok and type(panes) == "table" then
+    local own = vim.iter(panes):find(function(candidate)
+      return tostring(candidate.pane_id) == pane
     end)
+    if own then
+      local down = vim.env.SYSINIT_REVIEW_SPLIT == "down"
+      owner = vim.iter(panes):find(function(candidate)
+        if candidate.tab_id ~= own.tab_id or candidate.pane_id == own.pane_id then
+          return false
+        end
+        if down then
+          return candidate.left_col == own.left_col
+            and candidate.top_row + candidate.size.rows + 1 == own.top_row
+        end
+        return candidate.top_row == own.top_row
+          and candidate.left_col + candidate.size.cols + 1 == own.left_col
+      end)
+    end
+  end
   local tty = owner and owner.tty_name
   local group = foreground_group(tty)
 
-  vim.env.SYSINIT_REVIEW_PANE = origin
-  vim.cmd.SysinitAgentReview()
-
+  setup_layout()
+  vim.env.SYSINIT_REVIEW_PANE = owner and tostring(owner.pane_id) or "unavailable"
+  local reviewr = require("reviewr")
+  local open = reviewr.open
+  -- Keep the workbench's index and transport setup, and initialize the
+  -- requested scope on its first call into Reviewr.
   if range then
-    require("reviewr").open({ range[1], range[2], "turn" })
+    reviewr.open = function()
+      return open({ range[1], range[2], "turn" })
+    end
+  end
+  local opened, err = pcall(require("sysinit_workbench.review").open)
+  reviewr.open = open
+  if not opened then
+    error(err)
   end
 
   local transport = require("reviewr.transport")

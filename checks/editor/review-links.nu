@@ -23,14 +23,16 @@ def main [emitter: path, router: path, probe: path] {
     with-env {WEZTERM_PANE: '42', XDG_STATE_HOME: ($root | path join state)} {
         let uri = ^$emitter $cwd | str trim
         let stop = $post | update hook_event_name Stop
+        let patch_notice = $patch | to json --raw | ^$emitter --hook | from json
+        assert equal ($patch_notice.systemMessage | lines | get 1) 'Review edit · ⌘-click below'
         assert equal ($patch | to json --raw | ^$emitter --hook | str trim) ''
-        assert equal ($patch | to json --raw | ^$emitter --hook | str trim) ''
-        assert equal ($edit | to json --raw | ^$emitter --hook | str trim) ''
+        let edit_notice = $edit | to json --raw | ^$emitter --hook | from json
+        assert equal $edit_notice.systemMessage $patch_notice.systemMessage
         let codex = $stop | to json --raw | ^$emitter --hook | from json
         let claude = $stop | update session_id $edit.session_id | to json --raw | ^$emitter --hook | from json
         assert equal ($codex.systemMessage | lines) [
             '----------------------------------------'
-            'Review changes · ⌘-click below'
+            'Review turn edits · ⌘-click below'
             $uri
             '----------------------------------------'
         ]
@@ -57,9 +59,10 @@ def main [emitter: path, router: path, probe: path] {
     }
 
     with-env {WEZTERM_PANE: '', XDG_STATE_HOME: ($root | path join state)} {
-        assert equal ($edit | to json --raw | ^$emitter --hook | str trim) ''
+        let edit_notice = $edit | to json --raw | ^$emitter --hook | from json
+        assert equal ($edit_notice.systemMessage | lines | get 1) 'Review edit'
         let notice = $edit | update hook_event_name Stop | to json --raw | ^$emitter --hook | from json
-        assert equal ($notice.systemMessage | lines | get 1) 'Review changes'
+        assert equal ($notice.systemMessage | lines | get 1) 'Review turn edits'
 
         let repo = $root | path join sysinit
         let nested = $repo | path join nested
@@ -77,14 +80,23 @@ def main [emitter: path, router: path, probe: path] {
 
         let turn = $post | merge {cwd: $nested, hook_event_name: UserPromptSubmit}
         let stop = $turn | update hook_event_name Stop
+        let edit = $patch | update cwd $nested
         'existing dirty file' | save ($repo | path join existing.txt)
         $turn | to json --raw | ^$emitter --hook
         'committed edit' | save ($repo | path join committed.txt)
+        let first = $edit | to json --raw | ^$emitter --hook | from json
+        assert equal ($first.systemMessage | lines | get 1) 'Review edit · 1 file'
+        assert equal ($edit | to json --raw | ^$emitter --hook | str trim) ''
         ^git -C $repo add -- committed.txt
         ^git -C $repo -c user.name=Fixture -c user.email=fixture@example.invalid commit --quiet -m edit
         'uncommitted edit' | save ($repo | path join uncommitted.txt)
+        let second = $edit | to json --raw | ^$emitter --hook | from json
+        assert equal ($second.systemMessage | lines | get 1) 'Review edit · 1 file'
+        let second_id = $second.systemMessage | lines | get 2 | split row '=' | last
+        let second_ref = $'refs/worktree/sysinit/turn-reviews/($second_id)'
+        assert equal (^git -C $repo diff --name-only $'($second_ref)/before' $'($second_ref)/after' -- | lines) [uncommitted.txt]
         let notice = $stop | to json --raw | ^$emitter --hook | from json
-        assert equal ($notice.systemMessage | lines | get 1) 'Review changes from this turn'
+        assert equal ($notice.systemMessage | lines | get 1) 'Review turn edits · 2 files'
         let uri = $notice.systemMessage | lines | get 2
         assert ($uri =~ '^review://changes/sysinit/feature%2Freview/[0-9a-f]{16}\?turn=[0-9a-f]{16}$')
         assert equal (^$emitter --resolve $uri | str trim) $repo
