@@ -50,10 +50,8 @@ assert !(home.programs.claude-code.settings ? dangerouslySkipPermissions);
 assert !(home.programs.claude-code.settings ? disabledMcpServers);
 assert home.programs.codex.settings.web_search == "live";
 assert !(home.programs.codex.settings ? tools);
-assert home.sysinit.llm.managedFiles.fx.content.auto_upgrade == false;
 assert home.sysinit.llm.managedFiles.amp.content."amp.dangerouslyAllowAll";
 assert home.sysinit.llm.managedFiles.devin.content.permission_mode == "dangerous";
-assert home.sysinit.llm.managedFiles.fx.content.permission_mode == "full-access";
 (import ../lib/nushell.nix { inherit pkgs; }) {
   name = "harness-settings";
   script = ./harness-settings-setup.nu;

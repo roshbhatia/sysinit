@@ -299,7 +299,7 @@ in
         type = types.attrsOf (types.listOf types.str);
         default = { };
         example = {
-          crush = [ "work-services" ];
+          opencode = [ "work-services" ];
         };
         description = ''
           Server names to omit from one harness after the host server catalog
@@ -312,7 +312,7 @@ in
         type = types.attrsOf (types.attrsOf types.attrs);
         default = { };
         example = {
-          crush.agentgateway.url = "http://127.0.0.1:18081/mcp";
+          opencode.agentgateway.url = "http://127.0.0.1:18081/mcp";
         };
         description = ''
           Per-harness replacements for a server's definition, keyed by harness

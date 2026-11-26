@@ -118,7 +118,6 @@ in
         lsp-ai
         traces
 
-        cupcake-cli
         open-policy-agent
         regols
         tree-sitter

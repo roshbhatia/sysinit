@@ -145,39 +145,6 @@
     };
   };
 
-  crush = {
-    shellAlias = {
-      name = "crs";
-    };
-    label = "Crush";
-    module = ./crush.nix;
-    context = "~/.config/crush/AGENTS.md";
-    skillLoader = true;
-    ownIcon = false;
-    notify = "scrape";
-    editBus = false;
-    bridge = null;
-    package = "crush";
-    glyph = "";
-    command = "crush";
-    skillRoot = ".claude/skills";
-    acp = false;
-
-    guard = "none";
-    gate = "none";
-    projectDir = ".crush/";
-    transcriptRoot = null;
-    exitHook = false;
-    launch = {
-      resumeArgs = [ "--session" ];
-      # Runs without permission prompts; the shell aliases and session launchers use it.
-      fullAccess = {
-        args = [ "--yolo" ];
-        env = { };
-      };
-    };
-  };
-
   cursor = {
     shellAlias = {
       name = "cur";
@@ -244,45 +211,6 @@
           "dangerous"
         ];
         env = { };
-      };
-    };
-  };
-
-  fx = {
-    shellAlias = {
-      name = "fxx";
-    };
-    label = "fx";
-    module = ./fx.nix;
-    context = "~/.fx/AGENTS.md";
-
-    skillLoader = true;
-    ownIcon = false;
-    notify = "scrape";
-    editBus = false;
-    bridge = null;
-    package = "sysinit-fx";
-    glyph = "▲";
-    command = "fx";
-    skillRoot = ".claude/skills";
-    acp = true;
-
-    guard = "globs";
-    gate = "none";
-    projectDir = ".fx/";
-    transcriptRoot = "~/.fx/sessions";
-    exitHook = false;
-    launch = {
-      resumeArgs = [
-        "session"
-        "resume"
-      ];
-      # Runs without permission prompts; the shell aliases and session launchers use it.
-      fullAccess = {
-        args = [ ];
-        env = {
-          FX_PERMISSION_MODE = "full-access";
-        };
       };
     };
   };

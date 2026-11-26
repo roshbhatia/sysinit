@@ -36,14 +36,6 @@ in
     ];
   };
 
-  slk-config = nuCheck {
-    name = "slk-config-test";
-    script = ./slk.nu;
-    sources = [ ../lib/process.nu ];
-    arguments = [ ../../modules/home/programs/slk-setup.py ];
-    inputs = [ (pkgs.python3.withPackages (p: [ p.tomlkit ])) ];
-  };
-
   slack-guard = import ./slack-guard.nix { inherit pkgs; };
 
   pr-workflow = import ./pr-workflow.nix { inherit pkgs nuFunctions; };

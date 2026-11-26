@@ -155,21 +155,4 @@
         }
     ) servers;
 
-  formatForCrush =
-    servers:
-    builtins.mapAttrs (
-      _name: server:
-      if (server.type or "local") == "http" then
-        {
-          type = "http";
-          inherit (server) url;
-        }
-      else
-        {
-          type = "stdio";
-          inherit (server) command;
-          args = server.args or [ ];
-        }
-    ) servers;
-
 }
