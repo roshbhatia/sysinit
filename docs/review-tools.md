@@ -42,7 +42,9 @@ system's file associations for other files. A `review://changes/` link names
 the repository and branch or worktree, then identifies the exact checkout
 with its final segment. An explicit `--base` opens Diffview.
 
-Reviewr uses Neovim's local leader, `,`. Press `,c` to comment on a line or
+Reviewr loads the usual Neovim configuration. Use Ctrl+H/J/K/L to move
+between splits and across the edge into WezTerm.
+Press `,c` to comment on a line or
 selection and save with `:w`. Press `,s` to paste the draft into the
 originating agent's input for you to submit. Use `,y` to copy it and `,?`
 to see the available keys.

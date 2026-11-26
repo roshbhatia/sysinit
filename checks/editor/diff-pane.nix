@@ -8,7 +8,6 @@ nuCheck {
   inputs = [
     pkgs.flock
     pkgs.git
-    pkgs.neovim-unwrapped
   ];
   arguments = [
     ../../modules/home/programs/llm/runtime/diff

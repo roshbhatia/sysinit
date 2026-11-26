@@ -3,7 +3,6 @@ use ./wezterm-mux.nu wezterm-socket
 const script = path self
 const directory_notes = path self | path dirname | path join directory-notes.lua
 const source_view = path self | path dirname | path join source-view.lua
-const review_init = path self | path dirname | path join review-init.lua
 const diffview_ready = 'luaeval("(function() local ok, lib = pcall(require, \x27diffview.lib\x27); local view = ok and lib.get_current_view(); return view and view.ready and 1 or 0 end)()")'
 
 def run-command [arguments: list<string>] {
@@ -207,8 +206,6 @@ def editor-command [
 
         [
             ...$nvim
-            -u
-            $review_init
             -c
             ('lua dofile(' + ($source_view | to json --raw) + ').open_review(' + $args + ')')
         ]

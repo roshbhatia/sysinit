@@ -43,21 +43,6 @@ def main [script: path, fixture: path, ty: path] {
 
     mkdir $bin $project $plain $gui_directory
 
-    let config = $home | path join .config
-
-    let ftplugin = $config | path join nvim after ftplugin
-
-    mkdir $ftplugin
-
-    'error("the full editor filetype hook was loaded")' | save ($ftplugin | path join nu.lua)
-
-    with-env {HOME: $home, XDG_CONFIG_HOME: $config, NVIM_APPNAME: nvim} {
-        let init = $script | path dirname | path join review-init.lua
-        let editor = (^nvim --headless -u $init '+setfiletype nu' '+lua assert(vim.v.errmsg == "", vim.v.errmsg); assert(vim.wo.number)' '+qa!' | complete)
-        assert equal $editor.exit_code 0 $editor.stderr
-        assert equal ($editor.stderr | str trim) ''
-    }
-
     touch $socket $other_socket
 
     ^ln -s $socket ($gui_directory | path join $alias_name)
@@ -156,6 +141,7 @@ def main [script: path, fixture: path, ty: path] {
             assert ('--right' in $changed_split)
             assert ($changed_split | window 2 | any {|pair| $pair == [--percent '60'] })
             assert (($changed_split | last) | str ends-with '.open_review()')
+            assert (not ('-u' in $changed_split))
             assert (open --raw ($root | path join source-jump.txt) | str contains '"line":4')
 
             let second = $project | path join 'untracked.lua'
