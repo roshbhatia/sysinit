@@ -92,7 +92,7 @@ in
   traces-tools = tracesToolPackages;
   slk = inputs.slk.packages.${final.stdenv.hostPlatform.system}.default.overrideAttrs (
     finalAttrs: old: {
-      version = "0.29.0";
+      version = "0.42.0";
       src = inputs.slk;
       ldflags = (old.ldflags or [ ]) ++ [
         "-X=main.version=${finalAttrs.version}"
