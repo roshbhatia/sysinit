@@ -93,6 +93,7 @@ in
       };
 
       teammateMode = "in-process";
+      spinnerTipsEnabled = false;
 
       sandbox = {
         enabled = false;

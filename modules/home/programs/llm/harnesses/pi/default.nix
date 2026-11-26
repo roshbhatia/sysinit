@@ -280,7 +280,7 @@ let
 
     skills = [ "~/.claude/skills" ];
 
-    quietStartup = "header";
+    quietStartup = true;
     tuiMode = "fullscreen";
     fullscreenCopyOnSelect = true;
     fullscreenExitOutput = "resume-hint";

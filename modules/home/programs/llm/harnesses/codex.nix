@@ -195,6 +195,7 @@ in
       tui = {
         fullscreen_transcript = true;
         alternate_screen = "always";
+        show_tooltips = false;
         terminal_title = [
           "project-name"
           "thread-name"
