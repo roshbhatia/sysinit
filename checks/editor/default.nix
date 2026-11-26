@@ -9,9 +9,14 @@ in
   review-links = nuCheck {
     name = "review-links";
     script = ./review-links.nu;
-    inputs = [ pkgs.lua5_4 ];
+    inputs = [
+      pkgs.git
+      pkgs.lua5_4
+    ];
     arguments = [
-      (lib.getExe (import ../../modules/home/programs/llm/runtime/diff/review-link.nix { inherit pkgs; }))
+      (lib.getExe (
+        import ../../modules/home/programs/llm/runtime/diff/review-link.nix { inherit lib pkgs; }
+      ))
       ../../modules/home/programs/wezterm/links.lua
       ./review-links.lua
     ];

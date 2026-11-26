@@ -162,6 +162,10 @@ in
                 type = "command";
                 command = gateHook "UserPromptSubmit";
               }
+              {
+                type = "command";
+                command = "${profileBin}/agent-review-link --hook";
+              }
             ];
           }
         ];
@@ -298,6 +302,10 @@ in
                 type = "command";
                 command = "${profileBin}/agent-state claude done \"your move\"";
                 async = true;
+              }
+              {
+                type = "command";
+                command = "${profileBin}/agent-review-link --hook";
               }
             ];
           }

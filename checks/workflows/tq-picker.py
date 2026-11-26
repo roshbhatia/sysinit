@@ -176,7 +176,7 @@ def check(provider, queue):
                 )
                 terminal = record["terminal"]
                 assert terminal == "task-queue", record
-                ref = legacy / f"{record['id']}.terminal"
+                ref = legacy / f"{record['id']}.terminal-provider"
                 wait(ref.exists)
                 pane = str(json.loads(ref.read_text())["pane_id"])
                 wait(lambda: panes().get(pane, {}).get("workspace") == terminal)

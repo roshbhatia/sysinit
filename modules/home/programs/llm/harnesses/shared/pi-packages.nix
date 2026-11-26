@@ -63,8 +63,8 @@ let
       mkFetchedNpmPackage "pi-context" "2.3.0"
         "sha256-jhzTPMVHFoVQfXghRq1ap/8Z+iNoYyH2tnAzuO1Ev/g=";
     subagents =
-      (mkBuiltNpmPackage "pi-subagents" "0.83.0" "sha256-3eQP8L6QoYPrTjlH3e7lyr5+xVNJudfXRdUJH4UgUvs="
-        "sha256-4nLUfr9DMGk7z8tJmwN5NLOX2tEF7h0KNlShabGgtKI="
+      (mkBuiltNpmPackage "pi-subagents" "0.90.0" "sha256-oZs1RSGZOY/gOlvNYl+w3CRDrfu3A8dRJ74CZ1xZeyA="
+        "sha256-n7Bcd+IwYcp/3q0I3F8pWQmfYEn5LDBhMw9mzR1CsGM="
         ./locks/pi-subagents.lock.json
       ).overrideAttrs
         {
@@ -83,11 +83,8 @@ let
       mkFetchedNpmPackage "pi-librarian" "1.3.7"
         "sha256-Obn+DyQD1WCptZO5t0YgUOdpGULNYfPxUA7NeGT7GfQ=";
     askUser =
-      mkFetchedNpmPackage "pi-ask-user" "0.17.0"
-        "sha256-VVdGQq9YARn3t971kMFtbXF+azP/mMsX8rqGq4lsLDA=";
-    toolDisplay =
-      mkFetchedNpmPackage "pi-tool-display" "0.5.0"
-        "sha256-HP4Hb57+0BoVv4YJ4TjW7tzEXgvR3SZaVSE6lWmmSFg=";
+      mkFetchedNpmPackage "pi-ask-user" "0.17.2"
+        "sha256-klpWruz50S62kC/GyHNoQgwnpBCgWJxJyzN4eRNxQiA=";
     subdirContext =
       mkFetchedNpmPackage "pi-subdir-context" "1.1.7"
         "sha256-nPHuANl4j5Ank2ccLUQFLxRIxTPJCLF3G73NpU8xHnI=";
@@ -95,16 +92,16 @@ let
     webAccess = pkgs.buildNpmPackage {
       pname = "pi-web-access";
       passthru.npmName = "pi-web-access";
-      version = "0.45.0";
+      version = "0.48.0";
       src = fetchNpmPkg {
         name = "pi-web-access";
-        version = "0.45.0";
-        hash = "sha256-Z1T4u1Qb1cnNC3ieVsp+AHEdYQH+/udtaT4dLueSw1I=";
+        version = "0.48.0";
+        hash = "sha256-jEsoEm+Yre+vzbjCYpSsY1tID4Z6AiEZPuq86BkKLx8=";
       };
       postPatch = ''
         cp ${./locks/pi-web-access.lock.json} package-lock.json
       '';
-      npmDepsHash = "sha256-XO5eW0ilnlkC7CIAD9lU3a+0pRuhUaeGVzDrHUyzSUE=";
+      npmDepsHash = "sha256-5qPDamXFMbkRgqwyFK29PvRoIhti62Imze2Lul6HZ+Y=";
       npmFlags = [
         "--ignore-scripts"
         "--legacy-peer-deps"
@@ -117,20 +114,20 @@ let
       '';
     };
 
-    btw = mkFetchedNpmPackage "pi-btw" "0.8.0" "sha256-rY16r38X528qPOrFq7Xtca8jn/RZuB1KjJJCYMNkL9w=";
+    btw = mkFetchedNpmPackage "pi-btw" "0.8.1" "sha256-dFZcjS7H74QnrjxYyoKZbaBD/cCbav+G900z5hfBEfQ=";
 
     piRetry =
       mkFetchedNpmPackage "@narumitw/pi-retry" "0.31.0"
         "sha256-ZsuEnt7D7chVVNqZmMkwglkbIVe67BbcVS9I3iaNuaI=";
 
     piVcc =
-      mkFetchedNpmPackage "@monotykamary/pi-vcc" "0.8.15"
-        "sha256-Vc+SM+EtSRy4sSzmQKWi1rmHXRtLKJ3spEyWH/W62yQ=";
+      mkFetchedNpmPackage "@monotykamary/pi-vcc" "0.8.17"
+        "sha256-EfiUJDIRVPgNDTCLw8/GDdNBoieh19xO1eI9cmcjcfs=";
 
     piPermissionSystem =
-      (mkBuiltNpmPackage "@gotgenes/pi-permission-system" "41.0.0"
-        "sha256-JzkkxWi/fsoLRuVYYpG3MBB7JWCUwOvOow8uJs9jDDg="
-        "sha256-hmXxECmgpzQuSCaiQSOP1NTFu2gV1A2dLiVc9A7OZSY="
+      (mkBuiltNpmPackage "@gotgenes/pi-permission-system" "42.2.1"
+        "sha256-+cizwqZEKAxEO5ii5OPzNBCMeZW+c8MuTXRV2kzfy3I="
+        "sha256-PtE3B+nRYN8idXFQ7VJLb6lhwHKJ91RpAH6hCfjwDqg="
         ./locks/pi-permission-system.lock.json
       ).overrideAttrs
         {
@@ -149,9 +146,9 @@ let
         "sha256-S5bqq5L6rr08OQ3S8UMru8uagRmMhEWYs1Emwaa5r/o=";
 
     plannotator =
-      mkBuiltNpmPackage "@plannotator/pi-extension" "0.28.33"
-        "sha256-paPZE4pg4vYRkeONzVgH1Jq685QgZN5cxqRxT5q8Lio="
-        "sha256-XYD4Rf+dPryeoi2LkTuRQCHLZJaLPEFzEeNf3s+z/o0="
+      mkBuiltNpmPackage "@plannotator/pi-extension" "0.29.3"
+        "sha256-EkGNFNE4hmpLBiqdz2LiX8pIy/HiwCxhKoZAoG1pfzc="
+        "sha256-JJrgm3gR+dQvILgCrxb2fmC52ED/G2IR5hja4fJ3dAU="
         ./locks/plannotator.lock.json;
 
     piReverseLast =
@@ -171,7 +168,7 @@ let
       postPatch = ''
         cp ${./locks/pi-diff.lock.json} package-lock.json
       '';
-      npmDepsHash = "sha256-pEAEa18G7jduRCiWrb3qd1ggPSJkKgopoHBsplVgx1M=";
+      npmDepsHash = "sha256-a7lMtLuJFiwRnCwcY3IO3tJ87n0XnbrMMvUOLGoO49A=";
       npmFlags = "--ignore-scripts";
       dontNpmBuild = true;
       installPhase = ''

@@ -222,6 +222,7 @@ in
       web_search = "live";
 
       features = {
+        code_mode = true;
         hooks = true;
         multi_agent = true;
         # The service owns startup; clients still reuse its running server.

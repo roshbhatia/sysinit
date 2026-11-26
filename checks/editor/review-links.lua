@@ -1,12 +1,19 @@
-local router, review_uri, root, file_uri = table.unpack(arg)
-local handler, routed, notice, default_path
+local router, review_uri, root, file_uri, turn = table.unpack(arg)
+local handler, palette, routed, notice, default_path
 local domain = "unix"
 
 package.loaded.wezterm = {
   action = { OpenLinkAtMouseCursor = "open", Nop = "nop" },
+  action_callback = function(callback)
+    return callback
+  end,
   on = function(event, callback)
-    assert(event == "open-uri")
-    handler = callback
+    if event == "open-uri" then
+      handler = callback
+    else
+      assert(event == "augment-command-palette")
+      palette = callback
+    end
   end,
   hostname = function()
     return "host"
@@ -78,7 +85,7 @@ assert(captured_down.action == "open")
 assert(captured_up.action == "nop")
 assert(normal_up.action == "open")
 
-links.setup({
+local review = links.setup({
   bin = "/profile/bin",
   home = "/home/test",
   file = "/bin/file",
@@ -88,6 +95,26 @@ assert(handler(window, pane, review_uri) == false)
 assert(routed[3] == "/profile/bin/agent-diff")
 assert(routed[4] == "--pane-id=42")
 assert(routed[5] == "--cwd=" .. root)
+assert(routed[6] == (turn and "--turn=" .. turn or nil))
+
+local config = links.build_config(function()
+  require("wezterm").on("augment-command-palette", function()
+    return { { brief = "Existing action" } }
+  end)
+  return { hyperlink_rules = {} }
+end, review)
+links.configure_hyperlinks(config)
+assert(config.hyperlink_rules[1].format == "$1")
+local entries = palette(window, pane)
+assert(#entries == 2 and entries[1].brief == "Existing action")
+assert(entries[2].brief == "Open Worktree Review")
+routed = nil
+entries[2].action(window, pane)
+local palette_route = assert(routed)
+assert(palette_route[3] == "/profile/bin/agent-diff")
+assert(palette_route[4] == "--pane-id=42")
+assert(palette_route[5] == "--cwd=" .. root)
+assert(palette_route[6] == nil)
 
 routed = nil
 assert(handler(window, pane, "review://worktree/0000000000000000") == false)

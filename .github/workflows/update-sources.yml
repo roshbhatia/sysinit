@@ -52,6 +52,7 @@ jobs:
           trap 'rm -f "${nvfetcher_keyfile}"' EXIT
           printf '[keys]\ngithub = "%s"\n' "${GITHUB_TOKEN}" > "${nvfetcher_keyfile}"
           nix run nixpkgs#nvfetcher -- -k "${nvfetcher_keyfile}" -c nvfetcher.toml -o _sources
+          nix develop --command nu --no-config-file hack/update-pi-types.nu
 
       - name: Update flake inputs
         env:
@@ -85,6 +86,7 @@ jobs:
           body: |
             Automated update:
             - Regenerated `_sources/generated.nix` via nvfetcher
+            - Synchronized Pi extension type dependencies with the Pi release
             - Updated flake inputs via `nix develop --command nu --no-config-file hack/update-flakes.nu`
             - Auto-updated Go `vendorHash` values
           labels: automated,dependencies

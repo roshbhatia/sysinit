@@ -1004,11 +1004,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794855645,
-        "narHash": "sha256-7RSssnNvKvZmWV0IyRhp12IKoOa4CtFMS8xYr3mHWgQ=",
+        "lastModified": 1795572073,
+        "narHash": "sha256-dT929g6fNintJEdsdn6TUBEVs+dMhkkzT1hhd5SkU0Y=",
         "owner": "ryoppippi",
         "repo": "nix-claude-code",
-        "rev": "a6ebabe231e2daeb3b4478a09ad5428545380306",
+        "rev": "01e929d9f7e6328eb6c9e9e521c73a67ac8bfe60",
         "type": "github"
       },
       "original": {
@@ -2051,18 +2051,18 @@
       },
       "locked": {
         "dir": "nix",
-        "lastModified": 1795493618,
-        "narHash": "sha256-4SnDA9d/f3tPso5qUc1s3XK+AF7A8ZU/tJ0zUW75fW8=",
+        "lastModified": 1795585484,
+        "narHash": "sha256-I8R2TXheKdCe9jO8+CQyKHCHJKOLF1p6W3GlXtzgTfI=",
         "owner": "roshbhatia",
         "repo": "wezterm",
-        "rev": "079924208f14f19b15831a9cb75650af455b5a59",
+        "rev": "fcf6050d0d833386804dd5fe228f7f9213e5ab11",
         "type": "github"
       },
       "original": {
         "dir": "nix",
         "owner": "roshbhatia",
         "repo": "wezterm",
-        "rev": "079924208f14f19b15831a9cb75650af455b5a59",
+        "rev": "fcf6050d0d833386804dd5fe228f7f9213e5ab11",
         "type": "github"
       }
     },

@@ -12,7 +12,7 @@ def --wrapped git-output [...args: string] {
     $result.stdout | str replace --regex '\n$' ''
 }
 
-def snapshot [] {
+export def snapshot [] {
     let index = git-output rev-parse --path-format=absolute --git-path index
 
     let temporary = mktemp --directory

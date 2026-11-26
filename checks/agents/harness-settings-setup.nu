@@ -1,4 +1,5 @@
 use ../lib/process.nu checked-command
+use std/assert
 
 def main [
     settings: path
@@ -6,7 +7,15 @@ def main [
     providers: path
     probe: path
     timeout: path
+    agents: path
+    goose: string
 ] {
+    let entry = open --raw $agents | from json | get agent_servers.goose
+
+    assert equal $entry.command $goose
+
+    assert equal $entry.args [acp]
+
     $env.HOME = $env.TMPDIR | path join home
 
     $env.XDG_CONFIG_HOME = $env.HOME | path join .config

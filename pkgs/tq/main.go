@@ -13,7 +13,7 @@ import (
 const usage = `Usage: task-queue [--state DIR] COMMAND [ARGS...]
 
   submit [OPTIONS] -- COMMAND [ARGS...]  Queue a command. See task-queue submit --help.
-  status, snapshot                    Read attempts and live status as JSON.
+  status                              Read attempts and live status as JSON (snapshot is an alias).
   browse [--thread ID]                 Browse attempts, terminals, and logs.
   attach UUID [--focus-only]           Open or focus an attempt in its terminal provider.
   thread UUID                          Show an attempt's captured conversation.
@@ -21,6 +21,7 @@ const usage = `Usage: task-queue [--state DIR] COMMAND [ARGS...]
   reconcile                            Save live status to the attempt records.
   cancel UUID                          Cancel a queued or running attempt.
   resume UUID                          Resume an attempt that has not started.
+  abandon UUID                         Retire a missing attempt after verifying its command stopped.
 
 Use Taskwarrior UUIDs with submit --task and attempt UUIDs with thread, cancel, and resume.`
 
@@ -99,7 +100,7 @@ func run(args []string) (int, error) {
 		if attemptPath, e = recordPath(*dir, args[0]); e != nil {
 			return 1, e
 		}
-	case "thread", "cancel", "resume", "run", "terminal-child":
+	case "thread", "cancel", "resume", "abandon", "run", "terminal-child":
 		if len(args) != 1 {
 			return 1, errors.New("one attempt UUID required")
 		}
@@ -226,12 +227,19 @@ func run(args []string) (int, error) {
 			}
 		}
 		return 0, output(records)
-	case "cancel", "resume":
+	case "cancel", "resume", "abandon":
 		if target == nil {
 			return 1, fmt.Errorf("attempt %s: %w", args[0], os.ErrNotExist)
 		}
 		a := target
 		j, found := jobs[a.ID]
+		if action == "abandon" {
+			if found || state(a.Result) != "Missing" {
+				return 1, errors.New("only an attempt with a missing Pueue job can be abandoned")
+			}
+			a.Cancelled = true
+			return 0, save(attemptPath, a)
+		}
 		if action == "resume" {
 			if a.Cancelled {
 				return 1, errors.New("attempt cancelled; submit --retry")

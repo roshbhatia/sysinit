@@ -240,7 +240,7 @@ func (f filters) collect() (board, error) {
 	var attempts []attempt
 	var queueErr error
 	if path, err := exec.LookPath("task-queue"); err == nil {
-		attempts, queueErr = readJSON[[]attempt](path, "snapshot")
+		attempts, queueErr = readJSON[[]attempt](path, "status")
 	}
 	var workspaces []workspace
 	var diagnostics string

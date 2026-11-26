@@ -25,6 +25,11 @@ The [Python migration notes](../docs/python-migration.md) record the remaining
 terminal and protocol probes. Use Nushell for ordinary filesystem and
 configuration checks.
 
+`pi-types` checks the managed Pi extensions against the published SDK and
+Node runtime declarations. The source update workflow synchronizes the SDK
+pins with the Pi release. For a local Pi update, run
+`nix develop --command nu --no-config-file hack/update-pi-types.nu`.
+
 `hack/lint.nu` runs semantic checks, including the Statix and Deadnix diagnostics
 used by none-ls. `hack/format.nu --check` formats a temporary copy of tracked
 files and leaves the checkout unchanged. Hooks and CI use `hack/lint.sh`.

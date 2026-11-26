@@ -17,6 +17,34 @@ function M.configure_mouse(config)
   end
 end
 
+function M.configure_hyperlinks(config)
+  table.insert(config.hyperlink_rules, 1, {
+    regex = [[(review://changes/(?:[A-Za-z0-9._~%-]+/){1,2}[0-9a-f]{16}(?:\?turn=[0-9a-f]{16})?)(?![A-Za-z0-9._~%/?=-])]],
+    format = "$1",
+  })
+end
+
+function M.build_config(build, review)
+  local on = wezterm.on
+  -- The companion config registers one aggregate palette handler during build.
+  wezterm.on = function(event, handler)
+    if event ~= "augment-command-palette" then
+      return on(event, handler)
+    end
+    return on(event, function(window, pane)
+      local entries = handler(window, pane)
+      entries[#entries + 1] = review
+      return entries
+    end)
+  end
+  local ok, config = pcall(build)
+  wezterm.on = on
+  if not ok then
+    error(config)
+  end
+  return config
+end
+
 local function parse_file(uri)
   local ok, url = pcall(wezterm.url.parse, uri)
   if not ok or not url.file_path then
@@ -61,21 +89,40 @@ function M.setup(options)
     window:toast_notification(title, message, nil, 4000)
   end
 
+  local function can_review(window, pane)
+    if local_domains[pane:get_domain_name()] then
+      return true
+    end
+    window:toast_notification("Review changes", "Run agent-diff in the remote shell", nil, 4000)
+    return false
+  end
+
+  local function open_review(window, pane, directory, turn)
+    local command = {
+      options.bin .. "/agent-diff",
+      "--pane-id=" .. pane:pane_id(),
+      "--cwd=" .. directory,
+    }
+    if turn then
+      command[#command + 1] = "--turn=" .. turn
+    end
+    run(window, "Review changes", command)
+  end
+
   wezterm.on("open-uri", function(window, pane, uri)
     local legacy_id = uri:match("^review://([0-9a-f]+)$")
-    if uri:match("^review://worktree/") or (legacy_id and #legacy_id == 16) then
-      if not local_domains[pane:get_domain_name()] then
-        window:toast_notification("Review diff", "Run agent-diff in the remote shell", nil, 4000)
+    if
+      uri:match("^review://changes/")
+      or uri:match("^review://worktree/")
+      or (legacy_id and #legacy_id == 16)
+    then
+      if not can_review(window, pane) then
         return false
       end
       local directory =
-        run(window, "Review diff", { options.bin .. "/agent-review-link", "--resolve", uri })
+        run(window, "Review changes", { options.bin .. "/agent-review-link", "--resolve", uri })
       if directory then
-        run(window, "Review diff", {
-          options.bin .. "/agent-diff",
-          "--pane-id=" .. pane:pane_id(),
-          "--cwd=" .. directory:gsub("\n$", ""),
-        })
+        open_review(window, pane, directory:gsub("\n$", ""), uri:match("%?turn=([0-9a-f]+)$"))
       end
       return false
     end
@@ -145,6 +192,26 @@ function M.setup(options)
     end
     return false
   end)
+
+  return {
+    brief = "Open Worktree Review",
+    action = wezterm.action_callback(function(window, pane)
+      if not can_review(window, pane) then
+        return
+      end
+      local cwd = pane:get_current_working_dir()
+      if cwd and cwd.file_path then
+        open_review(window, pane, cwd.file_path)
+      else
+        window:toast_notification(
+          "Review changes",
+          "The focused pane has no working directory",
+          nil,
+          4000
+        )
+      end
+    end),
+  }
 end
 
 return M

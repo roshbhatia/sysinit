@@ -15,7 +15,7 @@ nativeCheck {
       "python3"
       ./tq-picker.py
       "${pkgs.tq-picker}/bin/tq-picker"
-      "${pkgs.sysinit-gotools}/bin/tq"
+      "${pkgs.task-queue}/bin/task-queue"
     ]
   ];
 }

@@ -1,3 +1,5 @@
+use ./wezterm-mux.nu wezterm-socket
+
 const script = path self
 const directory_notes = path self | path dirname | path join directory-notes.lua
 const source_view = path self | path dirname | path join source-view.lua
@@ -54,10 +56,10 @@ def rpc [socket: path, expression: string] {
     ]
 }
 
-def select-review [socket: path, refresh: bool] {
-    let lua = 'dofile(_A.script).select_review(_A.refresh)'
+def select-review [socket: path, refresh: bool, range?: list<string>] {
+    let lua = 'dofile(_A.script).select_review(_A.refresh, _A.range)'
 
-    let args = {script: $source_view, refresh: $refresh} | to json --raw | str replace --all "'" "''"
+    let args = {script: $source_view, refresh: $refresh} | merge (if $range != null { {range: $range} } else { {} }) | to json --raw | str replace --all "'" "''"
 
     rpc $socket ("luaeval('" + $lua + "', json_decode('" + $args + "'))")
 }
@@ -88,78 +90,19 @@ def review-file [root: path, file: string] {
     $target
 }
 
-def wezterm-socket [] {
-    let explicit = $env.WEZTERM_UNIX_SOCKET? | default ''
-
-    if $explicit != '' {
-        return (
-            try {
-                $explicit | path expand --strict
-            } catch {
-                $explicit
-            }
-        )
+def resolve-target [options: record] {
+    let git_root = if not $options.directory {
+        run-command [git -C $options.cwd rev-parse --show-toplevel]
     }
 
-    let fallback = $env.HOME | path join .local share wezterm
+    let directory_mode = $options.directory or (
+        ($options.allow_directory or $options.file == null) and $options.base == null and $options.turn == null and $git_root.exit_code? != 0
+    )
 
-    let sockets = if $nu.os-info.name == macos {
-        [
-            ($fallback | path join default-org.wezfurlong.wezterm)
-        ]
-    } else {
-        let runtime = if $env.XDG_RUNTIME_DIR? != null {
-            $env.XDG_RUNTIME_DIR | path join wezterm
-        } else {
-            $fallback
-        }
-
-        let display = $env.DISPLAY? | default ':0'
-
-        let names = if $env.WAYLAND_DISPLAY? != null {
-            [$"wayland-($env.WAYLAND_DISPLAY)-org.wezfurlong.wezterm"]
-        } else {
-            []
-        }
-
-        $names | append $"x11-($display)-org.wezfurlong.wezterm" | each {|name| $runtime | path join $name }
-    }
-
-    $sockets | each {|socket| try { $socket | path expand --strict } } | first | default ''
-}
-
-def main [
-    --cwd: path = '.'
-    --pane-id: string
-    --base: string
-    --directory
-    --allow-directory
-    --review
-    --file: string
-    --line: int
-    --column: int
-    --against: path
-    --note-session: string
-    --note-command: path
-    --background
-    --if-open
-    --json
-    --lock-held
-] {
-    let parent = $pane_id | default ($env.WEZTERM_PANE? | default '')
-
-    if $parent !~ '^\d+$' { error make {msg: 'No WezTerm pane. Run agent-diff from a WezTerm session.'} }
-
-    let git_root = if not $directory {
-        run-command [git -C $cwd rev-parse --show-toplevel]
-    }
-
-    let directory_mode = $directory or (($allow_directory or $file == null) and $base == null and $git_root.exit_code? != 0)
-
-    if $against != null and $file == null { error make {msg: '--against also requires --file.'} }
+    if $options.against != null and $options.file == null { error make {msg: '--against also requires --file.'} }
 
     let root = if $directory_mode {
-        let resolved = $cwd | path expand --strict
+        let resolved = $options.cwd | path expand --strict
 
         if ($resolved | path type) != dir { error make {msg: 'Expected a directory.'} }
 
@@ -170,13 +113,13 @@ def main [
         $git_root.stdout | str trim | path expand
     }
 
-    let target = if $file != null { review-file $root $file } else { $root }
+    let target = if $options.file != null { review-file $root $options.file } else { $root }
 
-    let pathspec = if $file != null and not $directory_mode {
+    let pathspec = if $options.file != null and not $directory_mode {
         $target | path relative-to $root | prepend ':(top,literal)' | str join
     }
 
-    let unchanged_file = if $pathspec != null and $allow_directory and $base == null {
+    let unchanged_file = if $pathspec != null and $options.allow_directory and $options.base == null {
         let status = run-command [
             git
             -C
@@ -195,8 +138,8 @@ def main [
 
     let directory = $directory_mode or $unchanged_file
 
-    let review = if ($review or $file == null or $allow_directory) and not $directory and $base == null and $note_session == null {
-        (run-command [
+    let review = if ($options.review or $options.file == null or $options.allow_directory) and not $directory and $options.base == null and $options.note_session == null {
+        $options.turn != null or (run-command [
             git
             -C
             $root
@@ -208,29 +151,226 @@ def main [
         false
     }
 
-    if $note_session != null and ((not $directory and $base == null) or $note_session !~ '^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$') {
+    if $options.note_session != null and ((not $directory and $options.base == null) or $options.note_session !~ '^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$') {
         error make {
             msg: 'Review notes require a workspace UUID and Git review also requires an explicit base.'
         }
     }
 
-    if $directory and $base != null { error make {msg: '--base requires Git review.'} }
+    if $directory and $options.base != null { error make {msg: '--base requires Git review.'} }
 
-    if ($directory and $note_session != null) != ($note_command != null) {
+    if ($directory and $options.note_session != null) != ($options.note_command != null) {
         error make {msg: 'Directory notes require both --note-session and --note-command.'}
     }
 
-    if $against != null and not $directory { error make {msg: '--against requires directory review.'} }
+    if $options.against != null and not $directory { error make {msg: '--against requires directory review.'} }
 
-    let baseline = if $against != null { review-file ($against | path expand --strict) $file }
+    let baseline = if $options.against != null { review-file ($options.against | path expand --strict) $options.file }
 
-    let position = if $file != null {
+    let position = if $options.file != null {
         {
             file: $target
-            line: (if ($line | default 0) > 0 { $line })
-            column: ([$column 1] | compact | math max)
+            line: (if ($options.line | default 0) > 0 { $options.line })
+            column: ([$options.column 1] | compact | math max)
         }
     }
+
+    {
+        root: $root
+        target: $target
+        pathspec: $pathspec
+        directory: $directory
+        review: $review
+        baseline: $baseline
+        position: $position
+    }
+}
+
+def editor-command [
+    target: record
+    socket: path
+    state_home: path
+    revision: string
+    note_session
+    note_command
+    range: list<string>
+] {
+    let nvim = [nvim --cmd 'let g:sysinit_pr_review = v:true' --listen $socket]
+
+    if $target.review {
+        let args = if ($range | is-not-empty) {
+            'vim.json.decode(' + ($range | to json --raw | to json --raw) + ')'
+        } else {
+            ''
+        }
+
+        [
+            ...$nvim
+            -c
+            ('lua dofile(' + ($source_view | to json --raw) + ').open_review(' + $args + ')')
+        ]
+    } else if $target.directory {
+        let comparison = if $target.baseline == null {
+            if $target.position == null {
+                [
+                    -c
+                    "lua if vim.fn.exists(':Oil') == 2 then vim.cmd.Oil(vim.fn.getcwd()) end"
+                    --
+                    $target.target
+                ]
+            } else {
+                [-- $target.target]
+            }
+        } else {
+            [-d -- $target.baseline $target.target]
+        }
+
+        if $note_session == null {
+            [...$nvim ...$comparison]
+        } else {
+            [
+                env
+                $"XDG_STATE_HOME=($state_home)"
+                $"SYSINIT_REVIEW_NOTE_COMMAND=($note_command)"
+                $"SYSINIT_REVIEW_NOTE_WORKSPACE=($note_session)"
+                ...$nvim
+                -S
+                $directory_notes
+                ...$comparison
+            ]
+        }
+    } else {
+        let head = run-command [
+            git
+            -C
+            $target.root
+            rev-parse
+            --verify
+            $revision
+        ]
+
+        let diff_args = (
+            if $head.exit_code == 0 { [$revision] } else { [] }
+        ) | append (if $target.pathspec != null { [-- $target.pathspec] } else { [] })
+
+        let diff = if $target.pathspec == null {
+            [
+                -c
+                ($diff_args | prepend DiffviewOpen | str join ' ')
+            ]
+        } else {
+            [-S $source_view]
+        }
+
+        let source_env = if $target.pathspec != null {
+            [$"SYSINIT_DIFFVIEW_ARGS=($diff_args | to json --raw)"]
+        } else {
+            []
+        }
+
+        if $note_session == null {
+            if $target.pathspec == null {
+                [...$nvim ...$diff]
+            } else {
+                [
+                    env
+                    ...$source_env
+                    ...$nvim
+                    ...$diff
+                ]
+            }
+        } else {
+            let provider_directory = $env.CHANGES_PROVIDERS_DIRECTORY?
+
+            let variables = [$"XDG_STATE_HOME=($state_home)"]
+            | append (
+                if $provider_directory != null { [$"CHANGES_PROVIDERS_DIRECTORY=($provider_directory)"] } else { [] }
+            )
+
+            let options = {provider: 'local-notes', from: $revision, session: $note_session} | to json --raw | to json --raw
+
+            let configure = 'lua require("changes.notes").setup(vim.json.decode(' + $options + '))'
+
+            [
+                env
+                ...$variables
+                ...$source_env
+                ...$nvim
+                -c
+                $configure
+                ...$diff
+            ]
+        }
+    }
+}
+
+def main [
+    --cwd: path = '.'
+    --pane-id: string
+    --base: string
+    --turn: string
+    --directory
+    --allow-directory
+    --review
+    --file: string
+    --line: int
+    --column: int
+    --against: path
+    --note-session: string
+    --note-command: path
+    --background
+    --if-open
+    --json
+    --lock-held
+] {
+    let parent = $pane_id | default ($env.WEZTERM_PANE? | default '')
+
+    if $parent !~ '^\d+$' { error make {msg: 'No WezTerm pane. Run agent-diff from a WezTerm session.'} }
+
+    if $turn != null and ($turn !~ '^[0-9a-f]{16}$' or $directory or $base != null or $file != null or $note_session != null) {
+        error make {msg: 'Expected a turn review ID for a Git worktree.'}
+    }
+
+    let request = resolve-target {
+        cwd: $cwd
+        directory: $directory
+        allow_directory: $allow_directory
+        base: $base
+        turn: $turn
+        review: $review
+        file: $file
+        line: $line
+        column: $column
+        against: $against
+        note_session: $note_session
+        note_command: $note_command
+    }
+
+    let root = $request.root
+
+    let range = if $turn != null {
+        [before after] | each {|side|
+            let ref = $'refs/worktree/sysinit/turn-reviews/($turn)/($side)'
+
+            let resolved = run-command [git -C $root rev-parse --verify $'($ref)^{tree}']
+
+            if $resolved.exit_code != 0 { error make {msg: 'The recorded turn diff is unavailable.'} }
+
+            $resolved.stdout | str trim
+        }
+    } else {
+        []
+    }
+
+    let target = $request.target
+
+    let directory = $request.directory
+
+    let review = $request.review
+
+    let baseline = $request.baseline
+
+    let position = $request.position
 
     let connection = wezterm-socket
 
@@ -329,6 +469,7 @@ def main [
         let args = (
             [--cwd $root --pane-id $parent --lock-held]
             | append (if $base != null { [--base $revision] } else { [] })
+            | append (if $turn != null { [--turn $turn] } else { [] })
             | append (if $directory { [--directory] } else { [] })
             | append (if $review { [--review] } else { [] })
             | append (if $file != null { [$"--file=($target)"] } else { [] })
@@ -360,7 +501,7 @@ def main [
             let refresh = if $directory {
                 rpc $socket "execute('checktime | redraw')"
             } else if $review {
-                select-review $socket true
+                if $turn != null { select-review $socket true $range } else { select-review $socket true }
             } else {
                 let visible = rpc $socket $diffview_ready
 
@@ -408,107 +549,7 @@ def main [
 
     let state_home = $state | path dirname
 
-    let nvim = [nvim --cmd 'let g:sysinit_pr_review = v:true' --listen $socket]
-
-    let editor = if $review {
-        [
-            ...$nvim
-            -c
-            ('lua dofile(' + ($source_view | to json --raw) + ').open_review()')
-        ]
-    } else if $directory {
-        let comparison = if $baseline == null {
-            if $file == null {
-                [
-                    -c
-                    "lua if vim.fn.exists(':Oil') == 2 then vim.cmd.Oil(vim.fn.getcwd()) end"
-                    --
-                    $target
-                ]
-            } else {
-                [-- $target]
-            }
-        } else {
-            [-d -- $baseline $target]
-        }
-
-        if $note_session == null {
-            [...$nvim ...$comparison]
-        } else {
-            [
-                env
-                $"XDG_STATE_HOME=($state_home)"
-                $"SYSINIT_REVIEW_NOTE_COMMAND=($note_command)"
-                $"SYSINIT_REVIEW_NOTE_WORKSPACE=($note_session)"
-                ...$nvim
-                -S
-                $directory_notes
-                ...$comparison
-            ]
-        }
-    } else {
-        let head = run-command [
-            git
-            -C
-            $root
-            rev-parse
-            --verify
-            $revision
-        ]
-
-        let diff_args = (
-            if $head.exit_code == 0 { [$revision] } else { [] }
-        ) | append (if $pathspec != null { [-- $pathspec] } else { [] })
-
-        let diff = if $pathspec == null {
-            [
-                -c
-                ($diff_args | prepend DiffviewOpen | str join ' ')
-            ]
-        } else {
-            [-S $source_view]
-        }
-
-        let source_env = if $pathspec != null {
-            [$"SYSINIT_DIFFVIEW_ARGS=($diff_args | to json --raw)"]
-        } else {
-            []
-        }
-
-        if $note_session == null {
-            if $pathspec == null {
-                [...$nvim ...$diff]
-            } else {
-                [
-                    env
-                    ...$source_env
-                    ...$nvim
-                    ...$diff
-                ]
-            }
-        } else {
-            let provider_directory = $env.CHANGES_PROVIDERS_DIRECTORY?
-
-            let variables = [$"XDG_STATE_HOME=($state_home)"]
-            | append (
-                if $provider_directory != null { [$"CHANGES_PROVIDERS_DIRECTORY=($provider_directory)"] } else { [] }
-            )
-
-            let options = {provider: 'local-notes', from: $revision, session: $note_session} | to json --raw | to json --raw
-
-            let configure = 'lua require("changes.notes").setup(vim.json.decode(' + $options + '))'
-
-            [
-                env
-                ...$variables
-                ...$source_env
-                ...$nvim
-                -c
-                $configure
-                ...$diff
-            ]
-        }
-    }
+    let editor = editor-command $request $socket $state_home $revision $note_session $note_command $range
 
     let pane = (command-output [
         ty

@@ -182,6 +182,21 @@ src.cmd = "nu --no-config-file hack/github-release-with-assets.nu block/goose Go
 src.prefix = "v"
 fetch.url = "https://github.com/block/goose/releases/download/v$ver/Goose-darwin-x64.zip"
 
+[github-copilot-cli-aarch64-darwin]
+src.github = "github/copilot-cli"
+src.prefix = "v"
+fetch.url = "https://github.com/github/copilot-cli/releases/download/v$ver/github-copilot-$ver-darwin-arm64.tgz"
+
+[github-copilot-cli-x86_64-linux]
+src.github = "github/copilot-cli"
+src.prefix = "v"
+fetch.url = "https://github.com/github/copilot-cli/releases/download/v$ver/github-copilot-$ver-linux-x64.tgz"
+
+[github-copilot-cli-aarch64-linux]
+src.github = "github/copilot-cli"
+src.prefix = "v"
+fetch.url = "https://github.com/github/copilot-cli/releases/download/v$ver/github-copilot-$ver-linux-arm64.tgz"
+
 [amp-acp]
 src.webpage = "https://registry.npmjs.org/amp-acp/latest"
 src.regex = '(?<="version":")[0-9]+\.[0-9]+\.[0-9]+'

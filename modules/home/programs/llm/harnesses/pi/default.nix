@@ -218,7 +218,6 @@ let
     plannotator
     btw
     piReverseLast
-    toolDisplay
     diff
     webAccess
     context
@@ -256,16 +255,16 @@ let
 
   piAcp = pkgs.buildNpmPackage {
     pname = "pi-acp";
-    version = "0.0.34";
+    version = "0.0.35";
     src = fetchNpmPkg {
       name = "pi-acp";
-      version = "0.0.34";
-      hash = "sha256-efytfQsLFGDLw6Jony7fHLkRq0GHbmSvOVLBSPlzoAY=";
+      version = "0.0.35";
+      hash = "sha256-tRJ4CuhLUx+z2UnIjjn1f2BoCynms71OmCK+1AJ90tA=";
     };
     postPatch = ''
       cp ${./locks/pi-acp.lock.json} package-lock.json
     '';
-    npmDepsHash = "sha256-wWqtoxvfUr5AiSvChZnTdRnwa/SNKWfQ6y/P6VfpPK0=";
+    npmDepsHash = "sha256-XecAEUTmYeo26oXkfqrfwTE45FqpoIbAZYpY4KUmrmg=";
     npmFlags = "--ignore-scripts";
     dontNpmBuild = true;
   };
@@ -283,6 +282,7 @@ let
 
     quietStartup = "header";
     tuiMode = "fullscreen";
+    fullscreenCopyOnSelect = true;
     fullscreenExitOutput = "resume-hint";
     fullscreenScrollbar = "auto";
     editorPaddingX = 1;
@@ -418,20 +418,6 @@ in
           force = true;
         };
 
-        ".pi/agent/extensions/pi-tool-display/config.json" = {
-          source = pkgs.sysinit.writeJSON "pi-default.json" {
-            registerToolOverrides = {
-              read = true;
-              grep = true;
-              find = true;
-              ls = true;
-              bash = true;
-              edit = false;
-              write = false;
-            };
-          };
-          force = true;
-        };
       };
 
     sessionVariables = {

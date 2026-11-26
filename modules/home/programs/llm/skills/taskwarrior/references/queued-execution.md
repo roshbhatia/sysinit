@@ -67,14 +67,17 @@ Inspect `task-queue status` and use `task-queue logs <attempt-uuid>` for retaine
 The log reader checks the returned job identity before printing output.
 Use `--pager` for retained output or `--follow` to watch a running job in the
 same pager. The WezTerm queue picker uses these commands for managed attempts.
-`task-queue status` and `task-queue snapshot` read the live queue without rewriting attempts.
-Submission, cancellation, and resume write the attempt they operate on.
+`task-queue status` reads the live queue without rewriting attempts.
+`snapshot` remains an alias for `status`.
+Submission, cancellation, abandonment, and resume write the attempt they operate on.
 Run `task-queue reconcile` before removing completed Pueue jobs when their results
 must remain available to the board.
-Use `task-queue reconcile` to persist the current results before queue cleanup. Use
-`task-queue cancel <attempt-uuid>` for cancellation and
-`task-queue resume <attempt-uuid>` for an interrupted submission. After a completed
-attempt, inspect its result before submitting a new one with `--retry`.
+Use `task-queue cancel <attempt-uuid>` for cancellation and
+`task-queue resume <attempt-uuid>` for an interrupted submission.
+Use `task-queue abandon <attempt-uuid>` to retire a missing job after verifying
+its command has stopped. Abandoning preserves the attempt and permits a retry.
+After a completed attempt, inspect its result before submitting a new one
+with `--retry`.
 
 Successful execution appears as `review: true` in queue output. This field
 describes the process result. The board uses the Taskwarrior `review` tag
