@@ -30,8 +30,8 @@ Retained Bash uses `set -euo pipefail` and
 - Harnesses, skills, hooks, MCP, or agent instructions: read
   `modules/home/programs/llm/AGENTS.md` before editing.
 - Nix activation or downstream input pins: load `nix-deploy-host`.
-- Darwin keybindings or WezTerm integration: read the matching sections of
-  `docs/repository-reference.md`; inspect live symbolic hotkeys before editing.
+- Darwin keybindings or WezTerm integration: inspect the owning modules and
+  live symbolic hotkeys before editing.
 - Overlay build workarounds: load `nix-audit-cache` before adding or retaining one.
 - Dependency updates: use the owning `hack/update-*` script.
 
@@ -47,7 +47,3 @@ Retained Bash uses `set -euo pipefail` and
   diagnostics. New source files must be tracked to enter a Git-backed flake.
 - Keep a deployment rooted through activation. Build success does not prove that
   the active system changed. Verify `/run/current-system` and affected behavior.
-
-Architecture details and recorded failure modes live in
-[the repository reference](docs/repository-reference.md). Read its relevant
-section when a symptom or touched module matches; do not load it for every task.

@@ -47,9 +47,6 @@ and desktop applications in that order.
 [sysinit.wezterm](https://github.com/roshbhatia/sysinit.wezterm) owns the terminal configuration.
 This flake pins both repositories and supplies host settings.
 
-[Local review](docs/review-tools.md#review-local-edits) describes opening a
-worktree review beside a terminal agent and sending feedback.
-
 ## Validate changes
 
 ```sh

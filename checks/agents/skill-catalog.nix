@@ -37,7 +37,7 @@ let
         inherit (skill) content;
         files = builtins.attrNames (skill.files or { });
       }) skills;
-      cases = builtins.fromJSON (builtins.readFile ../../docs/skill-routing-cases.json);
+      cases = builtins.fromJSON (builtins.readFile ./skill-routing-cases.json);
       inherit names;
       guidance = builtins.readFile ../../AGENTS.md;
       fixtureFiles = builtins.attrValues fixture.files;

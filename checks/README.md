@@ -21,9 +21,7 @@ Native probes retain the API they exercise:
 | Bash, Zsh, and Fish | Each shell's completion API |
 | Python | PTYs, terminal emulation, asynchronous MCP stdio, and Unix WebSockets |
 
-The [Python migration notes](../docs/python-migration.md) record the remaining
-terminal and protocol probes. Use Nushell for ordinary filesystem and
-configuration checks.
+Use Nushell for ordinary filesystem and configuration checks.
 
 `pi-types` checks the managed Pi extensions against the published SDK and
 Node runtime declarations. The source update workflow synchronizes the SDK

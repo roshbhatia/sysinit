@@ -1,8 +1,5 @@
 # Agent runtime and skill integration
 
-Read the relevant sections of `docs/repository-reference.md` from the repository
-root before changing a harness, hook, renderer, or skill installation path.
-
 - `harnesses/registry.nix` owns harness identity, context locations, skill roots,
   and capabilities. Publish complete entries; do not add private consumer lists.
 - `lib/instructions.nix` owns shared decisions and routing. Keep workflow details
@@ -15,7 +12,6 @@ root before changing a harness, hook, renderer, or skill installation path.
   gate input owns providers. Inspect `gate log tail` when diagnosing decisions.
 - Run `checks/agents/skill-catalog.nix` and `checks/agents/harness-instructions.nix` through
   their flake checks when changing metadata, resources, routing, or renderers.
-  Use `docs/skill-routing-cases.json` for manual selection checks; static checks
+  Use `checks/agents/skill-routing-cases.json` for manual selection checks; static checks
   cannot establish model adherence.
-- Review the reference's harness field footguns before adding native settings.
-  A parsed configuration is not evidence that a native feature is active.
+- Verify native harness settings through the affected behavior as well as parsing.
