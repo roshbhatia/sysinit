@@ -1,0 +1,60 @@
+checks/editor/editor-workbench.lua
+  s_7835176b30e098::t_24c02c7019fea8 84-92
+  s_7835176b30e098::t_e3a51dd2f7d0d8 93-96
+modules/home/programs/git/review-checkpoint.nu
+  s_7835176b30e098::t_43ae9dd6788004 15
+modules/home/programs/wezterm/links.lua
+  s_7835176b30e098::t_f9b38a6dd2b8b7 100-101,105-109
+  s_7835176b30e098::t_f09facd7fa29cb 22,125
+modules/home/programs/llm/runtime/diff/open.nu
+  s_7835176b30e098::t_5f6c4057bc1498 201-205
+  s_7835176b30e098::t_e052dbac0706ab 99
+  s_7835176b30e098::t_f9b38a6dd2b8b7 59-60,62,142,196,206,210,311,330-333,339,351-364,472,504,552
+docs/review-tools.md
+  s_7835176b30e098::t_24c02c7019fea8 21-28
+checks/editor/review-links.nu
+  s_7835176b30e098::t_f11b6f2cd80299 87
+  s_7835176b30e098::t_24c02c7019fea8 77-86,88,90,92-107
+  s_7835176b30e098::t_f09facd7fa29cb 89,91
+modules/home/programs/llm/default.nix
+  s_7835176b30e098::t_93e0fa7a6b4487 198
+modules/home/programs/llm/runtime/diff/review-link.nix
+  s_7835176b30e098::t_11c7fe7e6bcbde 2,4,6-11,20,22
+  s_7835176b30e098::t_93e0fa7a6b4487 1,3,5
+modules/home/programs/llm/runtime/diff/source-view.lua
+  s_7835176b30e098::t_e3a51dd2f7d0d8 121,127-129
+  s_7835176b30e098::t_f9b38a6dd2b8b7 67,72-74,101-104,115,122-126
+checks/editor/diff-pane.nu
+  s_7835176b30e098::t_f11b6f2cd80299 162-175,180-182
+  s_7835176b30e098::t_e3a51dd2f7d0d8 177-179
+  s_7835176b30e098::t_5f6c4057bc1498 176
+checks/editor/default.nix
+  s_7835176b30e098::t_80d278d5e0a455 17-19
+modules/home/programs/llm/runtime/diff/review-link.nu
+  s_7835176b30e098::t_8f6c988a5e4a5f 140
+  s_7835176b30e098::t_f09facd7fa29cb 78,113,177
+  s_7835176b30e098::t_f11b6f2cd80299 178,183-186
+  s_7835176b30e098::t_e052dbac0706ab 2,153-154
+  s_7835176b30e098::t_11c7fe7e6bcbde 1
+  s_7835176b30e098::t_43ae9dd6788004 97-112,114-115,134-135,138-139,142-152,155-156,161-162,164,166-168,170-176,187,212
+  s_7835176b30e098::t_e0ce04a6ee3621 141
+  s_7835176b30e098::t_7871a051c60db0 188
+checks/editor/review-links.lua
+  s_7835176b30e098::t_24c02c7019fea8 1,98,117
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "758c3fb12b0a781c4a3cdfff256d526bb22948b0",
+  "prompts": {},
+  "sessions": {
+    "s_7835176b30e098": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a21558-877f-7951-aa8e-4189e4c1943b",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
