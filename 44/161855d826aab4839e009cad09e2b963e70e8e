@@ -1,0 +1,21 @@
+modules/home/programs/llm/options.nix
+  s_8db7fc35d14233::t_49e950fd565d84 302,315
+flake.lock
+  s_8db7fc35d14233::t_c2ce5508d9d8b0 376,790,1161,1368,1444,1560,1583,1588,1681,1696,1712,1727,1742
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "44161855d826aab4839e009cad09e2b963e70e8e",
+  "prompts": {},
+  "sessions": {
+    "s_8db7fc35d14233": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a215ce-24da-7591-890e-c407374c6ce4",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
