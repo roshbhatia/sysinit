@@ -1,0 +1,23 @@
+docs/review-tools.md
+  s_8db7fc35d14233::t_ffbdc70608c207 45-47
+checks/editor/diff-pane.nu
+  s_8db7fc35d14233::t_529ad3d4d870d4 144
+flake.lock
+  s_8db7fc35d14233::t_db958e8389ca00 1614-1615,1618
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9c7b42013ac3941ed7e9f8d782bd54b7d05ca36f",
+  "prompts": {},
+  "sessions": {
+    "s_8db7fc35d14233": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a215ce-24da-7591-890e-c407374c6ce4",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
