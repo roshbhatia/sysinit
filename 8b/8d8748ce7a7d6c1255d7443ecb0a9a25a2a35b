@@ -1,0 +1,76 @@
+hosts/vorgossos/lan-aliases.nu
+  s_8db7fc35d14233::t_eee2ecde057622 1-33
+hosts/vorgossos/backup.nu
+  s_8db7fc35d14233::t_eee2ecde057622 1-41
+hosts/personal.nix
+  s_8db7fc35d14233::t_ccb67f058e704d 2-9,14-54,57-58
+  s_8db7fc35d14233::t_f044e10e6b81fc 55-56
+  s_8db7fc35d14233::t_14c5725b8dd433 1,10-13
+modules/home/programs/ssh.nix
+  s_8db7fc35d14233::t_971cd132733f04 67-70
+  s_8db7fc35d14233::t_8429ad02db1c5e 71
+modules/nixos/default.nix
+  s_8db7fc35d14233::t_199bf2401f0f4f 11
+hosts/urth/default.nix
+  s_8db7fc35d14233::t_ccb67f058e704d 1-5
+flake.nix
+  s_8db7fc35d14233::t_971cd132733f04 6-9
+hosts/vorgossos/terminal.nix
+  s_8db7fc35d14233::t_10c3c19df73f60 1-3,5-12,43,45-48,52-54,61-86,88-93,95-98
+  s_8db7fc35d14233::t_0ddb9fde1b6183 49-50
+  s_8db7fc35d14233::t_01b98dd505558e 55-60
+  s_8db7fc35d14233::t_7c344c1fad3de7 14-33
+  s_8db7fc35d14233::t_f88fecf3b16648 87
+  s_8db7fc35d14233::t_632d7be5f0e32a 4,13,34-42,44,51,94
+hosts/vorgossos/lan-aliases.nix
+  s_8db7fc35d14233::t_eee2ecde057622 1-26
+hosts/arrakis/default.nix
+  s_8db7fc35d14233::t_ccb67f058e704d 1-32
+hosts/lv426/default.nix
+  s_8db7fc35d14233::t_ccb67f058e704d 1-35
+flake/default.nix
+  s_8db7fc35d14233::t_14c5725b8dd433 9-10,43-44,107,110
+  s_8db7fc35d14233::t_971cd132733f04 34,38-40,47-49,73
+  s_8db7fc35d14233::t_4d1ce525adb9b1 41-42,46
+  s_8db7fc35d14233::t_10c3c19df73f60 45
+hosts/vorgossos/bootstrap.nu
+  s_8db7fc35d14233::t_c2487f1fd5aa8a 1-53
+hosts/default.nix
+  s_8db7fc35d14233::t_ccb67f058e704d 1,4-6
+hosts/vorgossos/storage.nix
+  s_8db7fc35d14233::t_8429ad02db1c5e 2,13-23,54-68
+  s_8db7fc35d14233::t_eee2ecde057622 1,3-12,24-53
+modules/nixos/desktop/sway.nix
+  s_8db7fc35d14233::t_971cd132733f04 4,9,18-22,32
+hosts/vorgossos/default.nix
+  s_8db7fc35d14233::t_4f0aecba9699b6 58-65,171-173,185-187,195-198,201-203,210,216-217,228-233
+  s_8db7fc35d14233::t_eee2ecde057622 20,74-77,117-124
+  s_8db7fc35d14233::t_4d1ce525adb9b1 2,89
+  s_8db7fc35d14233::t_199bf2401f0f4f 110-113,188-190
+  s_8db7fc35d14233::t_68345e4a41460d 12-15
+  s_8db7fc35d14233::t_0ddb9fde1b6183 180-183
+  s_8db7fc35d14233::t_8429ad02db1c5e 1,3-4,6-11,16-19,21,23-57,66-73,78-88,90-109,114-116,125-151,153-170,174-179,184,191-194,199-200,204-209,211-215,219-227,234-240
+  s_8db7fc35d14233::t_10c3c19df73f60 22
+  s_8db7fc35d14233::t_9601251442857d 152
+  s_8db7fc35d14233::t_c2487f1fd5aa8a 5,218
+flake.lock
+  s_8db7fc35d14233::t_b79cfcf2f4a2ee 869-889,1373
+hosts/urth/hardware.nix
+  s_8db7fc35d14233::t_3ca36660ca41ab 1-34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8b8d8748ce7a7d6c1255d7443ecb0a9a25a2a35b",
+  "prompts": {},
+  "sessions": {
+    "s_8db7fc35d14233": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a215ce-24da-7591-890e-c407374c6ce4",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
