@@ -4,6 +4,17 @@ let
   publisher = pkgs.writeText "vorgossos-mdns-aliases.nu" (builtins.readFile ./lan-aliases.nu);
 in
 {
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    openFirewall = true;
+    settings.publish = {
+      disable-publishing = false;
+      publish-addresses = true;
+      disable-user-service-publishing = false;
+    };
+  };
+
   systemd.services.mdns-aliases = {
     description = "Publish homelab Gateway routes over mDNS";
     after = [

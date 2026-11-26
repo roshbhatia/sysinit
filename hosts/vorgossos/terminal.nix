@@ -60,7 +60,10 @@ let
   '';
 in
 {
-  environment.systemPackages = [ remote ];
+  environment.systemPackages = [
+    remote
+    pkgs.k9s
+  ];
 
   systemd.services.wezterm-mux = {
     description = "Persistent WezTerm mux";

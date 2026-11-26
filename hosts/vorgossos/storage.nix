@@ -1,14 +1,11 @@
-{ lib, pkgs, ... }:
+{ pkgs, ... }:
 
 let
-  backupMount = device: fsType: {
-    inherit device fsType;
-    options = [
-      "nofail"
-      "x-systemd.device-timeout=30"
-    ];
-  };
-  backup = pkgs.writeText "vorgossos-backup.nu" (builtins.readFile ./backup.nu);
+  storageReady = "${pkgs.util-linux}/bin/findmnt --mountpoint /storage/services --types zfs";
+  storageUnits = [
+    "zfs-import-storage.service"
+    "zfs-mount.service"
+  ];
 in
 {
   boot = {
@@ -20,49 +17,48 @@ in
     extraModprobeConfig = "options zfs zfs_arc_max=8589934592";
   };
 
-  environment.systemPackages = [ pkgs.restic ];
-  fileSystems = {
-    "/mnt/backup" = backupMount "/dev/disk/by-uuid/3ba26cd3-d050-4c45-9f64-c1f026bd28f2" "ext4";
-    "/mnt/backup2" = backupMount "/dev/disk/by-uuid/57FDB52459632363" "ntfs3";
-  };
-  systemd.services.restic-backup = {
-    description = "Back up the Vorgossos ZFS datasets";
-    after = [
-      "zfs-mount.service"
-      "mnt-backup.mount"
-    ];
-    wants = [ "mnt-backup.mount" ];
-    path = [
-      pkgs.restic
-      pkgs.util-linux
-    ];
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = "${lib.getExe pkgs.nushell} --no-config-file ${backup}";
-      TimeoutStartSec = "6h";
-      IOSchedulingClass = "idle";
+  networking.hostId = "7f14dd83";
+
+  systemd.services = {
+    k0s = {
+      after = storageUnits;
+      unitConfig.RequiresMountsFor = "/storage/services";
+      serviceConfig.ExecStartPre = storageReady;
+    };
+    samba-smbd = {
+      after = storageUnits;
+      serviceConfig.ExecStartPre = storageReady;
     };
   };
-  systemd.timers.restic-backup = {
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnCalendar = "*-*-* 03:30:00";
-      RandomizedDelaySec = "15min";
-      Persistent = true;
-    };
-  };
-  services.sanoid = {
-    enable = true;
-    datasets.storage = {
-      recursive = true;
-      frequently = 0;
-      hourly = 0;
-      daily = 7;
-      weekly = 2;
-      monthly = 1;
-      yearly = 0;
-      autosnap = true;
-      autoprune = true;
+
+  services = {
+    smartd.enable = true;
+    udev.extraRules = ''
+      ACTION=="add|change", SUBSYSTEM=="block", ENV{ID_VENDOR_ID}=="152d", ENV{ID_MODEL_ID}=="0578", ATTR{queue/max_sectors_kb}="240", ATTR{queue/nr_requests}="64", ATTR{queue/read_ahead_kb}="128"
+      ACTION=="add|change", SUBSYSTEM=="scsi_device", ATTRS{idVendor}=="152d", ATTRS{idProduct}=="0578", ATTR{queue_depth}="4"
+    '';
+    samba = {
+      enable = true;
+      openFirewall = true;
+      settings = {
+        global = {
+          "map to guest" = "Bad User";
+          "vfs objects" = "catia fruit streams_xattr";
+          "fruit:encoding" = "native";
+          "fruit:metadata" = "stream";
+          "fruit:zero_file_id" = "yes";
+          "fruit:nfs_aces" = "no";
+        };
+        storage = {
+          path = "/storage";
+          browseable = "yes";
+          "guest ok" = "yes";
+          "read only" = "no";
+          "force user" = "rshnbhatia";
+          "create mask" = "0644";
+          "directory mask" = "0755";
+        };
+      };
     };
   };
 }
