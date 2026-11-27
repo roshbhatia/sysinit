@@ -4,6 +4,7 @@
   nixosConfigurations,
 }:
 let
+  inherit (pkgs) lib;
   nuCheck = import ../lib/nushell.nix { inherit pkgs; };
   evalOnly = name: pkgs.runCommand name { } "touch $out";
 in
@@ -29,6 +30,15 @@ in
 
   command-path-order = import ./command-path-order.nix { inherit pkgs; };
 
+  comin-darwin =
+    let
+      inherit (darwinConfigurations.lv426) config;
+    in
+    assert config.services.comin.enable;
+    assert lib.hasPrefix "/nix/var/nix/profiles/default/bin:"
+      config.launchd.daemons.comin.serviceConfig.EnvironmentVariables.PATH;
+    evalOnly "comin-darwin";
+
   host-access-security = import ./host-access-security.nix {
     inherit
       pkgs
@@ -38,8 +48,7 @@ in
   };
 
   cloud-files = import ./cloud-files.nix {
-    inherit pkgs;
-    inherit (pkgs) lib;
+    inherit pkgs lib;
   };
 
   package-set-composition = import ./package-set.nix {
