@@ -18,7 +18,7 @@ nativeCheck {
       "--no-config-file"
       "${../workflows/ty.nu}"
       "${../../modules/home/programs/utils/dev/ty.nu}"
-      "${../../modules/home/programs/nushell/wezterm.nu}"
+      "${../../features/nushell/wezterm.nu}"
     ]
   ];
 }

@@ -5,8 +5,8 @@
   ...
 }:
 let
-  shell = import ../../../lib/shell.nix { inherit lib; };
-  paths_lib = import ../../../lib/paths.nix { inherit lib; };
+  shell = import ../../modules/lib/shell.nix { inherit lib; };
+  paths_lib = import ../../modules/lib/paths.nix { inherit lib; };
   nushellLib = import ./lib.nix { inherit lib; };
 
   pathsList = paths_lib.getAllPaths config.home.username config.home.homeDirectory;
@@ -111,7 +111,7 @@ let
   completersConfig = nushellLib.completers pkgs;
 in
 {
-  imports = [ ../../../../features/nushell/interactive.nix ];
+  imports = [ ./interactive.nix ];
 
   assertions = [
     {

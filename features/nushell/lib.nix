@@ -7,7 +7,7 @@ in
   externs =
     pkgs:
     let
-      registry = import ../llm/harnesses/registry.nix;
+      registry = import ../../modules/home/programs/llm/harnesses/registry.nix;
       atuinCompletions = pkgs.runCommand "atuin-completions.nu" { } ''
         ${pkgs.atuin}/bin/atuin gen-completions --shell nushell > "$out"
       '';

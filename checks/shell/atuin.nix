@@ -5,7 +5,7 @@
 }:
 let
   settings = pkgs.sysinit.writeJSON "atuin-settings.json" home.programs.atuin.settings;
-  nushellLib = import ../../modules/home/programs/nushell/lib.nix { inherit lib; };
+  nushellLib = import ../../features/nushell/lib.nix { inherit lib; };
   nushellInit = pkgs.runCommand "atuin-check-init.nu" { } ''
     export HOME="$TMPDIR"
     ${lib.getExe pkgs.atuin} init nu ${lib.escapeShellArgs home.programs.atuin.flags} > "$out"
@@ -16,7 +16,7 @@ let
     source ${home.programs.fzf.package}/share/fzf/key-bindings.nu
     source ${home.programs.fzf.package}/share/fzf/completion.nu
     source ${nushellInit}
-    source ${../../modules/home/programs/nushell/atuin-prompt.nu}
+    source ${../../features/nushell/atuin-prompt.nu}
     $env.PROMPT_COMMAND = {|| "original-prompt " }
     $env.PROMPT_INDICATOR_VI_INSERT = ": "
     $env.PROMPT_COMMAND_RIGHT = ""

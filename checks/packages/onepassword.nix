@@ -8,6 +8,6 @@ pkgs.runCommand "onepassword-nushell"
   }
   ''
     nu --no-config-file ${./onepassword.nu} \
-      ${../../modules/home/programs/nushell/onepassword.nu} ${../fixtures/onepassword-command.nu}
+      ${../../features/nushell/onepassword.nu} ${../fixtures/onepassword-command.nu}
     touch "$out"
   ''

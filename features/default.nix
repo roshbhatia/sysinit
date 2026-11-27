@@ -2,6 +2,7 @@
   imports = [
     ./git
     ./nushell
+    ./queue
     ./remote-build.nix
     ./review
     ./seshy

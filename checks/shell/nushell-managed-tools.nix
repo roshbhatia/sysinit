@@ -1,6 +1,6 @@
 { lib, pkgs }:
 let
-  nushellLib = import ../../modules/home/programs/nushell/lib.nix { inherit lib; };
+  nushellLib = import ../../features/nushell/lib.nix { inherit lib; };
   managedProfile = pkgs.buildEnv {
     name = "nushell-managed-tools-profile";
     paths = [

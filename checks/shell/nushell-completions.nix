@@ -4,7 +4,7 @@
   fzf,
 }:
 let
-  nushellLib = import ../../modules/home/programs/nushell/lib.nix { inherit lib; };
+  nushellLib = import ../../features/nushell/lib.nix { inherit lib; };
   registry = import ../../modules/home/programs/llm/harnesses/registry.nix;
   inherit (import ../../modules/lib/shell/aliases.nix) commonAliases;
   config = pkgs.writeText "completion-check-config.nu" ''

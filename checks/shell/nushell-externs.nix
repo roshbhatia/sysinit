@@ -1,6 +1,6 @@
 { lib, pkgs }:
 let
-  nushellLib = import ../../modules/home/programs/nushell/lib.nix { inherit lib; };
+  nushellLib = import ../../features/nushell/lib.nix { inherit lib; };
 in
 import ../lib/nushell.nix { inherit pkgs; } {
   name = "nushell-externs";

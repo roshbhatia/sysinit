@@ -1,3 +1,6 @@
 {
-  flake.modules.homeManager.nushellInteractive = ./interactive.nix;
+  flake.modules.homeManager = {
+    nushell = ./home.nix;
+    nushellInteractive = ./interactive.nix;
+  };
 }

@@ -50,10 +50,10 @@ in
         ./mise.nix
         ./neovim
         ./nh.nix
-        ./nushell
+        ../../../features/nushell/home.nix
         ./otel-collector.nix
         ./otel-tui.nix
-        ./pueue
+        ../../../features/queue/home.nix
         ../../../features/seshy/home.nix
         ../../../features/tether/home.nix
         ./terraform.nix

@@ -78,7 +78,7 @@ in
     fzf.historyWidget.command = "";
 
     nushell.extraConfig = lib.mkOrder 2100 ''
-      source ${./nushell/atuin-prompt.nu}
+      source ${../../../features/nushell/atuin-prompt.nu}
     '';
 
     zsh.initContent = lib.mkOrder 610 ''
@@ -92,7 +92,7 @@ in
   };
 
   home.sessionVariables.ATUIN_CONFIG_DIR = configDirectory;
-  xdg.configFile."atuin/nushell.nu".source = ./nushell/atuin-prompt.nu;
+  xdg.configFile."atuin/nushell.nu".source = ../../../features/nushell/atuin-prompt.nu;
   launchd.agents.atuin-daemon.config = {
     EnvironmentVariables.ATUIN_CONFIG_DIR = configDirectory;
     RunAtLoad = true;

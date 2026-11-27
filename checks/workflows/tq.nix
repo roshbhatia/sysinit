@@ -1,7 +1,7 @@
 { pkgs }:
 let
   inherit (pkgs) lib;
-  module = import ../../modules/home/programs/pueue {
+  module = import ../../features/queue/home.nix {
     inherit lib pkgs;
     config = {
       sysinit.queue.enable = true;
@@ -26,7 +26,7 @@ import ../lib/nushell.nix { inherit pkgs; } {
     spec
     tqSpec
     queueSpec
-    "${../../modules/home/programs/nushell}/tasks.nu"
+    "${../../features/nushell}/tasks.nu"
   ];
   inputs = [
     pkgs.pueue

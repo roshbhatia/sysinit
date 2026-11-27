@@ -17,7 +17,7 @@ let
         "/tmp/seshy-sessions"
         "${pkgs.coreutils}/bin/timeout"
       ]
-      (builtins.readFile ../modules/home/programs/nushell/functions.nu)
+      (builtins.readFile ../features/nushell/functions.nu)
   );
 in
 (import ./agents {
