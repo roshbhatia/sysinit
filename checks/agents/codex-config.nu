@@ -55,7 +55,7 @@ def main [
     | insert mcp_servers.cua_repl.command '/user/cua'
     | insert mcp_servers.node_repl.command '/app/node_repl'
     | insert mcp_servers.node_repl.env {NATIVE_PIPE: '/app/pipe'}
-    | insert plugins {'computer-use@openai-bundled': {enabled: false}, 'browser@openai-bundled': {enabled: false}}
+    | insert plugins {'computer-use@openai-bundled': {enabled: true}, 'browser@openai-bundled': {enabled: false}}
     | insert features {js_repl: false}
     | to toml
     | save $config
@@ -78,7 +78,7 @@ def main [
 
     assert ($document.mcp_servers.node_repl.enabled? | default true)
 
-    assert equal ($document.plugins | get 'computer-use@openai-bundled' | get enabled) false
+    assert equal ($document.plugins | get 'computer-use@openai-bundled' | get enabled) true
 
     assert ($document.plugins | get 'browser@openai-bundled' | get enabled)
 

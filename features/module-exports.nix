@@ -12,6 +12,7 @@
   ./git
   ./git-ai
   ./github
+  ./handy
   ./kubernetes
   ./mail
   ./neovim

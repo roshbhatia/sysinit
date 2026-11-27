@@ -71,6 +71,11 @@ in
               type = types.str;
               description = "Target path, relative to the home directory.";
             };
+            capture = mkOption {
+              type = types.bool;
+              default = true;
+              description = "Expose this file to the settings capture command. Disable for files containing credentials.";
+            };
             content = mkOption {
               type = types.attrs;
               default = { };

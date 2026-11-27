@@ -136,7 +136,10 @@ let
 
   gooseDesktopSettings = {
     disableAutoDownload = true;
-    keyboardShortcuts.quickLauncher = "CommandOrControl+Alt+Enter";
+    keyboardShortcuts = {
+      focusWindow = null;
+      quickLauncher = null;
+    };
   };
 
   goosePermissions = {
@@ -243,7 +246,17 @@ in
       path = "Library/Application Support/Goose/settings.json";
       format = "json";
       content = gooseDesktopSettings;
-      enforce = [ "disableAutoDownload" ];
+      enforce = [
+        "disableAutoDownload"
+        [
+          "keyboardShortcuts"
+          "focusWindow"
+        ]
+        [
+          "keyboardShortcuts"
+          "quickLauncher"
+        ]
+      ];
     };
   };
 

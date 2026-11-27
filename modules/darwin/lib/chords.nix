@@ -185,8 +185,5 @@ rec {
     "cmd+shift+3" = "hammerspoon full-screen screenshot";
     "cmd+shift+4" = "hammerspoon area screenshot";
     "cmd+shift+5" = "hammerspoon window screenshot";
-    "cmd+enter" = "claude desktop quick entry";
-    "cmd+shift+enter" = "claude desktop quick entry dictation";
-    "cmd+alt+enter" = "goose desktop quick launcher";
   };
 }

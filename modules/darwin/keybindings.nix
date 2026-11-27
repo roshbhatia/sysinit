@@ -25,6 +25,16 @@ let
   };
 
   chords = import ./lib/chords.nix { inherit lib; };
+  handy = lib.attrByPath [
+    "home-manager"
+    "users"
+    config.system.primaryUser
+    "sysinit"
+    "llm"
+    "managedFiles"
+    "handy"
+    "enable"
+  ] false config;
 
   enabledHotkeys = lib.mapAttrsToList (id: hotkey: {
     inherit id;
@@ -72,7 +82,13 @@ let
 in
 {
   sysinit.darwin.keybindings.symbolicHotkeys = chords.baseSymbolicHotkeys;
-  sysinit.darwin.keybindings.reservedChords = chords.reservedChords;
+  sysinit.darwin.keybindings.reservedChords =
+    chords.reservedChords
+    // lib.optionalAttrs handy (
+      lib.mapAttrs' (action: chord: lib.nameValuePair chord "Handy ${action}") (
+        import ../../features/handy/shortcuts.nix
+      )
+    );
 
   assertions = [
     {

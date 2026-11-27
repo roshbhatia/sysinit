@@ -44,6 +44,31 @@ let
     && hasReviewLink "codex" document.hooks.Stop;
 in
 assert lib.any (package: lib.getName package == "goose-desktop") darwinHome.home.packages;
+assert darwinHome.programs.codex.settings.desktop."code-review-sidebar-layout" == "compact";
+assert !(darwinHome.programs.codex.settings.plugins ? "computer-use@openai-bundled");
+assert darwinHome.sysinit.llm.managedFiles.claude-json.content.deepLinkTerminal == "WezTerm";
+assert
+  darwinHome.sysinit.llm.managedFiles.claude-desktop.content.preferences == {
+    quickEntryShortcut = "off";
+    quickEntryDictationShortcut = "off";
+  };
+assert
+  darwinHome.sysinit.llm.managedFiles.goose-desktop.content.keyboardShortcuts == {
+    focusWindow = null;
+    quickLauncher = null;
+  };
+assert builtins.all
+  (chord: !(builtins.hasAttr chord darwin.sysinit.darwin.keybindings.reservedChords))
+  [
+    "cmd+enter"
+    "cmd+shift+enter"
+  ];
+assert darwin.sysinit.darwin.keybindings.reservedChords."cmd+alt+enter" == "Handy transcribe";
+assert
+  darwinHome.sysinit.llm.managedFiles.handy.content.settings.bindings.transcribe.current_binding
+  == "command+option+enter";
+assert builtins.elem "WezTerm"
+  darwinHome.sysinit.llm.managedFiles.handy.content.settings.custom_words;
 assert builtins.all managedHooksValid systems;
 assert home.programs.claude-code.settings.permissions.defaultMode == "bypassPermissions";
 assert builtins.any (

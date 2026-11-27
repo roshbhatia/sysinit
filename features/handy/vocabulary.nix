@@ -1,0 +1,17 @@
+[
+  "API"
+  "Argo"
+  "AWS"
+  "Claude Code"
+  "Home Manager"
+  "Kubernetes"
+  "Neovim"
+  "NixOS"
+  "Nushell"
+  "Roshan Bhatia"
+  "Seshy"
+  "Spacelift"
+  "Sysinit"
+  "Tailscale"
+  "WezTerm"
+]

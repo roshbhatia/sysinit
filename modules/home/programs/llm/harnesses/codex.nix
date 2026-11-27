@@ -153,11 +153,6 @@ in
           "approval_policy"
           "sandbox_mode"
           [
-            "plugins"
-            "computer-use@openai-bundled"
-            "enabled"
-          ]
-          [
             "desktop"
             "external-agent-import-sync-enabled"
           ]
@@ -183,14 +178,21 @@ in
       suppress_unstable_features_warning = true;
       compact_prompt = compactPrompt;
       mcp_servers = codexMcpServers;
-      plugins."computer-use@openai-bundled".enabled = false;
       plugins."egm@egm".enabled = true;
 
       approval_policy = "never";
 
       sandbox_mode = "danger-full-access";
 
-      desktop."external-agent-import-sync-enabled" = false;
+      desktop = {
+        "external-agent-import-sync-enabled" = false;
+      }
+      // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
+        appearanceDarkCodeThemeId = "catppuccin";
+        "code-review-sidebar-layout" = "compact";
+        reviewDelivery = "inline";
+        "show-educational-tips" = false;
+      };
 
       tui = {
         fullscreen_transcript = true;

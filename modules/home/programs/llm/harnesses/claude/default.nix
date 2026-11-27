@@ -53,6 +53,7 @@ let
   subagents = kit.llmLib.instructions.subagentDefs (config.sysinit.llm.optionalSubagents or [ ]);
 
   disabledBuiltinServers = config.sysinit.llm.mcp.disabledBuiltinServers;
+  useWezTerm = pkgs.stdenv.hostPlatform.isDarwin && (config.programs.sysinit-wezterm.enable or false);
   slackAllowedChannels = config.sysinit.llm.mcp.slackAllowedSendChannels;
 
   claudeMcpServers = lib.mapAttrs (
@@ -331,12 +332,40 @@ in
     force = true;
   };
 
-  sysinit.llm.managedFiles.claude-json = {
-    enable = disabledBuiltinServers != [ ];
-    path = ".claude.json";
-    format = "json";
-    content.disabledMcpServers = disabledBuiltinServers;
-    enforce = [ "disabledMcpServers" ];
-    createIfMissing = false;
+  sysinit.llm.managedFiles = {
+    claude-json = {
+      enable = disabledBuiltinServers != [ ] || useWezTerm;
+      path = ".claude.json";
+      format = "json";
+      content =
+        lib.optionalAttrs (disabledBuiltinServers != [ ]) {
+          disabledMcpServers = disabledBuiltinServers;
+        }
+        // lib.optionalAttrs useWezTerm {
+          deepLinkTerminal = "WezTerm";
+        };
+      enforce = lib.optional (disabledBuiltinServers != [ ]) "disabledMcpServers";
+      createIfMissing = false;
+    };
+
+    claude-desktop = {
+      enable = pkgs.stdenv.hostPlatform.isDarwin;
+      path = "Library/Application Support/Claude/claude_desktop_config.json";
+      format = "json";
+      content.preferences = {
+        quickEntryShortcut = "off";
+        quickEntryDictationShortcut = "off";
+      };
+      enforce = [
+        [
+          "preferences"
+          "quickEntryShortcut"
+        ]
+        [
+          "preferences"
+          "quickEntryDictationShortcut"
+        ]
+      ];
+    };
   };
 }

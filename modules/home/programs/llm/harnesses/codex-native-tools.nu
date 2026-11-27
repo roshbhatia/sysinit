@@ -1,5 +1,5 @@
 const native_servers = [computer-use cua_repl node_repl]
-const native_plugins = [computer-use@openai-bundled browser@openai-bundled]
+const browser_plugin = 'browser@openai-bundled'
 
 def write-atomically [
     root: path
@@ -57,24 +57,16 @@ def migrate-document [document: record, is_config: bool] {
         $document = $document | update mcp_servers $servers
     }
 
-    if 'plugins' in $document {
-        mut plugins = $document.plugins
+    let plugins = $document.plugins? | default {}
 
-        for name in $native_plugins {
-            if $name not-in $plugins { continue }
-
-            $plugins = if $is_config {
-                $plugins | update $name (
-                    $plugins
-                    | get $name
-                    | upsert enabled ($name != computer-use@openai-bundled)
-                )
+    if $browser_plugin in $plugins {
+        $document = $document | update plugins (
+            if $is_config {
+                $plugins | update $browser_plugin ($plugins | get $browser_plugin | upsert enabled true)
             } else {
-                $plugins | reject $name
+                $plugins | reject $browser_plugin
             }
-        }
-
-        $document = $document | update plugins $plugins
+        )
     }
 
     if 'features' in $document {

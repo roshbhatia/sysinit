@@ -68,6 +68,7 @@ in
 
       workstation = [
         features.fastfetch
+        features.handy
         features.mail
         features.wezterm
       ];

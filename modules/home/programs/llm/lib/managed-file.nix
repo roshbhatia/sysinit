@@ -22,7 +22,7 @@ let
   mkCapture =
     { pkgs, files }:
     let
-      enabled = lib.filterAttrs (_: file: file.enable) files;
+      enabled = lib.filterAttrs (_: file: file.enable && (file.capture or true)) files;
       captureFile = pkgs.writeText "managed-file-capture.jq" (readSource "managed-file-capture.jq");
       mkCase =
         name: file:
