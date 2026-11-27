@@ -1,0 +1,21 @@
+modules/home/programs/llm/skills/spec-driven-implementation/SKILL.md
+  s_8db7fc35d14233::t_4784be22fa26b4 3,11-15,19-24,26-28,32-51,55-57
+modules/home/programs/llm/skills/spec-driven-implementation/references/intent-and-feedback.md
+  s_8db7fc35d14233::t_8e8cfc48e80ca1 15-47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ba218fa47611d94a3c9a82482f08cf5fb8091746",
+  "prompts": {},
+  "sessions": {
+    "s_8db7fc35d14233": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a215ce-24da-7591-890e-c407374c6ce4",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
