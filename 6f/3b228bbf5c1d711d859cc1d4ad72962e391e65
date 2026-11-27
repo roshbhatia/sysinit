@@ -1,0 +1,24 @@
+features/default.nix
+  s_8db7fc35d14233::t_a05a12a393d7b9 2
+features/module-exports.nix
+  s_8db7fc35d14233::t_a05a12a393d7b9 1-12
+modules/home/programs/default.nix
+  s_8db7fc35d14233::t_420d71c1dee6fe 9
+  s_8db7fc35d14233::t_a05a12a393d7b9 10-13,27,34,58,61-63,72,75
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6f3b228bbf5c1d711d859cc1d4ad72962e391e65",
+  "prompts": {},
+  "sessions": {
+    "s_8db7fc35d14233": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a215ce-24da-7591-890e-c407374c6ce4",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
