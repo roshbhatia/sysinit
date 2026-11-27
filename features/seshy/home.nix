@@ -28,8 +28,12 @@ in
       description = "Explicit commands to run after session creation.";
     };
   };
-  config.xdg.configFile = {
-    "seshy/config.yaml".source = (pkgs.formats.yaml { }).generate "seshy-config.yaml" settings;
-    "fish/completions/sy.fish".source = syFishCompletion;
+  config = {
+    home.packages = [ pkgs.worktrunk ];
+
+    xdg.configFile = {
+      "seshy/config.yaml".source = (pkgs.formats.yaml { }).generate "seshy-config.yaml" settings;
+      "fish/completions/sy.fish".source = syFishCompletion;
+    };
   };
 }

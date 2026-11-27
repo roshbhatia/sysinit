@@ -19,6 +19,8 @@ type attempt struct {
 	Cwd              string            `json:"cwd"`
 	Env              map[string]string `json:"env"`
 	Session          string            `json:"session,omitempty"`
+	WorkspaceID      string            `json:"workspace_id,omitempty"`
+	Repository       string            `json:"repository,omitempty"`
 	Thread           string            `json:"thread,omitempty"`
 	Group            string            `json:"group"`
 	Terminal         string            `json:"terminal,omitempty"`

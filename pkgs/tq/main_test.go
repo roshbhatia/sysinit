@@ -32,6 +32,7 @@ func TestHelpAndInvalidCommandsDoNotOpenQueue(t *testing.T) {
 		{[]string{"submit", "--help"}, "task-queue submit [OPTIONS]", true},
 		{[]string{"submit"}, "pass an explicit command", false},
 		{[]string{"submit", "--session", "work", "--cwd", ".", "--", "echo"}, "choose --session or --cwd", false},
+		{[]string{"submit", "--repo", "api", "--", "echo"}, "--repo requires --session", false},
 		{[]string{"reconcile", "extra"}, "reconcile accepts no arguments", false},
 		{[]string{"invalid"}, "unknown action", false},
 	} {
@@ -722,15 +723,53 @@ func TestSeshyPlan(t *testing.T) {
 	f.must("sy", "new", "queue-fixture", "--empty")
 	var plan struct {
 		Cwd string `json:"cwd"`
+		ID  string `json:"id"`
 	}
 	_ = json.Unmarshal(f.must("sy", "open", "queue-fixture", "--format", "json"), &plan)
 	a := f.submit("--session", "queue-fixture", "--", executable(t, "bash"), "-c", `printf '%s' "$SESHY_SESSION" > session-env`)
+	if plan.ID == "" || a.WorkspaceID != plan.ID {
+		t.Fatalf("workspace id = %q, want %q", a.WorkspaceID, plan.ID)
+	}
 	if !f.finished(a).Review {
 		t.Fatal("session failed")
 	}
 	b, e := os.ReadFile(filepath.Join(plan.Cwd, "session-env"))
 	if e != nil || string(b) != "queue-fixture" {
 		t.Fatalf("wrong session env: %q %v", b, e)
+	}
+}
+
+func TestSeshyRepoPlan(t *testing.T) {
+	f := fixtureFor(t)
+	if !strings.Contains(string(f.must("sy", "open", "--help")), "--repo") {
+		t.Skip("requires Seshy with repository-aware launch plans")
+	}
+	config := filepath.Join(f.root, "seshy.json")
+	if err := save(config, map[string]any{"sessionsDir": filepath.Join(f.root, "sessions")}); err != nil {
+		t.Fatal(err)
+	}
+	f.env = append(f.env, "SESHY_CONFIG="+config)
+	repo := filepath.Join(f.root, "api")
+	f.must("git", "init", "-q", repo)
+	f.must("git", "-C", repo, "-c", "user.name=Test", "-c", "user.email=test@example.invalid", "commit", "--allow-empty", "-qm", "initial")
+	f.must("sy", "new", "original", repo)
+	var plan struct {
+		ID string `json:"id"`
+	}
+	if err := json.Unmarshal(f.must("sy", "open", "original", "--format", "json"), &plan); err != nil {
+		t.Fatal(err)
+	}
+	f.must("sy", "rename", plan.ID, "renamed")
+	a := f.submit("--session", plan.ID, "--repo", "api", "--", executable(t, "bash"), "-c", `printf '%s' "$SESHY_SESSION" > session-env`)
+	if a.WorkspaceID != plan.ID || a.Repository != "api" || !strings.HasSuffix(a.Cwd, "/renamed/api") {
+		t.Fatalf("unexpected selected repository: %+v", a)
+	}
+	if !f.finished(a).Review {
+		t.Fatal("repository attempt failed")
+	}
+	b, err := os.ReadFile(filepath.Join(a.Cwd, "session-env"))
+	if err != nil || string(b) != "renamed" {
+		t.Fatalf("wrong repository environment: %q %v", b, err)
 	}
 }
 

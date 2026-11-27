@@ -16,6 +16,7 @@ import (
 type submission struct {
 	taskID   string
 	session  string
+	repo     string
 	thread   string
 	cwd      string
 	group    string
@@ -33,7 +34,8 @@ func parseSubmission(args []string) (submission, error) {
 		}
 	}
 	f.StringVar(&plan.taskID, "task", "", "Full Taskwarrior UUID")
-	f.StringVar(&plan.session, "session", "", "Existing seshy session")
+	f.StringVar(&plan.session, "session", "", "Existing seshy session name or workspace ID")
+	f.StringVar(&plan.repo, "repo", "", "Repository entry within --session")
 	f.StringVar(&plan.thread, "thread", "", "Exact Atuin captured-thread ID")
 	f.StringVar(&plan.cwd, "cwd", "", "Working directory")
 	f.StringVar(&plan.group, "group", "agents", "Pueue group")
@@ -48,6 +50,9 @@ func parseSubmission(args []string) (submission, error) {
 	}
 	if plan.session != "" && plan.cwd != "" {
 		return plan, errors.New("choose --session or --cwd")
+	}
+	if plan.repo != "" && plan.session == "" {
+		return plan, errors.New("--repo requires --session")
 	}
 	return plan, nil
 }
@@ -82,14 +87,20 @@ func submit(plan submission, dir string, records []attempt) (int, error) {
 		}
 	}
 	env := map[string]string{}
+	var workspaceID string
 	if plan.session != "" {
 		var session struct {
 			Version string            `json:"version"`
+			ID      string            `json:"id"`
 			Cwd     string            `json:"cwd"`
 			Command []string          `json:"command"`
 			Env     map[string]string `json:"environment"`
 		}
-		if e = jsonCall(&session, "sy", "open", plan.session, "--format", "json"); e != nil {
+		arguments := []string{"open", plan.session, "--format", "json"}
+		if plan.repo != "" {
+			arguments = append(arguments, "--repo", plan.repo)
+		}
+		if e = jsonCall(&session, "sy", arguments...); e != nil {
 			return 1, e
 		}
 		if session.Version != "seshy.open/v1" || len(session.Command) != 0 {
@@ -97,6 +108,7 @@ func submit(plan submission, dir string, records []attempt) (int, error) {
 		}
 		cwd = session.Cwd
 		env = session.Env
+		workspaceID = session.ID
 	}
 	if env == nil {
 		env = map[string]string{}
@@ -143,16 +155,18 @@ func submit(plan submission, dir string, records []attempt) (int, error) {
 		}
 	}
 	a := attempt{
-		ID:       uuid(),
-		Task:     taskID,
-		Argv:     plan.argv,
-		Cwd:      cwd,
-		Env:      env,
-		Session:  plan.session,
-		Thread:   plan.thread,
-		Group:    plan.group,
-		Sequence: lastSequence + 1,
-		Result:   json.RawMessage(`"Preparing"`),
+		ID:          uuid(),
+		Task:        taskID,
+		Argv:        plan.argv,
+		Cwd:         cwd,
+		Env:         env,
+		Session:     plan.session,
+		WorkspaceID: workspaceID,
+		Repository:  plan.repo,
+		Thread:      plan.thread,
+		Group:       plan.group,
+		Sequence:    lastSequence + 1,
+		Result:      json.RawMessage(`"Preparing"`),
 	}
 	if plan.terminal {
 		a.Terminal = os.Getenv("TQ_TERMINAL_WORKSPACE")
