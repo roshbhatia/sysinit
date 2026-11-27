@@ -10,6 +10,9 @@ let
   commandPath = import ../shared/command-path.nix { inherit lib; };
   systemPath = commandPath.systemEntriesFor true;
   user = config.sysinit.user.username;
+  launchdUserPath = lib.concatStringsSep ":" (
+    commandPath.homeEntriesFor true "/etc/profiles/per-user/${user}/bin" config.users.users.${user}.home
+  );
   arrakisBuilder = "ssh-ng://nix-builder@arrakis.stork-eel.ts.net";
   builderIdentity = "/var/root/.ssh/sysinit-builder";
   systemGenerationPruner = pkgs.sysinit.writeShellScript "sysinit-prune-system-generations" (
@@ -94,32 +97,36 @@ in
     variables.PATH = lib.mkForce (lib.concatStringsSep ":" systemPath);
   };
 
-  launchd.user.envVariables = {
-    PATH =
-      commandPath.homeEntriesFor true "/etc/profiles/per-user/${user}/bin"
-        config.users.users.${user}.home;
-  };
-
   documentation.enable = false;
-  system.tools."darwin-uninstaller".enable = false;
 
   system = {
-    activationScripts.postActivation.text = ''
-      /usr/bin/pmset -a disablesleep 0
-      /usr/bin/pmset -b displaysleep 5 sleep 10
-      /bin/rm -f /var/db/sysinit/closed-lid-ssh-enabled
-      /usr/bin/install -d -m 700 /var/root/.ssh
-      if [ ! -f /var/root/.ssh/sysinit-builder ]; then
-        /usr/bin/ssh-keygen -q -t ed25519 -N "" -C "sysinit-builder-${hostname}" \
-          -f /var/root/.ssh/sysinit-builder
-      fi
-      if ! /usr/bin/cmp -s /etc/nix/nix.custom.conf /var/db/sysinit/nix-settings.applied; then
-        /bin/launchctl kickstart -k system/systems.determinate.nix-daemon
-        /nix/var/nix/profiles/default/bin/nix store info --store daemon >/dev/null
-        /usr/bin/install -d -m 755 /var/db/sysinit
-        /usr/bin/install -m 600 /etc/nix/nix.custom.conf /var/db/sysinit/nix-settings.applied
-      fi
-    '';
+    tools."darwin-uninstaller".enable = false;
+    activationScripts = {
+      launchd.text = lib.mkBefore ''
+        sysinit_launchd_uid="$(/usr/bin/id -u -- ${lib.escapeShellArg user})"
+        if /bin/launchctl print "gui/$sysinit_launchd_uid" >/dev/null 2>&1; then
+          /bin/launchctl asuser "$sysinit_launchd_uid" \
+            /usr/bin/sudo --user=${lib.escapeShellArg user} -- \
+            /bin/launchctl setenv PATH ${lib.escapeShellArg launchdUserPath}
+        fi
+      '';
+      postActivation.text = ''
+        /usr/bin/pmset -a disablesleep 0
+        /usr/bin/pmset -b displaysleep 5 sleep 10
+        /bin/rm -f /var/db/sysinit/closed-lid-ssh-enabled
+        /usr/bin/install -d -m 700 /var/root/.ssh
+        if [ ! -f /var/root/.ssh/sysinit-builder ]; then
+          /usr/bin/ssh-keygen -q -t ed25519 -N "" -C "sysinit-builder-${hostname}" \
+            -f /var/root/.ssh/sysinit-builder
+        fi
+        if ! /usr/bin/cmp -s /etc/nix/nix.custom.conf /var/db/sysinit/nix-settings.applied; then
+          /bin/launchctl kickstart -k system/systems.determinate.nix-daemon
+          /nix/var/nix/profiles/default/bin/nix store info --store daemon >/dev/null
+          /usr/bin/install -d -m 755 /var/db/sysinit
+          /usr/bin/install -m 600 /etc/nix/nix.custom.conf /var/db/sysinit/nix-settings.applied
+        fi
+      '';
+    };
 
     defaults.LaunchServices.LSQuarantine = false;
     primaryUser = config.sysinit.user.username;

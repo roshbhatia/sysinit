@@ -24,7 +24,7 @@
               pkgs.git
               pkgs.openssh
             ]
-          }";
+          }:/usr/bin:/bin:/usr/sbin:/sbin";
         }
       );
 }
