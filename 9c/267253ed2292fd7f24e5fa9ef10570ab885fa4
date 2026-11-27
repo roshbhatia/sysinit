@@ -1,0 +1,53 @@
+features/system-upgrade/default.nix
+  s_8db7fc35d14233::t_d180c34a50b809 2-5
+  s_8db7fc35d14233::t_bce2702cb5939d 1,6
+README.md
+  s_8db7fc35d14233::t_b8643ce9bfa29d 28-31
+  s_8db7fc35d14233::t_bce2702cb5939d 32
+.github/workflows/check.yml
+  s_8db7fc35d14233::t_b8643ce9bfa29d 115-116
+modules/nixos/default.nix
+  s_8db7fc35d14233::t_bce2702cb5939d 8
+hosts/vorgossos/default.nix
+  s_8db7fc35d14233::t_bce2702cb5939d 11
+features/system-upgrade/common.nix
+  s_8db7fc35d14233::t_2b339782c2a6b3 1-8
+modules/darwin/default.nix
+  s_8db7fc35d14233::t_b8643ce9bfa29d 22
+features/system-upgrade/nixos.nix
+  s_8db7fc35d14233::t_d180c34a50b809 1,4-5,7-11
+  s_8db7fc35d14233::t_2b339782c2a6b3 6
+  s_8db7fc35d14233::t_bce2702cb5939d 2-3
+hosts/vorgossos/flake-module.nix
+  s_8db7fc35d14233::t_b8643ce9bfa29d 9
+hosts/lv426/default.nix
+  s_8db7fc35d14233::t_b8643ce9bfa29d 7-10
+flake.nix
+  s_8db7fc35d14233::t_d180c34a50b809 14-17
+features/module-exports.nix
+  s_8db7fc35d14233::t_bce2702cb5939d 27
+features/system-upgrade/darwin.nix
+  s_8db7fc35d14233::t_2b339782c2a6b3 9-12
+  s_8db7fc35d14233::t_eb16f71ec64f1f 1-6,14
+  s_8db7fc35d14233::t_d180c34a50b809 7-8,13,15
+features/system-upgrade/public-remote.nix
+  s_8db7fc35d14233::t_d180c34a50b809 1-12
+flake.lock
+  s_8db7fc35d14233::t_1d8ebd94b50df8 199,260-282,330,478-493,509,767,988,1027,1050-1055,1058-1061,1127-1140,1154,1170,1436,1455,1986-2003,2054
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9c267253ed2292fd7f24e5fa9ef10570ab885fa4",
+  "prompts": {},
+  "sessions": {
+    "s_8db7fc35d14233": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a215ce-24da-7591-890e-c407374c6ce4",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
