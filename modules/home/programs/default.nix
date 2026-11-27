@@ -6,6 +6,11 @@
 }:
 let
   profiles = import ../../shared/profile-tiers.nix { inherit lib; };
+  features = lib.mergeAttrsList (
+    map (file: (import file).flake.modules.homeManager or { }) (
+      import ../../../features/module-exports.nix
+    )
+  );
 in
 {
   imports =
@@ -19,14 +24,14 @@ in
         ./eza.nix
         ./fd.nix
         ./fzf.nix
-        ../../../features/git/home.nix
+        features.git
         ./helix.nix
         ./hushlogin.nix
         ./ere.nix
         ./nix.nix
         ./nix-your-shell.nix
         ./omp.nix
-        ../../../features/ssh/home.nix
+        features.openssh
         ./taskwarrior.nix
         ./utils
         ./vivid.nix
@@ -50,12 +55,12 @@ in
         ./mise.nix
         ./neovim
         ./nh.nix
-        ../../../features/nushell/home.nix
+        features.nushell
         ./otel-collector.nix
         ./otel-tui.nix
-        ../../../features/queue/home.nix
-        ../../../features/seshy/home.nix
-        ../../../features/tether/home.nix
+        features.queue
+        features.seshy
+        features.tether
         ./terraform.nix
         ./traces.nix
         ./yazi
@@ -64,8 +69,8 @@ in
       workstation = [
         ./fastfetch.nix
         ./mail
-        ../../../features/wezterm/home.nix
+        features.wezterm
       ];
     }
-    ++ lib.optional theme ../../../features/theme/home.nix;
+    ++ lib.optional theme features.theme;
 }

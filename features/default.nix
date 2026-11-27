@@ -1,16 +1,6 @@
 {
-  imports = [
-    ./git
-    ./nushell
-    ./queue
-    ./remote-build.nix
+  imports = import ./module-exports.nix ++ [
     ./review
-    ./seshy
-    ./ssh
-    ./tailscale
-    ./tether
-    ./theme
-    ./wezterm
     ./workspace
   ];
 }

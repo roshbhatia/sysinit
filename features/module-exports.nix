@@ -1,0 +1,12 @@
+[
+  ./git
+  ./nushell
+  ./queue
+  ./remote-build.nix
+  ./seshy
+  ./ssh
+  ./tailscale
+  ./tether
+  ./theme
+  ./wezterm
+]
