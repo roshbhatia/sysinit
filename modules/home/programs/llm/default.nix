@@ -122,6 +122,18 @@ in
       skills = [ "code-validate-change" ];
     }
     {
+      intent = "Resolve unmerged Git index entries";
+      skills = [ "resolve-merge-conflicts" ];
+    }
+    {
+      intent = "Walk a reviewer through a PR when requested";
+      skills = [ "pr-walkthrough" ];
+    }
+    {
+      intent = "Use a local spec-driven workflow when requested";
+      skills = [ "spec-driven-implementation" ];
+    }
+    {
       intent = "Commits and pull requests";
       skills = [
         "git-write-commit"

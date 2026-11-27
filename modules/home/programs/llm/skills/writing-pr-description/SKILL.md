@@ -53,6 +53,20 @@ which CI checks gate merge, the CODEOWNERS reviewers, and any DCO or
 `--signoff` requirement. When `CONTRIBUTING.md`
 conflicts with the defaults below, the repo wins.
 
+## Verify the rationale and evidence
+
+Read the branch's commits and the diff against the exact base. Verify claims
+about deleted behavior, affected callers, and compatibility in the code. Use
+commit bodies, the issue, and working notes to recover decisions that the diff
+does not explain. In the template's existing sections, give the reviewer the
+reason, material impact, and observed checks. Label unverified behavior and
+pending CI. When reading order matters, add a short guide within the relevant
+section or summary.
+
+<!-- include: local-planning.md -->
+
+Adapted from [Warp's PR-writing workflow](https://github.com/warpdotdev/common-skills/blob/8792394ff1b655e0af451b8fabb68ef0cfcbd208/.agents/skills/write-pr-description/SKILL.md).
+
 ## Use the repo PR template verbatim when one exists
 
 ```bash
@@ -200,6 +214,6 @@ nothing was hand-verified, omit the section, do not leave an empty placeholder.
 - Paste a generic GitHub template over an existing repo template.
 - Preamble (`This PR adds…`, `In this change…`), lead with the action.
 - Tool-attribution / `Co-authored-by Claude` trailers unless the user opted in.
-- Architecture overviews, which belong in the change's `design.md`.
+- Full subsystem overviews. State the boundaries a reviewer needs to understand the change.
 - Em-dashes for elaboration, use `so`, `as`, `because`.
 - Emojis, anywhere.

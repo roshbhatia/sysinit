@@ -17,6 +17,13 @@ in
 
   tq-picker = import ./tq-picker.nix { inherit pkgs; };
 
+  conflict-inspection = nuCheck {
+    name = "conflict-inspection";
+    script = ./conflict-inspection.nu;
+    arguments = [ ../../modules/home/programs/llm/skills/resolve-merge-conflicts/scripts/conflicts.nu ];
+    inputs = [ pkgs.git ];
+  };
+
   review-checkpoint = nuCheck {
     name = "review-checkpoint";
     script = ./review-checkpoint.nu;

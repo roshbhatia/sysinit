@@ -32,6 +32,21 @@
   {
     "prompt": "Prepare a pull request description",
     "expected": ["github-write-pr"],
+    "avoid": ["pr-walkthrough", "spec-driven-implementation"]
+  },
+  {
+    "prompt": "Resolve the unmerged paths in this cherry-pick",
+    "expected": ["resolve-merge-conflicts"],
+    "avoid": []
+  },
+  {
+    "prompt": "Walk me through the architecture and reading order of this PR",
+    "expected": ["pr-walkthrough"],
+    "avoid": ["github-write-pr", "review-adversarial"]
+  },
+  {
+    "prompt": "Work from a local spec and verify the acceptance criteria before handing this off",
+    "expected": ["spec-driven-implementation"],
     "avoid": []
   },
   {

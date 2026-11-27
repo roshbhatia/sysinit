@@ -188,6 +188,10 @@ let
           route: "- ${route.intent}: ${lib.concatStringsSep ", " (map (name: "`${name}`") route.skills)}."
         ) skillRoutes}
 
+        ## Local planning
+
+        ${lib.trim (builtins.readFile ../skills/_shared/local-planning.md)}
+
         ## Shared tasks
 
         For durable multi-step work, load `workflow-route-local` and `task-manage`, inspect

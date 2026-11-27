@@ -25,3 +25,17 @@ explicit language with structural `ast-grep run` or read the relevant lines.
 For multi-site syntax changes, preview the structural rewrite and inspect
 every hunk before applying. See [structural rewrites](references/structural-rewrites.md)
 for preview, application, and positive and negative pattern checks.
+
+## Research with evidence
+
+For a broad or noisy investigation, name the question, scope, and decision that
+the answer needs to support. Distill findings into the answer, precise source
+pointers, and material unknowns. Verify the checkout and revision before
+treating a remote result as current. Prefer direct inspection when the next
+step needs the source itself.
+
+When the user authorizes delegation, give a read-only researcher a specific
+question and the relevant paths. Request findings and evidence, then verify
+claims whose interpretation affects the decision.
+
+Adapted from [Warp's research workflow](https://github.com/warpdotdev/common-skills/blob/8792394ff1b655e0af451b8fabb68ef0cfcbd208/.agents/skills/research/SKILL.md).

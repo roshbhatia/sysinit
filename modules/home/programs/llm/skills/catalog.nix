@@ -24,6 +24,9 @@
     nix-cache-audit = "nix-audit-cache";
     nix-deployment = "nix-deploy-host";
     note = "review-annotate-diff";
+    pr-walkthrough = "pr-walkthrough";
+    resolve-merge-conflicts = "resolve-merge-conflicts";
+    spec-driven-implementation = "spec-driven-implementation";
     review-change-groups = "review-change-groups";
     search-code-routing = "code-search";
     shell-script-authoring = "code-write-shell";
