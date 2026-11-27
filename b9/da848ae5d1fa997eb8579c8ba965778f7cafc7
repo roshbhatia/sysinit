@@ -1,0 +1,30 @@
+modules/home/programs/llm/skills/spec-driven-implementation/references/tla/Liveness.cfg
+  s_8db7fc35d14233::t_ab85c16a935edd 1-5
+modules/home/programs/llm/skills/spec-driven-implementation/references/tla/Feedback.tla
+  s_8db7fc35d14233::t_ab85c16a935edd 1-38
+modules/home/programs/llm/skills/spec-driven-implementation/references/tla/Safety.cfg
+  s_8db7fc35d14233::t_ab85c16a935edd 1-4
+modules/home/programs/llm/skills/spec-driven-implementation/references/tla/StaleEvidence.cfg
+  s_8db7fc35d14233::t_ab85c16a935edd 1-4
+modules/home/programs/llm/skills/spec-driven-implementation/references/tla/Unfair.cfg
+  s_8db7fc35d14233::t_ab85c16a935edd 1-5
+modules/home/programs/llm/skills/spec-driven-implementation/references/intent-and-feedback.md
+  s_8db7fc35d14233::t_f920b841e0b419 101-102,113-125
+  s_8db7fc35d14233::t_5df9edb03e5de2 126
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b9da848ae5d1fa997eb8579c8ba965778f7cafc7",
+  "prompts": {},
+  "sessions": {
+    "s_8db7fc35d14233": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a215ce-24da-7591-890e-c407374c6ce4",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
