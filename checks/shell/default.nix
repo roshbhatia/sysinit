@@ -15,12 +15,14 @@ in
     script = ./zsh-agent-shell.nu;
     arguments = [
       (lib.getExe pkgs.zsh)
-      ../../modules/home/programs/zsh/core/agent-glob.zsh
+      ../../features/shell/zsh/core/agent-glob.zsh
     ];
     inputs = [ pkgs.zsh ];
   };
 
   nushell-utilities = import ./nushell-utilities.nix { inherit pkgs; };
+
+  home-profiles = import ./home-profiles.nix { inherit homeConfigurations pkgs; };
 
   shell-completions = import ./shell-completions.nix { inherit pkgs; };
 
@@ -34,7 +36,7 @@ in
         ];
       }
       ''
-        nu --no-config-file ${./completion-cache.nu} ${../../modules/home/programs/zsh/core/compinit.zsh}
+        nu --no-config-file ${./completion-cache.nu} ${../../features/shell/zsh/core/compinit.zsh}
         touch "$out"
       '';
 

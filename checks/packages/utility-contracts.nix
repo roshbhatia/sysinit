@@ -9,8 +9,8 @@ let
       ../../modules/home/programs/utils/dev/fzf-preview.nu
       ../../modules/home/programs/utils/network/dns-flush.nu
       ../../modules/home/programs/utils/system/set-background.nu
-      ../../modules/home/programs/zsh/integrations/ask.zsh
-      ../../modules/home/programs/zsh/integrations/seshy-wezterm.zsh
+      ../../features/shell/zsh/integrations/ask.zsh
+      ../../features/shell/zsh/integrations/seshy-wezterm.zsh
       ../../modules/darwin/home/sketchybar/lua/sysinit/pkg/core/display.lua
       ../../modules/darwin/home/hammerspoon/lua/sysinit/pkg/utils/json_loader.lua
       ../../modules/darwin/sketchybar-health.nu

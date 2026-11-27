@@ -1,0 +1,92 @@
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+
+let
+  interfaceFont = config.sysinit.theme.font.monospace;
+
+  vimrcSupport = {
+    "main.js" = pkgs.fetchurl {
+      url = "https://github.com/esm7/obsidian-vimrc-support/releases/download/0.10.2/main.js";
+      hash = "sha256-aGNzThnu8lBeBUJQyoIbxTL21iceb1AXKx6KBHNObOI=";
+    };
+    "manifest.json" = pkgs.fetchurl {
+      url = "https://github.com/esm7/obsidian-vimrc-support/releases/download/0.10.2/manifest.json";
+      hash = "sha256-st5aS+ORuI69konjgVYtFJGlh5ef0Iu9pqf/Ub4n0FY=";
+    };
+  };
+
+  nicerCheckboxes =
+    builtins.replaceStrings
+      [ "@checkboxIcon@" ]
+      [
+        (lib.escapeURL (builtins.readFile ./snippets/nicer-checkboxes-check.svg))
+      ]
+      (builtins.readFile ./snippets/nicer-checkboxes.css.tmpl);
+
+  snippets = {
+    "bullet-point-relationship-lines".source = ./snippets/bullet-point-relationship-lines.css;
+    "smaller-scrollbar".source = ./snippets/smaller-scrollbar.css;
+    "enlarge-image-on-hover".source = ./snippets/enlarge-image-on-hover.css;
+    "nicer-checkboxes".text = nicerCheckboxes;
+    "bigger-link-popup-preview".source = ./snippets/bigger-link-popup-preview.css;
+    "image-cards".source = ./snippets/image-cards.css;
+    "readable-layout".source = ./snippets/readable-layout.css;
+  };
+
+  communityPlugins = [
+    "obsidian-git"
+    "obsidian-importer"
+    "table-editor-obsidian"
+    "obsidian-vimrc-support"
+  ];
+in
+{
+  programs.obsidian = {
+    enable = true;
+
+    vaults = {
+      MainVault = {
+        enable = true;
+        target = "orgfiles";
+
+        settings = {
+          app = {
+            "vim-mode" = true;
+          };
+
+          appearance = {
+            baseFontSize = 15;
+            interfaceFontFamily = interfaceFont;
+            monospaceFontFamily = config.sysinit.theme.font.monospace;
+            textFontFamily = config.sysinit.theme.font.serif;
+          };
+
+          cssSnippets =
+            config.programs.obsidian.defaultSettings.cssSnippets
+            ++ lib.mapAttrsToList (name: value: { inherit name; } // value) snippets;
+
+          extraFiles = {
+            ".obsidian/community-plugins.json" = {
+              source = pkgs.sysinit.writeJSON "programs-obsidian.json" communityPlugins;
+            };
+
+            ".obsidian.vimrc" = {
+              source = ./obsidian.vimrc;
+            };
+
+            ".obsidian/plugins/obsidian-vimrc-support/main.js" = {
+              source = vimrcSupport."main.js";
+            };
+            ".obsidian/plugins/obsidian-vimrc-support/manifest.json" = {
+              source = vimrcSupport."manifest.json";
+            };
+          };
+        };
+      };
+    };
+  };
+}

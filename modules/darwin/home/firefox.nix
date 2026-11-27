@@ -21,7 +21,7 @@ let
 in
 {
   imports = [
-    ../../home/programs/firefox.nix
+    ../../../features/firefox/home.nix
   ];
 
   programs.firefox.package = firefoxWrapper // {

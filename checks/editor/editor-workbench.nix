@@ -29,7 +29,7 @@ nativeCheck {
       pkgs.sysinit-reviewr
       pkgs.changes-neovim-plugin
       ../../features/review/source-view.lua
-      ../../modules/home/programs/neovim/review-keys.lua
+      ../../features/neovim/review-keys.lua
     ]
   ];
 }

@@ -1,0 +1,335 @@
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
+
+let
+  themeLib = import ../theme/colors.nix { inherit lib; };
+  themeColors = themeLib.colorsOf config;
+  c = themeColors;
+  themeConfig = config.sysinit.theme;
+  monospaceFont = themeConfig.font.monospace;
+  render =
+    path: replacements:
+    lib.replaceStrings (lib.attrNames replacements) (map (name: replacements.${name}) (
+      lib.attrNames replacements
+    )) (builtins.readFile path);
+
+  renderTheme =
+    path:
+    render path (
+      builtins.listToAttrs (
+        map
+          (name: {
+            name = "var(--sysinit-${name})";
+            value = "#${c.${name}}";
+          })
+          [
+            "base00"
+            "base01"
+            "base02"
+            "base03"
+            "base04"
+            "base05"
+            "base06"
+            "base07"
+            "base08"
+            "base09"
+            "base0A"
+            "base0B"
+            "base0C"
+            "base0D"
+            "base0E"
+            "base0F"
+          ]
+      )
+      // {
+        "@monospace-font@" = monospaceFont;
+      }
+    );
+  newtabHTML = renderTheme ./newtab.html;
+  userChromeCSS = renderTheme ./userChrome.css;
+  userContentCSS = renderTheme ./userContent.css;
+  tridactylThemeCSS = renderTheme ./tridactyl.css;
+  tridactylRC = builtins.readFile ./tridactylrc;
+
+in
+{
+
+  programs.firefox = {
+    enable = true;
+    nativeMessagingHosts = [ pkgs.tridactyl-native ];
+
+    profiles.default = {
+      id = 0;
+      isDefault = true;
+      name = "default";
+
+      userChrome = userChromeCSS;
+      userContent = userContentCSS;
+
+      extensions.packages = with pkgs.firefox-addons; [
+        old-reddit-redirect
+        reddit-enhancement-suite
+        refined-github
+        sponsorblock
+        tridactyl
+        ublock-origin
+        web-clipper-obsidian
+      ];
+
+      settings = {
+        "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+        "ui.systemUsesDarkTheme" = 2;
+        "browser.theme.content-theme" = 2;
+        "browser.theme.toolbar-theme" = 2;
+        "layout.css.prefers-color-scheme.content-override" = 0;
+
+        "browser.startup.page" = 3;
+        "browser.uidensity" = 1;
+        "browser.compactmode.show" = true;
+        "font.default.x-western" = "serif";
+        "font.name.serif.x-western" = themeConfig.font.serif;
+        "font.name.sans-serif.x-western" = themeConfig.font.serif;
+        "font.name.monospace.x-western" = monospaceFont;
+        "font.size.variable.x-western" = 15;
+        "font.size.fixed.x-western" = 12;
+
+        "browser.search.suggest.enabled" = false;
+        "browser.urlbar.suggest.searches" = false;
+        "browser.urlbar.showSearchSuggestionsFirst" = false;
+        "extensions.autoDisableScopes" = 0;
+        "extensions.enabledScopes" = 15;
+        "browser.uiCustomization.state" = builtins.toJSON {
+          placements = {
+            "nav-bar" = [
+              "back-button"
+              "forward-button"
+              "urlbar-container"
+              "_d634138d-c276-4fc8-924b-40a0ea21d284_-browser-action"
+              "PanelUI-button"
+            ];
+            "TabsToolbar" = [
+              "tabbrowser-tabs"
+              "new-tab-button"
+            ];
+            "unified-extensions-area" = [
+              "uBlock0_raymondhill_net-browser-action"
+              "tridactyl_vim_cmcaine_co_uk-browser-action"
+              "jid1-BoFifL9Vbdl2zQ_jetpack-browser-action"
+              "_testpilot-containers-browser-action"
+              "sponsorBlocker_ajay_app-browser-action"
+              "_4cfbf13b-f27f-4f03-91dc-2aa17644029a_-browser-action"
+            ];
+            "widget-overflow-fixed-list" = [ ];
+            "toolbar-menubar" = [ "menubar-items" ];
+          };
+          seen = [
+            "_d634138d-c276-4fc8-924b-40a0ea21d284_-browser-action"
+            "addon_darkreader_org-browser-action"
+            "uBlock0_raymondhill_net-browser-action"
+            "tridactyl_vim_cmcaine_co_uk-browser-action"
+            "jid1-BoFifL9Vbdl2zQ_jetpack-browser-action"
+            "_testpilot-containers-browser-action"
+            "sponsorBlocker_ajay_app-browser-action"
+            "_4cfbf13b-f27f-4f03-91dc-2aa17644029a_-browser-action"
+            "developer-button"
+          ];
+          dirtyAreaCache = [
+            "nav-bar"
+            "TabsToolbar"
+            "unified-extensions-area"
+          ];
+          currentVersion = 20;
+          newElementCount = 0;
+        };
+      };
+
+      search = {
+        force = true;
+        default = "google";
+        engines = {
+          "Nix Packages" = {
+            urls = [
+              {
+                template = "https://search.nixos.org/packages";
+                params = [
+                  {
+                    name = "type";
+                    value = "packages";
+                  }
+                  {
+                    name = "query";
+                    value = "{searchTerms}";
+                  }
+                ];
+              }
+            ];
+            icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+            definedAliases = [ "@np" ];
+          };
+
+          "Nix Options" = {
+            urls = [
+              {
+                template = "https://search.nixos.org/options";
+                params = [
+                  {
+                    name = "channel";
+                    value = "unstable";
+                  }
+                  {
+                    name = "from";
+                    value = "0";
+                  }
+                  {
+                    name = "size";
+                    value = "50";
+                  }
+                  {
+                    name = "sort";
+                    value = "relevance";
+                  }
+                  {
+                    name = "type";
+                    value = "packages";
+                  }
+                  {
+                    name = "query";
+                    value = "{searchTerms}";
+                  }
+                ];
+              }
+            ];
+            icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+            definedAliases = [ "@no" ];
+          };
+
+          "GitHub" = {
+            urls = [
+              {
+                template = "https://github.com/search";
+                params = [
+                  {
+                    name = "q";
+                    value = "{searchTerms}";
+                  }
+                ];
+              }
+            ];
+            icon = "https://github.com/favicon.ico";
+            updateInterval = 24 * 60 * 60 * 1000;
+            definedAliases = [ "@gh" ];
+          };
+        };
+      };
+    };
+
+    # firefox-devtools-mcp attaches here; Marionette marks the browser as automated.
+    profiles.agent = {
+      id = 1;
+      name = "agent";
+      inherit (config.programs.firefox.profiles.default)
+        userChrome
+        userContent
+        settings
+        ;
+      search = {
+        inherit (config.programs.firefox.profiles.default.search) force default engines;
+      };
+      extensions.packages = config.programs.firefox.profiles.default.extensions.packages;
+    };
+
+    policies = {
+      DisableTelemetry = true;
+      DisableFirefoxStudies = true;
+      EnableTrackingProtection = {
+        Value = true;
+        Locked = true;
+        Cryptomining = true;
+        Fingerprinting = true;
+      };
+      DisablePocket = true;
+      DisableFirefoxAccounts = true;
+      DisableAccounts = true;
+      DisableFirefoxScreenshots = true;
+      DontCheckDefaultBrowser = true;
+      Homepage = {
+        URL = "https://www.google.com";
+        StartPage = "previous-session";
+      };
+      DisplayBookmarksToolbar = "never";
+      DisplayMenuBar = "default-off";
+      SearchBar = "unified";
+      SearchEngines = {
+        Default = "Google";
+        PreventInstalls = true;
+      };
+      ExtensionSettings = {
+        "tridactyl.vim@cmcaine.co.uk" = {
+          installation_mode = "force_installed";
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/tridactyl-vim/latest.xpi";
+        };
+        "addon@darkreader.org" = {
+          installation_mode = "force_installed";
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/darkreader/latest.xpi";
+        };
+        "jid1-BoFifL9Vbdl2zQ@jetpack" = {
+          installation_mode = "force_installed";
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/decentraleyes/latest.xpi";
+        };
+        "@testpilot-containers" = {
+          installation_mode = "force_installed";
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/multi-account-containers/latest.xpi";
+        };
+        "{9063c2e9-e07c-4c2c-9646-cfe7ca8d0498}" = {
+          installation_mode = "force_installed";
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/old-reddit-redirect/latest.xpi";
+        };
+        "jid1-xUfzOsOFlzSOXg@jetpack" = {
+          installation_mode = "force_installed";
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/reddit-enhancement-suite/latest.xpi";
+        };
+        "{a4c4eda4-fb84-4a84-b4a1-f7c1cbf2a1ad}" = {
+          installation_mode = "force_installed";
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/refined-github-/latest.xpi";
+        };
+        "sponsorBlocker@ajay.app" = {
+          installation_mode = "force_installed";
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/sponsorblock/latest.xpi";
+        };
+        "uBlock0@raymondhill.net" = {
+          installation_mode = "force_installed";
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi";
+        };
+        "{4cfbf13b-f27f-4f03-91dc-2aa17644029a}" = {
+          installation_mode = "force_installed";
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/obsidian-web-clipper/latest.xpi";
+        };
+        "{d634138d-c276-4fc8-924b-40a0ea21d284}" = {
+          installation_mode = "force_installed";
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/1password-x-password-manager/latest.xpi";
+          default_area = "navbar";
+        };
+      };
+    };
+  };
+
+  xdg.configFile = {
+    "tridactyl/tridactylrc".text = tridactylRC;
+    "tridactyl/themes/stylix.css".text = tridactylThemeCSS;
+  };
+
+  home.file.".local/share/firefox/newtab.html".text = newtabHTML;
+
+  home.packages = [
+    (pkgs.sysinit.writeShellApplication {
+      name = "firefox-agent";
+      text = ''
+        exec ${config.programs.firefox.finalPackage}/bin/firefox -P agent --marionette --remote-debugging-port "$@"
+      '';
+    })
+  ];
+}

@@ -124,7 +124,7 @@ in
     postBuild = ''
       rm "$out/bin/changes"
       makeWrapper ${final.lib.getExe final.nushell} "$out/bin/changes" \
-        --add-flags "--no-config-file ${../modules/home/programs/changes-entry.nu} ${final.lib.getExe final.changes-cli}"
+        --add-flags "--no-config-file ${../features/changes/changes-entry.nu} ${final.lib.getExe final.changes-cli}"
     '';
     meta = final.changes-cli.meta // {
       mainProgram = "changes";

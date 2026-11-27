@@ -52,7 +52,7 @@ in
     name = "gh-pr-state-test";
     script = ./gh-pr-state.nu;
     sources = [ ../lib/process.nu ];
-    arguments = [ ../../modules/home/programs/gh-pr-state.nu ];
+    arguments = [ ../../features/github/gh-pr-state.nu ];
   };
 
   changes-integration = import ./changes-integration.nix { inherit pkgs; };

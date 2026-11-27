@@ -8,6 +8,6 @@ pkgs.runCommand "git-ai-maintenance"
     ];
   }
   ''
-    nu --no-config-file -c 'use ${../../modules/home/programs/git-ai/maintain-metrics.nu} maintain; source ${./git-ai-maintenance.nu}; check ${../../modules/home/programs/git-ai/maintain-metrics.nu} ${../fixtures/wait-for-file.nu}'
+    nu --no-config-file -c 'use ${../../features/git-ai/maintain-metrics.nu} maintain; source ${./git-ai-maintenance.nu}; check ${../../features/git-ai/maintain-metrics.nu} ${../fixtures/wait-for-file.nu}'
     touch "$out"
   ''

@@ -13,7 +13,7 @@ nativeCheck {
       "nu"
       "--no-config-file"
       "${./pr-workflow.nu}"
-      "${../../modules/home/programs/gh-pr-diff.nu}"
+      "${../../features/github/gh-pr-diff.nu}"
       "${../../modules/home/programs/llm/runtime/ask-terminal.nu}"
       "${nuFunctions}"
       "${../fixtures/review-tools.nu}"

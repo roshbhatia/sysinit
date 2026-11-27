@@ -1,7 +1,7 @@
 { pkgs }:
 let
   emacs = (pkgs.emacsPackagesFor pkgs.emacs-nox).emacsWithPackages (
-    import ../../modules/home/programs/mail/packages.nix { inherit pkgs; }
+    import ../../features/mail/packages.nix { inherit pkgs; }
   );
 in
 import ../lib/native.nix { inherit pkgs; } {
@@ -12,7 +12,7 @@ import ../lib/native.nix { inherit pkgs; } {
     pkgs.chafa
     pkgs.imagemagick
   ];
-  environment.MAIL_CONFIG = "${../../modules/home/programs/mail/emacs}/sysinit-mail.el";
+  environment.MAIL_CONFIG = "${../../features/mail/emacs}/sysinit-mail.el";
   commands = [
     [
       "emacs"

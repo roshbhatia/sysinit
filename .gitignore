@@ -36,4 +36,4 @@ __pycache__/
 # rule library this repo ships and the project root `nix flake check` gates, and an
 # untracked file is absent from the flake source.
 !sgconfig.yml
-!modules/home/programs/ast-grep/
+!features/ast-grep/

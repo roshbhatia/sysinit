@@ -28,6 +28,6 @@ pkgs.runCommand "firefox-theme-and-bindings-test"
     nativeBuildInputs = [ pkgs.nushell ];
   }
   ''
-    nu --no-config-file ${./firefox.nu} ${fixtures} ${../../modules/home/programs/firefox/tridactylrc}
+    nu --no-config-file ${./firefox.nu} ${fixtures} ${../../features/firefox/tridactylrc}
     touch "$out"
   ''

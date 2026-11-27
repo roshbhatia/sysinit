@@ -2,7 +2,7 @@
 let
   completions =
     builtins.head
-      (import ../../modules/home/programs/completions { inherit pkgs; }).home.packages;
+      (import ../../features/completions/home.nix { inherit pkgs; }).home.packages;
 in
 (import ../lib/native.nix { inherit pkgs; }) {
   name = "shell-completions-test";

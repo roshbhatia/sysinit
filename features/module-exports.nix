@@ -1,12 +1,32 @@
 [
+  ./ast-grep
+  ./atuin
+  ./changes
+  ./cli
+  ./completions
+  ./development
+  ./editor
+  ./fastfetch
+  ./firefox
   ./git
+  ./git-ai
+  ./github
+  ./kubernetes
+  ./mail
+  ./neovim
+  ./nix
   ./nushell
+  ./obsidian
   ./queue
   ./remote-build.nix
   ./seshy
+  ./shell
   ./ssh
   ./tailscale
+  ./taskwarrior
+  ./telemetry
   ./tether
   ./theme
   ./wezterm
+  ./yazi
 ]

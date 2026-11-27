@@ -52,7 +52,7 @@ def main [root: path, fixture: path] {
                 assert equal (open --raw $calls | lines | length) 1
             }
             let source = $scratch | path join seshy.zsh
-            open --raw ($root | path join modules home programs zsh integrations seshy-wezterm.zsh)
+            open --raw ($root | path join features shell zsh integrations seshy-wezterm.zsh)
                 | str replace --all '@seshySessions@' "'/tmp/custom sessions'" | save $source
             let forwarded = invoke zsh [-f -c 'source "$1"; weznot() { :; }; capture() { printf "<%s>\n" "$@"; return 19; }; wezmon capture "one two" "" "literal; echo BAD"' fixture $source]
             assert equal $forwarded.exit_code 19 $forwarded.stderr
@@ -63,7 +63,7 @@ def main [root: path, fixture: path] {
             let session = invoke zsh [-f -c 'source "$1"; _seshy_session_name "/tmp/custom sessions/project/repo"' fixture $source]
             assert equal $session.stdout "project\n"
             let hook = $scratch | path join hook.zsh
-            open --raw ($root | path join modules home programs zsh integrations ask.zsh)
+            open --raw ($root | path join features shell zsh integrations ask.zsh)
                 | str replace --all '@timeout@' timeout | save $hook
             let bounded = invoke zsh [-f -c 'source "$1"; _ask_capture; printf ready' fixture $hook]
             assert equal $bounded.exit_code 0 $bounded.stderr

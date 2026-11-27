@@ -1,6 +1,6 @@
 { pkgs }:
 let
-  module = import ../../modules/home/programs/ast-grep {
+  module = import ../../features/ast-grep/home.nix {
     inherit pkgs;
     inherit (pkgs) lib;
     config.xdg.configHome = "\${TMPDIR}/config";
@@ -14,7 +14,7 @@ import ../lib/nushell.nix { inherit pkgs; } {
   sources = [ ../lib/process.nu ];
   arguments = [
     configuration
-    ../../modules/home/programs/ast-grep/rules
+    ../../features/ast-grep/rules
     "${wrapper}/bin/sgg"
   ];
 }

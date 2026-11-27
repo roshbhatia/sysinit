@@ -5,6 +5,6 @@
     ./desktop.nix
     ./default-apps.nix
     ./firefox.nix
-    ../../home/programs/obsidian.nix
+    ../../../features/obsidian/home.nix
   ];
 }

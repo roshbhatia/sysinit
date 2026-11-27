@@ -49,7 +49,7 @@ nix build --impure --argstr source "git+file://$PWD?dir=hosts/arda" \
 | `features/` | Reusable feature modules registered through flake-parts |
 | `modules/darwin/` | macOS system and desktop configuration |
 | `modules/nixos/` | NixOS system configuration |
-| `modules/home/` | Home Manager programs and user configuration |
+| `modules/home/` | Home Manager profile composition and shared subsystems |
 | `modules/shared/` | Shared options and command paths |
 | `overlays/` | Custom packages and upstream patches |
 | `pkgs/` | Local command implementations |
@@ -60,8 +60,11 @@ The `minimal`, `dev`, and `workstation` profiles add shell tools, development to
 and desktop applications in that order.
 
 Reusable capabilities and their supporting files live under `features/`.
-`features/default.nix` registers the feature modules, and hosts and profiles choose
-the variants they need. Arda composes the shared Git identity, OpenSSH client,
+`features/module-exports.nix` registers named module entry points. Hosts and
+profiles choose the variants they need. Larger features such as Neovim, Firefox,
+GitHub tooling, Taskwarrior, and mail own their configuration and supporting files.
+Related small modules live together under shell, CLI, development, Kubernetes,
+and telemetry. Arda composes the shared Git identity, OpenSSH client,
 and interactive Nushell modules with a grayscale terminal palette. Workstation
 profiles add their Git and SSH policy. NixOS and Darwin share the Tailscale
 service module and select their own Stylix integration. Named Base16 schemes
@@ -95,4 +98,5 @@ nix flake init -t github:roshbhatia/sysinit#discrete
 ```
 
 The [discrete template](templates/discrete) consumes this flake and keeps host settings
-in a separate repository.
+in a separate repository. Its `sysinit.lib.mkHostLib inputs` call supplies host
+builders with the consuming flake's input overrides.

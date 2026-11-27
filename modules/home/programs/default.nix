@@ -16,59 +16,59 @@ in
   imports =
     profiles.forProfile profile {
       minimal = [
-        ./atuin.nix
-        ./bash.nix
-        ./bat.nix
-        ./direnv.nix
-        ./editorconfig.nix
-        ./eza.nix
-        ./fd.nix
-        ./fzf.nix
+        features.atuin
+        features.bash
+        features.bat
+        features.direnv
+        features.editorconfig
+        features.eza
+        features.fd
+        features.fzf
         features.git
-        ./helix.nix
-        ./hushlogin.nix
-        ./ere.nix
-        ./nix.nix
-        ./nix-your-shell.nix
-        ./omp.nix
+        features.helix
+        features.hushlogin
+        features.ere
+        features.nix
+        features.nixYourShell
+        features.omp
         features.openssh
-        ./taskwarrior.nix
+        features.taskwarrior
         ./utils
-        ./vivid.nix
-        ./zoxide.nix
-        ./zsh
+        features.vivid
+        features.zoxide
+        features.zsh
       ];
 
       dev = [
-        ./ast-grep
-        ./bottom.nix
-        ./completions
-        ./changes.nix
-        ./gh.nix
-        ./git-ai
-        ./hunk.nix
-        ./htop.nix
-        ./java.nix
-        ./k9s.nix
-        ./kubectl.nix
+        features.astGrep
+        features.bottom
+        features.completions
+        features.changes
+        features.github
+        features.gitAi
+        features.hunk
+        features.htop
+        features.java
+        features.k9s
+        features.kubectl
         ./llm
-        ./mise.nix
-        ./neovim
-        ./nh.nix
+        features.mise
+        features.neovim
+        features.nh
         features.nushell
-        ./otel-collector.nix
-        ./otel-tui.nix
+        features.otelCollector
+        features.otelTui
         features.queue
         features.seshy
         features.tether
-        ./terraform.nix
-        ./traces.nix
-        ./yazi
+        features.terraform
+        features.traces
+        features.yazi
       ];
 
       workstation = [
-        ./fastfetch.nix
-        ./mail
+        features.fastfetch
+        features.mail
         features.wezterm
       ];
     }

@@ -4,7 +4,7 @@ let
     inherit pkgs;
     extraSpecialArgs.profile = "dev";
     modules = [
-      ../../modules/home/programs/helix.nix
+      ../../features/editor/helix.nix
       {
         home = {
           username = "editor-test";
