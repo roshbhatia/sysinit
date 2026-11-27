@@ -1,0 +1,125 @@
+checks/editor/editor-workbench.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 32
+features/fastfetch/home.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-313
+features/yazi/default.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-3
+features/firefox/default.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-3
+checks/workflows/mail.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 4,15
+checks/desktop/firefox.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 31
+sgconfig.yml
+  s_8db7fc35d14233::t_302cf845a7f12b 3
+features/telemetry/default.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-7
+features/taskwarrior/default.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-3
+checks/editor/editor-composition.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 7
+modules/home/programs/default.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 19-26,28-33,35,37-39,43-53,55-57,59-60,64-66,70-71
+features/taskwarrior/home.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-249
+README.md
+  s_8db7fc35d14233::t_b621d5c76e281a 52,63-67,101-102
+checks/workflows/pr-workflow.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 16
+checks/packages/utility-contracts.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 12-13
+features/completions/default.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-3
+features/shell/zsh/default.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-187
+features/mail/default.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-3
+features/atuin/default.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-3
+checks/shell/shell-completions.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 5
+features/neovim/default.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-3
+features/atuin/home.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-103
+features/obsidian/home.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-92
+features/ast-grep/default.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-3
+features/kubernetes/default.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-6
+features/development/default.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-7
+features/shell/omp.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-95
+features/git-ai/default.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-3
+features/shell/default.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-11
+modules/darwin/home/firefox.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 24
+.gitignore
+  s_8db7fc35d14233::t_302cf845a7f12b 39
+features/cli/fzf.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-85
+modules/nixos/home-manager.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 41-42
+checks/packages/utility-contracts.nu
+  s_8db7fc35d14233::t_b11a1e3f8a5379 55,66
+checks/shell/home-profiles.nix
+  s_8db7fc35d14233::t_868bc0413e6a3b 11-13
+  s_8db7fc35d14233::t_a17c9076084535 1-10,14-22
+features/firefox/home.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-335
+checks/workflows/git-ai-maintenance.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 11
+features/changes/default.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-6
+checks/workflows/default.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 55
+modules/darwin/home/default.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 8
+features/cli/default.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-12
+features/cli/ere.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-210
+checks/shell/default.nix
+  s_8db7fc35d14233::t_a17c9076084535 25-26
+  s_8db7fc35d14233::t_302cf845a7f12b 18,39
+checks/workflows/git-ai-integration.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 16
+features/editor/default.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-6
+features/github/default.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-3
+features/fastfetch/default.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-3
+features/obsidian/default.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-3
+features/mail/home.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-189
+overlays/sysinit-gotools.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 127
+features/module-exports.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 2-10,12-17,19,23,26-27,31
+checks/packages/ast-grep.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 3,17
+features/nix/default.nix
+  s_8db7fc35d14233::t_302cf845a7f12b 1-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6a6a40607b9f6bf702ef3688644b19c17b0bb745",
+  "prompts": {},
+  "sessions": {
+    "s_8db7fc35d14233": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a215ce-24da-7591-890e-c407374c6ce4",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
