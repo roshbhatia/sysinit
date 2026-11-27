@@ -1,0 +1,190 @@
+features/theme/home.nix
+  s_8db7fc35d14233::t_113a09313c0139 2-3
+features/theme/darwin.nix
+  s_8db7fc35d14233::t_113a09313c0139 4-7
+  s_8db7fc35d14233::t_0055a3fcde7c50 1-3,8-18
+features/workspace/package.nix
+  s_8db7fc35d14233::t_3f5be2c4aa6a98 3
+hosts/default.nix
+  s_8db7fc35d14233::t_a9bb4c96acc2a4 1,4
+modules/home/programs/atuin.nix
+  s_8db7fc35d14233::t_0055a3fcde7c50 9
+hosts/arrakis/default.nix
+  s_8db7fc35d14233::t_2d6f6b6e0a449b 26,32-33
+  s_8db7fc35d14233::t_a9bb4c96acc2a4 1,34
+modules/darwin/system.nix
+  s_8db7fc35d14233::t_fc47820a1a0084 13-14,37-40
+modules/darwin/home-manager.nix
+  s_8db7fc35d14233::t_0055a3fcde7c50 31,33
+modules/home/programs/fastfetch.nix
+  s_8db7fc35d14233::t_0055a3fcde7c50 11
+modules/home/programs/mail/default.nix
+  s_8db7fc35d14233::t_0055a3fcde7c50 9
+modules/home/programs/firefox.nix
+  s_8db7fc35d14233::t_0055a3fcde7c50 9
+modules/nixos/common/default.nix
+  s_8db7fc35d14233::t_113a09313c0139 23-24
+  s_8db7fc35d14233::t_0055a3fcde7c50 21,25
+features/git/default.nix
+  s_8db7fc35d14233::t_113a09313c0139 1-6
+features/ssh/home.nix
+  s_8db7fc35d14233::t_113a09313c0139 14-19
+features/ssh/default.nix
+  s_8db7fc35d14233::t_113a09313c0139 1-8
+features/ssh/nixos.nix
+  s_8db7fc35d14233::t_113a09313c0139 1-15
+modules/darwin/home/sketchybar/default.nix
+  s_8db7fc35d14233::t_0055a3fcde7c50 9
+modules/nixos/home-manager.nix
+  s_8db7fc35d14233::t_0055a3fcde7c50 31,33
+features/ssh/client.nix
+  s_8db7fc35d14233::t_113a09313c0139 1-6
+features/workspace/source.nix
+  s_8db7fc35d14233::t_3f5be2c4aa6a98 1-9
+features/theme/nix-on-droid.nix
+  s_8db7fc35d14233::t_113a09313c0139 1-29
+features/tailscale/default.nix
+  s_8db7fc35d14233::t_113a09313c0139 1-6
+modules/darwin/borders.nix
+  s_8db7fc35d14233::t_0055a3fcde7c50 8
+checks/editor/default.nix
+  s_8db7fc35d14233::t_22e30cd5a03a7f 17
+flake.nix
+  s_8db7fc35d14233::t_2d6f6b6e0a449b 6-9,15-19,219-220
+  s_8db7fc35d14233::t_a9bb4c96acc2a4 221-227
+checks/agents/native-output.nix
+  s_8db7fc35d14233::t_3f5be2c4aa6a98 2-4,17-19,45
+checks/workflows/default.nix
+  s_8db7fc35d14233::t_0055a3fcde7c50 24
+features/theme/nixos.nix
+  s_8db7fc35d14233::t_113a09313c0139 4-7
+  s_8db7fc35d14233::t_0055a3fcde7c50 1-3,8-10
+modules/nixos/home/launcher.nix
+  s_8db7fc35d14233::t_0055a3fcde7c50 9
+features/seshy/home.nix
+  s_8db7fc35d14233::t_dbbf150b801905 31-35
+hack/lint.nu
+  s_8db7fc35d14233::t_eb1f5c739b6f27 131-135
+flake/default.nix
+  s_8db7fc35d14233::t_0055a3fcde7c50 71,73
+  s_8db7fc35d14233::t_e8fa12c4f79845 114
+  s_8db7fc35d14233::t_23ae49c6caad1d 60
+  s_8db7fc35d14233::t_22e30cd5a03a7f 3,37,49-50,83,131-137,139-149,151
+  s_8db7fc35d14233::t_fff5a6a2216532 4,10
+  s_8db7fc35d14233::t_07a0522c02c376 1,6,75
+  s_8db7fc35d14233::t_a9bb4c96acc2a4 2,5,8,18-21,51,121-122,154
+  s_8db7fc35d14233::t_9aa5e628c30a91 54-59,61-70,72,74,76-82,84-111,113,115-118
+  s_8db7fc35d14233::t_02aeb5ac45b3ce 9,52-53,123
+modules/darwin/home/hammerspoon/default.nix
+  s_8db7fc35d14233::t_0055a3fcde7c50 37
+modules/home/programs/fzf.nix
+  s_8db7fc35d14233::t_0055a3fcde7c50 8
+hosts/arda/flake.nix
+  s_8db7fc35d14233::t_a27a69087a8cf7 35-41
+  s_8db7fc35d14233::t_0cfcd90358abf9 32-34,45-46
+  s_8db7fc35d14233::t_8d31233797f3e4 42
+features/theme/default.nix
+  s_8db7fc35d14233::t_113a09313c0139 1-8
+hosts/vorgossos/default.nix
+  s_8db7fc35d14233::t_113a09313c0139 11,49
+features/wezterm/home.nix
+  s_8db7fc35d14233::t_22e30cd5a03a7f 109-126
+features/remote-build.nix
+  s_8db7fc35d14233::t_2d6f6b6e0a449b 2-7
+features/default.nix
+  s_8db7fc35d14233::t_113a09313c0139 3,8-11
+  s_8db7fc35d14233::t_a9bb4c96acc2a4 1-2,4-5,14-15
+features/nushell/default.nix
+  s_8db7fc35d14233::t_a9bb4c96acc2a4 1-3
+hosts/vorgossos/hardware.nix
+  s_8db7fc35d14233::t_0cfcd90358abf9 2-3
+hosts/vorgossos/terminal.nix
+  s_8db7fc35d14233::t_0055a3fcde7c50 17
+modules/home/programs/default.nix
+  s_8db7fc35d14233::t_0055a3fcde7c50 22,29,57-58,67,70
+modules/home/programs/zsh/default.nix
+  s_8db7fc35d14233::t_0055a3fcde7c50 9
+features/theme/options.nix
+  s_8db7fc35d14233::t_113a09313c0139 21
+modules/darwin/default.nix
+  s_8db7fc35d14233::t_0055a3fcde7c50 8,21,24,26
+lib/builders/home.nix
+  s_8db7fc35d14233::t_0055a3fcde7c50 50,52
+lib/output-builders.nix
+  s_8db7fc35d14233::t_2d6f6b6e0a449b 17
+modules/nixos/home/desktop.nix
+  s_8db7fc35d14233::t_0055a3fcde7c50 9
+modules/home/programs/llm/harnesses/pi/default.nix
+  s_8db7fc35d14233::t_0055a3fcde7c50 8
+modules/home/programs/llm/default.nix
+  s_8db7fc35d14233::t_22e30cd5a03a7f 207-209
+modules/home/programs/omp.nix
+  s_8db7fc35d14233::t_0055a3fcde7c50 7
+tsconfig.json
+  s_8db7fc35d14233::t_3f5be2c4aa6a98 8
+hosts/vorgossos/flake-module.nix
+  s_8db7fc35d14233::t_02aeb5ac45b3ce 1-17
+flake/formatter.nix
+  s_8db7fc35d14233::t_22e30cd5a03a7f 1-23
+features/git/home.nix
+  s_8db7fc35d14233::t_113a09313c0139 11-235
+features/git/identity.nix
+  s_8db7fc35d14233::t_113a09313c0139 1-10
+README.md
+  s_8db7fc35d14233::t_02aeb5ac45b3ce 9
+  s_8db7fc35d14233::t_8e87fb8c25e80d 32-42
+  s_8db7fc35d14233::t_a9bb4c96acc2a4 3,28-31,49
+  s_8db7fc35d14233::t_4faba454f713c3 62-66
+  s_8db7fc35d14233::t_5c07e68e897f82 67-74
+  s_8db7fc35d14233::t_051c262da77bd0 75
+modules/home/programs/nushell/default.nix
+  s_8db7fc35d14233::t_a9bb4c96acc2a4 114
+  s_8db7fc35d14233::t_fe2f934e09f30f 115
+hosts/arda/configuration.nix
+  s_8db7fc35d14233::t_113a09313c0139 11,13,27-31,34-37
+  s_8db7fc35d14233::t_0e64c2d52dde52 24-25,32
+features/nushell/interactive.nix
+  s_8db7fc35d14233::t_a9bb4c96acc2a4 1-20
+modules/nixos/desktop/greetd.nix
+  s_8db7fc35d14233::t_0055a3fcde7c50 9
+checks/editor/diff-pane.nix
+  s_8db7fc35d14233::t_e0457ab4669916 13
+checks/editor/editor-workbench.nix
+  s_8db7fc35d14233::t_f689865d34173b 31
+features/review/default.nix
+  s_8db7fc35d14233::t_c53bba829435f0 1-7
+features/review/review-link.nix
+  s_8db7fc35d14233::t_3257dccee64a7c 4,7,10
+features/review/review-link.nu
+  s_8db7fc35d14233::t_1f18545b7bc497 1
+features/seshy/default.nix
+  s_8db7fc35d14233::t_db47f545fc060c 1-3
+features/tether/default.nix
+  s_8db7fc35d14233::t_cdc19ad078ea41 1-3
+features/theme/stylix.nix
+  s_8db7fc35d14233::t_788b95250f005e 3,12
+features/wezterm/default.nix
+  s_8db7fc35d14233::t_91174b523159de 1-3
+features/workspace/default.nix
+  s_8db7fc35d14233::t_a3ae9a397ce838 1-7
+features/workspace/workspace.nu
+  s_8db7fc35d14233::t_a19a64064c1d85 1-2
+flake.lock
+  s_8db7fc35d14233::t_cd1040d3ef3609 189,509-511,524,529-546,564,585,989,1133,1388,1414,1599,1823-1839
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5cd0593aefd8937a0e9638520c0ba357ae275edb",
+  "prompts": {},
+  "sessions": {
+    "s_8db7fc35d14233": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a215ce-24da-7591-890e-c407374c6ce4",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
