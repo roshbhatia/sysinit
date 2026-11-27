@@ -10,9 +10,18 @@ let
   inherit (inputs) nixpkgs;
   inherit (nixpkgs) lib;
 
-  sysinitLib = import ../lib {
-    inherit lib nixpkgs inputs;
-  };
+  mkHostLib =
+    overrides:
+    let
+      hostInputs = inputs // overrides;
+    in
+    import ../lib {
+      inherit (hostInputs) nixpkgs;
+      inherit (hostInputs.nixpkgs) lib;
+      inputs = hostInputs;
+    };
+
+  sysinitLib = mkHostLib { };
 
   personal = import ../hosts/personal.nix;
   hostConfigs = import ../hosts {
@@ -48,21 +57,30 @@ let
   };
 
   mkPkgs = { system, ... }: (getSystem system).allModuleArgs.pkgs;
+  standaloneProfiles = [
+    "dev"
+    "minimal"
+  ];
   outputs = {
     inherit darwinConfigurations;
     nixosConfigurations = workstationConfigurations;
 
-    lib.configurationDerivations = lib.genAttrs systems (system: {
-      darwin = lib.mapAttrs (_: cfg: cfg.system.drvPath) (
-        lib.filterAttrs (name: _: hostConfigs.${name}.system == system) darwinConfigurations
-      );
-      nixos = lib.mapAttrs (_: cfg: cfg.config.system.build.toplevel.drvPath) (
-        lib.filterAttrs (_: cfg: cfg.pkgs.stdenv.hostPlatform.system == system) nixosConfigurations
-      );
-      home = lib.genAttrs [ "dev" "minimal" ] (
-        profile: inputs.self.homeConfigurations.${profile + "-" + system}.activationPackage.drvPath
-      );
-    });
+    lib.mkHostLib = mkHostLib;
+    lib.configurationDerivations = lib.genAttrs systems (
+      system:
+      let
+        forSystem = lib.filterAttrs (_: cfg: cfg.pkgs.stdenv.hostPlatform.system == system);
+      in
+      {
+        darwin = lib.mapAttrs (_: cfg: cfg.system.drvPath) (forSystem darwinConfigurations);
+        nixos = lib.mapAttrs (_: cfg: cfg.config.system.build.toplevel.drvPath) (
+          forSystem nixosConfigurations
+        );
+        home = lib.genAttrs standaloneProfiles (
+          profile: inputs.self.homeConfigurations.${profile + "-" + system}.activationPackage.drvPath
+        );
+      }
+    );
 
     homeModules = {
       default = ../modules/home;
@@ -84,25 +102,20 @@ let
         };
       in
       lib.listToAttrs (
-        lib.concatMap
-          (
-            profile:
-            map (system: {
-              name = "${profile}-${system}";
-              value = buildHome {
-                inherit system profile;
-                inherit (personal) username;
-                hostname = "standalone";
-                values = {
-                  inherit (personal) git;
-                };
+        lib.concatMap (
+          profile:
+          map (system: {
+            name = "${profile}-${system}";
+            value = buildHome {
+              inherit system profile;
+              inherit (personal) username;
+              hostname = "standalone";
+              values = {
+                inherit (personal) git;
               };
-            }) systems
-          )
-          [
-            "dev"
-            "minimal"
-          ]
+            };
+          }) systems
+        ) standaloneProfiles
       );
 
     templates = {
