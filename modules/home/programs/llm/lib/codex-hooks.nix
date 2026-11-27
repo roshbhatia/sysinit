@@ -35,7 +35,7 @@ in
       { hooks = [ (commandHook "${profileBin}/gate-hook-codex-posttooluse") ]; }
       {
         matcher = "^apply_patch$";
-        hooks = [ (commandHook "${profileBin}/agent-review-link --hook") ];
+        hooks = [ (commandHook "${profileBin}/agent-review-link --hook --harness codex") ];
       }
     ];
     UserPromptSubmit = [
@@ -43,7 +43,7 @@ in
         hooks = [
           (commandHook "${profileBin}/agent-state codex working submit")
           (commandHook "${profileBin}/gate-hook-codex-userpromptsubmit")
-          (commandHook "${profileBin}/agent-review-link --hook")
+          (commandHook "${profileBin}/agent-review-link --hook --harness codex")
         ];
       }
     ];
@@ -52,7 +52,7 @@ in
         hooks = [
           (commandHook "${profileBin}/agent-notify codex done ${profileBin}/agent-focus")
           (commandHook "${profileBin}/agent-state codex done \"your move\"")
-          (commandHook "${profileBin}/agent-review-link --hook")
+          (commandHook "${profileBin}/agent-review-link --hook --harness codex")
         ];
       }
     ];

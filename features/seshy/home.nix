@@ -29,7 +29,10 @@ in
     };
   };
   config = {
-    home.packages = [ pkgs.worktrunk ];
+    home.packages = [
+      pkgs.seshy
+      pkgs.worktrunk
+    ];
 
     xdg.configFile = {
       "seshy/config.yaml".source = (pkgs.formats.yaml { }).generate "seshy-config.yaml" settings;

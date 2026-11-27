@@ -1,7 +1,7 @@
 use std/assert
 
 def main [emitter: path, router: path, probe: path] {
-    let root = mktemp --directory
+    let root = mktemp --directory | path expand --strict
 
     let cwd = $root | path join 'work #1'
 
@@ -18,7 +18,7 @@ def main [emitter: path, router: path, probe: path] {
 
     let edit = $post | merge {session_id: claude-fixture, tool_name: Edit, tool_input: {file_path: 'a.nu'}}
 
-    let failed = $patch | update tool_response "Exit code: 1\nError: patch failed"
+    let failed = $patch | update tool_response {exit_code: 1}
 
     with-env {WEZTERM_PANE: '42', XDG_STATE_HOME: ($root | path join state)} {
         let uri = ^$emitter $cwd | str trim
@@ -84,7 +84,7 @@ def main [emitter: path, router: path, probe: path] {
         'existing dirty file' | save ($repo | path join existing.txt)
         $turn | to json --raw | ^$emitter --hook
         'committed edit' | save ($repo | path join committed.txt)
-        let first = $edit | to json --raw | ^$emitter --hook | from json
+        let first = $edit | update tool_response "Chunk ID: fixture\nOutput: Updated sample" | to json --raw | ^$emitter --hook --harness codex | from json
         assert equal ($first.systemMessage | lines | get 1) 'Review edit · 1 file'
         assert equal ($edit | to json --raw | ^$emitter --hook | str trim) ''
         ^git -C $repo add -- committed.txt
@@ -113,6 +113,17 @@ def main [emitter: path, router: path, probe: path] {
             existing.txt
             uncommitted.txt
         ]
+        let lookup = ^$emitter --resolve $uri --json | from json
+        assert equal $lookup {directory: $repo, turn: $id}
+
+        let expired = $root | path join state agent-diff links retention ($repo | hash sha256) $second_id
+        '2000-01-01T00:00:00+00:00' | save --force $expired
+        ^$emitter $repo --prune
+        let deleted = ^git -C $repo rev-parse --verify $'($second_ref)/before' | complete
+        assert ($deleted.exit_code != 0)
+        assert (($expired | path exists) == false)
+        assert equal (^git -C $repo show $'($ref)/after:uncommitted.txt') 'uncommitted edit'
+
         $turn | to json --raw | ^$emitter --hook
         assert equal ($stop | to json --raw | ^$emitter --hook | str trim) ''
 

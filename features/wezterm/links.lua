@@ -109,7 +109,13 @@ function M.setup(options)
     if window:get_dimensions().is_full_screen then
       command[#command + 1] = "--fullscreen"
     end
-    run(window, "Review changes", command)
+    table.insert(command, 1, "PATH=" .. options.path)
+    table.insert(command, 1, "/usr/bin/env")
+    local ok, err = pcall(wezterm.background_child_process, command)
+    if not ok then
+      wezterm.log_error("Review changes: " .. tostring(err))
+      window:toast_notification("Review changes", tostring(err), nil, 4000)
+    end
   end
 
   wezterm.on("open-uri", function(window, pane, uri)
@@ -122,10 +128,14 @@ function M.setup(options)
       if not can_review(window, pane) then
         return false
       end
-      local directory =
-        run(window, "Review changes", { options.bin .. "/agent-review-link", "--resolve", uri })
-      if directory then
-        open_review(window, pane, directory:gsub("\n$", ""), uri:match("%?turn=([0-9a-f]+)$"))
+      local resolved = run(
+        window,
+        "Review changes",
+        { options.bin .. "/agent-review-link", "--resolve", uri, "--json" }
+      )
+      if resolved then
+        local target = wezterm.json_parse(resolved)
+        open_review(window, pane, target.directory, target.turn)
       end
       return false
     end

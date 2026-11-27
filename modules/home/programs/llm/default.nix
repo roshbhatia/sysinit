@@ -143,6 +143,8 @@ in
     ./mcp-servers.nix
     ./computer-use.nix
     ./harnesses
+    ../../../../features/review/home.nix
+    ../../../../features/workspace/home.nix
   ];
 
   xdg = {
@@ -194,19 +196,13 @@ in
       pkgs.sysinit-utils
       capture
       (import ./runtime/agents { inherit pkgs; })
-      (import ../../../../features/review/package.nix { inherit pkgs; })
-      (import ../../../../features/review/review-link.nix { inherit lib pkgs; })
       notify.script
       notify.agentRefine
       notify.promptScript
       notify.focusScript
       notify.reviewScript
       notify.sessionsScript
-      pkgs.seshy
     ]
-    ++ lib.optional config.sysinit.llm.workspace.enable (
-      import ../../../../features/workspace/package.nix { inherit pkgs; }
-    )
     ++ lib.optional pkgs.stdenv.hostPlatform.isDarwin notify.appPackage;
   };
 

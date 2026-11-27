@@ -5,13 +5,13 @@ in
 pkgs.writeShellApplication {
   name = "agent-workspace";
   runtimeInputs = [
-    (import ../review/package.nix { inherit pkgs; })
+    pkgs.agent-diff
     pkgs.bun
     pkgs.changes
     pkgs.changes-provider-local-notes
     pkgs.coreutils
     pkgs.git
-    pkgs.sysinit-utils
+    pkgs.sysinit-ty
     pkgs.seshy
     pkgs.wezterm
   ];

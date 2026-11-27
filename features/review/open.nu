@@ -1,8 +1,9 @@
-use ./wezterm-mux.nu wezterm-socket
+use ../wezterm/mux.nu wezterm-socket
+use ./turn-history.nu read-turn
+use ./timing.nu review-timing
 
 const script = path self
 const directory_notes = path self | path dirname | path join directory-notes.lua
-const source_view = path self | path dirname | path join source-view.lua
 const diffview_ready = 'luaeval("(function() local ok, lib = pcall(require, \x27diffview.lib\x27); local view = ok and lib.get_current_view(); return view and view.ready and 1 or 0 end)()")'
 
 def run-command [arguments: list<string>] {
@@ -57,17 +58,17 @@ def rpc [socket: path, expression: string] {
 }
 
 def select-review [socket: path, refresh: bool, range?: list<string>] {
-    let lua = 'dofile(_A.script).select_review(_A.refresh, _A.range)'
+    let lua = 'require("sysinit_workbench.review").select(_A.refresh, _A.range)'
 
-    let args = {script: $source_view, refresh: $refresh} | merge (if $range != null { {range: $range} } else { {} }) | to json --raw | str replace --all "'" "''"
+    let args = {refresh: $refresh} | merge (if $range != null { {range: $range} } else { {} }) | to json --raw | str replace --all "'" "''"
 
     rpc $socket ("luaeval('" + $lua + "', json_decode('" + $args + "'))")
 }
 
 def jump-to-source [socket: path, position: record, review: bool] {
-    let lua = 'dofile(_A.script).jump(_A.position, _A.review) and 1 or 0'
+    let lua = 'require("sysinit_workbench.source").jump(_A.position, _A.review) and 1 or 0'
 
-    let args = {script: $source_view, position: $position, review: $review} | to json --raw | str replace --all "'" "''"
+    let args = {position: $position, review: $review} | to json --raw | str replace --all "'" "''"
 
     let expression = "luaeval('" + $lua + "', json_decode('" + $args + "'))"
 
@@ -194,6 +195,7 @@ def editor-command [
     note_session
     note_command
     range: list<string>
+    direction: string
 ] {
     let nvim = [nvim --cmd 'let g:sysinit_pr_review = v:true' --listen $socket]
 
@@ -201,13 +203,15 @@ def editor-command [
         let args = if ($range | is-not-empty) {
             'vim.json.decode(' + ($range | to json --raw | to json --raw) + ')'
         } else {
-            ''
+            'nil'
         }
 
         [
             ...$nvim
             -c
-            ('lua dofile(' + ($source_view | to json --raw) + ').open_review(' + $args + ')')
+            (
+                'lua require("sysinit_workbench.review_terminal").open(' + $args + ', ' + ($direction | to json --raw) + ')'
+            )
         ]
     } else if $target.directory {
         let comparison = if $target.baseline == null {
@@ -259,26 +263,16 @@ def editor-command [
                 ($diff_args | prepend DiffviewOpen | str join ' ')
             ]
         } else {
-            [-S $source_view]
-        }
-
-        let source_env = if $target.pathspec != null {
-            [$"SYSINIT_DIFFVIEW_ARGS=($diff_args | to json --raw)"]
-        } else {
-            []
+            [
+                -c
+                (
+                    'lua require("diffview").open(vim.json.decode(' + ($diff_args | to json --raw | to json --raw) + '))'
+                )
+            ]
         }
 
         if $note_session == null {
-            if $target.pathspec == null {
-                [...$nvim ...$diff]
-            } else {
-                [
-                    env
-                    ...$source_env
-                    ...$nvim
-                    ...$diff
-                ]
-            }
+            [...$nvim ...$diff]
         } else {
             let provider_directory = $env.CHANGES_PROVIDERS_DIRECTORY?
 
@@ -294,7 +288,6 @@ def editor-command [
             [
                 env
                 ...$variables
-                ...$source_env
                 ...$nvim
                 -c
                 $configure
@@ -348,19 +341,7 @@ def main [
 
     let root = $request.root
 
-    let range = if $turn != null {
-        [before after] | each {|side|
-            let ref = $'refs/worktree/sysinit/turn-reviews/($turn)/($side)'
-
-            let resolved = run-command [git -C $root rev-parse --verify $'($ref)^{tree}']
-
-            if $resolved.exit_code != 0 { error make {msg: 'The recorded turn diff is unavailable.'} }
-
-            $resolved.stdout | str trim
-        }
-    } else {
-        []
-    }
+    let range = if $turn != null { read-turn $root $turn } else { [] }
 
     let target = $request.target
 
@@ -623,6 +604,12 @@ def "main open-locked" [input: string] {
 
     let state_home = $plan.state | path dirname
 
+    let placement = if $request.review {
+        review-placement $owner $plan.fullscreen
+    } else {
+        {direction: right, percent: '45', zoom: false}
+    }
+
     let editor = (editor-command
         $request
         $socket
@@ -631,19 +618,10 @@ def "main open-locked" [input: string] {
         $plan.note_session
         $plan.note_command
         $plan.range
+        $placement.direction
     )
 
-    let placement = if $request.review {
-        review-placement $owner $plan.fullscreen
-    } else {
-        {direction: right, percent: '45', zoom: false}
-    }
-
-    let editor = if $request.review and $placement.direction == down {
-        [env SYSINIT_REVIEW_SPLIT=down ...$editor]
-    } else {
-        $editor
-    }
+    let spawn_started = date now
 
     let pane = (command-output [
         ty
@@ -659,6 +637,10 @@ def "main open-locked" [input: string] {
         --
         ...$editor
     ]) | from json --strict | get pane_id
+
+    review-timing 'pane-spawn' $spawn_started
+
+    let readiness_started = date now
 
     if not $plan.background {
         focus-review $pane false
@@ -684,6 +666,8 @@ def "main open-locked" [input: string] {
             let expected = if $request.directory { $root } else { '1' }
 
             if $ready.exit_code == 0 and ($ready.stdout | str trim) == $expected {
+                review-timing 'editor-readiness' $readiness_started
+
                 if $placement.zoom and not $plan.background {
                     focus-review $pane true
                 }

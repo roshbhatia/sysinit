@@ -10,7 +10,7 @@ nuCheck {
     pkgs.git
   ];
   arguments = [
-    ../../features/review
+    ../../features
     ../fixtures/review-tools.nu
     ../../features/wezterm/ty.nu
   ];

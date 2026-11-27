@@ -1,7 +1,8 @@
 {
+  flake.modules.homeManager.agentWorkspace = ./home.nix;
   perSystem =
     { pkgs, ... }:
     {
-      packages.agent-workspace = import ./package.nix { inherit pkgs; };
+      packages.agent-workspace = pkgs.agent-workspace;
     };
 }

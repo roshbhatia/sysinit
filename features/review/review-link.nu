@@ -1,4 +1,7 @@
 use ../git/review-checkpoint.nu snapshot
+use ./hook-event.nu normalize
+use ./turn-history.nu [retain-turn prune-turns]
+use ./timing.nu review-timing
 
 def link-directory [] {
     $env.XDG_STATE_HOME? | default ($env.HOME | path join .local state) | path join agent-diff links
@@ -75,7 +78,7 @@ def review-link [cwd: path] {
 }
 
 def resolve-link [uri: string] {
-    let parts = $uri | parse --regex '^review://(?:(?:changes/(?:[A-Za-z0-9._~%-]+/){1,2})|worktree/)?(?<id>[0-9a-f]{16})(?:\?turn=[0-9a-f]{16})?$'
+    let parts = $uri | parse --regex '^review://(?:(?:changes/(?:[A-Za-z0-9._~%-]+/){1,2})|worktree/)?(?<id>[0-9a-f]{16})(?:\?turn=(?<turn>[0-9a-f]{16}))?$'
 
     if ($parts | is-empty) {
         error make {msg: 'Invalid review link'}
@@ -91,7 +94,10 @@ def resolve-link [uri: string] {
         error make {msg: 'The review checkout is unavailable'}
     }
 
-    $directory
+    {
+        directory: $directory
+        turn: ($parts.0.turn | default --empty null)
+    }
 }
 
 def turn-link [baseline: record, tree: string] {
@@ -101,24 +107,17 @@ def turn-link [baseline: record, tree: string] {
 
     let link = review-link $baseline.directory
 
-    let turn = [$baseline.tree $tree] | str join ':' | hash sha256 | str substring 0..<16
+    let turn = retain-turn (link-directory) $baseline.directory $baseline.tree $tree
 
-    let ref = $'refs/worktree/sysinit/turn-reviews/($turn)'
+    let changed = ^git diff --name-only -z $baseline.tree $tree -- | complete
 
-    # Keep both trees reachable for links read after later edits or Git maintenance.
-    let updated = $"update ($ref)/before ($baseline.tree)\nupdate ($ref)/after ($tree)\n" | ^git update-ref --stdin | complete
+    let files = if $changed.exit_code == 0 {
+        $changed.stdout | split row (char nul) | where {|path| $path != ''} | length
+    }
 
-    if $updated.exit_code == 0 {
-        let changed = ^git diff --name-only -z $baseline.tree $tree -- | complete
-
-        let files = if $changed.exit_code == 0 {
-            $changed.stdout | split row (char nul) | where {|path| $path != ''} | length
-        }
-
-        {
-            uri: $"($link)?turn=($turn)"
-            files: $files
-        }
+    {
+        uri: $"($link)?turn=($turn)"
+        files: $files
     }
 }
 
@@ -144,19 +143,44 @@ def notice [link: record, title: string] {
     } | to json --raw
 }
 
-def main [target: string = '.', --hook, --resolve] {
-    if $resolve { return (resolve-link $target) }
+def main [
+    target: string = '.'
+    --hook
+    --harness: string = 'legacy'
+    --resolve
+    --json
+    --prune
+] {
+    if $resolve {
+        let resolved = resolve-link $target
+
+        return (
+            if $json {
+                $resolved | to json --raw
+            } else {
+                $resolved.directory
+            }
+        )
+    }
+
+    if $prune {
+        let checkout = ^git -C $target rev-parse --show-toplevel | str trim
+
+        prune-turns (link-directory) ($checkout | path expand --strict) --force
+
+        return
+    }
 
     if not $hook { return (review-link $target) }
 
     let input = $in
 
     try {
-        let event = $input | from json --strict
+        let event = normalize ($input | from json --strict) $harness
 
-        let session = $event.session_id? | default ''
+        if $event == null { return }
 
-        if $session == '' { return }
+        let session = $event.session
 
         let pending = link-directory | path join turns
 
@@ -164,11 +188,11 @@ def main [target: string = '.', --hook, --resolve] {
 
         let baseline_path = $'($marker).baseline.json'
 
-        match $event.hook_event_name? {
-            'UserPromptSubmit' => {
+        match $event.phase {
+            'start' => {
                 rm --force $marker $baseline_path
 
-                let cwd = $event.cwd? | default $env.PWD
+                let cwd = $event.cwd
 
                 let root = ^git -C $cwd rev-parse --show-toplevel | complete
 
@@ -177,7 +201,11 @@ def main [target: string = '.', --hook, --resolve] {
 
                     cd $directory
 
+                    let started = date now
+
                     let tree = snapshot
+
+                    review-timing 'prompt-snapshot' $started
 
                     mkdir $pending
 
@@ -188,15 +216,29 @@ def main [target: string = '.', --hook, --resolve] {
 
                 return
             }
-            'Stop' => {
+            'stop' => {
                 let link = if ($baseline_path | path exists) {
                     let baseline = open $baseline_path
 
-                    rm --force $baseline_path $marker
-
                     cd $baseline.directory
 
-                    turn-link $baseline (snapshot)
+                    let started = date now
+
+                    let tree = snapshot
+
+                    review-timing 'turn-snapshot' $started
+
+                    let link = turn-link $baseline $tree
+
+                    rm --force $baseline_path $marker
+
+                    try {
+                        prune-turns (link-directory) $baseline.directory
+                    } catch {|failure|
+                        print -e $"agent-review-link: ($failure.msg)"
+                    }
+
+                    $link
                 } else if ($marker | path exists) {
                     let link = open --raw $marker
 
@@ -209,24 +251,8 @@ def main [target: string = '.', --hook, --resolve] {
 
                 return (notice $link 'Review turn edits')
             }
-            'PostToolUse' => { }
-            _ => { return }
+            'edit' => { }
         }
-
-        let edited = match $event.tool_name? {
-            'apply_patch' => {
-                let response = $event.tool_response? | default ''
-
-                let succeeded = $response | str starts-with "Exit code: 0\n"
-
-                $succeeded and ($response | str contains 'Success. Updated the following files:')
-            }
-            'Edit' | 'Write' | 'MultiEdit' => { ($event.tool_input.file_path? | default '') != '' }
-            'NotebookEdit' => { ($event.tool_input.notebook_path? | default '') != '' }
-            _ => false
-        }
-
-        if not $edited { return }
 
         if ($baseline_path | path exists) {
             let baseline = open $baseline_path
@@ -235,7 +261,11 @@ def main [target: string = '.', --hook, --resolve] {
 
             cd $baseline.directory
 
+            let started = date now
+
             let tree = snapshot
+
+            review-timing 'edit-snapshot' $started
 
             let link = turn-link ($baseline | update tree $previous) $tree
 
@@ -245,7 +275,7 @@ def main [target: string = '.', --hook, --resolve] {
                 return (notice $link 'Review edit')
             }
         } else if not ($marker | path exists) {
-            let link = review-link ($event.cwd? | default $env.PWD)
+            let link = review-link ($event.cwd)
 
             if $link != null {
                 mkdir $pending
@@ -255,5 +285,7 @@ def main [target: string = '.', --hook, --resolve] {
                 return (notice {uri: $link} 'Review edit')
             }
         }
+    } catch {|failure|
+        print -e $"agent-review-link: ($failure.msg)"
     }
 }

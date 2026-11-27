@@ -65,7 +65,7 @@ def main --wrapped [tool: string, ...arguments: string] {
                     $expression if ($expression | str contains 'get_current_view()') => {
                         print (if ($root | path join diffview-inactive | path exists) { 0 } else { 1 })
                     }
-                    $expression if ($expression | str contains '.select_review(') => {
+                    $expression if ($expression | str contains '.select(') => {
                         if ($expression | str contains '"refresh":true') {
                             touch ($root | path join review-refreshed)
                         }

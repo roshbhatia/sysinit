@@ -2,7 +2,7 @@ use std/assert
 
 def main [script: path, fixture: path, ty: path] {
     let script = if ($script | path type) == dir {
-        $script | path join open.nu
+        $script | path join review open.nu
     } else {
         $script
     } | path expand --strict
@@ -140,7 +140,7 @@ def main [script: path, fixture: path, ty: path] {
             let changed_split = open ($root | path join split.json)
             assert ('--right' in $changed_split)
             assert ($changed_split | window 2 | any {|pair| $pair == [--percent '60'] })
-            assert (($changed_split | last) | str ends-with '.open_review()')
+            assert (($changed_split | last) | str ends-with '.open(nil, "right")')
             assert (not ('-u' in $changed_split))
             assert (open --raw ($root | path join source-jump.txt) | str contains '"line":4')
 
@@ -155,7 +155,7 @@ def main [script: path, fixture: path, ty: path] {
             assert equal $review.exit_code 0 $review.stderr
             assert ($review.stdout | str starts-with Reused)
             let review_split = open ($root | path join split.json)
-            assert (($review_split | last) | str ends-with '.open_review()')
+            assert (($review_split | last) | str ends-with '.open(nil, "right")')
             let review_retry = ^$nu.current-exe --no-config-file $script --cwd $project --review | complete
             assert equal $review_retry.exit_code 0 $review_retry.stderr
             assert ($root | path join review-refreshed | path exists)
@@ -173,8 +173,11 @@ def main [script: path, fixture: path, ty: path] {
             ^git -C $project update-ref $'($ref)/before' $before
             ^git -C $project update-ref $'($ref)/after' $after
             [{pane_id: 7, tab_id: 2, size: {cols: 132, rows: 70}}] | to json | save --force ($root | path join panes.json)
-            let snapshot = ^$nu.current-exe --no-config-file $script --cwd $project --turn $turn --fullscreen | complete
+            let snapshot = with-env {SYSINIT_REVIEW_TIMING: '1'} {
+                ^$nu.current-exe --no-config-file $script --cwd $project --turn $turn --fullscreen | complete
+            }
             assert equal $snapshot.exit_code 0 $snapshot.stderr
+            assert equal ($snapshot.stderr | lines | each {|line| $line | from json | get phase }) [pane-spawn editor-readiness]
             let snapshot_split = open ($root | path join split.json)
             assert ('--bottom' in $snapshot_split)
             assert ($snapshot_split | window 2 | any {|pair| $pair == [--percent '67'] })

@@ -4,6 +4,9 @@ let
     root = ../.;
     fileset = lib.fileset.unions [
       ./review-link.nu
+      ./hook-event.nu
+      ./timing.nu
+      ./turn-history.nu
       ../git/review-checkpoint.nu
     ];
   };
@@ -17,7 +20,7 @@ pkgs.writeShellApplication {
   ];
   text = ''
     if [[ "''${1:-}" == --hook ]]; then
-      exec ${pkgs.nushell}/bin/nu --no-config-file --stdin ${script} --hook
+      exec ${pkgs.nushell}/bin/nu --no-config-file --stdin ${script} "$@"
     fi
     exec ${pkgs.nushell}/bin/nu --no-config-file ${script} "$@"
   '';

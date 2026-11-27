@@ -165,7 +165,7 @@ in
               }
               {
                 type = "command";
-                command = "${profileBin}/agent-review-link --hook";
+                command = "${profileBin}/agent-review-link --hook --harness claude";
               }
             ];
           }
@@ -216,7 +216,7 @@ in
             hooks = [
               {
                 type = "command";
-                command = "${profileBin}/agent-review-link --hook";
+                command = "${profileBin}/agent-review-link --hook --harness claude";
               }
             ];
           }
@@ -306,7 +306,7 @@ in
               }
               {
                 type = "command";
-                command = "${profileBin}/agent-review-link --hook";
+                command = "${profileBin}/agent-review-link --hook --harness claude";
               }
             ];
           }

@@ -1,5 +1,5 @@
 use ../../modules/home/programs/llm/runtime/agents/catalog.nu agent-catalog
-use ../review/wezterm-mux.nu [wezterm-socket wezterm-mux-identity]
+use ../wezterm/mux.nu [wezterm-socket wezterm-mux-identity]
 
 const runtime = path self | path dirname
 const client = $runtime | path join codex.ts

@@ -197,6 +197,11 @@ in
         ''
       );
 
+  agent-diff = final.callPackage ../features/review/package.nix { };
+  agent-review-link = final.callPackage ../features/review/review-link.nix { };
+  agent-workspace = final.callPackage ../features/workspace/package.nix { };
+  sysinit-ty = final.callPackage ../features/wezterm/ty.nix { };
+
   sysinit-utils =
     let
       external = {
@@ -236,11 +241,6 @@ in
             ln -s "${binary}" "$out/bin/${name}"
           '') external
         )}
-        makeWrapper "${final.nushell}/bin/nu" "$out/bin/ty" \
-          --add-flags "--no-config-file ${../features/wezterm/ty.nu}" \
-          --set SYSINIT_TY_SY "${final.seshy-cli}/bin/sy" \
-          --set SYSINIT_TY_WEZTERM "${final.wezterm}/bin/wezterm" \
-          --set SYSINIT_TY_ENV "${final.coreutils}/bin/env" \
-          --prefix PATH : "${final.lib.makeBinPath [ final.coreutils ]}"
+        ln -s "${final.sysinit-ty}/bin/ty" "$out/bin/ty"
       '';
 }

@@ -36,9 +36,8 @@ transport.detect = function(_repo)
     { transport = "neovim-terminal", id = "10" },
   }
 end
-vim.env.SYSINIT_REVIEW_PANE = "10"
 local review = require("sysinit_workbench.review")
-assert(review.open())
+assert(review.open({ standalone = true, owner = "10" }))
 assert(vim.g.sysinit_review_ready == 1)
 local candidates = transport.detect(root)
 assert(#candidates == 1 and candidates[1].id == "10" and candidates[1].transport == "wezterm")
@@ -58,18 +57,34 @@ assert(
 assert(reviewr.set_scope("turn"))
 assert(require("reviewr.state").get().base_ref == baseline)
 assert(not vim.inspect(require("reviewr.state").get().files):find("new file.txt", 1, true))
-local source = dofile(assert(arg[4]))
+local source = require("sysinit_workbench.source")
 assert(source.jump({ file = root .. "/new file.txt", line = 1, column = 999 }, true))
 local review_panes = require("reviewr.ui").panes()
 assert(review_panes.file == "new file.txt")
 assert(vim.api.nvim_get_current_win() == review_panes.right_win)
 assert(vim.deep_equal(vim.api.nvim_win_get_cursor(review_panes.right_win), { 1, 17 }))
+local ui = require("reviewr.ui")
+vim.o.columns = 180
+vim.o.lines = 44
+for _, edge in ipairs({ "left", "right", "top", "bottom" }) do
+  vim.cmd.ReviewFiles(edge)
+  local panel = vim.api.nvim_win_get_position(ui.files_panel().win)
+  local diff = vim.api.nvim_win_get_position(ui.panes().left_win)
+  local axis = (edge == "left" or edge == "right") and 2 or 1
+  local before = edge == "left" or edge == "top"
+  assert((panel[axis] < diff[axis]) == before and panel[axis] ~= diff[axis], edge)
+end
+vim.cmd.ReviewFiles("auto")
 local function has_buffer_map(buf, mode, lhs)
   return vim.iter(vim.api.nvim_buf_get_keymap(buf, mode)):any(function(mapping)
     return mapping.lhs == lhs
   end)
 end
 assert(has_buffer_map(review_panes.right_buf, "n", ",s"))
+assert(has_buffer_map(review_panes.right_buf, "n", ",w"))
+assert(not vim.iter(vim.api.nvim_get_keymap("n")):any(function(mapping)
+  return mapping.lhs == ",w"
+end))
 assert(has_buffer_map(review_panes.right_buf, "x", ",c"))
 assert(has_buffer_map(review_panes.right_buf, "n", "]c"))
 assert(not has_buffer_map(review_panes.right_buf, "n", "s"))
@@ -78,21 +93,21 @@ local review_tab = vim.api.nvim_get_current_tabpage()
 vim.cmd.tabnew()
 local dashboard_tab = vim.api.nvim_get_current_tabpage()
 vim.bo.filetype = "snacks_dashboard"
-assert(source.select_review(true) == 1)
+assert(review.select(true) == 1)
 assert(vim.api.nvim_get_current_tabpage() == review_tab)
 vim.cmd.tabclose(vim.api.nvim_tabpage_get_number(dashboard_tab))
 local before = vim.trim(git({ "rev-parse", "HEAD^{tree}" }))
 local after = vim.trim(git({ "write-tree" }, real_index))
-assert(source.select_review(true, { before, after }) == 1)
+assert(review.select(true, { before, after }) == 1)
 assert(require("reviewr.state").get().head_ref == after)
 review_panes = require("reviewr.ui").panes()
 assert(review_panes.file == "tracked.txt")
 assert(vim.api.nvim_buf_get_lines(review_panes.left_buf, 0, 1, false)[1] == "original")
 assert(vim.api.nvim_buf_get_lines(review_panes.right_buf, 0, 1, false)[1] == "staged")
 assert(has_buffer_map(review_panes.right_buf, "x", ",c"))
-assert(source.select_review(true) == 1)
+assert(review.select(true) == 1)
 assert(require("reviewr.state").get().head_ref == nil)
-assert(source.select_review(true, { before, after }) == 1)
+assert(review.select(true, { before, after }) == 1)
 assert(require("reviewr.state").get().head_ref == after)
 vim.env.GIT_INDEX_FILE = nil
 

@@ -32,17 +32,25 @@ package.loaded.wezterm = {
       }
     end,
   },
+  background_child_process = function(args)
+    routed = args
+  end,
+  json_parse = function(output)
+    assert(output == "resolved review fixture")
+    return { directory = root, turn = turn }
+  end,
   run_child_process = function(args)
     if args[1] == "/bin/file" then
       return true, args[#args]:match("%.png$") and "image/png" or "text/plain"
     end
     if args[3] == "/profile/bin/agent-review-link" then
-      assert(args[4] == "--resolve")
+      assert(args[4] == "--resolve" and args[6] == "--json")
       if args[5] == review_uri then
-        return true, root .. "\n", ""
+        return true, "resolved review fixture", ""
       end
       return false, "", "Invalid review link"
     end
+    assert(args[3] ~= "/profile/bin/agent-diff", "review launch must be asynchronous")
     routed = args
     return true, "", ""
   end,

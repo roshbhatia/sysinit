@@ -14,7 +14,7 @@ in
       pkgs.lua5_4
     ];
     arguments = [
-      (lib.getExe (import ../../features/review/review-link.nix { inherit lib pkgs; }))
+      (lib.getExe pkgs.agent-review-link)
       ../../features/wezterm/links.lua
       ./review-links.lua
     ];

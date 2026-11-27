@@ -51,10 +51,14 @@ let
 in
 {
 
-  imports = [ inputs.sysinit-wezterm.homeManagerModules.default ];
+  imports = [
+    inputs.sysinit-wezterm.homeManagerModules.default
+    ../review/home.nix
+  ];
   # The CLI launches the GUI beside its own executable.
   home.packages = [
     paneName
+    (lib.hiPrio pkgs.sysinit-ty)
   ]
   ++ lib.optional (pkgs.stdenv.hostPlatform.isDarwin && config.targets.darwin.copyApps.enable) (
     lib.hiPrio weztermLauncher
