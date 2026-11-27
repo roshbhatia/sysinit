@@ -8,6 +8,7 @@
     ./lan-aliases.nix
     ./storage.nix
     ./terminal.nix
+    ../../features/system-upgrade/nixos.nix
     ../../features/tailscale/service.nix
   ];
 

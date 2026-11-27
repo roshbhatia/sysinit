@@ -25,6 +25,11 @@ nh os switch .#arrakis
 A build checks the configuration without activating it. A switch applies it.
 Use the installed `nh` for routine builds and switches.
 
+After the first switch with Comin enabled, NixOS hosts and the personal Mac
+pull from `stable`. CI advances that branch after verification. Comin builds
+the host configuration using the published lockfile and switches only after a
+successful build. Use `comin status` to inspect deployments and pending reboots.
+
 Arda uses a [separately pinned Nix-on-Droid flake](hosts/arda) inside the same
 checkout. On the tablet, run `nix-on-droid switch --flake ./hosts/arda#arda`
 from the repository root.

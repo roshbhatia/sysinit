@@ -6,6 +6,7 @@ in
 {
   flake.nixosConfigurations.vorgossos = nixosSystem {
     specialArgs = {
+      inherit inputs;
       inherit (inputs) k0s-nix;
       inherit (personal) authorizedKeys;
       base16 = inputs.stylix.inputs.base16.lib;

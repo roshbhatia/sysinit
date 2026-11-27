@@ -24,6 +24,7 @@
   ./seshy
   ./shell
   ./ssh
+  ./system-upgrade
   ./tailscale
   ./taskwarrior
   ./telemetry

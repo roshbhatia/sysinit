@@ -11,6 +11,10 @@
       url = "github:nix-community/k0s-nix/e7670c30f5e24cf46296bb3fd9fef3cd3febe97b";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    comin = {
+      url = "github:nlewo/comin/v0.14.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     theme-schemes = {
       url = "github:tinted-theming/schemes/43dd14f6466a782bd57419fdfb5f398c74d6ac53";

@@ -4,6 +4,10 @@
   system = "aarch64-darwin";
   platform = "darwin";
   profile = "workstation";
+  extraModules = [
+    ../../features/system-upgrade/public-remote.nix
+    { services.comin.enable = true; }
+  ];
   inherit (personal) username;
   values = {
     inherit (personal) git;

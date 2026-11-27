@@ -19,6 +19,7 @@
     ./macos-tools.nix
     ./ollama.nix
     ../../features/ssh/darwin.nix
+    ../../features/system-upgrade/darwin.nix
     ./security.nix
     ./sketchybar.nix
     ../../features/theme/darwin.nix
