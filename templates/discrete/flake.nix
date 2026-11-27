@@ -29,15 +29,7 @@
 
       allInputs = sysinit.inputs // inputs;
 
-      # The template lock can still point at a revision predating the flake export.
-      sysinitLib =
-        if sysinit ? lib.mkHostLib then
-          sysinit.lib.mkHostLib inputs
-        else
-          import (sysinit + /lib) {
-            inherit lib nixpkgs;
-            inputs = allInputs;
-          };
+      sysinitLib = sysinit.lib.mkHostLib inputs;
 
       hostConfigs = import ./hosts { };
       inherit (sysinitLib) builders;
