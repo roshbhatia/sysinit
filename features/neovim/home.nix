@@ -1,7 +1,6 @@
 {
   config,
   inputs,
-  lib,
   ...
 }:
 {
@@ -13,7 +12,4 @@
     enable = true;
     configPath = config.sysinit.neovim.configPath;
   };
-  programs.neovim.initLua = lib.mkAfter ''
-    dofile("${./review-keys.lua}")
-  '';
 }

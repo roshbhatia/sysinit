@@ -3,7 +3,7 @@ vim.opt.runtimepath:append(assert(arg[2]))
 vim.opt.runtimepath:append(assert(arg[3]))
 vim.cmd.runtime("plugin/sysinit-workbench.lua")
 vim.g.maplocalleader = ","
-dofile(assert(arg[5]))
+require("sysinit_workbench.review_keys").setup()
 
 local root = vim.fn.tempname()
 vim.fn.mkdir(root)
