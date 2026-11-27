@@ -13,24 +13,43 @@ permissions:
   contents: read
 
 jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.targets.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: DeterminateSystems/nix-installer-action@v23
+      - id: targets
+        name: Read standalone Home Manager targets
+        env:
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+        run: |
+          targets=$(nix eval --json .#lib.homeConfigurationTargets)
+          matrix=$(jq -c '
+            {
+              "aarch64-darwin": "macos-latest",
+              "x86_64-linux": "ubuntu-latest",
+              "aarch64-linux": "ubuntu-24.04-arm"
+            } as $runners |
+            {include: [
+              to_entries[] |
+              .key as $system |
+              .value[] |
+              {
+                target: .,
+                system: $system,
+                os: ($runners[$system] // error("Missing runner for " + $system))
+              }
+            ]}
+          ' <<< "$targets")
+          printf 'matrix=%s\n' "$matrix" >> "$GITHUB_OUTPUT"
+
   home:
+    needs: inventory
     strategy:
       fail-fast: false
-      matrix:
-        profile:
-          - dev
-          - minimal
-        system:
-          - aarch64-darwin
-          - x86_64-linux
-          - aarch64-linux
-        include:
-          - system: aarch64-darwin
-            os: macos-latest
-          - system: x86_64-linux
-            os: ubuntu-latest
-          - system: aarch64-linux
-            os: ubuntu-24.04-arm
+      matrix: ${{ fromJSON(needs.inventory.outputs.matrix) }}
     runs-on: ${{ matrix.system == 'x86_64-linux' && github.ref == 'refs/heads/main' && fromJSON('["self-hosted", "Linux", "X64", "arrakis", "nix"]') || matrix.os }}
     timeout-minutes: 60
     steps:
@@ -43,12 +62,12 @@ jobs:
         with:
           auth-token: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
-      - name: Build ${{ matrix.profile }}-${{ matrix.system }}
+      - name: Build ${{ matrix.target }}
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: |
           nix build --out-link result -L \
-            ".#homeConfigurations.${{ matrix.profile }}-${{ matrix.system }}.activationPackage"
+            ".#homeConfigurations.${{ matrix.target }}.activationPackage"
 
       - name: Publish Arrakis outputs
         if: runner.environment == 'self-hosted'

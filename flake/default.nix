@@ -65,22 +65,27 @@ let
     inherit darwinConfigurations;
     nixosConfigurations = workstationConfigurations;
 
-    lib.mkHostLib = mkHostLib;
-    lib.configurationDerivations = lib.genAttrs systems (
-      system:
-      let
-        forSystem = lib.filterAttrs (_: cfg: cfg.pkgs.stdenv.hostPlatform.system == system);
-      in
-      {
-        darwin = lib.mapAttrs (_: cfg: cfg.system.drvPath) (forSystem darwinConfigurations);
-        nixos = lib.mapAttrs (_: cfg: cfg.config.system.build.toplevel.drvPath) (
-          forSystem nixosConfigurations
-        );
-        home = lib.genAttrs standaloneProfiles (
-          profile: inputs.self.homeConfigurations.${profile + "-" + system}.activationPackage.drvPath
-        );
-      }
-    );
+    lib = {
+      inherit mkHostLib;
+      homeConfigurationTargets = lib.genAttrs systems (
+        system: map (profile: "${profile}-${system}") standaloneProfiles
+      );
+      configurationDerivations = lib.genAttrs systems (
+        system:
+        let
+          forSystem = lib.filterAttrs (_: cfg: cfg.pkgs.stdenv.hostPlatform.system == system);
+        in
+        {
+          darwin = lib.mapAttrs (_: cfg: cfg.system.drvPath) (forSystem darwinConfigurations);
+          nixos = lib.mapAttrs (_: cfg: cfg.config.system.build.toplevel.drvPath) (
+            forSystem nixosConfigurations
+          );
+          home = lib.genAttrs standaloneProfiles (
+            profile: inputs.self.homeConfigurations.${profile + "-" + system}.activationPackage.drvPath
+          );
+        }
+      );
+    };
 
     homeModules = {
       default = ../modules/home;
