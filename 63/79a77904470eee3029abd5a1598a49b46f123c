@@ -1,0 +1,21 @@
+checks/host/default.nix
+  s_8db7fc35d14233::t_b39b139af9d349 42-43
+features/system-upgrade/darwin.nix
+  s_8db7fc35d14233::t_af20beaf55e2b3 18-29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6379a77904470eee3029abd5a1598a49b46f123c",
+  "prompts": {},
+  "sessions": {
+    "s_8db7fc35d14233": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a215ce-24da-7591-890e-c407374c6ce4",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
