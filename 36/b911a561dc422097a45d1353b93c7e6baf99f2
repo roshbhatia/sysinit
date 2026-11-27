@@ -1,0 +1,57 @@
+modules/home/programs/llm/skills/spec-driven-implementation/SKILL.md
+  s_8db7fc35d14233::t_402ab124b24a71 22-23
+  s_8db7fc35d14233::t_b9ccbad9b3861f 1-8,42-46
+  s_8db7fc35d14233::t_e35b25aea3d427 9-21,24-41
+checks/workflows/default.nix
+  s_8db7fc35d14233::t_fe5303ddef88c1 20-26
+modules/home/programs/llm/skills/catalog.nix
+  s_8db7fc35d14233::t_b9ccbad9b3861f 27-29
+modules/home/programs/llm/skills/spec-driven-implementation/references/intent-and-feedback.md
+  s_8db7fc35d14233::t_402ab124b24a71 32-54,68-75
+  s_8db7fc35d14233::t_e35b25aea3d427 1-31,55-67,76-80
+modules/home/programs/llm/skills/resolve-merge-conflicts/scripts/conflicts.nu
+  s_8db7fc35d14233::t_b9ccbad9b3861f 2-56
+  s_8db7fc35d14233::t_0d3176e6795170 1
+modules/home/programs/llm/skills/search-code-routing/SKILL.md
+  s_8db7fc35d14233::t_b9ccbad9b3861f 28-41
+modules/home/programs/llm/skills/pr-walkthrough/SKILL.md
+  s_8db7fc35d14233::t_b9ccbad9b3861f 1-13,17-26
+  s_8db7fc35d14233::t_402ab124b24a71 14-16
+modules/home/programs/llm/skills/writing-pr-description/SKILL.md
+  s_8db7fc35d14233::t_b9ccbad9b3861f 56-69,217
+checks/workflows/conflict-inspection.nu
+  s_8db7fc35d14233::t_fe5303ddef88c1 1-82,85
+modules/home/programs/llm/skills/spec-driven-implementation/references/tool-comparison.md
+  s_8db7fc35d14233::t_147353c4d3dc08 12
+  s_8db7fc35d14233::t_b9ccbad9b3861f 1-11,13-18
+  s_8db7fc35d14233::t_5198a7dec4717d 19-37
+modules/home/programs/llm/skills/_shared/local-planning.md
+  s_8db7fc35d14233::t_e35b25aea3d427 1-8
+modules/home/programs/llm/skills/resolve-merge-conflicts/SKILL.md
+  s_8db7fc35d14233::t_b9ccbad9b3861f 1-8,12-28
+modules/home/programs/llm/skills/_shared/LICENSE.warp
+  s_8db7fc35d14233::t_b9ccbad9b3861f 1-21
+modules/home/programs/llm/default.nix
+  s_8db7fc35d14233::t_fe5303ddef88c1 129-135
+  s_8db7fc35d14233::t_b9ccbad9b3861f 124-128
+checks/agents/skill-routing-cases.json
+  s_8db7fc35d14233::t_3cba4e2232ec96 35-49
+modules/home/programs/llm/lib/instructions.nix
+  s_8db7fc35d14233::t_359f3849fefe45 191-194
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "36b911a561dc422097a45d1353b93c7e6baf99f2",
+  "prompts": {},
+  "sessions": {
+    "s_8db7fc35d14233": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a215ce-24da-7591-890e-c407374c6ce4",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
