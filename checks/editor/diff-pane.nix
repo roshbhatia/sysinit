@@ -12,6 +12,6 @@ nuCheck {
   arguments = [
     ../../features/review
     ../fixtures/review-tools.nu
-    ../../modules/home/programs/utils/dev/ty.nu
+    ../../features/wezterm/ty.nu
   ];
 }

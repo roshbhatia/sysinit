@@ -19,10 +19,9 @@ pkgs/
 ```
 
 Go is for hot paths (the status line), process supervision, terminal UIs, and
-`exec`-in-place launchers. Command-and-JSON glue is nushell under
-`modules/home/programs/utils/`: `ty`, `audio-switcher`, `task-context`,
-`ere-setup`, and `cache-maintain` moved there in 2026-11, with tests in
-`checks/shell/nushell-utilities.nu` and `checks/workflows/ty.nu`.
+`exec`-in-place launchers. Nushell command glue lives with its owning feature
+or platform module. `checks/shell/nushell-utilities.nu` and
+`checks/workflows/ty.nu` cover the migrated utility commands.
 
 `ask`, `changes`, `traces`, `seshy`, `specutil`, and `colchis` used to live
 here as sibling directories. Each is now its own repository, pinned as a flake

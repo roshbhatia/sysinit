@@ -5,7 +5,14 @@ let
     pname = "sysinit-gotools";
     version = "0.1.0";
 
-    src = ../pkgs;
+    src = final.lib.fileset.toSource {
+      root = ../pkgs;
+      fileset = final.lib.fileset.unions [
+        ../pkgs/go.mod
+        ../pkgs/go.sum
+        (final.lib.fileset.fileFilter (file: file.hasExt "go") ../pkgs)
+      ];
+    };
 
     vendorHash = "sha256-sq1Ahs22exa9oPfHoVwVpFk0kDlHVC6odGAfCCZdxu4=";
 
@@ -230,7 +237,7 @@ in
           '') external
         )}
         makeWrapper "${final.nushell}/bin/nu" "$out/bin/ty" \
-          --add-flags "--no-config-file ${../modules/home/programs/utils/dev/ty.nu}" \
+          --add-flags "--no-config-file ${../features/wezterm/ty.nu}" \
           --set SYSINIT_TY_SY "${final.seshy-cli}/bin/sy" \
           --set SYSINIT_TY_WEZTERM "${final.wezterm}/bin/wezterm" \
           --set SYSINIT_TY_ENV "${final.coreutils}/bin/env" \

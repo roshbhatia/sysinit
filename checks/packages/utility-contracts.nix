@@ -5,10 +5,10 @@ let
   probeInputs = lib.fileset.toSource {
     root = ../../.;
     fileset = lib.fileset.unions [
-      ../../modules/home/programs/utils/dev/connect.nu
-      ../../modules/home/programs/utils/dev/fzf-preview.nu
-      ../../modules/home/programs/utils/network/dns-flush.nu
-      ../../modules/home/programs/utils/system/set-background.nu
+      ../../features/wezterm/connect.nu
+      ../../features/cli/fzf-preview.nu
+      ../../features/network/dns-flush.nu
+      ../../features/theme/set-background.nu
       ../../features/shell/zsh/integrations/ask.zsh
       ../../features/shell/zsh/integrations/seshy-wezterm.zsh
       ../../modules/darwin/home/sketchybar/lua/sysinit/pkg/core/display.lua

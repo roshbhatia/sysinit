@@ -47,7 +47,7 @@ let
   command = pkgs.writeShellApplication {
     name = "cache-maintain";
     runtimeInputs = [ pkgs.coreutils ];
-    text = ''exec ${lib.getExe pkgs.nushell} --no-config-file ${../../home/programs/utils/system/cache-maintain.nu} --config ${policy} "$@"'';
+    text = ''exec ${lib.getExe pkgs.nushell} --no-config-file ${./cache-maintain.nu} --config ${policy} "$@"'';
   };
 in
 {

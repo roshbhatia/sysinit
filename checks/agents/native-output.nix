@@ -44,7 +44,7 @@ import ../lib/native.nix { inherit pkgs; } {
       ./agent-workspace.nu
       "${workspaceSource}/features/workspace/workspace.nu"
       ../fixtures/review-tools.nu
-      ../../modules/home/programs/utils/dev/ty.nu
+      ../../features/wezterm/ty.nu
     ]
   ];
 }

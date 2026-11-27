@@ -1,4 +1,5 @@
 [
+  ./agents
   ./ast-grep
   ./atuin
   ./changes

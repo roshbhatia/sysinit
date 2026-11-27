@@ -33,7 +33,7 @@ in
         features.omp
         features.openssh
         features.taskwarrior
-        ./utils
+        ../utility-packages.nix
         features.vivid
         features.zoxide
         features.zsh
@@ -51,7 +51,7 @@ in
         features.java
         features.k9s
         features.kubectl
-        ./llm
+        features.agents
         features.mise
         features.neovim
         features.nh

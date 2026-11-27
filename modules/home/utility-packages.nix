@@ -20,7 +20,7 @@ let
         exec ${lib.getExe pkgs.nushell} --no-config-file ${source} "$@"
       '';
     };
-  audio = script "audio-switcher" ./system/audio-switcher.nu (
+  audio = script "audio-switcher" ../../features/desktop/audio-switcher.nu (
     [ pkgs.fzf ]
     ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ pkgs.switchaudio-osx ]
     ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs.pulseaudio ]
@@ -28,10 +28,10 @@ let
 in
 {
   home.packages = [
-    (script "dns-flush" ./network/dns-flush.nu (
+    (script "dns-flush" ../../features/network/dns-flush.nu (
       lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs.systemd ]
     ))
-    (script "fzf-preview" ./dev/fzf-preview.nu [
+    (script "fzf-preview" ../../features/cli/fzf-preview.nu [
       pkgs.file
       pkgs.eza
       pkgs.chafa
@@ -46,8 +46,8 @@ in
     ])
   ]
   ++ lib.optionals (profile == "workstation") [
-    (script "connect" ./dev/connect.nu [ pkgs.wezterm ])
-    (script "set-background" ./system/set-background.nu (
+    (script "connect" ../../features/wezterm/connect.nu [ pkgs.wezterm ])
+    (script "set-background" ../../features/theme/set-background.nu (
       [
         pkgs.fzf
         pkgs.chafa

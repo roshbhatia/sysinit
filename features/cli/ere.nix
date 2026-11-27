@@ -153,7 +153,7 @@ in
           pkgs.openssh
           pkgs.kubectl
         ];
-        text = ''exec ${lib.getExe pkgs.nushell} --no-config-file ${../../modules/home/programs/utils/dev/ere-setup.nu} --config ${config.xdg.configHome}/ere/connections.json "$@"'';
+        text = ''exec ${lib.getExe pkgs.nushell} --no-config-file ${./ere-setup.nu} --config ${config.xdg.configHome}/ere/connections.json "$@"'';
       })
     ];
 

@@ -11,13 +11,13 @@ nativeCheck {
       "nu"
       "--no-config-file"
       "-c"
-      "use ${../../modules/home/programs/utils/dev/ere-setup.nu} configure; use ${../../modules/home/programs/utils/dev/task-context.nu} [backup restore]; use ${../../modules/home/programs/utils/system/cache-maintain.nu} [maintain allocated-bytes]; source ${./nushell-utilities.nu}"
+      "use ${../../features/cli/ere-setup.nu} configure; use ${../../features/taskwarrior/task-context.nu} [backup restore]; use ${../../modules/darwin/home/cache-maintain.nu} [maintain allocated-bytes]; source ${./nushell-utilities.nu}"
     ]
     [
       "nu"
       "--no-config-file"
       "${../workflows/ty.nu}"
-      "${../../modules/home/programs/utils/dev/ty.nu}"
+      "${../../features/wezterm/ty.nu}"
       "${../../features/nushell/wezterm.nu}"
     ]
   ];

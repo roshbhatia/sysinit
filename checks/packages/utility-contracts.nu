@@ -31,11 +31,11 @@ def main [root: path, fixture: path] {
 
         with-env {PATH: ($env.PATH | prepend $scratch), WEZTERM_PANE: fixture, ASK_CAPTURE: '1', CALLS: $calls} {
             with-env {UTILITY_TEST_CONNECT_FAIL: '1'} {
-                let connected = invoke $nu.current-exe [--no-config-file ($root | path join modules home programs utils dev connect.nu) fixture]
+                let connected = invoke $nu.current-exe [--no-config-file ($root | path join features wezterm connect.nu) fixture]
                 assert equal $connected.exit_code 23
                 assert ($connected.stderr | str contains 'fixture failure')
             }
-            let dns = $root | path join modules home programs utils network dns-flush.nu
+            let dns = $root | path join features network dns-flush.nu
             for case in [
                 {platform: macos, expected: ['dscacheutil -flushcache' 'killall -HUP mDNSResponder']}
                 {platform: linux, expected: ['resolvectl flush-caches']}
@@ -72,7 +72,7 @@ def main [root: path, fixture: path] {
             let wallpapers = $home | path join .local share wallpapers
             mkdir $wallpapers
             let selected = $wallpapers | path join 'name "quoted" and trailing '
-            let wallpaper = $root | path join modules home programs utils system set-background.nu
+            let wallpaper = $root | path join features theme set-background.nu
             with-env {HOME: $home, SELECTED: $selected, PICKER_EXIT: '0', APPLY_EXIT: '0'} {
                 if $nu.os-info.name == macos {
                     let applied = invoke $nu.current-exe [--no-config-file $wallpaper]
@@ -96,7 +96,7 @@ def main [root: path, fixture: path] {
             }
             let sample = $scratch | path join sample.txt
             'fixture' | save $sample
-            let preview = $root | path join modules home programs utils dev fzf-preview.nu
+            let preview = $root | path join features cli fzf-preview.nu
             for case in [{extension: tar, flag: -cf} {extension: tgz, flag: -czf} {extension: bz2, flag: -cjf}] {
                 let archive = $scratch | path join ($'fixture.($case.extension)')
                 let created = invoke tar [$case.flag $archive -C $scratch sample.txt]
