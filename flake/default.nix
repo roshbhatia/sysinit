@@ -1,5 +1,13 @@
-inputs@{ nixpkgs, ... }:
+{
+  config,
+  getSystem,
+  inputs,
+  ...
+}:
 let
+  inherit (config) systems;
+  inherit (config.flake) nixosConfigurations;
+  inherit (inputs) nixpkgs;
   inherit (nixpkgs) lib;
 
   sysinitLib = import ../lib {
@@ -7,7 +15,10 @@ let
   };
 
   personal = import ../hosts/personal.nix;
-  hostConfigs = import ../hosts { inherit personal; };
+  hostConfigs = import ../hosts {
+    inherit personal;
+    inherit (config.flake.modules.nixos) remoteBuild;
+  };
   inherit (sysinitLib) builders;
   inherit (sysinitLib) outputBuilders;
 
@@ -23,7 +34,7 @@ let
       nix-gaming
       ;
     inherit (builders) mkOverlays;
-    mkPkgs = { system, ... }: pkgsFor.${system};
+    inherit mkPkgs;
   };
 
   darwinConfigurations = outputBuilders.mkConfigurations {
@@ -35,18 +46,81 @@ let
     configs = nixosConfigs;
     inherit buildConfig;
   };
-  nixosConfigurations = workstationConfigurations // {
-    vorgossos = lib.nixosSystem {
-      system = "x86_64-linux";
-      specialArgs = {
-        inherit (inputs) k0s-nix;
-        inherit (personal) authorizedKeys;
-        base16 = inputs.stylix.inputs.base16.lib;
-        wezterm = inputs.wezterm-fork.packages.x86_64-linux.default;
+
+  mkPkgs = { system, ... }: (getSystem system).allModuleArgs.pkgs;
+  outputs = {
+    inherit darwinConfigurations;
+    nixosConfigurations = workstationConfigurations;
+
+    lib.configurationDerivations = lib.genAttrs systems (system: {
+      darwin = lib.mapAttrs (_: cfg: cfg.system.drvPath) (
+        lib.filterAttrs (name: _: hostConfigs.${name}.system == system) darwinConfigurations
+      );
+      nixos = lib.mapAttrs (_: cfg: cfg.config.system.build.toplevel.drvPath) (
+        lib.filterAttrs (_: cfg: cfg.pkgs.stdenv.hostPlatform.system == system) nixosConfigurations
+      );
+      home = lib.genAttrs [ "dev" "minimal" ] (
+        profile: inputs.self.homeConfigurations.${profile + "-" + system}.activationPackage.drvPath
+      );
+    });
+
+    homeModules = {
+      default = ../modules/home;
+      options = {
+        imports = [
+          ../features/theme/options.nix
+          ../modules/home/programs/llm/options.nix
+          ../features/git/options.nix
+        ];
       };
-      modules = [ ../hosts/vorgossos ];
+    };
+
+    homeConfigurations =
+      let
+        buildHome = builders.mkHome {
+          inherit (inputs) home-manager;
+          inherit (builders) mkOverlays;
+          inherit mkPkgs;
+        };
+      in
+      lib.listToAttrs (
+        lib.concatMap
+          (
+            profile:
+            map (system: {
+              name = "${profile}-${system}";
+              value = buildHome {
+                inherit system profile;
+                inherit (personal) username;
+                hostname = "standalone";
+                values = {
+                  inherit (personal) git;
+                };
+              };
+            }) systems
+          )
+          [
+            "dev"
+            "minimal"
+          ]
+      );
+
+    templates = {
+      discrete = {
+        path = ../templates/discrete;
+        description = "Template for discrete host repository consuming sysinit";
+      };
+    };
+
+    overlays = {
+      default =
+        final: _prev:
+        (lib.composeManyExtensions (import ../overlays/default.nix { inherit inputs; })) final _prev;
     };
   };
+in
+{
+  imports = [ ../hosts/vorgossos/flake-module.nix ];
 
   systems = [
     "aarch64-darwin"
@@ -54,99 +128,28 @@ let
     "aarch64-linux"
   ];
 
-  pkgsFor = lib.genAttrs systems (
-    system:
-    builders.mkPkgs {
-      inherit system;
-      overlays = builders.mkOverlays;
-    }
-  );
-in
-{
-  inherit darwinConfigurations nixosConfigurations;
-
-  lib.configurationDerivations = lib.genAttrs systems (system: {
-    darwin = lib.mapAttrs (_: cfg: cfg.system.drvPath) (
-      lib.filterAttrs (name: _: hostConfigs.${name}.system == system) darwinConfigurations
-    );
-    nixos = lib.mapAttrs (_: cfg: cfg.config.system.build.toplevel.drvPath) (
-      lib.filterAttrs (_: cfg: cfg.config.nixpkgs.hostPlatform.system == system) nixosConfigurations
-    );
-    home = lib.genAttrs [ "dev" "minimal" ] (
-      profile: inputs.self.homeConfigurations.${profile + "-" + system}.activationPackage.drvPath
-    );
-  });
-
-  homeModules = {
-    default = ../modules/home;
-    options = {
-      imports = [
-        ../modules/shared/options/theme.nix
-        ../modules/home/programs/llm/options.nix
-        ../modules/home/programs/git/options.nix
-      ];
-    };
-  };
-
-  homeConfigurations =
-    let
-      buildHome = builders.mkHome {
-        inherit (inputs) home-manager;
-        inherit (builders) mkOverlays;
-        mkPkgs = { system, ... }: pkgsFor.${system};
+  perSystem =
+    { pkgs, system, ... }:
+    {
+      _module.args.pkgs = builders.mkPkgs {
+        inherit system;
+        overlays = builders.mkOverlays;
       };
-    in
-    lib.listToAttrs (
-      lib.concatMap
-        (
-          profile:
-          map (system: {
-            name = "${profile}-${system}";
-            value = buildHome {
-              inherit system profile;
-              inherit (personal) username;
-              hostname = "standalone";
-              values = {
-                inherit (personal) git;
-              };
-            };
-          }) systems
-        )
-        [
-          "dev"
-          "minimal"
-        ]
-    );
 
-  packages = lib.mapAttrs (_: pkgs: import ./packages.nix { inherit pkgs; }) pkgsFor;
-
-  checks = lib.genAttrs systems (
-    system:
-    import ../checks {
-      inherit
-        system
-        darwinConfigurations
-        nixosConfigurations
-        ;
-      homeManagerLib = inputs.home-manager.lib;
-      inherit (inputs.self) homeConfigurations;
-      pkgs = pkgsFor.${system};
-    }
-  );
-
-  devShells = lib.mapAttrs (_: pkgs: import ./dev-shells.nix { inherit pkgs; }) pkgsFor;
-
-  templates = {
-    discrete = {
-      path = ../templates/discrete;
-      description = "Template for discrete host repository consuming sysinit";
+      packages = import ./packages.nix { inherit pkgs; };
+      devShells = import ./dev-shells.nix { inherit pkgs; };
+      checks = import ../checks {
+        inherit
+          system
+          pkgs
+          darwinConfigurations
+          nixosConfigurations
+          ;
+        homeManagerLib = inputs.home-manager.lib;
+        inherit (inputs.self) homeConfigurations;
+      };
+      formatter = import ./formatter.nix { pkgs = nixpkgs.legacyPackages.${system}; };
     };
-  };
 
-  overlays = {
-    default =
-      final: _prev:
-      (lib.composeManyExtensions (import ../overlays/default.nix { inherit inputs; })) final _prev;
-  };
-  formatter = import ./formatter.nix { inherit nixpkgs systems; };
+  flake = outputs;
 }

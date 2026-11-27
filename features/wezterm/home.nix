@@ -8,12 +8,12 @@
 }:
 
 let
-  themeLib = import ../../../shared/theme-colors.nix { inherit lib; };
+  themeLib = import ../theme/colors.nix { inherit lib; };
   themeColors = themeLib.colorsOf config;
-  paths = import ../../../lib/paths.nix { inherit lib; };
+  paths = import ../../modules/lib/paths.nix { inherit lib; };
   themeConfig = config.sysinit.theme;
   c = themeColors;
-  palette = import ../../../shared/terminal-palette.nix c;
+  palette = import ../theme/terminal-palette.nix c;
   luaSource = inputs.sysinit-wezterm.lib.luaSource pkgs;
   weztermMacOS = "${config.home.homeDirectory}/${config.targets.darwin.copyApps.directory}/WezTerm.app/Contents/MacOS";
   weztermLauncher = pkgs.writeShellScriptBin "wezterm" ''
@@ -98,7 +98,7 @@ in
         "lv426.local"
       ];
 
-      agents = import ../llm/harnesses/deck-patterns.nix;
+      agents = import ../../modules/home/programs/llm/harnesses/deck-patterns.nix;
 
       # Saved in plain text under the 0700 recovery directory; history copies omit it.
       persistence = {
@@ -106,24 +106,31 @@ in
         exclude_workspaces = lib.optional config.sysinit.queue.enable "task-queue";
       };
 
-      agentResume = lib.mapAttrs (
-        _n: h:
-        let
-          inherit (h.launch.fullAccess) args env;
-          assignments = lib.mapAttrsToList (name: value: "${name}=${value}") env;
-        in
-        lib.optionals (assignments != [ ]) ([ "env" ] ++ assignments)
-        ++ [ h.command ]
-        ++ args
-        ++ h.launch.resumeArgs
-      ) (lib.filterAttrs (_n: h: h ? launch.resumeArgs) (import ../llm/harnesses/registry.nix));
+      agentResume =
+        lib.mapAttrs
+          (
+            _n: h:
+            let
+              inherit (h.launch.fullAccess) args env;
+              assignments = lib.mapAttrsToList (name: value: "${name}=${value}") env;
+            in
+            lib.optionals (assignments != [ ]) ([ "env" ] ++ assignments)
+            ++ [ h.command ]
+            ++ args
+            ++ h.launch.resumeArgs
+          )
+          (
+            lib.filterAttrs (_n: h: h ? launch.resumeArgs) (
+              import ../../modules/home/programs/llm/harnesses/registry.nix
+            )
+          );
 
       agentIdentity = lib.mapAttrs (_n: h: {
         inherit (h) label glyph;
-      }) (import ../llm/harnesses/registry.nix);
+      }) (import ../../modules/home/programs/llm/harnesses/registry.nix);
 
       bin = "${config.home.profileDirectory}/bin";
-      shell = import ../../../shared/terminal-shell.nix config;
+      shell = import ../../modules/shared/terminal-shell.nix config;
       ssh = lib.optionalAttrs sshCfg.use1PasswordAgent { agent_socket = sshAgentSocket; };
       font = {
         inherit (themeConfig.font) monospace;

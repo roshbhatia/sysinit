@@ -19,14 +19,14 @@ in
         ./eza.nix
         ./fd.nix
         ./fzf.nix
-        ./git
+        ../../../features/git/home.nix
         ./helix.nix
         ./hushlogin.nix
         ./ere.nix
         ./nix.nix
         ./nix-your-shell.nix
         ./omp.nix
-        ./ssh.nix
+        ../../../features/ssh/home.nix
         ./taskwarrior.nix
         ./utils
         ./vivid.nix
@@ -54,8 +54,8 @@ in
         ./otel-collector.nix
         ./otel-tui.nix
         ./pueue
-        ./seshy
-        ./tether
+        ../../../features/seshy/home.nix
+        ../../../features/tether/home.nix
         ./terraform.nix
         ./traces.nix
         ./yazi
@@ -64,8 +64,8 @@ in
       workstation = [
         ./fastfetch.nix
         ./mail
-        ./wezterm
+        ../../../features/wezterm/home.nix
       ];
     }
-    ++ lib.optional theme ../stylix-targets.nix;
+    ++ lib.optional theme ../../../features/theme/home.nix;
 }

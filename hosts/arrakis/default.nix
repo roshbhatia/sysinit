@@ -1,4 +1,4 @@
-{ personal }:
+{ personal, remoteBuild }:
 
 let
   roseprime = {
@@ -23,10 +23,13 @@ let
   };
 
 in
-personal.linuxWorkstation ./hardware.nix {
+(personal.linuxWorkstation ./hardware.nix {
   k3s.enable = true;
   theme = {
     base16Scheme = roseprime;
     font.monospace = "WumpusMono Nerd Font Mono";
   };
+})
+// {
+  extraModules = [ remoteBuild ];
 }

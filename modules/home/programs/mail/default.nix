@@ -6,7 +6,7 @@
 }:
 let
   cfg = config.sysinit.mail;
-  themeLib = import ../../../shared/theme-colors.nix { inherit lib; };
+  themeLib = import ../../../../features/theme/colors.nix { inherit lib; };
   colors = themeLib.colorsOf config;
   palette = lib.genAttrs (map (n: "base0${n}") [
     "0"

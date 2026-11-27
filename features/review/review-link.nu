@@ -1,4 +1,4 @@
-use ../../../git/review-checkpoint.nu snapshot
+use ../git/review-checkpoint.nu snapshot
 
 def link-directory [] {
     $env.XDG_STATE_HOME? | default ($env.HOME | path join .local state) | path join agent-diff links

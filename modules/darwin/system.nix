@@ -10,6 +10,8 @@ let
   commandPath = import ../shared/command-path.nix { inherit lib; };
   systemPath = commandPath.systemEntriesFor true;
   user = config.sysinit.user.username;
+  arrakisBuilder = "ssh-ng://nix-builder@arrakis.stork-eel.ts.net";
+  builderIdentity = "/var/root/.ssh/sysinit-builder";
   systemGenerationPruner = pkgs.sysinit.writeShellScript "sysinit-prune-system-generations" (
     builtins.readFile ./prune-system-generations.sh
   );
@@ -32,7 +34,10 @@ in
     connect-timeout = 10;
     auto-optimise-store = true;
 
-    builders = "ssh-ng://nix-builder@arrakis.stork-eel.ts.net x86_64-linux /var/root/.ssh/sysinit-builder 8 2 nixos-test,benchmark,big-parallel,kvm - -";
+    builders = lib.concatStringsSep "; " [
+      "${arrakisBuilder} x86_64-linux ${builderIdentity} 8 2 nixos-test,benchmark,big-parallel,kvm - -"
+      "${arrakisBuilder} aarch64-linux ${builderIdentity} 4 2 big-parallel - -"
+    ];
     builders-use-substitutes = true;
 
     narinfo-cache-negative-ttl = 60;

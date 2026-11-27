@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   pkgs,
   ...
 }:
@@ -8,7 +9,7 @@ let
   themeConfig = config.sysinit.theme;
   base16Scheme =
     if builtins.isString themeConfig.base16Scheme then
-      "${pkgs.base16-schemes}/share/themes/${themeConfig.base16Scheme}.yaml"
+      "${inputs.theme-schemes}/base16/${themeConfig.base16Scheme}.yaml"
     else
       themeConfig.base16Scheme;
 in

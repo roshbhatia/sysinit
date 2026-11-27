@@ -1,7 +1,10 @@
 { pkgs, ... }:
 
 {
-  imports = [ ../shared/stylix.nix ];
+  imports = [
+    ./options.nix
+    ./stylix.nix
+  ];
 
   stylix.image = pkgs.fetchurl {
     url = "https://wallpapercave.com/wp/wp12329549.png";

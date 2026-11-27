@@ -8,13 +8,9 @@ let
   cfg = config.sysinit.git;
 in
 {
-  imports = [
-    ./options.nix
-  ];
+  imports = [ ./identity.nix ];
 
   programs.git = {
-    enable = true;
-
     ignores = [
       ".AppleDB"
       ".AppleDesktop"
@@ -236,9 +232,7 @@ in
         updateRefs = true;
       };
 
-      user = {
-        inherit (cfg) name email username;
-      };
+      user.username = cfg.username;
     };
   };
 

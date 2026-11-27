@@ -1,13 +1,13 @@
 { lib, pkgs }:
 let
   source = lib.fileset.toSource {
-    root = ../../..;
+    root = ../.;
     fileset = lib.fileset.unions [
       ./review-link.nu
-      ../../../git/review-checkpoint.nu
+      ../git/review-checkpoint.nu
     ];
   };
-  script = "${source}/llm/runtime/diff/review-link.nu";
+  script = "${source}/review/review-link.nu";
 in
 pkgs.writeShellApplication {
   name = "agent-review-link";

@@ -28,9 +28,9 @@
       {
         home.enableNixpkgsReleaseCheck = false;
         imports = [
-          ../shared/options/theme.nix
+          ../../features/theme/options.nix
           ../home/programs/llm/options.nix
-          ../home/programs/git/options.nix
+          ../../features/git/options.nix
 
           ../home
 

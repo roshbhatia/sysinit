@@ -8,6 +8,7 @@
     ./lan-aliases.nix
     ./storage.nix
     ./terminal.nix
+    ../../features/tailscale/service.nix
   ];
 
   networking = {
@@ -45,10 +46,7 @@
         PermitRootLogin = "no";
       };
     };
-    tailscale = {
-      enable = true;
-      useRoutingFeatures = "server";
-    };
+    tailscale.useRoutingFeatures = "server";
   };
 
   environment.systemPackages = [ pkgs.git ];

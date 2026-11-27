@@ -8,7 +8,7 @@
 }:
 
 let
-  themeLib = import ../../shared/theme-colors.nix { inherit lib; };
+  themeLib = import ../../../features/theme/colors.nix { inherit lib; };
   themeColors = themeLib.colorsOf config;
   colors = themeColors;
 

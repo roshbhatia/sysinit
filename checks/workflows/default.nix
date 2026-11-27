@@ -21,7 +21,7 @@ in
     name = "review-checkpoint";
     script = ./review-checkpoint.nu;
     sources = [ ../lib/process.nu ];
-    arguments = [ ../../modules/home/programs/git/review-checkpoint.nu ];
+    arguments = [ ../../features/git/review-checkpoint.nu ];
     inputs = [ pkgs.git ];
   };
 

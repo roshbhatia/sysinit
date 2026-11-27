@@ -3,10 +3,9 @@
 {
   imports = [
     ../shared/options/user.nix
-    ../shared/options/theme.nix
     ../shared/codex-hooks.nix
     ./options.nix
-    ../home/programs/git/options.nix
+    ../../features/git/options.nix
 
     ./rift.nix
     ./clamshell.nix
@@ -19,12 +18,12 @@
     ./log-retention.nix
     ./macos-tools.nix
     ./ollama.nix
-    ./openssh.nix
+    ../../features/ssh/darwin.nix
     ./security.nix
     ./sketchybar.nix
-    ./stylix.nix
+    ../../features/theme/darwin.nix
     ./system.nix
-    ./tailscale.nix
+    ../../features/tailscale/service.nix
   ];
 
   sysinit.darwin.defaults.remove."org.mozilla.firefox" = [

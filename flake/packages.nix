@@ -7,8 +7,6 @@ let
     lib.filter (name: name != null) (lib.mapAttrsToList (_: h: h.package) harnesses)
     ++ [
       "agents"
-      "agent-diff"
-      "agent-workspace"
       "conductor-cli"
       "goose-desktop"
       "hunk"
@@ -20,8 +18,6 @@ let
   );
   candidates = pkgs // {
     agents = import ../modules/home/programs/llm/runtime/agents { inherit pkgs; };
-    agent-diff = import ../modules/home/programs/llm/runtime/diff { inherit pkgs; };
-    agent-workspace = import ../modules/home/programs/llm/runtime/workspace { inherit pkgs; };
   };
 in
 {

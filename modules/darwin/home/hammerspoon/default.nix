@@ -34,7 +34,7 @@ let
     "Weather.app"
   ];
   emojiData = import ./emoji.nix { inherit pkgs; };
-  themeLib = import ../../../shared/theme-colors.nix { inherit lib; };
+  themeLib = import ../../../../features/theme/colors.nix { inherit lib; };
   c = themeLib.colorsOf config;
   slots = [
     "base00"

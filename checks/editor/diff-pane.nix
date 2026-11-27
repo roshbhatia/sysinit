@@ -10,7 +10,7 @@ nuCheck {
     pkgs.git
   ];
   arguments = [
-    ../../modules/home/programs/llm/runtime/diff
+    ../../features/review
     ../fixtures/review-tools.nu
     ../../modules/home/programs/utils/dev/ty.nu
   ];

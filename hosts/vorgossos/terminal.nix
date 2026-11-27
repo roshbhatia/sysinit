@@ -2,6 +2,7 @@
   base16,
   lib,
   pkgs,
+  themeSchemes,
   wezterm,
   ...
 }:
@@ -12,8 +13,8 @@ let
   kubeconfig = "/home/${user}/.kube/config";
   colors =
     (base16 { inherit lib pkgs; }).mkSchemeAttrs
-      "${pkgs.base16-schemes}/share/themes/gruvbox-dark-soft.yaml";
-  palette = import ../../modules/shared/terminal-palette.nix colors;
+      "${themeSchemes}/base16/gruvbox-dark-soft.yaml";
+  palette = import ../../features/theme/terminal-palette.nix colors;
   ansiNames = [
     "black"
     "red"

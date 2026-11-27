@@ -6,7 +6,7 @@
 }:
 
 let
-  themeLib = import ../../shared/theme-colors.nix { inherit lib; };
+  themeLib = import ../../../features/theme/colors.nix { inherit lib; };
   c = themeLib.colorsOf config;
 
   wezterm = "${pkgs.wezterm}/bin/wezterm";

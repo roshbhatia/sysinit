@@ -14,10 +14,8 @@ in
       pkgs.lua5_4
     ];
     arguments = [
-      (lib.getExe (
-        import ../../modules/home/programs/llm/runtime/diff/review-link.nix { inherit lib pkgs; }
-      ))
-      ../../modules/home/programs/wezterm/links.lua
+      (lib.getExe (import ../../features/review/review-link.nix { inherit lib pkgs; }))
+      ../../features/wezterm/links.lua
       ./review-links.lua
     ];
   };

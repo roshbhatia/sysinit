@@ -194,8 +194,8 @@ in
       pkgs.sysinit-utils
       capture
       (import ./runtime/agents { inherit pkgs; })
-      (import ./runtime/diff { inherit pkgs; })
-      (import ./runtime/diff/review-link.nix { inherit lib pkgs; })
+      (import ../../../../features/review/package.nix { inherit pkgs; })
+      (import ../../../../features/review/review-link.nix { inherit lib pkgs; })
       notify.script
       notify.agentRefine
       notify.promptScript
@@ -204,7 +204,9 @@ in
       notify.sessionsScript
       pkgs.seshy
     ]
-    ++ lib.optional config.sysinit.llm.workspace.enable (import ./runtime/workspace { inherit pkgs; })
+    ++ lib.optional config.sysinit.llm.workspace.enable (
+      import ../../../../features/workspace/package.nix { inherit pkgs; }
+    )
     ++ lib.optional pkgs.stdenv.hostPlatform.isDarwin notify.appPackage;
   };
 

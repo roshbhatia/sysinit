@@ -1,11 +1,10 @@
 {
-  config,
-  lib,
-  hostname,
-  ...
-}:
-{
-  config = lib.mkIf (hostname == "arrakis") {
+  flake.modules.nixos.remoteBuild = { config, ... }: {
+    boot.binfmt = {
+      emulatedSystems = [ "aarch64-linux" ];
+      preferStaticEmulators = true;
+    };
+
     users.groups.nix-builder = { };
     users.users.nix-builder = {
       isSystemUser = true;

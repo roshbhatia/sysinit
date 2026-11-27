@@ -11,10 +11,12 @@ let
   inherit (sshCfg) agentSocket identityFile;
 in
 {
-  programs.ssh = {
-    enable = true;
-    enableDefaultConfig = false;
+  imports = [
+    ./client.nix
+    ../git/options.nix
+  ];
 
+  programs.ssh = {
     settings = {
       "*" = {
         AddKeysToAgent = "yes";

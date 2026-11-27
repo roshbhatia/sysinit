@@ -5,5 +5,5 @@
     "noEmit": true,
     "target": "ES2022"
   },
-  "include": ["modules/**/*.ts"]
+  "include": ["features/**/*.ts", "modules/**/*.ts"]
 }

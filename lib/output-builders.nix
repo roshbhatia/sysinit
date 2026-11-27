@@ -14,7 +14,7 @@
       buildConfig {
         hostConfig = cfg;
         hostname = name;
-        inherit extraModules;
+        extraModules = extraModules ++ (cfg.extraModules or [ ]);
       }
     ) configs
     // extras;

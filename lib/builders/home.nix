@@ -47,9 +47,9 @@
       };
 
       modules = [
-        ../../modules/shared/options/theme.nix
+        ../../features/theme/options.nix
         ../../modules/home/programs/llm/options.nix
-        ../../modules/home/programs/git/options.nix
+        ../../features/git/options.nix
         ../../modules/home
         {
           home = {

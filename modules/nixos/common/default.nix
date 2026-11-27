@@ -17,11 +17,12 @@
 
   imports = [
     ../../shared/options/user.nix
-    ../../shared/options/theme.nix
     ../../shared/codex-hooks.nix
-    ../../home/programs/git/options.nix
+    ../../../features/git/options.nix
 
-    ./stylix.nix
+    ../../../features/ssh/nixos.nix
+    ../../../features/tailscale/service.nix
+    ../../../features/theme/nixos.nix
   ];
 
   nix = {
@@ -101,18 +102,6 @@
   programs.zsh.enable = true;
 
   services = {
-    openssh = {
-      enable = true;
-      startWhenNeeded = false;
-      settings = {
-        PasswordAuthentication = false;
-        PermitRootLogin = "no";
-        X11Forwarding = false;
-
-        SetEnv = "SHELL=/run/current-system/sw/bin/zsh PATH=/run/wrappers/bin:/etc/profiles/per-user/${values.user.username}/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin";
-      };
-    };
-
     avahi = {
       enable = true;
       nssmdns4 = true;
@@ -122,8 +111,6 @@
         publish-addresses = true;
       };
     };
-
-    tailscale.enable = true;
 
     udisks2.enable = true;
 

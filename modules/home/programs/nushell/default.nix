@@ -111,6 +111,8 @@ let
   completersConfig = nushellLib.completers pkgs;
 in
 {
+  imports = [ ../../../../features/nushell/interactive.nix ];
+
   assertions = [
     {
       assertion = sessionVarsUnexpanded == { };
@@ -131,8 +133,6 @@ in
 
   programs = {
     nushell = {
-      enable = true;
-      loadSessionVariables = false;
       plugins = [ pkgs.nu-plugin-nuvim ];
 
       extraEnv = "# Environment values are generated in config.nu.\n";
@@ -147,13 +147,7 @@ in
       };
 
       settings = {
-        show_banner = false;
         status_line.signature = false;
-        edit_mode = "vi";
-        cursor_shape = {
-          vi_insert = "line";
-          vi_normal = "block";
-        };
         keybindings = [
           {
             name = "completion_menu";
@@ -216,9 +210,6 @@ in
         ${nushellLib.sourceCompletion pkgs.seshy "sy"}
         ${nushellLib.sourceCompletion pkgs.tether "tether"}
         ${nushellLib.sourceCompletion pkgs.tether "tsh"}
-
-        use std/dirs
-        use std/dirs shells-aliases *
 
         ${completersConfig}
 

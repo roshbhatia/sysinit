@@ -18,7 +18,7 @@ in
         This drives `stylix.enable`, so turning it off stops the thing that
         derives colors rather than only hiding the result. Programs whose config
         is themed either way then read the neutral base16 default written down in
-        `modules/shared/theme-colors.nix`, and the three that can drop their
+        `features/theme/colors.nix`, and the three that can drop their
         themed section entirely do so.
 
         The point of the flag is that the modules evaluate at all without stylix,
@@ -32,7 +32,7 @@ in
       default = "catppuccin-mocha";
       description = ''
         Base16 scheme. Accepts either:
-        - a string: name of a scheme in `pkgs.base16-schemes` (e.g. "gruvbox-dark-hard")
+        - a string: name of a scheme in the pinned Tinted Theming source (e.g. "gruvbox-dark-hard")
         - an attrset: handmade scheme with `base00`..`base0F` keys (hex without `#`)
           plus optional `scheme`/`author` metadata, fed straight to stylix's
           `mkSchemeAttrs`.

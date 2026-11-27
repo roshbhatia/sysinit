@@ -8,33 +8,9 @@ let
   personal = import ../personal.nix;
 in
 {
-  environment.etc."hostname".text = "${hostName}\n";
+  imports = [ ../../features/theme/nix-on-droid.nix ];
 
-  terminal.colors = {
-    background = "#fafafa";
-    foreground = "#181818";
-    cursor = "#181818";
-  }
-  // builtins.listToAttrs (
-    lib.imap0 (index: value: lib.nameValuePair "color${toString index}" value) [
-      "#181818"
-      "#333333"
-      "#444444"
-      "#525252"
-      "#3a3a3a"
-      "#494949"
-      "#5c5c5c"
-      "#dddddd"
-      "#626262"
-      "#262626"
-      "#373737"
-      "#454545"
-      "#303030"
-      "#404040"
-      "#505050"
-      "#ffffff"
-    ]
-  );
+  environment.etc."hostname".text = "${hostName}\n";
 
   environment.packages = with pkgs; [
     curl
@@ -45,21 +21,20 @@ in
 
   nix.extraOptions = "experimental-features = nix-command flakes";
   system.stateVersion = "24.05";
+  user.shell = lib.getExe pkgs.nushell;
+
   home-manager.config = {
+    imports = [
+      ../../features/git/identity.nix
+      ../../features/nushell/interactive.nix
+      ../../features/ssh/client.nix
+    ];
+
     home.stateVersion = "24.05";
-    programs = {
-      git = {
-        enable = true;
-        settings.user = { inherit (personal.git) name email; };
-      };
-      ssh = {
-        enable = true;
-        enableDefaultConfig = false;
-        settings.vorgossos = {
-          HostName = "vorgossos.stork-eel.ts.net";
-          User = "rshnbhatia";
-        };
-      };
+    sysinit.git = { inherit (personal.git) name email; };
+    programs.ssh.settings.vorgossos = {
+      HostName = "vorgossos.stork-eel.ts.net";
+      User = "rshnbhatia";
     };
   };
 }

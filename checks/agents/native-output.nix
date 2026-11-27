@@ -1,4 +1,7 @@
 { pkgs }:
+let
+  workspaceSource = import ../../features/workspace/source.nix { inherit (pkgs) lib; };
+in
 import ../lib/native.nix { inherit pkgs; } {
   name = "native-output-contracts";
   inputs = [
@@ -11,9 +14,9 @@ import ../lib/native.nix { inherit pkgs; } {
     "opencode.ts" = ../../modules/home/programs/llm/harnesses/opencode/plugins/sysinit-output.ts;
     "native-output.test.js" = ./native-output.test.js;
     "agent-workspace.test.js" = ./agent-workspace.test.js;
-    "workspace-codex.ts" = ../../modules/home/programs/llm/runtime/workspace/codex.ts;
-    "workspace-observe.ts" = ../../modules/home/programs/llm/runtime/workspace/observe.ts;
-    "refresh.ts" = ../../modules/home/programs/llm/runtime/workspace/refresh.ts;
+    "workspace-codex.ts" = ../../features/workspace/codex.ts;
+    "workspace-observe.ts" = ../../features/workspace/observe.ts;
+    "refresh.ts" = ../../features/workspace/refresh.ts;
   };
   commands = [
     [
@@ -39,7 +42,7 @@ import ../lib/native.nix { inherit pkgs; } {
       "nu"
       "--no-config-file"
       ./agent-workspace.nu
-      "${../../modules/home/programs/llm/runtime}/workspace/workspace.nu"
+      "${workspaceSource}/features/workspace/workspace.nu"
       ../fixtures/review-tools.nu
       ../../modules/home/programs/utils/dev/ty.nu
     ]

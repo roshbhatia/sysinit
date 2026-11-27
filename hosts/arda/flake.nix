@@ -29,16 +29,20 @@
     }:
     let
       hostName = "arda";
+      mkArda =
+        extraModules:
+        nix-on-droid.lib.nixOnDroidConfiguration {
+          pkgs = import nixpkgs {
+            system = "aarch64-linux";
+            overlays = [ nix-on-droid.overlays.default ];
+          };
+          extraSpecialArgs = { inherit hostName; };
+          home-manager-path = home-manager.outPath;
+          modules = [ ./configuration.nix ] ++ extraModules;
+        };
     in
     {
-      nixOnDroidConfigurations.${hostName} = nix-on-droid.lib.nixOnDroidConfiguration {
-        pkgs = import nixpkgs {
-          system = "aarch64-linux";
-          overlays = [ nix-on-droid.overlays.default ];
-        };
-        extraSpecialArgs = { inherit hostName; };
-        home-manager-path = home-manager.outPath;
-        modules = [ ./configuration.nix ];
-      };
+      nixOnDroidConfigurations.${hostName} = mkArda [ ];
+      lib.mkArda = mkArda;
     };
 }

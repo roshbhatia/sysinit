@@ -128,7 +128,11 @@ def run-checks [scope: string, temporary: path] {
     }
 
     if ($lua | is-not-empty) and (available lua-language-server) {
-        for configuration in (^git ls-files | lines | where $it =~ '(^|/)\.luarc\.json$') {
+        for configuration in (
+            ^git ls-files
+            | lines
+            | where {|file| $file =~ '(^|/)\.luarc\.json$' and ($file | path exists) }
+        ) {
             let directory = $configuration | path dirname
 
             let name = $directory | str replace --all '/' '_'

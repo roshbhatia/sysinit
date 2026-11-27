@@ -1,4 +1,6 @@
 { config, lib, ... }: {
+  imports = [ ./options.nix ];
+
   stylix.targets = {
     rofi.enable = lib.mkDefault config.programs.rofi.enable;
     helix.opacity.enable = false;

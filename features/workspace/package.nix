@@ -1,8 +1,11 @@
 { pkgs }:
+let
+  source = import ./source.nix { inherit (pkgs) lib; };
+in
 pkgs.writeShellApplication {
   name = "agent-workspace";
   runtimeInputs = [
-    (import ../diff { inherit pkgs; })
+    (import ../review/package.nix { inherit pkgs; })
     pkgs.bun
     pkgs.changes
     pkgs.changes-provider-local-notes
@@ -14,6 +17,6 @@ pkgs.writeShellApplication {
   ];
   text = ''
     export SYSINIT_AGENT_WORKSPACE_BIN="$0"
-    exec ${pkgs.nushell}/bin/nu --no-config-file ${./..}/workspace/workspace.nu "$@"
+    exec ${pkgs.nushell}/bin/nu --no-config-file ${source}/features/workspace/workspace.nu "$@"
   '';
 }

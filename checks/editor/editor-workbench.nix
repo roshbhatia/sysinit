@@ -28,7 +28,7 @@ nativeCheck {
       pkgs.sysinit-editor-workbench
       pkgs.sysinit-reviewr
       pkgs.changes-neovim-plugin
-      ../../modules/home/programs/llm/runtime/diff/source-view.lua
+      ../../features/review/source-view.lua
       ../../modules/home/programs/neovim/review-keys.lua
     ]
   ];

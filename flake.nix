@@ -3,9 +3,18 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    flake-parts = {
+      url = "github:hercules-ci/flake-parts/57928607ea566b5db3ad13af0e57e921e6b12381";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
+    };
     k0s-nix = {
       url = "github:nix-community/k0s-nix/e7670c30f5e24cf46296bb3fd9fef3cd3febe97b";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    theme-schemes = {
+      url = "github:tinted-theming/schemes/43dd14f6466a782bd57419fdfb5f398c74d6ac53";
+      flake = false;
     };
 
     systems.url = "github:nix-systems/default";
@@ -207,5 +216,13 @@
 
   };
 
-  outputs = inputs: import ./flake inputs;
+  outputs =
+    inputs:
+    inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+      imports = [
+        inputs.flake-parts.flakeModules.modules
+        ./flake
+        ./features
+      ];
+    };
 }
