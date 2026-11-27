@@ -12,6 +12,39 @@ result of actualisation is behavior observed through its intended interface.
 | Elaboration | Current behavior, intended change, behavior to preserve, and examples with observable expected outcomes. Add a technical design when a real decision warrants one. |
 | Actualisation | The implementation and the evidence obtained by running it. Record what was checked and which assumptions or cases remain open. |
 
+## Working note
+
+When the conversation is enough to resume or switch approaches, keep the
+working material there. Otherwise, keep one note under
+`${XDG_STATE_HOME:-$HOME/.local/state}/sysinit/planning/`. Use the existing
+Taskwarrior UUID as the filename when available and record the local path
+in that task. A note can be as short as these four lines.
+
+```text
+Context — checkout, starting revision, source ticket if any
+Outcome — what needs to happen and what must still hold
+Evidence — what ran, against what, and what it showed
+Next — the decision, implementation step, or check that remains
+```
+
+Update entries that affect the next decision. When exiting the workflow,
+preserve confirmed decisions and outstanding checks in the conversation or
+existing task, wherever they will be picked up. [Extract, Edit, Apply](https://githubnext.com/projects/extract-edit-apply/)
+explores the same idea of a temporary description around code that persists.
+
+## Example of a change in scope
+
+A request to inspect a conflicted path can begin with a single agreed
+behavior: show the Git stage entries for that path while preserving the
+index. Run the inspection against a real merge fixture. A three-way
+conflict supplies base, ours, and theirs. An add/add conflict supplies ours
+and theirs. If the user narrows the output to paths that include a base
+entry, update the output criterion and recheck selection against both cases.
+An index-preservation result for the unchanged command still describes
+that execution. If the command changes, check preservation on the new
+candidate too. Once the behavior is clear, finish in the ordinary
+implementation workflow and keep the regression cases with the code.
+
 ## Close the feedback loop
 
 [Wiener](https://mitpress.mit.edu/9780262537841/cybernetics-or-control-and-communication-in-the-animal-and-the-machine/)
