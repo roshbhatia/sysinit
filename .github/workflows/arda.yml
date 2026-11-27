@@ -38,5 +38,5 @@ jobs:
         env:
           NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
         run: |
-          nix eval --impure --no-update-lock-file --raw \
+          nix eval --impure --accept-flake-config --no-update-lock-file --raw \
             "git+file://$PWD?shallow=1&dir=hosts/arda#nixOnDroidConfigurations.arda.activationPackage.drvPath"
