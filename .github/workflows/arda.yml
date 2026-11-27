@@ -1,0 +1,42 @@
+name: Arda
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/arda.yml
+      - hosts/arda/**
+      - hosts/personal.nix
+      - features/git/identity.nix
+      - features/git/options.nix
+      - features/nushell/interactive.nix
+      - features/ssh/client.nix
+      - features/theme/nix-on-droid.nix
+  pull_request:
+    paths:
+      - .github/workflows/arda.yml
+      - hosts/arda/**
+      - hosts/personal.nix
+      - features/git/identity.nix
+      - features/git/options.nix
+      - features/nushell/interactive.nix
+      - features/ssh/client.nix
+      - features/theme/nix-on-droid.nix
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  evaluate-arda:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: DeterminateSystems/nix-installer-action@v23
+      - name: Evaluate the Nix-on-Droid activation package
+        env:
+          NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+        run: |
+          nix eval --impure --no-update-lock-file --raw \
+            "git+file://$PWD?dir=hosts/arda#nixOnDroidConfigurations.arda.activationPackage.drvPath"
