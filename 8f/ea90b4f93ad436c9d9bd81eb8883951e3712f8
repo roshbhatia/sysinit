@@ -1,0 +1,53 @@
+modules/home/programs/llm/harnesses/claude/default.nix
+  s_8db7fc35d14233::t_af8a3221e77e49 56,335-369
+features/handy/default.nix
+  s_8db7fc35d14233::t_b871e7a2cf495e 1-3
+modules/home/programs/llm/options.nix
+  s_8db7fc35d14233::t_2bb237a48c4644 74-78
+modules/home/programs/llm/lib/managed-file.nix
+  s_8db7fc35d14233::t_2bb237a48c4644 25
+modules/home/programs/llm/lib/managed-file-reconcile.sh.tmpl
+  s_8db7fc35d14233::t_2bb237a48c4644 1-2
+features/handy/home.nix
+  s_8db7fc35d14233::t_b871e7a2cf495e 7-17,19-22,24-46
+  s_8db7fc35d14233::t_2bb237a48c4644 23
+  s_8db7fc35d14233::t_ccd4acd09ed72f 1-6,18
+modules/home/programs/llm/harnesses/codex.nix
+  s_8db7fc35d14233::t_af8a3221e77e49 187-195
+modules/home/programs/llm/harnesses/codex-native-tools.nu
+  s_8db7fc35d14233::t_3055ccac82ced0 60,62-63,65,69
+  s_8db7fc35d14233::t_af8a3221e77e49 2,64,67
+modules/home/programs/default.nix
+  s_8db7fc35d14233::t_ccd4acd09ed72f 71
+features/handy/vocabulary.nix
+  s_8db7fc35d14233::t_b871e7a2cf495e 1-17
+modules/home/programs/llm/harnesses/goose.nix
+  s_8db7fc35d14233::t_af8a3221e77e49 139-142,249-259
+checks/agents/codex-config.nu
+  s_8db7fc35d14233::t_af8a3221e77e49 58,81
+modules/darwin/keybindings.nix
+  s_8db7fc35d14233::t_b871e7a2cf495e 28-37,85-91
+features/module-exports.nix
+  s_8db7fc35d14233::t_b871e7a2cf495e 15
+checks/agents/harness-settings.nix
+  s_8db7fc35d14233::t_3ea5e35d08e320 47-65
+  s_8db7fc35d14233::t_b871e7a2cf495e 66-71
+features/handy/shortcuts.nix
+  s_8db7fc35d14233::t_b871e7a2cf495e 1-4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8fea90b4f93ad436c9d9bd81eb8883951e3712f8",
+  "prompts": {},
+  "sessions": {
+    "s_8db7fc35d14233": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a215ce-24da-7591-890e-c407374c6ce4",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
