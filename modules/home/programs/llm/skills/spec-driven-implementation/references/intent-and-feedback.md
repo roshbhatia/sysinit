@@ -98,7 +98,8 @@ For example, a check can start against one intent revision and return after the
 intent has changed. Model the check and acceptance as separate actions. The
 acceptance invariant can require evidence for the same intent and candidate
 that were accepted. Test the model with and without the guard to make sure it
-distinguishes that failure. In a small TLC example, ignoring the intent revision
+distinguishes that failure. In the [runnable TLC example](tla/Feedback.tla),
+ignoring the intent revision
 allowed a result to arrive late and be accepted. Matching both revisions
 preserved the invariant in all 79 reachable states. A finite TLC run checks
 the configured model. In this example, eventual acceptance after the last
@@ -108,6 +109,20 @@ execution. Exercise the corresponding actions on the running
 implementation to gather evidence about its behavior. Formal [refinement](https://lamport.azurewebsites.net/tla/proving-safety.pdf)
 adds a separate obligation to show how a lower-level model implements a
 higher-level one.
+
+To reproduce the example, place the model and its configurations in a
+writable directory and run the following with a local TLC jar.
+
+```sh
+java -cp /path/to/tla2tools.jar tlc2.TLC -config Safety.cfg Feedback
+```
+
+| Configuration | Expected result |
+| --- | --- |
+| [Safety.cfg](tla/Safety.cfg) | Acceptance always uses matching evidence. |
+| [StaleEvidence.cfg](tla/StaleEvidence.cfg) | TLC finds an acceptance with evidence from an earlier intent revision. |
+| [Liveness.cfg](tla/Liveness.cfg) | Acceptance eventually matches the final revisions under the stated fairness assumptions. |
+| [Unfair.cfg](tla/Unfair.cfg) | TLC finds an execution that stalls before acceptance. |
 
 These concepts guide local work. Use the company's existing terminology and
 artifact formats when communicating outcomes and evidence.
