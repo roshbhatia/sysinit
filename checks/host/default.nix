@@ -39,6 +39,8 @@ in
       config.launchd.daemons.comin.serviceConfig.EnvironmentVariables.PATH;
     assert lib.hasInfix "/bin/launchctl setenv PATH" config.system.activationScripts.launchd.text;
     assert !(config.launchd.user.envVariables ? PATH);
+    assert lib.hasInfix ''nix-env --profile "$systemProfile" --set "$systemConfig"''
+      config.system.activationScripts.postActivation.text;
     evalOnly "comin-darwin";
 
   host-access-security = import ./host-access-security.nix {
