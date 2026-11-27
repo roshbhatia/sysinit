@@ -89,12 +89,14 @@ in
 {
   system.activationScripts.homebrew.text = lib.mkIf cfg.enable (
     lib.mkForce ''
-      ${
-        if cfg.onActivation.autoUpdate || cfg.onActivation.upgrade then
-          toString reconcile
-        else
-          "${lib.getExe incremental} /var/db/sysinit/homebrew-inventory ${inventory} ${check} ${reconcile}"
-      }
+      # Private taps may use the Homebrew user's GitHub CLI and login keychain.
+      PATH="${lib.makeBinPath [ pkgs.gh ]}:$PATH" \
+        /bin/launchctl asuser "$(/usr/bin/id -u -- ${lib.escapeShellArg cfg.user})" ${
+          if cfg.onActivation.autoUpdate || cfg.onActivation.upgrade then
+            toString reconcile
+          else
+            "${lib.getExe incremental} /var/db/sysinit/homebrew-inventory ${inventory} ${check} ${reconcile}"
+        }
     ''
   );
 
