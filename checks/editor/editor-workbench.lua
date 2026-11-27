@@ -64,8 +64,6 @@ assert(review_panes.file == "new file.txt")
 assert(vim.api.nvim_get_current_win() == review_panes.right_win)
 assert(vim.deep_equal(vim.api.nvim_win_get_cursor(review_panes.right_win), { 1, 17 }))
 local ui = require("reviewr.ui")
-vim.o.columns = 180
-vim.o.lines = 44
 for _, edge in ipairs({ "left", "right", "top", "bottom" }) do
   vim.cmd.ReviewFiles(edge)
   local panel = vim.api.nvim_win_get_position(ui.files_panel().win)
