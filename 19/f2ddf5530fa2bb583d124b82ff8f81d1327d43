@@ -1,0 +1,49 @@
+modules/home/programs/atuin.nix
+  s_8db7fc35d14233::t_58142dc68f2322 81,95
+checks/workflows/git-ai-integration.nix
+  s_8db7fc35d14233::t_0a97c8372d0334 17
+checks/workflows/tq.nix
+  s_8db7fc35d14233::t_0a97c8372d0334 4,29
+features/nushell/home.nix
+  s_8db7fc35d14233::t_58142dc68f2322 8-114
+checks/default.nix
+  s_8db7fc35d14233::t_0a97c8372d0334 20
+modules/home/programs/default.nix
+  s_8db7fc35d14233::t_58142dc68f2322 53,56
+features/default.nix
+  s_8db7fc35d14233::t_58142dc68f2322 5
+checks/shell/atuin.nix
+  s_8db7fc35d14233::t_0a97c8372d0334 8,19
+checks/shell/nushell-externs.nix
+  s_8db7fc35d14233::t_0a97c8372d0334 3
+features/nushell/default.nix
+  s_8db7fc35d14233::t_58142dc68f2322 2-5
+checks/shell/nushell-managed-tools.nix
+  s_8db7fc35d14233::t_0a97c8372d0334 3
+checks/shell/nushell-utilities.nix
+  s_8db7fc35d14233::t_0a97c8372d0334 21
+features/nushell/lib.nix
+  s_8db7fc35d14233::t_58142dc68f2322 10
+checks/shell/nushell-completions.nix
+  s_8db7fc35d14233::t_0a97c8372d0334 7
+features/queue/default.nix
+  s_8db7fc35d14233::t_58142dc68f2322 1-3
+checks/packages/onepassword.nix
+  s_8db7fc35d14233::t_0a97c8372d0334 11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "19f2ddf5530fa2bb583d124b82ff8f81d1327d43",
+  "prompts": {},
+  "sessions": {
+    "s_8db7fc35d14233": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a215ce-24da-7591-890e-c407374c6ce4",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
