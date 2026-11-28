@@ -1,5 +1,5 @@
 local router, review_uri, root, file_uri, turn = table.unpack(arg)
-local handler, palette, routed, notice, default_path
+local handler, routed, notice, default_path
 local domain = "unix"
 local fullscreen = false
 
@@ -9,12 +9,8 @@ package.loaded.wezterm = {
     return callback
   end,
   on = function(event, callback)
-    if event == "open-uri" then
-      handler = callback
-    else
-      assert(event == "augment-command-palette")
-      palette = callback
-    end
+    assert(event == "open-uri")
+    handler = callback
   end,
   hostname = function()
     return "host"
@@ -112,19 +108,12 @@ fullscreen = true
 assert(handler(window, pane, review_uri) == false)
 assert(routed[#routed] == "--fullscreen")
 
-local config = links.build_config(function()
-  require("wezterm").on("augment-command-palette", function()
-    return { { brief = "Existing action" } }
-  end)
-  return { hyperlink_rules = {} }
-end, review)
+local config = { hyperlink_rules = {} }
 links.configure_hyperlinks(config)
 assert(config.hyperlink_rules[1].format == "$1")
-local entries = palette(window, pane)
-assert(#entries == 2 and entries[1].brief == "Existing action")
-assert(entries[2].brief == "Open Worktree Review")
+assert(review.brief == "Open Worktree Review")
 routed = nil
-entries[2].action(window, pane)
+review.action(window, pane)
 local palette_route = assert(routed)
 assert(palette_route[3] == "/profile/bin/agent-diff")
 assert(palette_route[4] == "--pane-id=42")

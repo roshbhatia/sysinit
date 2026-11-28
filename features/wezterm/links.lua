@@ -24,27 +24,6 @@ function M.configure_hyperlinks(config)
   })
 end
 
-function M.build_config(build, review)
-  local on = wezterm.on
-  -- The companion config registers one aggregate palette handler during build.
-  wezterm.on = function(event, handler)
-    if event ~= "augment-command-palette" then
-      return on(event, handler)
-    end
-    return on(event, function(window, pane)
-      local entries = handler(window, pane)
-      entries[#entries + 1] = review
-      return entries
-    end)
-  end
-  local ok, config = pcall(build)
-  wezterm.on = on
-  if not ok then
-    error(config)
-  end
-  return config
-end
-
 local function parse_file(uri)
   local ok, url = pcall(wezterm.url.parse, uri)
   if not ok or not url.file_path then

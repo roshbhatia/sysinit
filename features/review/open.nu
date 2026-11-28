@@ -3,7 +3,6 @@ use ./turn-history.nu read-turn
 use ./timing.nu review-timing
 
 const script = path self
-const directory_notes = path self | path dirname | path join directory-notes.lua
 const diffview_ready = 'luaeval("(function() local ok, lib = pcall(require, \x27diffview.lib\x27); local view = ok and lib.get_current_view(); return view and view.ready and 1 or 0 end)()")'
 
 def run-command [arguments: list<string>] {
@@ -214,35 +213,36 @@ def editor-command [
             )
         ]
     } else if $target.directory {
-        let comparison = if $target.baseline == null {
-            if $target.position == null {
-                [
-                    -c
-                    "lua if vim.fn.exists(':Oil') == 2 then vim.cmd.Oil(vim.fn.getcwd()) end"
-                    --
-                    $target.target
-                ]
+        let browse = $target.baseline == null and $target.position == null
+
+        let setup = if $browse or $note_session != null {
+            let notes = if $note_session == null {
+                {}
             } else {
-                [-- $target.target]
+                {note_command: $note_command, note_workspace: $note_session}
             }
+
+            let options = {browse: $browse} | merge $notes | to json --raw | to json --raw
+
+            [
+                -c
+                (
+                    'lua require("sysinit_workbench.directory_review").setup(vim.json.decode(' + $options + '))'
+                )
+            ]
+        } else {
+            []
+        }
+
+        let comparison = if $target.baseline == null {
+            [-- $target.target]
         } else {
             [-d -- $target.baseline $target.target]
         }
 
-        if $note_session == null {
-            [...$nvim ...$comparison]
-        } else {
-            [
-                env
-                $"XDG_STATE_HOME=($state_home)"
-                $"SYSINIT_REVIEW_NOTE_COMMAND=($note_command)"
-                $"SYSINIT_REVIEW_NOTE_WORKSPACE=($note_session)"
-                ...$nvim
-                -S
-                $directory_notes
-                ...$comparison
-            ]
-        }
+        let environment = if $note_session != null { [env $"XDG_STATE_HOME=($state_home)"] } else { [] }
+
+        [...$environment ...$nvim ...$setup ...$comparison]
     } else {
         let head = run-command [
             git

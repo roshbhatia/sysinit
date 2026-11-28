@@ -215,9 +215,23 @@ def main [script: path, fixture: path, ty: path] {
             let directory_split = open ($root | path join split.json)
             assert equal ($directory_split | last) $plain
             assert ('DiffviewOpen' not-in $directory_split)
-            assert ($directory_split | any {|arg| $arg | str contains 'vim.cmd.Oil(vim.fn.getcwd())'})
+            assert ($directory_split | any {|arg| $arg | str contains 'sysinit_workbench.directory_review'})
             let socket_index = ($directory_split | enumerate | where item == --listen | first | get index) + 1
             rm --force ($directory_split | get $socket_index)
+
+            let note_command = $bin | path join 'workspace notes'
+            let note_workspace = '11111111-2222-3333-4444-555555555555'
+            touch $note_command
+            let with_notes = with-env {DIFF_ROOT: $plain} {
+                ^$nu.current-exe --no-config-file $script --pane-id 7 --cwd $plain --note-session $note_workspace --note-command $note_command | complete
+            }
+            assert equal $with_notes.exit_code 0 $with_notes.stderr
+            let note_split = open ($root | path join split.json)
+            assert ($note_split | any {|arg|
+                ['sysinit_workbench.directory_review' $note_command $note_workspace] | all {|piece| $arg | str contains $piece }
+            })
+            let note_socket = ($note_split | enumerate | where item == --listen | first | get index) + 1
+            rm --force ($note_split | get $note_socket)
         }
     } catch {|failure|
         # Remove only this fixture's recorded socket, never other active editors.
