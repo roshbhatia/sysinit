@@ -1,0 +1,35 @@
+checks/editor/review-links.lua
+  s_8db7fc35d14233::t_4ebfd621beed0d 2,12-13,111,114,116
+features/wezterm/home.nix
+  s_8db7fc35d14233::t_4ebfd621beed0d 79
+checks/editor/diff-pane.nu
+  s_8db7fc35d14233::t_bdcd56330ce245 218
+  s_8db7fc35d14233::t_5ea8dc42459a7e 231
+  s_8db7fc35d14233::t_8e3a5593f91337 221-230,232-234
+features/review/open.nu
+  s_8db7fc35d14233::t_e93cab50aaabe7 245
+  s_8db7fc35d14233::t_a7c73ce7e9cc48 222,225
+  s_8db7fc35d14233::t_1c2cf509f54aaf 219-220,224,227-232,234
+  s_8db7fc35d14233::t_bdcd56330ce245 216-218,226,238,240,242-244
+  s_8db7fc35d14233::t_01849ab76bf7d6 237
+flake.nix
+  s_8db7fc35d14233::t_e6381e19f86b91 142
+flake.lock
+  s_8db7fc35d14233::t_5c6e0a9964c92c 1715-1716,1719,1738-1739,1742,1748
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5a0b00361db9f8fc386b51f2a465d602b9c15ac3",
+  "prompts": {},
+  "sessions": {
+    "s_8db7fc35d14233": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a215ce-24da-7591-890e-c407374c6ce4",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
