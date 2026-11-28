@@ -1,0 +1,23 @@
+features/launcher/nixos.nix
+  s_8db7fc35d14233::t_b1d4c7a6cc9dc2 1-151
+checks/desktop/nixos-launcher.nix
+  s_8db7fc35d14233::t_b1d4c7a6cc9dc2 3
+modules/nixos/home-manager.nix
+  s_8db7fc35d14233::t_b1d4c7a6cc9dc2 39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "db6fd7649118eafff8fea4208d2ea79443eef455",
+  "prompts": {},
+  "sessions": {
+    "s_8db7fc35d14233": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a215ce-24da-7591-890e-c407374c6ce4",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
