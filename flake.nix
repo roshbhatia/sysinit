@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    tailscale-nixpkgs.url = "github:NixOS/nixpkgs/d8b8a6de1fab544cd5e31a8b01558aff71cba89b";
     flake-parts = {
       url = "github:hercules-ci/flake-parts/57928607ea566b5db3ad13af0e57e921e6b12381";
       inputs.nixpkgs-lib.follows = "nixpkgs";

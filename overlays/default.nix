@@ -5,6 +5,14 @@
 [
   inputs.rust-overlay.overlays.default
   (_final: prev: {
+    # Use the newer Tailscale package set until the main pin includes its Go TLS fix.
+    tailscale =
+      if prev.lib.versionOlder prev.tailscale.version "1.104.7" then
+        inputs.tailscale-nixpkgs.legacyPackages.${prev.stdenv.hostPlatform.system}.tailscale
+      else
+        prev.tailscale;
+  })
+  (_final: prev: {
     sunshine =
       if prev.stdenv.hostPlatform.isLinux then
         (prev.sunshine.override {

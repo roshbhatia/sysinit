@@ -1466,6 +1466,7 @@
         "sysinit-nvim": "sysinit-nvim",
         "sysinit-wezterm": "sysinit-wezterm",
         "systems": "systems_7",
+        "tailscale-nixpkgs": "tailscale-nixpkgs",
         "tether": "tether",
         "theme-schemes": "theme-schemes",
         "traces": "traces",
@@ -1852,6 +1853,22 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "tailscale-nixpkgs": {
+      "locked": {
+        "lastModified": 1795830145,
+        "narHash": "sha256-6yU/oCQbYOakGBAWJzQNipfrcY7/5J6kZ//ItSRoHpI=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "d8b8a6de1fab544cd5e31a8b01558aff71cba89b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "d8b8a6de1fab544cd5e31a8b01558aff71cba89b",
         "type": "github"
       }
     },
