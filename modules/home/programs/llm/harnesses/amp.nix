@@ -44,7 +44,7 @@ let
 in
 {
 
-  sysinit.llm.managedFiles.amp = {
+  sysinit.managedFiles.amp = {
     path = ".config/amp/settings.json";
     format = "json";
     content = ampSettings;

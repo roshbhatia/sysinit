@@ -38,6 +38,9 @@ in
 })
 // (import ./editor { inherit pkgs homeManagerLib; })
 // (import ./host { inherit pkgs darwinConfigurations nixosConfigurations; })
+// {
+  managed-file-cache = import ./managed-files/managed-file-cache.nix { inherit pkgs; };
+}
 // (import ./packages { inherit pkgs; })
 // (import ./shell {
   inherit

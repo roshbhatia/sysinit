@@ -319,7 +319,7 @@ let
 
 in
 {
-  sysinit.llm.managedFiles.pi = {
+  sysinit.managedFiles.pi = {
     path = ".pi/agent/settings.json";
     format = "json";
     content = piManagedSettings;
@@ -327,7 +327,7 @@ in
     enforce = piKeys.declared;
   };
 
-  sysinit.llm.managedFiles.pi-mcp = {
+  sysinit.managedFiles.pi-mcp = {
     path = ".pi/agent/mcp.json";
     format = "json";
     content.mcpServers = llmLib.mcp.formatForCursor (kit.mcpServers.serversFor "pi");

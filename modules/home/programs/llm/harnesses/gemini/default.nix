@@ -38,7 +38,7 @@ let
 
 in
 {
-  sysinit.llm.managedFiles.antigravity-cli = {
+  sysinit.managedFiles.antigravity-cli = {
     path = ".gemini/antigravity-cli/settings.json";
     format = "json";
     content = {

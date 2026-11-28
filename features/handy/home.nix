@@ -18,7 +18,7 @@ in
   config = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
     sysinit.handy.customWords = import ./vocabulary.nix;
 
-    sysinit.llm.managedFiles.handy = {
+    sysinit.managedFiles.handy = {
       path = "Library/Application Support/com.pais.handy/settings_store.json";
       capture = false;
       format = "json";

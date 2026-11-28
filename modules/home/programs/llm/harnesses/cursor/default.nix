@@ -106,7 +106,7 @@ let
 in
 {
 
-  sysinit.llm.managedFiles.cursor = {
+  sysinit.managedFiles.cursor = {
     path = "${cursorConfigDir}/cli-config.json";
     format = "json";
     content = cursorSettings;

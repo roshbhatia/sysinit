@@ -6,7 +6,7 @@
 }:
 let
   inherit (pkgs) lib;
-  copilot = pkgs.sysinit.writeJSON "copilot-settings.json" home.sysinit.llm.managedFiles.copilot.content;
+  copilot = pkgs.sysinit.writeJSON "copilot-settings.json" home.sysinit.managedFiles.copilot.content;
   darwin = darwinConfigurations.lv426.config;
   darwinHome = darwin.home-manager.users.${darwin.sysinit.user.username};
   systems = [
@@ -46,14 +46,14 @@ in
 assert lib.any (package: lib.getName package == "goose-desktop") darwinHome.home.packages;
 assert darwinHome.programs.codex.settings.desktop."code-review-sidebar-layout" == "compact";
 assert !(darwinHome.programs.codex.settings.plugins ? "computer-use@openai-bundled");
-assert darwinHome.sysinit.llm.managedFiles.claude-json.content.deepLinkTerminal == "WezTerm";
+assert darwinHome.sysinit.managedFiles.claude-json.content.deepLinkTerminal == "WezTerm";
 assert
-  darwinHome.sysinit.llm.managedFiles.claude-desktop.content.preferences == {
+  darwinHome.sysinit.managedFiles.claude-desktop.content.preferences == {
     quickEntryShortcut = "off";
     quickEntryDictationShortcut = "off";
   };
 assert
-  darwinHome.sysinit.llm.managedFiles.goose-desktop.content.keyboardShortcuts == {
+  darwinHome.sysinit.managedFiles.goose-desktop.content.keyboardShortcuts == {
     focusWindow = null;
     quickLauncher = null;
   };
@@ -65,10 +65,9 @@ assert builtins.all
   ];
 assert darwin.sysinit.darwin.keybindings.reservedChords."cmd+alt+enter" == "Handy transcribe";
 assert
-  darwinHome.sysinit.llm.managedFiles.handy.content.settings.bindings.transcribe.current_binding
+  darwinHome.sysinit.managedFiles.handy.content.settings.bindings.transcribe.current_binding
   == "command+option+enter";
-assert builtins.elem "WezTerm"
-  darwinHome.sysinit.llm.managedFiles.handy.content.settings.custom_words;
+assert builtins.elem "WezTerm" darwinHome.sysinit.managedFiles.handy.content.settings.custom_words;
 assert builtins.all managedHooksValid systems;
 assert home.programs.claude-code.settings.permissions.defaultMode == "bypassPermissions";
 assert builtins.any (
@@ -84,8 +83,8 @@ assert !(home.programs.claude-code.settings ? dangerouslySkipPermissions);
 assert !(home.programs.claude-code.settings ? disabledMcpServers);
 assert home.programs.codex.settings.web_search == "live";
 assert !(home.programs.codex.settings ? tools);
-assert home.sysinit.llm.managedFiles.amp.content."amp.dangerouslyAllowAll";
-assert home.sysinit.llm.managedFiles.devin.content.permission_mode == "dangerous";
+assert home.sysinit.managedFiles.amp.content."amp.dangerouslyAllowAll";
+assert home.sysinit.managedFiles.devin.content.permission_mode == "dangerous";
 (import ../lib/nushell.nix { inherit pkgs; }) {
   name = "harness-settings";
   script = ./harness-settings-setup.nu;

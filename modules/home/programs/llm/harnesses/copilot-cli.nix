@@ -40,7 +40,7 @@ let
 in
 {
 
-  sysinit.llm.managedFiles.copilot = {
+  sysinit.managedFiles.copilot = {
     path = ".copilot/settings.json";
     format = "json";
     content = copilotSettings;

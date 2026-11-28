@@ -52,7 +52,7 @@ let
 in
 {
 
-  sysinit.llm.managedFiles.devin = {
+  sysinit.managedFiles.devin = {
     path = ".config/devin/config.json";
     format = "json";
     content = devinSettings;
@@ -62,7 +62,7 @@ in
     ];
   };
 
-  sysinit.llm.managedFiles.devin-mcp = {
+  sysinit.managedFiles.devin-mcp = {
     path = ".config/devin/mcp_config.json";
     format = "json";
     content = {

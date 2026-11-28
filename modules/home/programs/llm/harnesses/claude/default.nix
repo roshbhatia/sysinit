@@ -332,7 +332,7 @@ in
     force = true;
   };
 
-  sysinit.llm.managedFiles = {
+  sysinit.managedFiles = {
     claude-json = {
       enable = disabledBuiltinServers != [ ] || useWezTerm;
       path = ".claude.json";

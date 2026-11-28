@@ -44,7 +44,7 @@ let
 
 in
 {
-  sysinit.llm.managedFiles = {
+  sysinit.managedFiles = {
     opencode = {
       path = ".config/opencode/opencode.json";
       format = "json";

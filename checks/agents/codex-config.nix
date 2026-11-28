@@ -12,7 +12,7 @@ let
     PATH = "/profile/bin:/usr/bin:/bin"
   '';
   reconciler =
-    (import ../../modules/home/programs/llm/lib/managed-file.nix { inherit (pkgs) lib; }).mkReconciler
+    (import ../../features/managed-files/managed-file.nix { inherit (pkgs) lib; }).mkReconciler
       {
         inherit pkgs;
         files.codex = {
@@ -33,10 +33,10 @@ let
         };
       };
   bootstrapReconciler =
-    (import ../../modules/home/programs/llm/lib/managed-file.nix { inherit (pkgs) lib; }).mkReconciler
+    (import ../../features/managed-files/managed-file.nix { inherit (pkgs) lib; }).mkReconciler
       {
         inherit pkgs;
-        files.codex = home.sysinit.llm.managedFiles."codex-config.toml";
+        files.codex = home.sysinit.managedFiles."codex-config.toml";
       };
 
 in

@@ -94,6 +94,7 @@ let
           ../features/theme/options.nix
           ../modules/home/programs/llm/options.nix
           ../features/git/options.nix
+          ../features/managed-files/options.nix
         ];
       };
     };

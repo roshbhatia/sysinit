@@ -41,7 +41,7 @@ let
         instructionFile h.context
       else
         pkgs.writeText "${name}-instruction-config.json" (
-          builtins.toJSON home.sysinit.llm.managedFiles.${name}.content
+          builtins.toJSON home.sysinit.managedFiles.${name}.content
         );
     expected = pkgs.writeText "${name}-expected-instructions.md" (
       (if h ? contextStyle then instructions.makeInstructions else instructions.makeInstructionsWithStyle)

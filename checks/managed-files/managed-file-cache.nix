@@ -1,6 +1,6 @@
 { pkgs }:
 let
-  helper = import ../../modules/home/programs/llm/lib/managed-file.nix { inherit (pkgs) lib; };
+  helper = import ../../features/managed-files/managed-file.nix { inherit (pkgs) lib; };
   entry = {
     enable = true;
     path = ".config/test.json";
@@ -23,6 +23,6 @@ let
   };
 in
 pkgs.runCommand "managed-file-cache-test" { nativeBuildInputs = [ pkgs.nushell ]; } ''
-  nu --no-config-file ${./managed-file-cache.nu} ${runner}/bin/sysinit-llm-reconcile ${../../modules/home/programs/llm/lib/managed-file-cache.nu}
+  nu --no-config-file ${./managed-file-cache.nu} ${runner}/bin/sysinit-llm-reconcile ${../../features/managed-files/managed-file-cache.nu}
   touch "$out"
 ''

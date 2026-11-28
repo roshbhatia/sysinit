@@ -43,8 +43,6 @@ in
 
   mcp-client-routing = import ./mcp-routing.nix { inherit pkgs; };
 
-  managed-file-cache = import ./managed-file-cache.nix { inherit pkgs; };
-
   mcp-harness-suppression = import ./mcp-harness-suppression.nix { inherit pkgs; };
 
   skill-catalog = import ./skill-catalog.nix {

@@ -66,16 +66,6 @@ let
 
   llmLibForCoverage = import ./lib { inherit lib; };
 
-  reconciler = llmLibForCoverage.managedFile.mkReconciler {
-    inherit pkgs;
-    files = config.sysinit.llm.managedFiles;
-  };
-
-  capture = llmLibForCoverage.managedFile.mkCapture {
-    inherit pkgs;
-    files = config.sysinit.llm.managedFiles;
-  };
-
   notify = import ./runtime {
     inherit pkgs lib;
     notificationSettings = config.sysinit.llm.notifications.settings;
@@ -196,17 +186,9 @@ in
         )
       );
 
-    activation.llmManagedFiles = lib.mkIf (config.sysinit.llm.managedFiles != { }) (
-      lib.hm.dag.entryBetween [ "linkGeneration" ] [ "writeBoundary" ] ''
-        $DRY_RUN_CMD ${lib.getExe reconciler} || \
-          echo "managed-file: one or more harness configs were left untouched; see above. Activation continued." >&2
-      ''
-    );
-
     packages = [
       pkgs.meat
       pkgs.sysinit-utils
-      capture
       (import ./runtime/agents { inherit pkgs; })
       notify.script
       notify.agentRefine

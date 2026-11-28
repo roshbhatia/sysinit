@@ -183,7 +183,7 @@ in
     OLLAMA_HOST = "http://localhost:11434";
   };
 
-  sysinit.llm.managedFiles = {
+  sysinit.managedFiles = {
     goose = {
       path = ".config/goose/config.yaml";
       format = "yaml";

@@ -9,7 +9,7 @@ let
   kit = llmLib.harnessKit.mkKit { inherit lib pkgs config; };
 in
 {
-  sysinit.llm.managedFiles.strands = {
+  sysinit.managedFiles.strands = {
     path = ".strands/cli/config.json";
     format = "json";
     content = {
