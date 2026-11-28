@@ -1,0 +1,63 @@
+checks/agents/harness-instructions.nix
+  s_8db7fc35d14233::t_6b8e700662778c 44
+modules/home/programs/llm/harnesses/amp.nix
+  s_8db7fc35d14233::t_6b8e700662778c 47
+modules/home/programs/llm/harnesses/devin.nix
+  s_8db7fc35d14233::t_6b8e700662778c 55,65
+modules/home/programs/llm/harnesses/goose.nix
+  s_8db7fc35d14233::t_6b8e700662778c 186
+modules/home/programs/llm/harnesses/strands.nix
+  s_8db7fc35d14233::t_6b8e700662778c 12
+features/managed-files/home.nix
+  s_8db7fc35d14233::t_c03a5d952f7fca 13
+  s_8db7fc35d14233::t_d8fed508c1fcb5 1-12,14-22
+checks/default.nix
+  s_8db7fc35d14233::t_d8fed508c1fcb5 41-43
+checks/agents/harness-settings.nix
+  s_8db7fc35d14233::t_6b8e700662778c 9,49,51,56,68,70,86-87
+modules/home/programs/llm/harnesses/codex.nix
+  s_8db7fc35d14233::t_6b8e700662778c 135,139
+modules/home/programs/llm/harnesses/claude/default.nix
+  s_8db7fc35d14233::t_6b8e700662778c 335
+modules/home/programs/llm/harnesses/opencode/default.nix
+  s_8db7fc35d14233::t_6b8e700662778c 47
+modules/home/default.nix
+  s_8db7fc35d14233::t_d8fed508c1fcb5 17
+features/managed-files/options.nix
+  s_8db7fc35d14233::t_28deb594400732 126
+  s_8db7fc35d14233::t_6b8e700662778c 1-6,11-125,127-132
+  s_8db7fc35d14233::t_c03a5d952f7fca 7-10
+modules/home/programs/llm/harnesses/copilot-cli.nix
+  s_8db7fc35d14233::t_6b8e700662778c 43
+modules/home/programs/llm/harnesses/gemini/default.nix
+  s_8db7fc35d14233::t_6b8e700662778c 41
+flake/default.nix
+  s_8db7fc35d14233::t_c03a5d952f7fca 97
+modules/home/programs/llm/harnesses/pi/default.nix
+  s_8db7fc35d14233::t_6b8e700662778c 322,330
+features/handy/home.nix
+  s_8db7fc35d14233::t_6b8e700662778c 21
+checks/agents/codex-config.nix
+  s_8db7fc35d14233::t_6b8e700662778c 39
+  s_8db7fc35d14233::t_90428f7e92da87 15,36
+modules/home/programs/llm/harnesses/cursor/default.nix
+  s_8db7fc35d14233::t_6b8e700662778c 109
+checks/managed-files/managed-file-cache.nix
+  s_8db7fc35d14233::t_90428f7e92da87 1-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5ef1de5afbaa8c49bc709537bfb0e502e2d92c44",
+  "prompts": {},
+  "sessions": {
+    "s_8db7fc35d14233": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a215ce-24da-7591-890e-c407374c6ce4",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "Roshan Bhatia <rshnbhatia@gmail.com>"
+    }
+  }
+}
