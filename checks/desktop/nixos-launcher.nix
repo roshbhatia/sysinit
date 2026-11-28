@@ -1,6 +1,6 @@
 { pkgs, home }:
 let
-  module = import ../../modules/nixos/home/launcher.nix {
+  module = import ../../features/launcher/nixos.nix {
     inherit (pkgs) lib;
     config = home;
     pkgs = pkgs // {

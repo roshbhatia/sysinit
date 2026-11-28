@@ -36,7 +36,7 @@
         ]
         ++ lib.optionals values.isDesktop [
           ./home/desktop.nix
-          ./home/launcher.nix
+          ../../features/launcher/nixos.nix
           ./home/streaming.nix
           ../../features/firefox/home.nix
           ../../features/obsidian/home.nix

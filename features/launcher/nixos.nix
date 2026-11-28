@@ -6,7 +6,7 @@
 }:
 
 let
-  themeLib = import ../../../features/theme/colors.nix { inherit lib; };
+  themeLib = import ../theme/colors.nix { inherit lib; };
   c = themeLib.colorsOf config;
 
   wezterm = "${pkgs.wezterm}/bin/wezterm";
@@ -16,7 +16,7 @@ let
 
   sy = "/etc/profiles/per-user/${config.home.username}/bin/sy";
 
-  menuPrelude = builtins.readFile ./launcher/menu-prelude.lua;
+  menuPrelude = builtins.readFile ./menus/menu-prelude.lua;
 
   render =
     path: replacements:
@@ -53,23 +53,23 @@ in
       history = true
     '';
 
-    "elephant/menus/panes.lua".text = renderMenu ./launcher/panes.lua {
+    "elephant/menus/panes.lua".text = renderMenu ./menus/panes.lua {
       "@jq@" = jq;
       "@wezterm@" = wezterm;
     };
 
-    "elephant/menus/sessions.lua".text = renderMenu ./launcher/sessions.lua {
+    "elephant/menus/sessions.lua".text = renderMenu ./menus/sessions.lua {
       "@jq@" = jq;
       "@sy@" = sy;
       "@ty@" = "${pkgs.sysinit-utils}/bin/ty";
     };
 
-    "elephant/menus/tabs.lua".text = renderMenu ./launcher/tabs.lua {
+    "elephant/menus/tabs.lua".text = renderMenu ./menus/tabs.lua {
       "@firefox-tabs@" = fftabs;
       "@jq@" = jq;
     };
 
-    "elephant/menus/windows.lua".text = renderMenu ./launcher/windows.lua {
+    "elephant/menus/windows.lua".text = renderMenu ./menus/windows.lua {
       "@head@" = "${pkgs.coreutils}/bin/head";
       "@jq@" = jq;
       "@ls@" = "${pkgs.coreutils}/bin/ls";
@@ -135,7 +135,7 @@ in
       provider = "providerlist"
     '';
 
-    "walker/themes/sysinit/style.css".text = render ./launcher/style.css {
+    "walker/themes/sysinit/style.css".text = render ./menus/style.css {
       "@accent@" = c.base0D;
       "@background-alt@" = c.base01;
       "@background-selection@" = c.base02;
